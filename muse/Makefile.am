@@ -21,21 +21,4 @@
 #
 #---------------------------------------------------------------------------
 
-include $(top_srcdir)/Makefile.global.am
-
-AM_CXXFLAGS += -Iinclude
-
-noinst_LIBRARIES = libmuse.a
-
-# libmuse_a_LDFLAGS = 
-libmuse_a_LIBADD = $(STDCPP)
-
-libmuse_a_SOURCES = src/Agent.cpp\
-	src/Event.cc\
-	src/Simulation.cpp\
-	src/Time.cpp\
-	src/Communicator.cpp\
-	src/Scheduler.cpp\
-	src/State.cpp
-
-# end of Makefile.am
+SUBDIRS = kernel

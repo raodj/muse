@@ -8,7 +8,7 @@
 //---------------------------------------------------------------------------
 
 #include <set>
-#include "../../include/Agent.h"
+#include "Agent.h"
 using std::set;
 
 /** The muse namespace.

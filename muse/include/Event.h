@@ -8,8 +8,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../include/Time.h"
-#include "../../include/Agent.h"
+#include "Time.h"
+#include "Agent.h"
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
  *
