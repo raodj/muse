@@ -1,7 +1,6 @@
 #ifndef MUSE_AGENT_H
 #define MUSE_AGENT_H
 
-
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -29,46 +28,10 @@
 #include <exception>
 #include "State.h"
 #include "Time.h"
+#include "DataTypes.h"
 
-class Event;
-
-/** The muse namespace.
-    Everything in the api is in the muse namespace.
-*/
-namespace muse { //begin namespace declaration 
-  
-  /** The EventContainer.
-
-      Holds a collection of events, this is basically a set of
-      Events. Always use the EventContainer type, because the
-      underlying implamentation could change.
-  */
-  typedef std::set<Event*> EventContainer;
-  
-  
-  
-  /** The AgentID struct.
-      
-      This is used to store the id of an agent. muse uses this AgentID
-      struct to make sure the client know exactly what the param of a
-      method is asking for. For more details check out the method
-      Agent::getAgentID().  @see getAgentID()
-      
-  */
-  typedef unsigned int AgentID; 
-
-  /** The Stream struct.
-      
-    @todo not sure if this will remain a struct or become a
-    class. More investigation is required.
-
-    @todo move to new header Stream.h, will be a class
-  */
-  typedef struct StreamType{
-    std::istream is;
-    std::ostream os;
-  } Stream;
-  
+BEGIN_NAMESPACE(muse);
+    
 /** The base class for all agents in a simulation.
  
     <p>This class represents the base class from which all
@@ -78,7 +41,7 @@ namespace muse { //begin namespace declaration
     some of the methods in this class. Refer to the documentation
     associated with each method for details on the functionality and
     requirements of the variuos methods in this class.</p>
-    
+        
     <p>To create an agent for your simulation, make sure you derive
     from this Agent Class, Also be sure to override all methods that
     are declared virtual.</p>
@@ -99,7 +62,7 @@ public:
         @throw std::exception This method throws an exception when
         errors occur.
     */
-    virtual void initialize();
+    virtual void initialize() throw (std::exception);
         
     /** The finalize method.
      
@@ -111,7 +74,7 @@ public:
         @note Whenever a new agent is created, the derived child class
         should override this method.
     */
-    virtual void finalize();
+    virtual void finalize() throw ();
     
     /** The executeTask method.
      
@@ -121,8 +84,8 @@ public:
      
         @note That this method must not modify the events passed in.
         
-        @note Whenever a new agent is created, clients should override
-        this method.
+        @note Whenever a new agent is implemented by extending this
+        base class, the derived class should override this method.
         
         @param events The set of concurrent (events at the same time)
         events that this method should process.
@@ -163,13 +126,14 @@ public:
         
         Note: AgentID that is returned should not be modified in anyway.
         
-        @return AgentID * 
+        @return AgentID 
         @see AgentID
         
     */
-    const AgentID * getAgentID();
+    const AgentID& getAgentID() const;
         
-    /** The getSimulationTime method returns a pointer to Time, which contains NOW time by default.
+    /** The getSimulationTime method returns a pointer to Time, which
+        contains NOW time by default.
      
         This method is used to return a pointer to a Time struct which
         contains the simulation time.  By default it will return the
@@ -189,101 +153,127 @@ public:
         
         @see TimeType
     */
-    const Time * getSimulationTime(TimeType type);
+    const Time* getSimulationTime(TimeType type) const;
         
     /** This method is used for dynamically creating agents. 
-     *
-     * This methos is used for creating agents during the simulation. When an agent is created
-     * via this method, it will automatically be registered to the Simulation Engine of its parent agent.
-     * Parent Agent is the agent that is creating the agent. In the future, this restriction might be lefted, but
-     * for now it's what it is. Once this agent is registered, it losses all ties to the parent agent.
-     *
-     * Note: the Agent passed in will not be modified in anyway, except the assignment of an AgentID.
-     *
-         *@param agent this is of type Agent.
-         *@return bool true if the operation was successful 
-         *@see Agent
-         *@todo remove the const from the param
-         */
-	bool createAgent(const Agent & agent);
+     
+        This methos is used for creating agents during the
+        simulation. When an agent is created via this method, it will
+        automatically be registered to the Simulation Engine of its
+        parent agent.  Parent Agent is the agent that is creating the
+        agent. In the future, this restriction might be lefted, but
+        for now it's what it is. Once this agent is registered, it
+        losses all ties to the parent agent.
+     
+        Note: the Agent passed in will not be modified in anyway,
+        except the assignment of an AgentID.
+     
+        @param agent this is of type Agent.
         
-        /** The migrateAgent method will move this agent to another Simulation Engine?
-         *
-         * @todo figure out if we want to use an AgentID or a SimulatorID. 
-         *
-         * @param ? 
-         * @return bool true if the operation was a success.
-         * @see ?
-         */
-	bool migrateAgent(const AgentID & otherAgentID);
+        @return bool true if the operation was successful
         
-        /** The unregisterAgent method is used to remove this agent from the simulation.
-         *
-         * Not much to document about this method. Once this is called there will be no way
-         * to get this agent back, so use this with CAUTION! When this is called all info 
-         * containing this agent will be removed, this includes State info, which could lead to
-         * a rollback.
-         *
-         *@return bool true if operation was successful.
-         *@todo figure out a way to make sure simulation will not go into rollback because of this call.
-         *
-         */
-	bool unregisterAgent();
+        @see Agent
         
-        /** The createStream method, will return a pointer to a Stream type.
-         *
-         * Note sure what this Stream type will be yet???
-         *@todo fix this methods doc, when I have a better idea of the Stream type.
-         *
-         *@return Stream *
-         *@see Stream
-         */
-	Stream* createStreamer();
+        @todo remove the const from the param
+    */
+    bool createAgent(const Agent & agent);
         
-        /** The cloneState method will return a State * which will be a copy of this agents State.
-         *
-         * Since every agent has a State there is no need to pass in the State object to be cloned, 
-         * this info can be derived from the Agent object. This method will return a State object.
-         * This method will simply call State.getClone(), which should be implemented by the client.
-         * 
-         *@todo remove the params because it is not needed.
-         *@todo figure out if we really need the return type to be const
-         *@see State()
-         */
-	const State* cloneState(const State & state);
+    /** The migrateAgent method will move this agent to another
+        Simulation Engine?
+     
+        @todo figure out if we want to use an AgentID or a SimulatorID. 
+     
+        @param ?
+      
+        @return bool true if the operation was a success.
         
-        /** The serialize method is used to serialize this agent to a given output stream.
-         *
-         *@todo figure out exactly what it means to serial an agent????
-         *
-         *@param os this is of type std::ostream
-         *@return bool true if operation is successful
-         */
-	bool serialize(std::ostream & os);
+        @see ?
+    */
+    bool migrateAgent(const AgentID & otherAgentID);
+        
+    /** The unregisterAgent method is used to remove this agent from
+        the simulation.
+        
+        Not much to document about this method. Once this is called
+        there will be no way to get this agent back, so use this with
+        CAUTION! When this is called all info containing this agent
+        will be removed, this includes State info, which could lead to
+        a rollback.
+        
+        @return bool true if operation was successful.
+        
+        @todo figure out a way to make sure simulation will not go
+        into rollback because of this call.
+    */
+    bool unregisterAgent();
+        
+    /** The createStream method, will return a pointer to a Stream type.
 	
-        /** The ctor.
-         *
-         * The ctor is not supposed to be overriden.
-         * @todo make sure that the above statement is a accurate statement.
-         */
-	Agent() ;
+        Note sure what this Stream type will be yet???
+	
+        @todo fix this methods doc, when I have a better idea of the
+        Stream type.
         
-        /** The dtor.
-         *
-         * The dtor is not supposed to be overriden.
-         * @todo make sure that the above statement is a accurate statement.
-         */
-	~Agent();
+        @return Stream *
+        @see Stream
+    */
+    Stream* createStream(const std::string& name,
+			 const std::ios_base::openmode mode);
+    
+    /** The cloneState method will return a State * which will be a
+        copy of this agents State.
+        
+        Since every agent has a State there is no need to pass in the
+        State object to be cloned, this info can be derived from the
+        Agent object. This method will return a State object.  This
+        method will simply call State.getClone(), which should be
+        implemented by the client.
+        
+        @todo remove the params because it is not needed.
+        
+        @todo figure out if we really need the return type to be const
+        
+        @see State()
+    */
+    const State* cloneState(const State & state) const;
+    
+    /** The serialize method is used to serialize this agent to a
+        given output stream.
+        
+        @todo figure out exactly what it means to serial an agent????
+        
+        @param os this is of type std::ostream
+        
+        @return bool true if operation is successful
+    */
+    bool serialize(std::ostream & os) const;
+	
+    /** The constructor.
+        
+        The ctor is not supposed to be overriden.
+        @todo make sure that the above statement is a accurate statement.
+    */
+    Agent() ;
+    
+    /** The destructor.
+     
+        The dtor is not supposed to be overriden.
+        @todo make sure that the above statement is a accurate statement.
+    */
+    ~Agent();
+    
 private:
-        /** The AgentID type myID.
-         *
-         * This is inialized when the agent is registered to a simulator.
-         * Only one way to access this, use the getAgentID method.
-         *@see getAgentID()
-         */
-        AgentID myID;
+    /** The AgentID type myID.
+     
+        This is inialized when the agent is registered to a simulator.
+        Only one way to access this, use the getAgentID method.
+      
+        @see getAgentID()
+    */
+    AgentID myID;
 };
 
-}//end namespace declaration
+END_NAMESPACE(muse);
 
 #endif
+ 
