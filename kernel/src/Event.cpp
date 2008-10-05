@@ -1,5 +1,5 @@
 #ifndef _MUSE_EVENT_H_
-#include "../../include/Event.h"
+#include "Event.h"
 #endif
 
 using muse::AgentID;

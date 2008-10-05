@@ -1,7 +1,9 @@
 #ifndef _MUSE_COMMUNICATOR_H_
 #define _MUSE_COMMUNICATOR_H_
 
-using namespace muse;
+#include "Simulation.h"
+
+namespace muse {
 class Communicator {
 
 class Event;
@@ -20,5 +22,6 @@ public:
 
 	
 };
+}
 
 #endif

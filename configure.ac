@@ -120,9 +120,10 @@ AC_DEFUN([AC_PROG_ICC],
 # Checks for programs.
 AC_PROG_MPI
 AC_MSG_CHECKING([properties of MPI compiler])
-AC_MSG_RESULT([$CXX)]
+AC_MSG_RESULT([$CXX])
 AC_PROG_CXX
-AC_PROG_CC
+AC_LINK_STDCPP
+AC_PROG_ICC
 AC_PROG_RANLIB
 
 # Put object files in corresponding directories even if make is not
@@ -162,7 +163,8 @@ AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([bzero floor gethostbyname gethostname gethrtime gettimeofday memset mkdir modf pow rint socket sqrt strcasecmp strchr strdup strstr strtol])
 
-AC_CONFIG_FILES([kernel/Makefile])
+AC_CONFIG_FILES([Makefile\
+	kernel/Makefile])
 
 AC_OUTPUT
 

@@ -1,8 +1,11 @@
-#ifndef _MUSE_COMMUNICATOR_H_
-#include "../include/Communicator.h"
-#endif
+#ifndef MUSE_COMMUNICATOR_CPP
+#define MUSE_COMMUNICATOR_CPP
 
-void Communicator::Communicator(){}
+#include "Communicator.h"
+
+using namespace muse;
+
+Communicator::Communicator(){}
 
 void Communicator::initialize(){}
 
@@ -12,4 +15,6 @@ void Communicator::sendMessage(char *, SimulatorID *){}
 
 void Communicator::sendMessageToAll(char *){}
 
-void Communicator::~Communicator(){}
+Communicator::~Communicator(){}
+
+#endif
