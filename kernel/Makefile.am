@@ -30,7 +30,10 @@ noinst_LIBRARIES = libmuse.a
 # libmuse_a_LDFLAGS = 
 libmuse_a_LIBADD = $(STDCPP)
 
-libmuse_a_SOURCES = src/Agent.cpp\
+libmuse_a_SOURCES = \
+	src/Compatibility.cpp\
+	src/Utilities.cpp\
+	src/Agent.cpp\
 	src/Event.cc\
 	src/Simulation.cpp\
 	src/Time.cpp\
