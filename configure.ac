@@ -27,6 +27,8 @@ AC_INIT([muse], [0.1.0], [raodm@muohio.edu])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
+AC_REQUIRE_CPP
+
 # The macros above automatically fill in some CXXFLAGS so we'll undo it.
 CXX=mpicxx
 CFLAGS=""
@@ -76,13 +78,11 @@ AC_DEFUN([AC_LINK_STDCPP],
      AC_LINK_IFELSE(
          [AC_LANG_PROGRAM([[#include "mpi.h"]],[[std::cout << "Hello";]])],
          [AC_MSG_RESULT([no])
-	     STDCPP=""
 	 ],
 	 [AC_MSG_RESULT([yes])
-	     STDCPP="-lstdc++"
+	     LDFLAGS="-lstdc++ $LDFLAGS"
 	 ])
 
-     AC_SUBST(STDCPP)
 ])
 
 # Check if we are using icc to supress a couple of useless remarks
@@ -118,12 +118,12 @@ AC_DEFUN([AC_PROG_ICC],
 ])
 
 # Checks for programs.
+AC_PROG_ICC
+AC_LINK_STDCPP
+AC_PROG_CXX
 AC_PROG_MPI
 AC_MSG_CHECKING([properties of MPI compiler])
 AC_MSG_RESULT([$CXX])
-AC_PROG_CXX
-AC_LINK_STDCPP
-AC_PROG_ICC
 AC_PROG_RANLIB
 
 # Put object files in corresponding directories even if make is not
