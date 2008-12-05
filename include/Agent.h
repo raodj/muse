@@ -26,11 +26,10 @@
 #include <set>
 #include <iostream>
 #include <exception>
-#include "State.h"
-#include "Time.h"
+
 #include "DataTypes.h"
 
-BEGIN_NAMESPACE(muse);
+namespace muse { //begin namespace declaration 
     
 /** The base class for all agents in a simulation.
  
@@ -92,7 +91,7 @@ public:
         
         @see EventContainer
     */
-    virtual void executeTask(const EventContainer & events);
+    virtual void executeTask(const EventContainer * events);
 
     //------------Provided by muse----below-----------------//
     
@@ -109,7 +108,7 @@ public:
         
         @see Event()
     */
-    bool scheduleEvent(const Event & e);
+    bool scheduleEvent(const Event * e);
     
     /** The getAgentID method returns a pointer to AgentID struct.
         
@@ -132,121 +131,7 @@ public:
     */
     const AgentID& getAgentID() const;
         
-    /** The getSimulationTime method returns a pointer to Time, which
-        contains NOW time by default.
-     
-        This method is used to return a pointer to a Time struct which
-        contains the simulation time.  By default it will return the
-        simulation time of NOW, optional params will be of type Enum
-        TimeType.  Possible value to pass in are enum { NOW,
-        START_TIME, END_TIME}; START_TIME is the time when the
-        simualtion started, note does not have to be zero (0), but
-        does have to be a positive. END_TIME is the time when the
-        simulation will end, again this must be a positive value thats
-        equal to or greater then the START_TIME.
-        
-        @param type this is an Enum called TimeType.
-        
-        @return Time *
-        
-        @see Time()
-        
-        @see TimeType
-    */
-    const Time* getSimulationTime(TimeType type) const;
-        
-    /** This method is used for dynamically creating agents. 
-     
-        This methos is used for creating agents during the
-        simulation. When an agent is created via this method, it will
-        automatically be registered to the Simulation Engine of its
-        parent agent.  Parent Agent is the agent that is creating the
-        agent. In the future, this restriction might be lefted, but
-        for now it's what it is. Once this agent is registered, it
-        losses all ties to the parent agent.
-     
-        Note: the Agent passed in will not be modified in anyway,
-        except the assignment of an AgentID.
-     
-        @param agent this is of type Agent.
-        
-        @return bool true if the operation was successful
-        
-        @see Agent
-        
-        @todo remove the const from the param
-    */
-    bool createAgent(const Agent & agent);
-        
-    /** The migrateAgent method will move this agent to another
-        Simulation Engine?
-     
-        @todo figure out if we want to use an AgentID or a SimulatorID. 
-     
-        @param ?
-      
-        @return bool true if the operation was a success.
-        
-        @see ?
-    */
-    bool migrateAgent(const AgentID & otherAgentID);
-        
-    /** The unregisterAgent method is used to remove this agent from
-        the simulation.
-        
-        Not much to document about this method. Once this is called
-        there will be no way to get this agent back, so use this with
-        CAUTION! When this is called all info containing this agent
-        will be removed, this includes State info, which could lead to
-        a rollback.
-        
-        @return bool true if operation was successful.
-        
-        @todo figure out a way to make sure simulation will not go
-        into rollback because of this call.
-    */
-    bool unregisterAgent();
-        
-    /** The createStream method, will return a pointer to a Stream type.
-	
-        Note sure what this Stream type will be yet???
-	
-        @todo fix this methods doc, when I have a better idea of the
-        Stream type.
-        
-        @return Stream *
-        @see Stream
-    */
-    Stream* createStream(const std::string& name,
-			 const std::ios_base::openmode mode);
-    
-    /** The cloneState method will return a State * which will be a
-        copy of this agents State.
-        
-        Since every agent has a State there is no need to pass in the
-        State object to be cloned, this info can be derived from the
-        Agent object. This method will return a State object.  This
-        method will simply call State.getClone(), which should be
-        implemented by the client.
-        
-        @todo remove the params because it is not needed.
-        
-        @todo figure out if we really need the return type to be const
-        
-        @see State()
-    */
-    const State* cloneState(const State & state) const;
-    
-    /** The serialize method is used to serialize this agent to a
-        given output stream.
-        
-        @todo figure out exactly what it means to serial an agent????
-        
-        @param os this is of type std::ostream
-        
-        @return bool true if operation is successful
-    */
-    bool serialize(std::ostream & os) const;
+ 
 	
     /** The constructor.
         
@@ -271,9 +156,16 @@ private:
         @see getAgentID()
     */
     AgentID myID;
+
+	 /** The AgentID type myID.
+     
+        This is inialized when the agent is registered to a simulator.
+        Only one way to access this, use the getAgentID method.
+      
+        @see getAgentID()
+    */
+	Time _LVT;
 };
-
-END_NAMESPACE(muse);
-
+}//end namespace declaration
 #endif
  
