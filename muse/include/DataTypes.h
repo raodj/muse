@@ -24,11 +24,14 @@
 //---------------------------------------------------------------------------
 
 #include "Utilities.h"
+#include <set>
 
+using namespace std;
 BEGIN_NAMESPACE(muse);
 
 // Forward declaration to define EventContainer
 class Event;
+class Agent;
 
 /** The EventContainer.
     
@@ -48,6 +51,8 @@ typedef std::set<Event*> EventContainer;
 */
 typedef unsigned int AgentID; 
 
+typedef std::set<AgentID*> AgentIDContainer;
+
 /** The Stream struct.
     
     @todo not sure if this will remain a struct or become a
@@ -59,6 +64,15 @@ typedef struct StreamType{
     std::istream is;
     std::ostream os;
 } Stream;
+
+
+typedef double Time;
+typedef unsigned int SimulatorID;
+
+
+typedef set<Agent*> AgentContainer;
+
+
 
 END_NAMESPACE(muse);
 

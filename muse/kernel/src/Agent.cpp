@@ -25,66 +25,29 @@
 
 #include "Agent.h"
 
-using namespace muse;
-
 void
 Agent::initialize() throw (std::exception) {}
 
 void
-Agent::executeTask(const EventContainer &events){}
+Agent::executeTask(const EventContainer *events){}
 
 void
 Agent::finalize() throw () {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(){}
+Agent::Agent(AgentID & id) : _myID(id), _LVT(0) {}
 
 Agent::~Agent() {}
 
-const State*
-Agent::cloneState(const State &state) const {
-    return NULL;
+const 
+AgentID& Agent::getAgentID(){
+    return _myID;
 }
 
-bool
-Agent::createAgent(const Agent &agent) {
-    return false;
+bool 
+Agent::scheduleEvent( Event *e){
+    return (SimulationKernel::getSimulator()).scheduleEvent(e);
 }
 
-Stream*
-Agent::createStream(const std::string& name,
-                    const std::ios_base::openmode mode) {
-    return NULL;
-}
-
-const AgentID&
-Agent::getAgentID() const {
-    return AgentID(-1);
-}
-
-const Time*
-Agent::getSimulationTime(TimeType type) const {
-    return NULL;
-}
-
-bool
-Agent::migrateAgent(const AgentID &otherAgentID) {
-    return false;
-}
-
-bool
-Agent::scheduleEvent(const Event &e) {
-    return false;
-}
-
-bool
-Agent::serialize(std::ostream &is) const{
-    return false;
-}
-
-bool
-Agent::unregisterAgent() {
-    return false;
-}
 
 #endif
