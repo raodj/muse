@@ -7,9 +7,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <set>
 #include "Agent.h"
-using std::set;
+#include "Scheduler.h"
+#include "Event.h"
 
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
@@ -17,20 +17,20 @@ using std::set;
  */
 namespace muse { //begin namespace declaration 
 
-        /** The SimulatorID struct.
-         * This is used to store the id of a simulator(Singleton). muse uses this SimulatorID struct to make sure the client
-         * know exactly what the param of a method is asking for. For more details check out the method getSimulatorID(). 
-         * @see getSimulatorID()
-         *
-         */
-	typedef unsigned int SimulatorID;
+	//	/** The SimulatorID struct.
+	//	 * This is used to store the id of a simulator(Singleton). muse uses this SimulatorID struct to make sure the client
+	//	 * know exactly what the param of a method is asking for. For more details check out the method getSimulatorID(). 
+	//	 * @see getSimulatorID()
+	//	 *
+	//	 */
+	//typedef unsigned int SimulatorID;
 
-        /** The AgentContainer.
-         * Holds a collection of agents, this is basically a set of Agents. Always 
-         * use the AgentContainer type, because the underlying implamentation could change.
-         *
-         */
-	typedef set<Agent> AgentContainer;
+	//	/** The AgentContainer.
+	//	 * Holds a collection of agents, this is basically a set of Agents. Always 
+	//	 * use the AgentContainer type, because the underlying implamentation could change.
+	//	 *
+	//	 */
+	//typedef set<Agent> AgentContainer;
 
         
 /** The Simulation Class.
@@ -66,7 +66,7 @@ public:
          *@see Agent()
          *@see AgentID 
          */
-	 const AgentID* registerAgent( const Agent * agent) const;
+	 bool registerAgent(Agent * agent);
         
         /** The getRegisteredAgents method.
          * When this method is invoked, it will return all agents that are registered to a given simulator.
@@ -83,12 +83,21 @@ public:
          * if there is, the client will receive a pointer to that object, otherwise a Simulation object is created then 
          * the client will receive a pointer to that object. The client will need this object to get the ball rolling.
          * 
-         *
-         *@return Simulation* the pointer to the Simulatin object.
+         * @return Simulation* the pointer to the Simulatin object.
          *
          */
-        static Simulation* getSimulator();
+        static Simulation& getSimulator();
         
+		/** The scheduleEvent method.
+         * Agents actually use this method to schedule events.
+		 * Users should not be using this method, when possible use the 
+		 * Agent method to avoid potential problems.
+		 *
+		 * @param e a pointer to the event you wish to schedule
+         * @return bool true if process is successful.
+         */
+		bool Simulation::scheduleEvent( Event *e);
+
         /**The start method.
          * When this method is invoked the client should have all agents registered. The simulation will start.
          *
@@ -102,7 +111,6 @@ public:
          *
          */
 		void setStartTime(const Time & startTime);
-
 
         /** The stop method.
          * When this method is invoked the simulation will come to a big STOP. muse will go through and finalize all 
@@ -122,15 +130,25 @@ public:
          * Cleans up all mess created by muse.
          *
          */
-	~Simulation();
+		~Simulation();
+
+		const Time& getTime();
+        const Time& getStartTime();
+        const Time& getEndTime();
+	
+protected:
+	//the ctor method, must be private (singleton pattern)
+	Simulation(Time &, SimulatorID&);
+    Simulation(const Simulation &);
+    Simulation& operator=(const Simulation&);
 
 private:
-        //the ctor method, must be private (singleton pattern)
-	Simulation();
-        //used to contain all agents registered to this simulator
+    //used to contain all agents registered to this simulator
 	AgentContainer allAgents;
-        //usually the MPI_Rank, otherwise a globally unique id for the simulator. 
-	SimulatorID myID;
+    //usually the MPI_Rank, otherwise a globally unique id for the simulator. 
+	SimulatorID _myID;
+    Time _LGVT, _startTime, _endTime;
+    Scheduler scheduler;
 };
 
 }//end namespace declaration
