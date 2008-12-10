@@ -8,13 +8,13 @@
 //
 //---------------------------------------------------------------------------
 
-#include "Time.h"
-#include "Agent.h"
+
+#include "DataTypes.h"
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
  *
  */
-namespace muse { //begin namespace declaration 
+BEGIN_NAMESPACE(muse); //begin namespace declaration
 
 // Forward declaration for agentID to keep the compiler happy.
 //typedef struct AgentIDType AgentID;
@@ -39,16 +39,24 @@ public:
          *@param id this is of type AgentID and its a reference
          *@param deliveryTime this is of type Time which is also a reference. 
          */
-	explicit Event(muse::AgentID &id, Time & time);
-	~Event();
+	 explicit Event(const AgentID & senderID,const AgentID & receiverID,
+                   const Time & sentTime, const Time & receiveTime);
+
+    const AgentID & getSenderAgentID();
+
+    const AgentID & getReceiverAgentID();
+
+    const Time & getSentTime();
+
+    const Time & getReceiveTime();
+
         
-private:
-    //The agent receiving the event
-	AgentID receiverAgentID;
-    //the time for which this event should be delivered.
-    Time deliveryTime, sentTime; 
+protected:
+    AgentID senderAgentID, receiverAgentID;
+    Time sentTime,receiveTime;
+
 };
 
-}//end namespace declaration
+END_NAMESPACE(muse);//end namespace declaration
 
 #endif

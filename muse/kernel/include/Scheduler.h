@@ -3,18 +3,17 @@
 
 #include "Event.h"
 #include "DataTypes.h"
-//#include "Simulation.h"
 #include <queue>
 #include <map>
 
 using namespace std;
-using namespace muse;
+BEGIN_NAMESPACE(muse);
 
 //compares delivery times. puts the one with the smaller
 //ahead.
-
 class eventComp
-{
+{ 
+   
 public:
   eventComp(){}
   bool operator() ( Event *lhs,  Event *rhs) const
@@ -23,11 +22,11 @@ public:
   }
 };
 
-typedef priority_queue <Event*, vector<Event*>, eventComp> EventPQ;
+
+typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
 typedef map<AgentID, EventPQ*> ScheduleMap;
-
+ 
 class Scheduler {
-
 public:
 	Scheduler();
 	~Scheduler();
@@ -35,10 +34,11 @@ public:
 	bool scheduleEvent( Event *);
 	bool scheduleEvents( EventContainer *);
 	EventContainer* getNextEvents(const AgentID &);
-    bool addAgentToScheduler(const AgentID &);
+        bool addAgentToScheduler(const AgentID &);
  
 private:
     ScheduleMap schedule;
 };
 
+END_NAMESPACE(muse);
 #endif

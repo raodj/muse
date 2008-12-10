@@ -24,6 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "Agent.h"
+using namespace muse;
 
 void
 Agent::initialize() throw (std::exception) {}
@@ -35,7 +36,7 @@ void
 Agent::finalize() throw () {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID & id) : _myID(id), _LVT(0) {}
+Agent::Agent(AgentID & id, State & agentState) : _myID(id), _myState(agentState),_LVT(0) {}
 
 Agent::~Agent() {}
 
@@ -46,7 +47,7 @@ AgentID& Agent::getAgentID(){
 
 bool 
 Agent::scheduleEvent( Event *e){
-    return (SimulationKernel::getSimulator()).scheduleEvent(e);
+    return (Simulation::getSimulator()).scheduleEvent(e);
 }
 
 

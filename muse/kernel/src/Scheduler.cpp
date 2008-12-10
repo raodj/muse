@@ -1,7 +1,9 @@
-#ifndef _MUSE_SCHEDULER_H_
-#include "../include/Scheduler.h"
-#endif
+#ifndef _MUSE_SCHEDULER_CPP_
+#define _MUSE_SCHEDULER_CPP_
 
+#include "Scheduler.h"
+
+using namespace muse;
 Scheduler::Scheduler(){}
 
 bool
@@ -43,8 +45,9 @@ EventContainer* Scheduler::getNextEvents(const AgentID & agent){
     return events;
 }
 
-bool 
-Scheduler::scheduleEvent( Event *e){
+
+
+bool Scheduler::scheduleEvent( Event *e){
     //first lets look up the receiver agent
     std::cout << "Scheduler Added event for agent: "<<e->getReceiverAgentID() << std::endl;
     //make sure the recevier agent has an entry
@@ -53,8 +56,7 @@ Scheduler::scheduleEvent( Event *e){
     return true;
 }
 
-bool 
-Scheduler::scheduleEvents( EventContainer *events){
+bool Scheduler::scheduleEvents( EventContainer *events){
     EventContainer::iterator it;
     for(it=events->begin(); it != events->end(); ++it){
         schedule[(*it)->getReceiverAgentID()]->push((*it));
@@ -62,4 +64,14 @@ Scheduler::scheduleEvents( EventContainer *events){
     return true;
 }
 
-Scheduler::~Scheduler(){}
+Scheduler::~Scheduler(){
+    //time to delete EventQ
+    ScheduleMap::iterator it;
+    for(it=schedule.begin(); it != schedule.end(); ++it){
+        std::cout << "Deleting entry for Agent: " << (it->first) << std::endl;
+        delete it->second;
+    }//end for
+    
+}//end Scheduler
+
+#endif

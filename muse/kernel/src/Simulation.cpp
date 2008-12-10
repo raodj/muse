@@ -5,7 +5,10 @@
 
 using namespace muse;
 
-const AgentContainer* Simulation::getRegisteredAgents(){ 
+Simulation::Simulation(Time & lgvt, SimulatorID & myID): _LGVT(lgvt), _myID(myID){}
+
+
+const AgentContainer& Simulation::getRegisteredAgents(){
 	return allAgents;
 }
 
@@ -26,8 +29,8 @@ bool Simulation::registerAgent(  muse::Agent* agent)  {
 //fixed to work with MPI
 Simulation& 
 Simulation::getSimulator(){
-    Time startGVT = 0;SimulatorID myID = 1;
-    static Simulation kernel(startGVT,myID);
+    Time startLGVT = 0;SimulatorID myID = 0;
+    static Simulation kernel(startLGVT,myID);
     return kernel;
 }
 
@@ -79,17 +82,17 @@ Simulation::setStopTime(const Time & stopTime){
 }
 
 const Time& 
-SimulationKernel::getTime(){
+Simulation::getTime(){
     return _LGVT;
 }
 
 const Time& 
-SimulationKernel::getStartTime(){
+Simulation::getStartTime(){
     return _startTime;
 }
 
 const Time& 
-SimulationKernel::getEndTime(){
+Simulation::getEndTime(){
     return _endTime;
 }
 
