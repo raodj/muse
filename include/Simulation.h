@@ -10,27 +10,13 @@
 #include "Agent.h"
 #include "Scheduler.h"
 #include "Event.h"
+#include "DataTypes.h"
 
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
  *
  */
-namespace muse { //begin namespace declaration 
-
-	//	/** The SimulatorID struct.
-	//	 * This is used to store the id of a simulator(Singleton). muse uses this SimulatorID struct to make sure the client
-	//	 * know exactly what the param of a method is asking for. For more details check out the method getSimulatorID(). 
-	//	 * @see getSimulatorID()
-	//	 *
-	//	 */
-	//typedef unsigned int SimulatorID;
-
-	//	/** The AgentContainer.
-	//	 * Holds a collection of agents, this is basically a set of Agents. Always 
-	//	 * use the AgentContainer type, because the underlying implamentation could change.
-	//	 *
-	//	 */
-	//typedef set<Agent> AgentContainer;
+BEGIN_NAMESPACE(muse); //begin namespace declaration
 
         
 /** The Simulation Class.
@@ -75,7 +61,7 @@ public:
          *@return AgentContainer * a pointer to a container
          *@see AgentContainer
          */
-	const AgentContainer * getRegisteredAgents();
+	const AgentContainer& getRegisteredAgents();
         
         /** The getSimulator method.
          * The simulation class implaments a singleton pattern, then only way to access reference to the only object 
@@ -88,12 +74,12 @@ public:
          */
         static Simulation& getSimulator();
         
-		/** The scheduleEvent method.
+	/** The scheduleEvent method.
          * Agents actually use this method to schedule events.
-		 * Users should not be using this method, when possible use the 
-		 * Agent method to avoid potential problems.
-		 *
-		 * @param e a pointer to the event you wish to schedule
+         * Users should not be using this method, when possible use the
+         * Agent method to avoid potential problems.
+         *
+         * @param e a pointer to the event you wish to schedule
          * @return bool true if process is successful.
          */
 		bool Simulation::scheduleEvent( Event *e);
@@ -104,13 +90,13 @@ public:
          */
         void start();
         
-		 /**The setStartTime method.
+	/**The setStartTime method.
          * Sets the simulation start time. Keep in mind that the simulation does not have to start at time
-		 * Zero(0) each simulation object could start at different times. Warning, if you decided to start 
-		 * at different times, it could cause rollbacks.
+         * Zero(0) each simulation object could start at different times. Warning, if you decided to start
+	 * at different times, it could cause rollbacks.
          *
          */
-		void setStartTime(const Time & startTime);
+	void setStartTime(const Time & startTime);
 
         /** The stop method.
          * When this method is invoked the simulation will come to a big STOP. muse will go through and finalize all 
@@ -120,37 +106,34 @@ public:
          */
         void stop();
         
-		/**The setStopTime method.
+	/**The setStopTime method.
          * Sets the simulation stop time. 
          *
          */
-		void setStopTime(const Time & stopTime);
+	void setStopTime(const Time & stopTime);
 
-        /**The dtor method.
-         * Cleans up all mess created by muse.
-         *
-         */
-		~Simulation();
 
-		const Time& getTime();
+        const Time& getTime();
         const Time& getStartTime();
         const Time& getEndTime();
-	
+	 
 protected:
-	//the ctor method, must be private (singleton pattern)
-	Simulation(Time &, SimulatorID&);
+    //the ctor method, must be private (singleton pattern)
+    Simulation(Time &, SimulatorID&);
     Simulation(const Simulation &);
     Simulation& operator=(const Simulation&);
 
 private:
     //used to contain all agents registered to this simulator
-	AgentContainer allAgents;
-    //usually the MPI_Rank, otherwise a globally unique id for the simulator. 
-	SimulatorID _myID;
+    AgentContainer allAgents;
+
+    //usually the MPI_Rank, otherwise a globally unique id for the simulator.
+    SimulatorID _myID;
+
     Time _LGVT, _startTime, _endTime;
     Scheduler scheduler;
 };
-
-}//end namespace declaration
+ 
+END_NAMESPACE(muse);//end namespace declaration
 
 #endif

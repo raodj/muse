@@ -26,11 +26,15 @@
 #include <set>
 #include <iostream>
 #include <exception>
-
 #include "DataTypes.h"
+#include "Simulation.h"
+#include "State.h"
+#include <stack>
 
-namespace muse { //begin namespace declaration 
-    
+BEGIN_NAMESPACE(muse); //begin namespace declaration
+
+class Event;
+
 /** The base class for all agents in a simulation.
  
     <p>This class represents the base class from which all
@@ -108,7 +112,7 @@ public:
         
         @see Event()
     */
-    bool scheduleEvent(const Event * e);
+    bool scheduleEvent(Event * e);
     
     /** The getAgentID method returns a pointer to AgentID struct.
         
@@ -129,7 +133,7 @@ public:
         @see AgentID
         
     */
-    const AgentID& getAgentID() const;
+    const AgentID& getAgentID();
         
  
 	
@@ -138,7 +142,7 @@ public:
         The ctor is not supposed to be overriden.
         @todo make sure that the above statement is a accurate statement.
     */
-    Agent() ;
+    explicit Agent(AgentID &, State &);
     
     /** The destructor.
      
@@ -147,7 +151,7 @@ public:
     */
     ~Agent();
     
-private:
+protected:
     /** The AgentID type myID.
      
         This is inialized when the agent is registered to a simulator.
@@ -155,7 +159,7 @@ private:
       
         @see getAgentID()
     */
-    AgentID myID;
+    AgentID _myID;
 
 	 /** The AgentID type myID.
      
@@ -165,7 +169,12 @@ private:
         @see getAgentID()
     */
 	Time _LVT;
+
+   
+    stack<State*> stateStack;
+    State _myState;
+
 };
-}//end namespace declaration
+END_NAMESPACE(muse);//end namespace declaration
 #endif
  

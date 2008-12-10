@@ -24,9 +24,11 @@
 //---------------------------------------------------------------------------
 
 #include "Utilities.h"
+#include <queue>
 #include <set>
-
+#include <map>
 using namespace std;
+
 BEGIN_NAMESPACE(muse);
 
 // Forward declaration to define EventContainer
@@ -52,7 +54,7 @@ typedef std::set<Event*> EventContainer;
 typedef unsigned int AgentID; 
 
 typedef std::set<AgentID*> AgentIDContainer;
-
+ 
 /** The Stream struct.
     
     @todo not sure if this will remain a struct or become a
@@ -67,12 +69,21 @@ typedef struct StreamType{
 
 
 typedef double Time;
+
+/** The SimulatorID struct.
+ * This is used to store the id of a simulator(Singleton). muse uses this SimulatorID struct to make sure the client
+ * know exactly what the param of a method is asking for. For more details check out the method getSimulatorID().
+ * @see getSimulatorID()
+ *
+ */
 typedef unsigned int SimulatorID;
 
-
+/** The AgentContainer.
+ * Holds a collection of agents, this is basically a set of Agents. Always
+ * use the AgentContainer type, because the underlying implamentation could change.
+ *
+ */
 typedef set<Agent*> AgentContainer;
-
-
 
 END_NAMESPACE(muse);
 
