@@ -6,25 +6,9 @@
 #include <queue>
 #include <map>
 
-using namespace std;
 BEGIN_NAMESPACE(muse);
 
-//compares delivery times. puts the one with the smaller
-//ahead.
-class eventComp
-{ 
-   
-public:
-  eventComp(){}
-  bool operator() ( Event *lhs,  Event *rhs) const
-  {
-     return (lhs->getReceiveTime() > rhs->getReceiveTime());
-  }
-};
 
-
-typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
-typedef map<AgentID, EventPQ*> ScheduleMap;
  
 class Scheduler {
 public:
@@ -37,6 +21,21 @@ public:
         bool addAgentToScheduler(const AgentID &);
  
 private:
+    //compares delivery times. puts the one with the smaller
+    //ahead.
+    class eventComp
+    {
+
+    public:
+      eventComp(){}
+      bool operator() ( Event *lhs,  Event *rhs) const
+      {
+         return (lhs->getReceiveTime() > rhs->getReceiveTime());
+      }
+    };
+    typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
+    typedef map<AgentID, EventPQ*> ScheduleMap;
+
     ScheduleMap schedule;
 };
 

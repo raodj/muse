@@ -27,9 +27,9 @@
 #include <iostream>
 #include <exception>
 #include "DataTypes.h"
-#include "Simulation.h"
+
 #include "State.h"
-#include <stack>
+#include <list>
 
 BEGIN_NAMESPACE(muse); //begin namespace declaration
 
@@ -171,7 +171,7 @@ protected:
 	Time _LVT;
 
    
-    stack<State*> stateStack;
+    list<State*> stateStack;
     State _myState;
 
 };

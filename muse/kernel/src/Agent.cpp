@@ -24,6 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "Agent.h"
+#include "Simulation.h"
 using namespace muse;
 
 void
