@@ -23,11 +23,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <set>
 #include <iostream>
 #include <exception>
 #include "DataTypes.h"
-
 #include "State.h"
 #include <list>
 
@@ -50,6 +48,10 @@ class Event;
     are declared virtual.</p>
 */
 class Agent {
+
+    //lets declare the Simulation class a friend!
+    friend class Simulation;
+
 public:
     /** The initialize method.
      
@@ -77,7 +79,7 @@ public:
         @note Whenever a new agent is created, the derived child class
         should override this method.
     */
-    virtual void finalize() throw ();
+    virtual void finalize();
     
     /** The executeTask method.
      
@@ -150,7 +152,47 @@ public:
         @todo make sure that the above statement is a accurate statement.
     */
     ~Agent();
-    
+
+
+    /**The cloneState method.
+     * Simply returns a copy of the passed in state. Every state should be able to
+     * clone itself.
+     *
+     *IMPORTANT - MUSE will handle disposing of this State pointer only if MUSE kernel
+     *            makes this call. However, if for some reason the user calls for a clone
+     *            then it is important to properly dispose the pointer when operation is complete.
+     *
+     *@param State reference, this is the state to be cloned.
+     *@return State, pointer to new state.
+     */
+    State* cloneState(State &);
+
+    /**The setState method.
+     * Currently waiting to be approaved for implementation.
+     * Agents will be able to use different states throughout the simulation
+     * via this method. Note, that the state thats passed in the constructure
+     * does not have to be the only state. You can For example slowly increase
+     * the information stored in the state as simulation runs.
+     *
+     *IMPORTANT - this method uses the assignment operator, so be sure you properly
+     *            overload the assignment operator for the given state classes.
+     *
+     *@param State reference, this is the new state that will be set.
+     *@return bool, true if the process was a success.
+     */
+    bool setState(State &);
+
+private:
+
+    /**The updateLVT method.
+     * Primary users of this method is the Simulation class. The Simulation
+     * kernel will use this to update the agent's LVT (Local Virtual Time).
+     *
+     *@param Time , the time to set to.
+     *@see Time datetype, this along with other used datetypes created for MUSE are in the DataTypes.h
+     */
+    void updateLVT(const Time &);
+
 protected:
     /** The AgentID type myID.
      
@@ -171,7 +213,7 @@ protected:
 	Time _LVT;
 
    
-    list<State*> stateStack;
+    list<State*> stateQueue;
     State _myState;
 
 };
