@@ -9,7 +9,7 @@ Scheduler::Scheduler(){}
 bool
 Scheduler::addAgentToScheduler(const AgentID & agentID){
     if (schedule[agentID] == NULL) {
-         std::cout << "Created an Entry in the scheduler for Agent: " << agentID << std::endl; 
+         //std::cout << "Created an Entry in the scheduler for Agent: " << agentID << std::endl;
         schedule[agentID] = new EventPQ;
         return true;
     }
@@ -49,7 +49,7 @@ EventContainer* Scheduler::getNextEvents(const AgentID & agent){
 
 bool Scheduler::scheduleEvent( Event *e){
     //first lets look up the receiver agent
-    std::cout << "Scheduler Added event for agent: "<<e->getReceiverAgentID() << std::endl;
+    //std::cout << "Scheduler Added event for agent: "<<e->getReceiverAgentID() << std::endl;
     //make sure the recevier agent has an entry
     if (schedule[e->getReceiverAgentID()] == NULL) return false;
     schedule[e->getReceiverAgentID()]->push(e);
@@ -68,7 +68,7 @@ Scheduler::~Scheduler(){
     //time to delete EventQ
     ScheduleMap::iterator it;
     for(it=schedule.begin(); it != schedule.end(); ++it){
-        std::cout << "Deleting entry for Agent: " << (it->first) << std::endl;
+        //std::cout << "Deleting entry for Agent: " << (it->first) << std::endl;
         delete it->second;
     }//end for
     

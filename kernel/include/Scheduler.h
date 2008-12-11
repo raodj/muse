@@ -8,8 +8,6 @@
 
 BEGIN_NAMESPACE(muse);
 
-
- 
 class Scheduler {
 public:
 	Scheduler();

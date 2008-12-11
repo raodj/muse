@@ -2,10 +2,11 @@
 #define _MUSE_SIMUALTION_CPP_
 
 #include "Simulation.h"
+#include "Agent.h"
 
 using namespace muse;
 
-Simulation::Simulation(Time & lgvt, SimulatorID & myID): _LGVT(lgvt), _myID(myID){}
+Simulation::Simulation(Time & lgvt, SimulatorID & myID): _LGVT(lgvt), _myID(myID), _startTime(0), _endTime(0) {}
 
 
 const AgentContainer& Simulation::getRegisteredAgents(){
@@ -50,22 +51,39 @@ Simulation::start(){
     
     //BIG loop for event processing 
     EventContainer *events = NULL;
-    //while(true){
+    while(this->_startTime < this->_endTime){
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
             events = scheduler.getNextEvents((*it)->getAgentID());
             if (events != NULL){
                 //this means we have events to process
+                //update the agents LVT
+                (*it)->updateLVT((*events->begin())->getReceiveTime());
+                //execute the agent task
                 (*it)->executeTask(events);
+                //time to archive the agent's state
+                (*it)->stateQueue.push_back(((*it)->_myState).getClone());
             }//end if
-            //(*it)->initialize();
         }//end for
-    //}//end BIG loop
+
+        //increase start time by one timestep
+        _startTime++;
+    }//end BIG loop
+    
     //since we are done with the events pointer time to delete
+    EventContainer::iterator eventsit;
+    for (eventsit=events->begin(); eventsit != events->end(); ++eventsit ){
+        delete (*eventsit);
+    }//end for
     delete events;
     
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
+        //lets take care of all the states still not removed
+        list<State*>::iterator state_it;
+        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
+            delete (*state_it);
+        }//end for
     }//end for
 }//end start
 
