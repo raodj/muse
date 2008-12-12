@@ -82,7 +82,17 @@ public:
          * @param e a pointer to the event you wish to schedule
          * @return bool true if process is successful.
          */
-		bool Simulation::scheduleEvent( Event *e);
+	bool Simulation::scheduleEvent( Event *e);
+
+        /** The scheduleEvents method.
+         * Agents actually use this method to schedule events.
+         * Users should not be using this method, when possible use the
+         * Agent method to avoid potential problems.
+         *
+         * @param e a pointer to the event you wish to schedule
+         * @return bool true if process is successful.
+         */
+	bool Simulation::scheduleEvents( EventContainer *events);
 
         /**The start method.
          * When this method is invoked the client should have all agents registered. The simulation will start.

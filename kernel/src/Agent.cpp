@@ -63,9 +63,26 @@ AgentID& Agent::getAgentID(){
 }
 
 bool 
-Agent::scheduleEvent( Event *e){
-    return (Simulation::getSimulator()).scheduleEvent(e);
+Agent::scheduleEvent(Event *e){
+    if ((Simulation::getSimulator()).scheduleEvent(e)){
+        //this means event was scheduled with no problems
+        //now lets add this event to our outputQueue in case of rollback
+        this->_outputQueue.push_back(e);
+        return true;
+    }
+    return false;
 }
 
+bool
+Agent::scheduleEvents(EventContainer * events){
+    if ((Simulation::getSimulator()).scheduleEvents(events)){
+        //this means event was scheduled with no problems
+        //now lets add this event to our outputQueue in case of rollback
+        list<Event*>::iterator it = _outputQueue.end();
+        this->_outputQueue.insert(it, events->begin(),events->end());
+        return true;
+    }
+    return false;
+}
 
 #endif

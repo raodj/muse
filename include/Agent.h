@@ -104,8 +104,10 @@ public:
     /** The scheduleEvent method.
      
         This method is used to schedule an event to be processed by any
-        agent.  It takes the given Event and first checks if
-        
+        agent.  
+
+     * IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
+     *             deleting the memory.
         @param e this is an Event object and will not be modified by this
         method.
         
@@ -115,6 +117,26 @@ public:
         @see Event()
     */
     bool scheduleEvent(Event * e);
+
+    /** The scheduleEvent method.
+
+     *   This method is used to schedule more than one event to be processed by any
+     *   agent.
+     *
+     * IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
+     *             deleting the memory.
+
+        @param e this is an Event object and will not be modified by this
+        method.
+
+        @return bool this will let the client know if the operation was a
+        success.
+
+        @see Event()
+     *  @see DataTypes.h
+     *  @see EventContainer
+    */
+    bool scheduleEvents(EventContainer * events);
     
     /** The getAgentID method returns a pointer to AgentID struct.
         
@@ -213,7 +235,8 @@ protected:
 	Time _LVT;
 
    
-    list<State*> stateQueue;
+    list<State*> _stateQueue;
+    list<Event*> _outputQueue;
     State* _myState;
 
 };

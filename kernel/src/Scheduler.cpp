@@ -29,7 +29,7 @@ EventContainer* Scheduler::getNextEvents(const AgentID & agent){
     //std::cout << "Scheduler Size: " << schedule[agent]->size() << std::endl;
     //std::cout << "Getting Root Event for receive Time: " << rootEvent->getReceiveTime() << std::endl;
 
-    events->insert(rootEvent);
+    events->push_back(rootEvent);
     schedule[agent]->pop();
     Event *nextEvent = schedule[agent]->top();
     ///now lets get all the events to process
@@ -37,15 +37,13 @@ EventContainer* Scheduler::getNextEvents(const AgentID & agent){
         if (schedule[agent]->empty()) break;
         //std::cout << "Scheduler Size In Loop: " << schedule[agent]->size() << std::endl;
         //std::cout << "Getting Event for receive Time: " << nextEvent->getReceiveTime() << std::endl;
-        events->insert(nextEvent);
+        events->push_back(nextEvent);
         schedule[agent]->pop();
         nextEvent = schedule[agent]->top();
     }//end while
     
     return events;
 }
-
-
 
 bool Scheduler::scheduleEvent( Event *e){
     //first lets look up the receiver agent
@@ -59,6 +57,7 @@ bool Scheduler::scheduleEvent( Event *e){
 bool Scheduler::scheduleEvents( EventContainer *events){
     EventContainer::iterator it;
     for(it=events->begin(); it != events->end(); ++it){
+        if (schedule[(*it)->getReceiverAgentID()] == NULL) return false;
         schedule[(*it)->getReceiverAgentID()]->push((*it));
     }//end for
     return true;
