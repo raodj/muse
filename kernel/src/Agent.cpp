@@ -37,7 +37,7 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID & id, State & agentState) : _myID(id), _myState(agentState),_LVT(0) {}
+Agent::Agent(AgentID & id, State * agentState) : _myID(id), _LVT(0),_myState(agentState) {}
 
 Agent::~Agent() {}
 
@@ -46,8 +46,8 @@ Agent::cloneState(State & state){
     return state.getClone();
 }
 
-bool
-Agent::setState(State & state){
+void
+Agent::setState(State * state){
     //TODO: verify this works!!
     this->_myState = state;
 }

@@ -3,10 +3,11 @@
 
 #include "Simulation.h"
 #include "Agent.h"
+#include "ClockState.h"
 
 using namespace muse;
 
-Simulation::Simulation(Time & lgvt, SimulatorID & myID): _LGVT(lgvt), _myID(myID), _startTime(0), _endTime(0) {}
+Simulation::Simulation(Time & lgvt, SimulatorID & myID):  _myID(myID), _LGVT(lgvt), _startTime(0), _endTime(0) {}
 
 
 const AgentContainer& Simulation::getRegisteredAgents(){
@@ -61,7 +62,7 @@ Simulation::start(){
                 //execute the agent task
                 (*it)->executeTask(events);
                 //time to archive the agent's state
-                (*it)->stateQueue.push_back(((*it)->_myState).getClone());
+                (*it)->stateQueue.push_back((*it)->_myState->getClone());
             }//end if
         }//end for
 

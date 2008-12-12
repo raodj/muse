@@ -144,14 +144,14 @@ public:
         The ctor is not supposed to be overriden.
         @todo make sure that the above statement is a accurate statement.
     */
-    explicit Agent(AgentID &, State &);
+    explicit Agent(AgentID &, State *);
     
     /** The destructor.
      
         The dtor is not supposed to be overriden.
         @todo make sure that the above statement is a accurate statement.
     */
-    ~Agent();
+   virtual ~Agent();
 
 
     /**The cloneState method.
@@ -180,7 +180,7 @@ public:
      *@param State reference, this is the new state that will be set.
      *@return bool, true if the process was a success.
      */
-    bool setState(State &);
+    void setState(State *);
 
 private:
 
@@ -214,7 +214,7 @@ protected:
 
    
     list<State*> stateQueue;
-    State _myState;
+    State* _myState;
 
 };
 END_NAMESPACE(muse);//end namespace declaration
