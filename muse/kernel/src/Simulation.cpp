@@ -20,7 +20,7 @@ const SimulatorID Simulation::getSimulatorID(){ return this->_myID; }
 bool Simulation::registerAgent(  muse::Agent* agent)  { 
 	//add to the agents list
     if (scheduler.addAgentToScheduler(agent->getAgentID())){
-        allAgents.insert(agent);
+        allAgents.push_back(agent);
         return true;
     }//end if
     return false;
@@ -40,6 +40,11 @@ Simulation::getSimulator(){
 bool 
  Simulation::scheduleEvent( Event *e){
      return scheduler.scheduleEvent(e);
+ }
+
+bool
+ Simulation::scheduleEvents( EventContainer *events){
+     return scheduler.scheduleEvents(events);
  }
 
 void 
@@ -62,7 +67,9 @@ Simulation::start(){
                 //execute the agent task
                 (*it)->executeTask(events);
                 //time to archive the agent's state
-                (*it)->stateQueue.push_back((*it)->_myState->getClone());
+                //might consider creating a method (addToStateQueue(State*))
+                ////incase we change _stateQueue implementation as another layer of protection.
+                (*it)->_stateQueue.push_back((*it)->_myState->getClone());
             }//end if
         }//end for
 
@@ -71,19 +78,25 @@ Simulation::start(){
     }//end BIG loop
     
     //since we are done with the events pointer time to delete
-    EventContainer::iterator eventsit;
-    for (eventsit=events->begin(); eventsit != events->end(); ++eventsit ){
-        delete (*eventsit);
-    }//end for
-    delete events;
+//    EventContainer::iterator eventsit;
+//    for (eventsit=events->begin(); eventsit != events->end(); ++eventsit ){
+//        delete (*eventsit);
+//    }//end for
+//    delete events;
     
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
-        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
+        for (state_it=(*it)->_stateQueue.begin(); state_it != (*it)->_stateQueue.end(); ++state_it ){
             delete (*state_it);
+        }//end for
+
+        //now lets delete all remaining events in each agent's outputQueue
+        list<Event*>::iterator eit;
+        for (eit=(*it)->_outputQueue.begin(); eit != (*it)->_outputQueue.end(); ++eit ){
+            delete (*eit);
         }//end for
     }//end for
 }//end start

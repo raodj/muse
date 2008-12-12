@@ -24,9 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "Utilities.h"
-#include <queue>
-#include <set>
-#include <map>
+#include <vector>
 using namespace std;
 
 BEGIN_NAMESPACE(muse);
@@ -41,7 +39,7 @@ class Agent;
     Events. Always use the EventContainer type, because the
     underlying implamentation could change.
 */
-typedef std::set<Event*> EventContainer;
+typedef std::vector<Event*> EventContainer;
 
 /** The AgentID struct.
     
@@ -53,7 +51,7 @@ typedef std::set<Event*> EventContainer;
 */
 typedef unsigned int AgentID; 
 
-typedef std::set<AgentID*> AgentIDContainer;
+typedef std::vector<AgentID*> AgentIDContainer;
  
 /** The Stream struct.
     
@@ -83,7 +81,7 @@ typedef unsigned int SimulatorID;
  * use the AgentContainer type, because the underlying implamentation could change.
  *
  */
-typedef set<Agent*> AgentContainer;
+typedef vector<Agent*> AgentContainer;
 
 END_NAMESPACE(muse);
 
