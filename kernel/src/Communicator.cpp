@@ -9,11 +9,9 @@ Communicator::Communicator(){}
 
 void Communicator::initialize(){}
 
-void Communicator::sendEvent(Event *, SimulatorID *){}
+void Communicator::sendEvent(Event *){}
 
-void Communicator::sendMessage(char *, SimulatorID *){}
-
-void Communicator::sendMessageToAll(char *){}
+void Communicator::sendMessage(char *){}
 
 Communicator::~Communicator(){}
 
