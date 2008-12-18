@@ -2,8 +2,7 @@
 #define _MUSE_SIMUALTION_CPP_
 
 #include "Simulation.h"
-#include "Agent.h"
-#include "ClockState.h"
+
 
 using namespace muse;
 
@@ -32,6 +31,12 @@ bool Simulation::registerAgent(  muse::Agent* agent)  {
 Simulation& 
 Simulation::getSimulator(){
     Time startLGVT = 0;SimulatorID myID = 0;
+    
+//    if (!_got_simulator) {
+//        //Should call MPI::Init() here
+//        //get rank and assign to myID
+//        _got_simulator = true;
+//    }
     static Simulation kernel(startLGVT,myID);
     return kernel;
 }
