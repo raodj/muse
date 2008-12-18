@@ -10,6 +10,7 @@
 #include "Agent.h"
 #include "Scheduler.h"
 #include "Event.h"
+#include "State.h"
 #include "DataTypes.h"
 
 /** The muse namespace.
@@ -142,6 +143,7 @@ private:
 
     Time _LGVT, _startTime, _endTime;
     Scheduler scheduler;
+ 
 };
  
 END_NAMESPACE(muse);//end namespace declaration
