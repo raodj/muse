@@ -4,10 +4,18 @@
 #include "DataTypes.h"
 #include <map>
 
+//these are the tag types
+#define AGENT_LIST      0
+#define EVENT           1
+
+//these are the source types
+#define ROOT_KERNEL     0
+
+
 BEGIN_NAMESPACE(muse);
 class Communicator {
 
-class Event;
+//class Event;
 
 public:
         /** The ctor.
@@ -21,24 +29,49 @@ public:
          /** The sendEvent method.
           *
           * @param Event pointer, this is the event to be sent across the wire.
+          * @param int eventSize, simply use the sizeof() method of the event class
+          *        you are sending on the wire.
+          *        USAGE EXAMPLE:: using the clock example!
+          *              ClockEvent *e = new ClockEvent();
+          *              sendEvent(e, sizeof(e));
+          *                 .....
+          *              free(e); //please remember to free your memory :-)
           * @see Event
+          *
           */
-	void sendEvent(Event *);
+	void sendEvent(Event *, int &);
 
         /** The recvEvent method.
           *
+          * NOTE:: Will return a NULL if there is no Event to receive!!!
           * @return Event pointer, this is the event to be received from the wire.
           * @see Event
           */
-	Event * recvEvent();
+	Event* receiveEvent();
 
         /** The initialize method
          * this is used to sync all communicator and get the agentMap
          * populated.
          */
-	void initialize();
+	SimulatorID initialize();
 
-	void sendMessage(char *);
+        /**The registerAgents method.
+         * This is used to sync the AgentMapping in the Communicator class.
+         * Before you can send any events across the wire (MPI), use this to
+         * get your agents and other kernel's agents mapped correctly.
+         *
+         * NOTE:: please call the initialize method before calling this method.
+         *
+         *@param AgentContainer reference, this is the list of agents the kernel containts
+         */
+        void registerAgents(AgentContainer &);
+
+        /** The finialize method.
+         *
+         * Use this to clean up after yourself.
+         *
+         */
+	void finialize();
 
 private:
 
