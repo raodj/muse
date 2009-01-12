@@ -69,7 +69,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
          default:
               AgentID agentList[allAgents.size()];
               for (int i=0; i < allAgents.size(); ++i){
-                 agentList[i] = allAgents[i].getAgentID();//populate the flat list.
+                 agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
               }//end for
               //now send flat list across the wire (MPI)
               MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
