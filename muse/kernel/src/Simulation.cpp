@@ -1,3 +1,6 @@
+
+#include "Communicator.h"
+
 #ifndef _MUSE_SIMUALTION_CPP_
 #define _MUSE_SIMUALTION_CPP_
 
@@ -6,8 +9,13 @@
 
 using namespace muse;
 
-Simulation::Simulation(Time & lgvt, SimulatorID & myID):  _myID(myID), _LGVT(lgvt), _startTime(0), _endTime(0) {}
+Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
+    _myID = commManager.initialize();
+}
 
+Simulation::~Simulation() {
+    delete kernel; //make sure we dispose of Simulation instance
+}
 
 const AgentContainer& Simulation::getRegisteredAgents(){
 	return allAgents;
@@ -28,18 +36,16 @@ bool Simulation::registerAgent(  muse::Agent* agent)  {
 
 //TODO: for now the simulator id is default, but needs to get
 //fixed to work with MPI
-Simulation& 
+ Simulation* Simulation::kernel = NULL;// initialize kernel pointer
+
+Simulation*
 Simulation::getSimulator(){
-    Time startLGVT = 0;SimulatorID myID = 0;
-    
-//    if (!_got_simulator) {
-//        //Should call MPI::Init() here
-//        //get rank and assign to myID
-//        _got_simulator = true;
-//    }
-    static Simulation kernel(startLGVT,myID);
-    return kernel;
-}
+    if (kernel == NULL)  // is it the first call?
+    {
+      kernel = new Simulation(); // create sole instance
+    }
+    return kernel; // address of sole instance
+}//end getSimulator
 
 
 bool 
@@ -47,15 +53,18 @@ bool
      return scheduler.scheduleEvent(e);
  }
 
-bool
- Simulation::scheduleEvents( EventContainer *events){
-     return scheduler.scheduleEvents(events);
- }
+//bool
+// Simulatison::scheduleEvents( EventContainer *events){
+//     return scheduler.scheduleEvents(events);
+// }
 
 void 
 Simulation::start(){
-    AgentContainer::iterator it;
+    //first we setup the AgentMap for all kernels
+    commManager.registerAgents(allAgents);
+
     //loop for the initialization
+    AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->initialize();
     }//end for

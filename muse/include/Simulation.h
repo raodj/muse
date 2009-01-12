@@ -12,12 +12,12 @@
 #include "Event.h"
 #include "State.h"
 #include "DataTypes.h"
-
+#include "Communicator.h"
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
  *
  */
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse) //begin namespace declaration
 
         
 /** The Simulation Class.
@@ -73,7 +73,7 @@ public:
          * @return Simulation* the pointer to the Simulatin object.
          *
          */
-        static Simulation& getSimulator();
+        static Simulation* getSimulator();
         
 	/** The scheduleEvent method.
          * Agents actually use this method to schedule events.
@@ -93,7 +93,7 @@ public:
          * @param e a pointer to the event you wish to schedule
          * @return bool true if process is successful.
          */
-	bool Simulation::scheduleEvents( EventContainer *events);
+	//bool Simulation::scheduleEvents( EventContainer *events);
 
         /**The start method.
          * When this method is invoked the client should have all agents registered. The simulation will start.
@@ -130,11 +130,15 @@ public:
 	 
 protected:
     //the ctor method, must be private (singleton pattern)
-    Simulation(Time &, SimulatorID&);
+    Simulation();
     Simulation(const Simulation &);
     Simulation& operator=(const Simulation&);
-
+    ~Simulation();
 private:
+
+    //the kernel singleton instance
+    static Simulation* kernel;
+
     //used to contain all agents registered to this simulator
     AgentContainer allAgents;
 
@@ -143,7 +147,9 @@ private:
 
     Time _LGVT, _startTime, _endTime;
     Scheduler scheduler;
- 
+    //handles all communication on the wire. (MPI)
+    Communicator commManager;
+
 };
  
 END_NAMESPACE(muse);//end namespace declaration
