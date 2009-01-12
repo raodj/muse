@@ -22,8 +22,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
     int  size = MPI::COMM_WORLD.Get_size();
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
-     switch (simulator_id){
-         case ROOT_KERNEL:
+     if (simulator_id == ROOT_KERNEL){
+        
             //first lets add root_kernel local agents to map!
             AgentContainer::iterator ac_it; //ac == AgentContainer
             for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
@@ -65,8 +65,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
             //bcast here
             MPI::COMM_WORLD.Bcast(&agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
 
-            break;
-         default:
+           
+     }else{
               AgentID agentList[allAgents.size()];
               for (int i=0; i < allAgents.size(); ++i){
                  agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
@@ -86,8 +86,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
                   agentMap[agentMap_flatList[i]] = agentMap_flatList[i+1];
                   cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
               }//end for
-              break;
-     }//end switch
+             
+     }//end if
 }//end registerAgent method
 
 void
