@@ -29,7 +29,7 @@
 #include "State.h"
 #include <list>
 
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse) //begin namespace declaration
 
 class Event;
 
@@ -240,6 +240,6 @@ protected:
     State* _myState;
 
 };
-END_NAMESPACE(muse);//end namespace declaration
+END_NAMESPACE(muse)//end namespace declaration
 #endif
  
