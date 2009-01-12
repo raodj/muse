@@ -18,8 +18,8 @@ Communicator::initialize(){
 
 void
 Communicator::registerAgents(AgentContainer& allAgents){
-     size = MPI::COMM_WORLD.Get_size();
-     simulator_id = MPI::COMM_WORLD.Get_rank();
+    int  size = MPI::COMM_WORLD.Get_size();
+    int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
      switch (simulator_id){
          case ROOT_KERNEL:
