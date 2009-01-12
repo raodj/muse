@@ -3,6 +3,7 @@
 
 #include "Communicator.h"
 #include "Event.h"
+#include "Agent.h"
 #include <mpi.h>
 
 using namespace muse;
@@ -48,7 +49,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
             }//end while
 
             //next chunk of code converts agentMap to a flat list for Bcasting!!
-            AgentMap::iterator it;
+            map<AgentID, SimulatorID>::iterator it;
             int agentMap_size = agentMap.size()*2;
             unsigned int  agentMap_flat[agentMap_size];
             int counter=0;
@@ -68,7 +69,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
          default:
               AgentID agentList[allAgents.size()];
               for (int i=0; i < allAgents.size(); ++i){
-                 agentList[i] = allAgents[i];//populate the flat list.
+                 agentList[i] = allAgents[i].getAgentID();//populate the flat list.
               }//end for
               //now send flat list across the wire (MPI)
               MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
