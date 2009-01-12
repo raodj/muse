@@ -136,7 +136,7 @@ public:
      *  @see DataTypes.h
      *  @see EventContainer
     */
-    bool scheduleEvents(EventContainer * events);
+    //bool scheduleEvents(EventContainer * events);
     
     /** The getAgentID method returns a pointer to AgentID struct.
         

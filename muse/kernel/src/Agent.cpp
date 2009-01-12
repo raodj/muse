@@ -73,16 +73,16 @@ Agent::scheduleEvent(Event *e){
     return false;
 }
 
-bool
-Agent::scheduleEvents(EventContainer * events){
-    if ((Simulation::getSimulator()).scheduleEvents(events)){
-        //this means event was scheduled with no problems
-        //now lets add this event to our outputQueue in case of rollback
-        list<Event*>::iterator it = _outputQueue.end();
-        this->_outputQueue.insert(it, events->begin(),events->end());
-        return true;
-    }
-    return false;
-}
+//bool
+//Agent::scheduleEvents(EventContainer * events){
+//    if ((Simulation::getSimulator()).scheduleEvents(events)){
+//        //this means event was scheduled with no problems
+//        //now lets add this event to our outputQueue in case of rollback
+//        list<Event*>::iterator it = _outputQueue.end();
+//        this->_outputQueue.insert(it, events->begin(),events->end());
+//        return true;
+//    }
+//    return false;
+//}
 
 #endif
