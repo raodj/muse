@@ -66,7 +66,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
             break;
          default:
-              unsigned int agentList[allAgents.size()];
+              AgentID agentList[allAgents.size()];
               for (int i=0; i < allAgents.size(); ++i){
                  agentList[i] = allAgents[i];//populate the flat list.
               }//end for
@@ -94,7 +94,7 @@ Communicator::sendEvent(Event * e, int & eventSize){
     //no good way to send objects via MPI
     //make Event to a char* aka ghetto hack :-)
      char* serialEvent = (char*)&e;
-     MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
+     MPI::COMM_WORLD.Isend(serialEvent, eventSize, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
 }//end sendEvent
 
 Event*
