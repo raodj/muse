@@ -54,14 +54,15 @@ bool Scheduler::scheduleEvent( Event *e){
     return true;
 }
 
-bool Scheduler::scheduleEvents( EventContainer *events){
-    EventContainer::iterator it;
-    for(it=events->begin(); it != events->end(); ++it){
-        if (schedule[(*it)->getReceiverAgentID()] == NULL) return false;
-        schedule[(*it)->getReceiverAgentID()]->push((*it));
-    }//end for
-    return true;
-}
+//NOT READY FOR RELEASE
+//bool Scheduler::scheduleEvents( EventContainer *events){
+//    EventContainer::iterator it;
+//    for(it=events->begin(); it != events->end(); ++it){
+//        if (schedule[(*it)->getReceiverAgentID()] == NULL) return false;
+//        schedule[(*it)->getReceiverAgentID()]->push((*it));
+//    }//end for
+//    return true;
+//}
 
 Scheduler::~Scheduler(){
     //time to delete EventQ
