@@ -12,7 +12,7 @@
 #define ROOT_KERNEL     0
 
 
-BEGIN_NAMESPACE(muse);
+BEGIN_NAMESPACE(muse)
 class Communicator {
 
 //class Event;
@@ -86,6 +86,6 @@ private:
     map<AgentID, SimulatorID> agentMap;
 };
 
-END_NAMESPACE(muse);
+END_NAMESPACE(muse)
 
 #endif
