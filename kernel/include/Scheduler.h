@@ -14,7 +14,7 @@ public:
 	~Scheduler();
 	
 	bool scheduleEvent( Event *);
-	bool scheduleEvents( EventContainer *);
+	//bool scheduleEvents( EventContainer *);
 	EventContainer* getNextEvents(const AgentID &);
         bool addAgentToScheduler(const AgentID &);
  
