@@ -71,7 +71,7 @@ public:
          * Use this to clean up after yourself.
          *
          */
-	void finialize();
+	void finalize();
 
 private:
 
