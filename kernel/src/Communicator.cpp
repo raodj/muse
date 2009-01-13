@@ -116,7 +116,7 @@ Communicator::receiveEvent(){
 }//end receiveEvent
 
 void
-Communicator::finialize()
+Communicator::finalize()
 {
     MPI::Finalize();
 }
