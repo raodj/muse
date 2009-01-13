@@ -14,7 +14,7 @@
  * Everything in the api is in the muse namespace.
  *
  */
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse) //begin namespace declaration
 
 // Forward declaration for agentID to keep the compiler happy.
 //typedef struct AgentIDType AgentID;
@@ -57,6 +57,6 @@ protected:
 
 };
 
-END_NAMESPACE(muse);//end namespace declaration
+END_NAMESPACE(muse)//end namespace declaration
 
 #endif

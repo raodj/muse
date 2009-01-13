@@ -27,7 +27,7 @@
 #include <vector>
 using namespace std;
 
-BEGIN_NAMESPACE(muse);
+BEGIN_NAMESPACE(muse)
 
 // Forward declaration to define EventContainer
 class Event;
@@ -51,7 +51,7 @@ typedef std::vector<Event*> EventContainer;
 */
 typedef unsigned int AgentID; 
 
-typedef std::vector<AgentID*> AgentIDContainer;
+//typedef std::vector<AgentID*> AgentIDContainer;
  
 /** The Stream struct.
     
@@ -83,6 +83,6 @@ typedef unsigned int SimulatorID;
  */
 typedef vector<Agent*> AgentContainer;
 
-END_NAMESPACE(muse);
+END_NAMESPACE(muse)
 
 #endif
