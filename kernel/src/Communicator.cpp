@@ -20,6 +20,9 @@ Communicator::initialize(){
 void
 Communicator::registerAgents(AgentContainer& allAgents){
     int  size = MPI::COMM_WORLD.Get_size();
+
+    //if size == 1 : then we need not do this!
+    if (size == 1) return;
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
      if (simulator_id == ROOT_KERNEL){
