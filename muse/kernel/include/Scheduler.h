@@ -6,7 +6,7 @@
 #include <queue>
 #include <map>
 
-BEGIN_NAMESPACE(muse);
+BEGIN_NAMESPACE(muse)
 
 class Scheduler {
 public:
@@ -37,5 +37,5 @@ private:
     ScheduleMap schedule;
 };
 
-END_NAMESPACE(muse);
+END_NAMESPACE(muse)
 #endif
