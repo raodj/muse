@@ -152,6 +152,6 @@ private:
 
 };
  
-END_NAMESPACE(muse);//end namespace declaration
+END_NAMESPACE(muse)//end namespace declaration
 
 #endif

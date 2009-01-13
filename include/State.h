@@ -12,7 +12,7 @@
  * Everything in the api is in the muse namespace.
  *
  */
-BEGIN_NAMESPACE(muse); //begin namespace declaration 
+BEGIN_NAMESPACE(muse) //begin namespace declaration 
 
 /** The State class.
  * This class is a base class and SHOULD be used as a superclass. All agents must have a State. 
@@ -45,5 +45,5 @@ public:
 	virtual ~State();
 };
 
-END_NAMESPACE(muse);
+END_NAMESPACE(muse)
 #endif
