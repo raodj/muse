@@ -12,7 +12,7 @@ Communicator::Communicator(){}
 
 SimulatorID
 Communicator::initialize(){
-    MPI::Init();
+    MPI::Init(0,NULL);
     //return rank;
     return MPI::COMM_WORLD.Get_rank();
 }
