@@ -113,6 +113,9 @@ Simulation::start(){
             delete (*eit);
         }//end for
     }//end for
+
+    //finalize the communicator
+    commManager.finialize();
 }//end start
 
 void Simulation::stop(){}
