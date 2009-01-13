@@ -115,7 +115,7 @@ Simulation::start(){
     }//end for
 
     //finalize the communicator
-    commManager.finialize();
+    commManager.finalize();
 }//end start
 
 void Simulation::stop(){}
