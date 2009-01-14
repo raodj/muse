@@ -112,7 +112,7 @@ Communicator::receiveEvent(){
         //figure out the agent list size
         int event_size = status.Get_count(MPI::CHAR);
         char incoming_event[event_size];
-        MPI::COMM_WORLD.Irecv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
+        MPI::COMM_WORLD.Irecv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT);
         Event* the_event = (Event*)incoming_event;
         cout << "RECEIVED an Event of size: " << event_size << endl;
         cout << "event for agent: " << the_event->getReceiverAgentID() << endl;
