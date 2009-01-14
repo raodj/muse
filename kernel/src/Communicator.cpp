@@ -101,7 +101,7 @@ Communicator::sendEvent(Event * e, int & event_size){
     //no good way to send objects via MPI
     //make Event to a char* aka ghetto hack :-)
      char* serialEvent = (char*)&e;
-     MPI::COMM_WORLD.Send(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
+     MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
      cout << "SENT an Event of size: " << event_size << endl;
 }//end sendEvent
 
