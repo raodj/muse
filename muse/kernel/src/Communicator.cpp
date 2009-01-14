@@ -97,11 +97,12 @@ Communicator::registerAgents(AgentContainer& allAgents){
 }//end registerAgent method
 
 void
-Communicator::sendEvent(Event * e, int & eventSize){
+Communicator::sendEvent(Event * e, int & event_size){
     //no good way to send objects via MPI
     //make Event to a char* aka ghetto hack :-)
      char* serialEvent = (char*)&e;
-     MPI::COMM_WORLD.Isend(serialEvent, eventSize, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
+     MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
+     cout << "SENT an Event of size: " << event_size << endl;
 }//end sendEvent
 
 Event*
@@ -113,6 +114,9 @@ Communicator::receiveEvent(){
         char incoming_event[event_size];
         MPI::COMM_WORLD.Recv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
         Event* the_event = (Event*)incoming_event;
+        cout << "RECEIVED an Event of size: " << event_size << endl;
+        cout << "event for agent: " << the_event->getReceiverAgentID() << endl;
+        cout << "event to  agent: " << the_event->getSenderAgentID() << endl;
         return the_event;
     }
     return NULL;
