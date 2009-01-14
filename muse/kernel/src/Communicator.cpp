@@ -60,7 +60,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
             unsigned int  agentMap_flat[agentMap_size];
             int counter=0;
             for (it=agentMap.begin(); it != agentMap.end(); ++it){
-                cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
+                ///cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
                 agentMap_flat[counter] = it->first;
                 agentMap_flat[counter+1] = it->second;
                 counter+=2;
@@ -90,7 +90,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
               //use final flat list and populate local AgentMap list!!
               for (int i=0; i < agentMap_length; i+=2){
                   agentMap[agentMap_flatList[i]] = agentMap_flatList[i+1];
-                  cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
+                  //cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
               }//end for
              
      }//end if
