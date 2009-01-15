@@ -123,6 +123,12 @@ Communicator::receiveEvent(){
     return NULL;
 }//end receiveEvent
 
+
+bool
+Communicator::isAgentLocal(AgentID &id){
+    return (agentMap[id] == MPI::COMM_WORLD.Get_rank());
+}
+
 void
 Communicator::finalize()
 {

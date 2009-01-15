@@ -225,18 +225,18 @@ protected:
     */
     AgentID _myID;
 
-	 /** The AgentID type myID.
-     
-        This is inialized when the agent is registered to a simulator.
-        Only one way to access this, use the getAgentID method.
-      
-        @see getAgentID()
-    */
-	Time _LVT;
+    /** The AgentID type myID.
 
-   
+    This is inialized when the agent is registered to a simulator.
+    Only one way to access this, use the getAgentID method.
+
+    @see getAgentID()
+    */
+    Time _LVT;
+
     list<State*> _stateQueue;
     list<Event*> _outputQueue;
+    list<Event*> _inputQueue;
     State* _myState;
 
 };

@@ -6,7 +6,6 @@
 
 #include "Simulation.h"
 
-
 using namespace muse;
 
 Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
@@ -50,7 +49,11 @@ Simulation::getSimulator(){
 
 bool 
  Simulation::scheduleEvent( Event *e){
-     return scheduler.scheduleEvent(e);
+     if (commManager.isAgentLocal(e->getReceiverAgentID()))
+        return scheduler.scheduleEvent(e);
+     else
+         commManager.sendEvent(e,sizeof(*e));
+     return true;
  }
 
 //bool
@@ -70,10 +73,15 @@ Simulation::start(){
     }//end for
     
     //BIG loop for event processing 
-    EventContainer *events = NULL;
     while(this->_startTime < this->_endTime){
+        //here we poll the wire for any new events to add
+        //NOTE:: we should also look into detecting rollbacks here!!!
+        Event* incoming_event = commManager.receiveEvent();
+        if ( incoming_event != NULL ) scheduleEvent(incoming_event);
+        
+        //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
-            events = scheduler.getNextEvents((*it)->getAgentID());
+            EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
             if (events != NULL){
                 //this means we have events to process
                 //update the agents LVT
@@ -84,6 +92,9 @@ Simulation::start(){
                 //might consider creating a method (addToStateQueue(State*))
                 ////incase we change _stateQueue implementation as another layer of protection.
                 (*it)->_stateQueue.push_back((*it)->_myState->getClone());
+                //now we must store the events in the agent's inputQueue
+                list<Event*>::iterator event_it = (*it)->_inputQueue.end();
+                (*it)->_inputQueue.insert(event_it , events->begin() , events->end());
             }//end if
         }//end for
 
@@ -91,16 +102,15 @@ Simulation::start(){
         _startTime++;
     }//end BIG loop
     
-    //since we are done with the events pointer time to delete
-//    EventContainer::iterator eventsit;
-//    for (eventsit=events->begin(); eventsit != events->end(); ++eventsit ){
-//        delete (*eventsit);
-//    }//end for
-//    delete events;
-    
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
+        //lets take care of all the events in the inputQueue aka processed Events
+        list<Event*>::iterator event_it;
+        for (event_it=(*it)->_outputQueue.begin(); event_it != (*it)->_outputQueue.end(); ++event_it ){
+            delete (*event_it);
+        }//end for
+
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
         for (state_it=(*it)->_stateQueue.begin(); state_it != (*it)->_stateQueue.end(); ++state_it ){

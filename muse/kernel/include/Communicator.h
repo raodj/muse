@@ -33,7 +33,7 @@ public:
           *        you are sending on the wire.
           *        USAGE EXAMPLE:: using the clock example!
           *              ClockEvent *e = new ClockEvent();
-          *              sendEvent(e, sizeof(e));
+          *              sendEvent(e, sizeof(*e)); //NOTE::that you want the sizeof what the pointer points to!!
           *                 .....
           *              free(e); //please remember to free your memory :-)
           * @see Event
@@ -66,6 +66,13 @@ public:
          */
         void registerAgents(AgentContainer &);
 
+        /**The isAgentLocal method.
+         * This will check if the given agent is registered locally.
+         * @param id , the agent id is used to check. true if it is local.
+         * @see AgentID
+         */
+        bool isAgentLocal(AgentID &);
+        
         /** The finialize method.
          *
          * Use this to clean up after yourself.
