@@ -114,7 +114,7 @@ Communicator::receiveEvent(){
         char *incoming_event = new char[event_size];
         MPI::COMM_WORLD.Recv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
         Event* the_event = (Event*)incoming_event;
-        cout << "RECEIVED an Event of size: " << event_size << endl;
+        //cout << "RECEIVED an Event of size: " << event_size << endl;
         //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
         //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
 
