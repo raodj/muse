@@ -117,7 +117,7 @@ Communicator::receiveEvent(){
         //cout << "RECEIVED an Event of size: " << event_size << endl;
         //cout << "event for agent: " << the_event->getReceiverAgentID() << endl;
         //cout << "event to  agent: " << the_event->getSenderAgentID() << endl;
-        return the_event;
+        return &the_event;
     }
     return NULL;
 }//end receiveEvent
