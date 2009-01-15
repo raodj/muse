@@ -49,10 +49,14 @@ Simulation::getSimulator(){
 
 bool 
  Simulation::scheduleEvent( Event *e){
-     if (commManager.isAgentLocal(e->getReceiverAgentID()))
+    AgentID recvAgentID = e->getReceiverAgentID();
+     if (commManager.isAgentLocal(recvAgentID)){
         return scheduler.scheduleEvent(e);
-     else
-         commManager.sendEvent(e,sizeof(*e));
+     }
+     else{
+         int size = sizeof(*e);
+         commManager.sendEvent(e,size);
+     }
      return true;
  }
 
