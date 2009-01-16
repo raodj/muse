@@ -33,7 +33,27 @@ BEGIN_NAMESPACE(muse) //begin namespace declaration
  *
  */
 class Simulation {
-public: 
+public:
+
+        /**The initialize method.
+         * Once the simulation instance is returned. This method must be called to
+         * fully init the simulation kernel. Things like the simulatorID is generated
+         * in this method.
+         *
+         * NOTE :: if this method is not called and you start the simulation then
+         *         the SimualtorID will equal -1u !!
+         */
+        void initialize();
+
+        /**The finalize method.
+         * After calling the start method and the simualtion starts, this should be
+         * the next method called. In this method clean up occurs. Running this method
+         * will insure that all memory used by the Simulation kernel are properly disposed!
+         *
+         * NOTE :: if this method is called the SimualtorID will equal -1u !!
+         */
+        void finalize();
+        
         /** The getSimulatorID method.
          * Use this method to obtain the id of the simulator you are working with. Typically 
          * in parallel simulation this will be the MPI_Rank. 
@@ -137,7 +157,7 @@ protected:
 private:
 
     //the kernel singleton instance
-    static Simulation* kernel;
+    static Simulation kernel;
 
     //used to contain all agents registered to this simulator
     AgentContainer allAgents;

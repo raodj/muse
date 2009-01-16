@@ -7,6 +7,11 @@
 using namespace muse;
 
 Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
+    _myID = -1u;
+}
+
+void
+Simulation::initialize(){
     _myID = commManager.initialize();
 }
 
@@ -31,17 +36,11 @@ bool Simulation::registerAgent(  muse::Agent* agent)  {
 }//end registerAgent
 
 
-//TODO: for now the simulator id is default, but needs to get
-//fixed to work with MPI
- Simulation* Simulation::kernel = NULL;// initialize kernel pointer
+//Simulation kernel; // initialize kernel pointer
 
 Simulation*
 Simulation::getSimulator(){
-    if (kernel == NULL)  // is it the first call?
-    {
-      kernel = new Simulation(); // create sole instance
-    }
-    return kernel; // address of sole instance
+    return &kernel; // address of sole instance
 }//end getSimulator
 
 
@@ -76,9 +75,10 @@ Simulation::start(){
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->initialize();
     }//end for
-    
+
+    _LGVT = _startTime;
     //BIG loop for event processing 
-    while(this->_startTime < this->_endTime){
+    while(this->_LGVT < this->_endTime){
         //cout << "Ticker @ time: " <<_startTime<< endl;
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
@@ -87,7 +87,9 @@ Simulation::start(){
             //cout << "Got an Event from CommManager!!" << endl;
             scheduleEvent(incoming_event);
         }
-        
+
+        //use this to calculate the min LVT
+        Time min_lvt = UINT_MAX;
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
             EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
@@ -95,12 +97,17 @@ Simulation::start(){
                 //this means we have events to process
                 //update the agents LVT
                 (*it)->updateLVT((*events->begin())->getReceiveTime());
+
+                //check for the smallest LVT here!!
+                if ((*it)->getLVT() < min_lvt){
+                    min_lvt = (*it)->getLVT();
+                }//end if
+                
                 //execute the agent task
                 (*it)->executeTask(events);
                 //time to archive the agent's state
-                //might consider creating a method (addToStateQueue(State*))
-                ////incase we change _stateQueue implementation as another layer of protection.
-                (*it)->_stateQueue.push_back((*it)->_myState->getClone());
+                State * state = (*it)->_myState->getClone();
+                (*it)->_stateQueue.push_back(state);
                 //now we must store the events in the agent's inputQueue
                 list<Event*>::iterator event_it;
                 for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
@@ -110,14 +117,19 @@ Simulation::start(){
         }//end for
 
         //increase start time by one timestep
-        _startTime++;
+        _LGVT = min_lvt;
     }//end BIG loop
-    
+}//end start
+
+void
+Simulation::finalize(){
+    _myID = -1u;
     //loop for the finalization
+    AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
         //cout << "[SIMULATION] - called agent finalize" << endl;
-        
+
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
         for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
@@ -142,9 +154,10 @@ Simulation::start(){
 
     //cout << "[SIMULATION] - almost done with cleanup!" << endl;
     //finalize the communicator
-    commManager.finalize();
+    //commManager.finalize();
     //cout << "[SIMULATION] - commManager should be finalized!!" << endl;
-}//end start
+}//end finalize
+
 
 void Simulation::stop(){}
 

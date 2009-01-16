@@ -159,7 +159,14 @@ public:
     */
     const AgentID& getAgentID();
         
- 
+    /**The getLVT method.
+     * This will return the agent's Local Virtual Time.
+     * If you want to know the time in term of an agent, this is what you
+     * want to call.
+     *
+     * @return Time , basically the time of the last processed event
+     */
+    Time getLVT();
 	
     /** The constructor.
         
