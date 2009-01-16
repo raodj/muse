@@ -54,6 +54,7 @@ bool
         return scheduler.scheduleEvent(e);
      }
      else{
+         cout << "Agent is NOT local: sending event via CommManager\n" << endl;
          int size = sizeof(*e);
          commManager.sendEvent(e,size);
      }
@@ -81,7 +82,10 @@ Simulation::start(){
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
-        if ( incoming_event != NULL ) scheduleEvent(incoming_event);
+        if ( incoming_event != NULL ){
+            cout << "Got an Event for CommManager!!\n" << endl;
+            scheduleEvent(incoming_event);
+        }
         
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
