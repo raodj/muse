@@ -45,6 +45,19 @@ public:
          */
         void initialize();
 
+        /**The initialize method.
+         * Once the simulation instance is returned. This method must be called to
+         * fully init the simulation kernel. Things like the simulatorID is generated
+         * in this method.
+         *
+         * NOTE :: if this method is not called and you start the simulation then
+         *         the SimualtorID will equal -1u !!
+         *
+         * @param argc, the number of arguments
+         * @param argv, the arguments to pass into MPI.
+         */
+         void initialize(int argc, char* argv[]);
+
         /**The finalize method.
          * After calling the start method and the simualtion starts, this should be
          * the next method called. In this method clean up occurs. Running this method

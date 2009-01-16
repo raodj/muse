@@ -11,13 +11,8 @@ using namespace muse;
 Communicator::Communicator(){}
 
 SimulatorID
-Communicator::initialize(){
-    int x=0;
-    char **arg = new char*[1];
-    arg[0] = "";
-    MPI::Init(x,arg); //arguments are trash, quick hack to get init working
-    delete[] arg;
-    //return rank;
+Communicator::initialize(int argc, char* argv[]){
+    MPI::Init(argc,argv); 
     return MPI::COMM_WORLD.Get_rank();
 }
 

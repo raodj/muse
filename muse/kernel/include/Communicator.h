@@ -53,7 +53,7 @@ public:
          * this is used to sync all communicator and get the agentMap
          * populated.
          */
-	SimulatorID initialize();
+	SimulatorID initialize(int argc, char* argv[]);
 
         /**The registerAgents method.
          * This is used to sync the AgentMapping in the Communicator class.
