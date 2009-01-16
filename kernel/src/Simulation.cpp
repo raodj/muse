@@ -102,8 +102,8 @@ Simulation::start(){
                 ////incase we change _stateQueue implementation as another layer of protection.
                 (*it)->_stateQueue.push_back((*it)->_myState->getClone());
                 //now we must store the events in the agent's inputQueue
-                list<Event*>::iterator event_it = (*it)->_inputQueue.end();
-                (*it)->_inputQueue.insert(event_it , events->begin() , events->end());
+                //list<Event*>::iterator event_it = (*it)->_inputQueue.end();
+                //(*it)->_inputQueue.insert(event_it , events->begin() , events->end());
             }//end if
         }//end for
 
