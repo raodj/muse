@@ -59,6 +59,9 @@ Agent::updateLVT(const Time & time){
     this->_LVT = time;
 }
 
+Time
+Agent::getLVT() {return _LVT;}
+
 const 
 AgentID& Agent::getAgentID(){
     return _myID;
