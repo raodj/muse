@@ -21,13 +21,11 @@ Simulation::initialize(){
 
 void
 Simulation::initialize(int argc, char* argv[]){
-    _myID = commManager.initialize(x,arg);
+    _myID = commManager.initialize(argc,argv);
 }
 
 
-Simulation::~Simulation() {
-    delete kernel; //make sure we dispose of Simulation instance
-}
+Simulation::~Simulation() {}
 
 const AgentContainer& Simulation::getRegisteredAgents(){
 	return allAgents;
