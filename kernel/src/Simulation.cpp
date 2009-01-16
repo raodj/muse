@@ -51,13 +51,15 @@ bool
  Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
      if (commManager.isAgentLocal(recvAgentID)){
+        cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
         return scheduler.scheduleEvent(e);
      }
      else{
-         cout << "Agent is NOT local: sending event via CommManager!" << endl;
+         cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
          int size = sizeof(*e);
          commManager.sendEvent(e,size);
      }
+     cout << "[SIMULATION] - made it in scheduleEvent" << endl;
      return true;
  }
 
