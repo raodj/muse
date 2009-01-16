@@ -7,13 +7,11 @@
 using namespace muse;
 
 Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
-    commManager = new Communicator();
-    _myID = commManager->initialize();
+    _myID = commManager.initialize();
 }
 
 Simulation::~Simulation() {
     delete kernel; //make sure we dispose of Simulation instance
-    delete commManager;
 }
 
 const AgentContainer& Simulation::getRegisteredAgents(){
@@ -50,14 +48,14 @@ Simulation::getSimulator(){
 bool 
  Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
-     if (commManager->isAgentLocal(recvAgentID)){
+     if (commManager.isAgentLocal(recvAgentID)){
         cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
         return scheduler.scheduleEvent(e);
      }
      else{
          cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
          int size = sizeof(*e);
-         commManager->sendEvent(e,size);
+         commManager.sendEvent(e,size);
      }
      cout << "[SIMULATION] - made it in scheduleEvent" << endl;
      return true;
@@ -71,7 +69,7 @@ bool
 void 
 Simulation::start(){
     //first we setup the AgentMap for all kernels
-    commManager->registerAgents(allAgents);
+    commManager.registerAgents(allAgents);
 
     //loop for the initialization
     AgentContainer::iterator it;
@@ -84,7 +82,7 @@ Simulation::start(){
         cout << "Ticker @ time: " <<_startTime<< endl;
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
-        Event* incoming_event = commManager->receiveEvent();
+        Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
             cout << "Got an Event from CommManager!!" << endl;
             scheduleEvent(incoming_event);
@@ -142,7 +140,7 @@ Simulation::start(){
 
     cout << "[SIMULATION] - almost done with cleanup!" << endl;
     //finalize the communicator
-    commManager->finalize();
+    commManager.finalize();
     cout << "[SIMULATION] - commManager should be finalized!!" << endl;
 }//end start
 
