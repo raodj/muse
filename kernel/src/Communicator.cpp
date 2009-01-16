@@ -32,7 +32,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
     //if size == 1 : then we need not do this!
     if (size == 1) {
-        cout << "[Communicator] Only kernel around: Registration is avoided" << endl;
+        //cout << "[Communicator] Only kernel around: Registration is avoided" << endl;
         return;
     }
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
@@ -106,7 +106,7 @@ Communicator::sendEvent(Event * e, int & event_size){
          char* serialEvent = (char*)e;
          MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
          //cout << "SENT an Event of size: " << event_size << endl;
-         cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
+         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
     }catch (MPI::Exception e) {
         cerr << "MPI ERROR (sendEvent): " << e.Get_error_string() << endl;
     }
@@ -125,13 +125,13 @@ Communicator::receiveEvent(){
             //cout << "RECEIVED an Event of size: " << event_size << endl;
             //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
             //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
-            cout << "[COMMUNICATOR] - made it in receiveEvent" << endl;
+            //cout << "[COMMUNICATOR] - made it in receiveEvent" << endl;
             return the_event;
         }
     }catch (MPI::Exception e) {
         cerr << "MPI ERROR (receiveEvent): " << e.Get_error_string() << endl;
     }
-    cout << "[COMMUNICATOR] - made it in receiveEvent (NULL returned)" << endl;
+    //cout << "[COMMUNICATOR] - made it in receiveEvent (NULL returned)" << endl;
     return NULL;
 }//end receiveEvent
 
@@ -145,9 +145,9 @@ void
 Communicator::finalize()
 {
     try{
-        cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
+       // cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
         MPI::Finalize();
-        cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
+       // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
     }catch (MPI::Exception e) {
         cerr << "MPI ERROR (finalize): " << e.Get_error_string() << endl;
     }
