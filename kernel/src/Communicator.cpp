@@ -31,7 +31,10 @@ Communicator::registerAgents(AgentContainer& allAgents){
     }//end for
 
     //if size == 1 : then we need not do this!
-    if (size == 1) return;
+    if (size == 1) {
+        cout << "[Communicator] Only kernel around: Registration is avoided" << endl;
+        return;
+    }
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
      if (simulator_id == ROOT_KERNEL){
