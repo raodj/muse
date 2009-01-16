@@ -98,7 +98,7 @@ Simulation::start(){
         }
 
         //use this to calculate the min LVT
-        Time min_lvt = UINT_MAX;
+        Time min_lvt = 1e30 ;
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
             EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
@@ -129,7 +129,7 @@ Simulation::start(){
         }//end for
         cout << "MIN_LVT: "<< min_lvt <<endl;
         //increase start time by one timestep
-        if (min_lvt != UINT_MAX) {
+        if (min_lvt < 1e30) {
             _LGVT = min_lvt;
         }//end if
 
