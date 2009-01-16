@@ -97,27 +97,35 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
 void
 Communicator::sendEvent(Event * e, int & event_size){
-    //no good way to send objects via MPI
-    //make Event to a char* aka ghetto hack :-)
-     char* serialEvent = (char*)e;
-     MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
-     //cout << "SENT an Event of size: " << event_size << endl;
+    try {
+        //no good way to send objects via MPI
+        //make Event to a char* aka ghetto hack :-)
+         char* serialEvent = (char*)e;
+         MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
+         //cout << "SENT an Event of size: " << event_size << endl;
+    }catch (MPI::Exception e) {
+        cerr << "MPI ERROR (sendEvent): " << e.Get_error_string() << endl;
+    }
 }//end sendEvent
 
 Event*
 Communicator::receiveEvent(){
-    MPI::Status status;
-    if (MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, EVENT, status)){
-        //figure out the agent list size
-        int event_size = status.Get_count(MPI::CHAR);
-        char *incoming_event = new char[event_size];
-        MPI::COMM_WORLD.Recv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
-        Event* the_event = (Event*)incoming_event;
-        //cout << "RECEIVED an Event of size: " << event_size << endl;
-        //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
-        //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
+    try {
+        MPI::Status status;
+        if (MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, EVENT, status)){
+            //figure out the agent list size
+            int event_size = status.Get_count(MPI::CHAR);
+            char *incoming_event = new char[event_size];
+            MPI::COMM_WORLD.Recv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
+            Event* the_event = (Event*)incoming_event;
+            //cout << "RECEIVED an Event of size: " << event_size << endl;
+            //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
+            //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
 
-        return the_event;
+            return the_event;
+        }
+    }catch (MPI::Exception e) {
+        cerr << "MPI ERROR (receiveEvent): " << e.Get_error_string() << endl;
     }
     return NULL;
 }//end receiveEvent
@@ -132,6 +140,7 @@ void
 Communicator::finalize()
 {
     MPI::Finalize();
+    cout << "MPI in CommManager has been finalized." << endl;
 }
 
 Communicator::~Communicator(){}
