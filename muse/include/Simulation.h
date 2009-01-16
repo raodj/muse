@@ -83,7 +83,7 @@ public:
          * @param e a pointer to the event you wish to schedule
          * @return bool true if process is successful.
          */
-	bool Simulation::scheduleEvent( Event *e);
+	bool scheduleEvent( Event *e);
 
         /** The scheduleEvents method.
          * Agents actually use this method to schedule events.
