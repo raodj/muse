@@ -8,7 +8,8 @@ using namespace muse;
 State::State(){}
 
 State* State::getClone(){
-    return NULL;
+    State *state = new State();
+    return state;
 }
 
 State::~State(){}
