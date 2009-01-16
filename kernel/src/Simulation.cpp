@@ -111,6 +111,7 @@ Simulation::start(){
                 //check for the smallest LVT here!!
                 if ((*it)->getLVT() < min_lvt){
                     min_lvt = (*it)->getLVT();
+                    cout << "MIN_LVT has been updated" << endl;
                 }//end if
                 
                 //execute the agent task
