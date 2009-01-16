@@ -170,7 +170,7 @@ protected:
 private:
 
     //the kernel singleton instance
-    static Simulation kernel;
+    //
 
     //used to contain all agents registered to this simulator
     AgentContainer allAgents;

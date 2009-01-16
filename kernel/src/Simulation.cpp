@@ -48,6 +48,7 @@ bool Simulation::registerAgent(  muse::Agent* agent)  {
 
 Simulation*
 Simulation::getSimulator(){
+    static Simulation kernel;
     return &kernel; // address of sole instance
 }//end getSimulator
 
