@@ -115,8 +115,9 @@ Simulation::start(){
     
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
-        cout << "[SIMULATION] - called agent finalize" << endl;
         (*it)->finalize();
+        cout << "[SIMULATION] - called agent finalize" << endl;
+        
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
         for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
@@ -141,6 +142,7 @@ Simulation::start(){
 
     //finalize the communicator
     commManager.finalize();
+    cout << "[SIMULATION] - commManager should be finalized!!" << endl;
 }//end start
 
 void Simulation::stop(){}
