@@ -28,7 +28,8 @@ private:
       eventComp(){}
       bool operator() ( Event *lhs,  Event *rhs) const
       {
-         return (lhs->getReceiveTime() > rhs->getReceiveTime());
+         Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
+         return (lhs_time > rhs->getReceiveTime());
       }
     };
     typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
