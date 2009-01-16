@@ -129,7 +129,10 @@ Simulation::start(){
         }//end for
         cout << "MIN_LVT: "<< min_lvt <<endl;
         //increase start time by one timestep
-        _LGVT = min_lvt;
+        if (min_lvt != UINT_MAX) {
+            _LGVT = min_lvt;
+        }//end if
+
     }//end BIG loop
 }//end start
 
