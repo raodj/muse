@@ -54,7 +54,7 @@ bool
         return scheduler.scheduleEvent(e);
      }
      else{
-         cout << "Agent is NOT local: sending event via CommManager\n" << endl;
+         cout << "Agent is NOT local: sending event via CommManager!" << endl;
          int size = sizeof(*e);
          commManager.sendEvent(e,size);
      }
@@ -79,11 +79,12 @@ Simulation::start(){
     
     //BIG loop for event processing 
     while(this->_startTime < this->_endTime){
+        cout << "Ticker @ time: " <<_startTime<< endl;
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
-            cout << "Got an Event for CommManager!!\n" << endl;
+            cout << "Got an Event from CommManager!!" << endl;
             scheduleEvent(incoming_event);
         }
         
