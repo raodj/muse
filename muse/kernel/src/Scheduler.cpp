@@ -51,6 +51,7 @@ bool Scheduler::scheduleEvent( Event *e){
     //make sure the recevier agent has an entry
     if (schedule[e->getReceiverAgentID()] == NULL) return false;
     schedule[e->getReceiverAgentID()]->push(e);
+    cout << "[SCHEDULER] - made it in scheduleEvent" << endl;
     return true;
 }
 
