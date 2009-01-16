@@ -145,6 +145,7 @@ void
 Communicator::finalize()
 {
     try{
+        cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
         MPI::Finalize();
         cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
     }catch (MPI::Exception e) {
