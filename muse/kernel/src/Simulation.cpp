@@ -79,7 +79,7 @@ Simulation::start(){
     
     //BIG loop for event processing 
     while(this->_startTime < this->_endTime){
-        cout << "Ticker @ time: " <<_startTime<< endl;
+        //cout << "Ticker @ time: " <<_startTime<< endl;
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
