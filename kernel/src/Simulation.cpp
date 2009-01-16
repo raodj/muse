@@ -140,6 +140,7 @@ Simulation::start(){
         cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
     }//end for
 
+    cout << "[SIMULATION] - almost done with cleanup!" << endl;
     //finalize the communicator
     commManager.finalize();
     cout << "[SIMULATION] - commManager should be finalized!!" << endl;
