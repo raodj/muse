@@ -12,8 +12,18 @@ Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
 
 void
 Simulation::initialize(){
-    _myID = commManager.initialize();
+    int x=0;
+    char **arg = new char*[1];
+    arg[0] = "";
+    _myID = commManager.initialize(x,arg);
+    delete[] arg;
 }
+
+void
+Simulation::initialize(int argc, char* argv[]){
+    _myID = commManager.initialize(x,arg);
+}
+
 
 Simulation::~Simulation() {
     delete kernel; //make sure we dispose of Simulation instance
