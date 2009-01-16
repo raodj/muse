@@ -148,7 +148,7 @@ private:
     Time _LGVT, _startTime, _endTime;
     Scheduler scheduler;
     //handles all communication on the wire. (MPI)
-    Communicator commManager;
+    Communicator *commManager;
 
 };
  
