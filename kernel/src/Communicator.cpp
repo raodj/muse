@@ -24,18 +24,17 @@ void
 Communicator::registerAgents(AgentContainer& allAgents){
     int  size = MPI::COMM_WORLD.Get_size();
 
+    //first lets add all kernel add local agents to map!
+    AgentContainer::iterator ac_it; //ac == AgentContainer
+    for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
+         agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
+    }//end for
+
     //if size == 1 : then we need not do this!
     if (size == 1) return;
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
      if (simulator_id == ROOT_KERNEL){
-        
-            //first lets add root_kernel local agents to map!
-            AgentContainer::iterator ac_it; //ac == AgentContainer
-            for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
-                 agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
-            }//end for
-
             //here we collect all agent id from all other simulation kernels!!
             int done_count = 1;
             MPI::Status status;

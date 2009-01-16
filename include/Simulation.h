@@ -41,7 +41,7 @@ public:
          *@return Simulator* pointer to the id of the simulator
          *@see SimulatorID
          */
-	const SimulatorID getSimulatorID();
+	 SimulatorID getSimulatorID();
         
         /** The registerAgent method.
          * Once you design and create an agent for your simulation, use this method to register the agent to the 
