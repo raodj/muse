@@ -16,6 +16,7 @@ Communicator::initialize(){
     char **arg = new char*[1];
     arg[0] = "";
     MPI::Init(x,arg); //arguments are trash, quick hack to get init working
+    delete[] arg;
     //return rank;
     return MPI::COMM_WORLD.Get_rank();
 }
