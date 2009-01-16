@@ -49,15 +49,15 @@ bool
  Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
      if (commManager.isAgentLocal(recvAgentID)){
-        cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
+       // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
         return scheduler.scheduleEvent(e);
      }
      else{
-         cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
+         //cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
          int size = sizeof(*e);
          commManager.sendEvent(e,size);
      }
-     cout << "[SIMULATION] - made it in scheduleEvent" << endl;
+     //cout << "[SIMULATION] - made it in scheduleEvent" << endl;
      return true;
  }
 
@@ -84,7 +84,7 @@ Simulation::start(){
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
-            cout << "Got an Event from CommManager!!" << endl;
+            //cout << "Got an Event from CommManager!!" << endl;
             scheduleEvent(incoming_event);
         }
         
@@ -116,34 +116,34 @@ Simulation::start(){
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
-        cout << "[SIMULATION] - called agent finalize" << endl;
+        //cout << "[SIMULATION] - called agent finalize" << endl;
         
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
         for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
             delete (*event_it);
         }//end for
-        cout << "[SIMULATION] - deleted remaining events in agent's inQ" << endl;
+        //cout << "[SIMULATION] - deleted remaining events in agent's inQ" << endl;
 
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
         for (state_it=(*it)->_stateQueue.begin(); state_it != (*it)->_stateQueue.end(); ++state_it ){
             delete (*state_it);
         }//end for
-        cout << "[SIMULATION] - deleted all states in agent's stateQ" << endl;
+        //cout << "[SIMULATION] - deleted all states in agent's stateQ" << endl;
 
         //now lets delete all remaining events in each agent's outputQueue
         list<Event*>::iterator eit;
         for (eit=(*it)->_outputQueue.begin(); eit != (*it)->_outputQueue.end(); ++eit ){
             delete (*eit);
         }//end for
-        cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
+        //cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
     }//end for
 
-    cout << "[SIMULATION] - almost done with cleanup!" << endl;
+    //cout << "[SIMULATION] - almost done with cleanup!" << endl;
     //finalize the communicator
     commManager.finalize();
-    cout << "[SIMULATION] - commManager should be finalized!!" << endl;
+    //cout << "[SIMULATION] - commManager should be finalized!!" << endl;
 }//end start
 
 void Simulation::stop(){}

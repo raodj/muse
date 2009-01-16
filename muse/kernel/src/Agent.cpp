@@ -70,7 +70,7 @@ Agent::scheduleEvent(Event *e){
         //this means event was scheduled with no problems
         //now lets add this event to our outputQueue in case of rollback
         this->_outputQueue.push_back(e);
-        cout << "[AGENT] - made it in scheduleEvent" << endl;
+        //cout << "[AGENT] - made it in scheduleEvent" << endl;
         return true;
     }
     return false;
