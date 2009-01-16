@@ -86,6 +86,9 @@ Simulation::start(){
     }//end for
 
     _LGVT = _startTime;
+
+    //use this to calculate the min LVT
+    Time min_lvt = 1e30 ;
     //BIG loop for event processing 
     while(this->_LGVT < this->_endTime){
         if (_myID == 0 ) cout << "Ticker @ time: " <<_LGVT<< endl;
@@ -97,8 +100,6 @@ Simulation::start(){
             scheduleEvent(incoming_event);
         }
 
-        //use this to calculate the min LVT
-        Time min_lvt = 1e30 ;
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
             EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
@@ -111,7 +112,7 @@ Simulation::start(){
                 //check for the smallest LVT here!!
                 if ((*it)->getLVT() < min_lvt){
                     min_lvt = (*it)->getLVT();
-                    cout << "MIN_LVT has been updated" << endl;
+                    //cout << "MIN_LVT has been updated" << endl;
                 }//end if
                 
                 //execute the agent task
@@ -127,7 +128,7 @@ Simulation::start(){
                 }//end for
             }//end if
         }//end for
-        cout << "MIN_LVT: "<< min_lvt <<endl;
+        //cout << "MIN_LVT: "<< min_lvt <<endl;
         //increase start time by one timestep
         if (min_lvt < 1e30) {
             _LGVT = min_lvt;
