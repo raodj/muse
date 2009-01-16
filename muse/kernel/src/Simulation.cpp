@@ -87,8 +87,7 @@ Simulation::start(){
 
     _LGVT = _startTime;
 
-    //use this to calculate the min LVT
-    Time min_lvt = 1e30 ;
+   
     //BIG loop for event processing 
     while(this->_LGVT < this->_endTime){
         if (_myID == 0 ) cout << "Ticker @ time: " <<_LGVT<< endl;
@@ -100,6 +99,8 @@ Simulation::start(){
             scheduleEvent(incoming_event);
         }
 
+         //use this to calculate the min LVT
+        Time min_lvt = 1e30 ;
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
             EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
