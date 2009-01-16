@@ -20,7 +20,7 @@ const AgentContainer& Simulation::getRegisteredAgents(){
 	return allAgents;
 }
 
-const SimulatorID Simulation::getSimulatorID(){ return this->_myID; }
+SimulatorID Simulation::getSimulatorID(){ return this->_myID; }
 
 
 bool Simulation::registerAgent(  muse::Agent* agent)  { 
