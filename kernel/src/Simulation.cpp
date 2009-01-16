@@ -127,7 +127,7 @@ Simulation::start(){
                 }//end for
             }//end if
         }//end for
-
+        cout << "MIN_LVT: "<< min_lvt <<endl;
         //increase start time by one timestep
         _LGVT = min_lvt;
     }//end BIG loop
