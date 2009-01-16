@@ -104,7 +104,7 @@ Communicator::sendEvent(Event * e, int & event_size){
          //cout << "SENT an Event of size: " << event_size << endl;
          //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
     }catch (MPI::Exception e) {
-        cerr << "MPI ERROR (sendEvent): " << e.Get_error_string() << endl;
+        cerr << "MPI ERROR (sendEvent): ";cerr << e.Get_error_string() << endl;
     }
 }//end sendEvent
 
@@ -125,7 +125,7 @@ Communicator::receiveEvent(){
             return the_event;
         }
     }catch (MPI::Exception e) {
-        cerr << "MPI ERROR (receiveEvent): " << e.Get_error_string() << endl;
+        cerr << "MPI ERROR (receiveEvent): ";cerr << e.Get_error_string() << endl;
     }
     //cout << "[COMMUNICATOR] - made it in receiveEvent (NULL returned)" << endl;
     return NULL;
@@ -134,7 +134,8 @@ Communicator::receiveEvent(){
 
 bool
 Communicator::isAgentLocal(AgentID &id){
-    return (agentMap[id] == MPI::COMM_WORLD.Get_rank());
+    SimulatorID my_id = MPI::COMM_WORLD.Get_rank();
+    return (agentMap[id] == my_id);
 }
 
 void
@@ -145,7 +146,7 @@ Communicator::finalize()
         MPI::Finalize();
        // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
     }catch (MPI::Exception e) {
-        cerr << "MPI ERROR (finalize): " << e.Get_error_string() << endl;
+        cerr << "MPI ERROR (finalize): ";cerr << e.Get_error_string() << endl;
     }
 }
 

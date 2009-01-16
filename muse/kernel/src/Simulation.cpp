@@ -104,7 +104,8 @@ Simulation::start(){
             if (events != NULL){
                 //this means we have events to process
                 //update the agents LVT
-                (*it)->updateLVT((*events->begin())->getReceiveTime());
+                Time recv_time = (*events->begin())->getReceiveTime();
+                (*it)->updateLVT(recv_time);
 
                 //check for the smallest LVT here!!
                 if ((*it)->getLVT() < min_lvt){
@@ -119,7 +120,8 @@ Simulation::start(){
                 //now we must store the events in the agent's inputQueue
                 list<Event*>::iterator event_it;
                 for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
-                    (*it)->_inputQueue.push_back((*event_it));
+                    Event *e = (*event_it);
+                    (*it)->_inputQueue.push_back(e);
                 }//end for
             }//end if
         }//end for
