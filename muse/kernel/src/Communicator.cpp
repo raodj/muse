@@ -144,8 +144,12 @@ Communicator::isAgentLocal(AgentID &id){
 void
 Communicator::finalize()
 {
-    MPI::Finalize();
-    cout << "MPI in CommManager has been finalized." << endl;
+    try{
+        MPI::Finalize();
+        cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
+    }catch (MPI::Exception e) {
+        cerr << "MPI ERROR (finalize): " << e.Get_error_string() << endl;
+    }
 }
 
 Communicator::~Communicator(){}
