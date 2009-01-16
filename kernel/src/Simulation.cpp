@@ -115,24 +115,28 @@ Simulation::start(){
     
     //loop for the finalization
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
+        cout << "[SIMULATION] - called agent finalize" << endl;
         (*it)->finalize();
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
-        for (event_it=(*it)->_outputQueue.begin(); event_it != (*it)->_outputQueue.end(); ++event_it ){
+        for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
             delete (*event_it);
         }//end for
+        cout << "[SIMULATION] - deleted remaining events in agent's inQ" << endl;
 
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
         for (state_it=(*it)->_stateQueue.begin(); state_it != (*it)->_stateQueue.end(); ++state_it ){
             delete (*state_it);
         }//end for
+        cout << "[SIMULATION] - deleted all states in agent's stateQ" << endl;
 
         //now lets delete all remaining events in each agent's outputQueue
         list<Event*>::iterator eit;
         for (eit=(*it)->_outputQueue.begin(); eit != (*it)->_outputQueue.end(); ++eit ){
             delete (*eit);
         }//end for
+        cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
     }//end for
 
     //finalize the communicator
