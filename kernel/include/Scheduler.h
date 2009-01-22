@@ -1,10 +1,11 @@
 #ifndef _MUSE_SCHEDULER_H_
 #define _MUSE_SCHEDULER_H_
 
-#include "Event.h"
+//#include "Event.h"
 #include "DataTypes.h"
 #include <queue>
 #include <map>
+#include "Agent.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -13,29 +14,17 @@ public:
 	Scheduler();
 	~Scheduler();
 	
-	bool scheduleEvent( Event *);
+	bool scheduleEvent(Event *);
 	//bool scheduleEvents( EventContainer *);
-	EventContainer* getNextEvents(const AgentID &);
-        bool addAgentToScheduler(const AgentID &);
+	bool processNextAgentEvents();
+        bool addAgentToScheduler(Agent *);
  
+    //this will be used to figure out which agents should process events
+    bool operator()(const Agent *lhs, const Agent *rhs) const;
 private:
-    //compares delivery times. puts the one with the smaller
-    //ahead.
-    class eventComp
-    {
-
-    public:
-      eventComp(){}
-      bool operator() ( Event *lhs,  Event *rhs) const
-      {
-         Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
-         return (lhs_time > rhs->getReceiveTime());
-      }
-    };
-    typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
-    typedef map<AgentID, EventPQ*> ScheduleMap;
-
-    ScheduleMap schedule;
+    typedef map<AgentID, Agent*> AgentMap;
+    AgentMap agentMap;
+    AgentContainer allAgents;
 };
 
 END_NAMESPACE(muse)

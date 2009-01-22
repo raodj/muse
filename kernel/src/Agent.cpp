@@ -22,7 +22,6 @@
 //          Dhananjai M. Rao    raodm@muohio.edu
 //
 //---------------------------------------------------------------------------
-
 #include "Agent.h"
 #include "Simulation.h"
 #include <iostream>
@@ -39,45 +38,93 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID & id, State * agentState) : _myID(id), _LVT(0),_myState(agentState) {}
+Agent::Agent(AgentID & id, State * agentState) : myID(id), LVT(0),myState(agentState) {
+    //time to archive the agent's init state
+    State * state = myState->getClone();
+    stateQueue.push_back(state);
+}//end ctor
 
 Agent::~Agent() {}
 
+bool
+Agent::processNextEvents(){
+     //quick check, if eventpq empty, then return NULL
+    if (eventPQ.empty()) return false;
+    
+    EventContainer events;
+    Event *rootEvent = eventPQ.top();
+    cout << "[Agent " <<getAgentID()<<" ] ";cout << "Top root event for time: ";cout << rootEvent->getReceiveTime() << endl;
+    //std::cout << "Scheduler Size: " << schedule[agent]->size() << std::endl;
+    //std::cout << "Getting Root Event for receive Time: " << rootEvent->getReceiveTime() << std::endl;
+
+    events.push_back(rootEvent);
+   
+    //Event * t = new Event(rootEvent->getSenderAgentID(),rootEvent->getReceiverAgentID(),
+    //                      rootEvent->getSentTime(), rootEvent->getReceiveTime());
+    //inputQueue.push_back(t);
+    //cout << "Pushed to input" << endl;
+    eventPQ.pop();
+    //cout << "Pop root event for time: ";cout << rootEvent->getReceiveTime() << endl;
+    //cout << "Popped root event" << endl;
+    Event *nextEvent = eventPQ.top();
+    //cout << "Top next event for time: ";cout << rootEvent->getReceiveTime() << endl;
+    ///now lets get all the events to process
+    while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
+        if (eventPQ.empty()) break;
+        events.push_back(nextEvent);
+        //inputQueue.push_back(nextEvent);
+        eventPQ.pop();
+        nextEvent = eventPQ.top();
+    }//end while
+
+   // cout << "Pasted while loop"<< endl;
+    //update the agents LVT
+    LVT = rootEvent->getReceiveTime();
+
+    //now call the executeTask
+    executeTask(&events);
+
+    //time to archive the agent's state
+    State * state = myState->getClone();
+    stateQueue.push_back(state);
+
+    return true;
+}//end processNextEvents
+
 State*
-Agent::cloneState(State & state){
-    return state.getClone();
-}
+Agent::cloneState(State * state){
+    return state->getClone();
+}//end cloneState
 
 void
 Agent::setState(State * state){
     //TODO: verify this works!!
-    this->_myState = state;
-}
-
-void
-Agent::updateLVT(const Time & time){
-    this->_LVT = time;
-}
+    this->myState = state;
+}//end setState
 
 Time
-Agent::getLVT() {return _LVT;}
+Agent::getLVT() {return LVT;}
 
 const 
 AgentID& Agent::getAgentID(){
-    return _myID;
-}
+    return myID;
+}//end getAgentID
 
 bool 
 Agent::scheduleEvent(Event *e){
-    if ((Simulation::getSimulator())->scheduleEvent(e)){
+    if (e->getReceiverAgentID() == getAgentID()){ 
+        eventPQ.push(e);
+        outputQueue.push_back(e);
+        return true;
+    }else if ((Simulation::getSimulator())->scheduleEvent(e)){
         //this means event was scheduled with no problems
         //now lets add this event to our outputQueue in case of rollback
-        this->_outputQueue.push_back(e);
+        outputQueue.push_back(e);
         //cout << "[AGENT] - made it in scheduleEvent" << endl;
         return true;
-    }
+    }//end if
     return false;
-}
+}//end scheduleEvent
 
 //bool
 //Agent::scheduleEvents(EventContainer * events){

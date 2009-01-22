@@ -176,9 +176,9 @@ private:
     AgentContainer allAgents;
 
     //usually the MPI_Rank, otherwise a globally unique id for the simulator.
-    SimulatorID _myID;
+    SimulatorID myID;
 
-    Time _LGVT, _startTime, _endTime;
+    Time LGVT, startTime, endTime;
     Scheduler scheduler;
     //handles all communication on the wire. (MPI)
     Communicator commManager;

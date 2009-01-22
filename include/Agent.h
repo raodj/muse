@@ -28,6 +28,8 @@
 #include "DataTypes.h"
 #include "State.h"
 #include <list>
+#include "Event.h"
+#include <queue>
 
 BEGIN_NAMESPACE(muse) //begin namespace declaration
 
@@ -51,7 +53,9 @@ class Agent {
 
     //lets declare the Simulation class a friend!
     friend class Simulation;
-
+    //lets declare the Scheduler class a friend!
+    friend class Scheduler;
+   
 public:
     /** The initialize method.
      
@@ -191,10 +195,10 @@ public:
      *            makes this call. However, if for some reason the user calls for a clone
      *            then it is important to properly dispose the pointer when operation is complete.
      *
-     *@param State reference, this is the state to be cloned.
+     *@param State pointer, this is the state to be cloned.
      *@return State, pointer to new state.
      */
-    State* cloneState(State &);
+    State* cloneState(State *);
 
     /**The setState method.
      * Currently waiting to be approaved for implementation.
@@ -213,16 +217,32 @@ public:
 
 private:
 
-    /**The updateLVT method.
-     * Primary users of this method is the Simulation class. The Simulation
-     * kernel will use this to update the agent's LVT (Local Virtual Time).
+
+    /**The processNextEvents method.
+     * This is used for in house and SHOULD NEVER be used by users. Only for the Simulation kernel.
+     * This is used to get the next set of events to be processed by this agent. The scheduler 
+     * will call this method, when it is time for processing.
      *
-     *@param Time , the time to set to.
-     *@see Time datetype, this along with other used datetypes created for MUSE are in the DataTypes.h
+     *@return bool, true if there were events to process at the time of the method call
      */
-    void updateLVT(const Time &);
+    bool processNextEvents();
 
 protected:
+    //compares delivery times. puts the one with the smaller
+    //ahead.
+    class eventComp
+    {
+    public:
+      eventComp(){}
+      bool operator() ( Event *lhs,  Event *rhs) const
+      {
+         Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
+         return (lhs_time > rhs->getReceiveTime());
+      }
+    };
+    
+    typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
+
     /** The AgentID type myID.
      
         This is inialized when the agent is registered to a simulator.
@@ -230,7 +250,7 @@ protected:
       
         @see getAgentID()
     */
-    AgentID _myID;
+    AgentID myID;
 
     /** The AgentID type myID.
 
@@ -239,12 +259,13 @@ protected:
 
     @see getAgentID()
     */
-    Time _LVT;
+    Time LVT;
 
-    list<State*> _stateQueue;
-    list<Event*> _outputQueue;
-    list<Event*> _inputQueue;
-    State* _myState;
+    list<State*> stateQueue;
+    list<Event*> outputQueue;
+    list<Event*> inputQueue;
+    State* myState;
+    EventPQ eventPQ;
 
 };
 END_NAMESPACE(muse)//end namespace declaration
