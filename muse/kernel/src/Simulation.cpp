@@ -6,8 +6,8 @@
 
 using namespace muse;
 
-Simulation::Simulation() :  _LGVT(0), _startTime(0), _endTime(0) {
-    _myID = -1u;
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0) {
+    myID = -1u;
 }
 
 void
@@ -15,13 +15,13 @@ Simulation::initialize(){
     int x=0;
     char **arg = new char*[1];
     arg[0] = "";
-    _myID = commManager.initialize(x,arg);
+    myID = commManager.initialize(x,arg);
     delete[] arg;
 }
 
 void
 Simulation::initialize(int argc, char* argv[]){
-    _myID = commManager.initialize(argc,argv);
+    myID = commManager.initialize(argc,argv);
 }
 
 
@@ -31,18 +31,17 @@ const AgentContainer& Simulation::getRegisteredAgents(){
 	return allAgents;
 }
 
-SimulatorID Simulation::getSimulatorID(){ return this->_myID; }
+SimulatorID Simulation::getSimulatorID(){ return this->myID; }
 
 
 bool Simulation::registerAgent(  muse::Agent* agent)  { 
 	//add to the agents list
-    if (scheduler.addAgentToScheduler(agent->getAgentID())){
+    if (scheduler.addAgentToScheduler(agent)){
         allAgents.push_back(agent);
         return true;
     }//end if
     return false;
 }//end registerAgent
-
 
 //Simulation kernel; // initialize kernel pointer
 
@@ -85,54 +84,33 @@ Simulation::start(){
         (*it)->initialize();
     }//end for
 
-    _LGVT = _startTime;
+    LGVT = startTime;
 
-   
     //BIG loop for event processing 
-    while(this->_LGVT < this->_endTime){
-        if (_myID == 0 ) cout << "Ticker @ time: " <<_LGVT<< endl;
+    while(LGVT < endTime){
+        //if (myID == 0 ) cout << "Root Ticker @ time: " <<LGVT<< endl;
         //here we poll the wire for any new events to add
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
-            //cout << "Got an Event from CommManager!!" << endl;
             scheduleEvent(incoming_event);
-        }
+        } //end if
 
          //use this to calculate the min LVT
         Time min_lvt = 1e30 ;
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); ++it){
-            EventContainer *events = scheduler.getNextEvents((*it)->getAgentID());
-            if (events != NULL){
-                //this means we have events to process
-                //update the agents LVT
-                Time recv_time = (*events->begin())->getReceiveTime();
-                (*it)->updateLVT(recv_time);
-
+            if (scheduler.processNextAgentEvents() ){
                 //check for the smallest LVT here!!
-                if ((*it)->getLVT() < min_lvt){
+                if ((*it)->getLVT() < min_lvt) {
                     min_lvt = (*it)->getLVT();
-                    //cout << "MIN_LVT has been updated" << endl;
                 }//end if
-                
-                //execute the agent task
-                (*it)->executeTask(events);
-                //time to archive the agent's state
-                State * state = (*it)->_myState->getClone();
-                (*it)->_stateQueue.push_back(state);
-                //now we must store the events in the agent's inputQueue
-                list<Event*>::iterator event_it;
-                for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
-                    Event *e = (*event_it);
-                    (*it)->_inputQueue.push_back(e);
-                }//end for
             }//end if
         }//end for
-        //cout << "MIN_LVT: "<< min_lvt <<endl;
+       
         //increase start time by one timestep
         if (min_lvt < 1e30) {
-            _LGVT = min_lvt;
+            LGVT = min_lvt;
         }//end if
 
     }//end BIG loop
@@ -140,7 +118,7 @@ Simulation::start(){
 
 void
 Simulation::finalize(){
-    _myID = -1u;
+    myID = -1u;
     //loop for the finalization
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
@@ -149,21 +127,21 @@ Simulation::finalize(){
 
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
-        for (event_it=(*it)->_inputQueue.begin(); event_it != (*it)->_inputQueue.end(); ++event_it ){
+        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
             delete (*event_it);
         }//end for
         //cout << "[SIMULATION] - deleted remaining events in agent's inQ" << endl;
 
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
-        for (state_it=(*it)->_stateQueue.begin(); state_it != (*it)->_stateQueue.end(); ++state_it ){
+        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
             delete (*state_it);
         }//end for
         //cout << "[SIMULATION] - deleted all states in agent's stateQ" << endl;
 
         //now lets delete all remaining events in each agent's outputQueue
         list<Event*>::iterator eit;
-        for (eit=(*it)->_outputQueue.begin(); eit != (*it)->_outputQueue.end(); ++eit ){
+        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
             delete (*eit);
         }//end for
         //cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
@@ -179,28 +157,28 @@ Simulation::finalize(){
 void Simulation::stop(){}
 
 void 
-Simulation::setStartTime(const Time & startTime){
-    _startTime = startTime;
+Simulation::setStartTime(const Time & start_time){
+    startTime = start_time;
 }
 
 void 
-Simulation::setStopTime(const Time & stopTime){
-    _endTime = stopTime;
+Simulation::setStopTime(const Time & end_time){
+    endTime = end_time;
 }
 
 const Time& 
 Simulation::getTime(){
-    return _LGVT;
+    return LGVT;
 }
 
 const Time& 
 Simulation::getStartTime(){
-    return _startTime;
+    return startTime;
 }
 
 const Time& 
 Simulation::getEndTime(){
-    return _endTime;
+    return endTime;
 }
 
 #endif
