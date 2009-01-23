@@ -20,11 +20,15 @@ public:
         bool addAgentToScheduler(Agent *);
  
     //this will be used to figure out which agents should process events
-    bool operator()(const Agent *lhs, const Agent *rhs) const;
+   // bool operator()(const Agent *lhs, const Agent *rhs) const;
 private:
     typedef map<AgentID, Agent*> AgentMap;
     AgentMap agentMap;
     AgentContainer allAgents;
+
+    typedef priority_queue <Agent*, vector<Agent*>, Agent::agentComp > AgentPQ;
+
+    AgentPQ agent_pq;
 };
 
 END_NAMESPACE(muse)
