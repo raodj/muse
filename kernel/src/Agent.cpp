@@ -59,9 +59,7 @@ Agent::processNextEvents(){
 
     events.push_back(rootEvent);
    
-    //Event * t = new Event(rootEvent->getSenderAgentID(),rootEvent->getReceiverAgentID(),
-    //                      rootEvent->getSentTime(), rootEvent->getReceiveTime());
-    //inputQueue.push_back(t);
+    inputQueue.push_back(rootEvent);
     //cout << "Pushed to input" << endl;
     eventPQ.pop();
     //cout << "Pop root event for time: ";cout << rootEvent->getReceiveTime() << endl;
@@ -72,7 +70,7 @@ Agent::processNextEvents(){
     while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
         if (eventPQ.empty()) break;
         events.push_back(nextEvent);
-        //inputQueue.push_back(nextEvent);
+        inputQueue.push_back(nextEvent);
         eventPQ.pop();
         nextEvent = eventPQ.top();
     }//end while
