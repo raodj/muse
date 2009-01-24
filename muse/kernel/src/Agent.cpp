@@ -53,37 +53,26 @@ Agent::processNextEvents(){
     
     EventContainer events;
     Event *rootEvent = eventPQ.top();
-    cout << "[Agent " <<getAgentID()<<" ] ";cout << "Top root event for time: ";cout << rootEvent->getReceiveTime() << endl;
-    //std::cout << "Scheduler Size: " << schedule[agent]->size() << std::endl;
-    //std::cout << "Getting Root Event for receive Time: " << rootEvent->getReceiveTime() << std::endl;
+    events.push_back(rootEvent); //add it to eventcontainer
+    inputQueue.push_back(rootEvent); //push it to the input Queue
+    eventPQ.pop(); //remove the root Event
 
-    events.push_back(rootEvent);
-   
-    inputQueue.push_back(rootEvent);
-    //cout << "Pushed to input" << endl;
-    eventPQ.pop();
-    //cout << "Pop root event for time: ";cout << rootEvent->getReceiveTime() << endl;
-    //cout << "Popped root event" << endl;
-    Event *nextEvent = eventPQ.top();
-    //cout << "Top next event for time: ";cout << rootEvent->getReceiveTime() << endl;
-    ///now lets get all the events to process
-    while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
-        if (eventPQ.empty()) break;
-        events.push_back(nextEvent);
-        inputQueue.push_back(nextEvent);
-        eventPQ.pop();
+    Event *nextEvent = NULL;
+    if (eventPQ.size() > 1){ //means there is only one event
         nextEvent = eventPQ.top();
-    }//end while
-
-   // cout << "Pasted while loop"<< endl;
-    //update the agents LVT
-    LVT = rootEvent->getReceiveTime();
-
-    //now call the executeTask
-    executeTask(&events);
-
-    //time to archive the agent's state
-    State * state = myState->getClone();
+        ///now lets get all the events to process
+        while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
+            if (eventPQ.empty()) break;
+            events.push_back(nextEvent);
+            inputQueue.push_back(nextEvent);
+            eventPQ.pop();
+            nextEvent = eventPQ.top();
+        }//end while
+    }//end if
+    
+    LVT = rootEvent->getReceiveTime(); //update the agents LVT
+    executeTask(&events); //now call the executeTask
+    State * state = myState->getClone(); //time to archive the agent's state
     stateQueue.push_back(state);
 
     return true;
@@ -115,10 +104,7 @@ Agent::scheduleEvent(Event *e){
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
-        //this means event was scheduled with no problems
-        //now lets add this event to our outputQueue in case of rollback
         outputQueue.push_back(e);
-        //cout << "[AGENT] - made it in scheduleEvent" << endl;
         return true;
     }//end if
     return false;
