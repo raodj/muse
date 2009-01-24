@@ -29,11 +29,10 @@
 #include "State.h"
 #include <list>
 #include "Event.h"
-#include <queue>
+#include "f_heap.h"
 
 BEGIN_NAMESPACE(muse) //begin namespace declaration
 
-class Event;
 
 /** The base class for all agents in a simulation.
  
@@ -264,8 +263,8 @@ protected:
       }
     };
     
-    typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
-
+    //typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
+    typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
     /** The AgentID type myID.
      
         This is inialized when the agent is registered to a simulator.
