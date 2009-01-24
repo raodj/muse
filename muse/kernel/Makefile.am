@@ -39,6 +39,7 @@ libmuse_a_SOURCES = \
 	src/Communicator.cpp\
 	src/Scheduler.cpp\
 	src/State.cpp \
-	src/Compatibility.cpp
+	src/Compatibility.cpp \
+	src/f_heap.cpp
 
 # end of Makefile.am
