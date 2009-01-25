@@ -53,6 +53,7 @@ Agent::processNextEvents(){
     
     EventContainer events;
     Event *rootEvent = eventPQ.top();
+    cout << "Agent: " << getAgentID(); cout << " Event r time: " << rootEvent->getReceiveTime()<<endl;
     events.push_back(rootEvent); //add it to eventcontainer
     inputQueue.push_back(rootEvent); //push it to the input Queue
     eventPQ.pop(); //remove the root Event
@@ -99,7 +100,12 @@ AgentID& Agent::getAgentID(){
 
 bool 
 Agent::scheduleEvent(Event *e){
-    if (e->getReceiverAgentID() == getAgentID()){ 
+    //first check if this is a rollback!
+    if (e->getReceiveTime() <= LVT){
+        cout << "Detected a ROLLBACK" << endl;
+        
+    }
+    if (e->getReceiverAgentID() == getAgentID()){
         eventPQ.push(e);
         outputQueue.push_back(e);
         return true;

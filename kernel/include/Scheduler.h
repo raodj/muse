@@ -27,7 +27,7 @@
 #include <map>
 #include "Agent.h"
 #include "f_heap.h"
-
+#include <queue>
 BEGIN_NAMESPACE(muse)
 
 class Scheduler {
@@ -45,8 +45,7 @@ public:
 private:
     typedef map<AgentID, Agent*> AgentMap;
     AgentMap agentMap;
-    AgentContainer allAgents;
-
+  
     //typedef priority_queue <Agent*, vector<Agent*>, Agent::agentComp > AgentPQ;
     typedef boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
     AgentPQ agent_pq;
