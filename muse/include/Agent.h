@@ -54,7 +54,7 @@ class Agent {
     friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
-   
+    
 public:
     /** The initialize method.
      
@@ -231,22 +231,21 @@ protected:
     class agentComp{
     public:
         agentComp(){}
-
        inline bool operator()(const Agent *lhs, const Agent *rhs) const
         {
+            if (lhs->eventPQ.empty() && rhs->eventPQ.empty()) {
+               return true;
+            }
             if (lhs->eventPQ.empty() && !rhs->eventPQ.empty()) {
-                //std::cout << "[CompScheduler] lhs is EMPTY"<< std::endl;
                 return true;
             }
             if (rhs->eventPQ.empty() && !lhs->eventPQ.empty()) {
-                //std::cout << "[CompScheduler] rhs is EMPTY"<< std::endl;
                 return false;
             }
             Event *lhs_event = lhs->eventPQ.top();
             Event *rhs_event = rhs->eventPQ.top();
             Time lhs_time    = lhs_event->getReceiveTime();
             Time rhs_time    = rhs_event->getReceiveTime();
-            //std::cout << "[CompScheduler] " << lhs_time << " > " << rhs_time << std::endl;
             return (lhs_time > rhs_time);
         }//end operator()
     };

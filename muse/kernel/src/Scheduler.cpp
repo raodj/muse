@@ -32,20 +32,15 @@ Scheduler::Scheduler(){}
 bool
 Scheduler::addAgentToScheduler(Agent * agent){
     if (agentMap[agent->getAgentID()] == NULL) {
-         //std::cout << "Created an Entry in the scheduler for Agent: " << agentID << std::endl;
         agentMap[agent->getAgentID()] = agent;
-        //allAgents.push_back(agent);
         agent_pq.push(agent);
         return true;
     }
     return false;
 }//end addAgentToScheduler
 
-
 bool
 Scheduler::processNextAgentEvents(){
-    //make_heap(allAgents.begin(),allAgents.end(),Scheduler()); // worst case O(n) to make the heap
-    //return allAgents.front()->processNextEvents();
     Agent * agent = agent_pq.top();
     bool result = agent->processNextEvents();
     agent_pq.pop();
@@ -54,13 +49,9 @@ Scheduler::processNextAgentEvents(){
 }//end processNextAgentEvents
 
 bool Scheduler::scheduleEvent( Event *e){
-    //TODO:: get pointer to agent and add to its eventPQ!!!!
-    //first lets look up the receiver agent
     //make sure the recevier agent has an entry
     if (agentMap[e->getReceiverAgentID()] == NULL) return false;
-    //std::cout << "Scheduler Added event for agent: "<<e->getReceiverAgentID() << std::endl;
     agentMap[e->getReceiverAgentID()]->eventPQ.push(e);
-    //cout << "[SCHEDULER] - made it in scheduleEvent" << endl;
     return true;
 }//end scheduleEvent
 
