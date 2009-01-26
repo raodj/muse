@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -Iinclude
+AM_CXXFLAGS += -Iinclude -Isrc
 
 noinst_LIBRARIES = libmuse.a
 
@@ -35,7 +35,6 @@ libmuse_a_SOURCES = \
 	src/Agent.cpp\
 	src/Event.cpp\
 	src/Simulation.cpp\
-	src/Time.cpp\
 	src/Communicator.cpp\
 	src/Scheduler.cpp\
 	src/State.cpp \
