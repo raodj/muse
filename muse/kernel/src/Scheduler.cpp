@@ -24,7 +24,6 @@
 //---------------------------------------------------------------------------
 
 #include "Scheduler.h"
-#include "Agent.h"
 
 using namespace muse;
 Scheduler::Scheduler(){}
@@ -43,8 +42,10 @@ bool
 Scheduler::processNextAgentEvents(){
     Agent * agent = agent_pq.top();
     bool result = agent->processNextEvents();
+    //if (!agent->eventPQ.empty())cout << "TIME: " << agent->eventPQ.top()->getReceiveTime() << endl;
     agent_pq.pop();
     agent_pq.push(agent);
+    //agent_pq.change_top(agent);
     return result;
 }//end processNextAgentEvents
 

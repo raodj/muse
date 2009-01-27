@@ -28,9 +28,7 @@
 #include <functional>
 #include <vector>
 
-namespace boost
-{
-
+namespace boost{
 // --------------------------------------------------------------------------
 // The template class fibonacci_heap_base defines everything which does
 // not depend on the compare type. Thus, the actual algorithmic stuff
@@ -178,8 +176,7 @@ private:
 };
 
 // --------------------------------------------------------------------------
-
-} // boost
+}
 
 #if !defined(BOOST_F_HEAP_CC)
 #  include "f_heap.cpp"

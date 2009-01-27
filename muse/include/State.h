@@ -21,7 +21,8 @@ BEGIN_NAMESPACE(muse) //begin namespace declaration
  * based on the event being processed. 
  */
 class State {
-    
+
+    friend class Agent;
 public:
         /** the getClone method.
          * This method must be implamented by the client. This is because there is no way 
@@ -35,6 +36,7 @@ public:
         
         /**The ctor method.
          *
+         *
          */
 	State();
         
@@ -43,6 +45,11 @@ public:
          *
          */
 	virtual ~State();
+
+        const Time & getTimeStamp();
+protected:
+    
+    Time timestamp;
 };
 
 END_NAMESPACE(muse)

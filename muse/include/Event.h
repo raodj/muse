@@ -50,11 +50,23 @@ public:
 
     const Time & getReceiveTime();
 
-        
+    /**The decreaseReference method.
+     *
+     */
+    void decreaseReference();
+
+    /**The increaseReference method.
+     *
+     */
+    void increaseReference();
+
+    int referenceCount;
 protected:
+    ~Event(); //this will prevent from destroying
     AgentID senderAgentID, receiverAgentID;
     Time sentTime,receiveTime;
-
+    bool sign;
+    
 };
 
 END_NAMESPACE(muse)//end namespace declaration

@@ -25,6 +25,7 @@
 #include "Agent.h"
 #include "Simulation.h"
 #include <iostream>
+#include "f_heap.h"
 using namespace std;
 using namespace muse;
 
@@ -38,11 +39,7 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID & id, State * agentState) : myID(id), LVT(0),myState(agentState) {
-    //time to archive the agent's init state
-    State * state = myState->getClone();
-    stateQueue.push_back(state);
-}//end ctor
+Agent::Agent(AgentID & id, State * agentState) : myID(id), LVT(0),myState(agentState) {}//end ctor
 
 Agent::~Agent() {}
 
@@ -53,7 +50,7 @@ Agent::processNextEvents(){
     
     EventContainer events;
     Event *rootEvent = eventPQ.top();
-    cout << "Agent: " << getAgentID(); cout << " Event r time: " << rootEvent->getReceiveTime()<<endl;
+    //cout << "Agent: " << getAgentID(); cout << " Event r time: " << rootEvent->getReceiveTime()<<endl;
     events.push_back(rootEvent); //add it to eventcontainer
     inputQueue.push_back(rootEvent); //push it to the input Queue
     eventPQ.pop(); //remove the root Event
@@ -73,7 +70,9 @@ Agent::processNextEvents(){
     
     LVT = rootEvent->getReceiveTime(); //update the agents LVT
     executeTask(&events); //now call the executeTask
+  
     State * state = myState->getClone(); //time to archive the agent's state
+    state->timestamp=LVT;
     stateQueue.push_back(state);
 
     return true;
@@ -100,16 +99,20 @@ AgentID& Agent::getAgentID(){
 
 bool 
 Agent::scheduleEvent(Event *e){
+    if (e->getReceiveTime() >(Simulation::getSimulator())->getEndTime() ) return false;
     //first check if this is a rollback!
     if (e->getReceiveTime() <= LVT){
         cout << "Detected a ROLLBACK" << endl;
         
     }
     if (e->getReceiverAgentID() == getAgentID()){
+        e->increaseReference();
         eventPQ.push(e);
+        e->increaseReference();
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
+        e->increaseReference();
         outputQueue.push_back(e);
         return true;
     }//end if

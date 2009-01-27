@@ -1,3 +1,6 @@
+
+#include "f_heap.h"
+
 #ifndef MUSE_AGENT_H
 #define MUSE_AGENT_H
 
@@ -54,6 +57,8 @@ class Agent {
     friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
+
+    //class boost::fibonacci_heap<Event* , eventComp>;
     
 public:
     /** The initialize method.
@@ -233,6 +238,7 @@ protected:
         agentComp(){}
        inline bool operator()(const Agent *lhs, const Agent *rhs) const
         {
+           //cout << "Here" <<endl;
             if (lhs->eventPQ.empty() && rhs->eventPQ.empty()) {
                return true;
             }
@@ -259,11 +265,12 @@ protected:
       {
          Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
          return (lhs_time > rhs->getReceiveTime());
-      }
+      } 
     };
-    
+     
+     typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
     //typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
-    typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
+    
     /** The AgentID type myID.
      
         This is inialized when the agent is registered to a simulator.
