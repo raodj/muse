@@ -82,6 +82,9 @@ Simulation::start(){
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->initialize();
+        //time to archive the agent's init state
+        State * state = (*it)->myState->getClone();
+        (*it)->stateQueue.push_back(state);
     }//end for
 
     LGVT = startTime;
@@ -123,41 +126,34 @@ Simulation::finalize(){
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->finalize();
-        (*it)->inputQueue.clear(); //cout << "input size: " << (*it)->inputQueue.size() <<endl;
-        (*it)->stateQueue.clear();
-        (*it)->outputQueue.clear();
-
-        //cout << "[SIMULATION] - called agent finalize" << endl;
 
         //lets take care of all the events in the inputQueue aka processed Events
-//        list<Event*>::iterator event_it;
-//        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
-//            //(*it)->inputQueue.pop_back();
-//            //delete (*event_it);
-//            cout << "[SIMULATION] - input address: "<<(*event_it)<< " - " << ((event_it) == NULL) << endl;
-//        }//end for
-////        //cout << "[SIMULATION] - deleted remaining events in agent's inQ" << endl;
-////
-//        //lets take care of all the states still not removed
-//        list<State*>::iterator state_it;
-//        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
-//            delete (*state_it);
-//        }//end for
-////        //cout << "[SIMULATION] - deleted all states in agent's stateQ" << endl;
-////
-////        //now lets delete all remaining events in each agent's outputQueue
-//        list<Event*>::iterator eit;
-//        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
-//            cout << "[SIMULATION] - output address: "<<(*eit) << " - " << ((*eit) == NULL)<< endl;
-//            //if ( (*eit) != NULL ) delete (*eit);
-//        }//end for
-        //cout << "[SIMULATION] - deleted remaining events in agent's outQ" << endl;
+        list<Event*>::iterator event_it;
+        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
+            (*event_it)->decreaseReference();
+        }//end for
+
+        //lets take care of all the states still not removed
+        list<State*>::iterator state_it;
+        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
+            delete (*state_it);
+        }//end for
+
+       //now lets delete all remaining events in each agent's outputQueue
+        list<Event*>::iterator eit;
+        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
+            //cout << "[SIMULATION] - output address event ref count: "<<(*eit)->referenceCount << endl;
+            (*eit)->decreaseReference();
+            
+        }//end for
+
+        (*it)->inputQueue.clear(); 
+        (*it)->stateQueue.clear();
+        (*it)->outputQueue.clear();
     }//end for
 
-    //cout << "[SIMULATION] - almost done with cleanup!" << endl;
     //finalize the communicator
-    //commManager.finalize();
-    //cout << "[SIMULATION] - commManager should be finalized!!" << endl;
+    commManager.finalize();
 }//end finalize
 
 

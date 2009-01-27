@@ -25,12 +25,13 @@
 
 #include "DataTypes.h"
 #include <map>
-#include "Agent.h"
 #include "f_heap.h"
 #include <queue>
+#include "Agent.h"
 BEGIN_NAMESPACE(muse)
 
 class Scheduler {
+
 public:
 	Scheduler();
 	~Scheduler();
