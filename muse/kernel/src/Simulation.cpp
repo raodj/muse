@@ -129,9 +129,16 @@ Simulation::finalize(){
 
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator event_it;
-        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
-            (*event_it)->decreaseReference();
-        }//end for
+        //cout << "[Simulation] - killing input" << endl;
+//        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
+//            if ((*event_it) != NULL){
+//            //cout << "[Simulation] - input event ref count: " <<(*event_it)<< " - " << (*event_it)->referenceCount<< endl;
+//                (*event_it)->deleteEvent();
+//                (*event_it)=NULL;
+//            }
+//           // cout << "[Simulation] - input event ref countW: " <<(*event_it)<< " - " << (*event_it)->referenceCount<< endl;
+//
+//        }//end for
 
         //lets take care of all the states still not removed
         list<State*>::iterator state_it;
@@ -140,16 +147,21 @@ Simulation::finalize(){
         }//end for
 
        //now lets delete all remaining events in each agent's outputQueue
-        list<Event*>::iterator eit;
-        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
-            //cout << "[SIMULATION] - output address event ref count: "<<(*eit)->referenceCount << endl;
-            (*eit)->decreaseReference();
-            
-        }//end for
+//        list<Event*>::iterator eit;
+//        //cout << "[Simulation] - killing output" << endl;
+//        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
+//            //cout << "[SIMULATION] - output address event ref count: "<< (*eit)<< " - "<<(*eit)->referenceCount << endl;
+//            if ((*eit) != NULL) {
+//                (*eit)->deleteEvent();
+//                (*eit) = NULL;
+//            }
+//            //cout << "[SIMULATION] - output address event ref countW: "<< (*eit)<< " - "<<(*eit)->referenceCount << endl;
+//
+//        }//end for
 
-        (*it)->inputQueue.clear(); 
-        (*it)->stateQueue.clear();
-        (*it)->outputQueue.clear();
+        //(*it)->inputQueue.clear();
+        //(*it)->stateQueue.clear();
+        //(*it)->outputQueue.clear();
     }//end for
 
     //finalize the communicator
