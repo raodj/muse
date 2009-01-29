@@ -30,6 +30,9 @@ BEGIN_NAMESPACE(muse) //begin namespace declaration
  * agent receiving the event needs to process the event.
 */
 class Event {
+
+    friend class Agent;
+    friend class Simulation;
 public:
     
         /** The ctor method.
@@ -50,7 +53,10 @@ public:
 
     const Time & getReceiveTime();
 
-    /**The decreaseReference method.
+
+     
+protected:
+        /**The decreaseReference method.
      *
      */
     void decreaseReference();
@@ -60,13 +66,18 @@ public:
      */
     void increaseReference();
 
-    int referenceCount;
-protected:
+    void deleteEvent();
+
+    bool getSign();
+
+    int getReferenceCount();
+    void makeAntiMessage();
     ~Event(); //this will prevent from destroying
+
     AgentID senderAgentID, receiverAgentID;
     Time sentTime,receiveTime;
     bool sign;
-    
+    int referenceCount;
 };
 
 END_NAMESPACE(muse)//end namespace declaration

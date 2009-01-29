@@ -233,6 +233,9 @@ private:
 
 protected:
 
+    bool stateFinder(Time straggler_time,Event * e){
+        return true;
+    };
     class agentComp{
     public:
         agentComp(){}
@@ -265,7 +268,8 @@ protected:
       {
          Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
          return (lhs_time > rhs->getReceiveTime());
-      } 
+      }
+
     };
      
      typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
