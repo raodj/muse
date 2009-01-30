@@ -32,7 +32,7 @@ Event::getReceiveTime(){
 
 void
 Event::decreaseReference(){
-    if (referenceCount > 0) referenceCount--;
+    if (referenceCount > 0) referenceCount-=1;
     if (referenceCount == 0) {
         std::cout << "Getting deleted: " << this << std::endl;
         delete this;

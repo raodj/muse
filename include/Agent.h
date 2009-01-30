@@ -233,9 +233,13 @@ private:
 
 protected:
 
-    bool stateFinder(Time straggler_time,Event * e){
-        return true;
-    };
+    //the following four methods are for rollback recovery
+    void doRollbackRecovery(Event * );
+    void doStepOne(Event * );
+    void doStepTwo();
+    void doStepThree(Event * );
+
+
     class agentComp{
     public:
         agentComp(){}

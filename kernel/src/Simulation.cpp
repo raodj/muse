@@ -88,8 +88,10 @@ Simulation::start(){
     }//end for
 
     LGVT = startTime;
-
-    //BIG loop for event processing 
+    //use this to calculate the min LVT
+    Time min_lvt = 1e30 ;
+    //BIG loop for event processing
+    int count=0;
     while(LGVT < endTime){
         //if (myID == 0 ) cout << "Root Ticker @ time: " <<LGVT<< endl;
         //here we poll the wire for any new events to add
@@ -99,12 +101,13 @@ Simulation::start(){
             scheduleEvent(incoming_event);
         } //end if
 
-         //use this to calculate the min LVT
-        Time min_lvt = 1e30 ;
+        
         //loop through all agents and process their events
-        for (it=allAgents.begin(); it != allAgents.end(); ++it){
+        for (it=allAgents.begin(); it != allAgents.end(); it++){
             if (scheduler.processNextAgentEvents() ){
                 //check for the smallest LVT here!!
+                //cout << "\ngetLVT: " << (*it)->getLVT() <<endl;
+                //cout << "min_lvt: " << min_lvt <<endl;
                 if ((*it)->getLVT() < min_lvt) {
                     min_lvt = (*it)->getLVT();
                 }//end if
@@ -114,8 +117,8 @@ Simulation::start(){
         //increase start time by one timestep
         if (min_lvt < 1e30) {
             LGVT = min_lvt;
+            min_lvt = 1e30 ;
         }//end if
-
     }//end BIG loop
 }//end start
 
@@ -128,36 +131,29 @@ Simulation::finalize(){
         (*it)->finalize();
 
         //lets take care of all the events in the inputQueue aka processed Events
-        list<Event*>::iterator event_it;
-        //cout << "[Simulation] - killing input" << endl;
-//        for (event_it=(*it)->inputQueue.begin(); event_it != (*it)->inputQueue.end(); ++event_it ){
-//            if ((*event_it) != NULL){
-//            //cout << "[Simulation] - input event ref count: " <<(*event_it)<< " - " << (*event_it)->referenceCount<< endl;
-//                (*event_it)->deleteEvent();
-//                (*event_it)=NULL;
-//            }
-//           // cout << "[Simulation] - input event ref countW: " <<(*event_it)<< " - " << (*event_it)->referenceCount<< endl;
-//
-//        }//end for
+        list<Event*>::iterator inQ_it = (*it)->inputQueue.begin();
+        while ( inQ_it != (*it)->inputQueue.end()) {
+            list<Event*>::iterator del_it = inQ_it;
+            inQ_it++;
+
+            (*del_it)->decreaseReference();
+            (*it)->inputQueue.erase(del_it);
+        }//end for
 
         //lets take care of all the states still not removed
-        list<State*>::iterator state_it;
-        for (state_it=(*it)->stateQueue.begin(); state_it != (*it)->stateQueue.end(); ++state_it ){
+        list<State*>::iterator state_it = (*it)->stateQueue.begin();
+        for (; state_it != (*it)->stateQueue.end(); ++state_it ){
             delete (*state_it);
         }//end for
 
        //now lets delete all remaining events in each agent's outputQueue
-//        list<Event*>::iterator eit;
-//        //cout << "[Simulation] - killing output" << endl;
-//        for (eit=(*it)->outputQueue.begin(); eit != (*it)->outputQueue.end(); ++eit ){
-//            //cout << "[SIMULATION] - output address event ref count: "<< (*eit)<< " - "<<(*eit)->referenceCount << endl;
-//            if ((*eit) != NULL) {
-//                (*eit)->deleteEvent();
-//                (*eit) = NULL;
-//            }
-//            //cout << "[SIMULATION] - output address event ref countW: "<< (*eit)<< " - "<<(*eit)->referenceCount << endl;
-//
-//        }//end for
+        list<Event*>::iterator outQ_it = (*it)->outputQueue.begin();
+        while(outQ_it != (*it)->outputQueue.end()){
+            list<Event*>::iterator del_it = outQ_it;
+            outQ_it++;
+            (*del_it)->decreaseReference();
+            (*it)->outputQueue.erase(del_it);
+        }//end while
 
         //(*it)->inputQueue.clear();
         //(*it)->stateQueue.clear();
