@@ -50,9 +50,14 @@ Agent::processNextEvents(){
     
     EventContainer events;
     Event *rootEvent = eventPQ.top();
+    if (rootEvent == NULL){
+      cout << "trying to process a NULL event: returning"<<endl;
+      eventPQ.pop();
+      return false;
+    }
     //cout << "Agent: " << getAgentID(); cout << " Event r time: " << rootEvent->getReceiveTime()<<endl;
     events.push_back(rootEvent); //add it to eventcontainer
-    rootEvent->increaseReference();
+    //rootEvent->increaseReference();
     inputQueue.push_back(rootEvent); //push it to the input Queue
     eventPQ.pop(); //remove the root Event
 
@@ -63,7 +68,7 @@ Agent::processNextEvents(){
         while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
             if (eventPQ.empty()) break;
             events.push_back(nextEvent);
-            nextEvent->increaseReference();
+            //nextEvent->increaseReference();
             inputQueue.push_back(nextEvent);
             eventPQ.pop();
             nextEvent = eventPQ.top();
@@ -106,10 +111,12 @@ Agent::scheduleEvent(Event *e){
         cout << "Detected a NULL event" <<endl;
         return false;
     }
-    if (e->getSign() == false) cout << "Detected an Anti-Message from agent: "<< e->getSenderAgentID()<<endl;
+    // if (e->getSign() == false){
+    //  cout << "Agent ["<<getAgentID<<"]"; cout<< e << "  :Detected an Anti-Message from agent: "<< e->getSenderAgentID()<<endl;
+    //}
     //first check if this is a rollback!
     if (e->getReceiveTime() <= LVT){
-        cout << "\nDetected a ROLLBACK\n" << endl;
+        cout << "\nDetected a ROLLBACK @ agent: "<<getAgentID() << endl;
         cout << "Step 1. Find the state before the straggler time: "<< e->getReceiveTime() << endl;
         Time straggler_time = e->getReceiveTime();
         list<State*>::reverse_iterator it;
@@ -125,28 +132,38 @@ Agent::scheduleEvent(Event *e){
         }//end for
 
         
-        
         Time rollback_time = LVT = myState->getTimeStamp();
         cout << "\nStep 2. Send Anit-messages and prun Output Queue for events with time > "<< rollback_time<< endl;
         list<Event*>::iterator outQ_it = outputQueue.begin();
         AgentID current_agent = -1u;
         for(; outQ_it != outputQueue.end(); ++outQ_it)
         {
+	    Event *current_event = (*outQ_it);
             //cout << "   current agent: "<< current_agent <<endl;
-            if ((*outQ_it) != NULL && (*outQ_it)->getReceiverAgentID() != myID){ //means we can check the event
-                if ((*outQ_it)->getReceiveTime() > rollback_time ){
-                    if ((*outQ_it)->getReceiverAgentID() != current_agent){
-                        current_agent = (*outQ_it)->getReceiverAgentID();
-                        (*outQ_it)->makeAntiMessage();
-                        scheduleEvent((*outQ_it));
-                        cout << "   Sent Anti-Message to agent: " <<(*outQ_it)->getReceiverAgentID();
-                        cout << " with receive time: " <<(*outQ_it)->getReceiveTime()  << endl;
+            if (current_event != NULL && current_event->getReceiverAgentID() != myID){ //means we can check the event
+
+
+	      if (current_event->getSentTime() > rollback_time ){ //make sure that events with time > RBT are processed
+
+
+		if (current_event->getReceiverAgentID() != current_agent){ //set bitVectors here.
+
+
+		  current_agent = current_event->getReceiverAgentID();//wrong
+                        current_event->makeAntiMessage();
+                        scheduleEvent(current_event);
+                        cout << "   Agent [ "<<getAgentID<<" ]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
+                        cout << " with receive time: " <<current_event->getReceiveTime()  << endl;
+
                     }//end if
+
+
                     //cout << "   Anti-message ["<<(*outQ_it) << "] with ref count: " << (*outQ_it)->getReferenceCount() << endl;
-                    (*outQ_it)->deleteEvent();
-                    (*outQ_it) = NULL;
+                    current_event->deleteEvent();
+                    current_event = NULL;
                     //cout << "  Event should be NULL: "<<(*outQ_it)->receiveTime <<endl;
                 }//end outQ prun check
+
             }
         }//end for
 
@@ -154,19 +171,34 @@ Agent::scheduleEvent(Event *e){
         //3. remove all events with time > rollback_time
         list<Event*>::iterator inQ_it = inputQueue.begin();
         cout << "Input Queue Size: " <<inputQueue.size() << endl;
-        for (; inQ_it != inputQueue.end(); ++inQ_it) {
-            if ((*inQ_it) != NULL){ //means we dont need to worry
-                if ( (*inQ_it)->getReceiveTime() > rollback_time ) {
-                    //cout << "Prunning Event: " <<(*inQ_it)<< " has sign: "<<(*inQ_it)->getSign() << " with ref count: " <<(*inQ_it)->getReferenceCount()<<endl;
-                    (*inQ_it)->deleteEvent();
-                    (*inQ_it)=NULL;
-                }
-            }
+        while ( inQ_it != inputQueue.end()) {
+	  // if ((*inQ_it) != NULL){ //means we dont need to worry
+	        list<Event*>::iterator del_it = intQ_it;
+		intQ_it++;
+	        
+                if ( (*del_it)->getReceiveTime() > rollback_time && e->getSenderAgentID() == (*del_it)->getSenderAgentID()  ) {
+                    cout << "Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
+                    (*del_it)->deleteEvent();
+		    // If you erase intQ_it then the iterator is invalidated. 
+		    // So save a reference to intQ_it, move intQ_it to the next entry 
+		    // and then delete intQ_it
+		  
+                    // (*inQ_it)=NULL;
+                }//end if
+		else{
+		  eventPQ.push( (*del_it) );
+		}
+		inputQueue.erase(del_it);
+		// }//end if
         }//end for 
 
         cout << "Rollback Recovery Complete\n"<<endl;
-       std::exit(1);
+	// std::exit(1);
     }//end rollback check
+
+    if (e->getSign()) {
+      eventPQ.push(e);
+    }
 
     //check if event is an anti-message for the future
     if (e->getSign() == false && e->getReceiveTime() > LVT) {
@@ -177,12 +209,12 @@ Agent::scheduleEvent(Event *e){
     if (e->getReceiverAgentID() == getAgentID()){
         //cout << "Sending to own self"<<endl;
         eventPQ.push(e);
-        e->increaseReference();
+        //e->increaseReference();
         outputQueue.push_back(e);
        // cout << "ref count: " << e->referenceCount <<endl;
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
-        e->increaseReference();
+      //e->increaseReference();
         outputQueue.push_back(e);
         return true;
     }//end if
