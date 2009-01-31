@@ -33,6 +33,7 @@ class Event {
 
     friend class Agent;
     friend class Simulation;
+    friend class Scheduler;
 public:
     
         /** The ctor method.
@@ -54,7 +55,7 @@ public:
     const Time & getReceiveTime();
 
 
-     
+    
 protected:
         /**The decreaseReference method.
      *
@@ -68,7 +69,7 @@ protected:
 
     void deleteEvent();
 
-    bool getSign();
+     bool getSign();
 
     int getReferenceCount();
     void makeAntiMessage();

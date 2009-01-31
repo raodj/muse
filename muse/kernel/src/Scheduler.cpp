@@ -51,7 +51,33 @@ Scheduler::processNextAgentEvents(){
 
 bool Scheduler::scheduleEvent( Event *e){
     //make sure the recevier agent has an entry
-    if (agentMap[e->getReceiverAgentID()] == NULL) return false;
+    Agent * agent = agentMap[e->getReceiverAgentID()];
+    if ( agent == NULL) return false;
+
+
+    //first check if this is a rollback!
+    if (e->getReceiveTime() <= agent->LVT){
+        cout << "\nDetected a ROLLBACK @ agent: "<<agent->getAgentID() << endl <<endl;
+        agent->doRollbackRecovery(e);
+        cout << "Rollback Recovery Complete\n"<<endl;
+	//std::exit(1);
+    }//end rollback check
+
+    //check if event is an anti-message for the future
+    if (e->getSign() == false && e->getReceiveTime() > agent->LVT) {
+        //we must re it and its subtree aways
+        cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
+        Agent::EventPQ::iterator it = agent->eventPQ.begin();
+        for (; it != agent->eventPQ.end(); it++){
+            if ( (*it)->getReceiveTime() >= e->getReceiveTime() &&
+                 (*it)->getSenderAgentID() == e->getSenderAgentID()){
+                 (*it)->makeAntiMessage();
+                cout << "---Tagged Anti-message"<<endl;
+                //eventPQ.remove(it.getPointer());
+            }//end if
+        }//end for
+        
+    }//end if future anti-message check
     agentMap[e->getReceiverAgentID()]->eventPQ.push(e);
     return true;
 }//end scheduleEvent

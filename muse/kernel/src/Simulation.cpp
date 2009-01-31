@@ -132,6 +132,7 @@ Simulation::finalize(){
 
         //lets take care of all the events in the inputQueue aka processed Events
         list<Event*>::iterator inQ_it = (*it)->inputQueue.begin();
+        cout << "Starting inQ deletion" <<endl;
         while ( inQ_it != (*it)->inputQueue.end()) {
             list<Event*>::iterator del_it = inQ_it;
             inQ_it++;
@@ -148,6 +149,7 @@ Simulation::finalize(){
 
        //now lets delete all remaining events in each agent's outputQueue
         list<Event*>::iterator outQ_it = (*it)->outputQueue.begin();
+        cout << "Starting outQ deletion" <<endl;
         while(outQ_it != (*it)->outputQueue.end()){
             list<Event*>::iterator del_it = outQ_it;
             outQ_it++;
