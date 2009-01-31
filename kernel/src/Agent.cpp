@@ -52,6 +52,7 @@ Agent::processNextEvents(){
      //quick check, if eventpq empty, then return NULL
     if (eventPQ.empty()) return false;
     if ( eventPQ.top()->getSign() == false ) {
+        cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
         eventPQ.pop();
         return false;
     }
@@ -117,21 +118,22 @@ Agent::scheduleEvent(Event *e){
 
     //first check if this is a rollback!
     if (e->getReceiveTime() <= LVT){
-        cout << "\nDetected a ROLLBACK @ agent: "<<getAgentID() << endl;
+        cout << "\nDetected a ROLLBACK @ agent: "<<getAgentID() << endl <<endl;
         doRollbackRecovery(e);
         cout << "Rollback Recovery Complete\n"<<endl;
-	// std::exit(1);
+	//std::exit(1);
     }//end rollback check
 
     //check if event is an anti-message for the future
     if (e->getSign() == false && e->getReceiveTime() > LVT) {
         //we must re it and its subtree aways
-        //cout << "Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
+        cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
         EventPQ::iterator it = eventPQ.begin();
         for (; it != eventPQ.end(); it++){
             if ( (*it)->getReceiveTime() >= e->getReceiveTime() &&
                  (*it)->senderAgentID == e->getSenderAgentID()){
                 (*it)->makeAntiMessage();
+                cout << "---Tagged Anti-message"<<endl;
                 //eventPQ.remove(it.getPointer());
             }//end if
         }//end for
@@ -193,10 +195,10 @@ Agent::doStepTwo(){
             current_event->getSentTime() > rollback_time ){ //means we can check the event
 
             if ( bitMap[current_event->getReceiverAgentID()] == false ){ //check bitMap
-                bitMap[current_event->getReceiverAgentID()] = true;
+                    bitMap[current_event->getReceiverAgentID()] = true;
                     current_event->makeAntiMessage();
                     scheduleEvent(current_event);
-                    cout << "   Agent [ "<<getAgentID()<<" ]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
+                    cout << "   Agent ["<<getAgentID()<<"]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
                     cout << " with receive time: " <<current_event->getReceiveTime()  << endl;
             }//end if
             current_event->decreaseReference();
@@ -215,7 +217,7 @@ Agent::doStepThree(Event* straggler_event){
             inQ_it++;
             if ( (*del_it)->getReceiveTime() > rollback_time &&
                  straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
-                    cout << "Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
+                    cout << " Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
                     eventPQ.push( (*del_it) );
             }//end if
             
