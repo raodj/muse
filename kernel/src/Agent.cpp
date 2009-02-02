@@ -81,7 +81,8 @@ Agent::processNextEvents(){
             nextEvent->increaseReference();
             inputQueue.push_back(nextEvent);
             eventPQ.pop();
-            nextEvent = eventPQ.top();
+            //cout << eventPQ.size() << " eventPQ size\n";
+            if (eventPQ.size() != 0) nextEvent = eventPQ.top();
         }//end while
     }//end if
     
