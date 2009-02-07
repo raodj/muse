@@ -181,7 +181,7 @@ public:
         The ctor is not supposed to be overriden.
         @todo make sure that the above statement is a accurate statement.
     */
-    explicit Agent(AgentID &, State *);
+    explicit Agent(AgentID , State *);
     
     /** The destructor.
      

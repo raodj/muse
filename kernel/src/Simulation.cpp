@@ -98,7 +98,8 @@ Simulation::start(){
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
-            scheduleEvent(incoming_event);
+	  incoming_event->from_wire = true;
+	  scheduleEvent(incoming_event);
         } //end if
 
         

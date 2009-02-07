@@ -7,7 +7,7 @@ using namespace muse;
 Event::Event(const AgentID & senderID,const AgentID & receiverID,
                const Time & sentTime, const Time & receiveTime):
 senderAgentID(senderID), receiverAgentID(receiverID),
-        sentTime(sentTime), receiveTime(receiveTime), sign(true), referenceCount(0)
+        sentTime(sentTime), receiveTime(receiveTime), sign(true),from_wire(false), referenceCount(0)
 {}
 
 const AgentID& 
@@ -34,8 +34,12 @@ void
 Event::decreaseReference(){
     if (referenceCount > 0) referenceCount-=1;
     if (referenceCount == 0) {
-        std::cout << "Getting deleted: " << this << std::endl;
+      //std::cout << "Getting deleted: " << this << std::endl;
+      if (from_wire){
+	delete []  ((char *) this);
+      }else{
         delete this;
+      }
     }
 }//end decreaseReference
 
@@ -45,11 +49,7 @@ Event::increaseReference(){
     referenceCount+=1;
 }//end increaseReference
 
-void
-Event::deleteEvent(){
-    std::cout << "Getting deleted: " << this << std::endl;
-    delete this;
-}
+
 
 void
 Event::makeAntiMessage(){ sign=false;}

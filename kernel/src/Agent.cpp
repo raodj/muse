@@ -43,7 +43,7 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID & id, State * agentState) : myID(id), LVT(0),myState(agentState) {}//end ctor
+Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState) {}//end ctor
 
 Agent::~Agent() {}
 
@@ -143,7 +143,7 @@ Agent::scheduleEvent(Event *e){
 //    }
     
     if (e->getReceiverAgentID() == getAgentID()){
-        cout << "Sending to own self"<<endl;
+      //cout << "Sending to own self"<<endl;
         eventPQ.push(e);
         e->increaseReference();
         outputQueue.push_back(e);
@@ -190,7 +190,7 @@ Agent::doStepTwo(){
 
     while(outQ_it != outputQueue.end()){
         list<Event*>::iterator del_it = outQ_it;
-        outQ_it++;
+        outQ_it++; 
         Event *current_event = (*del_it);
       
         if (current_event->getReceiverAgentID() != myID &&
@@ -217,6 +217,8 @@ Agent::doStepThree(Event* straggler_event){
     while ( inQ_it != inputQueue.end()) {
             list<Event*>::iterator del_it = inQ_it;
             inQ_it++;
+	    if ( (*del_it) == NULL ) continue;
+	    
             if ( (*del_it)->getReceiveTime() > rollback_time &&
                    straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
                     cout << " Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
