@@ -47,7 +47,7 @@ private:
     typedef map<AgentID, Agent*> AgentMap;
     AgentMap agentMap;
   
-    //typedef priority_queue <Agent*, vector<Agent*>, Agent::agentComp > AgentPQ;
+   
     typedef boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
     AgentPQ agent_pq;
 };

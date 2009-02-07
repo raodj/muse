@@ -24,9 +24,8 @@
 #  include "f_heap.h"
 #endif
 
-namespace boost
-{
 
+namespace boost {
 // --- implementation of the iterator class for Fibonacci heaps -------------
 
 template <typename T>
@@ -346,7 +345,6 @@ fibonacci_heap<T, Comp>::pop()
 }
 
 // -----------------------------------------------------------------------------
-
-} // namespace boost
+}
 
 #endif /* BOOST_F_HEAP_CC */

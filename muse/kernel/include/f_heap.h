@@ -104,13 +104,16 @@ public:
     T const& operator* () const  { return m_node->data(); }
     T const* operator-> () const { return &m_node->data(); }  
 
+    inline node * getNode() { return const_cast<node*>(m_node); }
+   // inline const node* getNode() const { return m_node; }
+    
     iterator &operator++ ();
     iterator operator++ (int);
 
   private:
     node const* find_root(typename std::vector<node*>::const_iterator) const;
     node const* find_leaf(node const*) const;
-
+    
     fibonacci_heap_base const* m_heap;
     node const*                m_node;
   };
