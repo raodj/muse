@@ -67,7 +67,7 @@ protected:
      */
     void increaseReference();
 
-    void deleteEvent();
+   
 
      bool getSign();
 
@@ -77,8 +77,9 @@ protected:
 
     AgentID senderAgentID, receiverAgentID;
     Time sentTime,receiveTime;
-    bool sign;
-    int referenceCount;
+    bool sign;      //this is used to let the scheduler that this event is an anti-message
+    bool from_wire; //this is used to check if the event came from another kernel
+    int referenceCount; //this is for memory managements
 };
 
 END_NAMESPACE(muse)//end namespace declaration
