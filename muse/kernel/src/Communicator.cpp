@@ -17,12 +17,12 @@ Communicator::initialize(int argc, char* argv[]){
 }
 
 void
-Communicator::registerAgents(AgentContainer& allAgents){
+Communicator::registerAgents(AgentContainer* allAgents){
     int  size = MPI::COMM_WORLD.Get_size();
 
     //first lets add all kernel add local agents to map!
     AgentContainer::iterator ac_it; //ac == AgentContainer
-    for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
+    for (ac_it=allAgents->begin(); ac_it != allAgents->end(); ++ac_it){
          agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
     }//end for
 
@@ -71,8 +71,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
            
      }else{
-              AgentID agentList[allAgents.size()];
-              for (int i=0; i < allAgents.size(); ++i){
+              AgentID agentList[allAgents->size()];
+              for (int i=0; i < allAgents->size(); ++i){
                  agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
               }//end for
               //now send flat list across the wire (MPI)
