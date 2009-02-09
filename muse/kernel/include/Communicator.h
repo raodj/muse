@@ -64,7 +64,7 @@ public:
          *
          *@param AgentContainer reference, this is the list of agents the kernel containts
          */
-        void registerAgents(AgentContainer *);
+        void registerAgents(AgentContainer &);
 
         /**The isAgentLocal method.
          * This will check if the given agent is registered locally.

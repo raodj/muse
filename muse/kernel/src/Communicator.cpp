@@ -17,7 +17,7 @@ Communicator::initialize(int argc, char* argv[]){
 }
 
 void
-Communicator::registerAgents(AgentContainer* allAgents){
+Communicator::registerAgents(AgentContainer& allAgents){
     int  size = MPI::COMM_WORLD.Get_size();
 
     //first lets add all kernel add local agents to map!
