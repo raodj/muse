@@ -196,7 +196,7 @@ Agent::doStepThree(Event* straggler_event){
      list<Event*>::iterator del_it = inQ_it;
      inQ_it++;
      if ( (*del_it)->getReceiveTime() > rollback_time){
-       cout << " Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
+       cout << " Prunning Event: " <<*(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
 	 if( straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
 	   eventPQ.push( (*del_it) );
 	 }//end if

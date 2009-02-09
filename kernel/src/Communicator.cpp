@@ -23,7 +23,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
     //first lets add all kernel add local agents to map!
     AgentContainer::iterator ac_it; //ac == AgentContainer
     for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
-         agentMap[(*ac_it).getAgentID()] = ROOT_KERNEL;
+         agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
     }//end for
 
     //if size == 1 : then we need not do this!
@@ -71,8 +71,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
            
      }else{
-              AgentID agentList[allAgents->size()];
-              for (int i=0; i < allAgents->size(); ++i){
+              AgentID agentList[allAgents.size()];
+              for (int i=0; i < allAgents.size(); ++i){
                  agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
               }//end for
               //now send flat list across the wire (MPI)
