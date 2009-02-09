@@ -3,7 +3,7 @@
 
 //---------------------------------------------------------------------------
 // USE AS IS, muse will not be responsible if anything breaks, while using muse.
-// Authors: Meseret Gebre       gebremr@muohio.edu
+// Authors: Meseret Gebre  gebremr@muohio.edu
 //
 //---------------------------------------------------------------------------
 
@@ -140,7 +140,7 @@ public:
 	 * at different times, it could cause rollbacks.
          *
          */
-	void setStartTime(const Time & startTime);
+	void setStartTime(Time startTime);
 
         /** The stop method.
          * When this method is invoked the simulation will come to a big STOP. muse will go through and finalize all 
@@ -154,23 +154,23 @@ public:
          * Sets the simulation stop time. 
          *
          */
-	void setStopTime(const Time & stopTime);
+	void setStopTime(Time stopTime);
 
+	bool isAgentLocal(AgentID &);
 
-        const Time& getTime();
+	const Time& getTime();
         const Time& getStartTime();
         const Time& getEndTime();
 	 
-protected:
-    //the ctor method, must be private (singleton pattern)
+    
+private:
+
+    //the kernel singleton instance
+    ////the ctor method, must be private (singleton pattern)
     Simulation();
     Simulation(const Simulation &);
     Simulation& operator=(const Simulation&);
     ~Simulation();
-private:
-
-    //the kernel singleton instance
-    //
 
     //used to contain all agents registered to this simulator
     AgentContainer allAgents;

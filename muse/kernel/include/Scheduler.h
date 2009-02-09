@@ -25,7 +25,7 @@
 
 #include "DataTypes.h"
 #include <map>
-#include "f_heap.h"
+//#include "f_heap.h"
 #include <queue>
 #include "Agent.h"
 BEGIN_NAMESPACE(muse)
@@ -48,7 +48,7 @@ private:
     AgentMap agentMap;
   
    
-    typedef boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
+    typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
     AgentPQ agent_pq;
 };
 

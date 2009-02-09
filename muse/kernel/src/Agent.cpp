@@ -1,6 +1,4 @@
 
-#include "Event.h"
-
 #ifndef MUSE_AGENT_CPP
 #define MUSE_AGENT_CPP
 
@@ -51,7 +49,10 @@ bool
 Agent::processNextEvents(){
      //quick check, if eventpq empty, then return NULL
     //cout << ""
-    if (eventPQ.empty()) return false;
+    if (eventPQ.empty()) {
+      //cout << "eventPQ is empty: returning false"<<endl;
+      return false;
+    }
     if ( eventPQ.top()->getSign() == false ) {
         cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
         eventPQ.pop();
@@ -118,30 +119,6 @@ AgentID& Agent::getAgentID(){
 bool 
 Agent::scheduleEvent(Event *e){
 
-//    //first check if this is a rollback!
-//    if (e->getReceiveTime() <= LVT){
-//        cout << "\nDetected a ROLLBACK @ agent: "<<getAgentID() << endl <<endl;
-//        doRollbackRecovery(e);
-//        cout << "Rollback Recovery Complete\n"<<endl;
-//	//std::exit(1);
-//    }//end rollback check
-//
-//    //check if event is an anti-message for the future
-//    if (e->getSign() == false && e->getReceiveTime() > LVT) {
-//        //we must re it and its subtree aways
-//        cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
-//        EventPQ::iterator it = eventPQ.begin();
-//        for (; it != eventPQ.end(); it++){
-//            if ( (*it)->getReceiveTime() >= e->getReceiveTime() &&
-//                 (*it)->senderAgentID == e->getSenderAgentID()){
-//                (*it)->makeAntiMessage();
-//                cout << "---Tagged Anti-message"<<endl;
-//                //eventPQ.remove(it.getPointer());
-//            }//end if
-//        }//end for
-//        return true;
-//    }
-    
     if (e->getReceiverAgentID() == getAgentID()){
       //cout << "Sending to own self"<<endl;
         eventPQ.push(e);
@@ -187,7 +164,7 @@ Agent::doStepTwo(){
     list<Event*>::iterator outQ_it = outputQueue.begin();
     map<AgentID, bool> bitMap;
     cout << "\nStep 2. Send Anit-messages and prun Output Queue for events with time > "<< rollback_time<< endl;
-
+    cout << "          Output Queue Size: "<< outputQueue.size() <<endl;
     while(outQ_it != outputQueue.end()){
         list<Event*>::iterator del_it = outQ_it;
         outQ_it++; 
@@ -211,24 +188,61 @@ Agent::doStepTwo(){
 
 void
 Agent::doStepThree(Event* straggler_event){
-    Time rollback_time = myState->getTimeStamp();
-    cout << "\nStep 3. Prunning input Queue for events with time > "<< rollback_time<< endl;
-    list<Event*>::iterator inQ_it = inputQueue.begin();
-    while ( inQ_it != inputQueue.end()) {
-            list<Event*>::iterator del_it = inQ_it;
-            inQ_it++;
-	    if ( (*del_it) == NULL ) continue;
-	    
-            if ( (*del_it)->getReceiveTime() > rollback_time &&
-                   straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
-                    cout << " Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
-                    eventPQ.push( (*del_it) );
-            }//end if
-            
-            (*del_it)->decreaseReference();
-            inputQueue.erase(del_it);
-    }//end for
+   Time rollback_time = myState->getTimeStamp();
+   cout << "\nStep 3. Prunning input Queue for events with time > "<< rollback_time<< endl;
+   cout << "          Input Queue Size: "<< inputQueue.size() <<endl;
+   list<Event*>::iterator inQ_it = inputQueue.begin();
+   while ( inQ_it != inputQueue.end()) {
+     list<Event*>::iterator del_it = inQ_it;
+     inQ_it++;
+     if ( (*del_it)->getReceiveTime() > rollback_time){
+       cout << " Prunning Event: " <<(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
+	 if( straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
+	   eventPQ.push( (*del_it) );
+	 }//end if
+	 
+	 (*del_it)->decreaseReference();
+	 inputQueue.erase(del_it);
+     }//end if
+   }//end for
 }//end doStepThree
+
+void
+Agent::cleanStateQueue(){
+  //lets take care of all the states still not removed
+  list<State*>::iterator state_it = stateQueue.begin();
+  for (; state_it != stateQueue.end(); ++state_it ){
+    delete (*state_it);
+  }//end for
+  //delete myState;
+}//end cleanStateQueue
+
+void
+Agent::cleanInputQueue(){
+  //lets take care of all the events in the inputQueue aka processed Events
+  list<Event*>::iterator inQ_it = inputQueue.begin();
+  cout << "Starting inQ deletion" <<endl;
+  while ( inQ_it != inputQueue.end()) {
+    list<Event*>::iterator del_it = inQ_it;
+    inQ_it++;
+    (*del_it)->decreaseReference();
+    inputQueue.erase(del_it);
+  }//end for
+}//end cleanInputQueue
+
+void
+Agent::cleanOutputQueue(){
+//now lets delete all remaining events in each agent's outputQueue
+  list<Event*>::iterator outQ_it = outputQueue.begin();
+  cout << "Starting outQ deletion" <<endl;
+  while(outQ_it != outputQueue.end()){
+    list<Event*>::iterator del_it = outQ_it;
+    outQ_it++;
+    (*del_it)->decreaseReference();
+    outputQueue.erase(del_it);
+  }//end while
+}//end cleanOutputQueue
+
 
 //bool
 //Agent::scheduleEvents(EventContainer * events){
@@ -241,5 +255,25 @@ Agent::doStepThree(Event* straggler_event){
 //    }
 //    return false;
 //}
+
+bool
+Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
+{
+  //cout << "Here" <<endl;
+  if (lhs->eventPQ.empty() && rhs->eventPQ.empty()) {
+    return true;
+  }
+  if (lhs->eventPQ.empty() && !rhs->eventPQ.empty()) {
+    return true;
+  }
+  if (rhs->eventPQ.empty() && !lhs->eventPQ.empty()) {
+    return false;
+  }
+  Event *lhs_event = lhs->eventPQ.top();
+  Event *rhs_event = rhs->eventPQ.top();
+  Time lhs_time    = lhs_event->getReceiveTime();
+  Time rhs_time    = rhs_event->getReceiveTime();
+  return (lhs_time > rhs_time);
+}//end operator()
 
 #endif
