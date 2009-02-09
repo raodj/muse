@@ -60,8 +60,17 @@ bool Scheduler::scheduleEvent( Event *e){
     //first check if this is a rollback!
     if (e->getReceiveTime() <= agent->LVT){
         cout << "\nDetected a ROLLBACK @ agent: "<<agent->getAgentID() << endl <<endl;
+	//debug info print out
+	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
+	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
+	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ.size() <<endl;
         agent->doRollbackRecovery(e);
         cout << "Rollback Recovery Complete\n"<<endl;
+	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
+	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
+	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ.size() <<endl;
 	//std::exit(1);
     }//end rollback check
 

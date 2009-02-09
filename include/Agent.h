@@ -1,5 +1,5 @@
 
-#include "f_heap.h"
+//#include "f_heap.h"
 
 #ifndef MUSE_AGENT_H
 #define MUSE_AGENT_H
@@ -58,7 +58,7 @@ class Agent {
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
 
-    //class boost::fibonacci_heap<Event* , eventComp>;
+
     
 public:
     /** The initialize method.
@@ -219,7 +219,7 @@ public:
      */
     void setState(State *);
 
-private:
+    //private:
 
 
     /**The processNextEvents method.
@@ -231,7 +231,11 @@ private:
      */
     bool processNextEvents();
 
-protected:
+    void cleanStateQueue();
+    void cleanInputQueue();
+    void cleanOutputQueue();
+
+    //protected:
 
     //the following four methods are for rollback recovery
     void doRollbackRecovery(Event * );
@@ -239,30 +243,13 @@ protected:
     void doStepTwo();
     void doStepThree(Event * );
 
-
+     
     class agentComp{
     public:
         agentComp(){}
-       inline bool operator()(const Agent *lhs, const Agent *rhs) const
-        {
-           //cout << "Here" <<endl;
-            if (lhs->eventPQ.empty() && rhs->eventPQ.empty()) {
-               return true;
-            }
-            if (lhs->eventPQ.empty() && !rhs->eventPQ.empty()) {
-                return true;
-            }
-            if (rhs->eventPQ.empty() && !lhs->eventPQ.empty()) {
-                return false;
-            }
-            Event *lhs_event = lhs->eventPQ.top();
-            Event *rhs_event = rhs->eventPQ.top();
-            Time lhs_time    = lhs_event->getReceiveTime();
-            Time rhs_time    = rhs_event->getReceiveTime();
-            return (lhs_time > rhs_time);
-        }//end operator()
+        bool operator()(const Agent *lhs, const Agent *rhs) const;
     };
-    //compares delivery times. puts the one with the smaller
+     //compares delivery times. puts the one with the smaller
     //ahead.
     class eventComp
     {
@@ -275,8 +262,7 @@ protected:
       }
 
     };
-     
-     typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
+     typedef class boost::fibonacci_heap<Event* , eventComp> EventPQ;
     //typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
     
     /** The AgentID type myID.

@@ -10,6 +10,9 @@
 
 
 #include "DataTypes.h"
+
+extern std::ostream& operator<<(ostream&, const muse::Event&);
+
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
  *
@@ -30,7 +33,7 @@ BEGIN_NAMESPACE(muse) //begin namespace declaration
  * agent receiving the event needs to process the event.
 */
 class Event {
-
+    friend std::ostream& ::operator<<(ostream&, const muse::Event&);
     friend class Agent;
     friend class Simulation;
     friend class Scheduler;
@@ -43,20 +46,20 @@ public:
          *@param id this is of type AgentID and its a reference
          *@param deliveryTime this is of type Time which is also a reference. 
          */
-	 explicit Event(const AgentID & senderID,const AgentID & receiverID,
-                   const Time & sentTime, const Time & receiveTime);
+	 explicit Event(const AgentID  senderID,const AgentID  receiverID,
+                   const Time  sentTime, const Time  receiveTime);
 
-    const AgentID & getSenderAgentID();
+    const AgentID & getSenderAgentID() const;
 
-    const AgentID & getReceiverAgentID();
+    const AgentID & getReceiverAgentID() const;
 
-    const Time & getSentTime();
+    const Time & getSentTime() const;
 
-    const Time & getReceiveTime();
+    const Time & getReceiveTime() const;
 
 
     
-protected:
+    //protected:
         /**The decreaseReference method.
      *
      */
@@ -78,7 +81,7 @@ protected:
     AgentID senderAgentID, receiverAgentID;
     Time sentTime,receiveTime;
     bool sign;      //this is used to let the scheduler that this event is an anti-message
-    bool from_wire; //this is used to check if the event came from another kernel
+ 
     int referenceCount; //this is for memory managements
 };
 

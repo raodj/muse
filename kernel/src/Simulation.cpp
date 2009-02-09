@@ -55,7 +55,7 @@ Simulation::getSimulator(){
 bool 
  Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
-     if (commManager.isAgentLocal(recvAgentID)){
+    if (isAgentLocal(recvAgentID)){ 
        // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
         return scheduler.scheduleEvent(e);
      }
@@ -83,7 +83,7 @@ Simulation::start(){
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
         (*it)->initialize();
         //time to archive the agent's init state
-        State * state = (*it)->myState->getClone();
+        State * state = (*it)->myState;
         (*it)->stateQueue.push_back(state);
     }//end for
 
@@ -98,7 +98,7 @@ Simulation::start(){
         //NOTE:: we should also look into detecting rollbacks here!!!
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
-	  incoming_event->from_wire = true;
+	  
 	  scheduleEvent(incoming_event);
         } //end if
 
@@ -127,56 +127,36 @@ void
 Simulation::finalize(){
     myID = -1u;
     //loop for the finalization
-    AgentContainer::iterator it;
-    for (it=allAgents.begin(); it != allAgents.end(); ++it){
-        (*it)->finalize();
-
-        //lets take care of all the events in the inputQueue aka processed Events
-        list<Event*>::iterator inQ_it = (*it)->inputQueue.begin();
-        cout << "Starting inQ deletion" <<endl;
-        while ( inQ_it != (*it)->inputQueue.end()) {
-            list<Event*>::iterator del_it = inQ_it;
-            inQ_it++;
-
-            (*del_it)->decreaseReference();
-            (*it)->inputQueue.erase(del_it);
-        }//end for
-
-        //lets take care of all the states still not removed
-        list<State*>::iterator state_it = (*it)->stateQueue.begin();
-        for (; state_it != (*it)->stateQueue.end(); ++state_it ){
-            delete (*state_it);
-        }//end for
-
-       //now lets delete all remaining events in each agent's outputQueue
-        list<Event*>::iterator outQ_it = (*it)->outputQueue.begin();
-        cout << "Starting outQ deletion" <<endl;
-        while(outQ_it != (*it)->outputQueue.end()){
-            list<Event*>::iterator del_it = outQ_it;
-            outQ_it++;
-            (*del_it)->decreaseReference();
-            (*it)->outputQueue.erase(del_it);
-        }//end while
-
-        //(*it)->inputQueue.clear();
-        //(*it)->stateQueue.clear();
-        //(*it)->outputQueue.clear();
+    AgentContainer::iterator it=allAgents.begin();
+    cout <<" Agents size: " << allAgents.size()<<endl;
+    while ( it != allAgents.end()) {
+      AgentContainer::iterator del_it = it;
+      it++;
+      cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
+      (*del_it)->finalize();
+      (*del_it)->cleanInputQueue();
+      (*del_it)->cleanStateQueue();
+      (*del_it)->cleanOutputQueue();
+      delete (*del_it);
+      //allAgents.erase(del_it);
     }//end for
-
+    
     //finalize the communicator
     commManager.finalize();
 }//end finalize
 
+bool
+Simulation::isAgentLocal(AgentID & id){ return commManager.isAgentLocal(id); }
 
 void Simulation::stop(){}
 
 void 
-Simulation::setStartTime(const Time & start_time){
+Simulation::setStartTime(Time start_time){
     startTime = start_time;
 }
 
 void 
-Simulation::setStopTime(const Time & end_time){
+Simulation::setStopTime( Time  end_time){
     endTime = end_time;
 }
 

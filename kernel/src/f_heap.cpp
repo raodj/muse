@@ -298,6 +298,7 @@ fibonacci_heap<T, Comp>::remove(pointer n)
     add_root(*it);
 
   m_min = 0;
+  --fibonacci_heap_base<T>::m_size;
   delete n;
 }
 
