@@ -22,8 +22,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
     //first lets add all kernel add local agents to map!
     AgentContainer::iterator ac_it; //ac == AgentContainer
-    for (ac_it=allAgents->begin(); ac_it != allAgents->end(); ++ac_it){
-         agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
+    for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
+         agentMap[(*ac_it).getAgentID()] = ROOT_KERNEL;
     }//end for
 
     //if size == 1 : then we need not do this!
