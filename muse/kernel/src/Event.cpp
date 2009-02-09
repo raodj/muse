@@ -38,7 +38,7 @@ Event::decreaseReference(){
     if (referenceCount == 0) {
       //std::cout << "Getting deleted: " << this << std::endl;
     
-    if (true || (Simulation::getSimulator())->isAgentLocal(senderAgentID) ){
+    if ((Simulation::getSimulator())->isAgentLocal(senderAgentID) ){
       delete this;
     }else{
       //cout << "Event was not local: calling delete[]\n\n";
