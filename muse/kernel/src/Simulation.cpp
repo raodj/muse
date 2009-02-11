@@ -128,11 +128,11 @@ Simulation::finalize(){
     myID = -1u;
     //loop for the finalization
     AgentContainer::iterator it=allAgents.begin();
-    cout <<" Agents size: " << allAgents.size()<<endl;
+    //cout <<" Agents size: " << allAgents.size()<<endl;
     while ( it != allAgents.end()) {
       AgentContainer::iterator del_it = it;
       it++;
-      cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
+      //cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
       (*del_it)->finalize();
       (*del_it)->cleanInputQueue();
       (*del_it)->cleanStateQueue();

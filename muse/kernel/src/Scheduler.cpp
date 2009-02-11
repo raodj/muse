@@ -59,10 +59,8 @@ bool Scheduler::scheduleEvent( Event *e){
 
     //first check if this is a rollback!
     if (e->getReceiveTime() <= agent->LVT){
-        if (e->getSenderAgentID() ==  e->getReceiverAgentID()){
-            cout << "Can't Rollback from Event sent to myself: returning false: " << *e <<endl;
-            return false;
-        }
+        ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
+       
         cout << "\nDetected a ROLLBACK @ agent: "<<agent->getAgentID() << endl <<endl;
 	//debug info print out
 	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
