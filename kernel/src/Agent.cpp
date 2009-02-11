@@ -170,16 +170,16 @@ Agent::doStepTwo(){
         outQ_it++; 
         Event *current_event = (*del_it);
       
-        if (current_event->getReceiverAgentID() != myID &&
-            current_event->getSentTime() > rollback_time ){ //means we can check the event
+        if ( current_event->getSentTime() > rollback_time ){ //means we can check the event
 
-            if ( bitMap[current_event->getReceiverAgentID()] == false ){ //check bitMap
+            if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ //check bitMap
                     bitMap[current_event->getReceiverAgentID()] = true;
                     current_event->makeAntiMessage();
                     scheduleEvent(current_event);
                     cout << "   Agent ["<<getAgentID()<<"]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
                     cout << " with receive time: " << current_event->getReceiveTime()  << endl;
             }//end if
+            cout << " Prunning Event: " <<*current_event<<endl;
             current_event->decreaseReference();
             outputQueue.erase(del_it);
         }//end if outQ prun check
