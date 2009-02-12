@@ -96,6 +96,8 @@ Communicator::registerAgents(AgentContainer& allAgents){
 
 void
 Communicator::sendEvent(Event * e, int & event_size){
+    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
+    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
     try {
         //no good way to send objects via MPI
         //make Event to a char* aka ghetto hack :-)
@@ -122,6 +124,9 @@ Communicator::receiveEvent(){
             //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
             //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
             //cout << "[COMMUNICATOR] - made it in receiveEvent" << endl;
+            ASSERT(the_event->getSenderAgentID() >= 0 && the_event->getSenderAgentID() < 3 );
+            ASSERT(the_event->getReceiverAgentID() >= 0 && the_event->getReceiverAgentID() < 3 );
+    
             return the_event;
         }
     }catch (MPI::Exception e) {

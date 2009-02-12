@@ -53,7 +53,10 @@ Simulation::getSimulator(){
 
 
 bool 
- Simulation::scheduleEvent( Event *e){
+Simulation::scheduleEvent( Event *e){
+    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
+    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
+    
     AgentID recvAgentID = e->getReceiverAgentID();
     if (isAgentLocal(recvAgentID)){ 
        // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
@@ -91,11 +94,10 @@ Simulation::start(){
     //use this to calculate the min LVT
     Time min_lvt = 1e30 ;
     //BIG loop for event processing
-    int count=0;
+    //int count=0;
     while(LGVT < endTime){
         //if (myID == 0 ) cout << "Root Ticker @ time: " <<LGVT<< endl;
-        //here we poll the wire for any new events to add
-        //NOTE:: we should also look into detecting rollbacks here!!!
+      
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
 	  
