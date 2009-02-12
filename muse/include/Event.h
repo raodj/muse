@@ -72,7 +72,7 @@ public:
 
    
 
-     bool getSign();
+    bool isAntiMessage() const;
 
     int getReferenceCount();
     void makeAntiMessage();
@@ -80,7 +80,7 @@ public:
 
     AgentID senderAgentID, receiverAgentID;
     Time sentTime,receiveTime;
-    bool sign;      //this is used to let the scheduler that this event is an anti-message
+    bool antiMessage;      //this is used to let the scheduler that this event is an anti-message
  
     int referenceCount; //this is for memory managements
 };

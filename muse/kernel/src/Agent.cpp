@@ -53,7 +53,7 @@ Agent::processNextEvents(){
       //cout << "eventPQ is empty: returning false"<<endl;
       return false;
     }
-    if ( eventPQ.top()->getSign() == false ) {
+    if ( eventPQ.top()->isAntiMessage()) {
         cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
         eventPQ.pop();
         return false;
@@ -61,6 +61,7 @@ Agent::processNextEvents(){
 
     EventContainer events;
     Event *rootEvent = eventPQ.top();
+    
     if (rootEvent == NULL){
       cout << "trying to process a NULL event: returning"<<endl;
       eventPQ.pop();
@@ -118,7 +119,9 @@ AgentID& Agent::getAgentID(){
 
 bool 
 Agent::scheduleEvent(Event *e){
-
+    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
+    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
+    
     if (e->getReceiverAgentID() == getAgentID()){
       //cout << "Sending to own self"<<endl;
         eventPQ.push(e);
@@ -136,9 +139,11 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(Event* straggler_event){
+    ASSERT(straggler_event->getReceiveTime() <= LVT);
     doStepOne(straggler_event);
     doStepTwo();
     doStepThree(straggler_event);
+    ASSERT(straggler_event->getReceiveTime() > LVT  );
 }//end doRollback
 
 void
@@ -156,6 +161,7 @@ Agent::doStepOne(Event* straggler_event){
            break;
         }//end if
     }//end for
+    ASSERT(straggler_event->getReceiveTime() > LVT  );
 }//end doStepOne
 
 void
@@ -195,13 +201,17 @@ Agent::doStepThree(Event* straggler_event){
    while ( inQ_it != inputQueue.end()) {
      list<Event*>::iterator del_it = inQ_it;
      inQ_it++;
-     if ( (*del_it)->getReceiveTime() > rollback_time){
-       cout << " Prunning Event: " <<*(*del_it)<< " has sign: "<<(*del_it)->getSign() << " with ref count: " <<(*del_it)->getReferenceCount()<<endl;
-	 if( straggler_event->getSenderAgentID() != (*del_it)->getSenderAgentID()){
-	   eventPQ.push( (*del_it) );
+     Event *current_event = (*del_it);
+     ASSERT(current_event->getSenderAgentID() >= 0 && current_event->getSenderAgentID() < 3 );
+     ASSERT(current_event->getReceiverAgentID() >= 0 && current_event->getReceiverAgentID() < 3 );
+    
+     if ( current_event->getReceiveTime() > rollback_time){
+       cout << " Prunning Event: " <<*current_event<<endl;
+	 if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID()){
+	   eventPQ.push(current_event );
 	 }//end if
 	 
-	 (*del_it)->decreaseReference();
+	 current_event->decreaseReference();
 	 inputQueue.erase(del_it);
      }//end if
    }//end for

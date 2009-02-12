@@ -8,7 +8,7 @@ using namespace muse;
 Event::Event(const AgentID  senderID,const AgentID  receiverID,
                const Time  sentTime, const Time  receiveTime):
 senderAgentID(senderID), receiverAgentID(receiverID),
-        sentTime(sentTime), receiveTime(receiveTime), sign(true), referenceCount(0)
+        sentTime(sentTime), receiveTime(receiveTime), antiMessage(false), referenceCount(0)
 {}
 
 const AgentID& 
@@ -56,14 +56,14 @@ Event::increaseReference(){
 
 
 void
-Event::makeAntiMessage(){ sign=false;}
+Event::makeAntiMessage(){ antiMessage=true;}
 
 int
 Event::getReferenceCount(){ return referenceCount;}
 
 bool
-Event::getSign(){
-    return sign;
+Event::isAntiMessage() const {
+    return antiMessage;
 }
 Event::~Event(){}
 
@@ -72,7 +72,8 @@ ostream&
     os << "Event[Sender=" << event.getSenderAgentID()   << ","
        << "receiver="     << event.getReceiverAgentID() << ","
        << "sentTime="     << event.getSentTime()        << ","
-       << "recvTime="     << event.getReceiveTime()     << "]";
+       << "recvTime="     << event.getReceiveTime()     << ","
+       << "Anti-Message="     << event.isAntiMessage()  << "]" ;
      return os;
 }
 
