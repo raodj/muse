@@ -56,7 +56,7 @@ bool
 Simulation::scheduleEvent( Event *e){
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-    
+   
     AgentID recvAgentID = e->getReceiverAgentID();
     if (isAgentLocal(recvAgentID)){ 
        // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;

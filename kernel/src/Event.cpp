@@ -61,6 +61,9 @@ Event::makeAntiMessage(){ antiMessage=true;}
 int
 Event::getReferenceCount(){ return referenceCount;}
 
+void
+Event::setReferenceCount(int count) {referenceCount=count; }
+
 bool
 Event::isAntiMessage() const {
     return antiMessage;
