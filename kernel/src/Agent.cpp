@@ -47,52 +47,49 @@ Agent::~Agent() {}
 
 bool
 Agent::processNextEvents(){
-     //quick check, if eventpq empty, then return NULL
-    //cout << ""
+
     if (eventPQ.empty()) {
       //cout << "eventPQ is empty: returning false"<<endl;
       return false;
     }
-    if ( eventPQ.top()->isAntiMessage()) {
+
+    EventContainer events;
+    Event *top_event = eventPQ.top();eventPQ.pop(); 
+    
+    if ( top_event->isAntiMessage()) {
         cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
         eventPQ.pop();
         return false;
     }
-
-    EventContainer events;
-    Event *rootEvent = eventPQ.top();
     
-    if (rootEvent == NULL){
-      cout << "trying to process a NULL event: returning"<<endl;
-      eventPQ.pop();
-      return false;
-    }
-    //cout << "Agent: " << getAgentID(); cout << " Event r time: " << rootEvent->getReceiveTime()<<endl;
-    events.push_back(rootEvent); //add it to eventcontainer
-    rootEvent->increaseReference();
-    inputQueue.push_back(rootEvent); //push it to the input Queue
-    eventPQ.pop(); //remove the root Event
+    ASSERT(top_event->getSenderAgentID() >= 0 && top_event ->getSenderAgentID() < 3 );
+    ASSERT(top_event->getReceiverAgentID() >= 0 && top_event->getReceiverAgentID() < 3 );
+    
+    events.push_back(top_event);
+    
+    top_event->increaseReference();
+    inputQueue.push_back(top_event);
+    
+    while(eventPQ.size() != 0){
+        Event *next_event = eventPQ.top();
+        
+        ASSERT(next_event->getSenderAgentID()   >= 0   && next_event->getSenderAgentID()    < 3 );
+        ASSERT(next_event->getReceiverAgentID() >= 0   && next_event->getReceiverAgentID()  < 3 );
 
-    Event *nextEvent = NULL;
-    if (eventPQ.size() > 1){ //means there is only one event
-        nextEvent = eventPQ.top();
-        ///now lets get all the events to process
-        while(rootEvent->getReceiveTime() == nextEvent->getReceiveTime() ){
-            if (eventPQ.empty()) break;
-            events.push_back(nextEvent);
-            nextEvent->increaseReference();
-            inputQueue.push_back(nextEvent);
+        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             eventPQ.pop();
-            //cout << eventPQ.size() << " eventPQ size\n";
-            if (eventPQ.size() != 0) nextEvent = eventPQ.top();
-        }//end while
-    }//end if
-    
-    LVT = rootEvent->getReceiveTime(); //update the agents LVT
+            events.push_back(next_event);
+            next_event->increaseReference();
+            inputQueue.push_back(next_event);
+        }else{
+            break;
+        }
+    }//end while
+
+    myState->timestamp = LVT = top_event->getReceiveTime(); //update the agents LVT
     executeTask(&events); //now call the executeTask
-    myState->timestamp = LVT;
+    
     State * state = myState->getClone(); //time to archive the agent's state
-    state->timestamp=LVT;
     stateQueue.push_back(state);
 
     return true;

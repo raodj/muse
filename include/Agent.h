@@ -33,7 +33,7 @@
 #include <list>
 #include "Event.h"
 #include "f_heap.h"
-
+#include <queue>
 BEGIN_NAMESPACE(muse) //begin namespace declaration
 
 
@@ -262,7 +262,7 @@ public:
       }
 
     };
-     typedef class boost::fibonacci_heap<Event* , eventComp> EventPQ;
+    typedef class boost::fibonacci_heap<Event* , eventComp> EventPQ;
     //typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
     
     /** The AgentID type myID.

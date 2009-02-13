@@ -84,6 +84,7 @@ bool Scheduler::scheduleEvent( Event *e){
         //we must re it and its subtree aways
         cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
         Agent::EventPQ::iterator it = agent->eventPQ.begin();
+       
         while ( it != agent->eventPQ.end() ) {
             Agent::EventPQ::iterator del_it = it;
             it++;
