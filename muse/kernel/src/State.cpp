@@ -9,6 +9,7 @@ State::State() : timestamp(0) {}
 
 State* State::getClone(){
     State *state = new State();
+    state->timestamp = getTimeStamp();
     return state;
 }
 
