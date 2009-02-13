@@ -75,6 +75,7 @@ public:
     bool isAntiMessage() const;
 
     int getReferenceCount();
+    void setReferenceCount(int);
     void makeAntiMessage();
     ~Event(); //this will prevent from destroying
 
@@ -83,6 +84,7 @@ public:
     bool antiMessage;      //this is used to let the scheduler that this event is an anti-message
  
     int referenceCount; //this is for memory managements
+   
 };
 
 END_NAMESPACE(muse)//end namespace declaration

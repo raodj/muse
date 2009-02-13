@@ -63,7 +63,7 @@ bool Scheduler::scheduleEvent( Event *e){
     //first check if this is a rollback!
     if (e->getReceiveTime() <= agent->LVT){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-       
+        
         cout << "\nDetected a ROLLBACK @ agent: "<<agent->getAgentID() << endl <<endl;
 	//debug info print out
 	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
@@ -92,13 +92,14 @@ bool Scheduler::scheduleEvent( Event *e){
             if ( (*del_it)->getReceiveTime() >= e->getReceiveTime() &&
                  (*del_it)->getSenderAgentID() == e->getSenderAgentID()){
                 //(*del_it)->makeAntiMessage();
-                 cout << "---Tagged Anti-message"<<endl;
+                 cout << "---found useless future event and deleting from fib heap"<<endl;
                  agent->eventPQ.remove(del_it.getNode());
             }//end if
          }//end while
     }//end if future anti-message check
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
+    e->increaseReference();
     agent->eventPQ.push(e);
     return true;
 }//end scheduleEvent

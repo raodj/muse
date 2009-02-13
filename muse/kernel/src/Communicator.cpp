@@ -126,7 +126,7 @@ Communicator::receiveEvent(){
             //cout << "[COMMUNICATOR] - made it in receiveEvent" << endl;
             ASSERT(the_event->getSenderAgentID() >= 0 && the_event->getSenderAgentID() < 3 );
             ASSERT(the_event->getReceiverAgentID() >= 0 && the_event->getReceiverAgentID() < 3 );
-    
+            
             return the_event;
         }
     }catch (MPI::Exception e) {

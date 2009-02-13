@@ -47,14 +47,15 @@ Agent::~Agent() {}
 
 bool
 Agent::processNextEvents(){
-
+    
     if (eventPQ.empty()) {
       //cout << "eventPQ is empty: returning false"<<endl;
       return false;
     }
-
+    
     EventContainer events;
-    Event *top_event = eventPQ.top();eventPQ.pop(); 
+    Event *top_event = eventPQ.top();eventPQ.pop();
+    
     
     if ( top_event->isAntiMessage()) {
         cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
@@ -67,31 +68,35 @@ Agent::processNextEvents(){
     
     events.push_back(top_event);
     
-    top_event->increaseReference();
+    top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-    
+
+    top_event->decreaseReference(); 
     while(eventPQ.size() != 0){
         Event *next_event = eventPQ.top();
         
         ASSERT(next_event->getSenderAgentID()   >= 0   && next_event->getSenderAgentID()    < 3 );
         ASSERT(next_event->getReceiverAgentID() >= 0   && next_event->getReceiverAgentID()  < 3 );
-
+        
         if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             eventPQ.pop();
             events.push_back(next_event);
-            next_event->increaseReference();
+            
+            next_event->increaseReference(); 
             inputQueue.push_back(next_event);
+
+            next_event->decreaseReference(); 
         }else{
             break;
         }
     }//end while
-
+    
     myState->timestamp = LVT = top_event->getReceiveTime(); //update the agents LVT
     executeTask(&events); //now call the executeTask
     
     State * state = myState->getClone(); //time to archive the agent's state
     stateQueue.push_back(state);
-
+    
     return true;
 }//end processNextEvents
 
@@ -118,9 +123,10 @@ bool
 Agent::scheduleEvent(Event *e){
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-    
+   
     if (e->getReceiverAgentID() == getAgentID()){
       //cout << "Sending to own self"<<endl;
+        e->increaseReference();
         eventPQ.push(e);
         e->increaseReference();
         outputQueue.push_back(e);
@@ -174,7 +180,6 @@ Agent::doStepTwo(){
         Event *current_event = (*del_it);
       
         if ( current_event->getSentTime() > rollback_time ){ //means we can check the event
-
             if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ //check bitMap
                     bitMap[current_event->getReceiverAgentID()] = true;
                     current_event->makeAntiMessage();
@@ -199,16 +204,17 @@ Agent::doStepThree(Event* straggler_event){
      list<Event*>::iterator del_it = inQ_it;
      inQ_it++;
      Event *current_event = (*del_it);
-     ASSERT(current_event->getSenderAgentID() >= 0 && current_event->getSenderAgentID() < 3 );
+     ASSERT(current_event->getSenderAgentID()   >= 0 && current_event->getSenderAgentID()   < 3 );
      ASSERT(current_event->getReceiverAgentID() >= 0 && current_event->getReceiverAgentID() < 3 );
     
      if ( current_event->getReceiveTime() > rollback_time){
-       cout << " Prunning Event: " <<*current_event<<endl;
+         cout << " Prunning Event: " <<*current_event<<endl;
 	 if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID()){
-	   eventPQ.push(current_event );
-	 }//end if
-	 
-	 current_event->decreaseReference();
+             current_event->increaseReference();
+             eventPQ.push(current_event );
+	 }
+         
+         current_event->decreaseReference();
 	 inputQueue.erase(del_it);
      }//end if
    }//end for
@@ -232,6 +238,7 @@ Agent::cleanInputQueue(){
   while ( inQ_it != inputQueue.end()) {
     list<Event*>::iterator del_it = inQ_it;
     inQ_it++;
+    cout << "Cleaning inQ: " << (*del_it) <<endl;
     (*del_it)->decreaseReference();
     inputQueue.erase(del_it);
   }//end for
