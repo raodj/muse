@@ -123,7 +123,11 @@ bool
 Agent::scheduleEvent(Event *e){
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-   
+
+    if ( e->getSentTime() >=(Simulation::getSimulator())->getEndTime() ){
+        //dont bother to schedule because the simulation is done
+        return false;
+    }
     if (e->getReceiverAgentID() == getAgentID()){
       //cout << "Sending to own self"<<endl;
         e->increaseReference();
@@ -238,7 +242,7 @@ Agent::cleanInputQueue(){
   while ( inQ_it != inputQueue.end()) {
     list<Event*>::iterator del_it = inQ_it;
     inQ_it++;
-    cout << "Cleaning inQ: " << (*del_it) <<endl;
+    // cout << "Cleaning inQ: " << (*del_it) <<endl;
     (*del_it)->decreaseReference();
     inputQueue.erase(del_it);
   }//end for
