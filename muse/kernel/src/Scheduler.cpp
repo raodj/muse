@@ -96,6 +96,7 @@ bool Scheduler::scheduleEvent( Event *e){
                  agent->eventPQ.remove(del_it.getNode());
             }//end if
          }//end while
+        return false;
     }//end if future anti-message check
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
