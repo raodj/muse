@@ -1,6 +1,28 @@
+#ifndef MUSE_SIMUALTION_CPP
+#define MUSE_SIMUALTION_CPP
 
-#ifndef _MUSE_SIMUALTION_CPP_
-#define _MUSE_SIMUALTION_CPP_
+//---------------------------------------------------------------------------
+//
+// Copyright (c) Miami University, Oxford, OHIO.
+// All rights reserved.
+//
+// Miami University (MU) makes no representations or warranties about
+// the suitability of the software, either express or implied,
+// including but not limited to the implied warranties of
+// merchantability, fitness for a particular purpose, or
+// non-infringement.  MU shall not be liable for any damages suffered
+// by licensee as a result of using, result of using, modifying or
+// distributing this software or its derivatives.
+//
+// By using or copying this Software, Licensee agrees to abide by the
+// intellectual property laws, and all other applicable laws of the
+// U.S., and the terms of this license.
+//
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//
+//---------------------------------------------------------------------------
+
 #include "Communicator.h"
 #include "Simulation.h"
 
@@ -12,30 +34,37 @@ Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0) {
 
 void
 Simulation::initialize(){
-    int x=0;
-    char **arg = new char*[1];
-    arg[0] = "";
-    myID = commManager.initialize(x,arg);
+    // The following initialization creates dummy arguments to be
+    // passed to initialize MPI. Without these parmaeters mpi
+    // initialization causes problems.  This is a workaround for a bug
+    // seemingly present in MPI.
+    int x            = 0;
+    char emptyStr[1] = "";  // An empty string
+    char **arg       = new char*[1];
+    arg[0]           = emptyStr;
+    // Initialize MPI and determine the ID of this simulation based on
+    // the MPI rank associated with this process.
+    myID             = commManager.initialize(x, arg);
+    // Free memory as MPI no longer needs this information.
     delete[] arg;
 }
 
 void
 Simulation::initialize(int argc, char* argv[]){
-    myID = commManager.initialize(argc,argv);
+    myID = commManager.initialize(argc, argv);
 }
-
 
 Simulation::~Simulation() {}
 
 const AgentContainer& Simulation::getRegisteredAgents(){
-	return allAgents;
+    return allAgents;
 }
 
 SimulatorID Simulation::getSimulatorID(){ return this->myID; }
 
 
 bool Simulation::registerAgent(  muse::Agent* agent)  { 
-	//add to the agents list
+    //add to the agents list
     if (scheduler.addAgentToScheduler(agent)){
         allAgents.push_back(agent);
         return true;
@@ -59,17 +88,17 @@ Simulation::scheduleEvent( Event *e){
    
     AgentID recvAgentID = e->getReceiverAgentID();
     if (isAgentLocal(recvAgentID)){ 
-       // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
+        // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
         return scheduler.scheduleEvent(e);
-     }
-     else{
-         //cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
-         int size = sizeof(*e);
-         commManager.sendEvent(e,size);
-     }
-     //cout << "[SIMULATION] - made it in scheduleEvent" << endl;
-     return true;
- }
+    }
+    else{
+        //cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
+        int size = sizeof(*e);
+        commManager.sendEvent(e,size);
+    }
+    //cout << "[SIMULATION] - made it in scheduleEvent" << endl;
+    return true;
+}
 
 //bool
 // Simulatison::scheduleEvents( EventContainer *events){
@@ -101,7 +130,7 @@ Simulation::start(){
         Event* incoming_event = commManager.receiveEvent();
         if ( incoming_event != NULL ){
 	  
-	  scheduleEvent(incoming_event);
+            scheduleEvent(incoming_event);
         } //end if
 
         
@@ -132,15 +161,15 @@ Simulation::finalize(){
     AgentContainer::iterator it=allAgents.begin();
     //cout <<" Agents size: " << allAgents.size()<<endl;
     while ( it != allAgents.end()) {
-      AgentContainer::iterator del_it = it;
-      it++;
-      //cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
-      (*del_it)->finalize();
-      (*del_it)->cleanInputQueue();
-      (*del_it)->cleanStateQueue();
-      (*del_it)->cleanOutputQueue();
-      delete (*del_it);
-      //allAgents.erase(del_it);
+        AgentContainer::iterator del_it = it;
+        it++;
+        //cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
+        (*del_it)->finalize();
+        (*del_it)->cleanInputQueue();
+        (*del_it)->cleanStateQueue();
+        (*del_it)->cleanOutputQueue();
+        delete (*del_it);
+        //allAgents.erase(del_it);
     }//end for
     
     //finalize the communicator

@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -Iinclude -Isrc -wd981
+AM_CXXFLAGS += -Iinclude -Isrc
 
 noinst_LIBRARIES = libmuse.a
 
