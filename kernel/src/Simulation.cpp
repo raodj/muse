@@ -25,6 +25,11 @@
 
 #include "Communicator.h"
 #include "Simulation.h"
+#include "GVTManager.h"
+
+// The number of iterations of event processing after which GVT
+// estimation is triggered
+#define GVT_DELAY 1
 
 using namespace muse;
 
@@ -87,16 +92,16 @@ Simulation::scheduleEvent( Event *e){
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
    
     AgentID recvAgentID = e->getReceiverAgentID();
-    if (isAgentLocal(recvAgentID)){ 
-        // cout << "[SIMULATION] Agent is local: sending event directly to scheduler!" << endl;
+    if (isAgentLocal(recvAgentID)){
+        // Local events are directly inserted into our own scheduler
         return scheduler.scheduleEvent(e);
     }
     else{
-        //cout << "[SIMULATION] Agent is NOT local: sending event via CommManager!" << endl;
-        int size = sizeof(*e);
-        commManager.sendEvent(e,size);
+        // Remote events are sent via the GVTManager to aid tracking
+        // GVT. The gvt manager calls communicator.
+        int size = sizeof(*e); // This is BAD! and must be fixed.
+        gvtManager->sendRemoteEvent(e);
     }
-    //cout << "[SIMULATION] - made it in scheduleEvent" << endl;
     return true;
 }
 
@@ -109,7 +114,12 @@ void
 Simulation::start(){
     //first we setup the AgentMap for all kernels
     commManager.registerAgents(allAgents);
-
+    // Create and initialize our GVT manager.
+    gvtManager = new GVTManager();
+    gvtManager->initialize(startTime, &commManager);
+    // Set gvt manager with the communicator.
+    commManager.setGVTManager(gvtManager);
+    
     //loop for the initialization
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
@@ -124,12 +134,16 @@ Simulation::start(){
     Time min_lvt = 1e30 ;
     //BIG loop for event processing
     //int count=0;
-    while(LGVT < endTime){
+    int gvtTimer = GVT_DELAY;
+    while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "Root Ticker @ time: " <<LGVT<< endl;
-      
+        if (--gvtTimer == 0) {
+            gvtTimer = GVT_DELAY;
+            // Initate another round of GVT calculations if needed.
+            gvtManager->startGVTestimation();
+        }
         Event* incoming_event = commManager.receiveEvent();
-        if ( incoming_event != NULL ){
-	  
+        if ( incoming_event != NULL ){	  
             scheduleEvent(incoming_event);
         } //end if
 
@@ -152,6 +166,13 @@ Simulation::start(){
             min_lvt = 1e30 ;
         }//end if
     }//end BIG loop
+
+    // Do final garbage collection here first.
+
+    // Now delete GVT manager as we no longer need it.
+    commManager.setGVTManager(NULL);
+    delete gvtManager;
+    gvtManager = NULL;
 }//end start
 
 void
@@ -194,6 +215,11 @@ Simulation::setStopTime( Time  end_time){
 const Time& 
 Simulation::getTime(){
     return LGVT;
+}
+
+Time
+Simulation::getLGVT() const {
+    return scheduler.getNextEventTime();
 }
 
 const Time& 

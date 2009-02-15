@@ -1,5 +1,5 @@
-#ifndef _MUSE_SCHEDULER_H_
-#define _MUSE_SCHEDULER_H_
+#ifndef MUSE_SCHEDULER_H
+#define MUSE_SCHEDULER_H
 
 //---------------------------------------------------------------------------
 //
@@ -33,16 +33,28 @@ BEGIN_NAMESPACE(muse)
 class Scheduler {
 
 public:
-	Scheduler();
-	~Scheduler();
+    Scheduler();
+    ~Scheduler();
 	
-	bool scheduleEvent(Event *);
-	//bool scheduleEvents( EventContainer *);
-	bool processNextAgentEvents();
-        bool addAgentToScheduler(Agent *);
- 
+    bool scheduleEvent(Event *);
+    //bool scheduleEvents( EventContainer *);
+    bool processNextAgentEvents();
+    bool addAgentToScheduler(Agent *);
+
+    /** Determine the timestamp of the next top-most event in teh
+       scheduler.
+
+       This method can be used to determine the timestamp (aka
+       Event::receiveTime) assocaited with the next event to be
+       executed on the heap.  If the heap is empty, then this method
+       returns INFINITY.
+
+       \return The timestamp of the next event to be executed.
+    */
+    Time getNextEventTime() const;
+	
     //this will be used to figure out which agents should process events
-   // bool operator()(const Agent *lhs, const Agent *rhs) const;
+    // bool operator()(const Agent *lhs, const Agent *rhs) const;
 private:
     typedef map<AgentID, Agent*> AgentMap;
     AgentMap agentMap;

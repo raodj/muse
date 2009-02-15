@@ -126,4 +126,21 @@ Scheduler::~Scheduler(){}//end Scheduler
 //    return (lhs_time > rhs_time);
 //}//end operator()
 
+Time
+Scheduler::getNextEventTime() const {
+    if (agent_pq.empty()) {
+        // The queue is empty. So return infinity.
+        return INFINITY;
+    }
+    // Obtain reference to the top agent in the priority queue.
+    const Agent *agent = agent_pq.top();
+    // Now, look at the agent's sub-queue to determine top event.
+    if (agent->eventPQ.empty()) {
+        // No events on the top-most queue.
+        return INFINITY;
+    }
+    // Use the top-agent's top-event.
+    return agent->eventPQ.top()->getReceiveTime();
+}
+
 #endif

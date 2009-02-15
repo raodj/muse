@@ -2,13 +2,17 @@
 #define MUSE_COMMUNICATOR_CPP
 
 #include "Communicator.h"
+#include "GVTManager.h"
+#include "GVTMessage.h"
 #include "Event.h"
 #include "Agent.h"
 #include <mpi.h>
 
 using namespace muse;
 
-Communicator::Communicator(){}
+Communicator::Communicator(){
+    gvtManager = NULL;
+}
 
 SimulatorID
 Communicator::initialize(int argc, char* argv[]){
@@ -72,7 +76,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
            
      }else{
               AgentID agentList[allAgents.size()];
-              for (int i=0; i < allAgents.size(); ++i){
+              for (size_t i=0; i < allAgents.size(); ++i){
                  agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
               }//end for
               //now send flat list across the wire (MPI)
@@ -95,44 +99,84 @@ Communicator::registerAgents(AgentContainer& allAgents){
 }//end registerAgent method
 
 void
-Communicator::sendEvent(Event * e, int & event_size){
+Communicator::sendEvent(Event * e, const int event_size){
     ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
     ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
     try {
-        //no good way to send objects via MPI
-        //make Event to a char* aka ghetto hack :-)
-         char* serialEvent = (char*)e;
-         MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,agentMap[e->getReceiverAgentID()],EVENT);
-         //cout << "SENT an Event of size: " << event_size << endl;
-         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
-    }catch (MPI::Exception e) {
+        //no good way to send objects via MPI make Event to a char*
+        //aka ghetto hack :-)
+        char* serialEvent = reinterpret_cast<char*>(e);
+        MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,
+                              agentMap[e->getReceiverAgentID()],EVENT);
+        //cout << "SENT an Event of size: " << event_size << endl;
+        //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
+    } catch (MPI::Exception e) {
         cerr << "MPI ERROR (sendEvent): ";cerr << e.Get_error_string() << endl;
     }
 }//end sendEvent
 
+void
+Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
+    try {
+        // GVT messages are already serialized.
+        const char *data = reinterpret_cast<const char*>(msg);
+        MPI::COMM_WORLD.Isend(data, msg->getSize(), MPI::CHAR,
+                              destRank, GVT_MESSAGE);
+    } catch (MPI::Exception e) {
+        std::cerr << "MPI ERROR (sendMessage): ";
+        std::cerr << e.Get_error_string() << std::endl;
+    }
+}
+
 Event*
 Communicator::receiveEvent(){
+    MPI::Status status;
     try {
-        MPI::Status status;
-        if (MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, EVENT, status)){
-            //figure out the agent list size
-            int event_size = status.Get_count(MPI::CHAR);
-            char *incoming_event = new char[event_size];
-            MPI::COMM_WORLD.Recv( incoming_event,event_size, MPI::CHAR , MPI_ANY_SOURCE , EVENT, status);
-            Event* the_event = (Event*)incoming_event;
-            //cout << "RECEIVED an Event of size: " << event_size << endl;
-            //cout << "event to    agent: " << the_event->getReceiverAgentID() << endl;
-            //cout << "event from  agent: " << the_event->getSenderAgentID() << endl;
-            //cout << "[COMMUNICATOR] - made it in receiveEvent" << endl;
-            ASSERT(the_event->getSenderAgentID() >= 0 && the_event->getSenderAgentID() < 3 );
-            ASSERT(the_event->getReceiverAgentID() >= 0 && the_event->getReceiverAgentID() < 3 );
-            
-            return the_event;
+        if (!MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, status)) {
+            // No pending event.
+            return NULL;
         }
-    }catch (MPI::Exception e) {
-        cerr << "MPI ERROR (receiveEvent): ";cerr << e.Get_error_string() << endl;
+    } catch (MPI::Exception e) {
+        std::cerr << "MPI ERROR (receiveEvent): ";
+        std::cerr << e.Get_error_string() << std::endl;
+        return NULL;
     }
-    //cout << "[COMMUNICATOR] - made it in receiveEvent (NULL returned)" << endl;
+    //figure out the agent list size
+    int event_size = status.Get_count(MPI::CHAR);
+    char *incoming_event = new char[event_size];
+    // Read the actual data.
+    try {
+        MPI::COMM_WORLD.Recv(incoming_event, event_size, MPI::CHAR,
+                             MPI_ANY_SOURCE, MPI_ANY_TAG, status);
+    } catch (MPI::Exception e) {
+        std::cerr << "MPI ERROR (receiveEvent): ";
+        std::cerr << e.Get_error_string() << std::endl;
+        return NULL;
+    }
+    
+    // Now handle the incoming data based on the tag value.
+    if (status.Get_tag() == EVENT) {
+        // Type cast does the trick as events are binary blobs
+        Event* the_event = reinterpret_cast<Event*>(incoming_event);
+        // Ensure some of the core data is valid.
+        ASSERT( the_event->getSenderAgentID() >= 0  );
+        ASSERT( the_event->getSenderAgentID() < 3   );
+        ASSERT( the_event->getReceiverAgentID() >= 0);
+        ASSERT( the_event->getReceiverAgentID() < 3 );
+        ASSERT( gvtManager != NULL );
+        // Let GVT manager inspect incoming events.
+        gvtManager->inspectRemoteEvent(the_event);
+        // Dispatch event for further processing.
+        return the_event;
+    } else {
+        // For now this must be a GVT message.
+        ASSERT ( status.Get_tag() == GVT_MESSAGE );
+        // Type cast does the trick as GVT messages are binary blobs
+        GVTMessage *msg = reinterpret_cast<GVTMessage*>(incoming_event);
+        // Let the GVT manager handle it.
+        gvtManager->recvGVTMessage(msg);
+    }
+    
     return NULL;
 }//end receiveEvent
 
@@ -144,15 +188,37 @@ Communicator::isAgentLocal(AgentID &id){
 }
 
 void
-Communicator::finalize()
-{
+Communicator::finalize() {
     try{
-       // cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
+        // cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
         MPI::Finalize();
-       // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
+        // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
     }catch (MPI::Exception e) {
         cerr << "MPI ERROR (finalize): ";cerr << e.Get_error_string() << endl;
     }
+}
+
+void
+Communicator::setGVTManager(GVTManager *gvtMgr) {
+    gvtManager = gvtMgr;
+}
+
+unsigned int
+Communicator::getOwnerRank(const AgentID &id) const {
+    // Find iterator for given agent id
+    std::map<AgentID, SimulatorID>::const_iterator entry = agentMap.find(id);
+    // If id is valid then iterator is valid.
+    if (entry != agentMap.end()) {
+        return entry->second;
+    }
+    // Invalid or unknown agent id.
+    return -1;
+}
+
+void
+Communicator::getProcessInfo(unsigned int &rank, unsigned int& numProcesses) {
+    rank         = MPI::COMM_WORLD.Get_rank();
+    numProcesses = MPI::COMM_WORLD.Get_size();
 }
 
 Communicator::~Communicator(){}
