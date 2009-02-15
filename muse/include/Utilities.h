@@ -22,7 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "Compatibility.h"
+#include <time.h>
+#include <cstring>
 
 /** \def ASSERT(x)
 
@@ -131,5 +132,15 @@ char* getTimeStamp(const char *fileName, char *buffer);
     \return The pointer to the buffer passed in.
 */
 char* getSystemTime(char *buffer, const time_t *codedTime = NULL);
+
+/** \def ctime_s Macro to define ctime_s if not defined.
+
+    This macro provides a replacement for the \c ctime_s function
+	defined in Windows but is absent in Unix/Linux. This macro 
+    simply defines \c ctime_s as \c ctime_r in Unix and Linux.
+*/
+#if (!defined(_WINDOWS) && !defined(ctime_s))
+#define ctime_s(buffer, size, time) ctime_r(time, buffer);
+#endif
 
 #endif

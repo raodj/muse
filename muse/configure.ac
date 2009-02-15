@@ -164,7 +164,9 @@ AC_FUNC_STRTOD
 AC_CHECK_FUNCS([bzero floor gethostbyname gethostname gethrtime gettimeofday memset mkdir modf pow rint socket sqrt strcasecmp strchr strdup strstr strtol])
 
 AC_CONFIG_FILES([Makefile\
-	kernel/Makefile])
+	kernel/Makefile\
+	examples/Makefile\
+	examples/PingPongSimulation/Makefile])
 
 AC_OUTPUT
 

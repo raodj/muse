@@ -25,6 +25,8 @@
 
 #include "Utilities.h"
 #include <vector>
+#include <iostream>
+
 using namespace std;
 
 BEGIN_NAMESPACE(muse)
