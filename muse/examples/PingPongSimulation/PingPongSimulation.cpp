@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     }//end if-elseif
 
     //we set the start and end time of the simulation here
-    Time start=0, end=10; 
+    Time start=0, end=10000; 
     kernel->setStartTime(start);
     kernel->setStopTime(end);
 
@@ -59,9 +59,6 @@ int main(int argc, char** argv) {
 
     //lets not forget to clean up the mez we make :-)
     //we don't have to worry about the kernel it takes care itself!
-    delete pingpong_state;
-    delete pp_agent;
-  
-    return (EXIT_SUCCESS);
+    return 0;
 }
 
