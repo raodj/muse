@@ -39,6 +39,10 @@ libmuse_a_SOURCES = \
 	src/Scheduler.cpp\
 	src/State.cpp \
 	src/Compatibility.cpp \
-	src/f_heap.cpp
+	src/f_heap.cpp \
+	include/GVTMessage.h\
+	src/GVTMessage.cpp\
+	include/GVTManager.h\
+	src/GVTManager.cpp
 
 # end of Makefile.am

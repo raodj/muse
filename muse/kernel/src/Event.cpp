@@ -70,6 +70,11 @@ Event::makeAntiMessage() {
     antiMessage=true;
 }
 
+void
+Event::setColor(const char col) {
+    color = col;
+}
+
 ostream&
 operator<<(ostream& os, const muse::Event& event) {
     os << "Event[Sender=" << event.getSenderAgentID()   << ","
@@ -77,7 +82,8 @@ operator<<(ostream& os, const muse::Event& event) {
        << "sentTime="     << event.getSentTime()        << ","
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
-       << "Ref. count="   << event.referenceCount       << "]";
+       << "Ref. count="   << event.referenceCount       << ","
+       << "color="        << event.color                << "]";
     
     return os;
 }
