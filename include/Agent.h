@@ -1,6 +1,3 @@
-
-//#include "f_heap.h"
-
 #ifndef MUSE_AGENT_H
 #define MUSE_AGENT_H
 

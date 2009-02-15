@@ -75,6 +75,30 @@ public:
     inline const Time& getSentTime() const { return sentTime; }
 
     inline const Time& getReceiveTime() const { return receiveTime; }
+
+    /** Method to obtain color value for this event.
+
+	This method must be used to determine the color value
+	associated with this event.  The color value is typically used
+	for GVT computations during simulation.
+
+	\return The color value associated with this event.  The color
+	value is always zero or one. Any other value potentially
+	indicates an error.
+    */
+    inline char getColor() const { return color; }
+
+    /** Set the color value for this event.
+
+	This method must be used to set the color value associated
+	with this event.  The color value is typically used for GVT
+	computations during simulation.
+
+	\param[in] color The color value associated with this event.
+	The color value is always zero or one. Any other value
+	potentially indicates an error.
+    */
+    void setColor(const char color);
     
     //protected:
     /**The decreaseReference method.
@@ -116,5 +140,15 @@ private:
 };
 
 END_NAMESPACE(muse); //end namespace declaration
+
+/** \def INFINITY
+
+    \brief A #define for virtual time corresponding to infinity.
+
+    This define provides a more human readable time corresponding to
+    infinity that is used for gvt computations.  This is also the
+    default value to which time instance variables are initialized.
+*/
+#define INFINITY Time(1e30)
 
 #endif
