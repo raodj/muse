@@ -109,7 +109,7 @@ AC_DEFUN([AC_PROG_ICC],
      fi
 
      if test "yes" == "$icc"; then
-          ICC_NO_WARN_SOME="-wd981 -wd383"         
+          ICC_NO_WARN_SOME="-wd981 -wd383 -wd424"
      else
           ICC_NO_WARN_SOME=""
      fi

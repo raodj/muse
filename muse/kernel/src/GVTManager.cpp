@@ -69,7 +69,7 @@ GVTManager::initialize(const Time& startTime, Communicator *comm) {
     // Determine configuration information from the comm manager.
     commManager->getProcessInfo(rank, numProcesses);
     ASSERT ( numProcesses > 0 );
-    ASSERT ( (rank >= 0) && (rank < numProcesses) );
+    ASSERT ( rank < numProcesses );
     
     // Create the main vector counters.
     vecCounters[0] = new unsigned int[numProcesses];
@@ -266,7 +266,7 @@ GVTManager::setGVT(const Time& gvtEst) {
     
     // Next update gvt if the new estimate is different
     ASSERT ( gvtEst >= gvt );
-    if (gvtEst == gvt) {
+    if (gvtEst <= gvt) {
         // Nothing special to be done in this case.
         return;
     }
