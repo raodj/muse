@@ -1,5 +1,4 @@
 
-#include "f_heap.h"
 
 #ifndef _MUSE_SCHEDULER_CPP_
 #define _MUSE_SCHEDULER_CPP_
@@ -27,6 +26,7 @@
 //---------------------------------------------------------------------------
 
 #include "Scheduler.h"
+#include "f_heap.h"
 
 using namespace muse;
 Scheduler::Scheduler(){}
@@ -52,10 +52,9 @@ Scheduler::processNextAgentEvents(){
     return result;
 }//end processNextAgentEvents
 
-bool Scheduler::scheduleEvent( Event *e){
-    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
-    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-    
+bool
+Scheduler::scheduleEvent( Event *e){
+  
     //make sure the recevier agent has an entry
     Agent * agent = agentMap[e->getReceiverAgentID()];
     if ( agent == NULL) return false;
@@ -69,39 +68,38 @@ bool Scheduler::scheduleEvent( Event *e){
 	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
 	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
 	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ.size() <<endl;
+	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
         cout << "Rollback Recovery Complete\n"<<endl;
 	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
 	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
 	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ.size() <<endl;
-	//std::exit(1);
-    }//end rollback check
+	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
+	
+    }
 
     //check if event is an anti-message for the future
     if (e->isAntiMessage() && e->getReceiveTime() > agent->LVT) {
         //we must re it and its subtree aways
         cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
-        Agent::EventPQ::iterator it = agent->eventPQ.begin();
+        Agent::EventPQ::iterator it = agent->eventPQ->begin();
        
-        while ( it != agent->eventPQ.end() ) {
+        while ( it != agent->eventPQ->end() ) {
             Agent::EventPQ::iterator del_it = it;
             it++;
 
             if ( (*del_it)->getReceiveTime() >= e->getReceiveTime() &&
                  (*del_it)->getSenderAgentID() == e->getSenderAgentID()){
-                //(*del_it)->makeAntiMessage();
+                
                  cout << "---found useless future event and deleting from fib heap"<<endl;
-                 agent->eventPQ.remove(del_it.getNode());
-            }//end if
-         }//end while
+                 agent->eventPQ->remove(del_it.getNode());
+            }
+         }
         return false;
-    }//end if future anti-message check
-    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
-    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
+    }
+   
     e->increaseReference();
-    agent->eventPQ.push(e);
+    agent->eventPQ->push(e);
     return true;
 }//end scheduleEvent
 
@@ -118,12 +116,12 @@ Scheduler::getNextEventTime() const {
     // Obtain reference to the top agent in the priority queue.
     const Agent *agent = agent_pq.top();
     // Now, look at the agent's sub-queue to determine top event.
-    if (agent->eventPQ.empty()) {
+    if (agent->eventPQ->empty()) {
         // No events on the top-most queue.
         return INFINITY;
     }
     // Use the top-agent's top-event.
-    return agent->eventPQ.top()->getReceiveTime();
+    return agent->eventPQ->top()->getReceiveTime();
 }
 
 #endif

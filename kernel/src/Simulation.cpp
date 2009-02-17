@@ -61,19 +61,20 @@ Simulation::initialize(int argc, char* argv[]){
 
 Simulation::~Simulation() {}
 
-const AgentContainer& Simulation::getRegisteredAgents(){
+const AgentContainer&
+Simulation::getRegisteredAgents(){
     return allAgents;
 }
 
-SimulatorID Simulation::getSimulatorID(){ return this->myID; }
 
 
-bool Simulation::registerAgent(  muse::Agent* agent)  { 
-    //add to the agents list
+
+bool
+Simulation::registerAgent(  muse::Agent* agent)  { 
     if (scheduler.addAgentToScheduler(agent)){
         allAgents.push_back(agent);
         return true;
-    }//end if
+    }
     return false;
 }//end registerAgent
 
@@ -88,9 +89,6 @@ Simulation::getSimulator(){
 
 bool 
 Simulation::scheduleEvent( Event *e){
-    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
-    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-   
     AgentID recvAgentID = e->getReceiverAgentID();
     if (isAgentLocal(recvAgentID)){
         // Local events are directly inserted into our own scheduler
@@ -105,10 +103,6 @@ Simulation::scheduleEvent( Event *e){
     return true;
 }
 
-//bool
-// Simulatison::scheduleEvents( EventContainer *events){
-//     return scheduler.scheduleEvents(events);
-// }
 
 void 
 Simulation::start(){
@@ -212,24 +206,12 @@ Simulation::setStopTime( Time  end_time){
     endTime = end_time;
 }
 
-//const Time& 
-//Simulation::getTime(){
-//    return LGVT;
-//}
 
-Time
+
+const Time &
 Simulation::getLGVT() const {
     return scheduler.getNextEventTime();
 }
 
-//const Time& 
-//Simulation::getStartTime(){
-//    return startTime;
-//}
-
-///const Time& 
-//Simulation::getEndTime(){
-//    return endTime;
-//}
 
 #endif
