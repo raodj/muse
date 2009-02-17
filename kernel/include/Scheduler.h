@@ -25,43 +25,74 @@
 
 #include "DataTypes.h"
 #include <map>
-//#include "f_heap.h"
-#include <queue>
 #include "Agent.h"
+
 BEGIN_NAMESPACE(muse)
-
+     
 class Scheduler {
-
-public:
-    Scheduler();
-    ~Scheduler();
-	
-    bool scheduleEvent(Event *);
-    //bool scheduleEvents( EventContainer *);
-    bool processNextAgentEvents();
-    bool addAgentToScheduler(Agent *);
-
-    /** Determine the timestamp of the next top-most event in teh
-       scheduler.
-
-       This method can be used to determine the timestamp (aka
-       Event::receiveTime) assocaited with the next event to be
-       executed on the heap.  If the heap is empty, then this method
-       returns INFINITY.
-
-       \return The timestamp of the next event to be executed.
-    */
-    Time getNextEventTime() const;
-	
-    //this will be used to figure out which agents should process events
-    // bool operator()(const Agent *lhs, const Agent *rhs) const;
-private:
-    typedef map<AgentID, Agent*> AgentMap;
-    AgentMap agentMap;
   
-   
-    typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
-    AgentPQ agent_pq;
+public:
+
+  /** The ctor method.
+   */
+  Scheduler();
+
+  /** The dtor method.
+   */
+  ~Scheduler();
+
+  /** The scheduleEvent method.
+      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
+      Check for rollback is done at this level.
+      
+      @param event pointer of the event to be scheduled.
+   */
+  bool scheduleEvent(Event *);
+
+  /** The processNextAgentEvents method.
+      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
+      Uses a fibonacci heapfor scheduling the agents. The agent witht he smallest event timestamp to process
+      is chosen.
+
+      @return bool, True if the chosen agent had events to process.
+   */
+  bool processNextAgentEvents();
+
+  /** The addAgentToScheduler method.
+      Adds the agent to the scheduler. This happend in the Simulation::registerAgent method.
+      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
+
+      @param pointer to the agent.
+      @return bool, True if the agent was added to the scheduler.
+   */
+  bool addAgentToScheduler(Agent *);
+
+  /** The getNextEventTime method.
+      Determine the timestamp of the next top-most event in the
+      scheduler.
+
+      This method can be used to determine the timestamp (aka
+      Event::receiveTime) assocaited with the next event to be
+      executed on the heap.  If the heap is empty, then this method
+      returns INFINITY.
+
+      @return The timestamp of the next event to be executed.
+    */
+  Time getNextEventTime() const;
+	
+ 
+ protected:
+
+  /** The agentMap is used to quickly match AgentID to agent pointers in the scheduler.
+   */
+  typedef map<AgentID, Agent*> AgentMap;
+  AgentMap agentMap;
+  
+  /** The agent_pq is a fibonacci heap data structure, and used for scheduling the agents.
+      This is used in the processNextAgentEvents method.
+   */
+  typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
+  AgentPQ agent_pq;
 };
 
 END_NAMESPACE(muse)

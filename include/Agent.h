@@ -25,14 +25,14 @@
 
 #include <iostream>
 #include <exception>
-#include "DataTypes.h"
-#include "State.h"
 #include <list>
+#include "DataTypes.h"
 #include "Event.h"
 #include "f_heap.h"
-#include <queue>
-BEGIN_NAMESPACE(muse) //begin namespace declaration
 
+BEGIN_NAMESPACE(muse) //begin namespace declaration
+     //forward declaration here
+     class State;
 
 /** The base class for all agents in a simulation.
  
@@ -55,18 +55,18 @@ class Agent {
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
 
-
     
-public:
+    
+ public:
     /** The initialize method.
      
-        This method is invoked whenever just when a simulation
+        This method is invoked just when a simulation
         commences. The core simulation engine invokes this
         mehtod. This mehtod may perform any agent specific
         initialization activites that may be necessary. This includes
         opening new streams for performing I/O.
         
-        @note Whenever a new agent is created, the dervied child class
+        @note Whenever a new agent is created, the derived child class
         should override this method.
 
         @throw std::exception This method throws an exception when
@@ -111,72 +111,35 @@ public:
         This method is used to schedule an event to be processed by any
         agent.  
 
-     * IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
-     *             deleting the memory.
-        @param e this is an Event object and will not be modified by this
-        method.
-        
-        @return bool this will let the client know if the operation was a
-        success.
-        
+	IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
+                    deleting the memory.
+		  
+        @param pointer to the event to schedule.
+        @return bool True if the event was correctly scheduled.
         @see Event()
     */
     bool scheduleEvent(Event * e);
 
-    /** The scheduleEvent method.
-
-     *   This method is used to schedule more than one event to be processed by any
-     *   agent.
-     *
-     * IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
-     *             deleting the memory.
-
-        @param e this is an Event object and will not be modified by this
-        method.
-
-        @return bool this will let the client know if the operation was a
-        success.
-
-        @see Event()
-     *  @see DataTypes.h
-     *  @see EventContainer
-    */
-    //bool scheduleEvents(EventContainer * events);
     
-    /** The getAgentID method returns a pointer to AgentID struct.
-        
-        This method is used to return a pointer to a AgentID struct
-        which contains the id of the agent. Once pointer is obtained,
-        simple using the command AgentID.id would extract the actual
-        id, but for all purpose the client should have no reason to do
-        this, unless the id is required for I/O purposes. All method
-        that require will only take of type AgentID.
-        
-        Note: All agents must register with the muse::Simulator which
-        in returns assigns an AgentID. This AgentID is what this
-        method will be returning a pointer to.
-        
-        Note: AgentID that is returned should not be modified in anyway.
-        
-        @return AgentID 
+    /** The getAgentID method.
+        @return reference to this agent's id
         @see AgentID
-        
     */
     const AgentID& getAgentID();
         
-    /**The getLVT method.
-     * This will return the agent's Local Virtual Time.
-     * If you want to know the time in term of an agent, this is what you
-     * want to call.
-     *
-     * @return Time , basically the time of the last processed event
+    /** The getLVT method.
+	This will return the agent's Local Virtual Time.
+	If you want to know the time in term of an agent, this is what you
+	want to call.
+     
+	@return Time , basically the time of the last processed event
      */
     Time getLVT();
 	
-    /** The constructor.
-        
-        The ctor is not supposed to be overriden.
-        @todo make sure that the above statement is a accurate statement.
+    /** The ctor.
+	IMPORTANT - once constructed MUSE will handle deleting the state pointer. State can only be allocated in the heap.
+	@param the AgentID that this agent will take on.
+	@param pointer to the state that has been allocated in the heap.
     */
     explicit Agent(AgentID , State *);
     
@@ -188,102 +151,144 @@ public:
    virtual ~Agent();
 
 
-    /**The cloneState method.
-     * Simply returns a copy of the passed in state. Every state should be able to
-     * clone itself.
-     *
-     *IMPORTANT - MUSE will handle disposing of this State pointer only if MUSE kernel
-     *            makes this call. However, if for some reason the user calls for a clone
-     *            then it is important to properly dispose the pointer when operation is complete.
-     *
-     *@param State pointer, this is the state to be cloned.
-     *@return State, pointer to new state.
+    /** The cloneState method.
+	Simply returns a copy of the passed in state. Every state should be able to
+	clone itself.
+	
+	IMPORTANT - MUSE will handle disposing of this State pointer only if MUSE kernel
+	makes this call. However, if for some reason the user calls for a clone
+	then it is important to properly dispose the pointer when operation is complete.
+	
+	@param State pointer, this is the state to be cloned.
+	@return State, pointer to new state.
      */
-    State* cloneState(State *);
+    virtual State* cloneState(State *);
 
-    /**The setState method.
-     * Currently waiting to be approaved for implementation.
-     * Agents will be able to use different states throughout the simulation
-     * via this method. Note, that the state thats passed in the constructure
-     * does not have to be the only state. You can For example slowly increase
-     * the information stored in the state as simulation runs.
-     *
-     *IMPORTANT - this method uses the assignment operator, so be sure you properly
-     *            overload the assignment operator for the given state classes.
-     *
-     *@param State reference, this is the new state that will be set.
-     *@return bool, true if the process was a success.
+    /** The setState method.
+	Agents will be able to use different states throughout the simulation
+	via this method. Note, that the state thats passed in the constructure
+	does not have to be the only state. You can For example slowly increase
+	the information stored in the state as simulation runs.
+	IMPORTANT - this method uses the assignment operator, so be sure you properly
+	overload the assignment operator for the given state classes.
+	
+	@param State reference, this is the new state that will be set.
+	@return bool, true if the process was a success.
      */
     void setState(State *);
 
-    //private:
+ protected:
 
-
-    /**The processNextEvents method.
-     * This is used for in house and SHOULD NEVER be used by users. Only for the Simulation kernel.
-     * This is used to get the next set of events to be processed by this agent. The scheduler 
-     * will call this method, when it is time for processing.
-     *
-     *@return bool, true if there were events to process at the time of the method call
+    
+    /** The processNextEvents method.
+	This is used for in house and SHOULD NEVER be used by users. Only for the Scheduler.
+	This is used to get the next set of events to be processed by this agent. The scheduler 
+	will call this method, when it is time for processing.
+     
+	@return bool, true if there were events to process at the time of the method call
      */
     bool processNextEvents();
 
+    /** The cleanStateQueue method
+	Used by the Simulation kernel to delete remaining events in the state queue.
+    */
     void cleanStateQueue();
+
+    /** The cleanInputQueue method
+	Used by the Simulation kernel to delete remaining events in the input queue.
+    */
     void cleanInputQueue();
+
+    /** The cleanOutputQueue method
+	Used by the Simulation kernel to delete remaining events in the output queue.
+    */
     void cleanOutputQueue();
 
-    //protected:
-
+   
     //the following four methods are for rollback recovery
     void doRollbackRecovery(Event * );
     void doStepOne(Event * );
     void doStepTwo();
     void doStepThree(Event * );
 
-     
+    /** The agentComp class.
+	This is used by the scheduler class to figure out which agent to schedule next.
+     */
     class agentComp{
     public:
-        agentComp(){}
-        bool operator()(const Agent *lhs, const Agent *rhs) const;
+      agentComp(){}
+      bool operator()(const Agent *lhs, const Agent *rhs) const;
     };
-     //compares delivery times. puts the one with the smaller
-    //ahead.
+
+    /** The eventComp class.
+	Compares delivery times. puts the one with the smaller ahead.
+    */
     class eventComp
     {
     public:
       eventComp(){}
       inline bool operator() ( Event *lhs,  Event *rhs) const
       {
-         Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
-         return (lhs_time > rhs->getReceiveTime());
+	Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
+	return (lhs_time > rhs->getReceiveTime());
       }
-
     };
+
+    /** The EventPQ type.
+	This is data structure that houses the events to be processed by this agent.
+	This is a fibonacci heap! Uses the eventComp as a comparator.
+
+	@see f_heap()
+	@see eventComp()
+	@see Event()
+     */
     typedef class boost::fibonacci_heap<Event* , eventComp> EventPQ;
-    //typedef priority_queue <Event*, vector<Event*>, eventComp > EventPQ;
-    
+
     /** The AgentID type myID.
-     
-        This is inialized when the agent is registered to a simulator.
+	This is inialized when the agent is registered to a simulator.
         Only one way to access this, use the getAgentID method.
-      
+	
         @see getAgentID()
     */
     AgentID myID;
 
     /** The AgentID type myID.
-
-    This is inialized when the agent is registered to a simulator.
-    Only one way to access this, use the getAgentID method.
-
-    @see getAgentID()
+	This is inialized when the agent is registered to a simulator.
+	Only one way to access this, use the getAgentID method.
+	
+	@see getAgentID()
     */
     Time LVT;
 
+    /** The double linked lise stateQueue.
+	Houses a sorted list of state pointers. Needed incase of rollbacks
+	@see State()
+    */
     list<State*> stateQueue;
+
+    /** The double linked lise outputQueue.
+	Houses a sorted list of event pointers. Needed incase of rollbacks
+	@see Event()
+    */
     list<Event*> outputQueue;
+
+    /** The double linked lise inputQueue.
+	Houses a sorted list of event pointers. Needed incase of rollbacks
+	@see Event()
+    */
     list<Event*> inputQueue;
+
+    /** The State type myState.
+	This is a pointer to the current state of the Agent.
+	@see State()
+    */
     State* myState;
+
+    /** The EventPQ type eventPQ.
+	This is access to the fibonacci heap data structure that houses or events to process.
+	@see f_heap()
+	@see EventPQ
+    */
     EventPQ eventPQ;
 
 };

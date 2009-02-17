@@ -3,54 +3,70 @@
 
 #include "DataTypes.h"
 //---------------------------------------------------------------------------
-// USE AS IS, muse will not be responsible if anything breaks, while using muse.
-// Authors: Meseret Gebre       gebremr@muohio.edu
+//
+// Copyright (c) Miami University, Oxford, OHIO.
+// All rights reserved.
+//
+// Miami University (MU) makes no representations or warranties about
+// the suitability of the software, either express or implied,
+// including but not limited to the implied warranties of
+// merchantability, fitness for a particular purpose, or
+// non-infringement.  MU shall not be liable for any damages suffered
+// by licensee as a result of using, result of using, modifying or
+// distributing this software or its derivatives.
+//
+// By using or copying this Software, Licensee agrees to abide by the
+// intellectual property laws, and all other applicable laws of the
+// U.S., and the terms of this license.
+//
+// Authors: Meseret Gebre          gebremr@muohio.edu
 //
 //---------------------------------------------------------------------------
 
-/** The muse namespace.
- * Everything in the api is in the muse namespace.
- *
- */
+
 BEGIN_NAMESPACE(muse) //begin namespace declaration 
 
 /** The State class.
- * This class is a base class and SHOULD be used as a superclass. All agents must have a State. 
- * Think of the State of all the information that can be changed within an agent. When an agent
- * has to process a collection of events, what actually happens is information in the state is changed
- * based on the event being processed. 
+    This class is a base class and SHOULD be used as a superclass. All agents must have a State. 
+    Think of the State as all the information that can be changed within an agent. When an agent
+    has to process a collection of events, what actually happens is information in the state is changed
+    based on the event being processed. 
  */
 class State {
 
-    friend class Agent;
-public:
-        /** the getClone method.
-         * This method must be implamented by the client. This is because there is no way 
-         * muse can know what information the client has in the State class. 
-         *
-         * @return State* a pointer to the clone of this State.
-         * @todo figure out how we will dispose of the cloned State.
-         *
-         */
-	virtual State * getClone(); //must override this.
+  //let make the Agent class a friend
+  friend class Agent;
+  
+ public:
+  /** The getClone method.
+      This method must be implemented by the client. This is because there is no way 
+      muse can know what information the client has in the State class. 
+      
+      @return State* a pointer to the clone of this State. Should be a new state allocated in the heap.
+  */
+  virtual State * getClone(); //must override this.
+  
+  /** The ctor method.
+  */
+  State();
         
-        /**The ctor method.
-         *
-         *
-         */
-	State();
-        
-        /**The dtor method.
-         * Cleans up all mess created by muse.
-         *
-         */
-	virtual ~State();
+ 
 
-        const Time & getTimeStamp();
-protected:
-    
-    Time timestamp;
+  /** The getTimeStamp method.
+      @return reference to the timestamp of this state.
+   */
+  const Time & getTimeStamp();
+  
+ protected:
+  /** The dtor method.
+      Cleans up all mess created by muse.
+  */
+  virtual ~State();
+  
+  // this is used for storage purpose. Incase of a rollback this is used to get a state before the rollback time. 
+  Time timestamp;
 };
 
 END_NAMESPACE(muse)
+     
 #endif
