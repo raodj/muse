@@ -86,7 +86,7 @@ BEGIN_NAMESPACE(muse);
     </ul>
 */
 class GVTMessage {
-public:
+ public:
     /** Enumeration for different kinds of GVT messages.
 
         This enumeration defines the different kinds of GVT messages
@@ -247,7 +247,7 @@ public:
     */
     bool areCountersZero(const int numProcesses) const;
     
-protected:
+ protected:
     /** Constructor.
 
         The constructor has been made protected to ensure that this

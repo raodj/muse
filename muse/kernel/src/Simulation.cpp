@@ -212,24 +212,24 @@ Simulation::setStopTime( Time  end_time){
     endTime = end_time;
 }
 
-const Time& 
-Simulation::getTime(){
-    return LGVT;
-}
+//const Time& 
+//Simulation::getTime(){
+//    return LGVT;
+//}
 
 Time
 Simulation::getLGVT() const {
     return scheduler.getNextEventTime();
 }
 
-const Time& 
-Simulation::getStartTime(){
-    return startTime;
-}
+//const Time& 
+//Simulation::getStartTime(){
+//    return startTime;
+//}
 
-const Time& 
-Simulation::getEndTime(){
-    return endTime;
-}
+///const Time& 
+//Simulation::getEndTime(){
+//    return endTime;
+//}
 
 #endif

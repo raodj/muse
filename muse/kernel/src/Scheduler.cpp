@@ -107,24 +107,7 @@ bool Scheduler::scheduleEvent( Event *e){
 
 Scheduler::~Scheduler(){}//end Scheduler
 
-//bool
-//Scheduler::operator()(const Agent *lhs, const Agent *rhs) const
-//{
-//    if (lhs->eventPQ.empty() && !rhs->eventPQ.empty()) {
-//        //std::cout << "[CompScheduler] lhs is EMPTY"<< std::endl;
-//        return true;
-//    }
-//    if (rhs->eventPQ.empty() && !lhs->eventPQ.empty()) {
-//        //std::cout << "[CompScheduler] rhs is EMPTY"<< std::endl;
-//        return false;
-//    }
-//    Event *lhs_event = lhs->eventPQ.top();
-//    Event *rhs_event = rhs->eventPQ.top();
-//    Time lhs_time    = lhs_event->getReceiveTime();
-//    Time rhs_time    = rhs_event->getReceiveTime();
-//    //std::cout << "[CompScheduler] " << lhs_time << " > " << rhs_time << std::endl;
-//    return (lhs_time > rhs_time);
-//}//end operator()
+
 
 Time
 Scheduler::getNextEventTime() const {

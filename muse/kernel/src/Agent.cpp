@@ -41,7 +41,9 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState) {}//end ctor
+Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState) {
+    eventPQ = new EventPQ();
+}//end ctor
 
 Agent::~Agent() {}
 

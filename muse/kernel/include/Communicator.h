@@ -15,14 +15,15 @@
 
 BEGIN_NAMESPACE(muse);
 
+//forward declaration here
 class GVTMessage;
 class GVTManager;
 
 class Communicator {
-
+  
     //class Event;
 
-public:
+ public:
     /** The ctor.
      */
     Communicator();
@@ -32,86 +33,95 @@ public:
     ~Communicator();
 
     /** The sendEvent method.
-     *
-     * @param Event pointer, this is the event to be sent across the wire.
-     * @param int eventSize, simply use the sizeof() method of the event class
-     *        you are sending on the wire.
-     *        USAGE EXAMPLE:: using the clock example!
-     *              ClockEvent *e = new ClockEvent();
-     *              sendEvent(e, sizeof(*e)); //NOTE::that you want the sizeof what the pointer points to!!
-     *                 .....
-     *              free(e); //please remember to free your memory :-)
-     * @see Event
-     *
+	@param Event pointer, this is the event to be sent across the wire.
+	@param int eventSize, simply use the sizeof() method of the event class
+	you are sending on the wire.
+
+	USAGE EXAMPLE:: using the clock example!
+	ClockEvent *e = new ClockEvent();
+	sendEvent(e, sizeof(*e)); //NOTE::that you want the sizeof what the pointer points to!!
+
+	@see Event
      */
     void sendEvent(Event *, const int);
 
-    /** Method to send out a GVT message.
+    /** The sendMessage method.
+	Method to send out a GVT message.
 
         This method must be used to dispatch a GVT message from
         this process to another process.  This method is typically
         invoked only from the GVTManager class.
 
-        \param[in] msg The message to be dispatched to a remote
+        @param msg The message to be dispatched to a remote
         process.
 
-        \param[in] destRank The rank of the destination process to
+        @param destRank The rank of the destination process to
         which the event is to be dispatched.
     */
     void sendMessage(const GVTMessage *msg, const int destRank);
 	
     /** The recvEvent method.
-     *
-     * NOTE:: Will return a NULL if there is no Event to receive!!!
-     * @return Event pointer, this is the event to be received from the wire.
-     * @see Event
-     */
+	
+        @note Will return a NULL if there is no Event to receive!!!
+	@return Event pointer, this is the event to be received from the wire.
+	@see Event
+    */
     Event* receiveEvent();
 
-    /** The initialize method
-     * this is used to sync all communicator and get the agentMap
-     * populated.
-     */
+    /** The initialize method.
+	This is used to sync all communicator and get the agentMap
+	populated.
+
+	@param int, the number of arguments to pass to MPI::Init
+	@param char**, the list of arguments to pass to MPI:Init
+	@return SimulatorID, with MPI this is the rank of the process.
+
+	@see SimulatorID
+    */
     SimulatorID initialize(int argc, char* argv[]);
 
-    /**The registerAgents method.
-     * This is used to sync the AgentMapping in the Communicator class.
-     * Before you can send any events across the wire (MPI), use this to
-     * get your agents and other kernel's agents mapped correctly.
-     *
-     * NOTE:: please call the initialize method before calling this method.
-     *
-     *@param AgentContainer reference, this is the list of agents the kernel containts
-     */
+    /** The registerAgents method.
+	This is used to sync the AgentMapping in the Communicator class.
+	Before you can send any events across the wire (MPI), use this to
+	get your agents and other kernel's agents mapped correctly.
+     
+	@note please call the initialize method before calling this method.
+     
+	@param AgentContainer reference, this is the list of agents the kernel containts
+	@see AgentContainer
+    */
     void registerAgents(AgentContainer &);
 
-    /**The isAgentLocal method.
-     * This will check if the given agent is registered locally.
-     * @param id , the agent id is used to check. true if it is local.
-     * @see AgentID
-     */
+    /** The isAgentLocal method.
+	This will check if the given agent is registered locally.
+	
+	@param id , the agent id is used to check. true if it is local.
+	@see AgentID
+    */
     bool isAgentLocal(AgentID &);
 
-    /** Method to obtain the rank of the process on which a given
+    /** The getOwnerRank method.
+	Method to obtain the rank of the process on which a given
         agent resides.
 
         This method can be used to determine the rank of the
         remote process on which a given agent resides.
 
-        \note The values returned by this method make sense only
+        @note The values returned by this method make sense only
         after the communicator has been initialized and
         information regarding all the agents has been exchanged.
 
-        \param[in] id The ID of the agent for which the
+        @param id The ID of the agent for which the
         corresponding process rank is desired.
 
-        \return If the id (parameter) is valid then this method
+        @return If the id (parameter) is valid then this method
         returns the rank of the process on which the given agent
         resides.  Otherwise this method returns -1.
     */
     unsigned int getOwnerRank(const AgentID &id) const;
 
-    /** Method to obtain process configuration information.
+    /** The getProcessInfo method.
+	Method to obtain process configuration information.
 
         This method may be used to obtain some of the
         configuration information associated with the processes
@@ -119,7 +129,7 @@ public:
         example in GVTManager::initialize() to determine
         simulation configuration.
 
-        \note The values returned by this method make sense only
+        @note The values returned by this method make sense only
         after the communicator has been initialized and
         information regarding all the agents has been exchanged.
         Invoking this method before the Communicator has been
@@ -133,7 +143,9 @@ public:
     */
     void getProcessInfo(unsigned int &rank, unsigned int& numProcesses);
 
-    /** Set a reference to the GVT manager.
+    /** The setGVTManager method.
+	
+	Set a reference to the GVT manager.
 
         This method must be used to set a valid pointer to the GVT
         manager class assocaited with this simulation. The GVT manager
@@ -148,24 +160,24 @@ public:
     void setGVTManager(GVTManager *gvtMgr);
     
     /** The finialize method.
-     *
-     * Use this to clean up after yourself.
-     *
-     */
+	
+        Use this to clean up after yourself.
+	MPI calls the MPI:Finalize
+    */
     void finalize();
 
-private:
+ private:
 
     /** This is used to map the locations of all agents in the simulation.
-     *  When simulation starts, all simulation kernels, will perform a bcast and
-     *  send all agents that they have. Using the agentID as the key, the communicator
-     *  will be able to know the simulator kernel's ID.
-     *
-     * @see AgentID
-     * @see SimulatorID
+	When simulation starts, all simulation kernels, will perform a bcast and
+	send all agents that they have. Using the agentID as the key, the communicator
+	will be able to know the simulator kernel's ID.
+	
+	@see AgentID
+	@see SimulatorID
      */
     map<AgentID, SimulatorID> agentMap;
-
+    
     /** Instance variable to hold reference to GVT manager.
 
         This instance variable is used to hold a pointer to the GVT
