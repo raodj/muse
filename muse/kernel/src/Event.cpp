@@ -33,7 +33,7 @@ Event::Event(const AgentID  senderID,const AgentID  receiverID,
     senderAgentID(senderID), receiverAgentID(receiverID),
     sentTime(sentTime), receiveTime(receiveTime), antiMessage(false),
     referenceCount(0) {
-    // Nothing else to be dine in the constructor.
+    // Nothing else to be done in the constructor.
 }
 
 Event::~Event(){}
@@ -87,17 +87,6 @@ operator<<(ostream& os, const muse::Event& event) {
     
     return os;
 }
-
-// std::copy(list.begin(), list.end(), std::output_iterator<Event*>(std::cout));
-
-//void 
-//Event::printInfo(){
-//    cout << "Event Info" << endl;
-//    cout << "Sender Agent: " << getSenderAgentID() << endl;
-//    cout << "Receiver Agent: " << getReceiverAgentID() << endl;
-//    cout << "Sent Time: " << getSentTime() << endl;
-//    cout << "Receive Time: " << getReceiveTime() << endl;
-//}
 
 #endif
 

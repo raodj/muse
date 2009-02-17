@@ -8,16 +8,12 @@ using namespace muse;
 State::State() : timestamp(0) {}
 
 State* State::getClone(){
+    //at a min we want to create a new state and set the timestamp
     State *state = new State();
     state->timestamp = getTimeStamp();
     return state;
 }
 
-
-const Time &
-State::getTimeStamp(){
-    return timestamp ;
-}
 State::~State(){}
 
 #endif

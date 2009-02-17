@@ -29,10 +29,10 @@
 #include "DataTypes.h"
 #include "Event.h"
 #include "f_heap.h"
-
+#include "State.h"
 BEGIN_NAMESPACE(muse) //begin namespace declaration
      //forward declaration here
-     class State;
+     
 
 /** The base class for all agents in a simulation.
  
@@ -125,7 +125,7 @@ class Agent {
         @return reference to this agent's id
         @see AgentID
     */
-    const AgentID& getAgentID();
+    inline const AgentID& getAgentID() const { return myID; }
         
     /** The getLVT method.
 	This will return the agent's Local Virtual Time.
@@ -134,7 +134,7 @@ class Agent {
      
 	@return Time , basically the time of the last processed event
      */
-    Time getLVT();
+    inline const Time& getLVT() const { return LVT;}
 	
     /** The ctor.
 	IMPORTANT - once constructed MUSE will handle deleting the state pointer. State can only be allocated in the heap.
@@ -205,10 +205,46 @@ class Agent {
     void cleanOutputQueue();
 
    
-    //the following four methods are for rollback recovery
+    /** The doRollbackRecovery method.
+	This method is called by the scheduler class, when a rollback is detected.
+
+	@note Only should be called by the Scheduler class.
+	@param pointer to the event that caused the rollback aka straggler event 
+     */
     void doRollbackRecovery(Event * );
+
+    /** The doStepOne method.
+	This is the first step of the rollback recovery process.
+	In this method we first search the state queue and find a state with a timestamp
+	that is smaller than that of the straggler event's receive time.
+
+	@note Only should be called by the doRollbackRecovery method.
+	@param pointer to the event that caused the rollback aka straggler event
+     */
     void doStepOne(Event * );
-    void doStepTwo();
+
+    /** The doStepTwo method.
+	This is the second step of the rollback recovery process.
+	In this method we start prunning the output queue. Events
+	with sent time greater than straggler event's time are removed
+	from the output queue. Also anti-messages are sent for the earliest
+	sent time after the straggler event's time.
+	
+	@note Only should be called by the doRollbackRecovery method.
+	@param pointer to the event that caused the rollback aka straggler event
+     */
+    void doStepTwo(Event *);
+
+    /** The doStepThree method.
+	This is the third and final step of the rollback recovery process.
+	In this method we start prunning the input queue. Events
+	with receive time greater than straggler event's time are removed
+	from the input queue. 
+	
+	@note Only should be called by the doRollbackRecovery method.
+	@param pointer to the event that caused the rollback aka straggler event
+	
+     */
     void doStepThree(Event * );
 
     /** The agentComp class.
@@ -289,7 +325,7 @@ class Agent {
 	@see f_heap()
 	@see EventPQ
     */
-    EventPQ eventPQ;
+    EventPQ *eventPQ;
 
 };
 END_NAMESPACE(muse)//end namespace declaration

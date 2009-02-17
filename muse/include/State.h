@@ -49,13 +49,11 @@ class State {
   /** The ctor method.
   */
   State();
-        
- 
 
   /** The getTimeStamp method.
       @return reference to the timestamp of this state.
    */
-  const Time & getTimeStamp();
+  inline const Time & getTimeStamp() const { return timestamp;}
   
  protected:
   /** The dtor method.

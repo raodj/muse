@@ -28,6 +28,7 @@
 #include <iostream>
 #include "f_heap.h"
 #include <map>
+
 using namespace std;
 using namespace muse;
 
@@ -49,54 +50,55 @@ Agent::~Agent() {}
 
 bool
 Agent::processNextEvents(){
-    
-    if (eventPQ.empty()) {
-      //cout << "eventPQ is empty: returning false"<<endl;
+
+    //here we make sure the list is not empty
+    if (eventPQ->empty()) {
       return false;
     }
-    
+
+    //create the event container.
+    //this will be passed on to the agent's executeTask method.
     EventContainer events;
-    Event *top_event = eventPQ.top();eventPQ.pop();
+    Event *top_event = eventPQ->top();eventPQ->pop();
     
+    //we should never process an anti-message.
+    ASSERT(top_event->isAntiMessage() == false );
     
-    if ( top_event->isAntiMessage()) {
-        cout << "eventPQ topped an Anti-Message: Ignoring and returning"<<endl;
-        eventPQ.pop();
-        return false;
-    }
-    
-    ASSERT(top_event->getSenderAgentID() >= 0 && top_event ->getSenderAgentID() < 3 );
-    ASSERT(top_event->getReceiverAgentID() >= 0 && top_event->getReceiverAgentID() < 3 );
-    
+    //we add the top event we popped to the event container
     events.push_back(top_event);
-    
+
+    //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
 
-    top_event->decreaseReference(); 
-    while(eventPQ.size() != 0){
-        Event *next_event = eventPQ.top();
-        
-        ASSERT(next_event->getSenderAgentID()   >= 0   && next_event->getSenderAgentID()    < 3 );
-        ASSERT(next_event->getReceiverAgentID() >= 0   && next_event->getReceiverAgentID()  < 3 );
-        
-        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
-            eventPQ.pop();
-            events.push_back(next_event);
-            
-            next_event->increaseReference(); 
-            inputQueue.push_back(next_event);
+    //since we popped an event from the eventPQ, we must call to decrease the reference.
+    top_event->decreaseReference();
 
+    //this while is used to gather the remaining event that will be processed
+    while(eventPQ->size() != 0){
+        //first top the next event for checking.
+        Event *next_event = eventPQ->top();
+        //if the receive times match, then they are to be processed at the same time.
+        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
+            //first remove it from the eventPQ
+            eventPQ->pop();
+            //now we add it to the event container
+            events.push_back(next_event);
+            //increase the reference count, since it will be added to the input queue.
+            next_event->increaseReference();
+            inputQueue.push_back(next_event);
+            //finally, we decrease the reference count for the pop.
             next_event->decreaseReference(); 
         }else{
             break;
         }
     }//end while
-    
-    myState->timestamp = LVT = top_event->getReceiveTime(); //update the agents LVT
-    executeTask(&events); //now call the executeTask
-    
-    State * state = myState->getClone(); //time to archive the agent's state
+
+    //here we set the agent's LVT and update agent's state timestamp
+    myState->timestamp = LVT = top_event->getReceiveTime();
+    executeTask(&events); 
+    //clone the state so we can archive
+    State * state = myState->getClone(); 
     stateQueue.push_back(state);
     
     return true;
@@ -113,32 +115,25 @@ Agent::setState(State * state){
     this->myState = state;
 }//end setState
 
-Time
-Agent::getLVT() {return LVT;}
-
-const 
-AgentID& Agent::getAgentID(){
-    return myID;
-}//end getAgentID
 
 bool 
 Agent::scheduleEvent(Event *e){
-    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
-    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
-
-    if ( e->getSentTime() >=(Simulation::getSimulator())->getEndTime() ){
-        //dont bother to schedule because the simulation is done
+    //check to make sure we dont schedule pass the simulation end time.
+    if ( e->getSentTime() >= (Simulation::getSimulator())->getEndTime() ){
         return false;
     }
+    //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
-      //cout << "Sending to own self"<<endl;
+        //add to event scheduler
+        //this is a optimization trick, because we dont go through the Simulation scheduler method.
         e->increaseReference();
-        eventPQ.push(e);
+        eventPQ->push(e);
+        //add to output queue
         e->increaseReference();
         outputQueue.push_back(e);
-        //cout << "ref count: " << e->referenceCount <<endl;
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
+        //just add to output queue.
         e->increaseReference();
         outputQueue.push_back(e);
         return true;
@@ -148,35 +143,44 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(Event* straggler_event){
+    //the straggler event must have a smaller or equal time as the LVT
     ASSERT(straggler_event->getReceiveTime() <= LVT);
     doStepOne(straggler_event);
-    doStepTwo();
+    doStepTwo(straggler_event);
     doStepThree(straggler_event);
-    ASSERT(straggler_event->getReceiveTime() > LVT  );
 }//end doRollback
 
 void
 Agent::doStepOne(Event* straggler_event){
     cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
+    //first we grab the straggler time
     Time straggler_time = straggler_event->getReceiveTime();
+    //second we start looping in the reverse direction, because typically rollbacks happen towards the end of this queue.
     list<State*>::reverse_iterator it;
     cout << "   Searching";
     for(it=stateQueue.rbegin(); it != stateQueue.rend(); ++it){
         cout << ".";
+        //this check is safe because the state queue is sorted ascending by timestamp
         if ((*it)->getTimeStamp() < straggler_time){
-           setState((*it));
-           LVT = myState->getTimeStamp();
-           cout << "    State Found for time: "<< (*it)->getTimeStamp() << endl;
-           break;
-        }//end if
-    }//end for
+            //set out state to this old consistent state
+            setState((*it));
+            //set agent's LVT to this state's timestamp
+            LVT = myState->getTimeStamp();
+            cout << "    State Found for time: "<< (*it)->getTimeStamp() << endl;
+            break;
+        }
+    }
+    //at this point our LVT should be smaller then the straggle event's receive time
     ASSERT(straggler_event->getReceiveTime() > LVT  );
 }//end doStepOne
 
 void
-Agent::doStepTwo(){
+Agent::doStepTwo(Event* straggler_event ){
     Time rollback_time = myState->getTimeStamp();
+    //we make sure that doStepOne was called by this assert.
+    ASSERT(straggler_event->getReceiveTime()  > rollback_time );
     list<Event*>::iterator outQ_it = outputQueue.begin();
+    //this map is used to make sure we send only one anti-message to any given agent.
     map<AgentID, bool> bitMap;
     cout << "\nStep 2. Send Anit-messages and prun Output Queue for events with time > "<< rollback_time<< endl;
     cout << "          Output Queue Size: "<< outputQueue.size() <<endl;
@@ -184,20 +188,22 @@ Agent::doStepTwo(){
         list<Event*>::iterator del_it = outQ_it;
         outQ_it++; 
         Event *current_event = (*del_it);
-      
-        if ( current_event->getSentTime() > rollback_time ){ //means we can check the event
-            if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ //check bitMap
-                    bitMap[current_event->getReceiverAgentID()] = true;
-                    current_event->makeAntiMessage();
-                    scheduleEvent(current_event);
-                    cout << "   Agent ["<<getAgentID()<<"]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
-                    cout << " with receive time: " << current_event->getReceiveTime()  << endl;
-            }//end if
-            cout << " Prunning Event: " <<*current_event<<endl;
+        
+        if ( current_event->getSentTime() > rollback_time ){
+            
+            if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ 
+                bitMap[current_event->getReceiverAgentID()] = true;
+                current_event->makeAntiMessage();
+                scheduleEvent(current_event);
+                cout << "   Agent ["<<getAgentID()<<"]";cout << " Sent Anti-Message to agent: " <<current_event->getReceiverAgentID();
+                cout << " with receive time: " << current_event->getReceiveTime()  << endl;
+            }
+            
+            cout << "   Prunning Event: " <<*current_event<<endl;
             current_event->decreaseReference();
             outputQueue.erase(del_it);
-        }//end if outQ prun check
-    }//end for
+        }
+    }
 }//end doStepTwo
 
 void
@@ -210,14 +216,12 @@ Agent::doStepThree(Event* straggler_event){
      list<Event*>::iterator del_it = inQ_it;
      inQ_it++;
      Event *current_event = (*del_it);
-     ASSERT(current_event->getSenderAgentID()   >= 0 && current_event->getSenderAgentID()   < 3 );
-     ASSERT(current_event->getReceiverAgentID() >= 0 && current_event->getReceiverAgentID() < 3 );
     
      if ( current_event->getReceiveTime() > rollback_time){
          cout << " Prunning Event: " <<*current_event<<endl;
 	 if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID()){
              current_event->increaseReference();
-             eventPQ.push(current_event );
+             eventPQ->push(current_event );
 	 }
          
          current_event->decreaseReference();
@@ -244,7 +248,6 @@ Agent::cleanInputQueue(){
   while ( inQ_it != inputQueue.end()) {
     list<Event*>::iterator del_it = inQ_it;
     inQ_it++;
-    // cout << "Cleaning inQ: " << (*del_it) <<endl;
     (*del_it)->decreaseReference();
     inputQueue.erase(del_it);
   }//end for
@@ -264,33 +267,21 @@ Agent::cleanOutputQueue(){
 }//end cleanOutputQueue
 
 
-//bool
-//Agent::scheduleEvents(EventContainer * events){
-//    if ((Simulation::getSimulator()).scheduleEvents(events)){
-//        //this means event was scheduled with no problems
-//        //now lets add this event to our outputQueue in case of rollback
-//        list<Event*>::iterator it = _outputQueue.end();
-//        this->_outputQueue.insert(it, events->begin(),events->end());
-//        return true;
-//    }
-//    return false;
-//}
-
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
 {
-  //cout << "Here" <<endl;
-  if (lhs->eventPQ.empty() && rhs->eventPQ.empty()) {
+  
+  if (lhs->eventPQ->empty() && rhs->eventPQ->empty()) {
     return true;
   }
-  if (lhs->eventPQ.empty() && !rhs->eventPQ.empty()) {
+  if (lhs->eventPQ->empty() && !rhs->eventPQ->empty()) {
     return true;
   }
-  if (rhs->eventPQ.empty() && !lhs->eventPQ.empty()) {
+  if (rhs->eventPQ->empty() && !lhs->eventPQ->empty()) {
     return false;
   }
-  Event *lhs_event = lhs->eventPQ.top();
-  Event *rhs_event = rhs->eventPQ.top();
+  Event *lhs_event = lhs->eventPQ->top();
+  Event *rhs_event = rhs->eventPQ->top();
   Time lhs_time    = lhs_event->getReceiveTime();
   Time rhs_time    = rhs_event->getReceiveTime();
   return (lhs_time > rhs_time);

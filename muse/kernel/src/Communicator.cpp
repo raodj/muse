@@ -37,71 +37,70 @@ Communicator::registerAgents(AgentContainer& allAgents){
     }
     int  simulator_id = MPI::COMM_WORLD.Get_rank();
 
-     if (simulator_id == ROOT_KERNEL){
-            //here we collect all agent id from all other simulation kernels!!
-            int done_count = 1;
-            MPI::Status status;
-            while ( !(done_count == size)){
-                //probe for a message from another simulation kernel.
-                MPI::COMM_WORLD.Probe(MPI_ANY_SOURCE, AGENT_LIST, status);
-                //figure out the agent list size
-                int agent_list_size = status.Get_count(MPI::UNSIGNED);
-                unsigned int agentList[agent_list_size];
-                //now receive the agent id flat list
-                MPI::COMM_WORLD.Recv( &agentList ,agent_list_size, MPI::UNSIGNED , MPI_ANY_SOURCE , AGENT_LIST, status );
-                //time to add this list to master AgentMap
-                for(int i=0; i<agent_list_size; ++i){
-                    agentMap[agentList[i]] = status.Get_source();
-                }//end for 
-                done_count++;
-            }//end while
-
-            //next chunk of code converts agentMap to a flat list for Bcasting!!
-            map<AgentID, SimulatorID>::iterator it;
-            int agentMap_size = agentMap.size()*2;
-            unsigned int  agentMap_flat[agentMap_size];
-            int counter=0;
-            for (it=agentMap.begin(); it != agentMap.end(); ++it){
-                ///cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
-                agentMap_flat[counter] = it->first;
-                agentMap_flat[counter+1] = it->second;
-                counter+=2;
-            }//end for
-
-            //before we bcast the agentMap, we must Bcast the size of the list!
-            MPI::COMM_WORLD.Bcast(&agentMap_size, 1 ,MPI::INT, ROOT_KERNEL );
-            //bcast here
-            MPI::COMM_WORLD.Bcast(&agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
-
-           
-     }else{
-              AgentID agentList[allAgents.size()];
-              for (size_t i=0; i < allAgents.size(); ++i){
-                 agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
-              }//end for
-              //now send flat list across the wire (MPI)
-              MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
-              //get the size of incoming agentMap list
-              int agentMap_length;
-              MPI::COMM_WORLD.Bcast(&agentMap_length, 1 ,MPI::INT, ROOT_KERNEL );
-
-              //finally receive the complete agentMap flat list!!!
-              unsigned int agentMap_flatList[agentMap_length];
-              MPI::COMM_WORLD.Bcast(&agentMap_flatList, agentMap_length,MPI::UNSIGNED, ROOT_KERNEL );
-
-              //use final flat list and populate local AgentMap list!!
-              for (int i=0; i < agentMap_length; i+=2){
-                  agentMap[agentMap_flatList[i]] = agentMap_flatList[i+1];
-                  //cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
-              }//end for
-             
-     }//end if
+    if (simulator_id == ROOT_KERNEL){
+        //here we collect all agent id from all other simulation kernels!!
+        int done_count = 1;
+        MPI::Status status;
+        while ( !(done_count == size)){
+            //probe for a message from another simulation kernel.
+            MPI::COMM_WORLD.Probe(MPI_ANY_SOURCE, AGENT_LIST, status);
+            //figure out the agent list size
+            int agent_list_size = status.Get_count(MPI::UNSIGNED);
+            unsigned int agentList[agent_list_size];
+            //now receive the agent id flat list
+            MPI::COMM_WORLD.Recv( &agentList ,agent_list_size, MPI::UNSIGNED , MPI_ANY_SOURCE , AGENT_LIST, status );
+            //time to add this list to master AgentMap
+            for(int i=0; i<agent_list_size; ++i){
+                agentMap[agentList[i]] = status.Get_source();
+            }//end for 
+            done_count++;
+        }//end while
+        
+        //next chunk of code converts agentMap to a flat list for Bcasting!!
+        map<AgentID, SimulatorID>::iterator it;
+        int agentMap_size = agentMap.size()*2;
+        unsigned int  agentMap_flat[agentMap_size];
+        int counter=0;
+        for (it=agentMap.begin(); it != agentMap.end(); ++it){
+            ///cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
+            agentMap_flat[counter] = it->first;
+            agentMap_flat[counter+1] = it->second;
+            counter+=2;
+        }//end for
+        
+        //before we bcast the agentMap, we must Bcast the size of the list!
+        MPI::COMM_WORLD.Bcast(&agentMap_size, 1 ,MPI::INT, ROOT_KERNEL );
+        //bcast here
+        MPI::COMM_WORLD.Bcast(&agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
+        
+        
+    }else{
+        AgentID agentList[allAgents.size()];
+        for (size_t i=0; i < allAgents.size(); ++i){
+            agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
+        }//end for
+        //now send flat list across the wire (MPI)
+        MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
+        //get the size of incoming agentMap list
+        int agentMap_length;
+        MPI::COMM_WORLD.Bcast(&agentMap_length, 1 ,MPI::INT, ROOT_KERNEL );
+        
+        //finally receive the complete agentMap flat list!!!
+        unsigned int agentMap_flatList[agentMap_length];
+        MPI::COMM_WORLD.Bcast(&agentMap_flatList, agentMap_length,MPI::UNSIGNED, ROOT_KERNEL );
+        
+        //use final flat list and populate local AgentMap list!!
+        for (int i=0; i < agentMap_length; i+=2){
+            agentMap[agentMap_flatList[i]] = agentMap_flatList[i+1];
+            //cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
+        }//end for
+        
+    }//end if
 }//end registerAgent method
 
 void
 Communicator::sendEvent(Event * e, const int event_size){
-    ASSERT(e->getSenderAgentID() >= 0 && e->getSenderAgentID() < 3 );
-    ASSERT(e->getReceiverAgentID() >= 0 && e->getReceiverAgentID() < 3 );
+    
     try {
         //no good way to send objects via MPI make Event to a char*
         //aka ghetto hack :-)
@@ -159,10 +158,7 @@ Communicator::receiveEvent(){
         // Type cast does the trick as events are binary blobs
         Event* the_event = reinterpret_cast<Event*>(incoming_event);
         // Ensure some of the core data is valid.
-        ASSERT( the_event->getSenderAgentID() >= 0  );
-        ASSERT( the_event->getSenderAgentID() < 3   );
-        ASSERT( the_event->getReceiverAgentID() >= 0);
-        ASSERT( the_event->getReceiverAgentID() < 3 );
+        
         ASSERT( gvtManager != NULL );
         // Let GVT manager inspect incoming events.
         gvtManager->inspectRemoteEvent(the_event);
