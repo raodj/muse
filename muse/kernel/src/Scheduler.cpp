@@ -113,7 +113,6 @@ Scheduler::scheduleEvent( Event *e){
 Scheduler::~Scheduler(){}//end Scheduler
 
 
-
 Time
 Scheduler::getNextEventTime() const {
     if (agent_pq.empty()) {

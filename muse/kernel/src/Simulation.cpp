@@ -26,6 +26,7 @@
 #include "Communicator.h"
 #include "Simulation.h"
 #include "GVTManager.h"
+#include "Scheduler.h"
 
 // The number of iterations of event processing after which GVT
 // estimation is triggered
@@ -34,6 +35,8 @@
 using namespace muse;
 
 Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0) {
+    commManager = new Communicator();
+    scheduler   = new Scheduler();
     myID = -1u;
 }
 
@@ -49,17 +52,20 @@ Simulation::initialize(){
     arg[0]           = emptyStr;
     // Initialize MPI and determine the ID of this simulation based on
     // the MPI rank associated with this process.
-    myID             = commManager.initialize(x, arg);
+    myID             = commManager->initialize(x, arg);
     // Free memory as MPI no longer needs this information.
     delete[] arg;
 }
 
 void
 Simulation::initialize(int argc, char* argv[]){
-    myID = commManager.initialize(argc, argv);
+    myID = commManager->initialize(argc, argv);
 }
 
-Simulation::~Simulation() {}
+Simulation::~Simulation() {
+    delete scheduler;
+    delete commManager;
+}
 
 const AgentContainer&
 Simulation::getRegisteredAgents(){
@@ -71,7 +77,7 @@ Simulation::getRegisteredAgents(){
 
 bool
 Simulation::registerAgent(  muse::Agent* agent)  { 
-    if (scheduler.addAgentToScheduler(agent)){
+    if (scheduler->addAgentToScheduler(agent)){
         allAgents.push_back(agent);
         return true;
     }
@@ -92,7 +98,7 @@ Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
     if (isAgentLocal(recvAgentID)){
         // Local events are directly inserted into our own scheduler
-        return scheduler.scheduleEvent(e);
+        return scheduler->scheduleEvent(e);
     }
     else{
         // Remote events are sent via the GVTManager to aid tracking
@@ -107,12 +113,12 @@ Simulation::scheduleEvent( Event *e){
 void 
 Simulation::start(){
     //first we setup the AgentMap for all kernels
-    commManager.registerAgents(allAgents);
+    commManager->registerAgents(allAgents);
     // Create and initialize our GVT manager.
     gvtManager = new GVTManager();
-    gvtManager->initialize(startTime, &commManager);
+    gvtManager->initialize(startTime, commManager);
     // Set gvt manager with the communicator.
-    commManager.setGVTManager(gvtManager);
+    commManager->setGVTManager(gvtManager);
     
     //loop for the initialization
     AgentContainer::iterator it;
@@ -136,7 +142,7 @@ Simulation::start(){
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-        Event* incoming_event = commManager.receiveEvent();
+        Event* incoming_event = commManager->receiveEvent();
         if ( incoming_event != NULL ){	  
             scheduleEvent(incoming_event);
         } //end if
@@ -144,7 +150,7 @@ Simulation::start(){
         
         //loop through all agents and process their events
         for (it=allAgents.begin(); it != allAgents.end(); it++){
-            if (scheduler.processNextAgentEvents() ){
+            if (scheduler->processNextAgentEvents() ){
                 //check for the smallest LVT here!!
                 //cout << "\ngetLVT: " << (*it)->getLVT() <<endl;
                 //cout << "min_lvt: " << min_lvt <<endl;
@@ -164,7 +170,7 @@ Simulation::start(){
     // Do final garbage collection here first.
 
     // Now delete GVT manager as we no longer need it.
-    commManager.setGVTManager(NULL);
+    commManager->setGVTManager(NULL);
     delete gvtManager;
     gvtManager = NULL;
 }//end start
@@ -184,15 +190,15 @@ Simulation::finalize(){
         (*del_it)->cleanStateQueue();
         (*del_it)->cleanOutputQueue();
         delete (*del_it);
-        //allAgents.erase(del_it);
+        
     }//end for
     
     //finalize the communicator
-    commManager.finalize();
+    commManager->finalize();
 }//end finalize
 
 bool
-Simulation::isAgentLocal(AgentID & id){ return commManager.isAgentLocal(id); }
+Simulation::isAgentLocal(AgentID & id){ return commManager->isAgentLocal(id); }
 
 void Simulation::stop(){}
 
@@ -206,11 +212,9 @@ Simulation::setStopTime( Time  end_time){
     endTime = end_time;
 }
 
-
-
-const Time &
+Time
 Simulation::getLGVT() const {
-    return scheduler.getNextEventTime();
+    return scheduler->getNextEventTime();
 }
 
 

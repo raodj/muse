@@ -24,11 +24,10 @@
 //---------------------------------------------------------------------------
 
 #include "Agent.h"
-#include "Scheduler.h"
 #include "Event.h"
 #include "State.h"
 #include "DataTypes.h"
-#include "Communicator.h"
+
 
 /** The muse namespace.
  * Everything in the api is in the muse namespace.
@@ -38,33 +37,35 @@ BEGIN_NAMESPACE(muse); //begin namespace declaration
 
 // Forward declaration to make compiler happy and fast
 class GVTManager;
+class Scheduler;
+class Communicator;
 
 /** The Simulation Class.
  
-    This is the heart of muse. All core operation that the engine
-    handles are done from this class. This class implaments the
-    Singleton pattern and should NOT be used as a superclass to derive
-    from. Also the client should not try and create an instance using
-    the constructor. use the getSimulator() method which will return a
-    pointer to a Simulation object. Once you have all your agents and
-    their events in place you can get the simulation going with the
-    following three easy steps:
+This is the heart of muse. All core operation that the engine
+handles are done from this class. This class implaments the
+Singleton pattern and should NOT be used as a superclass to derive
+from. Also the client should not try and create an instance using
+the constructor. use the getSimulator() method which will return a
+pointer to a Simulation object. Once you have all your agents and
+their events in place you can get the simulation going with the
+following three easy steps:
 
-    <ol>
+<ol>
 
-    <li> Get a simulation object via the getSimulator() method.</li>
+<li> Get a simulation object via the getSimulator() method.</li>
 
-    <li> Register all your agents by repeatedly invoking the
-    register() method.</li>
+<li> Register all your agents by repeatedly invoking the
+register() method.</li>
 
-    <li>Finally get the simulation stared via the start() method. To
-    stop the simulation early just call the stop() method.</li>
+<li>Finally get the simulation stared via the start() method. To
+stop the simulation early just call the stop() method.</li>
 
-    </ol>
+</ol>
     
     
-    @note refer to each method documentation for more details on the
-    features provided.
+@note refer to each method documentation for more details on the
+features provided.
     
 */
 class Simulation {
@@ -77,7 +78,7 @@ public:
      
 	NOTE :: if this method is not called and you start the simulation then
 	the SimualtorID will equal -1u !!
-     */
+    */
     void initialize();
 
     /** The initialize method.
@@ -90,7 +91,7 @@ public:
      
 	@param argc, the number of arguments
 	@param argv, the arguments to pass into MPI.
-     */
+    */
     void initialize(int argc, char* argv[]);
 
     /** The finalize method.
@@ -99,7 +100,7 @@ public:
 	will insure that all memory used by the Simulation kernel are properly disposed!
 	
 	NOTE :: if this method is called the SimualtorID will equal -1u !!
-     */
+    */
     void finalize();
         
     /** The getSimulatorID method.
@@ -108,7 +109,7 @@ public:
      
 	@return  the id of the simulation kernel
 	@see SimulatorID
-     */
+    */
     inline SimulatorID getSimulatorID() const { return myID;}
         
     /** The registerAgent method.
@@ -122,7 +123,7 @@ public:
 	@return bool, True if the agent was register correctly.
 	@see Agent()
 	@see AgentID 
-     */
+    */
     bool registerAgent(Agent * agent);
         
     /** The getRegisteredAgents method.
@@ -130,7 +131,7 @@ public:
 	
 	@return reference to the AgentContainer. 
 	@see AgentContainer
-     */
+    */
     const AgentContainer& getRegisteredAgents();
         
     /** The getSimulator method.
@@ -138,7 +139,7 @@ public:
 	
 	@return the pointer to the Simulatin object.
 	@see Simulation()
-     */
+    */
     static Simulation* getSimulator();
         
     /** The scheduleEvent method.
@@ -149,7 +150,7 @@ public:
 	@param pointer to the event you wish to schedule.
 	@return bool True if scheduling is successful.
 	@see Event()
-     */
+    */
     bool scheduleEvent( Event *e);
 
     
@@ -157,7 +158,7 @@ public:
 	When this method is invoked the client should have all agents registered.
 	Also a flavor of the initialize method should be called.Lastly, you should set the start and end time for the simuatlion.
 	The simulation will start.
-     */
+    */
     void start();
         
     /** The setStartTime method.
@@ -167,7 +168,7 @@ public:
 
 	@param the start time.
 	@see Time
-     */
+    */
     void setStartTime(Time startTime);
 
     /** The stop method.
@@ -176,7 +177,7 @@ public:
 
 	@todo implement this. Currently does nothing.
 	@todo does this method make sense to store here.
-     */
+    */
     void stop();
         
     /** The setStopTime method.
@@ -184,7 +185,7 @@ public:
 
 	@param the stop time.
 	@see Time
-     */
+    */
     void setStopTime(Time stopTime);
 
     /** The isAgentLocal method.
@@ -201,18 +202,18 @@ public:
     inline const Time& getTime() const { return LGVT; }
 
     
-    const Time& getLGVT() const;
+    Time getLGVT() const;
 
     /** The getStartTime method.
 	@return the start time of this simulation kernel.
 	@see Time
-     */
+    */
     inline const Time& getStartTime() const { return startTime;}
 
     /** The getEndTime method.
 	@return the end time of this simulation kernel.
 	@see Time
-     */
+    */
     inline const Time& getEndTime() const { return endTime; }
 	 
     
@@ -232,17 +233,17 @@ private:
     SimulatorID myID;
 
     Time LGVT, startTime, endTime;
-    Scheduler scheduler;
+    Scheduler* scheduler;
     //handles all communication on the wire. (MPI)
-    Communicator commManager;
+    Communicator *commManager;
 
     /** Instance variable to hold a pointer to the GVT manager.
         
-        This instance variable holds pointer to an GVTManager object
-        that is used to compute Global Virtual Time (GVT) in the
-        simulation. GVT is necessary for automatic garbage collection
-        and to terminate a parallel simulation.  This instance variable
-        is initialized only after the simulation has been initialized.
+    This instance variable holds pointer to an GVTManager object
+    that is used to compute Global Virtual Time (GVT) in the
+    simulation. GVT is necessary for automatic garbage collection
+    and to terminate a parallel simulation.  This instance variable
+    is initialized only after the simulation has been initialized.
     */
     GVTManager *gvtManager;
 };

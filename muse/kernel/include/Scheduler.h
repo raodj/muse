@@ -26,6 +26,7 @@
 #include "DataTypes.h"
 #include <map>
 #include "Agent.h"
+#include "f_heap.h"
 
 BEGIN_NAMESPACE(muse)
      
