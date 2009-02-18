@@ -42,8 +42,8 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState) {
-    eventPQ = new EventPQ();
+Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState),sequenceNumber(0) {
+    eventPQ = new EventPQ;
 }//end ctor
 
 Agent::~Agent() {}
@@ -122,11 +122,16 @@ Agent::scheduleEvent(Event *e){
     if ( e->getSentTime() >= (Simulation::getSimulator())->getEndTime() ){
         return false;
     }
+
+    //let assign it a sequence number.
+    e->setSequenceNumber(sequenceNumber);
+    sequenceNumber++;
+    
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
         //add to event scheduler
         //this is a optimization trick, because we dont go through the Simulation scheduler method.
-        e->increaseReference();
+        e->increaseReference(); 
         eventPQ->push(e);
         //add to output queue
         e->increaseReference();

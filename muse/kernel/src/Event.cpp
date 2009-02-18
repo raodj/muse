@@ -75,6 +75,11 @@ Event::setColor(const char col) {
     color = col;
 }
 
+void
+Event::setSequenceNumber (const unsigned int seq_number){
+    sequenceNumber = seq_number;
+}
+
 ostream&
 operator<<(ostream& os, const muse::Event& event) {
     os << "Event[Sender=" << event.getSenderAgentID()   << ","
@@ -83,7 +88,8 @@ operator<<(ostream& os, const muse::Event& event) {
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
        << "Ref. count="   << event.referenceCount       << ","
-       << "color="        << event.color                << "]";
+       << "Seq. Number="   << event.getSequenceNumber()  << ","
+       << "color="        << event.getColor()           << "]";
     
     return os;
 }
