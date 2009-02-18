@@ -28,11 +28,9 @@
 #include <list>
 #include "DataTypes.h"
 #include "Event.h"
-#include "f_heap.h"
 #include "State.h"
+#include "f_heap.h"
 BEGIN_NAMESPACE(muse) //begin namespace declaration
-     //forward declaration here
-     
 
 /** The base class for all agents in a simulation.
  
@@ -51,11 +49,26 @@ BEGIN_NAMESPACE(muse) //begin namespace declaration
 class Agent {
 
     //lets declare the Simulation class a friend!
-    friend class Simulation;
+  friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
 
+ public:
+    /** The eventComp class.
+	Compares delivery times. puts the one with the smaller ahead.
+    */
+    class eventComp{
+    public:
+      eventComp(){}
+      inline bool operator() ( Event *lhs,  Event *rhs) const{
+	Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
+	return (lhs_time > rhs->getReceiveTime());
+      }
+    };
     
+ private:
+    //forward declare
+    // class boost::fibonacci_heap<Event* , eventComp>;
     
  public:
     /** The initialize method.
@@ -111,7 +124,7 @@ class Agent {
         This method is used to schedule an event to be processed by any
         agent.  
 
-	IMPORTANT - once event is scheduled MUSE will take full ownership, thus it will handle
+	@note once event is scheduled MUSE will take full ownership, thus it will handle
                     deleting the memory.
 		  
         @param pointer to the event to schedule.
@@ -137,7 +150,9 @@ class Agent {
     inline const Time& getLVT() const { return LVT;}
 	
     /** The ctor.
-	IMPORTANT - once constructed MUSE will handle deleting the state pointer. State can only be allocated in the heap.
+	@note once constructed MUSE will handle deleting the state pointer.
+	State can only be allocated in the heap.
+	
 	@param the AgentID that this agent will take on.
 	@param pointer to the state that has been allocated in the heap.
     */
@@ -155,7 +170,7 @@ class Agent {
 	Simply returns a copy of the passed in state. Every state should be able to
 	clone itself.
 	
-	IMPORTANT - MUSE will handle disposing of this State pointer only if MUSE kernel
+	@note MUSE will handle disposing of this State pointer only if MUSE kernel
 	makes this call. However, if for some reason the user calls for a clone
 	then it is important to properly dispose the pointer when operation is complete.
 	
@@ -169,7 +184,8 @@ class Agent {
 	via this method. Note, that the state thats passed in the constructure
 	does not have to be the only state. You can For example slowly increase
 	the information stored in the state as simulation runs.
-	IMPORTANT - this method uses the assignment operator, so be sure you properly
+
+	@note this method uses the assignment operator, so be sure you properly
 	overload the assignment operator for the given state classes.
 	
 	@param State reference, this is the new state that will be set.
@@ -256,20 +272,7 @@ class Agent {
       bool operator()(const Agent *lhs, const Agent *rhs) const;
     };
 
-    /** The eventComp class.
-	Compares delivery times. puts the one with the smaller ahead.
-    */
-    class eventComp
-    {
-    public:
-      eventComp(){}
-      inline bool operator() ( Event *lhs,  Event *rhs) const
-      {
-	Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
-	return (lhs_time > rhs->getReceiveTime());
-      }
-    };
-
+   
     /** The EventPQ type.
 	This is data structure that houses the events to be processed by this agent.
 	This is a fibonacci heap! Uses the eventComp as a comparator.
@@ -278,7 +281,7 @@ class Agent {
 	@see eventComp()
 	@see Event()
      */
-    typedef class boost::fibonacci_heap<Event* , eventComp> EventPQ;
+    typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
 
     /** The AgentID type myID.
 	This is inialized when the agent is registered to a simulator.
@@ -325,8 +328,14 @@ class Agent {
 	@see f_heap()
 	@see EventPQ
     */
-    EventPQ *eventPQ;
+     EventPQ *eventPQ;
 
+     /** The sequenceNumber is used to give an event an id, combined with the receive, sent times,
+	 and the sender, receiver agent id the signature becomes unique. after assigning the
+	 sequenceNumber, it is increamented by one and so on...
+	 it starts at value zero (0)
+      */
+     unsigned int sequenceNumber;
 };
 END_NAMESPACE(muse)//end namespace declaration
 #endif

@@ -45,6 +45,7 @@ class Event {
   friend class Agent;
   friend class Simulation;
   friend class Scheduler;
+  friend class GVTManager;
  public:
   /** The ctor method.
       This is the fastest way to create an Event object. The AgentID
@@ -84,7 +85,8 @@ class Event {
       @return reference to the receive time of this event.
   */
   inline const Time& getReceiveTime() const { return receiveTime; }
-  
+
+ protected:
   /** The getColor method.
       This method must be used to determine the color value
       associated with this event.  The color value is typically used
@@ -106,8 +108,19 @@ class Event {
       potentially indicates an error.
   */
   void setColor(const char color);
-  
- protected:
+
+
+  /** The getEventSize method.
+      This method is very important, when it comes time to send an event
+      across the wire via MPI.
+
+      @note USERS should override this method if event class is inherited and return
+      correct size of the inherited event. For example the ClockEvent would override
+      this and returns sizeof(ClockEvent)
+
+      @return int, the size of the event.
+   */
+  virtual int getEventSize() {return sizeof(Event); }
   
   /** The decreaseReference method.
       Used for memory management.
@@ -132,6 +145,21 @@ class Event {
   */
   void makeAntiMessage();
 
+  /** The getSequenceNumber method.
+      gives this event's sequence number, used as a type of id.
+
+      @note MUSE takes care of assigning a sequence number.
+      @return unsigned int, the sequence number assigned by the agent.
+   */
+  inline unsigned int getSequenceNumber() const { return sequenceNumber; }
+
+  /** The setSequenceNumber method.
+      Used by MUSE to set the sequence number.
+      
+      @note Users should not set the sequence number. Only MUSE should call this method.
+      @param seq_number, the value to take.
+   */
+  void setSequenceNumber(unsigned int seq_number);
   /** The dtor.
       User should not be able to delete events. Also events can only be created
       in the heap.
@@ -159,8 +187,8 @@ class Event {
   */
   char color;
   
-  //the size is the size of the event. This is used to send the event across the wire to other nodes.
-  unsigned int size;
+  //this is the sequence number, used to tag event, think of this as an ID for an event.
+  unsigned int sequenceNumber;
 };
 
 END_NAMESPACE(muse); //end namespace declaration

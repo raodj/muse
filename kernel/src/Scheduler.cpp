@@ -88,11 +88,18 @@ Scheduler::scheduleEvent( Event *e){
             Agent::EventPQ::iterator del_it = it;
             it++;
 
-            if ( (*del_it)->getReceiveTime() >= e->getReceiveTime() &&
-                 (*del_it)->getSenderAgentID() == e->getSenderAgentID()){
-                
-                 cout << "---found useless future event and deleting from fib heap"<<endl;
-                 agent->eventPQ->remove(del_it.getNode());
+            //first check if the event matchs the straggler event's senderAgentID
+            if ((*del_it)->getSenderAgentID() == e->getSenderAgentID()){
+
+                //if the receive times are the same, we must make sure they have matching sequence numbers
+                if ( (*del_it)->getReceiveTime() == e->getReceiveTime() &&
+                     (*del_it)->getSequenceNumber() == e->getSequenceNumber() ){
+                    cout << "---found useless future event with matching sequence numbers deleting from fib heap"<<endl;
+                    agent->eventPQ->remove(del_it.getNode());
+                } else if ( (*del_it)->getReceiveTime() > e->getReceiveTime()){
+                    cout << "---found useless future event and deleting from fib heap"<<endl;
+                    agent->eventPQ->remove(del_it.getNode());
+                }
             }
          }
         return false;
