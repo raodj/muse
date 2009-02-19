@@ -252,9 +252,9 @@ protected:
         sent time after the straggler event's time.
 	
         @note Only should be called by the doRollbackRecovery method.
-        @param pointer to the event that caused the rollback aka straggler event
+        
     */
-    void doStepTwo(Event *);
+    void doStepTwo();
 
     /** The doStepThree method.
         This is the third and final step of the rollback recovery process.
@@ -327,6 +327,15 @@ protected:
         @see State()
     */
     State* myState;
+
+    /** The State type init_state
+	This is a poitner to the original state that is passed in.
+	We need this so we can delete it at the end of the simulation.
+	Since myState can be changed due to a rollback, init_state is used to
+	maintian the pointer to the original state that is passed in.
+	@see State()
+     */
+    State* init_state;
 
     /** The EventPQ type eventPQ.
         This is access to the fibonacci heap data structure that houses or events to process.

@@ -47,7 +47,7 @@ int main(int argc, char** argv) {
     }//end if-elseif
 
     //we set the start and end time of the simulation here
-    Time start=0, end=10000; 
+    Time start=0, end=20000; 
     kernel->setStartTime(start);
     kernel->setStopTime(end);
 

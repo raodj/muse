@@ -123,10 +123,12 @@ Simulation::start(){
     //loop for the initialization
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
-        (*it)->initialize();
+         (*it)->initialize();
         //time to archive the agent's init state
-        State * state = (*it)->myState;
-        (*it)->stateQueue.push_back(state);
+         
+         State * state = (*it)->myState->getClone();
+         (*it)->stateQueue.push_back(state);
+        
     }//end for
 
     LGVT = startTime;
@@ -136,7 +138,7 @@ Simulation::start(){
     //int count=0;
     int gvtTimer = GVT_DELAY;
     while(gvtManager->getGVT() < endTime){
-        if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
+        //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
             // Initate another round of GVT calculations if needed.
