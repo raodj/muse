@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include -I../../kernel/include -I../../kernel/src
+AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = pp_sim
 

@@ -62,19 +62,26 @@ Scheduler::scheduleEvent( Event *e){
     //first check if this is a rollback!
     if (e->getReceiveTime() <= agent->LVT){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-        
-        cout << "\nDetected a ROLLBACK @ agent: "<<agent->getAgentID() << endl <<endl;
+      
+        cout <<"straggler event: " << *e <<endl;
+        cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
+        cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
+        cout << "Current LVT: "<< e->getReceiveTime() <<endl <<endl;
 	//debug info print out
+        
 	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+      	cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
 	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
 	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
 	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
         cout << "Rollback Recovery Complete\n"<<endl;
-	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
-	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
-	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
+        cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+        cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
+        cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
+        cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
+        cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
+        //exit(11);
 	
     }
 
