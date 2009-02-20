@@ -66,7 +66,9 @@ Agent::processNextEvents(){
     
     //we should never process an anti-message.
     ASSERT(top_event->isAntiMessage() == false );
-    
+    ASSERT(top_event->getReceiverAgentID() >= 0 && top_event->getReceiverAgentID() < 10 );
+    ASSERT(top_event->getSenderAgentID()   >= 0 && top_event->getSenderAgentID()   < 10 );
+    ASSERT(top_event->getReceiveTime() != 0);
     //we add the top event we popped to the event container
     events.push_back(top_event);
 
@@ -81,6 +83,8 @@ Agent::processNextEvents(){
     while(eventPQ->size() != 0){
         //first top the next event for checking.
         Event *next_event = eventPQ->top();
+        ASSERT(next_event->getReceiverAgentID() >= 0 && next_event->getReceiverAgentID() < 10 );
+        ASSERT(next_event->getSenderAgentID()   >= 0 && next_event->getSenderAgentID()   < 10 );
         //if the receive times match, then they are to be processed at the same time.
         if ( int(top_event->getReceiveTime()) == int(next_event->getReceiveTime()) ){
             //first remove it from the eventPQ
@@ -102,9 +106,19 @@ Agent::processNextEvents(){
     executeTask(&events); 
     //clone the state so we can archive
     State * state = myState->getClone();
-    
+
+    //lets inspect the last state in the queue and make sure the next state to be push
+    //has a bigger timestep
+    if (stateQueue.back()->getTimeStamp() == state->getTimeStamp()){
+        //means we need to delete and remove the state in the back
+        //we can only have one state for each timestamp
+        delete stateQueue.back(); //delete the pointee
+        stateQueue.pop_back();    //pop the pointer
+        cout << "The last state in the queue had same timestamp as the state being pushed: State was deleted @ timestamp: "<<state->getTimeStamp() <<endl;
+        cout << "StateQueue Size: " << stateQueue.size()<<endl;
+        cout << "LVT TIME: " << LVT<<endl;
+    }
     stateQueue.push_back(state);
-    
     return true;
 }//end processNextEvents
 
@@ -152,13 +166,13 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(Event* straggler_event){
-    doStepOne(straggler_event);
-    doStepTwo();
-    doStepThree(straggler_event);
+    doRestorationPhase(straggler_event);
+    doCancellationPhaseOutputQueue();
+    doCancellationPhaseInputQueue(straggler_event);
 }//end doRollback
 
 void
-Agent::doStepOne(Event* straggler_event){
+Agent::doRestorationPhase(Event* straggler_event){
     cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
@@ -171,35 +185,45 @@ Agent::doStepOne(Event* straggler_event){
         straggler_time, then we revert back to the init_state that we got from the ctor.
         The following code implements this idea!
     */
+
+    //first we destroy the state we are in now
+    delete myState;
+    //now we go and look for a state to restore to.
     while (!stateQueue.empty()){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
             //set out state to this old consistent state
             setState(current_state);
-            stateQueue.pop_back();
             //set agent's LVT to this state's timestamp
             LVT = myState->getTimeStamp();
-            cout << "    State Found for time: "<< myState->getTimeStamp() << endl;
+            cout << "    State Found for time: "<< LVT << endl;
             break;
         }else{
-            //we should remove this state from the list because it is no longer valid
+            //we should delete and remove this state from the list because it is no longer valid
+            cout << "Deleting Current_State @ timestamp: " << current_state->getTimeStamp() << endl;
+            delete current_state;
             stateQueue.pop_back();
             LVT = INFINITY;
         }
     }
-    //at this point our LVT should be smaller then the straggle event's receive time
+    
     if (LVT == INFINITY ) {
+        //if we get here then we have basically rollbacked all the way back to starting point
+        //this is cause by cascading rollbacks...worst case scenario :-(
         cout << "Rollback STEP 1 .....FAILED: myState is back to init_state" << endl;
-        setState(init_state);
+        setState(init_state->getClone());
         LVT = myState->getTimeStamp();
+        cout << " State Restored to start time: "<< LVT << endl;
         //exit(1111);
+    }else {
+        //at this point our LVT should be smaller then the straggle event's receive time
+        ASSERT(straggler_event->getReceiveTime() > LVT  );
     }
-    ASSERT(straggler_event->getReceiveTime() > LVT  );
     
 }//end doStepOne
 
 void
-Agent::doStepTwo(){
+Agent::doCancellationPhaseOutputQueue(){
     cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
     AgentIDBoolMap bitMap;
@@ -233,7 +257,7 @@ Agent::doStepTwo(){
 }//end doStepTwo
 
 void
-Agent::doStepThree(Event* straggler_event){
+Agent::doCancellationPhaseInputQueue(Event* straggler_event){
     cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
 

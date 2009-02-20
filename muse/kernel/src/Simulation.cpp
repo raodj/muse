@@ -127,9 +127,11 @@ Simulation::start(){
         //time to archive the agent's init state
          
          State * state = (*it)->myState->getClone();
+         //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);
         
     }//end for
+    
 
     LGVT = startTime;
     //use this to calculate the min LVT
@@ -138,7 +140,7 @@ Simulation::start(){
     //int count=0;
     int gvtTimer = GVT_DELAY;
     while(gvtManager->getGVT() < endTime){
-        //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
+        if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
             // Initate another round of GVT calculations if needed.
@@ -171,10 +173,7 @@ Simulation::start(){
 
     // Do final garbage collection here first.
 
-    // Now delete GVT manager as we no longer need it.
-    commManager->setGVTManager(NULL);
-    delete gvtManager;
-    gvtManager = NULL;
+   
 }//end start
 
 void
@@ -189,6 +188,11 @@ Simulation::finalize(){
         (*it)->cleanOutputQueue();
         delete (*it);  
     }//end for
+
+    // Now delete GVT manager as we no longer need it.
+    commManager->setGVTManager(NULL);
+    delete gvtManager;
+    gvtManager = NULL;
     
     //finalize the communicator
     commManager->finalize();
