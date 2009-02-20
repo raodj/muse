@@ -3,6 +3,8 @@ To run this simply:
 
 !!!Assuming you already compiled muse!!!
 
+0. chmod +x build.sh
+
 1. run the build.sh file ----> ./build
 -----this creates and executable called rollbackTest
 

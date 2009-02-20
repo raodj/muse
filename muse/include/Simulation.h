@@ -69,6 +69,10 @@ features provided.
     
 */
 class Simulation {
+    //has to be a friend class because garbage collection is called from the
+    //GVTManager class.
+    friend class GVTManager;
+
 public:
 
     /** The initialize method.
@@ -76,7 +80,7 @@ public:
 	fully init the simulation kernel. Things like the simulatorID is generated
 	in this method.
      
-	NOTE :: if this method is not called and you start the simulation then
+	@note if this method is not called and you start the simulation then
 	the SimualtorID will equal -1u !!
     */
     void initialize();
@@ -86,7 +90,7 @@ public:
 	fully init the simulation kernel. Things like the simulatorID is generated
 	in this method.
 	
-	NOTE :: if this method is not called and you start the simulation then
+	@note if this method is not called and you start the simulation then
 	the SimualtorID will equal -1u !!
      
 	@param argc, the number of arguments
@@ -99,7 +103,7 @@ public:
 	the next method called. In this method clean up occurs. Running this method
 	will insure that all memory used by the Simulation kernel are properly disposed!
 	
-	NOTE :: if this method is called the SimualtorID will equal -1u !!
+	@note if this method is called the SimualtorID will equal -1u !!
     */
     void finalize();
         
@@ -117,7 +121,7 @@ public:
 	simulator. For example a client could check the SimulatorID and with a switch statement register agents to 
 	different simulators on different processes.See examples.
 
-	IMPORTANT - Once regiestered agents will be handled by MUSE. Deleting of agent will be handled by MUSE. Please only allocate agent on the heap.
+	@note Once regiestered agents will be handled by MUSE. Deleting of agent will be handled by MUSE. Please only allocate agent on the heap.
      
 	@param agent pointer, this is of type Agent.
 	@return bool, True if the agent was register correctly.
@@ -199,23 +203,42 @@ public:
     /** The getTime method.
 	This is the time of this simualtion kernel.
     */
-    inline const Time& getTime() const { return LGVT; }
+    inline Time getTime() const { return LGVT; }
 
-    
-    Time getLGVT() const;
 
     /** The getStartTime method.
 	@return the start time of this simulation kernel.
 	@see Time
     */
-    inline const Time& getStartTime() const { return startTime;}
+    inline Time getStartTime() const { return startTime;}
 
     /** The getEndTime method.
 	@return the end time of this simulation kernel.
 	@see Time
     */
-    inline const Time& getEndTime() const { return endTime; }
+    inline Time getEndTime() const { return endTime; }
 	 
+protected:
+
+    /** The getLGVT() method.
+	This method is used to peek into the next agent to be processed time.
+	This effectively gives you the smallest time in this kernel.
+
+	@return Time, the time.
+	@see Time
+     */
+    Time getLGVT() const;
+     
+    /** The collectGarbage method.
+        When this method is called, garbage collections for all the agents
+        that are registered to this kernel take place. Please see Agent::collectGarbage
+        for more details about how garbage is collected at the agent level.
+
+        @param gvt, this is the GVT time that is calculated by GVTManager.
+        @see GVTManager
+        @see Time
+     */
+    void collectGarbage(const Time gvt);
     
 private:
 
@@ -233,21 +256,29 @@ private:
     SimulatorID myID;
 
     Time LGVT, startTime, endTime;
+
+    /** Instance variable to hold a pointer to the Scheduler.  
+	This instance variable holds pointer to an Scheduler object
+	that is used to the next agent to process its next set of events.
+    */
     Scheduler* scheduler;
-    //handles all communication on the wire. (MPI)
+
+    /** Instance variable to hold a pointer to the Communicator manager.  
+	This instance variable holds pointer to an Communicator object
+	that is used to send events to agents that reside on other Simulation kernels (nodes).
+    */
     Communicator *commManager;
 
-    /** Instance variable to hold a pointer to the GVT manager.
-        
-    This instance variable holds pointer to an GVTManager object
-    that is used to compute Global Virtual Time (GVT) in the
-    simulation. GVT is necessary for automatic garbage collection
-    and to terminate a parallel simulation.  This instance variable
-    is initialized only after the simulation has been initialized.
+    /** Instance variable to hold a pointer to the GVT manager. 
+	This instance variable holds pointer to an GVTManager object
+	that is used to compute Global Virtual Time (GVT) in the
+	simulation. GVT is necessary for automatic garbage collection
+	and to terminate a parallel simulation.  This instance variable
+	is initialized only after the simulation has been initialized.
     */
     GVTManager *gvtManager;
 };
- 
+
 END_NAMESPACE(muse); //end namespace declaration
 
 #endif

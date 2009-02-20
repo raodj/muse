@@ -24,7 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include <map>
+#include "HashMap.h"
 #include "Agent.h"
 #include "f_heap.h"
 
@@ -86,8 +86,7 @@ public:
 
   /** The agentMap is used to quickly match AgentID to agent pointers in the scheduler.
    */
-  typedef map<AgentID, Agent*> AgentMap;
-  AgentMap agentMap;
+  AgentIDAgentPointerMap agentMap;
   
   /** The agent_pq is a fibonacci heap data structure, and used for scheduling the agents.
       This is used in the processNextAgentEvents method.

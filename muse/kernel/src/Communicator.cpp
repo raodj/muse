@@ -57,7 +57,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
         }//end while
         
         //next chunk of code converts agentMap to a flat list for Bcasting!!
-        map<AgentID, SimulatorID>::iterator it;
+        AgentIDSimulatorIDMap::iterator it;
         int agentMap_size = agentMap.size()*2;
         unsigned int  agentMap_flat[agentMap_size];
         int counter=0;
@@ -202,7 +202,7 @@ Communicator::setGVTManager(GVTManager *gvtMgr) {
 unsigned int
 Communicator::getOwnerRank(const AgentID &id) const {
     // Find iterator for given agent id
-    std::map<AgentID, SimulatorID>::const_iterator entry = agentMap.find(id);
+    AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);
     // If id is valid then iterator is valid.
     if (entry != agentMap.end()) {
         return entry->second;

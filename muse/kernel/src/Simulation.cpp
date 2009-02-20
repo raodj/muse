@@ -182,22 +182,26 @@ Simulation::finalize(){
     myID = -1u;
     //loop for the finalization
     AgentContainer::iterator it=allAgents.begin();
-    //cout <<" Agents size: " << allAgents.size()<<endl;
-    while ( it != allAgents.end()) {
-        AgentContainer::iterator del_it = it;
-        it++;
-        //cout << "Finalizing Agent: " << (*del_it)->getAgentID()<<endl;
-        (*del_it)->finalize();
-        (*del_it)->cleanInputQueue();
-        (*del_it)->cleanStateQueue();
-        (*del_it)->cleanOutputQueue();
-        delete (*del_it);
-        
+    for (; it != allAgents.end(); it++) {  
+        (*it)->finalize();
+        (*it)->cleanInputQueue();
+        (*it)->cleanStateQueue();
+        (*it)->cleanOutputQueue();
+        delete (*it);  
     }//end for
     
     //finalize the communicator
     commManager->finalize();
 }//end finalize
+
+void
+Simulation::collectGarbage(const Time gvt){
+    AgentContainer::iterator it=allAgents.begin();
+    for (; it != allAgents.end(); it++) {  
+        (*it)->collectGarbage(gvt);
+    }
+}
+
 
 bool
 Simulation::isAgentLocal(AgentID & id){ return commManager->isAgentLocal(id); }

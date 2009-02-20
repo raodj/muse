@@ -2,7 +2,7 @@
 #define _MUSE_COMMUNICATOR_H_
 
 #include "DataTypes.h"
-#include <map>
+#include "HashMap.h"
 
 //these are the tag types
 #define AGENT_LIST      0
@@ -11,7 +11,6 @@
 
 //these are the source types
 #define ROOT_KERNEL     0
-
 
 BEGIN_NAMESPACE(muse);
 
@@ -176,7 +175,7 @@ class Communicator {
 	@see AgentID
 	@see SimulatorID
      */
-    map<AgentID, SimulatorID> agentMap;
+    AgentIDSimulatorIDMap agentMap;
     
     /** Instance variable to hold reference to GVT manager.
 
