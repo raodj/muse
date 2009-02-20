@@ -63,24 +63,27 @@ Scheduler::scheduleEvent( Event *e){
     if (e->getReceiveTime() <= agent->LVT){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
       
-        cout <<"straggler event: " << *e <<endl;
+       
         cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
-        cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
-        cout << "Current LVT: "<< e->getReceiveTime() <<endl <<endl;
+        cout <<"straggler event: " << *e <<endl;
+        //cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
+        cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
+        //cout << "myState timestamp: "<< 
 	//debug info print out
         
-	cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
-      	cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
-	cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
-	cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-	cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
+	//cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+      	//cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
+	//cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
+	//cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
+	//cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
         cout << "Rollback Recovery Complete\n"<<endl;
-        cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
-        cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
-        cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
-        cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-        cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
+        //cout << "Top event at agent now is: " << *agent->eventPQ->top() <<endl;
+        //cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
+        //cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
+        //cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
+        //cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
+        //cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         //exit(11);
 	
     }

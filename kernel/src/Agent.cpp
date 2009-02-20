@@ -59,8 +59,8 @@ Agent::processNextEvents(){
       return false;
     }
 
-    //create the event container.
-    //this will be passed on to the agent's executeTask method.
+    //create the event container.  this will be passed on to the
+    //agent's executeTask method.
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
     
@@ -76,22 +76,26 @@ Agent::processNextEvents(){
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
 
-    //since we popped an event from the eventPQ, we must call to decrease the reference.
+    //since we popped an event from the eventPQ, we must call to
+    //decrease the reference.
     top_event->decreaseReference();
 
-    //this while is used to gather the remaining event that will be processed
+    //this while is used to gather the remaining event that will be
+    //processed
     while(eventPQ->size() != 0){
         //first top the next event for checking.
         Event *next_event = eventPQ->top();
         ASSERT(next_event->getReceiverAgentID() >= 0 && next_event->getReceiverAgentID() < 10 );
         ASSERT(next_event->getSenderAgentID()   >= 0 && next_event->getSenderAgentID()   < 10 );
-        //if the receive times match, then they are to be processed at the same time.
-        if ( int(top_event->getReceiveTime()) == int(next_event->getReceiveTime()) ){
+        //if the receive times match, then they are to be processed at
+        //the same time.
+        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
             events.push_back(next_event);
-            //increase the reference count, since it will be added to the input queue.
+            //increase the reference count, since it will be added to
+            //the input queue.
             next_event->increaseReference();
             inputQueue.push_back(next_event);
             //finally, we decrease the reference count for the pop.
@@ -102,13 +106,23 @@ Agent::processNextEvents(){
     }//end while
 
     //here we set the agent's LVT and update agent's state timestamp
-    myState->timestamp = LVT = top_event->getReceiveTime();
+    LVT = top_event->getReceiveTime();
+    myState->timestamp = LVT;
     executeTask(&events); 
     //clone the state so we can archive
     State * state = myState->getClone();
 
-    //lets inspect the last state in the queue and make sure the next state to be push
-    //has a bigger timestep
+    //for debugging reasons
+    list<State*>::reverse_iterator rit = stateQueue.rbegin();
+    cout << "StateQueue before PUSH: ";
+    for (; rit != stateQueue.rend(); rit++){
+        cout <<(*rit)->getTimeStamp() << " ";
+    }
+    cout << "\n";
+
+    
+    //lets inspect the last state in the queue and make sure the next
+    //state to be push has a bigger timestep
     if (stateQueue.back()->getTimeStamp() == state->getTimeStamp()){
         //means we need to delete and remove the state in the back
         //we can only have one state for each timestamp
@@ -147,8 +161,8 @@ Agent::scheduleEvent(Event *e){
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
-        //add to event scheduler
-        //this is a optimization trick, because we dont go through the Simulation scheduler method.
+        //add to event scheduler this is a optimization trick, because
+        //we dont go through the Simulation scheduler method.
         e->increaseReference(); 
         eventPQ->push(e);
         //add to output queue
@@ -176,16 +190,29 @@ Agent::doRestorationPhase(Event* straggler_event){
     cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
-    /** OK, here is the plan. First, there is a straggler_time.Second, the stateQueue should be sorted by
-        the nature of its containt.We want to find a state with a timestamp smaller than the straggler_time.
-        Assuming the second reason is correct, if we search the stateQueue starting at the back, we
-        not only find the state we want quicker, but we also find the time that's directly behind the straggler_time.
-        Since the stateQueue is a double linked list, we can by pass dealing with reverse_iterators and keep popping
-        from the back until we find the state we want.If we fail to locate state with a timestamp that is older than
-        straggler_time, then we revert back to the init_state that we got from the ctor.
-        The following code implements this idea!
+    /** OK, here is the plan. First, there is a straggler_time.Second,
+        the stateQueue should be sorted by the nature of its
+        containt.We want to find a state with a timestamp smaller than
+        the straggler_time.  Assuming the second reason is correct, if
+        we search the stateQueue starting at the back, we not only
+        find the state we want quicker, but we also find the time
+        that's directly behind the straggler_time.  Since the
+        stateQueue is a double linked list, we can by pass dealing
+        with reverse_iterators and keep popping from the back until we
+        find the state we want.If we fail to locate state with a
+        timestamp that is older than straggler_time, then we revert
+        back to the init_state that we got from the ctor.  The
+        following code implements this idea!
     */
 
+    //for debugging reasons
+    list<State*>::reverse_iterator rit = stateQueue.rbegin();
+    cout << "StateQueue before Restoration: ";
+    for (; rit != stateQueue.rend(); rit++){
+        cout <<(*rit)->getTimeStamp() << " ";
+    }
+    cout << "\n";
+    
     //first we destroy the state we are in now
     delete myState;
     //now we go and look for a state to restore to.
@@ -193,7 +220,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
             //set out state to this old consistent state
-            setState(current_state);
+            setState(current_state->getClone());
             //set agent's LVT to this state's timestamp
             LVT = myState->getTimeStamp();
             cout << "    State Found for time: "<< LVT << endl;
@@ -208,18 +235,27 @@ Agent::doRestorationPhase(Event* straggler_event){
     }
     
     if (LVT == INFINITY ) {
-        //if we get here then we have basically rollbacked all the way back to starting point
-        //this is cause by cascading rollbacks...worst case scenario :-(
+        //if we get here then we have basically rollbacked all the way
+        //back to starting point this is cause by cascading
+        //rollbacks...worst case scenario :-(
         cout << "Rollback STEP 1 .....FAILED: myState is back to init_state" << endl;
         setState(init_state->getClone());
         LVT = myState->getTimeStamp();
         cout << " State Restored to start time: "<< LVT << endl;
         //exit(1111);
     }else {
-        //at this point our LVT should be smaller then the straggle event's receive time
+        //at this point our LVT should be smaller then the straggle
+        //event's receive time
         ASSERT(straggler_event->getReceiveTime() > LVT  );
     }
     
+    //for debugging reasons
+    list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
+    cout << "StateQueue after Restoration: ";
+    for (; rit2 != stateQueue.rend(); rit2++){
+        cout <<(*rit2)->getTimeStamp() << " ";
+    }
+    cout << "\n";
 }//end doStepOne
 
 void
@@ -228,13 +264,20 @@ Agent::doCancellationPhaseOutputQueue(){
     Time rollback_time = myState->getTimeStamp();
     AgentIDBoolMap bitMap;
     
-    /** OK, for step two here is what we are doing. First, we have the rollback_time. This is the time we rollbacked to.
-        Second, is the bitMap, this is used for the anti-message optimization feature. Since we only need to send
-        one anti-message of the earliest invalid event to each agent that needs the anti-message, we use the bitMap
-        to mark if an agent has already received an anti-message. In this step we are checking the sent times all
-        all the events in the outputQueue and those events with sent times greater than the rollback_time are considered
-        invalid events. If the receiver agentID is NOT equal to <this> agentID AND the bitMap is not set to TRUE, then we set it, and send the anti-message.
-        Lasly we remove all invalid events from the outputQueue. The following implements this idea!
+    /** OK, for step two here is what we are doing. First, we have the
+        rollback_time. This is the time we rollbacked to.  Second, is
+        the bitMap, this is used for the anti-message optimization
+        feature. Since we only need to send one anti-message of the
+        earliest invalid event to each agent that needs the
+        anti-message, we use the bitMap to mark if an agent has
+        already received an anti-message. In this step we are checking
+        the sent times all all the events in the outputQueue and those
+        events with sent times greater than the rollback_time are
+        considered invalid events. If the receiver agentID is NOT
+        equal to <this> agentID AND the bitMap is not set to TRUE,
+        then we set it, and send the anti-message.  Lasly we remove
+        all invalid events from the outputQueue. The following
+        implements this idea!
      */
     list<Event*>::iterator outQ_it = outputQueue.begin();
     while(outQ_it != outputQueue.end()){
@@ -261,11 +304,16 @@ Agent::doCancellationPhaseInputQueue(Event* straggler_event){
     cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
 
-    /** OK, for step three, here is what we are doing. First, we have the rollback_time. This is the time we rollbacked to.
-        This step is relatively straight forward. In this step, an invalid event is defined as and event with a receive time greater
-        than the rollback_time. Hence, all invalid events are automatically removed from the inputQueue. However, if the current_event's
-        sender agent id is NOT EQUAL to the straggler_event's agent, then this means that we need to add it back into our event scheduler
-        because we need to re-process this current_event. The following implements this idea!
+    /** OK, for step three, here is what we are doing. First, we have
+        the rollback_time. This is the time we rollbacked to.  This
+        step is relatively straight forward. In this step, an invalid
+        event is defined as and event with a receive time greater than
+        the rollback_time. Hence, all invalid events are automatically
+        removed from the inputQueue. However, if the current_event's
+        sender agent id is NOT EQUAL to the straggler_event's agent,
+        then this means that we need to add it back into our event
+        scheduler because we need to re-process this
+        current_event. The following implements this idea!
     */
     list<Event*>::iterator inQ_it = inputQueue.begin();
     while ( inQ_it != inputQueue.end()) {
