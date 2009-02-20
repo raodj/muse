@@ -27,7 +27,7 @@
 #include "Simulation.h"
 #include <iostream>
 #include "f_heap.h"
-#include <map>
+#include "HashMap.h"
 
 using namespace std;
 using namespace muse;
@@ -82,7 +82,7 @@ Agent::processNextEvents(){
         //first top the next event for checking.
         Event *next_event = eventPQ->top();
         //if the receive times match, then they are to be processed at the same time.
-        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
+        if ( int(top_event->getReceiveTime()) == int(next_event->getReceiveTime()) ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
@@ -202,7 +202,7 @@ void
 Agent::doStepTwo(){
     cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
-    map<AgentID, bool> bitMap;
+    AgentIDBoolMap bitMap;
     
     /** OK, for step two here is what we are doing. First, we have the rollback_time. This is the time we rollbacked to.
         Second, is the bitMap, this is used for the anti-message optimization feature. Since we only need to send
@@ -234,7 +234,7 @@ Agent::doStepTwo(){
 
 void
 Agent::doStepThree(Event* straggler_event){
-    cout << "Step 3. Remove from  Output Queue for events with time > "<<myState->getTimeStamp() << endl;
+    cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
 
     /** OK, for step three, here is what we are doing. First, we have the rollback_time. This is the time we rollbacked to.
@@ -291,6 +291,25 @@ Agent::cleanOutputQueue(){
         outputQueue.pop_front();
     }
 }//end cleanOutputQueue
+
+void
+Agent::collectGarbage(const Time gvt){
+    cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
+    //first we collect from the stateQueue
+    while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){
+        stateQueue.pop_front();
+    }
+    
+    //second we collect from the inputQueue
+    while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < gvt){
+        inputQueue.pop_front();
+    }
+
+    //last we collect from the outputQueue
+    while(!inputQueue.empty() && outputQueue.front()->getReceiveTime() < gvt){
+        inputQueue.pop_front();
+    }
+}
 
 
 bool

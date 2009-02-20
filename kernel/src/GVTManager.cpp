@@ -290,6 +290,10 @@ GVTManager::setGVT(const Time& gvtEst) {
     std::cout << "GVT (rank: " << rank << ") set GVT to "
               << gvt << std::endl;
     // Trigger garbage collection in the simulation
+    int garbageCollectionRate = 10; //this is the rate at which we collect garbage
+    if ( int(gvt) % garbageCollectionRate == 0 ){
+        Simulation::getSimulator()->collectGarbage(gvt);
+    }
 }
 
 #endif

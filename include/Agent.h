@@ -73,7 +73,7 @@ public:
     
 private:
     //forward declare
-    // class boost::fibonacci_heap<Event* , eventComp>;
+    //class State;
     
 public:
     /** The initialize method.
@@ -225,7 +225,20 @@ protected:
     */
     void cleanOutputQueue();
 
-   
+
+    /** The collectGarbage method.
+        When this method is called, garbage collection takes place.
+	Since the three queues are all double linked list, we simply
+	start from the front and remove all elements that have a time
+	smaller than the gvt (global virtual time).
+
+        @param gvt, this is the GVT time that is calculated by GVTManager.
+        @see GVTManager
+        @see Time
+     */
+    void collectGarbage(const Time gvt);
+
+    
     /** The doRollbackRecovery method.
         This method is called by the scheduler class, when a rollback is detected.
 
