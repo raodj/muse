@@ -247,17 +247,18 @@ protected:
     */
     void doRollbackRecovery(Event * );
 
-    /** The doStepOne method.
+    /** The doRestorationPhase  method.
         This is the first step of the rollback recovery process.
         In this method we first search the state queue and find a state with a timestamp
-        that is smaller than that of the straggler event's receive time.
+        that is smaller than that of the straggler event's receive time. we also delete all
+	state with timestamp greater than straggler event's time
 
         @note Only should be called by the doRollbackRecovery method.
         @param pointer to the event that caused the rollback aka straggler event
     */
-    void doStepOne(Event * );
+    void doRestorationPhase(Event * );
 
-    /** The doStepTwo method.
+    /** The doCancellationPhaseOutputQueue  method.
         This is the second step of the rollback recovery process.
         In this method we start prunning the output queue. Events
         with sent time greater than straggler event's time are removed
@@ -267,9 +268,9 @@ protected:
         @note Only should be called by the doRollbackRecovery method.
         
     */
-    void doStepTwo();
+    void doCancellationPhaseOutputQueue();
 
-    /** The doStepThree method.
+    /** The doCancellationPhaseInputQueue method.
         This is the third and final step of the rollback recovery process.
         In this method we start prunning the input queue. Events
         with receive time greater than straggler event's time are removed
@@ -279,7 +280,7 @@ protected:
         @param pointer to the event that caused the rollback aka straggler event
 	
     */
-    void doStepThree(Event * );
+    void doCancellationPhaseInputQueue(Event * );
 
     /** The agentComp class.
         This is used by the scheduler class to figure out which agent to schedule next.
