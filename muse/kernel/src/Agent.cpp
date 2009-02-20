@@ -297,17 +297,23 @@ Agent::collectGarbage(const Time gvt){
     cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
     while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){
+        State *current_state = stateQueue.front();
+        delete current_state;
         stateQueue.pop_front();
     }
     
     //second we collect from the inputQueue
     while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < gvt){
+        Event *current_event = inputQueue.front();
+        current_event->decreaseReference();
         inputQueue.pop_front();
     }
 
     //last we collect from the outputQueue
-    while(!inputQueue.empty() && outputQueue.front()->getReceiveTime() < gvt){
-        inputQueue.pop_front();
+    while(!outputQueue.empty() && outputQueue.front()->getReceiveTime() < gvt){
+        Event *current_event = outputQueue.front();
+        current_event->decreaseReference();
+        outputQueue.pop_front();
     }
 }
 
