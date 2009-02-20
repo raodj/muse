@@ -30,7 +30,7 @@
 #endif
 
 #include <string.h>
-
+#include "DataTypes.h"
 
 #ifndef _WINDOWS
 /** With GCC 3.2 and above the hash map data structure has been moded
@@ -66,19 +66,20 @@ struct StringHasher  {
 typedef HashMap<const char *, int, Hash<const char *>, EqualStr> StringIntMap;
 
 
-//+++++++++++++++++++++BELOW IS MUSE SPECIFIC HASH MAPS++++++++++++++++++++
-typedef unsigned int AgentID;
-typedef unsigned int SimulatorID;
+//Below is MUSE specific hash maps
+
 //forward delcare so everyone is happy and fast.
 namespace muse {
     class Agent;
 }
+
 /** AgentID comparison structure for std::hash_map.
     This structure provides comparison for hash_map's
     whose key values are AgentID.
 */
 struct EqualAgentID {
-    inline size_t operator()(const AgentID a1, const AgentID a2) const {
+    inline size_t operator()(const muse::AgentID a1,
+                             const muse::AgentID a2) const {
         return (a1 == a2);
     }
 };
@@ -90,7 +91,7 @@ struct EqualAgentID {
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains SimulatorID.
 */
-typedef HashMap<AgentID, SimulatorID, Hash<AgentID>, EqualAgentID> AgentIDSimulatorIDMap;
+typedef HashMap<muse::AgentID, muse::SimulatorID, Hash<muse::AgentID>, EqualAgentID> AgentIDSimulatorIDMap;
 
 /** \typedef A hash_map<AgentID, muse::Agent*>
 
@@ -99,7 +100,7 @@ typedef HashMap<AgentID, SimulatorID, Hash<AgentID>, EqualAgentID> AgentIDSimula
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains Agent*.
 */
-typedef HashMap<AgentID, muse::Agent*, Hash<AgentID>, EqualAgentID> AgentIDAgentPointerMap;
+typedef HashMap<muse::AgentID, muse::Agent*, Hash<muse::AgentID>, EqualAgentID> AgentIDAgentPointerMap;
 
 /** \typedef A hash_map<AgentID, bool>
 
@@ -108,11 +109,11 @@ typedef HashMap<AgentID, muse::Agent*, Hash<AgentID>, EqualAgentID> AgentIDAgent
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains booleans.
 */
-typedef HashMap<AgentID, bool, Hash<AgentID>, EqualAgentID> AgentIDBoolMap;
+typedef HashMap<muse::AgentID, bool, Hash<muse::AgentID>, EqualAgentID> AgentIDBoolMap;
 
 
 
-#else  //***************************BELOW IS WINDOWS DEFINE*****************
+#else  // Below is windows define
 
 // In windows the following mappings are used.
 #define HashMap stdext::hash_map
