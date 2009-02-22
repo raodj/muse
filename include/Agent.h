@@ -195,6 +195,7 @@ public:
 	
         @param State reference, this is the new state that will be set.
         @return bool, true if the process was a success.
+	@see State
     */
     void setState(State *);
 
@@ -239,31 +240,33 @@ protected:
     void collectGarbage(const Time gvt);
 
     
-    /** The doRollbackRecovery method.
-        This method is called by the scheduler class, when a rollback is detected.
+    /** The doRollbackRecovery method.  This method is called by the
+        scheduler class, when a rollback is detected.
 
         @note Only should be called by the Scheduler class.
-        @param pointer to the event that caused the rollback aka straggler event 
+	@param pointer to the event that caused the rollback aka straggler
+	event
     */
     void doRollbackRecovery(Event * );
 
-    /** The doRestorationPhase  method.
-        This is the first step of the rollback recovery process.
-        In this method we first search the state queue and find a state with a timestamp
-        that is smaller than that of the straggler event's receive time. we also delete all
-	state with timestamp greater than straggler event's time
+    /** The doRestorationPhase method.  This is the first step of the
+        rollback recovery process.  In this method we first search the
+        state queue and find a state with a timestamp that is smaller
+        than that of the straggler event's receive time. we also
+        delete all state with timestamp greater than straggler event's
+        time
 
         @note Only should be called by the doRollbackRecovery method.
         @param pointer to the event that caused the rollback aka straggler event
     */
     void doRestorationPhase(Event * );
 
-    /** The doCancellationPhaseOutputQueue  method.
-        This is the second step of the rollback recovery process.
-        In this method we start prunning the output queue. Events
-        with sent time greater than straggler event's time are removed
-        from the output queue. Also anti-messages are sent for the earliest
-        sent time after the straggler event's time.
+    /** The doCancellationPhaseOutputQueue method.  This is the second
+        step of the rollback recovery process.  In this method we
+        start prunning the output queue. Events with sent time greater
+        than straggler event's time are removed from the output
+        queue. Also anti-messages are sent for the earliest sent time
+        after the straggler event's time.
 	
         @note Only should be called by the doRollbackRecovery method.
         
@@ -342,14 +345,7 @@ protected:
     */
     State* myState;
 
-    /** The State type init_state
-	This is a poitner to the original state that is passed in.
-	We need this so we can delete it at the end of the simulation.
-	Since myState can be changed due to a rollback, init_state is used to
-	maintian the pointer to the original state that is passed in.
-	@see State()
-     */
-    State* init_state;
+   
 
     /** The EventPQ type eventPQ.
         This is access to the fibonacci heap data structure that houses or events to process.
@@ -358,12 +354,7 @@ protected:
     */
     EventPQ *eventPQ;
 
-    /** The sequenceNumber is used to give an event an id, combined with the receive, sent times,
-        and the sender, receiver agent id the signature becomes unique. after assigning the
-        sequenceNumber, it is increamented by one and so on...
-        it starts at value zero (0)
-    */
-    unsigned int sequenceNumber;
+   
 };
 END_NAMESPACE(muse);//end namespace declaration
 #endif

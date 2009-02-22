@@ -145,21 +145,9 @@ class Event {
   */
   void makeAntiMessage();
 
-  /** The getSequenceNumber method.
-      gives this event's sequence number, used as a type of id.
+ 
 
-      @note MUSE takes care of assigning a sequence number.
-      @return unsigned int, the sequence number assigned by the agent.
-   */
-  inline unsigned int getSequenceNumber() const { return sequenceNumber; }
-
-  /** The setSequenceNumber method.
-      Used by MUSE to set the sequence number.
-      
-      @note Users should not set the sequence number. Only MUSE should call this method.
-      @param seq_number, the value to take.
-   */
-  void setSequenceNumber(unsigned int seq_number);
+ 
   /** The dtor.
       User should not be able to delete events. Also events can only be created
       in the heap.
@@ -187,8 +175,7 @@ class Event {
   */
   char color;
   
-  //this is the sequence number, used to tag event, think of this as an ID for an event.
-  unsigned int sequenceNumber;
+  
 };
 
 END_NAMESPACE(muse); //end namespace declaration

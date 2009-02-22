@@ -19,6 +19,7 @@
 // U.S., and the terms of this license.
 //
 // Authors:  Dhananjai M. Rao       raodm@muohio.edu
+//           
 //
 //---------------------------------------------------------------------------
 
@@ -96,7 +97,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // it out.
     ASSERT ((activeColor == 0) || (activeColor == 1));
     event->setColor(activeColor);
-    commManager->sendEvent(event, (int) sizeof(Event));
+    commManager->sendEvent(event, event->getEventSize());
     // Now track event counters immaterial of whether the event is
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
