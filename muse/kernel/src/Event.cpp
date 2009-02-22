@@ -40,23 +40,24 @@ Event::~Event(){}
 
 void
 Event::decreaseReference(){
-    ASSERT ( referenceCount > 0 );
+    ASSERT ( referenceCount >= 0 );
     // Declreate reference count.
-    if (referenceCount) {
-        if (!--referenceCount) {
-            //std::cout << "Getting deleted: " << *this << std::endl;
-            if (Simulation::getSimulator()->isAgentLocal(senderAgentID)) {
-                // This event was allocated using new operator as a
-                // standard event. Do delete it appropriately.
-                delete this;
-            } else{
-                //cout << "Event was not local: calling delete[]\n\n";
-                // This event was received over the wire. Therefore
-                // this event must be deleted as an array of characters
-                delete []  ((char *) this);
-            }
+    if (!referenceCount) {
+        
+        //std::cout << "Getting deleted: " << *this << std::endl;
+        if (Simulation::getSimulator()->isAgentLocal(senderAgentID)) {
+            // This event was allocated using new operator as a
+            // standard event. Do delete it appropriately.
+            delete this;
+        } else{
+            //cout << "Event was not local: calling delete[]\n\n";
+            // This event was received over the wire. Therefore
+            // this event must be deleted as an array of characters
+            char* buffer = reinterpret_cast<char*>(this);
+            delete []  buffer;
         }
-    }
+        
+    }else referenceCount--;
 }//end decreaseReference
 
 void
@@ -75,10 +76,6 @@ Event::setColor(const char col) {
     color = col;
 }
 
-void
-Event::setSequenceNumber (const unsigned int seq_number){
-    sequenceNumber = seq_number;
-}
 
 ostream&
 operator<<(ostream& os, const muse::Event& event) {
@@ -88,7 +85,7 @@ operator<<(ostream& os, const muse::Event& event) {
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
        << "Ref. count="   << event.referenceCount       << ","
-       << "Seq. Number="   << event.getSequenceNumber()  << ","
+      
        << "color="        << event.getColor()           << "]";
     
     return os;

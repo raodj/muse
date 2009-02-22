@@ -64,10 +64,10 @@ Scheduler::scheduleEvent( Event *e){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
       
        
-        cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
-        cout <<"straggler event: " << *e <<endl;
+        //cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
+        //cout <<"straggler event: " << *e <<endl;
         //cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
-        cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
+        //cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
         //cout << "myState timestamp: "<< 
 	//debug info print out
         
@@ -77,7 +77,7 @@ Scheduler::scheduleEvent( Event *e){
 	//cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
 	//cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
-        cout << "Rollback Recovery Complete\n"<<endl;
+        //cout << "Rollback Recovery Complete\n"<<endl;
         //cout << "Top event at agent now is: " << *agent->eventPQ->top() <<endl;
         //cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
         //cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
@@ -95,7 +95,7 @@ Scheduler::scheduleEvent( Event *e){
         //check if this anti-message is for the furture time.
         if (e->getReceiveTime() > agent->LVT) {
             //we must remove it and its subtree of events.
-            cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
+            //cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
             Agent::EventPQ::iterator it = agent->eventPQ->begin();
             
             while ( it != agent->eventPQ->end() ) {
@@ -105,13 +105,9 @@ Scheduler::scheduleEvent( Event *e){
                 //first check if the event matchs the straggler event's senderAgentID
                 if ((*del_it)->getSenderAgentID() == e->getSenderAgentID()){
                     
-                    //if the receive times are the same, we must make sure they have matching sequence numbers
-                    if ( (*del_it)->getReceiveTime() == e->getReceiveTime() &&
-                         (*del_it)->getSequenceNumber() == e->getSequenceNumber() ){
-                        cout << "---found useless future event with matching sequence numbers deleting from fib heap"<<endl;
-                        agent->eventPQ->remove(del_it.getNode());
-                    } else if ( (*del_it)->getReceiveTime() > e->getReceiveTime()){
-                        cout << "---found useless future event and deleting from fib heap"<<endl;
+                    //if the receive times are the same or greater then we dont need this event
+                    if ( (*del_it)->getReceiveTime() >= e->getReceiveTime() ){
+                        //cout << "---found useless future event  deleting from fib heap"<<endl;
                         agent->eventPQ->remove(del_it.getNode());
                     }
                 }
