@@ -123,6 +123,9 @@ Simulation::start(){
          (*it)->initialize();
         //time to archive the agent's init state
          State *agent_state = (*it)->myState;
+         //we do this to have it properly deleted at end of simulation.
+         //we should never see this 
+         //(*it)->stateQueue.push_back(agent_state);
          State * state = (*it)->cloneState( agent_state );
          //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);

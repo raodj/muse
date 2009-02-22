@@ -343,7 +343,7 @@ Agent::cleanOutputQueue(){
 
 void
 Agent::collectGarbage(const Time gvt){
-    cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
+    // cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
     while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){
         State *current_state = stateQueue.front();
