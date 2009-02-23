@@ -221,6 +221,7 @@ GVTManager::startGVTestimation() {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!
         activeColor = !white; // Change our active color.
+        cout << "in startGVTestimation with 1 node " <<endl;
         setGVT(Simulation::getSimulator()->getLGVT());
         return;
     }

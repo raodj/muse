@@ -140,9 +140,10 @@ Simulation::start(){
    
     while(gvtManager->getGVT() < endTime){
         if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
+        
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
-           
+            cout << "Going for another GVT round" <<endl;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
