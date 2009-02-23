@@ -132,11 +132,16 @@ Scheduler::getNextEventTime() const {
     }
     // Obtain reference to the top agent in the priority queue.
     const Agent *agent = agent_pq.top();
+    cout << "TOP agent id is: " << agent->getAgentID() << endl;
+    //cout << "Agent address: " << 
     // Now, look at the agent's sub-queue to determine top event.
     if (agent->eventPQ->empty()) {
         // No events on the top-most queue.
+        cout << "Agent eventPQ TOp is Empty" <<endl;
         return INFINITY;
+        
     }
+     cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;
     // Use the top-agent's top-event.
     return agent->eventPQ->top()->getReceiveTime();
 }
