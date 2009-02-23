@@ -34,8 +34,8 @@ BEGIN_NAMESPACE(boost);
 template <typename T, typename Comp >
 class fibonacci_heap;
 
-template<class T>
-class intrusive_ptr;
+//template<class T>
+//class intrusive_ptr;
 END_NAMESPACE(boost);
 
 BEGIN_NAMESPACE(muse); //begin namespace declaration
@@ -335,7 +335,7 @@ protected:
 	about what container has what reference and we can be leak free
 	for Event memory.
      */
-    typedef boost::intrusive_ptr<Event> SharedEventPointer;
+    //typedef boost::intrusive_ptr<Event> SharedEventPointer;
     
     /** The double linked lise outputQueue.
         Houses a sorted list of event pointers. Needed incase of rollbacks

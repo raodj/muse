@@ -175,7 +175,7 @@ Simulation::start(){
     //if (myID == 0 ){
         cout << "GVT @ end time: " << gvtManager->getGVT() << endl;
         cout << "LGVT @ end time: " << getTime() << endl;
-        cout << "Num Agents: : " << allAgents.size() << endl;
+        // cout << "Num Agents: : " << allAgents.size() << endl;
         //}
    
 }//end start
