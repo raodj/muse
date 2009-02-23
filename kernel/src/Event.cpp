@@ -91,5 +91,6 @@ operator<<(ostream& os, const muse::Event& event) {
     return os;
 }
 
+
 #endif
 

@@ -81,7 +81,7 @@ Simulation::registerAgent(  muse::Agent* agent)  {
     return false;
 }//end registerAgent
 
-//Simulation kernel; // initialize kernel pointer
+
 
 Simulation*
 Simulation::getSimulator(){
@@ -122,10 +122,8 @@ Simulation::start(){
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
          (*it)->initialize();
         //time to archive the agent's init state
-         State *agent_state = (*it)->myState;
-         //we do this to have it properly deleted at end of simulation.
-         //we should never see this 
-         //(*it)->stateQueue.push_back(agent_state);
+         State *agent_state = (*it)->myState.get();
+        
          State * state = (*it)->cloneState( agent_state );
          //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);
@@ -139,10 +137,12 @@ Simulation::start(){
     //BIG loop for event processing
     //int count=0;
     int gvtTimer = GVT_DELAY;
+   
     while(gvtManager->getGVT() < endTime){
         if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
+           
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
@@ -171,8 +171,12 @@ Simulation::start(){
         }//end if
     }//end BIG loop
 
-    // Do final garbage collection here first.
-
+    
+    //if (myID == 0 ){
+        cout << "GVT @ end time: " << gvtManager->getGVT() << endl;
+        cout << "LGVT @ end time: " << getTime() << endl;
+        cout << "Num Agents: : " << allAgents.size() << endl;
+        //}
    
 }//end start
 
@@ -199,10 +203,10 @@ Simulation::finalize(){
 }//end finalize
 
 void
-Simulation::collectGarbage(const Time gvt){
+Simulation::garbageCollect(const Time gvt){
     AgentContainer::iterator it=allAgents.begin();
     for (; it != allAgents.end(); it++) {  
-        (*it)->collectGarbage(gvt);
+        (*it)->garbageCollect(gvt);
     }
 }
 

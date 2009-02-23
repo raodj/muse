@@ -55,12 +55,13 @@ class State {
    */
   inline const Time & getTimeStamp() const { return timestamp;}
   
- protected:
+ 
   /** The dtor method.
       Cleans up all mess created by muse.
   */
   virtual ~State();
   
+ protected:
   // this is used for storage purpose. Incase of a rollback this is used to get a state before the rollback time. 
   Time timestamp;
 };

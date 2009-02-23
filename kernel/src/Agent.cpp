@@ -28,6 +28,7 @@
 #include <iostream>
 #include "f_heap.h"
 #include "HashMap.h"
+#include <boost/intrusive_ptr.hpp>
 
 using namespace std;
 using namespace muse;
@@ -42,7 +43,8 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0),myState(agentState) {
+Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0){
+    myState.reset(agentState);
     eventPQ = new EventPQ;
 }//end ctor
 
@@ -113,7 +115,7 @@ Agent::processNextEvents(){
     executeTask(&events);
     
     //clone the state so we can archive
-    State * state = cloneState(myState);
+    State * state = cloneState(myState.get() );
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
@@ -130,8 +132,7 @@ Agent::cloneState(State * state){
 
 void
 Agent::setState(State * state){
-    //TODO: verify this works!!
-    this->myState = state;
+    myState.reset(state);
 }//end setState
 
 
@@ -172,7 +173,7 @@ Agent::doRollbackRecovery(Event* straggler_event){
 
 void
 Agent::doRestorationPhase(Event* straggler_event){
-    // cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
+    cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
     /** OK, here is the plan. First, there is a straggler_time.Second,
@@ -204,7 +205,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
              //first we destroy the state we are in now <--kind of wierd to say right?
-            delete myState;
+            //delete myState;
             //set out state to this old consistent state
             //after we setState, remember myState will point to a new state now.
             setState( cloneState(current_state) );
@@ -222,7 +223,6 @@ Agent::doRestorationPhase(Event* straggler_event){
     }
 
     //there is a problem if this happens
-    ASSERT(LVT != INFINITY);
     ASSERT(straggler_event->getReceiveTime() > LVT  );
     
     
@@ -237,7 +237,7 @@ Agent::doRestorationPhase(Event* straggler_event){
 
 void
 Agent::doCancellationPhaseOutputQueue(){
-    //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
+    cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
     AgentIDBoolMap bitMap;
     
@@ -278,7 +278,7 @@ Agent::doCancellationPhaseOutputQueue(){
 
 void
 Agent::doCancellationPhaseInputQueue(Event* straggler_event){
-    // cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
+    cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
 
     /** OK, for step three, here is what we are doing. First, we have
@@ -342,7 +342,7 @@ Agent::cleanOutputQueue(){
 }//end cleanOutputQueue
 
 void
-Agent::collectGarbage(const Time gvt){
+Agent::garbageCollect(const Time gvt){
     // cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
     while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){

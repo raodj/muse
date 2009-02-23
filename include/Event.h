@@ -41,6 +41,7 @@ BEGIN_NAMESPACE(muse); //begin namespace declaration
     receiving the event needs to process the event.
 */
 class Event {
+ 
   friend std::ostream& ::operator<<(ostream&, const muse::Event&);
   friend class Agent;
   friend class Simulation;
@@ -174,9 +175,32 @@ class Event {
       @see GVTManager
   */
   char color;
+
+  /** The following two methods are used by boost::intrusive_ptr
+      for low memory footprint smart shared pointers. Makes life
+      so much easier. 
+   */
+  friend void intrusive_ptr_add_ref(Event * p);
+  friend void intrusive_ptr_release(Event * p);
   
   
 };
+
+
+inline void intrusive_ptr_add_ref(Event * p)
+{
+    // increment reference count of object *p
+    std::cout << "increasing ref"<<std::endl;
+    p->increaseReference();
+}
+
+inline void intrusive_ptr_release(Event * p)
+{
+    // decrement reference count, and delete object when reference count reaches 0
+    std::cout << "decreasing ref"<<std::endl;
+    p->decreaseReference();
+}
+
 
 END_NAMESPACE(muse); //end namespace declaration
 

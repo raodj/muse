@@ -33,6 +33,9 @@
 BEGIN_NAMESPACE(boost);
 template <typename T, typename Comp >
 class fibonacci_heap;
+
+template<class T>
+class intrusive_ptr;
 END_NAMESPACE(boost);
 
 BEGIN_NAMESPACE(muse); //begin namespace declaration
@@ -237,7 +240,7 @@ protected:
         @see GVTManager
         @see Time
      */
-    void collectGarbage(const Time gvt);
+    void garbageCollect(const Time gvt);
 
     
     /** The doRollbackRecovery method.  This method is called by the
@@ -327,6 +330,13 @@ protected:
     */
     list<State*> stateQueue;
 
+
+    /** The intrusive pointer for events. This way we dont have to worry
+	about what container has what reference and we can be leak free
+	for Event memory.
+     */
+    typedef boost::intrusive_ptr<Event> SharedEventPointer;
+    
     /** The double linked lise outputQueue.
         Houses a sorted list of event pointers. Needed incase of rollbacks
         @see Event()
@@ -340,10 +350,12 @@ protected:
     list<Event*> inputQueue;
 
     /** The State type myState.
-        This is a pointer to the current state of the Agent.
+        This is a auto pointer to the current state of the Agent.
+	Using smart pointer allows worry free use of the state class and
+	doesn't leak memory.
         @see State()
     */
-    State* myState;
+    auto_ptr<State> myState;
 
    
 
