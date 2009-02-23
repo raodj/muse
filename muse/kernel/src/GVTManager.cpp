@@ -288,13 +288,12 @@ GVTManager::setGVT(const Time& gvtEst) {
     
     // Update our local GVT value.
     gvt = gvtEst;
-    //std::cout << "GVT (rank: " << rank << ") set GVT to "
-    //         << gvt << std::endl;
+    std::cout << "GVT (rank: " << rank << ") set GVT to "
+             << gvt << " with tMin set to " << tMin <<std::endl;
     // Trigger garbage collection in the simulation
-    //int garbageCollectionRate = 0; //this is the rate at which we collect garbage
-    //if ( int(gvt) % garbageCollectionRate == 0 ){
-    Simulation::getSimulator()->collectGarbage(gvt);
-        //}
+    
+    Simulation::getSimulator()->garbageCollect(gvt);
+      
 }
 
 #endif

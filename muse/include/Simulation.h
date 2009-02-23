@@ -238,7 +238,7 @@ protected:
         @see GVTManager
         @see Time
      */
-    void collectGarbage(const Time gvt);
+    void garbageCollect(const Time gvt);
     
 private:
 
