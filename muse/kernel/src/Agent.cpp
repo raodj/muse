@@ -61,6 +61,7 @@ bool
 Agent::processNextEvents(){
 
     //here we make sure the list is not empty
+    ASSERT(eventPQ->empty() == false);
     if (eventPQ->empty()) {
       return false;
     }
