@@ -167,15 +167,16 @@ public:
   template <typename K> void     change(pointer, K const&);
   template <typename K> void     decrease(pointer, K const&);
   template <typename K> void     increase(pointer, K const&);
-  void     remove(pointer);
-
+    void     remove(pointer);
+    
 private:
   void add_root(node* n);
-  void find_min() const;
+  
   void cut(node* n);
-
+    void find_min() const;
+    mutable node* m_min;
   Comp  m_compare;
-  mutable node* m_min;
+  
 };
 
 // --------------------------------------------------------------------------

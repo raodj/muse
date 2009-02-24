@@ -164,6 +164,8 @@ GVTManager::forwardCtrlMsg() {
         vecCounters[(int) white][pid] = 0;
     }
     // Update tmin.
+    cout << " in forwardCtrlMsg tMIn is " << tMin <<endl;
+    cout << " in forwardCtrlMsg ctrlMsg->tMIn is " << ctrlMsg->getTmin() <<endl;
     ctrlMsg->setTmin(std::min<Time>(ctrlMsg->getTmin(), tMin));
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.

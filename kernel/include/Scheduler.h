@@ -84,6 +84,13 @@ public:
  
  protected:
 
+  /** Temp fix to the incorrect ordering of Agents with empty eventPQ.
+      This method simply pops all agents from the fib heap and then
+      pushes them all back in. This will correctly schedule the
+      bottome agents with potential events.
+   */
+  void reheap(void);
+
   /** The agentMap is used to quickly match AgentID to agent pointers in the scheduler.
    */
   AgentIDAgentPointerMap agentMap;

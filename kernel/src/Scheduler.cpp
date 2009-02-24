@@ -41,14 +41,31 @@ Scheduler::addAgentToScheduler(Agent * agent){
     return false;
 }//end addAgentToScheduler
 
+void
+Scheduler::reheap(){
+    //first we pop all agents from the fib heap
+    while (!agent_pq.empty()){
+        agent_pq.pop();
+    }
+    //finally we push them all back in.
+    AgentIDAgentPointerMap::iterator it = agentMap.begin();
+    for (;it != agentMap.end(); it++) {
+        agent_pq.push(it->second);
+    }
+}
+
 bool
 Scheduler::processNextAgentEvents(){
+    //if the top agent's eventPQ is empty
+    //try reheap. if its still empty then
+    //simulation is over.
+    if (agent_pq.top()->eventPQ->empty()) reheap();
     Agent * agent = agent_pq.top();
     bool result = agent->processNextEvents();
     //if (!agent->eventPQ.empty())cout << "TIME: " << agent->eventPQ.top()->getReceiveTime() << endl;
     agent_pq.pop();
     agent_pq.push(agent);
-    //agent_pq.change_top(agent);
+   
     return result;
 }//end processNextAgentEvents
 
