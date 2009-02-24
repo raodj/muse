@@ -72,7 +72,7 @@ class Simulation {
     //has to be a friend class because garbage collection is called from the
     //GVTManager class.
     friend class GVTManager;
-
+   
 public:
 
     /** The initialize method.
@@ -147,9 +147,10 @@ public:
     static Simulation* getSimulator();
         
     /** The scheduleEvent method.
-	Agents actually use this method to schedule events.
-	Users should not be using this method, when possible use the
-	Agent method to avoid potential problems.
+	Agents actually use this method to schedule events that are not local.
+
+	@note Users should not be using this method. If used, will cause undefined behavior.
+	      Use Agent::scheduleEvent method to avoid potential problems.
      
 	@param pointer to the event you wish to schedule.
 	@return bool True if scheduling is successful.
@@ -220,6 +221,8 @@ public:
 	 
 protected:
 
+   
+    
     /** The getLGVT() method.
 	This method is used to peek into the next agent to be processed time.
 	This effectively gives you the smallest time in this kernel.
