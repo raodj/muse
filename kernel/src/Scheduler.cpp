@@ -35,37 +35,20 @@ bool
 Scheduler::addAgentToScheduler(Agent * agent){
     if (agentMap[agent->getAgentID()] == NULL) {
         agentMap[agent->getAgentID()] = agent;
-        agent_pq.push(agent);
+        agent->fibHeapPtr = (void *) agent_pq.push(agent);
         return true;
     }
     return false;
 }//end addAgentToScheduler
 
-void
-Scheduler::reheap(){
-    //first we pop all agents from the fib heap
-    while (!agent_pq.empty()){
-        agent_pq.pop();
-    }
-    //finally we push them all back in.
-    AgentIDAgentPointerMap::iterator it = agentMap.begin();
-    for (;it != agentMap.end(); it++) {
-        agent_pq.push(it->second);
-    }
-}
 
 bool
 Scheduler::processNextAgentEvents(){
-    //if the top agent's eventPQ is empty
-    //try reheap. if its still empty then
-    //simulation is over.
-    if (agent_pq.top()->eventPQ->empty()) reheap();
     Agent * agent = agent_pq.top();
     bool result = agent->processNextEvents();
-    //if (!agent->eventPQ.empty())cout << "TIME: " << agent->eventPQ.top()->getReceiveTime() << endl;
-    agent_pq.pop();
-    agent_pq.push(agent);
-   
+    
+    agent_pq.change((AgentPQ::pointer) agent->fibHeapPtr, agent);
+    
     return result;
 }//end processNextAgentEvents
 
@@ -149,16 +132,16 @@ Scheduler::getNextEventTime() const {
     }
     // Obtain reference to the top agent in the priority queue.
     const Agent *agent = agent_pq.top();
-    cout << "TOP agent id is: " << agent->getAgentID() << endl;
+    //cout << "TOP agent id is: " << agent->getAgentID() << endl;
     //cout << "Agent address: " << 
     // Now, look at the agent's sub-queue to determine top event.
     if (agent->eventPQ->empty()) {
         // No events on the top-most queue.
-        cout << "Agent eventPQ TOp is Empty" <<endl;
+        //cout << "Agent eventPQ TOp is Empty" <<endl;
         return INFINITY;
         
     }
-     cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;
+    //cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;
     // Use the top-agent's top-event.
     return agent->eventPQ->top()->getReceiveTime();
 }

@@ -82,7 +82,6 @@ Simulation::registerAgent(  muse::Agent* agent)  {
 }//end registerAgent
 
 
-
 Simulation*
 Simulation::getSimulator(){
     static Simulation kernel;
@@ -143,7 +142,7 @@ Simulation::start(){
         
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
-            cout << "Going for another GVT round" <<endl;
+            
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
