@@ -50,18 +50,19 @@ public:
    */
   bool scheduleEvent(Event *);
 
-  /** The processNextAgentEvents method.
-      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
-      Uses a fibonacci heapfor scheduling the agents. The agent witht he smallest event timestamp to process
-      is chosen.
+  /** The processNextAgentEvents method.  Only used by the Simulation
+      kernel. Users of MUSE API should not touch this function.  Uses
+      a fibonacci heapfor scheduling the agents. The agent witht he
+      smallest event timestamp to process is chosen.
 
       @return bool, True if the chosen agent had events to process.
    */
   bool processNextAgentEvents();
 
-  /** The addAgentToScheduler method.
-      Adds the agent to the scheduler. This happend in the Simulation::registerAgent method.
-      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
+  /** The addAgentToScheduler method.  Adds the agent to the
+      scheduler. This happend in the Simulation::registerAgent method.
+      Only used by the Simulation kernel. Users of MUSE API should not
+      touch this function.
 
       @param pointer to the agent.
       @return bool, True if the agent was added to the scheduler.
@@ -84,19 +85,16 @@ public:
  
  protected:
 
-  /** Temp fix to the incorrect ordering of Agents with empty eventPQ.
-      This method simply pops all agents from the fib heap and then
-      pushes them all back in. This will correctly schedule the
-      bottome agents with potential events.
-   */
-  void reheap(void);
+ 
 
-  /** The agentMap is used to quickly match AgentID to agent pointers in the scheduler.
+  /** The agentMap is used to quickly match AgentID to agent pointers
+      in the scheduler.
    */
   AgentIDAgentPointerMap agentMap;
   
-  /** The agent_pq is a fibonacci heap data structure, and used for scheduling the agents.
-      This is used in the processNextAgentEvents method.
+  /** The agent_pq is a fibonacci heap data structure, and used for
+      scheduling the agents.  This is used in the
+      processNextAgentEvents method.
    */
   typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
   AgentPQ agent_pq;

@@ -223,7 +223,6 @@ GVTManager::startGVTestimation() {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!
         activeColor = !white; // Change our active color.
-        cout << "in startGVTestimation with 1 node " <<endl;
         setGVT(Simulation::getSimulator()->getLGVT());
         return;
     }
@@ -291,8 +290,8 @@ GVTManager::setGVT(const Time& gvtEst) {
     
     // Update our local GVT value.
     gvt = gvtEst;
-    std::cout << "GVT (rank: " << rank << ") set GVT to "
-             << gvt << " with tMin set to " << tMin <<std::endl;
+    // std::cout << "GVT (rank: " << rank << ") set GVT to "
+    //         << gvt << " with tMin set to " << tMin <<std::endl;
     // Trigger garbage collection in the simulation
     
     Simulation::getSimulator()->garbageCollect(gvt);

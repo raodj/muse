@@ -34,8 +34,6 @@ BEGIN_NAMESPACE(boost);
 template <typename T, typename Comp >
 class fibonacci_heap;
 
-//template<class T>
-//class intrusive_ptr;
 END_NAMESPACE(boost);
 
 BEGIN_NAMESPACE(muse); //begin namespace declaration
@@ -366,7 +364,12 @@ protected:
     */
     EventPQ *eventPQ;
 
-   
+    /** The pointer type.
+        this is the pointer that points to the location
+        of the agent in the fibonacci heap.
+    */
+    
+    void* fibHeapPtr;
 };
 END_NAMESPACE(muse);//end namespace declaration
 #endif

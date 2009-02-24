@@ -28,10 +28,13 @@
 #include <iostream>
 #include "f_heap.h"
 #include "HashMap.h"
+#include <math.h>
 //#include <boost/intrusive_ptr.hpp>
 
 using namespace std;
 using namespace muse;
+
+#define TIME_EQUALS(t1, t2) (fabs(t1-t2) < 1e-8)
 
 void
 Agent::initialize() throw (std::exception) {}
@@ -61,7 +64,7 @@ bool
 Agent::processNextEvents(){
 
     //here we make sure the list is not empty
-    ASSERT(eventPQ->empty() == false);
+    ASSERT(eventPQ->empty() != true);
     if (eventPQ->empty()) {
       return false;
     }
@@ -94,7 +97,7 @@ Agent::processNextEvents(){
         
         //if the receive times match, then they are to be processed at
         //the same time.
-        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
+        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
@@ -120,7 +123,7 @@ Agent::processNextEvents(){
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
-    ASSERT(stateQueue.back()->getTimeStamp() != state->getTimeStamp() );
+    ASSERT(! TIME_EQUALS( stateQueue.back()->getTimeStamp() , state->getTimeStamp()) );
 
     stateQueue.push_back(state);
     return true;
