@@ -28,11 +28,9 @@
 
 using namespace muse;
 
-Event::Event(const AgentID  senderID,const AgentID  receiverID,
-             const Time  sentTime, const Time  receiveTime):
-    senderAgentID(senderID), receiverAgentID(receiverID),
-    sentTime(sentTime), receiveTime(receiveTime), antiMessage(false),
-    referenceCount(0) {
+Event::Event(const AgentID  receiverID, const Time  receiveTime):
+    senderAgentID(1e-8), sentTime(1e-8),receiverAgentID(receiverID),receiveTime(receiveTime),
+    antiMessage(false),referenceCount(0) {
     // Nothing else to be done in the constructor.
 }
 

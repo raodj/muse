@@ -139,6 +139,9 @@ Agent::setState(State * state){
 
 bool 
 Agent::scheduleEvent(Event *e){
+    //fill in the sent time and sender agent id info
+    e->sentTime = getLVT();
+    e->senderAgentID = getAgentID();
     //check to make sure we dont schedule pass the simulation end time.
     if ( e->getSentTime() >= (Simulation::getSimulator())->getEndTime() ){   
         e->decreaseReference();

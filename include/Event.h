@@ -53,16 +53,14 @@ class Event {
       of the agent receiving the event and the delivery time is the
       least amount of information needed to be a vaild Event.
       
-      @param senderID the id of the sender agent
+     
       @param receiverID the id of the receiver agent
-      @param sentTime the time this event was sent. Usually its the time the event was created.
       @param receiveTime this is the time the receiving agent should process this event.
 
       @see AgentID
       @see Time
   */
-  explicit Event(const AgentID  senderID,const AgentID  receiverID,
-		 const Time  sentTime, const Time  receiveTime);
+  explicit Event(const AgentID  receiverID,const Time  receiveTime);
 
   /** The getSenderAgentID method.
       @return reference to the sender AgentID.
