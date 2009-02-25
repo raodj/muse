@@ -82,7 +82,16 @@ public:
     */
   Time getNextEventTime() const;
 	
- 
+
+  /** The agent class uses this method to change
+      its key in the fib heap agent_pq. This makes
+      sure that the heap properties are valid.
+
+      @param pointer, this is type casted in the method to node*
+      @param agent, the agent pointer that wants to be changed
+      
+   */
+  void changeKey(void*,Agent*);
  protected:
 
  

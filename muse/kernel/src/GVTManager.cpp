@@ -48,9 +48,11 @@ GVTManager::GVTManager() {
     ctrlMsg        = NULL;
     // Set active color to white
     activeColor    = white;
+    if (rank == 0)cout << "In GVTManager cTor tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
 }
 
 GVTManager::~GVTManager() {
+    cout << "GVTManager Destroyed" <<endl;
     if (vecCounters[0] != NULL) {
         // Free dynamically allocated memory
         delete[] vecCounters[0];
@@ -78,6 +80,7 @@ GVTManager::initialize(const Time& startTime, Communicator *comm) {
     // zero out all vector counters.
     memset(vecCounters[0], 0, sizeof(unsigned int) * numProcesses);
     memset(vecCounters[1], 0, sizeof(unsigned int) * numProcesses);
+    if (rank == 0)cout << "In GVTManager initialize tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
 }
 
 bool
@@ -107,7 +110,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     if (activeColor != white) {
         tMin = std::min<Time>(tMin, event->getReceiveTime());
     }
-
+    if (rank == 0)cout << "In GVTManager sendRemoteEvent tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
     // Everything went well.
     return true;
 }
@@ -143,11 +146,18 @@ GVTManager::checkWaitingCtrlMsg() {
     if ((rank == ROOT_KERNEL) && (ctrlMsg->areCountersZero(numProcesses))) {
         // A phase of GVT computation is done.
         setGVT(std::min<Time>(ctrlMsg->getGVTEstimate(), ctrlMsg->getTmin()));
+        if (rank == 0)cout << "(GVT phase ended) In GVTManager checkWaitingCtrlMsg  ctrlMsg->tMin (" <<
+                          ctrlMsg->getTmin() <<") ctrlMsg->gvtEst (" << ctrlMsg->getGVTEstimate() <<")" <<endl;
         // Get rid of the control message as we no longer need it.
         GVTMessage::destroy(ctrlMsg);
         ctrlMsg = NULL;
+        if (rank == 0)cout << "(GVT phase ended) In GVTManager checkWaitingCtrlMsg  tMin (" <<
+                          tMin <<") gvt (" <<gvt<<")" <<endl;
+        
     } else {
         // Forward control message to the next process
+        if (rank == 0)cout << "(GVT phase cont..) In GVTManager checkWaitingCtrlMsg  tMin (" <<
+                          tMin <<") gvt (" <<gvt<<")" <<endl; 
         forwardCtrlMsg();
     }
 }
@@ -164,8 +174,9 @@ GVTManager::forwardCtrlMsg() {
         vecCounters[(int) white][pid] = 0;
     }
     // Update tmin.
-    cout << " in forwardCtrlMsg tMIn is " << tMin <<endl;
-    cout << " in forwardCtrlMsg ctrlMsg->tMIn is " << ctrlMsg->getTmin() <<endl;
+    //cout << " in forwardCtrlMsg tMIn is " << tMin <<endl;
+    //cout << " in forwardCtrlMsg ctrlMsg->tMIn is " << ctrlMsg->getTmin() <<endl;
+    if (rank == 0)cout << "In GVTManager forwardCtrlMsg tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
     ctrlMsg->setTmin(std::min<Time>(ctrlMsg->getTmin(), tMin));
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
@@ -217,8 +228,11 @@ GVTManager::startGVTestimation() {
     if ((cycle != 0) || (rank != 0)) {
         // Either this is not the initator process or a GVT
         // calculation is already underway. Do nothing either way.
+        cout << "In GVTManager startGVTestimation BUT RETURNING: cycle ("<<cycle<<")"
+             << "rank ("<<rank<<")" <<endl;
         return;
     }
+    if (rank == 0)cout << "In GVTManager startGVTestimation tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
     if (numProcesses < 2) {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!

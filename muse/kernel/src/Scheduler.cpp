@@ -35,20 +35,42 @@ bool
 Scheduler::addAgentToScheduler(Agent * agent){
     if (agentMap[agent->getAgentID()] == NULL) {
         agentMap[agent->getAgentID()] = agent;
-        agent->fibHeapPtr = (void *) agent_pq.push(agent);
+        agent->fibHeapPtr = reinterpret_cast<void *>(agent_pq.push(agent));
         return true;
     }
     return false;
 }//end addAgentToScheduler
 
+void
+Scheduler::changeKey(void * pointer, Agent * agent){
+    AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
+    //cout << "In changeKey: changing key for agent " << ptr->data()->getAgentID() << endl;
+    agent_pq.change(ptr, agent);
+}
 
 bool
 Scheduler::processNextAgentEvents(){
+    if (agent_pq.top()->eventPQ->empty()){
+        //changeKey(agent_pq.top()->fibHeapPtr,agent_pq.top()  );
+        //cout << "Agent eventPQ top is empty changing key" <<endl;
+        return false;
+    }
+
+    //for debugging
+    //cout << "AgentPQ is: " <<endl;
+    //AgentPQ::iterator it = agent_pq.begin();
+    //for(;it != agent_pq.end();it++ ){
+    //    cout << "Agent: " << (*it)->getAgentID() 
+    //         << " has EventPQ size: " << (*it)->eventPQ->size() <<endl;
+    // }
+
+    
     Agent * agent = agent_pq.top();
+    //cout << "Top before is Agent: " << agent->getAgentID() << endl;
+    //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
-    
-    agent_pq.change((AgentPQ::pointer) agent->fibHeapPtr, agent);
-    
+    changeKey(agent->fibHeapPtr,agent);
+    // cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl;
     return result;
 }//end processNextAgentEvents
 
@@ -64,7 +86,7 @@ Scheduler::scheduleEvent( Event *e){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
       
        
-        //cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
+        cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
         //cout <<"straggler event: " << *e <<endl;
         //cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
         //cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
@@ -77,7 +99,7 @@ Scheduler::scheduleEvent( Event *e){
 	//cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
 	//cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
-        //cout << "Rollback Recovery Complete\n"<<endl;
+        cout << "Rollback Recovery Complete\n"<<endl;
         //cout << "Top event at agent now is: " << *agent->eventPQ->top() <<endl;
         //cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
         //cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
@@ -115,9 +137,25 @@ Scheduler::scheduleEvent( Event *e){
         }
         return false;   
     }//end anti-message check if
-    
+
+    //will use this to figure out if we need to change our key in
+    //scheduler
+    Time old_receive_time = INFINITY;
+    if (!agent->eventPQ->empty()){
+        old_receive_time = agent->eventPQ->top()->getReceiveTime();
+    }
     e->increaseReference();
     agent->eventPQ->push(e);
+
+    //now lets make sure that the heap is still valid
+    //we have to change if the event receive time has a smaller key
+    //then the top event in the heap.
+    if ( e->getReceiveTime() < old_receive_time  ) {
+        //we need to call for the key change
+        //cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
+        changeKey(agent->fibHeapPtr,agent);
+    }
+    
     return true;
 }//end scheduleEvent
 

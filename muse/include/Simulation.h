@@ -42,14 +42,13 @@ class Communicator;
 
 /** The Simulation Class.
  
-This is the heart of muse. All core operation that the engine
-handles are done from this class. This class implaments the
-Singleton pattern and should NOT be used as a superclass to derive
-from. Also the client should not try and create an instance using
-the constructor. use the getSimulator() method which will return a
-pointer to a Simulation object. Once you have all your agents and
-their events in place you can get the simulation going with the
-following three easy steps:
+This is the heart of muse. All core operation that the engine handles
+are done from this class. This class implaments the Singleton pattern
+and should NOT be used as a superclass to derive from. Also the client
+should not try and create an instance using the constructor. use the
+getSimulator() method which will return a pointer to a Simulation
+object. Once you have all your agents and their events in place you
+can get the simulation going with the following three easy steps:
 
 <ol>
 
@@ -75,20 +74,20 @@ class Simulation {
    
 public:
 
-    /** The initialize method.
-	Once the simulation instance is returned. This method must be called to
-	fully init the simulation kernel. Things like the simulatorID is generated
-	in this method.
+    /** The initialize method.  Once the simulation instance is
+	returned. This method must be called to fully init the
+	simulation kernel. Things like the simulatorID is generated in
+	this method.
      
 	@note if this method is not called and you start the simulation then
 	the SimualtorID will equal -1u !!
     */
     void initialize();
 
-    /** The initialize method.
-	Once the simulation instance is returned. This method must be called to
-	fully init the simulation kernel. Things like the simulatorID is generated
-	in this method.
+    /** The initialize method.  Once the simulation instance is
+	returned. This method must be called to fully init the
+	simulation kernel. Things like the simulatorID is generated in
+	this method.
 	
 	@note if this method is not called and you start the simulation then
 	the SimualtorID will equal -1u !!
@@ -98,10 +97,11 @@ public:
     */
     void initialize(int argc, char* argv[]);
 
-    /** The finalize method.
-	After calling the start method and the simualtion starts, this should be
-	the next method called. In this method clean up occurs. Running this method
-	will insure that all memory used by the Simulation kernel are properly disposed!
+    /** The finalize method.  After calling the start method and the
+	simualtion starts, this should be the next method called. In
+	this method clean up occurs. Running this method will insure
+	that all memory used by the Simulation kernel are properly
+	disposed!
 	
 	@note if this method is called the SimualtorID will equal -1u !!
     */
@@ -116,12 +116,15 @@ public:
     */
     inline SimulatorID getSimulatorID() const { return myID;}
         
-    /** The registerAgent method.
-	Once you design and create an agent for your simulation, use this method to register the agent to the 
-	simulator. For example a client could check the SimulatorID and with a switch statement register agents to 
+    /** The registerAgent method.  Once you design and create an agent
+	for your simulation, use this method to register the agent to
+	the simulator. For example a client could check the
+	SimulatorID and with a switch statement register agents to
 	different simulators on different processes.See examples.
 
-	@note Once regiestered agents will be handled by MUSE. Deleting of agent will be handled by MUSE. Please only allocate agent on the heap.
+	@note Once regiestered agents will be handled by
+	MUSE. Deleting of agent will be handled by MUSE. Please only
+	allocate agent on the heap.
      
 	@param agent pointer, this is of type Agent.
 	@return bool, True if the agent was register correctly.
@@ -130,16 +133,18 @@ public:
     */
     bool registerAgent(Agent * agent);
         
-    /** The getRegisteredAgents method.
-	When this method is invoked, it will return all agents that are registered to a given simulation kernel.
+    /** The getRegisteredAgents method.  When this method is invoked,
+	it will return all agents that are registered to a given
+	simulation kernel.
 	
 	@return reference to the AgentContainer. 
 	@see AgentContainer
     */
     const AgentContainer& getRegisteredAgents();
         
-    /** The getSimulator method.
-	The simulation class implements a singleton pattern. Call this method to get a pointer to the simulation kernel.
+    /** The getSimulator method.  The simulation class implements a
+	singleton pattern. Call this method to get a pointer to the
+	simulation kernel.
 	
 	@return the pointer to the Simulatin object.
 	@see Simulation()
@@ -159,10 +164,11 @@ public:
     bool scheduleEvent( Event *e);
 
     
-    /** The start method.
-	When this method is invoked the client should have all agents registered.
-	Also a flavor of the initialize method should be called.Lastly, you should set the start and end time for the simuatlion.
-	The simulation will start.
+    /** The start method.  When this method is invoked the client
+	should have all agents registered.  Also a flavor of the
+	initialize method should be called.Lastly, you should set the
+	start and end time for the simuatlion.  The simulation will
+	start.
     */
     void start();
         
@@ -204,7 +210,7 @@ public:
     /** The getTime method.
 	This is the time of this simualtion kernel.
     */
-    inline Time getTime() const { return LGVT; }
+    Time getTime() const;
 
 
     /** The getStartTime method.
@@ -218,7 +224,8 @@ public:
 	@see Time
     */
     inline Time getEndTime() const { return endTime; }
-	 
+
+    void changeKey(void*, Agent *);
 protected:
 
    

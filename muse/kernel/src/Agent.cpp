@@ -64,7 +64,7 @@ bool
 Agent::processNextEvents(){
 
     //here we make sure the list is not empty
-    ASSERT(eventPQ->empty() != true);
+    //ASSERT(eventPQ->empty() != true);
     if (eventPQ->empty()) {
       return false;
     }
@@ -154,10 +154,26 @@ Agent::scheduleEvent(Event *e){
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
+        //will use this to figure out if we need to change our key in
+        //scheduler
+        Time old_receive_time = INFINITY;
+        if (!eventPQ->empty()){
+            old_receive_time = eventPQ->top()->getReceiveTime();
+        }
+       
         //add to event scheduler this is a optimization trick, because
         //we dont go through the Simulation scheduler method.
         e->increaseReference(); 
         eventPQ->push(e);
+
+        //now lets make sure that the heap is still valid
+        //we have to change if the event receive time has a smaller key
+        //then the top event in the heap.
+        if ( e->getReceiveTime() < old_receive_time  ) {
+            //we need to call for the key change
+            (Simulation::getSimulator())->changeKey(fibHeapPtr,this);
+        }
+        
         //add to output queue
         e->increaseReference();
         outputQueue.push_back(e);
@@ -180,7 +196,7 @@ Agent::doRollbackRecovery(Event* straggler_event){
 
 void
 Agent::doRestorationPhase(Event* straggler_event){
-    cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
+    //cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
     /** OK, here is the plan. First, there is a straggler_time.Second,
@@ -244,7 +260,7 @@ Agent::doRestorationPhase(Event* straggler_event){
 
 void
 Agent::doCancellationPhaseOutputQueue(){
-    cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
+    //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
     AgentIDBoolMap bitMap;
     
@@ -285,7 +301,7 @@ Agent::doCancellationPhaseOutputQueue(){
 
 void
 Agent::doCancellationPhaseInputQueue(Event* straggler_event){
-    cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
+    //cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
     Time rollback_time = myState->getTimeStamp();
 
     /** OK, for step three, here is what we are doing. First, we have
@@ -377,22 +393,15 @@ Agent::garbageCollect(const Time gvt){
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
 {
+    Time lhs_time = lhs->eventPQ->empty() ? 1e30 : lhs->eventPQ->top()->getReceiveTime();
+    Time rhs_time = rhs->eventPQ->empty() ? 1e30 : rhs->eventPQ->top()->getReceiveTime();
+
+    // cout << "Comparing agents " << lhs->getAgentID()  << "(lhs_time = " << lhs_time
+    //   << ") and " << rhs->getAgentID() << " (rhs_time = " << rhs_time << ")\n";
     
-    if (lhs->eventPQ->empty() && rhs->eventPQ->empty()) {
-        return true;
-    }
-    if (lhs->eventPQ->empty() && !rhs->eventPQ->empty()) {
-        return true;
-    }
-    if (rhs->eventPQ->empty() && !lhs->eventPQ->empty()) {
-        return false;
-    }
-    Event *lhs_event = lhs->eventPQ->top();
-    Event *rhs_event = rhs->eventPQ->top();
-    Time lhs_time    = lhs_event->getReceiveTime();
-    Time rhs_time    = rhs_event->getReceiveTime();
-    return (lhs_time > rhs_time);
-}//end operator()
+    return (lhs_time >= rhs_time);
+}
+
 
 #endif
  

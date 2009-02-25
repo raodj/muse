@@ -99,7 +99,6 @@ Simulation::scheduleEvent( Event *e){
     else{
         // Remote events are sent via the GVTManager to aid tracking
         // GVT. The gvt manager calls communicator.
-       
         gvtManager->sendRemoteEvent(e);
     }
     return true;
@@ -122,7 +121,6 @@ Simulation::start(){
          (*it)->initialize();
         //time to archive the agent's init state
          State *agent_state = (*it)->myState.get();
-        
          State * state = (*it)->cloneState( agent_state );
          //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);
@@ -142,7 +140,7 @@ Simulation::start(){
         
         if (--gvtTimer == 0) {
             gvtTimer = GVT_DELAY;
-            
+            cout << "[Simulation] starting startGVTestimation*********" <<endl;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
@@ -151,33 +149,11 @@ Simulation::start(){
             scheduleEvent(incoming_event);
         } //end if
 
-        
-        //loop through all agents and process their events
-        for (it=allAgents.begin(); it != allAgents.end(); it++){
-            if (scheduler->processNextAgentEvents() ){
-                //check for the smallest LVT here!!
-                //cout << "\ngetLVT: " << (*it)->getLVT() <<endl;
-                //cout << "min_lvt: " << min_lvt <<endl;
-                if ((*it)->getLVT() < min_lvt) {
-                    min_lvt = (*it)->getLVT();
-                }//end if
-            }//end if
-        }//end for
-       
-        //increase start time by one timestep
-        if (min_lvt < 1e30) {
-            LGVT = min_lvt;
-            min_lvt = 1e30 ;
-        }//end if
+        //process the next agent
+        scheduler->processNextAgentEvents();
     }//end BIG loop
-
+    if (myID == 0 ) cout << "GVT @ end: " << gvtManager->getGVT() << endl;
     
-    //if (myID == 0 ){
-        cout << "GVT @ end time: " << gvtManager->getGVT() << endl;
-        cout << "LGVT @ end time: " << getTime() << endl;
-        // cout << "Num Agents: : " << allAgents.size() << endl;
-        //}
-   
 }//end start
 
 void
@@ -231,5 +207,14 @@ Simulation::getLGVT() const {
     return scheduler->getNextEventTime();
 }
 
+Time
+Simulation::getTime() const {
+    return gvtManager->getGVT();
+}
+
+void
+Simulation::changeKey(void* pointer, Agent * agent){
+    scheduler->changeKey(pointer,agent);
+}
 
 #endif
