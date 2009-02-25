@@ -243,6 +243,7 @@ fibonacci_heap<T, Comp>::decrease(pointer n, K const& data)
 	break;
       }
   m_min = 0;
+  //std::cout << "LEAVING DECREASE METHOD"<<std::endl;
 }
 
 template <typename T, typename Comp>
@@ -267,10 +268,14 @@ fibonacci_heap<T, Comp>::change(pointer n, K const& data)
   T comp(n->data());
   comp = data;
 
-  if (m_compare(n->data(), comp))
+  if (m_compare(n->data(), comp)){
+      //std::cout << "   increasing key for agent: " << n->data()->getAgentID()<<std::endl;
     increase(n, data);
-  else
+  }
+  else{
+      // std::cout << "   decreasing key for agent: " << n->data()->getAgentID()<<std::endl;
     decrease(n, data);
+  }
 }
 
 template <typename T, typename Comp>
