@@ -112,13 +112,14 @@ Agent::processNextEvents(){
         }
     }//end while
 
-
-    list<State*>::reverse_iterator rit = stateQueue.rbegin();
-     cout << "StateQueue before PUSH: ";
-     for (; rit != stateQueue.rend(); rit++){
-         cout <<(*rit)->getTimeStamp() << " ";
-     }
-     cout << "\n";
+    // if (getAgentID() == 0){
+    //list<State*>::reverse_iterator rit = stateQueue.rbegin();
+    // cout << "StateQueue before PUSH: ";
+    // for (; rit != stateQueue.rend(); rit++){
+    //     cout <<(*rit)->getTimeStamp() << " ";
+    // }
+    // cout << "\n";
+    // }
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
@@ -221,12 +222,14 @@ Agent::doRestorationPhase(Event* straggler_event){
     */
 
     //for debugging reasons
+     if (getAgentID() == 0){
     list<State*>::reverse_iterator rit = stateQueue.rbegin();
      cout << "StateQueue before Restoration: ";
      for (; rit != stateQueue.rend(); rit++){
          cout <<(*rit)->getTimeStamp() << " ";
      }
      cout << "\n";
+     }
       
    
     //now we go and look for a state to restore to.
@@ -251,35 +254,37 @@ Agent::doRestorationPhase(Event* straggler_event){
         }
     }
 
-    while ( TIME_EQUALS(LVT,INFINITY) ) cout << "LVT = INFINITY"<<endl;
+    //while ( TIME_EQUALS(LVT,INFINITY) ) cout << "LVT = INFINITY"<<endl;
     //there is a problem if this happens
     ASSERT(straggler_event->getReceiveTime() > LVT  );
     
     
     //for debugging reasons
+     if (getAgentID() == 0){
      list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
      cout << "StateQueue after Restoration: ";
      for (; rit2 != stateQueue.rend(); rit2++){
          cout <<(*rit2)->getTimeStamp() << " ";
      }
      cout << "\n";
+     }
 }//end doStepOne
 
 void
 Agent::doCancellationPhaseOutputQueue(){
     //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time rollback_time = myState->getTimeStamp();
+    Time restored_time = myState->getTimeStamp(); //TODO change name 
     AgentIDBoolMap bitMap;
     
     /** OK, for step two here is what we are doing. First, we have the
-        rollback_time. This is the time we rollbacked to.  Second, is
+        restored_time. This is the time we rollbacked to.  Second, is
         the bitMap, this is used for the anti-message optimization
         feature. Since we only need to send one anti-message of the
         earliest invalid event to each agent that needs the
         anti-message, we use the bitMap to mark if an agent has
         already received an anti-message. In this step we are checking
         the sent times all all the events in the outputQueue and those
-        events with sent times greater than the rollback_time are
+        events with sent times greater than the restored_time are
         considered invalid events. If the receiver agentID is NOT
         equal to <this> agentID AND the bitMap is not set to TRUE,
         then we set it, and send the anti-message.  Lasly we remove
@@ -292,12 +297,14 @@ Agent::doCancellationPhaseOutputQueue(){
         outQ_it++; 
         Event *current_event = (*del_it);
         //check if the event is invalid.
-        if ( current_event->getSentTime() > rollback_time ){
+        if ( current_event->getSentTime() > restored_time ){
             //check if bitMap to receiver agent has been set.
             if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ 
                 bitMap[current_event->getReceiverAgentID()] = true;
                 current_event->makeAntiMessage();
-                scheduleEvent(current_event);
+                // scheduleEvent(current_event); //TODO BROKEN
+                
+                (Simulation::getSimulator())->scheduleEvent(current_event);
             }
             //invalid events automatically get removed
             current_event->decreaseReference();
@@ -389,7 +396,7 @@ Agent::garbageCollect(const Time gvt){
     }
 
     //last we collect from the outputQueue
-    while(!outputQueue.empty() && outputQueue.front()->getReceiveTime() < gvt){
+    while(!outputQueue.empty() && outputQueue.front()->getSentTime() < gvt){
         Event *current_event = outputQueue.front();
         current_event->decreaseReference();
         outputQueue.pop_front();

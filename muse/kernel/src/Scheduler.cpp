@@ -85,8 +85,9 @@ Scheduler::scheduleEvent( Event *e){
     if (e->getReceiveTime() <= agent->LVT){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
       
-       
+         if (agent->getAgentID() == 0){
         cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
+         }
         //cout <<"straggler event: " << *e <<endl;
         //cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
         //cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
@@ -99,7 +100,9 @@ Scheduler::scheduleEvent( Event *e){
 	//cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
 	//cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
+         if (agent->getAgentID() == 0){
         cout << "Rollback Recovery Complete\n"<<endl;
+         }
         //cout << "Top event at agent now is: " << *agent->eventPQ->top() <<endl;
         //cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
         //cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;

@@ -84,5 +84,18 @@ GVTMessage::~GVTMessage() {
     ASSERT ( "GVTMessage destructor should not get called" == NULL );
 }
 
+std::ostream&
+operator<<(std::ostream& os, const muse::GVTMessage& gvtMsg) {
+    os << "GVTMessage(kind=" << gvtMsg.kind << ", " << "size="
+       << gvtMsg.size << "): gvtEstimate=" << gvtMsg.gvtEstimate
+       << ", tMin = "<< gvtMsg.tMin << ". Vector counters = { ";
+
+    const int MaxCounters = (gvtMsg.size - sizeof(muse::GVTMessage)) / sizeof(int);
+    for(int i = 0; (i < MaxCounters); i++) {
+        os << gvtMsg.count[i] << " ";
+    }
+    os << "}";
+    return os;
+}
 
 #endif

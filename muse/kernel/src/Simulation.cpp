@@ -129,8 +129,7 @@ Simulation::start(){
     
 
     LGVT = startTime;
-    //use this to calculate the min LVT
-    Time min_lvt = 1e30 ;
+   
     //BIG loop for event processing
     //int count=0;
     int gvtTimer = GVT_DELAY;
@@ -181,9 +180,9 @@ Simulation::finalize(){
 void
 Simulation::garbageCollect(const Time gvt){
     AgentContainer::iterator it=allAgents.begin();
-    for (; it != allAgents.end(); it++) {  
-        (*it)->garbageCollect(gvt);
-    }
+     for (; it != allAgents.end(); it++) {  
+         (*it)->garbageCollect(gvt);
+     }
 }
 
 

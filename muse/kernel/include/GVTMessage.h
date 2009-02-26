@@ -25,6 +25,13 @@
 #include "DataTypes.h"
 
 BEGIN_NAMESPACE(muse);
+class GVTMessage;
+END_NAMESPACE(muse);
+
+// Forward declaration for insertion operator for Event
+extern std::ostream& operator << (std::ostream&, const muse::GVTMessage&);
+
+BEGIN_NAMESPACE(muse);
 
 /** \file GVTMessage.h
 
@@ -86,7 +93,9 @@ BEGIN_NAMESPACE(muse);
     </ul>
 */
 class GVTMessage {
- public:
+    // Let the insertion operator be our friend
+    friend std::ostream& ::operator << (std::ostream&, const muse::GVTMessage&);
+public:
     /** Enumeration for different kinds of GVT messages.
 
         This enumeration defines the different kinds of GVT messages
