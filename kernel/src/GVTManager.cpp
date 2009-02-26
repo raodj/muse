@@ -95,7 +95,7 @@ GVTManager::sendRemoteEvent(Event *event) {
         commManager->getOwnerRank(event->getReceiverAgentID());
     ASSERT ( destRank != rank );
     ASSERT ( destRank < numProcesses );
-    
+    ASSERT ( destRank != -1  );
     // Perform the operations related to sending of a message as
     // described in Mattern's paper. First set color of event and ship
     // it out.
@@ -195,13 +195,14 @@ GVTManager::forwardCtrlMsg() {
     }
     // Now send control message to next process
     commManager->sendMessage(ctrlMsg, (rank + 1) % numProcesses);
+    cout << "CtrlMessage: " << *ctrlMsg <<endl;
     // We no longer have a control message.
     GVTMessage::destroy(ctrlMsg);
     ctrlMsg = NULL;
     // Update cycle counters for GVT token circulation
     cycle++;
     ASSERT ( cycle < 3 );
-    // if (rank == 0)cout << "IN forwardCtrlMsg  cycle (" <<cycle <<endl; 
+     
 }
 
 void
@@ -313,8 +314,8 @@ GVTManager::setGVT(const Time& gvtEst) {
     
     // Update our local GVT value.
     gvt = gvtEst;
-    // std::cout << "GVT (rank: " << rank << ") set GVT to "
-    //         << gvt << " with tMin set to " << tMin <<std::endl;
+     std::cout << "GVT (rank: " << rank << ") set GVT to "
+             << gvt << " with tMin set to " << tMin <<std::endl;
     // Trigger garbage collection in the simulation
     
     Simulation::getSimulator()->garbageCollect(gvt);
