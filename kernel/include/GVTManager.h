@@ -286,8 +286,8 @@ private:
         processes in the simulation is known.  In the algorithmic
         description in Mattern's paper, this vector is called \c V.
     */
-    unsigned int *vecCounters[2];
-
+    int *vecCounters[2];
+    
     /** Instance variable to maintain minimum timestamp of output
         going events.
 

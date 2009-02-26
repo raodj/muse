@@ -75,11 +75,11 @@ GVTManager::initialize(const Time& startTime, Communicator *comm) {
     ASSERT ( rank < numProcesses );
     
     // Create the main vector counters.
-    vecCounters[0] = new unsigned int[numProcesses];
-    vecCounters[1] = new unsigned int[numProcesses];
+    vecCounters[0] = new int[numProcesses];
+    vecCounters[1] = new int[numProcesses];
     // zero out all vector counters.
-    memset(vecCounters[0], 0, sizeof(unsigned int) * numProcesses);
-    memset(vecCounters[1], 0, sizeof(unsigned int) * numProcesses);
+    memset(vecCounters[0], 0, sizeof(int) * numProcesses);
+    memset(vecCounters[1], 0, sizeof(int) * numProcesses);
     //if (rank == 0)cout << "In GVTManager initialize tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
 }
 
@@ -134,7 +134,7 @@ GVTManager::checkWaitingCtrlMsg() {
     ASSERT ( ctrlMsg->getKind() == GVTMessage::GVT_CTRL_MSG );
     // There is a pending message. Check if wait expiration
     // condition has been met
-    const unsigned int *count = ctrlMsg->getCounters();
+    const int *count = ctrlMsg->getCounters();
     ASSERT ( count != NULL );
     if (count[rank] + vecCounters[(int) white][rank] > 0) {
         // We still need to continue to wait.
@@ -169,7 +169,7 @@ GVTManager::forwardCtrlMsg() {
     // First update the counters in the message and reset local
     // counters.
     ASSERT ( ctrlMsg != NULL );
-    unsigned int *count = ctrlMsg->getCounters();
+    int *count = ctrlMsg->getCounters();
     ASSERT ( count != NULL );
     for(unsigned int pid = 0; (pid < numProcesses); pid++) {
         count[pid] += vecCounters[(int) white][pid];
@@ -256,7 +256,7 @@ GVTManager::startGVTestimation() {
     msg->setGVTEstimate(Simulation::getSimulator()->getLGVT());
     msg->setTmin(INFINITY);
     // Update and reset the vector counters.
-    unsigned int *count = msg->getCounters();
+    int *count = msg->getCounters();
     ASSERT ( count != NULL );
     for(unsigned int pid = 0; (pid < numProcesses); pid++) {
         count[pid] += vecCounters[(int) white][pid];

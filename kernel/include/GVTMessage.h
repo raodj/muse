@@ -158,7 +158,7 @@ class GVTMessage {
         gvt message is \c GVT_CTRL_MSG.  The caller must not delete
         the returned pointer.
     */
-    inline unsigned int *getCounters() { return count; }
+    inline int *getCounters() { return count; }
 
     /** Obtain the type of GVT message.
 
@@ -331,7 +331,7 @@ private:
         suitable GVT message is instantiated and sufficient memory is
         allocated hold the data for this vector.
     */
-    unsigned int count[];
+    int count[];
 };
 
 END_NAMESPACE(muse);
