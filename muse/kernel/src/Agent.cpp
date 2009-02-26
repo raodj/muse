@@ -29,7 +29,7 @@
 #include "f_heap.h"
 #include "HashMap.h"
 #include <math.h>
-//#include <boost/intrusive_ptr.hpp>
+
 
 using namespace std;
 using namespace muse;
@@ -46,8 +46,7 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id), LVT(0){
-    myState.reset(agentState);
+Agent::Agent(AgentID  id, State * agentState) : myID(id),myState(agentState),LVT(0){
     eventPQ = new EventPQ;
 }//end ctor
 
@@ -126,7 +125,7 @@ Agent::processNextEvents(){
     executeTask(&events);
     
     //clone the state so we can archive
-    State * state = cloneState(myState.get() );
+    State * state = cloneState(myState );
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
@@ -143,7 +142,7 @@ Agent::cloneState(State * state){
 
 void
 Agent::setState(State * state){
-    myState.reset(state);
+    myState = state;
 }//end setState
 
 
@@ -235,7 +234,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
              //first we destroy the state we are in now <--kind of wierd to say right?
-            //delete myState;
+            delete myState;
             //set out state to this old consistent state
             //after we setState, remember myState will point to a new state now.
             setState( cloneState(current_state) );
