@@ -119,7 +119,7 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
     try {
         // GVT messages are already serialized.
         const char *data = reinterpret_cast<const char*>(msg);
-        MPI::COMM_WORLD.Isend(data, msg->getSize(), MPI::CHAR,
+        MPI::COMM_WORLD.Send(data, msg->getSize(), MPI::CHAR,
                               destRank, GVT_MESSAGE);
     } catch (MPI::Exception e) {
         std::cerr << "MPI ERROR (sendMessage): ";
