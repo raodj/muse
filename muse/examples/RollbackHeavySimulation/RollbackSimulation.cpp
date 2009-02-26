@@ -6,7 +6,7 @@
  */
 
 #include <vector>
-#include <stdlib.h>
+
 
 #include <iostream>
 #include "RollbackAgent.h"
@@ -28,6 +28,7 @@ int main(int argc, char** argv) {
         exit(0);
     }
 
+   
   //cout << "Ping Pong Simulation Example via MUSE API\n\n" << endl;
     //first get simulation kernel instance to work with
     Simulation * kernel = Simulation::getSimulator();
@@ -35,16 +36,26 @@ int main(int argc, char** argv) {
     //now lets initialize the kernel
     kernel->initialize(argc,argv);
 
+    //variables we need
     int max_agents    = atoi(argv[1]);
-    int num_processes = atoi(argv[2]);
+    int max_nodes     = atoi(argv[2]);
     int endTime       = atoi(argv[3]);
-    int agentsPerNode = max_agents/num_processes;
-    
+    int agentsPerNode = max_agents/max_nodes;
+    int rank          = kernel->getSimulatorID(); 
+
+	ASSERT(max_agents >= max_nodes);
+	//check to make sure agents fit into nodes
+	//if uneven then last node carries the extra
+	//agents.
+	if ( rank == (max_nodes-1) && (max_agents % max_nodes) > 0 ){
+		//means we have to add the extra agents to the last kernel
+		agentsPerNode = (max_agents/max_nodes) + (max_agents % max_nodes);
+	}
     
     AgentID id = -1u;
     for (AgentID i= 0;i < agentsPerNode; i++){
         State *rb_state = new State();
-        id = agentsPerNode*kernel->getSimulatorID() + i;
+        id =(max_agents/max_nodes) *kernel->getSimulatorID() + i;
         cout << "i: " << id <<endl;
         RollbackAgent *rb_agent = new RollbackAgent(id,rb_state,max_agents);
         kernel->registerAgent(rb_agent);
@@ -68,6 +79,6 @@ int main(int argc, char** argv) {
     //     if (i != kernel->getSimulatorID())
     //         delete agents[i];
     // }
-    return 0;
+    return (EXIT_SUCCESS);
 }
 
