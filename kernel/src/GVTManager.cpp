@@ -80,7 +80,8 @@ GVTManager::initialize(const Time& startTime, Communicator *comm) {
     // zero out all vector counters.
     memset(vecCounters[0], 0, sizeof(int) * numProcesses);
     memset(vecCounters[1], 0, sizeof(int) * numProcesses);
-    //if (rank == 0)cout << "In GVTManager initialize tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
+    //if (rank == 0)cout << "In GVTManager initialize tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl;
+    //if (rank == 0)cout << "IN initialize  cycle (" <<cycle <<endl; 
 }
 
 bool
@@ -110,7 +111,9 @@ GVTManager::sendRemoteEvent(Event *event) {
     if (activeColor != white) {
         tMin = std::min<Time>(tMin, event->getReceiveTime());
     }
-    //if (rank == 0)cout << "In GVTManager sendRemoteEvent tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
+    //if (rank == 0)cout << "In GVTManager sendRemoteEvent tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl;
+    //if (rank == 0)cout << "IN sendRemoteEvent  cycle (" <<cycle <<endl; 
+    
     // Everything went well.
     return true;
 }
@@ -162,6 +165,7 @@ GVTManager::checkWaitingCtrlMsg() {
         //                  tMin <<") gvt (" <<gvt<<")" <<endl; 
         forwardCtrlMsg();
     }
+    //if (rank == 0)cout << "IN checkWaitingCtrlMsg  cycle (" <<cycle <<endl; 
 }
 
 void
@@ -197,6 +201,7 @@ GVTManager::forwardCtrlMsg() {
     // Update cycle counters for GVT token circulation
     cycle++;
     ASSERT ( cycle < 3 );
+    // if (rank == 0)cout << "IN forwardCtrlMsg  cycle (" <<cycle <<endl; 
 }
 
 void
@@ -227,7 +232,9 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
 
 void
 GVTManager::startGVTestimation() {
+    //if (rank == 0)cout << "IN startGVTestimation  cycle (" <<cycle <<endl; 
     if ((cycle != 0) || (rank != 0)) {
+        //if (rank == 0)cout << "IN startGVTestimation  cycle (" <<cycle<<")" <<endl; 
         // Either this is not the initator process or a GVT
         // calculation is already underway. Do nothing either way.
         //cout << "In GVTManager startGVTestimation BUT RETURNING: cycle ("<<cycle<<")"

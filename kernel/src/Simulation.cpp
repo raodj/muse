@@ -120,7 +120,7 @@ Simulation::start(){
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
          (*it)->initialize();
         //time to archive the agent's init state
-         State *agent_state = (*it)->myState.get();
+         State *agent_state = (*it)->myState;
          State * state = (*it)->cloneState( agent_state );
          //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);
@@ -138,7 +138,7 @@ Simulation::start(){
     while(gvtManager->getGVT() < endTime){
         if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         
-        if (--gvtTimer == 0 && gvtManager->getGVT() < endTime ) {
+        if (--gvtTimer == 0 ) {
             gvtTimer = GVT_DELAY;
             //cout << "[Simulation] starting startGVTestimation*********" <<endl;
             // Initate another round of GVT calculations if needed.

@@ -353,7 +353,7 @@ protected:
 	doesn't leak memory.
         @see State()
     */
-    auto_ptr<State> myState;
+    State *myState;
 
    
 

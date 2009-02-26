@@ -354,6 +354,8 @@ private:
         indicates that GVT calculations are currently not pending.
     */
     int cycle;
+
+   
 };
 
 END_NAMESPACE(muse);
