@@ -12,32 +12,24 @@ RollbackAgent::RollbackAgent(AgentID& id, State* state, int max_a) : Agent(id,st
 void
 RollbackAgent::initialize() throw (std::exception){
     if (getAgentID() == 0){
-        Time sent=0, receive=1;
-        for (int i = 0; i < max_agents; i++){
-
-            //if (getAgentID() != AgentID(i)){
-                Event * e = new Event(getAgentID(),AgentID(i),sent, receive); 
+        Time  receive=1;
+        // for (int i = 0; i < max_agents; i++){
+                Event * e = new Event(getAgentID(), receive); 
                 scheduleEvent(e);
-                //}
-        }
+                // }
     }
 }//end initialize
 
 void
 RollbackAgent::executeTask(const EventContainer* events){
     if (!events->empty()){
-        Time sent=(*events->begin())->getReceiveTime(),
-             receive=(*events->begin())->getReceiveTime()+1;
-
-       for (int i = 0; i < max_agents; i++){
-          
-           //if (getAgentID() != AgentID(i)){
-               Event * e = new Event(getAgentID(),AgentID(i),sent, receive);
-          
-           
-               // if (scheduleEvent(e)) cout << "RA: " << *e << endl;
-               scheduleEvent(e);
-               // }
+        Time receive=(*events->begin())->getReceiveTime()+1;
+        //cout << "LVT TIME: " << getLVT() <<endl;
+        for (int i = 0; i < max_agents; i++){
+          Event * e = new Event(AgentID(i),receive);
+          // if (scheduleEvent(e)) cout << "Sending to Rollback Agent: " << i  <<endl;
+          scheduleEvent(e);
+             
        }
     }
 }//end executeTask
