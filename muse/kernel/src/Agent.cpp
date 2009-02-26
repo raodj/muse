@@ -113,6 +113,13 @@ Agent::processNextEvents(){
         }
     }//end while
 
+
+    list<State*>::reverse_iterator rit = stateQueue.rbegin();
+     cout << "StateQueue before PUSH: ";
+     for (; rit != stateQueue.rend(); rit++){
+         cout <<(*rit)->getTimeStamp() << " ";
+     }
+     cout << "\n";
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
@@ -215,12 +222,12 @@ Agent::doRestorationPhase(Event* straggler_event){
     */
 
     //for debugging reasons
-    //list<State*>::reverse_iterator rit = stateQueue.rbegin();
-    // cout << "StateQueue before Restoration: ";
-    // for (; rit != stateQueue.rend(); rit++){
-    //     cout <<(*rit)->getTimeStamp() << " ";
-    // }
-    // cout << "\n";
+    list<State*>::reverse_iterator rit = stateQueue.rbegin();
+     cout << "StateQueue before Restoration: ";
+     for (; rit != stateQueue.rend(); rit++){
+         cout <<(*rit)->getTimeStamp() << " ";
+     }
+     cout << "\n";
       
    
     //now we go and look for a state to restore to.
@@ -245,17 +252,18 @@ Agent::doRestorationPhase(Event* straggler_event){
         }
     }
 
+    while ( TIME_EQUALS(LVT,INFINITY) ) cout << "LVT = INFINITY"<<endl;
     //there is a problem if this happens
     ASSERT(straggler_event->getReceiveTime() > LVT  );
     
     
     //for debugging reasons
-    // list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
-    // cout << "StateQueue after Restoration: ";
-    // for (; rit2 != stateQueue.rend(); rit2++){
-    //     cout <<(*rit2)->getTimeStamp() << " ";
-    // }
-    // cout << "\n";
+     list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
+     cout << "StateQueue after Restoration: ";
+     for (; rit2 != stateQueue.rend(); rit2++){
+         cout <<(*rit2)->getTimeStamp() << " ";
+     }
+     cout << "\n";
 }//end doStepOne
 
 void
