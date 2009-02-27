@@ -5,9 +5,10 @@
 #include "HashMap.h"
 
 //these are the tag types
-#define AGENT_LIST      0
-#define EVENT           1
-#define GVT_MESSAGE     2
+#define AGENT_LIST        0
+#define EVENT             1
+#define GVT_MESSAGE       2
+#define GVT_ESTIMATE_TIME 3
 
 //these are the source types
 #define ROOT_KERNEL     0
@@ -58,6 +59,14 @@ class Communicator {
         which the event is to be dispatched.
     */
     void sendMessage(const GVTMessage *msg, const int destRank);
+
+    /** The sendGVTEstimateTime method.
+	Method to send out GVT Estimate Time.
+
+	note Only ROOT_KERNEL should call this method.
+	@param gvt_estimate_time, this is the time to send to all other kernels
+     */
+    void sendGVTEstimateTime(Time gvt_estimate_time );
 	
     /** The recvEvent method.
 	

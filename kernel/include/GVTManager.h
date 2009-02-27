@@ -183,7 +183,15 @@ public:
         processes has no effect at all.
     */
     void startGVTestimation();
-    
+
+    /** The recvGVTEstimateTime method.
+	This method means that ROOT_KERNEL has sent a new gvt estimate time.
+	Other kernels will set the new time here.
+
+	@param gvt_estimate_time, this is the new gvt time.
+	@see Time
+     */
+    void recvGVTEstimateTime(Time gvt_estimate_time);
 protected:
     /** Helper method to set the GVT value.
 
