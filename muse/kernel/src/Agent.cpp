@@ -222,14 +222,14 @@ Agent::doRestorationPhase(Event* straggler_event){
     */
 
     //for debugging reasons
-     if (getAgentID() == 0){
-    list<State*>::reverse_iterator rit = stateQueue.rbegin();
-     cout << "StateQueue before Restoration: ";
-     for (; rit != stateQueue.rend(); rit++){
-         cout <<(*rit)->getTimeStamp() << " ";
-     }
-     cout << "\n";
-     }
+    // if (getAgentID() == 0){
+    ///    list<State*>::reverse_iterator rit = stateQueue.rbegin();
+    //    cout << "StateQueue before Restoration: ";
+    //    for (; rit != stateQueue.rend(); rit++){
+    //        cout <<(*rit)->getTimeStamp() << " ";
+    //    }
+    //    cout << "\n";
+    // }
       
    
     //now we go and look for a state to restore to.
@@ -260,14 +260,14 @@ Agent::doRestorationPhase(Event* straggler_event){
     
     
     //for debugging reasons
-     if (getAgentID() == 0){
-     list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
-     cout << "StateQueue after Restoration: ";
-     for (; rit2 != stateQueue.rend(); rit2++){
-         cout <<(*rit2)->getTimeStamp() << " ";
-     }
-     cout << "\n";
-     }
+    //  if (getAgentID() == 0){
+    //list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
+    //cout << "StateQueue after Restoration: ";
+    //for (; rit2 != stateQueue.rend(); rit2++){
+    //    cout <<(*rit2)->getTimeStamp() << " ";
+    //}
+    //cout << "\n";
+    //}
 }//end doStepOne
 
 void
@@ -302,7 +302,7 @@ Agent::doCancellationPhaseOutputQueue(){
             if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ 
                 bitMap[current_event->getReceiverAgentID()] = true;
                 current_event->makeAntiMessage();
-                // scheduleEvent(current_event); //TODO BROKEN
+               
                 
                 (Simulation::getSimulator())->scheduleEvent(current_event);
             }
