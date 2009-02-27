@@ -261,12 +261,12 @@ GVTManager::startGVTestimation() {
     cout << "MESSAGE::KIND        = " << msg->getKind() <<endl;
     cout << "BREAK POINT COUNT[0] = " << count[0] <<endl;
     //we better make sure that they are zero before we start using them
-    for(unsigned int pid = 0; (pid < numProcesses); pid++) {
-        count[pid] = 0;
-    }
+    // for(unsigned int pid = 0; (pid < numProcesses); pid++) {
+    //    count[pid] = 0;
+    // }
 
     for(unsigned int pid = 0; (pid < numProcesses); pid++) {
-        count[pid] += vecCounters[(int) white][pid];
+        count[pid] = vecCounters[(int) white][pid];
         vecCounters[(int) white][pid] = 0;
     }
 
