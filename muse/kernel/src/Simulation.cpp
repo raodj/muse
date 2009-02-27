@@ -149,7 +149,8 @@ Simulation::start(){
         } //end if
 
         //process the next agent
-        scheduler->processNextAgentEvents();
+        bool was_event_processed = scheduler->processNextAgentEvents();
+        if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
     if (myID == 0 ) cout << "GVT @ end: " << gvtManager->getGVT() << endl;
     
