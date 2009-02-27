@@ -106,6 +106,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
     vecCounters[(int) activeColor][destRank]++;
+    if (rank == ROOT_KERNEL) cout << "sendRemoteEvent vecCounter: " << vecCounters[(int) activeColor][destRank] << endl;
     // For non-white messages track minimum outsoing event time stamp
     // as well
     if (activeColor != white) {
@@ -120,9 +121,11 @@ GVTManager::sendRemoteEvent(Event *event) {
 
 void
 GVTManager::inspectRemoteEvent(Event *event) {
-    ASSERT ( event != NULL );
+    ASSERT ( event != NULL ); //false assertion doesn't work
     // Update vector counters associated with this process.
     vecCounters[(int) event->getColor()][rank]--;
+    //for debug
+    //ASSERT(vecCounters[(int) event->getColor()][rank] < 1000 );
     // If there is a pending control message then update and forward
     // it as necessary.
     checkWaitingCtrlMsg();
@@ -143,26 +146,20 @@ GVTManager::checkWaitingCtrlMsg() {
         // We still need to continue to wait.
         return;
     }
+    ASSERT ( count != NULL );
     // When control drops here that means the wait has expired and the
     // pending GVT control message must be updated and forwarded to
     // the next process in the loop if necessary.
     if ((rank == ROOT_KERNEL) && (ctrlMsg->areCountersZero(numProcesses))) {
         // A phase of GVT computation is done.
         setGVT(std::min<Time>(ctrlMsg->getGVTEstimate(), ctrlMsg->getTmin()));
-        //if (rank == 0)cout << "(GVT phase ended) In GVTManager checkWaitingCtrlMsg  ctrlMsg->tMin (" <<
-        //                  ctrlMsg->getTmin() <<") ctrlMsg->gvtEst (" << ctrlMsg->getGVTEstimate() <<")" <<endl;
+        
         // Get rid of the control message as we no longer need it.
         GVTMessage::destroy(ctrlMsg);
         ctrlMsg = NULL;
-        //if (rank == 0)cout << "(GVT phase ended) In GVTManager checkWaitingCtrlMsg  tMin (" <<
-        //                 tMin <<") gvt (" <<gvt<<")" <<endl;
-
-        //cycle=0;
-        
+    
     } else {
         // Forward control message to the next process
-        //if (rank == 0)cout << "(GVT phase cont..) In GVTManager checkWaitingCtrlMsg  tMin (" <<
-        //                  tMin <<") gvt (" <<gvt<<")" <<endl; 
         forwardCtrlMsg();
     }
     //if (rank == 0)cout << "IN checkWaitingCtrlMsg  cycle (" <<cycle <<endl; 
@@ -175,14 +172,16 @@ GVTManager::forwardCtrlMsg() {
     ASSERT ( ctrlMsg != NULL );
     int *count = ctrlMsg->getCounters();
     ASSERT ( count != NULL );
+    cout << "forwardCtrlMsg count {";
     for(unsigned int pid = 0; (pid < numProcesses); pid++) {
         count[pid] += vecCounters[(int) white][pid];
         vecCounters[(int) white][pid] = 0;
+        cout << count[pid] << " , ";
     }
+    cout << "}" <<endl;
+    //for debugging reasons, not a real assert
+    ASSERT(count[0] < 1000);
     // Update tmin.
-    //cout << " in forwardCtrlMsg tMIn is " << tMin <<endl;
-    //cout << " in forwardCtrlMsg ctrlMsg->tMIn is " << ctrlMsg->getTmin() <<endl;
-    //if (rank == 0)cout << "In GVTManager forwardCtrlMsg tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
     ctrlMsg->setTmin(std::min<Time>(ctrlMsg->getTmin(), tMin));
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
@@ -208,6 +207,9 @@ GVTManager::forwardCtrlMsg() {
 void
 GVTManager::recvGVTMessage(GVTMessage *message) {
     ASSERT ( message != NULL );
+    //we should never get this, but just incase
+    if (message->getKind() == GVTMessage::INVALID_GVT_MSG) return;
+    
     if (message->getKind() == GVTMessage::GVT_EST_MSG) {
         ASSERT ( rank != 0 );
         // We have a new gvt estimate. update and garbage collect.
@@ -218,6 +220,8 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
         return;
     }
     // When control drops here we are handing a control message.
+    cout << "recvGVTMessage message KIND = " << message->getKind() <<endl;
+    
     ASSERT ( message->getKind() == GVTMessage::GVT_CTRL_MSG );
     ASSERT ( ctrlMsg == NULL );
     // Setup the new control message.
@@ -235,14 +239,11 @@ void
 GVTManager::startGVTestimation() {
     //if (rank == 0)cout << "IN startGVTestimation  cycle (" <<cycle <<endl; 
     if ((cycle != 0) || (rank != 0)) {
-        //if (rank == 0)cout << "IN startGVTestimation  cycle (" <<cycle<<")" <<endl; 
         // Either this is not the initator process or a GVT
         // calculation is already underway. Do nothing either way.
-        //cout << "In GVTManager startGVTestimation BUT RETURNING: cycle ("<<cycle<<")"
-        //    << "rank ("<<rank<<")" <<endl;
         return;
     }
-    //if (rank == 0)cout << "In GVTManager startGVTestimation tMin (" <<tMin <<") gvt (" <<gvt<<")" <<endl; 
+    
     if (numProcesses < 2) {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!
@@ -266,10 +267,25 @@ GVTManager::startGVTestimation() {
     // Update and reset the vector counters.
     int *count = msg->getCounters();
     ASSERT ( count != NULL );
+    cout << "MESSAGE::KIND        = " << msg->getKind() <<endl;
+    cout << "BREAK POINT COUNT[0] = " << count[0] <<endl;
+    //we better make sure that they are zero before we start using them
+    for(unsigned int pid = 0; (pid < numProcesses); pid++) {
+        count[pid] = 0;
+    }
+    ASSERT (count[0] < 1000);
+    cout << "startGVTestimation count {";
     for(unsigned int pid = 0; (pid < numProcesses); pid++) {
         count[pid] += vecCounters[(int) white][pid];
         vecCounters[(int) white][pid] = 0;
+        cout << count[pid] << " , ";
     }
+    cout << "}" <<endl;
+    ASSERT (count[0] < 1000);
+    //for(unsigned int pid = 0; (pid < numProcesses); pid++) {
+    //    count[pid] += vecCounters[(int) white][pid];
+    //   vecCounters[(int) white][pid] = 0;
+        //}
     // Now toggle our state and update tmin.
     activeColor = !white;
     tMin        = INFINITY;
