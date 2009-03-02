@@ -27,6 +27,31 @@
 #include <string.h>
 using namespace muse;
 
+oSimStream::oSimStream() : ostream(std::cout.rdbuf()) {
+    //first we create a temp file name
+    char temp_file_name[30] = "oSimStreamTempFile.XXXXXXXXXX";
+    
+    mktemp(temp_file_name);
+    strcpy(the_temp_file_name, temp_file_name);
+    //now we create the file to grab its stream buffer
+    std::ofstream hack(temp_file_name); hack.close();
+    the_temp_file.open(temp_file_name);
+    if (the_temp_file.fail()) {
+        std::cout << "ERROR: Temp file was not open" << std::endl;
+        exit(1);
+    }
+    //lets grab the stream buffer from the temp file and save it.
+    the_temp_streambuff = the_temp_file.rdbuf();
+    //lets save our original stream buffer for later use.
+    //and at the same time set stream buffer to temp file stream buffer.
+    the_original_streambuff = rdbuf(the_temp_streambuff);
+    //save the last stream position so we can calculate how much data was stored
+    //in each oSimStreamState in the storage. will only be used for the first
+    //saveState() call.
+    the_last_stream_position = the_temp_file.tellp();
+    clear();
+}
+
 oSimStream::oSimStream(streambuf * the_streambuf, bool use_temp_file) :
         ostream(the_streambuf){
     //lets see what they want the temp storage to be.

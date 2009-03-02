@@ -9,3 +9,5 @@ SimStream::saveState(const Time& lvt){}
 
 void
 SimStream::rollback(const Time& restored_time){}
+
+SimStream::~SimStream(){}

@@ -135,7 +135,7 @@ Simulation::start(){
     int gvtTimer = GVT_DELAY;
    
     while(gvtManager->getGVT() < endTime){
-        if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
+        //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         
         if (--gvtTimer == 0 ) {
             gvtTimer = GVT_DELAY;
@@ -150,9 +150,9 @@ Simulation::start(){
 
         //process the next agent
         bool was_event_processed = scheduler->processNextAgentEvents();
-        if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
+        //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
-    if (myID == 0 ) cout << "GVT @ end: " << gvtManager->getGVT() << endl;
+    //if (myID == 0 ) cout << "GVT @ end: " << gvtManager->getGVT() << endl;
     
 }//end start
 

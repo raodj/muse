@@ -63,7 +63,15 @@ public:
          storage before the push to the choosen stream buffer
      */
     oSimStream(streambuf * the_streambuf, bool use_temp_file);
+
+    /** The default ctor.
+        Sets stream buffer to std::cout.rdbuf() and sets use_temp_file
+        flag to true.
+     */
+    oSimStream();
     
+    /** The dtor.
+     */
     ~oSimStream();
     
     /** The saveState method.

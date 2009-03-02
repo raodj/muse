@@ -34,6 +34,7 @@ BEGIN_NAMESPACE(muse)
 // Forward declaration to define EventContainer
 class Event;
 class Agent;
+class SimStream;
 
 /** The EventContainer.
     
@@ -70,10 +71,11 @@ typedef struct StreamType{
 
 typedef double Time;
 
-/** The SimulatorID struct.
- * This is used to store the id of a simulator(Singleton). muse uses this SimulatorID struct to make sure the client
- * know exactly what the param of a method is asking for. For more details check out the method getSimulatorID().
- * @see getSimulatorID()
+/** The SimulatorID struct.  This is used to store the id of a
+ * simulator(Singleton). muse uses this SimulatorID struct to make
+ * sure the client know exactly what the param of a method is asking
+ * for. For more details check out the method getSimulatorID().  @see
+ * getSimulatorID()
  *
  */
 typedef unsigned int SimulatorID;
@@ -84,6 +86,12 @@ typedef unsigned int SimulatorID;
  *
  */
 typedef vector<Agent*> AgentContainer;
+
+/** The SimStreamContainer of type vector.
+    This is a container for storing pointers to
+    SimStream derived objects.
+ */
+typedef vector<SimStream*> SimStreamContainer;
 
 END_NAMESPACE(muse)
 
