@@ -1,4 +1,4 @@
-RoundRobinAgent.o: RoundRobinAgent.cpp RoundRobinAgent.h ../muse/include/Agent.h \
+RoundRobinAgent.o: RoundRobinAgent.cpp RoundRobinAgent.h ../../include/Agent.h \
  /usr/include/c++/3.4.4/iostream \
  /usr/include/c++/3.4.4/x86_64-redhat-linux/bits/c++config.h \
  /usr/include/c++/3.4.4/x86_64-redhat-linux/bits/os_defines.h \
@@ -101,9 +101,12 @@ RoundRobinAgent.o: RoundRobinAgent.cpp RoundRobinAgent.h ../muse/include/Agent.h
  /usr/include/c++/3.4.4/istream /usr/include/c++/3.4.4/bits/istream.tcc \
  /usr/include/c++/3.4.4/list /usr/include/c++/3.4.4/bits/functexcept.h \
  /usr/include/c++/3.4.4/bits/stl_list.h /usr/include/c++/3.4.4/bits/list.tcc \
- ../muse/include/DataTypes.h ../muse/include/Utilities.h /usr/include/assert.h \
+ ../../include/DataTypes.h ../../include/Utilities.h /usr/include/assert.h \
  /usr/include/c++/3.4.4/vector /usr/include/c++/3.4.4/bits/functexcept.h \
  /usr/include/c++/3.4.4/bits/stl_vector.h \
  /usr/include/c++/3.4.4/bits/functexcept.h \
  /usr/include/c++/3.4.4/bits/stl_bvector.h /usr/include/c++/3.4.4/bits/vector.tcc \
- ../muse/include/Event.h ../muse/include/State.h
+ ../../include/Event.h ../../include/State.h ../../include/oSimStream.h \
+ /usr/include/c++/3.4.4/fstream \
+ /usr/include/c++/3.4.4/x86_64-redhat-linux/bits/basic_file.h \
+ /usr/include/c++/3.4.4/bits/fstream.tcc ../../include/SimStream.h

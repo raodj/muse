@@ -27,7 +27,7 @@ RollbackAgent::executeTask(const EventContainer* events){
         //cout << "LVT TIME: " << getLVT() <<endl;
         for (int i = 0; i < max_agents; i++){
           Event * e = new Event(AgentID(i),receive);
-          // if (scheduleEvent(e)) cout << "Sending to Rollback Agent: " << i  <<endl;
+          // if (scheduleEvent(e)) oss << "Sending to Rollback Agent: " << i  <<endl;
           scheduleEvent(e);
              
        }

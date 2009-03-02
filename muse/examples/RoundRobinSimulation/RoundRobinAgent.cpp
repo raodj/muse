@@ -3,7 +3,7 @@
 
 #include "RoundRobinAgent.h"
 #include "Event.h"
-#include <iostream>
+
 
 using namespace std;
 
@@ -12,28 +12,29 @@ RoundRobinAgent::RoundRobinAgent(AgentID& id, State* state, int max_a) : Agent(i
 void
 RoundRobinAgent::initialize() throw (std::exception){
     if (getAgentID() == 0){
-        Time sent=0, receive=1;
+        Time  receive=1;
         AgentID other_agent_id = (getAgentID() + 1) % max_agents;
         //cout << "OTHER AGENT ID: " << other_agent_id <<endl;
-        Event * e = new Event(getAgentID(),other_agent_id,sent, receive); 
-        if ( scheduleEvent(e) ) cout << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
-        else cout << "Scheduling event : FAILED" <<endl;
+        Event * e = new Event(other_agent_id,receive); 
+        if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
+        //else cout << "Scheduling event : FAILED" <<endl;
+        //scheduleEvent(e);
     }
 }//end initialize
 
 void
 RoundRobinAgent::executeTask(const EventContainer* events){
     if (!events->empty()){
-        Time sent=(*events->begin())->getReceiveTime(),
-             receive=(*events->begin())->getReceiveTime()+1;
+        Time receive= (*events->begin())->getReceiveTime()+1;
 
-        cout << "GOT TOKEN @ TIME: " << sent <<endl;
+        //cout << "GOT TOKEN @ TIME: " << getLVT() <<endl;
         
         AgentID other_agent_id = (getAgentID() + 1) % max_agents;
         //cout << "OTHER AGENT ID: " << other_agent_id <<endl;
-        Event * e = new Event(getAgentID(),other_agent_id,sent, receive); 
-        if ( scheduleEvent(e) ) cout << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
-        else cout << "Scheduling event : FAILED" <<endl;
+        Event * e = new Event(other_agent_id,receive); 
+        if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
+        //else cout << "Scheduling event : FAILED" <<endl;
+        //scheduleEvent(e);
        
     }
 }//end executeTask
