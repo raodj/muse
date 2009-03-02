@@ -105,7 +105,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
     vecCounters[(int) activeColor][destRank]++;
-    if (rank == ROOT_KERNEL) cout << "sendRemoteEvent vecCounter: " << vecCounters[(int) activeColor][destRank] << endl;
+    //if (rank == ROOT_KERNEL) cout << "sendRemoteEvent vecCounter: " << vecCounters[(int) activeColor][destRank] << endl;
     // For non-white messages track minimum outsoing event time stamp
     // as well
     if (activeColor != white) {
@@ -188,7 +188,7 @@ GVTManager::forwardCtrlMsg() {
     }
     // Now send control message to next process
     commManager->sendMessage(ctrlMsg, (rank + 1) % numProcesses);
-    cout << "forwardCtrlMsg CtrlMessage is: " << *ctrlMsg <<endl;
+    //cout << "forwardCtrlMsg CtrlMessage is: " << *ctrlMsg <<endl;
     // We no longer have a control message.
     GVTMessage::destroy(ctrlMsg);
     ctrlMsg = NULL;
@@ -203,7 +203,7 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
     ASSERT ( message != NULL );
     //we should never get this, but just incase
     //if (message->getKind() == GVTMessage::INVALID_GVT_MSG) return;
-    cout << "recvGVTMessage message KIND = " << message->getKind() <<endl;
+    //cout << "recvGVTMessage message KIND = " << message->getKind() <<endl;
     
     ASSERT ( message->getKind() == GVTMessage::GVT_CTRL_MSG );
     ASSERT ( ctrlMsg == NULL );
@@ -258,8 +258,8 @@ GVTManager::startGVTestimation() {
     // Update and reset the vector counters.
     int *count = msg->getCounters();
     ASSERT ( count != NULL );
-    cout << "MESSAGE::KIND        = " << msg->getKind() <<endl;
-    cout << "BREAK POINT COUNT[0] = " << count[0] <<endl;
+    //cout << "MESSAGE::KIND        = " << msg->getKind() <<endl;
+    //cout << "BREAK POINT COUNT[0] = " << count[0] <<endl;
     //we better make sure that they are zero before we start using them
     // for(unsigned int pid = 0; (pid < numProcesses); pid++) {
     //    count[pid] = 0;
@@ -270,7 +270,7 @@ GVTManager::startGVTestimation() {
         vecCounters[(int) white][pid] = 0;
     }
 
-    cout << "startGVTestimation CtrlMessage is: " << *msg <<endl;
+    //cout << "startGVTestimation CtrlMessage is: " << *msg <<endl;
     
     // Now toggle our state and update tmin.
     activeColor = !white;
@@ -307,8 +307,8 @@ GVTManager::setGVT(const Time& gvtEst) {
     
     // Update our local GVT value.
     gvt = gvtEst;
-     std::cout << "GVT (rank: " << rank << ") set GVT to "
-             << gvt << " with tMin set to " << tMin <<std::endl;
+    //std::cout << "GVT (rank: " << rank << ") set GVT to "
+    //         << gvt << " with tMin set to " << tMin <<std::endl;
     // Trigger garbage collection in the simulation
     
     Simulation::getSimulator()->garbageCollect(gvt);

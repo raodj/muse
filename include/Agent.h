@@ -29,6 +29,7 @@
 #include "DataTypes.h"
 #include "Event.h"
 #include "State.h"
+#include "oSimStream.h"
 
 BEGIN_NAMESPACE(boost);
 template <typename T, typename Comp >
@@ -200,6 +201,23 @@ public:
     */
     void setState(State *);
 
+    /** The registerSimStream method.
+	If the user wants to use another SimStream just create it and
+	make sure to register it with the agent you will be using it in.
+
+	@note if all you want is to display out to std::cout, then there is
+	already a default oSimStream called "oss", and you use it just like std::cout.
+
+	@note using this method informs MUSE that you are using the user defined SimStream
+	for some stream operation, please remember to keep the reference to the pointer you
+	created.
+	
+	@param theSimStream, pointer to the SimStream of your choice.
+	@see SimStream
+	@see oSimStream
+     */
+    void registerSimStream(SimStream * theSimStream);
+
 protected:
 
     
@@ -370,6 +388,18 @@ protected:
     */
     
     void* fibHeapPtr;
+
+    /** The SimStreamContainer type allSimStreams.
+	This is used to store registered SimStream, typically are user defined.
+     */
+    SimStreamContainer allSimStreams;
+
+    /** The oSimStream type oss.
+	This is the default provided by MUSE and when its safe will push all data
+	to std::cout.
+     */
+    oSimStream oss;
+    
 };
 END_NAMESPACE(muse);//end namespace declaration
 #endif

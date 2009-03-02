@@ -133,6 +133,12 @@ Agent::processNextEvents(){
     ASSERT(! TIME_EQUALS( stateQueue.back()->getTimeStamp() , state->getTimeStamp()) );
 
     stateQueue.push_back(state);
+
+    //we finally need to save the state of all SimStreams that are registered.
+    oss.saveState(LVT);
+    for (int i=0;i<allSimStreams.size(); i++){
+        allSimStreams[i]->saveState(LVT);
+    }
     return true;
 }//end processNextEvents
 
@@ -146,6 +152,10 @@ Agent::setState(State * state){
     myState = state;
 }//end setState
 
+void
+Agent::registerSimStream(SimStream * theSimStream){
+    allSimStreams.push_back(theSimStream);
+}
 
 bool 
 Agent::scheduleEvent(Event *e){
@@ -199,6 +209,13 @@ Agent::doRollbackRecovery(Event* straggler_event){
     doRestorationPhase(straggler_event);
     doCancellationPhaseOutputQueue();
     doCancellationPhaseInputQueue(straggler_event);
+
+    //we need to rollback all SimStreams here.
+    //LVT by now should be the restored_time
+    oss.rollback(LVT);
+    for (int i=0;i<allSimStreams.size(); i++){
+        allSimStreams[i]->rollback(LVT);
+    }
 }//end doRollback
 
 void
@@ -400,6 +417,12 @@ Agent::garbageCollect(const Time gvt){
         Event *current_event = outputQueue.front();
         current_event->decreaseReference();
         outputQueue.pop_front();
+    }
+
+    //we need to garbageCollect all SimStreams here.
+    oss.garbageCollect(gvt);
+    for (int i=0;i<allSimStreams.size(); i++){
+        allSimStreams[i]->garbageCollect(gvt);
     }
 }
 
