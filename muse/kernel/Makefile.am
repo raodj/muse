@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -Iinclude -Isrc -Iboost_1_38_0
+AM_CXXFLAGS += -Iinclude -Isrc
 
 noinst_LIBRARIES = libmuse.a
 
@@ -43,6 +43,8 @@ libmuse_a_SOURCES = \
 	include/GVTMessage.h\
 	src/GVTMessage.cpp\
 	include/GVTManager.h\
-	src/GVTManager.cpp
+	src/GVTManager.cpp\
+	include/oSimStream.h\
+	src/oSimStream.cpp
 
 # end of Makefile.am
