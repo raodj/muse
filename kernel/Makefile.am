@@ -44,7 +44,7 @@ libmuse_a_SOURCES = \
 	src/GVTMessage.cpp\
 	include/GVTManager.h\
 	src/GVTManager.cpp\
-	include/oSimStream.h\
-	src/oSimStream.cpp
+	src/oSimStream.cpp\
+	src/SimStream.cpp
 
 # end of Makefile.am

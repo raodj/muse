@@ -25,6 +25,7 @@
 #include <fstream>
 #include <list>
 #include "DataTypes.h"
+#include "SimStream.h"
 
 //lets make life easier and define what we need.
 using std::list;
@@ -45,7 +46,7 @@ BEGIN_NAMESPACE(muse);
     class and when it is safe to do so, oSimStream will push out the
     data to the stream buffer of your choosing.
 */
-class oSimStream :  public ostream {
+class oSimStream : public ostream , public SimStream {
     //we make the Agent a friend
     friend class Agent;
 public:
