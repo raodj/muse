@@ -21,5 +21,18 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation
+include $(top_srcdir)/Makefile.global.am
 
+AM_CXXFLAGS += -I../../include
+
+bin_PROGRAMS = lonelyTest
+
+lonelyTest_LDFLAGS = -L../../kernel
+lonelyTest_LDADD = $(STDCPP) -lmuse
+
+lonelyTest_SOURCES = \
+	LonelySimulation.cpp\
+	LonelyAgent.h\
+	LonelyAgent.cpp
+
+# end of Makefile.am

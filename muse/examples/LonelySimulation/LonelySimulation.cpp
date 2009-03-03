@@ -16,6 +16,7 @@
 #include "State.h"
 #include "DataTypes.h"
 #include <math.h>
+#include <cstdlib>
 
 using namespace muse;
 using namespace std;
@@ -76,6 +77,6 @@ int main(int argc, char** argv) {
     //now we finalize the kernel to make sure it cleans up.
     kernel->finalize();
     
-    return (EXIT_SUCCESS);
+    return (0);
 }
 

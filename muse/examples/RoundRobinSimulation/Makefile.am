@@ -21,5 +21,18 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation
+include $(top_srcdir)/Makefile.global.am
 
+AM_CXXFLAGS += -I../../include
+
+bin_PROGRAMS = roundrobinTest
+
+roundrobinTest_LDFLAGS = -L../../kernel
+roundrobinTest_LDADD = $(STDCPP) -lmuse
+
+roundrobinTest_SOURCES = \
+	RoundRobinSimulation.cpp\
+	RoundRobinAgent.h\
+	RoundRobinAgent.cpp
+
+# end of Makefile.am
