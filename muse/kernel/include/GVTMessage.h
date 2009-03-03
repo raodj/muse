@@ -19,7 +19,7 @@
 // U.S., and the terms of this license.
 //
 // Authors:  Dhananjai M. Rao       raodm@muohio.edu
-//           Meseret R. Gebre       meseret.gebre@gmail.com
+//
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
@@ -83,7 +83,12 @@ BEGIN_NAMESPACE(muse);
     
     </li>
 
-    
+    <a id="gvt_est_msg">
+    <li> \c GVT_EST_MSG: This type of message (indicated by the \c
+    kind member in this class) is used to circulate the estimated GVT
+    value from the ROOT_KERNEL (process with rank 0) to all other
+    processes. In this message only the m_clock value is used to
+    indicate the current estimate of GVT.</li></a>
     
     </ul>
 */
@@ -108,11 +113,15 @@ public:
         href="#gvt_ctrl_msg">earlier description</a> regarging this
         message for additional details.</li>
 
-      
+        <li> \c GVT_EST_MSG : This kind identifies messages that are
+        circulated between processes to report estimated GVT value
+        from ROOT_KERNEL (rank 0) to other processes.  See <a
+        href="#gvt_est_msg">earlier description</a> regarging this
+        message for additional details.</li>
         
         </ul>
     */
-    enum GVTMsgKind{INVALID_GVT_MSG, GVT_CTRL_MSG};
+    enum GVTMsgKind{INVALID_GVT_MSG, GVT_CTRL_MSG, GVT_EST_MSG};
 
     /** Method to create a GVT message.
 
