@@ -166,7 +166,9 @@ AC_CHECK_FUNCS([bzero floor gethostbyname gethostname gethrtime gettimeofday mem
 AC_CONFIG_FILES([Makefile\
 	kernel/Makefile\
 	examples/Makefile\
-	examples/PingPongSimulation/Makefile])
+	examples/PingPongSimulation/Makefile\
+	examples/RollbackHeavySimulation/Makefile\
+	examples/LonelySimulation/Makefile])
 
 AC_OUTPUT
 

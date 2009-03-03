@@ -21,5 +21,18 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation
+include $(top_srcdir)/Makefile.global.am
 
+AM_CXXFLAGS += -I../../include
+
+bin_PROGRAMS = rollbackTest
+
+rollbackTest_LDFLAGS = -L../../kernel
+rollbackTest_LDADD = $(STDCPP) -lmuse
+
+rollbackTest_SOURCES = \
+	RollbackSimulation.cpp\
+	RollbackAgent.h\
+	RollbackAgent.cpp
+
+# end of Makefile.am

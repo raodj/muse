@@ -89,6 +89,15 @@ BEGIN_NAMESPACE(muse);
     value from the ROOT_KERNEL (process with rank 0) to all other
     processes. In this message only the m_clock value is used to
     indicate the current estimate of GVT.</li></a>
+
+    <a id="gvt_ack_msg"> <li> \c GVT_ACK_MSG: This type of message
+    (indicated by the \c kind member in this class) is used to report
+    successful receipt of GVT update back to the ROOT_KERNEL (process
+    with rank 0) from all other processes. In this message only the
+    m_clock value is used to indicate the current estimate of
+    GVT. This acknowledgement is necessary to ensure that the next
+    cycle of GVT does not commence until the previous cycle is
+    completed. </li></a>
     
     </ul>
 */
@@ -121,7 +130,7 @@ public:
         
         </ul>
     */
-    enum GVTMsgKind{INVALID_GVT_MSG, GVT_CTRL_MSG, GVT_EST_MSG};
+    enum GVTMsgKind{INVALID_GVT_MSG, GVT_CTRL_MSG, GVT_EST_MSG, GVT_ACK_MSG};
 
     /** Method to create a GVT message.
 

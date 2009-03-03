@@ -363,7 +363,18 @@ private:
     */
     int cycle;
 
-   
+    /** The number of pending acknowledgements for a GVT update.
+
+	This instance variable is set to the number of processes-1
+	each time a GVT cycle is complete and gvt time updates are
+	broadcasted (by the process with rank zero) to processes.
+	This variable is used to wait until all the processes
+	acknowledge receipt of GVT messages.  Waiting for
+	acknowledgements is necessary to ensure that the next cycle of
+	GVT computations does not commence until all the processes
+	have had a chance to receive the broadcast from process 0.
+    */
+    int pendingAcks;
 };
 
 END_NAMESPACE(muse);

@@ -205,7 +205,7 @@ Communicator::receiveEvent(){
         //this is an gvt estimate time from ROOT_KERNEL
         double * new_gvt_time = reinterpret_cast<double*>(incoming_event);
         cout << "NEW GVT ESTIMATE: " << *new_gvt_time <<endl;
-        gvtManager->recvGVTEstimateTime(*new_gvt_time);
+        // gvtManager->recvGVTEstimateTime(*new_gvt_time);
         //we seal the leak
         delete [] incoming_event;
     } else {
