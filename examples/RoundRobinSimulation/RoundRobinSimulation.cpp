@@ -8,7 +8,7 @@
  */
 
 #include <vector>
-
+#include <stdlib.h>
 
 #include <iostream>
 #include "RoundRobinAgent.h"
@@ -75,6 +75,6 @@ int main(int argc, char** argv) {
     //now we finalize the kernel to make sure it cleans up.
     kernel->finalize();
     
-    return (EXIT_SUCCESS);
+    return (0);
 }
 
