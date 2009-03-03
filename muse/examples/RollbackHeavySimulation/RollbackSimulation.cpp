@@ -6,9 +6,9 @@
  */
 
 #include <vector>
-
-
 #include <iostream>
+#include <stdlib.h>
+
 #include "RollbackAgent.h"
 #include "Simulation.h"
 #include "State.h"
@@ -79,6 +79,6 @@ int main(int argc, char** argv) {
     //     if (i != kernel->getSimulatorID())
     //         delete agents[i];
     // }
-    return (EXIT_SUCCESS);
+    return (0);
 }
 
