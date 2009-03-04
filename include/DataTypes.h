@@ -44,38 +44,30 @@ class SimStream;
 */
 typedef std::vector<Event*> EventContainer;
 
-/** The AgentID struct.
+/** The AgentID type.
     
-    This is used to store the id of an agent. muse uses this AgentID
+    This is used to store the id of an agent. MUSE uses this AgentID
     struct to make sure the client know exactly what the param of a
     method is asking for. For more details check out the method
-    Agent::getAgentID().  @see getAgentID()
+    Agent::getAgentID().
+    @see getAgentID()
     
 */
-typedef unsigned int AgentID; 
+typedef int AgentID; 
 
-//typedef std::vector<AgentID*> AgentIDContainer;
+/** The Time type.
+    MUSE uses this Time type to make
+    sure the client know exactly what the param of a method is asking
+    for. 
  
-/** The Stream struct.
-    
-    @todo not sure if this will remain a struct or become a
-    class. More investigation is required.
-    
-    @todo move to new header Stream.h, will be a class
-*/
-typedef struct StreamType{
-    std::istream is;
-    std::ostream os;
-} Stream;
+ */
+typedef double  Time;
 
-
-typedef double Time;
-
-/** The SimulatorID struct.  This is used to store the id of a
- * simulator(Singleton). muse uses this SimulatorID struct to make
+/** The SimulatorID type.  This is used to store the id of a
+ * simulator(Singleton). MUSE uses this SimulatorID type to make
  * sure the client know exactly what the param of a method is asking
- * for. For more details check out the method getSimulatorID().  @see
- * getSimulatorID()
+ * for. For more details check out the method getSimulatorID().
+ @see getSimulatorID()
  *
  */
 typedef unsigned int SimulatorID;
@@ -92,6 +84,8 @@ typedef vector<Agent*> AgentContainer;
     SimStream derived objects.
  */
 typedef vector<SimStream*> SimStreamContainer;
+
+
 
 END_NAMESPACE(muse)
 

@@ -27,6 +27,9 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "Scheduler.h"
+#include <sys/types.h>
+#include <sys/stat.h>
+
 
 // The number of iterations of event processing after which GVT
 // estimation is triggered
@@ -55,6 +58,12 @@ Simulation::initialize(){
     myID             = commManager->initialize(x, arg);
     // Free memory as MPI no longer needs this information.
     delete[] arg;
+    //lets make a temp directory for oSimStream temp files.
+    //if (mkdir("oSimStreamTemp",0777) == -1) {  // Create the directory
+    //  std::cerr << "Error: " << std::endl;
+    //  exit(1);
+    //}
+
 }
 
 void
@@ -149,7 +158,8 @@ Simulation::start(){
         } //end if
 
         //process the next agent
-        bool was_event_processed = scheduler->processNextAgentEvents();
+        //bool was_event_processed =
+        scheduler->processNextAgentEvents();
         //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
     //if (myID == 0 ) cout << "GVT @ end: " << gvtManager->getGVT() << endl;

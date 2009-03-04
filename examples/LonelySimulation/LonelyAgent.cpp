@@ -11,7 +11,7 @@ LonelyAgent::LonelyAgent(AgentID& id, State* state) : Agent(id,state){}
 
 void
 LonelyAgent::initialize() throw (std::exception){
-        Time  receive=1;
+        Time  receive=1; 
         Event * e = new Event(getAgentID(),receive); 
         //if ( scheduleEvent(e) ) oss << "Talking to self: " << other_agent_id <<endl;
         //else cout << "Scheduling event : FAILED" <<endl;

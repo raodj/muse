@@ -17,35 +17,22 @@
 # intellectual property laws, and all other applicable laws of the
 # U.S., and the terms of this license.
 #
-# Authors: Dhananjai M. Rao       raodm@muohio.edu
+# Authors: Meseret R. Gebre       meseret.gebre@gmail.com
 #
 #---------------------------------------------------------------------------
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -Iinclude -Isrc
+AM_CXXFLAGS += -I../../include
 
-noinst_LIBRARIES = libmuse.a
+bin_PROGRAMS = pholdTest
 
-# libmuse_a_LDFLAGS = 
-libmuse_a_LIBADD = $(STDCPP)
+lonelyTest_LDFLAGS = -L../../kernel
+lonelyTest_LDADD = $(STDCPP) -lmuse
 
-libmuse_a_SOURCES = \
-	src/Utilities.cpp\
-	src/Agent.cpp\
-	src/Event.cpp\
-	src/Simulation.cpp\
-	src/Communicator.cpp\
-	src/Scheduler.cpp\
-	src/State.cpp \
-	src/Compatibility.cpp \
-	src/f_heap.cpp \
-	include/GVTMessage.h\
-	src/GVTMessage.cpp\
-	include/GVTManager.h\
-	src/GVTManager.cpp\
-	src/oSimStream.cpp\
-	src/SimStream.cpp\
-	src/MTRandom.cpp
+lonelyTest_SOURCES = \
+	PHOLDSimulation.cpp\
+	PHOLDAgent.h\
+	PHOLDAgent.cpp
 
 # end of Makefile.am

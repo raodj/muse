@@ -21,5 +21,5 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation
+SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation RoundRobinSimulation PHOLDSimulation
 
