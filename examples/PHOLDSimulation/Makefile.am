@@ -25,12 +25,12 @@ include $(top_srcdir)/Makefile.global.am
 
 AM_CXXFLAGS += -I../../include
 
-bin_PROGRAMS = pholdTest
+bin_PROGRAMS = phold
 
-lonelyTest_LDFLAGS = -L../../kernel
-lonelyTest_LDADD = $(STDCPP) -lmuse
+phold_LDFLAGS = -L../../kernel
+phold_LDADD = $(STDCPP) -lmuse
 
-lonelyTest_SOURCES = \
+phold_SOURCES = \
 	PHOLDSimulation.cpp\
 	PHOLDAgent.h\
 	PHOLDAgent.cpp
