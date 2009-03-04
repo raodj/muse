@@ -98,7 +98,8 @@ Agent::processNextEvents(){
         
         //if the receive times match, then they are to be processed at
         //the same time.
-        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
+        //if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
+        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
