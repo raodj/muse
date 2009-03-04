@@ -60,13 +60,7 @@ class Communicator {
     */
     void sendMessage(const GVTMessage *msg, const int destRank);
 
-    /** The sendGVTEstimateTime method.
-	Method to send out GVT Estimate Time.
-
-	note Only ROOT_KERNEL should call this method.
-	@param gvt_estimate_time, this is the time to send to all other kernels
-     */
-    void sendGVTEstimateTime(Time gvt_estimate_time );
+    
 	
     /** The recvEvent method.
 	

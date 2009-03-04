@@ -28,6 +28,7 @@
 #include "Event.h"
 #include "Agent.h"
 #include <mpi.h>
+#include "DataTypes.h"
 
 using namespace muse;
 
@@ -148,21 +149,7 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
     }
 }
 
-void
-Communicator::sendGVTEstimateTime(Time gvt_estimate_time ){
-    try {
-        int  size = MPI::COMM_WORLD.Get_size();
-        //lets serialize this because we only have a char receiver
-        double * gvt_ptr = &gvt_estimate_time;
-        const char *serial_gvt = reinterpret_cast<const char*>(gvt_ptr);
-        for(int pid = 1; (pid < size); pid++) {
-            MPI::COMM_WORLD.Isend(serial_gvt, sizeof(serial_gvt), MPI::CHAR, pid, GVT_ESTIMATE_TIME);
-        }
-    } catch (MPI::Exception e) {
-        std::cerr << "MPI ERROR (sendMessage): ";
-        std::cerr << e.Get_error_string() << std::endl;
-    }
-}
+
 
 Event*
 Communicator::receiveEvent(){
@@ -201,13 +188,7 @@ Communicator::receiveEvent(){
         gvtManager->inspectRemoteEvent(the_event);
         // Dispatch event for further processing.
         return the_event;
-    } else if (status.Get_tag() == GVT_ESTIMATE_TIME ) {
-        //this is an gvt estimate time from ROOT_KERNEL
-        double * new_gvt_time = reinterpret_cast<double*>(incoming_event);
-        cout << "NEW GVT ESTIMATE: " << *new_gvt_time <<endl;
-        // gvtManager->recvGVTEstimateTime(*new_gvt_time);
-        //we seal the leak
-        delete [] incoming_event;
+   
     } else {
         // For now this must be a GVT message.
         ASSERT ( status.Get_tag() == GVT_MESSAGE );
@@ -243,7 +224,7 @@ Communicator::setGVTManager(GVTManager *gvtMgr) {
     gvtManager = gvtMgr;
 }
 
-unsigned int
+SimulatorID
 Communicator::getOwnerRank(const AgentID &id) const {
     // Find iterator for given agent id
     AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);

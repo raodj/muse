@@ -34,7 +34,9 @@
 using namespace std;
 using namespace muse;
 
-#define TIME_EQUALS(t1, t2) (fabs(t1-t2) < 1e-8)
+/** Use this macro to compare to Time values safely
+ */
+#define TIME_EQUALS(t1,t2)(fabs(t1-t2)<1e-8)
 
 void
 Agent::initialize() throw (std::exception) {}
@@ -112,14 +114,14 @@ Agent::processNextEvents(){
         }
     }//end while
 
-    // if (getAgentID() == 0){
-    //list<State*>::reverse_iterator rit = stateQueue.rbegin();
-    // cout << "StateQueue before PUSH: ";
-    // for (; rit != stateQueue.rend(); rit++){
-    //     cout <<(*rit)->getTimeStamp() << " ";
-    // }
+    //if (getAgentID() == 0){
+    //   list<State*>::reverse_iterator rit = stateQueue.rbegin();
+    //  cout << "StateQueue before PUSH: ";
+    //  for (; rit != stateQueue.rend(); rit++){
+    //      cout <<(*rit)->getTimeStamp() << " ";
+    //  }
     // cout << "\n";
-    // }
+    //}
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
@@ -130,7 +132,10 @@ Agent::processNextEvents(){
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
-    ASSERT(! TIME_EQUALS( stateQueue.back()->getTimeStamp() , state->getTimeStamp()) );
+    //cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
+    //cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
+    //after the second state in the stateQueue, there should never be a duplicate again
+    if (stateQueue.size() > 2) ASSERT( !TIME_EQUALS( stateQueue.back()->getTimeStamp() , state->getTimeStamp()));
 
     stateQueue.push_back(state);
 
@@ -247,10 +252,12 @@ Agent::doRestorationPhase(Event* straggler_event){
     //    }
     //    cout << "\n";
     // }
-      
-   
+
+    //we set our LVT to INFINITY here incase we dont find a state to restore to
+    //we can revert to the initial state after the loop.
+    LVT = INFINITY;
     //now we go and look for a state to restore to.
-    while (!stateQueue.empty()){
+    while (stateQueue.size() > 1 ){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
              //first we destroy the state we are in now <--kind of wierd to say right?
@@ -267,14 +274,24 @@ Agent::doRestorationPhase(Event* straggler_event){
             //cout << "Deleting Current_State @ timestamp: " << current_state->getTimeStamp() << endl;
             delete current_state;
             stateQueue.pop_back();
-            LVT = INFINITY;
         }
     }
-
-    //while ( TIME_EQUALS(LVT,INFINITY) ) cout << "LVT = INFINITY"<<endl;
-    //there is a problem if this happens
-    ASSERT(straggler_event->getReceiveTime() > LVT  );
     
+    //cout << "TIME_EQUALS(LVT,INFINITY) === " <<TIME_EQUALS(LVT,INFINITY) << endl;
+    //if LVT is INFINITY then that means we have rolled back all the way to beginning.
+    if (LVT == INFINITY){
+        //state queue should have a size of one
+        ASSERT(stateQueue.size() == 1);
+        //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
+        delete myState;
+        setState( cloneState(stateQueue.front()) );
+        LVT = myState->getTimeStamp();
+    }else{
+        //there is a problem if this happens
+        //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
+        //cout << "restored  time: " <<LVT <<endl;
+        ASSERT(straggler_event->getReceiveTime() > LVT  );
+    }
     
     //for debugging reasons
     //  if (getAgentID() == 0){
@@ -426,6 +443,10 @@ Agent::garbageCollect(const Time gvt){
     }
 }
 
+Time
+Agent::getTime() const {
+    return (Simulation::getSimulator())->getTime();
+}
 
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const

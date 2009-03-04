@@ -25,6 +25,8 @@
 #include "oSimStream.h"
 #include <iostream>
 #include <string.h>
+
+
 using namespace muse;
 
 oSimStream::oSimStream() : ostream(std::cout.rdbuf()) {

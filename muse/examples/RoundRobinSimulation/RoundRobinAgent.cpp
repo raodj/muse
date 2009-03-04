@@ -17,7 +17,7 @@ RoundRobinAgent::initialize() throw (std::exception){
         //cout << "OTHER AGENT ID: " << other_agent_id <<endl;
         Event * e = new Event(other_agent_id,receive); 
         if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
-        //else cout << "Scheduling event : FAILED" <<endl;
+        //else cout << "Scheduling event : FAILED" <<endl; 
         //scheduleEvent(e);
     }
 }//end initialize

@@ -145,7 +145,7 @@ public:
         @return reference to this agent's id
         @see AgentID
     */
-    inline const AgentID& getAgentID() const { return myID; }
+    inline AgentID getAgentID() const { return myID; }
         
     /** The getLVT method.
         This will return the agent's Local Virtual Time.
@@ -154,8 +154,16 @@ public:
      
         @return Time , basically the time of the last processed event
     */
-    inline const Time& getLVT() const { return LVT;}
-	
+    inline Time getLVT() const { return LVT;}
+
+    /** The getTime method.
+        This will return the Simulation Time or the GVT (global virtual time).
+        
+        @return Time , the gvt
+	@see Time
+    */
+    Time getTime() const;
+
     /** The ctor.
         @note once constructed MUSE will handle deleting the state pointer.
         State can only be allocated in the heap.
@@ -218,6 +226,8 @@ public:
      */
     void registerSimStream(SimStream * theSimStream);
 
+
+    
 protected:
 
     
