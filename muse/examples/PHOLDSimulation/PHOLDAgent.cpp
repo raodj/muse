@@ -41,7 +41,7 @@ PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
         Time  receive(1+(int)(MTRandom::RandDouble()*Delay));
-        // cout << "INIT Random Receive Time: " <<receive <<endl;
+        //cout << "INIT Random Receive Time: " <<receive <<endl;
         Event * e = new Event(getAgentID(),receive); 
         scheduleEvent(e);
     }
@@ -54,19 +54,27 @@ PHOLDAgent::executeTask(const EventContainer* events){
         //first make a random receive time for the future
         Time receive(getTime()+(int)(MTRandom::RandDouble()*Delay));
         //now we need to choose which agent to send this event to.
-        //we do this with equal probability for all 4 neighbours.
-        AgentID receiverAgentID = getAgentID();
-        double r=MTRandom::RandDouble();
-        if(r<0.25)      receiverAgentID--;
-        else if(r<0.5)  receiverAgentID-=Y;
-        else if(r<0.75) receiverAgentID+=Y;
-        else            receiverAgentID++;
-        if(receiverAgentID < 0)receiverAgentID+=X*Y;
-        if(receiverAgentID >=(int)(X*Y))receiverAgentID-=X*Y;
+        //we do this with equal probability for all 4 neighbours and send to one.
+        AgentID receiverAgentID = -1;
+        while (true){
+            receiverAgentID = getAgentID();
+            double r=MTRandom::RandDouble();
+            if(r<0.25)      receiverAgentID--;
+            else if(r<0.5)  receiverAgentID-=Y;
+            else if(r<0.75) receiverAgentID+=Y;
+            else            receiverAgentID++;
+            
+            //cout << "receiverAgentID before scaling " <<receiverAgentID <<endl;
+            if(receiverAgentID < 0)receiverAgentID+=X*Y;
+            if(receiverAgentID >=(int)(X*Y))receiverAgentID-=X*Y;
+            //cout << "receiverAgentID beforeafter scaling " <<receiverAgentID <<endl;
+            if (getAgentID() != receiverAgentID ) break;
+        }
         //make event
         Event * e = new Event(receiverAgentID,receive);
         //schedule the event
-        if( scheduleEvent(e)) oss << "Sent Event to Agent ["<<receiverAgentID << "] for time [" <<receive <<"]"<<endl;
+        if( scheduleEvent(e))oss << "Agent ["<<getAgentID(); oss << "] Sent Event to Agent ["<<receiverAgentID <<
+                                 "] for time [" <<receive <<"]"<<endl;
     }
 }//end executeTask
 

@@ -75,7 +75,7 @@ Agent::processNextEvents(){
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
 
-    if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
+    //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     ASSERT(top_event->isAntiMessage() == false );
    
@@ -116,14 +116,14 @@ Agent::processNextEvents(){
         }
     }//end while
 
-    if (getAgentID() == 0){
-        list<State*>::iterator rit = stateQueue.begin();
-        cout << "StateQueue before PUSH: ";
-        for (; rit != stateQueue.end(); rit++){
-            cout <<(*rit)->getTimeStamp() << " ";
-        }
-        cout << "\n";
-    }
+    // if (getAgentID() == 0){
+    //  list<State*>::iterator rit = stateQueue.begin();
+    //  cout << "StateQueue before PUSH: ";
+    //  for (; rit != stateQueue.end(); rit++){
+    //      cout <<(*rit)->getTimeStamp() << " ";
+    //  }
+    //  cout << "\n";
+    // }
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
@@ -134,8 +134,8 @@ Agent::processNextEvents(){
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
-    if (getAgentID() == 0)cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
-    if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
+    //if (getAgentID() == 0)cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
+    //if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
     //after the second state in the stateQueue, there should never be a duplicate again
     if (stateQueue.size() > 2) {
         ASSERT( stateQueue.back()->getTimeStamp() != state->getTimeStamp());
@@ -220,6 +220,7 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(Event* straggler_event){
+    cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event);
     doCancellationPhaseOutputQueue();
     doCancellationPhaseInputQueue(straggler_event);
@@ -234,7 +235,7 @@ Agent::doRollbackRecovery(Event* straggler_event){
 
 void
 Agent::doRestorationPhase(Event* straggler_event){
-    cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
+    // cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
     /** OK, here is the plan. First, there is a straggler_time.Second,
@@ -276,7 +277,7 @@ Agent::doRestorationPhase(Event* straggler_event){
             setState( cloneState(current_state) );
             //set agent's LVT to this state's timestamp
             LVT = myState->getTimeStamp();
-            cout << "    State Found for time: "<< LVT << endl;
+            //cout << "    State Found for time: "<< LVT << endl;
             break;
         }else{
             //we should delete and remove this state from the list because it is no longer valid
@@ -295,7 +296,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         delete myState;
         setState( cloneState(stateQueue.front()) );
         LVT = myState->getTimeStamp();
-        cout << "Restored Time To: " << LVT <<endl;
+        // cout << "Restored Time To: " << LVT <<endl;
     }else{
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
