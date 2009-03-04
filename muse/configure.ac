@@ -168,7 +168,9 @@ AC_CONFIG_FILES([Makefile\
 	examples/Makefile\
 	examples/PingPongSimulation/Makefile\
 	examples/RollbackHeavySimulation/Makefile\
-	examples/LonelySimulation/Makefile])
+	examples/LonelySimulation/Makefile\
+	examples/RoundRobinSimulation/Makefile\
+	examples/PHOLDSimulation/Makefile])
 
 AC_OUTPUT
 

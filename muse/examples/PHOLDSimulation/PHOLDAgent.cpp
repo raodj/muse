@@ -40,7 +40,7 @@ void
 PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
-        Time  receive((int)(MTRandom::RandDouble()*Delay));
+        Time  receive(1+(int)(MTRandom::RandDouble()*Delay));
         // cout << "INIT Random Receive Time: " <<receive <<endl;
         Event * e = new Event(getAgentID(),receive); 
         scheduleEvent(e);

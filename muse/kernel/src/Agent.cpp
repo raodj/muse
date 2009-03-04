@@ -28,8 +28,8 @@
 #include <iostream>
 #include "f_heap.h"
 #include "HashMap.h"
-#include <math.h>
-
+#include <cmath>
+#include <cstdlib>
 
 using namespace std;
 using namespace muse;
@@ -65,7 +65,7 @@ bool
 Agent::processNextEvents(){
 
     //here we make sure the list is not empty
-    //ASSERT(eventPQ->empty() != true);
+    ASSERT(eventPQ->empty() != true);
     if (eventPQ->empty()) {
       return false;
     }
@@ -74,7 +74,8 @@ Agent::processNextEvents(){
     //agent's executeTask method.
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
-    
+
+    if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     ASSERT(top_event->isAntiMessage() == false );
    
@@ -115,14 +116,14 @@ Agent::processNextEvents(){
         }
     }//end while
 
-    //if (getAgentID() == 0){
-    //   list<State*>::reverse_iterator rit = stateQueue.rbegin();
-    //  cout << "StateQueue before PUSH: ";
-    //  for (; rit != stateQueue.rend(); rit++){
-    //      cout <<(*rit)->getTimeStamp() << " ";
-    //  }
-    // cout << "\n";
-    //}
+    if (getAgentID() == 0){
+        list<State*>::iterator rit = stateQueue.begin();
+        cout << "StateQueue before PUSH: ";
+        for (; rit != stateQueue.end(); rit++){
+            cout <<(*rit)->getTimeStamp() << " ";
+        }
+        cout << "\n";
+    }
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
@@ -133,10 +134,13 @@ Agent::processNextEvents(){
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
-    //cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
-    //cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
+    if (getAgentID() == 0)cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
+    if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
     //after the second state in the stateQueue, there should never be a duplicate again
-    if (stateQueue.size() > 2) ASSERT( !TIME_EQUALS( stateQueue.back()->getTimeStamp() , state->getTimeStamp()));
+    if (stateQueue.size() > 2) {
+        ASSERT( stateQueue.back()->getTimeStamp() != state->getTimeStamp());
+        ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
+    }
 
     stateQueue.push_back(state);
 
@@ -177,6 +181,10 @@ Agent::scheduleEvent(Event *e){
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
+        if (e->getReceiveTime() <= getLVT()){
+            //this should NEVER happen. It's time to abort
+            abort();
+        }
         //will use this to figure out if we need to change our key in
         //scheduler
         Time old_receive_time = INFINITY;
@@ -226,7 +234,7 @@ Agent::doRollbackRecovery(Event* straggler_event){
 
 void
 Agent::doRestorationPhase(Event* straggler_event){
-    //cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
+    cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
     Time straggler_time = straggler_event->getReceiveTime();
     
     /** OK, here is the plan. First, there is a straggler_time.Second,
@@ -258,7 +266,7 @@ Agent::doRestorationPhase(Event* straggler_event){
     //we can revert to the initial state after the loop.
     LVT = INFINITY;
     //now we go and look for a state to restore to.
-    while (stateQueue.size() > 1 ){
+    while (stateQueue.size() != 1 ){
         State * current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
              //first we destroy the state we are in now <--kind of wierd to say right?
@@ -268,7 +276,7 @@ Agent::doRestorationPhase(Event* straggler_event){
             setState( cloneState(current_state) );
             //set agent's LVT to this state's timestamp
             LVT = myState->getTimeStamp();
-            //cout << "    State Found for time: "<< LVT << endl;
+            cout << "    State Found for time: "<< LVT << endl;
             break;
         }else{
             //we should delete and remove this state from the list because it is no longer valid
@@ -287,6 +295,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         delete myState;
         setState( cloneState(stateQueue.front()) );
         LVT = myState->getTimeStamp();
+        cout << "Restored Time To: " << LVT <<endl;
     }else{
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
@@ -308,7 +317,8 @@ Agent::doRestorationPhase(Event* straggler_event){
 void
 Agent::doCancellationPhaseOutputQueue(){
     //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time restored_time = myState->getTimeStamp(); //TODO change name 
+    Time restored_time = myState->getTimeStamp(); //TODO change name
+   
     AgentIDBoolMap bitMap;
     
     /** OK, for step two here is what we are doing. First, we have the
@@ -351,13 +361,13 @@ Agent::doCancellationPhaseOutputQueue(){
 void
 Agent::doCancellationPhaseInputQueue(Event* straggler_event){
     //cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time rollback_time = myState->getTimeStamp();
+    Time restored_time = myState->getTimeStamp();
 
     /** OK, for step three, here is what we are doing. First, we have
-        the rollback_time. This is the time we rollbacked to.  This
+        the restored_time. This is the time we rollbacked to.  This
         step is relatively straight forward. In this step, an invalid
         event is defined as and event with a receive time greater than
-        the rollback_time. Hence, all invalid events are automatically
+        the restored_time. Hence, all invalid events are automatically
         removed from the inputQueue. However, if the current_event's
         sender agent id is NOT EQUAL to the straggler_event's agent,
         then this means that we need to add it back into our event
@@ -370,7 +380,7 @@ Agent::doCancellationPhaseInputQueue(Event* straggler_event){
         inQ_it++;
         Event *current_event = (*del_it);
         //check if the event is invalid.
-        if ( current_event->getReceiveTime() > rollback_time){
+        if ( current_event->getReceiveTime() > restored_time){
             //check if we need to re-process the current_event
             if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID()){
                 current_event->increaseReference();
