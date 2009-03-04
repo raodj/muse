@@ -51,23 +51,23 @@ class oSimStream : public ostream , public SimStream {
     friend class Agent;
 public:
     /** The ctor.
-         The ctor takes the stream buffer of any class derived from
-         std::ostream. Also there is an option for using a temp file
-         for the storage or just memory. It is recommend to use et this
-         flag to true if you are expecting large amount of output.
+        The ctor takes the stream buffer of any class derived from
+        std::ostream. Also there is an option for using a temp file
+        for the storage or just memory. It is recommend to use et this
+        flag to true if you are expecting large amount of output.
          
-         @param the_streambuf, this is a poitner to the stream buffer, where you
-         the data pushed.
+        @param the_streambuf, this is a poitner to the stream buffer, where you
+        the data pushed.
          
-         @param use_temp_file, flag, if true will use a temp file for the temp
-         storage before the push to the choosen stream buffer
-     */
+        @param use_temp_file, flag, if true will use a temp file for the temp
+        storage before the push to the choosen stream buffer
+    */
     oSimStream(streambuf * the_streambuf, bool use_temp_file);
 
     /** The default ctor.
         Sets stream buffer to std::cout.rdbuf() and sets use_temp_file
         flag to true.
-     */
+    */
     oSimStream();
     
     /** The dtor.
@@ -75,96 +75,96 @@ public:
     ~oSimStream();
     
     /** The saveState method.
-          This is a helper method that is used to save the state.
+        This is a helper method that is used to save the state.
           
-          @note MUSE will automatically use this to handle the data correctly.
-          @param lvt, this is the local virtual time of the agent.
-          @see Time
-      */
+        @note MUSE will automatically use this to handle the data correctly.
+        @param lvt, this is the local virtual time of the agent.
+        @see Time
+    */
     void saveState(const Time& lvt);
     
     /** The rollback method.
-          This is a helper method that is used to undo some of the writes
-          that was done. Any information collected passed the restored time
-          is now useless and is discarded.
+        This is a helper method that is used to undo some of the writes
+        that was done. Any information collected passed the restored time
+        is now useless and is discarded.
           
-          @note MUSE will automatically use this to handle the data correctly.
-          @param restored_time, this is the time the agent rollback to.
-          @see Time
-      */
+        @note MUSE will automatically use this to handle the data correctly.
+        @param restored_time, this is the time the agent rollback to.
+        @see Time
+    */
     void rollback(const Time& restored_time);
     
     /** The garbageCollect method.
-          This is a helper method that is used to push the safe data to the
-          choosen stream buffer. When GVT is calculated, any data collected
-          with a timestamp smaller than the gvt has to be push to the choosen
-          stream buffer and records of it has to be cleaned up to make room
-          for new data in the temp storage.
+        This is a helper method that is used to push the safe data to the
+        choosen stream buffer. When GVT is calculated, any data collected
+        with a timestamp smaller than the gvt has to be push to the choosen
+        stream buffer and records of it has to be cleaned up to make room
+        for new data in the temp storage.
           
-          @note MUSE will automatically use this to handle the data correctly.
-          @param gvt, this is global virtual time.
-          @see Time
-          @see GVTManager
-      */
+        @note MUSE will automatically use this to handle the data correctly.
+        @param gvt, this is global virtual time.
+        @see Time
+        @see GVTManager
+    */
     void garbageCollect(const Time& gvt);
     
     //for debugging reasons.
     void printAllStates();
 
 private:
-   /** The oSimStreamState class.
-       This class is used to maintain the state of the oSimStream at any given
-       time. The information from the state can tell you how much data was collected
-       at a given timestamp.
+    /** The oSimStreamState class.
+        This class is used to maintain the state of the oSimStream at any given
+        time. The information from the state can tell you how much data was collected
+        at a given timestamp.
     */
-   class oSimStreamState {
+    class oSimStreamState {
     public:
-       /** The timestamp variable of type Time.
-           This is usually the time the state was saved.
+        /** The timestamp variable of type Time.
+            This is usually the time the state was saved.
         */
-       Time timestamp;
-       /** The stream_position variable of type std::streampos.
-           When we are using the temp file for storage, we use this
-           to ID the position of the file write pointer of the saving point.
+        Time timestamp;
+        /** The stream_position variable of type std::streampos.
+            When we are using the temp file for storage, we use this
+            to ID the position of the file write pointer of the saving point.
         */
-       streampos stream_position;
+        streampos stream_position;
 
-       /** The size variable of type std::streamsize.
-           At the save point we need to know how much data was collected.
-           This is used to store that information.
+        /** The size variable of type std::streamsize.
+            At the save point we need to know how much data was collected.
+            This is used to store that information.
         */
-       streamsize size;
-   };
+        streamsize size;
+    };
 
-   /** The the_original_streambuff variable of type std::streambuf.
-       This is used to keep track of the choosen stream buffer and
-       comes in handy when its time to push the save data into the stream.
+    /** The the_original_streambuff variable of type std::streambuf.
+        This is used to keep track of the choosen stream buffer and
+        comes in handy when its time to push the save data into the stream.
     */
-   streambuf               * the_original_streambuff;
+    streambuf               * the_original_streambuff;
 
-   /** The the_temp_streambuff variable of type std::streambuf.
-       This is used to keep track of the temp file stream buffer and
-       comes in handy when its time to save data into the file stream.
+    /** The the_temp_streambuff variable of type std::streambuf.
+        This is used to keep track of the temp file stream buffer and
+        comes in handy when its time to save data into the file stream.
     */
-   streambuf               * the_temp_streambuff;
+    streambuf               * the_temp_streambuff;
 
-   /** The the_temp_file variable of type std::fstream.
-       This the stream that is opened to have read/wrtie access to the
-       temp file.
+    /** The the_temp_file variable of type std::fstream.
+        This the stream that is opened to have read/wrtie access to the
+        temp file.
     */
-   fstream                  the_temp_file;
+    fstream                  the_temp_file;
 
-  /** The the_temp_file_name variable of type char.
-       This is the name of the temp file that will be created.
+    /** The the_temp_file_name variable of type char.
+        This is the name of the temp file that will be created.
     */
-   char                      the_temp_file_name[30];
-   /** The the_last_stream_position variable of type std::streampos.
-       This is used when we are saving the state of the oSimStream.
-       To calculate the oSimStreamState::size, we subtract this from
-       oSimStreamState::stream_position and that tells us how much
-       data was collected since the last saved state.
+    char                      the_temp_file_name[30];
+    /** The the_last_stream_position variable of type std::streampos.
+        This is used when we are saving the state of the oSimStream.
+        To calculate the oSimStreamState::size, we subtract this from
+        oSimStreamState::stream_position and that tells us how much
+        data was collected since the last saved state.
     */
-   streampos                 the_last_stream_position;
+    streampos                 the_last_stream_position;
 
     /** The oSimStreamState_storage is of type std::list.
         This is used to store the oSimStreamStates. Comes in handy
@@ -172,8 +172,8 @@ private:
         This list stores pointers to oSimStreamState that have been
         allocated in heap memory.
     */
-   typedef list<oSimStreamState*>  state_storage;
-   state_storage  oSimStreamState_storage;
+    typedef list<oSimStreamState*>  state_storage;
+    state_storage  oSimStreamState_storage;
    
 };
 
