@@ -15,7 +15,6 @@
 #include "Simulation.h"
 #include "State.h"
 #include "DataTypes.h"
-#include "MTRandom.h"
 
 using namespace muse;
 using namespace std;
@@ -30,9 +29,7 @@ int main(int argc, char** argv) {
     }
 
    
-    MTRandom random;
-    cout << "GOT random: " << (int)(random.randDouble()*10) << "||"<<MTRandom::RandDouble()<<"||"<<
-        MTRandom::Rand() <<endl;
+  
     //first get simulation kernel instance to work with
     Simulation * kernel = Simulation::getSimulator();
     

@@ -74,6 +74,7 @@ public:
      */
     ~oSimStream();
     
+ private:   
     /** The saveState method.
         This is a helper method that is used to save the state.
           
@@ -111,7 +112,6 @@ public:
     //for debugging reasons.
     void printAllStates();
 
-private:
     /** The oSimStreamState class.
         This class is used to maintain the state of the oSimStream at any given
         time. The information from the state can tell you how much data was collected

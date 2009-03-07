@@ -170,7 +170,8 @@ AC_CONFIG_FILES([Makefile\
 	examples/RollbackHeavySimulation/Makefile\
 	examples/LonelySimulation/Makefile\
 	examples/RoundRobinSimulation/Makefile\
-	examples/PHOLDSimulation/Makefile])
+	examples/PHOLDSimulation/Makefile\
+	examples/BugLife/Makefile])
 
 AC_OUTPUT
 
