@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include
+AM_CXXFLAGS += -I../../include -I/agents/header -I/events/header -I/states/header -I/tools
 
 bin_PROGRAMS = bugsim
 
@@ -32,27 +32,16 @@ bugsim_LDADD = $(STDCPP) -lmuse
 
 bugsim_SOURCES = \
 	agents/src/Bug.cpp\
-	agents/header/Bug.h\
 	agents/src/Space.cpp\
-	agents/header/Space.h\
 	events/src/BugEvent.cpp\
-	events/header/Bugevent.h\
 	events/src/Eat.cpp\
-	events/header/Eat.h\
 	events/src/Grow.cpp\
-	events/header/Grow.h\
 	events/src/MoveIn.cpp\
-	events/header/MoveIn.h\
 	events/src/MoveOut.cpp\
-	events/header/MoveOut.h\
 	events/src/Scout.cpp\
-	events/header/Scout.h\
 	states/src/BugState.cpp\
-	states/header/BugState.h\
 	states/src/SpaceState.cpp\
-	states/header/SpaceState.h\
 	tools/arg_parser.cpp\
-	tools/arg_parser.h\
 	BugLifeSimulation.cpp	
 
 # end of Makefile.am
