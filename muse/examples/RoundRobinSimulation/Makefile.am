@@ -32,7 +32,6 @@ roundrobinTest_LDADD = $(STDCPP) -lmuse
 
 roundrobinTest_SOURCES = \
 	RoundRobinSimulation.cpp\
-	RoundRobinAgent.h\
 	RoundRobinAgent.cpp
 
 # end of Makefile.am
