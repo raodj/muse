@@ -117,13 +117,13 @@ Agent::processNextEvents(){
     }//end while
 
     // if (getAgentID() == 0){
-    //  list<State*>::iterator rit = stateQueue.begin();
-    //  cout << "StateQueue before PUSH: ";
-    //  for (; rit != stateQueue.end(); rit++){
-    //      cout <<(*rit)->getTimeStamp() << " ";
-    //  }
-    //  cout << "\n";
-    // }
+    // list<State*>::iterator rit = stateQueue.begin();
+    //cout << "StateQueue before PUSH: ";
+    //for (; rit != stateQueue.end(); rit++){
+    //    cout <<(*rit)->getTimeStamp() << " ";
+    //}
+    //cout << "\n";
+    //}
     //here we set the agent's LVT and update agent's state timestamp
     LVT = top_event->getReceiveTime();
     myState->timestamp = LVT;
