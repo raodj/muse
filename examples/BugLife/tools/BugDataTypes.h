@@ -36,7 +36,7 @@ typedef pair<int,int> coord;
 */
 struct EqualCoord {
   inline size_t operator()(const coord c1,const coord c2) const {
-        return (a1 == a2);
+        return (c1 == c2);
     }
 };
 
