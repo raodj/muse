@@ -1,5 +1,5 @@
 #ifndef _BUGEVENT_CPP
-#define	_BUGEVENT_CPP
+#define _BUGEVENT_CPP
 
 #include "BugEvent.h"
 

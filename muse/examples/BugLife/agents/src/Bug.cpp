@@ -2,11 +2,10 @@
 #define	_BUG_CPP
 
 #include "Bug.h"
-#include "Event.h"
 
 using namespace std;
 
-Bug::Bug(AgentID& id, State* state) : Agent(id,state){}
+Bug::Bug(AgentID id, State* state) : Agent(id,state){}
 
 void
 Bug::initialize() throw (std::exception){

@@ -18,8 +18,8 @@ class SpaceState : public State {
 public:
     State* getClone();
     SpaceState(int food_count, int x_pos, int y_pos);
-	int food,x,y;
-    AgentID bugID,PredID;
+    int food,x,y;
+    AgentID bugID,predatorID;
 };
 
 #endif	/* _SPACESTATE_H */
