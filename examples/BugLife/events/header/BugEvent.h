@@ -14,8 +14,13 @@ using namespace muse;
 
 class BugEvent : public Event {
 public:
-    BugEvent(AgentID receiverID,Time receiveTime);
+    BugEvent(AgentID receiverID,Time receiveTime,int e_type);
     inline int getEventSize() { return sizeof(BugEvent); }
+
+    inline int  getEventType()const {return event_type;}
+  
+ protected:
+    int event_type;
 };
 
 #endif	/* _BUGEVENT_H */

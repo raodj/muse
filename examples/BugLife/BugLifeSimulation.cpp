@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
     for (AgentID i= max_space_agents;i <bug_agents_per_node ; i++){
         BugState *bs = new BugState();
         bug_id =  (bugs/max_nodes)*rank + i;
-        Bug * bug = new Bug(bug_id,bs, &coord_map);
+        Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);
         kernel->registerAgent(bug);
     }//end for
 

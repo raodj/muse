@@ -3,7 +3,7 @@
 
 #include "MoveIn.h"
 
-MoveIn::MoveIn(AgentID receiverID, Time  receiveTime) :
-BugEvent(receiverID,receiveTime), canBugMoveIn(false) {}
+MoveIn::MoveIn(AgentID receiverID, Time  receiveTime, int e_type) :
+BugEvent(receiverID,receiveTime, e_type), canBugMoveIn(false) {}
 
 #endif

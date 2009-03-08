@@ -16,7 +16,7 @@ using namespace muse;
 class Bug : public Agent {
 
 public:
-    Bug(AgentID , State *,CoordAgentIDMap *);
+    Bug(AgentID , State *,CoordAgentIDMap *, int c, int r);
 
     void initialize() throw (std::exception);
 
@@ -25,6 +25,7 @@ public:
     void finalize();
 
     CoordAgentIDMap * coord_map;
+    int cols,rows;
 };
 
 #endif	/* _BUG_H */

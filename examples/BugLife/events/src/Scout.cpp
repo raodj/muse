@@ -3,7 +3,7 @@
 
 #include "Scout.h"
 
-Scout::Scout(AgentID receiverID, Time receiveTime) :
-BugEvent(receiverID, receiveTime ) {}
+Scout::Scout(AgentID receiverID, Time receiveTime,int e_type) :
+BugEvent(receiverID, receiveTime, e_type ) {}
 
 #endif

@@ -3,7 +3,7 @@
 
 #include "Eat.h"
 
-Eat::Eat(AgentID receiverID, Time receiveTime) :
-BugEvent(receiverID, receiveTime ) {}
+Eat::Eat(AgentID receiverID, Time receiveTime, int e_type) :
+BugEvent(receiverID, receiveTime, e_type) {}
 
 #endif
