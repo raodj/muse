@@ -48,7 +48,7 @@ int main(int argc, char** argv) {
     
     //now its time to make the space agents and create the coord,id hashmap
     CoordAgentIDMap coord_map;
-    coord one(1,1);
+    
 
     //first get simulation kernel instance to work with
     //Simulation * kernel = Simulation::getSimulator();
