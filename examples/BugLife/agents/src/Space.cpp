@@ -7,7 +7,7 @@
 
 using namespace std;
 
-Space::Space(AgentID& id, State* state) : Agent(id,state){}
+Space::Space(AgentID id, State* state) : Agent(id,state){}
 
 void
 Space::initialize() throw (std::exception){

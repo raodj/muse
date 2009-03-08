@@ -15,14 +15,14 @@
 using namespace muse;
 
 // These must be static or global scope...
-bool arg1;      
-bool arg2;
-char *arg3;
+int x;      
+int y;
+int bugs;
 //let make the arg_record
  arg_parser::arg_record arg_list[] = {
-	{ "-arg1", &arg1, arg_parser::BOOLEAN }, 
-	{ "-arg2", &arg2, arg_parser::BOOLEAN },
-	{ "-arg3", &arg3, arg_parser::STRING },
+	{ "-x","The Number of columns in the space.", &x, arg_parser::INTEGER }, 
+	{ "-y","The Number of rows in the space.", &y, arg_parser::INTEGER },
+	{ "-bugs","The number of bugs you want in the simulation.", &bugs, arg_parser::INTEGER },
 	{ NULL, NULL }
  };
 
@@ -30,12 +30,14 @@ char *arg3;
  */
 int main(int argc, char** argv) {
     
-     arg1 = true;    // default initialization must occur before the
-     arg2 = false;   // arg_parser is called!
-     arg3 = NULL;
+     x    = 10;   
+     y    = 10;   
+     bugs = 30;
 
      arg_parser ap( arg_list );
-     ap.check_args( argc, argv );
+     ap.check_args( argc, argv ,true);
+
+     cout << x << "||" << y << "||" << bugs<<endl;
 
     //first get simulation kernel instance to work with
     //Simulation * kernel = Simulation::getSimulator();
