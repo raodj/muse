@@ -10,20 +10,30 @@
 #define	_BUGSTATE_H
 
 #include "State.h"
+#include "BugDataTypes.h"
+
 using namespace muse;
 
 class BugState : public State {
 
 public:
     State* getClone();
-    BugState(int size, int x_pos, int y_pos);
+    BugState();
+    inline coord getLocation() const {return location;}
+    inline void setLocation(coord new_coord) {
+      location.first  = new_coord.first;
+      location.second = new_coord.second;
+    }
+    inline int getSize() const {return size;}
+    inline void setSize(int new_size) {size=new_size;}
+ protected:
     /** The size of the bug. 
 	*/
     int size;
 
-	/** This is the position of the bug in the space. 
-	*/
-	int x,y;
+    /** This is the position of the bug in the space. 
+     */
+    coord location;
 };
 
 #endif	/* _BUGSTATE_H */
