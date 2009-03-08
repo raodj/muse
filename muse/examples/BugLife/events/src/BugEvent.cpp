@@ -3,7 +3,7 @@
 
 #include "BugEvent.h"
 
-BugEvent::BugEvent(AgentID receiverID, Time receiveTime) :
-Event(receiverID, receiveTime ) {}
+BugEvent::BugEvent(AgentID receiverID, Time receiveTime, int e_type) :
+Event(receiverID, receiveTime ), event_type(e_type) {}
 
 #endif

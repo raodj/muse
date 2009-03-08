@@ -14,7 +14,7 @@ using namespace muse;
 
 class Eat : public BugEvent {
 public:
-    Eat(AgentID receiverID,Time receiveTime);
+    Eat(AgentID receiverID,Time receiveTime, int e_type);
     inline int getEventSize() {return sizeof(Eat); }
 };
 

@@ -15,7 +15,7 @@ using namespace muse;
 
 class Scout : public BugEvent {
 public:
-    Scout(AgentID receiverID,Time receiveTime);
+    Scout(AgentID receiverID,Time receiveTime, int e_type);
     inline int getEventSize() {return sizeof(Scout); }
 };
 

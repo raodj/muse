@@ -5,7 +5,8 @@
 
 using namespace std;
 
-Bug::Bug(AgentID id, State* state, CoordAgentIDMap * coords) : Agent(id,state), coord_map(coords){}
+Bug::Bug(AgentID id, State* state, CoordAgentIDMap * coords, int c, int r) :
+    Agent(id,state), coord_map(coords), cols(c), rows(r){}
 
 void
 Bug::initialize() throw (std::exception){
