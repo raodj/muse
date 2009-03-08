@@ -24,28 +24,21 @@
 
 
 #include <utility>
-#include "HashMap.h"
 #include "DataTypes.h"
+#include <map>
+
 /** This used to represent a coord in the space for the bugs
  */
 typedef pair<int,int> coord;
 
-/** coord comparison structure for std::hash_map.
-    This structure provides comparison for hash_map's
-    whose key values are coord.
-*/
-struct EqualCoord {
-  inline size_t operator()(const coord c1,const coord c2) const {
-        return (c1 == c2);
-    }
-};
 
-/** \typedef A hash_map<coord, AgentID>
+
+/** \typedef A map<coord, AgentID>
 
     A typedef for a hash map whose key is coord and contains AgentID.
 
     Bug agents will use this to get the space agent id for a given coord.
 */
-typedef HashMap<coord, muse::AgentID, Hash<coord>, EqualCoord> CoordAgentIDMap;
+typedef map<coord, muse::AgentID > CoordAgentIDMap;
 
 #endif

@@ -10,6 +10,7 @@
 
 #include "State.h"
 #include "DataTypes.h"
+#include "BugDataTypes.h"
 
 using namespace muse;
 
@@ -17,8 +18,15 @@ class SpaceState : public State {
 
 public:
     State* getClone();
-    SpaceState(int food_count, int x_pos, int y_pos);
-    int food,x,y;
+    SpaceState();
+    inline void setFood(int f) {food=f;}
+    inline int  getFood() const {return food;} 
+    inline void setBugID(AgentID id) {bugID=id;}
+    inline int  getBugID() const {return bugID;} 
+    inline void setPredatorID(AgentID id) {predatorID=id;}
+    inline int  getPredatorID() const {return predatorID;} 
+protected:
+    int food;
     AgentID bugID,predatorID;
 };
 

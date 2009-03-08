@@ -9,12 +9,14 @@
 
 #include "Agent.h"
 #include "State.h"
+#include "BugDataTypes.h"
+
 using namespace muse;
 
 class Bug : public Agent {
 
 public:
-    Bug(AgentID , State *);
+    Bug(AgentID , State *,CoordAgentIDMap *);
 
     void initialize() throw (std::exception);
 
@@ -22,6 +24,7 @@ public:
 
     void finalize();
 
+    CoordAgentIDMap * coord_map;
 };
 
 #endif	/* _BUG_H */
