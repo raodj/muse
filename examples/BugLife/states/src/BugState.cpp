@@ -3,7 +3,7 @@
 
 #include "BugState.h"
 
-BugState::BugState() : size(1) {}
+BugState::BugState() : size(1) , location(-1,-1) {}
 
 State*
 BugState::getClone(){

@@ -24,8 +24,9 @@ public:
 
     void finalize();
 
-    CoordAgentIDMap * coord_map;
+    CoordAgentIDMap coord_map;
     int cols,rows;
+    coord my_location;
 };
 
 #endif	/* _BUG_H */

@@ -44,9 +44,9 @@ arg_parser::arg_record arg_list[] = {
 int main(int argc, char** argv) {
     
     //default values for parameters
-    cols        = 10;   
-    rows        = 10;   
-    bugs        = 30;
+    cols        = 5;   
+    rows        = 5;   
+    bugs        = 3;
     max_nodes   = 1;
     end_time    = 10;
     arg_parser ap( arg_list );
@@ -62,8 +62,9 @@ int main(int argc, char** argv) {
     int max_space_agents       = cols*rows;
     int space_agents_per_node  = max_space_agents/max_nodes;
     int bug_agents_per_node    = bugs/max_nodes;
-    int rank                   = 0;//kernel->getSimulatorID(); 
+    int rank                   = kernel->getSimulatorID(); 
 
+    //cout << "rank: " << rank <<endl;
     ASSERT(max_space_agents >= bugs ); //make sure we have space for all the bugs
 
     //create the location to agent id mapping here
@@ -91,15 +92,17 @@ int main(int argc, char** argv) {
     for (AgentID i= 0;i <space_agents_per_node ; i++){
         SpaceState *ss = new SpaceState();
         space_id =  (max_space_agents/max_nodes)*rank + i;
+        //cout << "space id: " << space_id <<endl;
         Space * space = new Space(space_id,ss);
         kernel->registerAgent(space);
     }//end for
 
     //now we need to create and register the bugs
     AgentID bug_id = -1u;
-    for (AgentID i= max_space_agents;i <bug_agents_per_node ; i++){
+    for (AgentID i= max_space_agents;i < max_space_agents+bug_agents_per_node ; i++){
         BugState *bs = new BugState();
         bug_id =  (bugs/max_nodes)*rank + i;
+        //cout << "bug id: " << bug_id <<endl;
         Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);
         kernel->registerAgent(bug);
     }//end for
