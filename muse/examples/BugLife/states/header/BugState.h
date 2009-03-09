@@ -7,7 +7,7 @@
  */
 
 #ifndef _BUGSTATE_H
-#define	_BUGSTATE_H
+#define _BUGSTATE_H
 
 #include "State.h"
 #include "BugDataTypes.h"

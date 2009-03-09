@@ -4,6 +4,6 @@
 #include "MoveOut.h"
 
 MoveOut::MoveOut(AgentID receiverID, Time  receiveTime, int e_type) :
-BugEvent(receiverID,receiveTime, e_type), canBugMoveOut(false) {}
+BugEvent(receiverID,receiveTime, e_type){}
 
 #endif
