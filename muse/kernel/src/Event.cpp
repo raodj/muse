@@ -29,7 +29,7 @@
 using namespace muse;
 
 Event::Event(const AgentID  receiverID, const Time  receiveTime):
-    senderAgentID(1e-8), sentTime(1e-8),receiverAgentID(receiverID),receiveTime(receiveTime),
+    senderAgentID(-1u), sentTime(INFINITY),receiverAgentID(receiverID),receiveTime(receiveTime),
     antiMessage(false),referenceCount(0) {
     // Nothing else to be done in the constructor.
 }
@@ -83,7 +83,6 @@ operator<<(ostream& os, const muse::Event& event) {
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
        << "Ref. count="   << event.referenceCount       << ","
-      
        << "color="        << event.getColor()           << "]";
     
     return os;

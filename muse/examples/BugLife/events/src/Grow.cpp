@@ -3,6 +3,6 @@
 
 #include "Grow.h"
 
-Grow::Grow(AgentID receiverID, Time receiveTime, int e_type) : BugEvent(receiverID, receiveTime, e_type ) {}
+Grow::Grow(AgentID receiverID, Time receiveTime, BugEventType e_type) : BugEvent(receiverID, receiveTime, e_type ) {}
 
 #endif
