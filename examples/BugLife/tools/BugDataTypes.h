@@ -30,13 +30,13 @@
 
 /** The following are the different event types in the bug simulation
  */
-#define MOVE_IN     0
-#define MOVE_OUT    1
-#define EAT         2
-#define GROW        3
-#define SCOUT       4
+//#define MOVE_IN     0
+//#define MOVE_OUT    1
+//#define EAT         2
+//#define GROW        3
+//#define SCOUT       4
 
-//enum EventType {MOVE_IN, MOVE_OUT, EAT, GROW, SCOUT };
+enum BugEventType {MOVE_IN, MOVE_OUT, EAT, GROW, SCOUT };
 
 /** This used to represent a coord in the space for the bugs
  */

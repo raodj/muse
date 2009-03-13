@@ -3,7 +3,7 @@
 
 #include "MoveOut.h"
 
-MoveOut::MoveOut(AgentID receiverID, Time  receiveTime, int e_type) :
+MoveOut::MoveOut(AgentID receiverID, Time  receiveTime, BugEventType e_type) :
 BugEvent(receiverID,receiveTime, e_type){}
 
 #endif

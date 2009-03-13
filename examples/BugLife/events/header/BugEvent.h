@@ -7,20 +7,21 @@
  */
 
 #ifndef _BUGEVENT_H
-#define	_BUGEVENT_H
+#define _BUGEVENT_H
  
 #include "Event.h"
+#include "BugDataTypes.h"
 using namespace muse; 
 
 class BugEvent : public Event {
 public:
-    BugEvent(AgentID receiverID,Time receiveTime,int e_type);
+    BugEvent(AgentID receiverID,Time receiveTime,BugEventType e_type);
     inline int getEventSize() { return sizeof(BugEvent); }
 
-    inline int  getEventType()const {return event_type;}
+    inline BugEventType getEventType()const {return event_type;}
   
  protected:
-    int event_type;
+    BugEventType event_type;
 };
 
 #endif	/* _BUGEVENT_H */

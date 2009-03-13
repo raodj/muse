@@ -202,14 +202,4 @@ inline void intrusive_ptr_release(Event * p)
 
 END_NAMESPACE(muse); //end namespace declaration
 
-/** \def INFINITY
-    
-\brief A #define for virtual time corresponding to infinity.
-
-This define provides a more human readable time corresponding to
-infinity that is used for gvt computations.  This is also the
-default value to which time instance variables are initialized.
-*/
-#define INFINITY Time(1e30)
-
 #endif

@@ -15,7 +15,7 @@ using namespace muse;
 
 class Grow : public BugEvent {
 public:
-    Grow(AgentID receiverID,Time receiveTime, int e_type);
+    Grow(AgentID receiverID,Time receiveTime, BugEventType e_type);
     inline int getEventSize() {return sizeof(Grow); }
 };
 

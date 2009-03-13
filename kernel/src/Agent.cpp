@@ -99,8 +99,8 @@ Agent::processNextEvents(){
         
         //if the receive times match, then they are to be processed at
         //the same time.
-        //if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
-        if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
+        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
+        //if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
@@ -169,6 +169,13 @@ Agent::registerSimStream(SimStream * theSimStream){
 
 bool 
 Agent::scheduleEvent(Event *e){
+    ASSERT(e->getSentTime() == 1e30);
+    ASSERT(e->getSenderAgentID() == -1u);
+    //check to make sure that event scheduled via this method is
+    //a new event
+    if (e->getSentTime() != 1e30 || e->getSenderAgentID() != -1u ) {
+        abort();
+    }
     //fill in the sent time and sender agent id info
     e->sentTime = getLVT();
     e->senderAgentID = getAgentID();
@@ -188,6 +195,7 @@ Agent::scheduleEvent(Event *e){
         //will use this to figure out if we need to change our key in
         //scheduler
         Time old_receive_time = INFINITY;
+        
         if (!eventPQ->empty()){
             old_receive_time = eventPQ->top()->getReceiveTime();
         }

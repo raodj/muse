@@ -15,7 +15,7 @@ using namespace muse;
 
 class MoveIn : public BugEvent {
 public:
-    MoveIn(AgentID receiverID, Time  receiveTime, int e_type);
+    MoveIn(AgentID receiverID, Time  receiveTime, BugEventType e_type);
 	inline int getEventSize() {return sizeof(MoveIn); }
 	bool canBugMoveIn; 
 };
