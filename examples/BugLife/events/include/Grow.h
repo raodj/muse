@@ -17,6 +17,8 @@ class Grow : public BugEvent {
 public:
     Grow(AgentID receiverID,Time receiveTime, BugEventType e_type);
     inline int getEventSize() {return sizeof(Grow); }
+    inline void setSize(int growth_size) {size=growth_size; }
+    int size;
 };
 
 #endif	/* _GROW_H */

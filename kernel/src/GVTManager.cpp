@@ -302,7 +302,7 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Destroy message as we no longer need it.
         GVTMessage::destroy(gvtMsg);
         // Print gvt value for reference purposes;
-        std::cout << "GVT: " << gvtEst << std::endl;
+        //std::cout << "GVT: " << gvtEst << std::endl;
     } else {
         // Received a GVT update from process 0. Send an
         // acknowledgement back.
