@@ -219,6 +219,8 @@ public:
 	@note using this method informs MUSE that you are using the user defined SimStream
 	for some stream operation, please remember to keep the reference to the pointer you
 	created.
+
+	@note MUSE will not handle disposing of any registered SimStream. Please remember to clean up.
 	
 	@param theSimStream, pointer to the SimStream of your choice.
 	@see SimStream

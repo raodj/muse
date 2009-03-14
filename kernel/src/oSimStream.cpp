@@ -92,6 +92,7 @@ oSimStream::~oSimStream() {
    //lets make sure we dont distroy the orginial stream buffer
    rdbuf(the_temp_streambuff);
    //lets destroy the temp file that was created
+   the_temp_file.close();
    remove(the_temp_file_name);
    //lets make sure we dont leak and memory from the storage of states
    while(!oSimStreamState_storage.empty()){

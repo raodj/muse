@@ -8,6 +8,7 @@
 #include "MoveIn.h"
 #include "MoveOut.h"
 #include "Grow.h"
+#include "Eat.h"
 #include "BugEvent.h"
 #include "BugState.h"
 
@@ -53,13 +54,14 @@ Bug::executeTask(const EventContainer* events){
                 oss << "Bug " <<getAgentID()<< " moved to ("<<my_location.first<<","<<my_location.second<<") @ time "<<getTime()<< endl;
                 my_state->setLocation(my_location);
 
-                //lets send a move out event, because we are going to move to another space
-                MoveOut * move_out = new MoveOut(current_event->getSenderAgentID(), getTime()+1, MOVE_OUT);
-                scheduleEvent(move_out);
-
-                //now lets send ourself a grow event
-                Grow * grow = new Grow(getAgentID(), getTime()+1, GROW);
-                scheduleEvent(grow);
+                //lets see how much we can eat!!
+                Eat * eat   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
+                //here we figure out how much we can eat before death size is reached
+                //death size being 10
+                int eat_amount = 10-my_state->getSize();
+                eat->setEatAmount(eat_amount);
+                scheduleEvent(eat);
+               
             }else{
                 
                 //with equal probability see which neighbor space the bug moves to?
@@ -81,7 +83,8 @@ Bug::executeTask(const EventContainer* events){
                 my_location.first =x;
                 my_location.second=y;
                 //now make the move in request to the space.
-                MoveIn *move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
+                Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
+                MoveIn *move = new MoveIn(coord_map[my_location], random_move_time, MOVE_IN);
                 scheduleEvent(move);
             }
             
@@ -102,7 +105,8 @@ Bug::executeTask(const EventContainer* events){
             my_location.first =x;
             my_location.second=y;
             //now make the move in request to the space.
-            MoveIn *move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
+            Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
+            MoveIn *move = new MoveIn(coord_map[my_location],random_move_time , MOVE_IN);
             scheduleEvent(move);
             
             break;
@@ -114,6 +118,29 @@ Bug::executeTask(const EventContainer* events){
             oss << "Bug " <<getAgentID()<< " grew to size ("<<my_state->getSize() <<")"<< endl;
             break;
         case EAT:
+            //we cast to get the eat amount, this is how much food there was in the space.
+            Eat * eat   = static_cast<Eat*>(current_event);
+
+            //here we check if there was any food to eat, if so we grow and try to eat again.
+            //otherwise we move out of the space.
+            if (eat->eatAmount > 0){
+                //now lets send ourself a grow event
+                Grow * grow_event = new Grow(getAgentID(), getTime()+1, GROW);
+                grow_event->setSize(eat->eatAmount);
+                scheduleEvent(grow_event);
+
+                //let try to eat again!!!
+                Eat * eat_again   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
+                //here we figure out how much we can eat before death size is reached
+                //death size being 10
+                int eat_amount = 10-my_state->getSize();
+                eat_again->setEatAmount(eat_amount);
+                scheduleEvent(eat_again);
+            }else{
+                //lets send a move out event, because we are going to move to another space
+                MoveOut * move_out = new MoveOut(coord_map[my_state->getLocation()] , getTime()+1, MOVE_OUT);
+                scheduleEvent(move_out);
+            }
             break;
         case SCOUT:
             break;

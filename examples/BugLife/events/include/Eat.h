@@ -16,6 +16,10 @@ class Eat : public BugEvent {
 public:
     Eat(AgentID receiverID,Time receiveTime, BugEventType e_type);
     inline int getEventSize() {return sizeof(Eat); }
+    //the space agent use this to set how much a bug can eat from the space.
+    //this is used by the bug to figure out how much to grow
+    inline void setEatAmount(int amount) {eatAmount=amount;}
+    int eatAmount;
 };
 
 #endif	/* _EAT_H */
