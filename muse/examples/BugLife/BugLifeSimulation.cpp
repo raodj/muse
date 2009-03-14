@@ -4,11 +4,9 @@
    Just change names around and get to the good part.
 */
 
-
-
 #include "Simulation.h"
 #include "DataTypes.h"
-#include <math.h>
+#include <cmath>
 #include <cstdlib>
 #include "arg_parser.h"
 #include "BugDataTypes.h"
@@ -17,7 +15,8 @@
 #include "BugState.h"
 #include "Space.h"
 #include "Bug.h"
-
+#include <ostream>
+#include "oSimStream.h"
 using namespace muse;
 
 // These must be static or global scope...
@@ -97,6 +96,7 @@ int main(int argc, char** argv) {
         kernel->registerAgent(space);
     }//end for
 
+    SimStreamContainer simStreams;
     //now we need to create and register the bugs
     AgentID bug_id = -1u;
     for (AgentID i= max_space_agents;i < max_space_agents+bug_agents_per_node ; i++){
@@ -104,6 +104,8 @@ int main(int argc, char** argv) {
         bug_id =  (bugs/max_nodes)*rank + i;
         //cout << "bug id: " << bug_id <<endl;
         Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);
+        //lets register oSimStream to file output
+        
         kernel->registerAgent(bug);
     }//end for
 
