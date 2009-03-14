@@ -7,6 +7,7 @@
 #include "BugDataTypes.h"
 #include "MoveIn.h"
 #include "MoveOut.h"
+#include "Grow.h"
 #include "BugEvent.h"
 #include "BugState.h"
 
@@ -32,6 +33,7 @@ Bug::initialize() throw (std::exception){
     //now make the move in request to the space.
     MoveIn * move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
     scheduleEvent(move);
+    
 }//end initialize
 
 void
@@ -54,7 +56,10 @@ Bug::executeTask(const EventContainer* events){
                 //lets send a move out event, because we are going to move to another space
                 MoveOut * move_out = new MoveOut(current_event->getSenderAgentID(), getTime()+1, MOVE_OUT);
                 scheduleEvent(move_out);
-                
+
+                //now lets send ourself a grow event
+                Grow * grow = new Grow(getAgentID(), getTime()+1, GROW);
+                scheduleEvent(grow);
             }else{
                 
                 //with equal probability see which neighbor space the bug moves to?
@@ -102,6 +107,11 @@ Bug::executeTask(const EventContainer* events){
             
             break;
         case GROW:
+            //we cast it to get the size of growth
+            Grow     * grow  = static_cast<Grow*>(current_event);
+            int growth = my_state->getSize()+grow->size;
+            my_state->setSize(growth);
+            oss << "Bug " <<getAgentID()<< " grew to size ("<<my_state->getSize() <<")"<< endl;
             break;
         case EAT:
             break;

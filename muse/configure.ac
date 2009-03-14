@@ -22,8 +22,8 @@
 #
 #---------------------------------------------------------------------------
 
-AC_PREREQ(2.6)
-AC_INIT([muse], [0.1.0], [raodm@muohio.edu])
+AC_PREREQ(2.59)
+AC_INIT([muse],[0.1.0],[raodm@muohio.edu])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([config.h.in])
 AC_CONFIG_HEADERS([config.h])
@@ -39,7 +39,7 @@ CPPFLAGS=""
 AC_DEFUN([AC_PROG_MPI],
 [
     AC_ARG_WITH(mpi,
-            AC_HELP_STRING([--with-mpi=PATH],[path to mpicc]),
+            AS_HELP_STRING(--with-mpi=PATH,path to mpicc),
     [ if test "$withval" != "yes"; then
           AC_MSG_CHECKING([for MPI])
 	  if test -x "$withval" ; then
@@ -89,7 +89,7 @@ AC_DEFUN([AC_LINK_STDCPP],
 AC_DEFUN([AC_PROG_ICC],
 [
     AC_ARG_WITH(icc,
-            AC_HELP_STRING([--with-icc],[Code will be compiled with icc]),
+            AS_HELP_STRING(--with-icc,Code will be compiled with icc),
     [ if test "$withval" != "yes"; then
 	  icc="yes"
       else

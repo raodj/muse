@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -wd 810 -I../../include -I./agents/header -I./events/header -I./states/header -I./tools
+AM_CXXFLAGS += -wd 810 -I../../include -I./agents/include -I./events/include -I./states/include -I./tools
 
 bin_PROGRAMS = bugsim
 
