@@ -28,11 +28,11 @@ public:
     inline int getSize() const {return size;}
     inline void setSize(int new_size) {size=new_size;}
     
-    inline bool isAlive() const {return isAlive;}
-    inline void setIsAlive(bool life) {isAlive=life;}
+    inline bool isAlive() const {return alive;}
+    inline void setIsAlive(bool life) {alive=life;}
 
     inline int getScoutReturned() const {return scoutReturned;}
-    inline void setScoutReturned(int scouts) const {scoutReturned = scouts;}
+    inline void setScoutReturned(int scouts) {scoutReturned = scouts;}
  protected:
     /** The size of the bug. 
 	*/
@@ -45,7 +45,7 @@ public:
     /** This is used to kill a bug and also used for birth
 	Version 12
      */
-    bool isAlive;
+    bool alive;
 
     /** This is used for the bug goal oriented movements
 	once we get back all the scouts the bug make a choice of what space
