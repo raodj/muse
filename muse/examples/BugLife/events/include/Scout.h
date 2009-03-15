@@ -17,6 +17,12 @@ class Scout : public BugEvent {
 public:
     Scout(AgentID receiverID,Time receiveTime, BugEventType e_type);
     inline int getEventSize() {return sizeof(Scout); }
+
+    /** the space sets this value to report how much food is in the
+	space at the time of receving this event.
+	Version 11
+     */
+    int foodCount;
 };
 
 #endif	/* _SCOUT_H */
