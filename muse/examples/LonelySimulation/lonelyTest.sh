@@ -1,8 +1,8 @@
 #!/bin/bash
 
-cd /home/gebremr/research/muse/examples/LonelySimulation 
+cd $(HOME)/research/muse/examples/LonelySimulation 
 ulimit -c unlimited
-./lonelyTest 100 4 100000 &
+./lonelyTest 100 2 100 &
 pid=$!
 wait $pid
 status=$?

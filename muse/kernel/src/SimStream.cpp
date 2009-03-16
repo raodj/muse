@@ -1,13 +1,11 @@
+#ifndef SIMSTREAM_CPP
+#define	SIMSTREAM_CPP
+
 #include "SimStream.h"
 using namespace muse;
 
-void
-SimStream::garbageCollect(const Time& gvt){}
-
-void
-SimStream::saveState(const Time& lvt){}
-
-void
-SimStream::rollback(const Time& restored_time){}
+SimStream::SimStream(){}
 
 SimStream::~SimStream(){}
+
+#endif
