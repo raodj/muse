@@ -138,7 +138,7 @@ Agent::processNextEvents(){
     //if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
     //after the second state in the stateQueue, there should never be a duplicate again
     if (stateQueue.size() > 2) {
-        ASSERT( stateQueue.back()->getTimeStamp() != state->getTimeStamp());
+        ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
         ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
     }
 
@@ -169,11 +169,11 @@ Agent::registerSimStream(SimStream * theSimStream){
 
 bool 
 Agent::scheduleEvent(Event *e){
-    ASSERT(e->getSentTime() == 1e30);
+    ASSERT(TIME_EQUALS(e->getSentTime(),TIME_INFINITY) );
     ASSERT(e->getSenderAgentID() == -1u);
     //check to make sure that event scheduled via this method is
     //a new event
-    if (e->getSentTime() != 1e30 || e->getSenderAgentID() != -1u ) {
+    if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() != -1u ) {
         abort();
     }
     //fill in the sent time and sender agent id info
@@ -194,7 +194,7 @@ Agent::scheduleEvent(Event *e){
         }
         //will use this to figure out if we need to change our key in
         //scheduler
-        Time old_receive_time = INFINITY;
+        Time old_receive_time = TIME_INFINITY;
         
         if (!eventPQ->empty()){
             old_receive_time = eventPQ->top()->getReceiveTime();
@@ -273,7 +273,7 @@ Agent::doRestorationPhase(Event* straggler_event){
 
     //we set our LVT to INFINITY here incase we dont find a state to restore to
     //we can revert to the initial state after the loop.
-    LVT = INFINITY;
+    LVT = TIME_INFINITY;
     //now we go and look for a state to restore to.
     while (stateQueue.size() != 1 ){
         State * current_state = stateQueue.back();
@@ -297,7 +297,7 @@ Agent::doRestorationPhase(Event* straggler_event){
     
     //cout << "TIME_EQUALS(LVT,INFINITY) === " <<TIME_EQUALS(LVT,INFINITY) << endl;
     //if LVT is INFINITY then that means we have rolled back all the way to beginning.
-    if (LVT == INFINITY){
+    if (TIME_EQUALS(LVT,TIME_INFINITY) ){
         //state queue should have a size of one
         ASSERT(stateQueue.size() == 1);
         //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
@@ -464,15 +464,26 @@ Agent::garbageCollect(const Time gvt){
 }
 
 Time
-Agent::getTime() const {
-    return (Simulation::getSimulator())->getTime();
+Agent::getTime(TimeType time_type) const {
+    switch(time_type){
+    case lvt:
+        return getLVT();
+        break;
+    case lgvt:
+        return (Simulation::getSimulator())->getLGVT();
+        break;
+    case gvt:
+        return (Simulation::getSimulator())->getGVT();
+        break;
+    }
+    return TIME_INFINITY;
 }
 
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
 {
-    Time lhs_time = lhs->eventPQ->empty() ? 1e30 : lhs->eventPQ->top()->getReceiveTime();
-    Time rhs_time = rhs->eventPQ->empty() ? 1e30 : rhs->eventPQ->top()->getReceiveTime();
+    Time lhs_time = lhs->eventPQ->empty() ? TIME_INFINITY : lhs->eventPQ->top()->getReceiveTime();
+    Time rhs_time = rhs->eventPQ->empty() ? TIME_INFINITY : rhs->eventPQ->top()->getReceiveTime();
 
     // cout << "Comparing agents " << lhs->getAgentID()  << "(lhs_time = " << lhs_time
     //   << ") and " << rhs->getAgentID() << " (rhs_time = " << rhs_time << ")\n";

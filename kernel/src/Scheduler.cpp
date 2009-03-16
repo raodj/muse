@@ -1,5 +1,3 @@
-
-
 #ifndef _MUSE_SCHEDULER_CPP_
 #define _MUSE_SCHEDULER_CPP_
 
@@ -143,7 +141,7 @@ Scheduler::scheduleEvent( Event *e){
 
     //will use this to figure out if we need to change our key in
     //scheduler
-    Time old_receive_time = INFINITY;
+    Time old_receive_time = TIME_INFINITY;
     if (!agent->eventPQ->empty()){
         old_receive_time = agent->eventPQ->top()->getReceiveTime();
     }
@@ -169,7 +167,7 @@ Time
 Scheduler::getNextEventTime() const {
     if (agent_pq.empty()) {
         // The queue is empty. So return infinity.
-        return INFINITY;
+        return TIME_INFINITY;
     }
     // Obtain reference to the top agent in the priority queue.
     const Agent *agent = agent_pq.top();
@@ -179,7 +177,7 @@ Scheduler::getNextEventTime() const {
     if (agent->eventPQ->empty()) {
         // No events on the top-most queue.
         //cout << "Agent eventPQ TOp is Empty" <<endl;
-        return INFINITY;
+        return TIME_INFINITY;
         
     }
     //cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;

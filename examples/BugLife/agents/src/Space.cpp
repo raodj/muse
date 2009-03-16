@@ -25,7 +25,7 @@ Space::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
     for (; it != events->end(); it++){
         BugEvent * current_event = static_cast<BugEvent*>((*it));
-        SpaceState * my_state = static_cast<SpaceState*>(myState);
+        SpaceState * my_state = static_cast<SpaceState*>(getState());
         //we use a switch on the event type
         switch(current_event->getEventType()){
         case MOVE_IN:

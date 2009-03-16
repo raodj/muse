@@ -55,11 +55,18 @@ are declared virtual.</p>
 */
 class Agent {
 
+    /** enum for return Time.
+        when agent ask for time via getTime()
+        user will be able to pass in TimeType and get
+        LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
+    */
+    enum TimeType {lvt,lgvt,gvt};
+    
     //lets declare the Simulation class a friend!
     friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
-
+  
 public:
     /** The eventComp class.
         Compares delivery times. puts the one with the smaller ahead.
@@ -147,22 +154,17 @@ public:
     */
     inline AgentID getAgentID() const { return myID; }
         
-    /** The getLVT method.
-        This will return the agent's Local Virtual Time.
-        If you want to know the time in term of an agent, this is what you
-        want to call.
-     
-        @return Time , basically the time of the last processed event
-    */
-    inline Time getLVT() const { return LVT;}
+
 
     /** The getTime method.
         This will return the Simulation Time or the GVT (global virtual time).
-        
-        @return Time , the gvt
+
+        @param time_type, this is of can be either Agent::lvt, Agent::lgvt, or Agent::gvt
+        @return Time , Depending on the time type. See TimeType for what each one returns, default is lvt.
 	@see Time
+	@see TimeType
     */
-    Time getTime() const;
+    Time getTime(TimeType time_type=Agent::lvt)const;
 
     /** The ctor.
         @note once constructed MUSE will handle deleting the state pointer.
@@ -225,13 +227,35 @@ public:
 	@param theSimStream, pointer to the SimStream of your choice.
 	@see SimStream
 	@see oSimStream
-     */
+    */
     void registerSimStream(SimStream * theSimStream);
 
+ protected:
 
+    /** The getState method.
+	This will return the current state of the agent.
+
+	@return the current state pointer to the agent's state.
+	@see State
+    */
+    inline State * getState() const {return myState;}
     
-protected:
+    /** The oSimStream type oss.
+	This is the default provided by MUSE and when its safe will push all data
+	to std::cout.
+    */
+    oSimStream oss;
+    
+ private:
 
+    /** The getLVT method.
+        This will return the agent's Local Virtual Time.
+        If you want to know the time in term of an agent, this is what you
+        want to call.
+	
+        @return Time , basically the time of the last processed event
+    */
+    inline Time getLVT() const { return LVT;}
     
     /** The processNextEvents method.
         This is used for in house and SHOULD NEVER be used by users. Only for the Scheduler.
@@ -267,7 +291,7 @@ protected:
         @param gvt, this is the GVT time that is calculated by GVTManager.
         @see GVTManager
         @see Time
-     */
+    */
     void garbageCollect(const Time gvt);
 
     
@@ -362,7 +386,7 @@ protected:
     /** The intrusive pointer for events. This way we dont have to worry
 	about what container has what reference and we can be leak free
 	for Event memory.
-     */
+    */
     //typedef boost::intrusive_ptr<Event> SharedEventPointer;
     
     /** The double linked lise outputQueue.
@@ -403,14 +427,10 @@ protected:
 
     /** The SimStreamContainer type allSimStreams.
 	This is used to store registered SimStream, typically are user defined.
-     */
+    */
     SimStreamContainer allSimStreams;
 
-    /** The oSimStream type oss.
-	This is the default provided by MUSE and when its safe will push all data
-	to std::cout.
-     */
-    oSimStream oss;
+
     
 };
 END_NAMESPACE(muse);//end namespace declaration

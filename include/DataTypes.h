@@ -94,11 +94,8 @@ This define provides a more human readable time corresponding to
 infinity that is used for gvt computations.  This is also the
 default value to which time instance variables are initialized.
 */
-#define INFINITY Time(1e30)
-//typedef struct timeType {
-//  static const Time EPOCH      = 0;
-//static const Time INFINITY   = 1e30;
-//} museTimeType;
+#define TIME_INFINITY Time(1e30)
+
 
 
 

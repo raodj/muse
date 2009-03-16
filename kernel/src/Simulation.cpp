@@ -218,7 +218,7 @@ Simulation::getLGVT() const {
 }
 
 Time
-Simulation::getTime() const {
+Simulation::getGVT() const {
     return gvtManager->getGVT();
 }
 
