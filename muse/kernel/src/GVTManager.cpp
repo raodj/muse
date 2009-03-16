@@ -40,8 +40,8 @@ GVTManager::GVTManager() {
     vecCounters[0] = NULL; // Vectors are created in initialize
     vecCounters[1] = NULL;
     // Set time to some invalid values.
-    tMin           = INFINITY;
-    gvt            = INFINITY;
+    tMin           = TIME_INFINITY;
+    gvt            = TIME_INFINITY;
     numProcesses   = 0;
     pendingAcks    = 0;
     cycle          = 0;
@@ -64,7 +64,7 @@ void
 GVTManager::initialize(const Time& startTime, Communicator *comm) {
     // Validate parameters
     ASSERT ( comm != NULL );
-    ASSERT ( startTime < INFINITY );
+    ASSERT ( startTime < TIME_INFINITY );
     
     // Re-initialize the instance variables using new info.
     gvt          = startTime;
@@ -220,7 +220,7 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
     // Change our current active color if needed.
     if ((rank != ROOT_KERNEL) && (activeColor == white)) {
         activeColor = !white;
-        tMin        = INFINITY;
+        tMin        = TIME_INFINITY;
     }
     // Let the helper method do rest of the processing.
     checkWaitingCtrlMsg();
@@ -253,7 +253,7 @@ GVTManager::startGVTestimation() {
     ASSERT ( msg != NULL );
     // Fill in other details.
     msg->setGVTEstimate(Simulation::getSimulator()->getLGVT());
-    msg->setTmin(INFINITY);
+    msg->setTmin(TIME_INFINITY);
     // Update and reset the vector counters.
     int *count = msg->getCounters();
     ASSERT ( count != NULL );
@@ -264,7 +264,7 @@ GVTManager::startGVTestimation() {
     
     // Now toggle our state and update tmin.
     activeColor = !white;
-    tMin        = INFINITY;
+    tMin        = TIME_INFINITY;
     // Track GVT cycle in process.
     cycle       = 1;
     // Dispatch the message to the next process.

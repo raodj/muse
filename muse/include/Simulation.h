@@ -71,7 +71,7 @@ class Simulation {
     //has to be a friend class because garbage collection is called from the
     //GVTManager class.
     friend class GVTManager;
-   
+    friend class Agent;
 public:
 
     /** The initialize method.  Once the simulation instance is
@@ -206,13 +206,7 @@ public:
 	@return bool, True if the AgentID is registered to this kernel.
     */
     bool isAgentLocal(AgentID &);
-
-    /** The getTime method.
-	This is the time of this simualtion kernel.
-    */
-    Time getTime() const;
-
-
+    
     /** The getStartTime method.
 	@return the start time of this simulation kernel.
 	@see Time
@@ -225,11 +219,18 @@ public:
     */
     inline Time getEndTime() const { return endTime; }
 
-    void changeKey(void*, Agent *);
+    
 protected:
 
-   
-    
+    /** The getGVT method.
+	This is GVT (Global Virtual Time).
+
+	@return Time, the GVT.
+	@see Time
+    */
+    Time getGVT() const;
+
+
     /** The getLGVT() method.
 	This method is used to peek into the next agent to be processed time.
 	This effectively gives you the smallest time in this kernel.
@@ -238,7 +239,12 @@ protected:
 	@see Time
      */
     Time getLGVT() const;
-     
+
+    /** the changeKey method.
+	Used to reheap the fibonacci heap in the scheduler.
+	@note Users should not use this. 
+     */
+    void changeKey(void*, Agent *);
     /** The collectGarbage method.
         When this method is called, garbage collections for all the agents
         that are registered to this kernel take place. Please see Agent::collectGarbage

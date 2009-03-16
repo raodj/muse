@@ -29,7 +29,7 @@ Bug::initialize() throw (std::exception){
     //cout << "Bug: " << getAgentID() << " moving to ("<<x<<","<<y<<")" <<endl;
     my_location.first =x;
     my_location.second=y;
-    //cout << "Trying to Move to Space: " << coord_map[my_location] <<endl;
+    cout << "Bug " <<getAgentID();cout << " Trying to Move to Space: " << coord_map[my_location] <<endl;
 
     //now make the move in request to the space.
     MoveIn * move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
@@ -40,9 +40,10 @@ Bug::initialize() throw (std::exception){
 void
 Bug::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
+   
     for (; it != events->end(); it++){
         BugEvent * current_event = static_cast<BugEvent*>((*it));
-        BugState   * my_state = static_cast<BugState*>(myState);
+        BugState   * my_state = static_cast<BugState*>(getState());
         //we use a switch on the event type
         switch(current_event->getEventType()){
         case MOVE_IN:
@@ -51,7 +52,7 @@ Bug::executeTask(const EventContainer* events){
             MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
             if (move_in->canBugMoveIn){
                 //means that the space accepted the bug
-                oss << "Bug " <<getAgentID()<< " moved to ("<<my_location.first<<","<<my_location.second<<") @ time "<<getTime()<< endl;
+                cout << "Bug " <<getAgentID()<< " moved to ("<<my_location.first<<","<<my_location.second<<") @ time "<<getTime()<< endl;
                 my_state->setLocation(my_location);
 
                 //lets see how much we can eat!!
@@ -63,7 +64,7 @@ Bug::executeTask(const EventContainer* events){
                 scheduleEvent(eat);
                
             }else{
-                
+                cout << "Bug " <<getAgentID()<< " move in not allowed"<<endl;
                 //with equal probability see which neighbor space the bug moves to?
                 int x =  (MTRandom::RandDouble()*(cols));
                 //if x was set from random then we make sure we dont get x out of range
@@ -74,10 +75,10 @@ Bug::executeTask(const EventContainer* events){
                 
                 double r=MTRandom::RandDouble();
                 //we do the mod operator because the space wraps around at the edges!
-                if(r<0.25)      (x--) % cols; 
-                else if(r<0.5)  (y--) % rows;
-                else if(r<0.75) (y++) % rows;
-                else            (x++) % cols;
+                if(r<0.25)       x = true_mod(x-=1,cols); //(x--) % cols; <- doesnt really work with negatives
+                else if(r<0.5)   y = true_mod(y-=1,rows);
+                else if(r<0.75)  y = true_mod(y+=1,rows);//(y++) % rows;
+                else             x = true_mod(x+=1,cols);//(x++) % cols;
                 
                 //now set my_location and ask the space to move in
                 my_location.first =x;
@@ -96,10 +97,10 @@ Bug::executeTask(const EventContainer* events){
            
             double r=MTRandom::RandDouble();
             //we do the mod operator because the space wraps around at the edges!
-            if(r<0.25)      (x--) % cols; 
-            else if(r<0.5)  (y--) % rows;
-            else if(r<0.75) (y++) % rows;
-            else            (x++) % cols;
+            if(r<0.25)       x = true_mod(x-=1,cols); //(x--) % cols; <- doesnt really work with negatives
+            else if(r<0.5)   y = true_mod(y-=1,rows);
+            else if(r<0.75)  y = true_mod(y+=1,rows);//(y++) % rows;
+            else             x = true_mod(x+=1,cols);//(x++) % cols;
             
             //now set my_location and ask the space to move in
             my_location.first =x;
@@ -112,10 +113,10 @@ Bug::executeTask(const EventContainer* events){
             break;
         case GROW:
             //we cast it to get the size of growth
-            Grow     * grow  = static_cast<Grow*>(current_event);
+            Grow     * grow  = static_cast<Grow*>(current_event); 
             int growth = my_state->getSize()+grow->size;
             my_state->setSize(growth);
-            oss << "Bug " <<getAgentID()<< " grew to size ("<<my_state->getSize() <<")"<< endl;
+            cout << "Bug " <<getAgentID()<< " grew to size ("<<my_state->getSize() <<")"<< endl;
             break;
         case EAT:
             //we cast to get the eat amount, this is how much food there was in the space.

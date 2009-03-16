@@ -46,4 +46,11 @@ typedef pair<int,int> coord;
 */
 typedef map<coord, muse::AgentID > CoordAgentIDMap;
 
+/** The mod operator % really is a remainder operation.
+    However we need true mod operator for wrapping around the space. The following macro
+    implements true mod.
+ */
+#define true_mod(num,mod)((mod+(num%mod))%mod)
+
+
 #endif

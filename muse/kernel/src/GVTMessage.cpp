@@ -76,7 +76,7 @@ GVTMessage::areCountersZero(const int numProcesses) const {
 GVTMessage::GVTMessage(const GVTMsgKind msgKind, const int msgSize)
     : kind(msgKind), size(msgSize) {
     // Initialize other members to invalid values.
-    gvtEstimate = tMin = INFINITY;
+    gvtEstimate = tMin = TIME_INFINITY;
 }
 
 GVTMessage::~GVTMessage() {
