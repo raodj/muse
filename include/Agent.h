@@ -60,7 +60,7 @@ class Agent {
         user will be able to pass in TimeType and get
         LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
     */
-    enum TimeType {lvt,lgvt,gvt};
+    enum TimeType {LVT,LGVT,GVT};
     
     //lets declare the Simulation class a friend!
     friend class Simulation;
@@ -164,7 +164,7 @@ public:
 	@see Time
 	@see TimeType
     */
-    Time getTime(TimeType time_type=Agent::lvt)const;
+    Time getTime(TimeType time_type=Agent::LVT)const;
 
     /** The ctor.
         @note once constructed MUSE will handle deleting the state pointer.
@@ -248,6 +248,12 @@ public:
     
  private:
 
+    /** The setLVT method.
+        
+        @param  new_lvt ,the new lvt time
+    */
+    inline void setLVT(Time new_lvt) {lvt=new_lvt;}
+    
     /** The getLVT method.
         This will return the agent's Local Virtual Time.
         If you want to know the time in term of an agent, this is what you
@@ -255,7 +261,7 @@ public:
 	
         @return Time , basically the time of the last processed event
     */
-    inline Time getLVT() const { return LVT;}
+    inline Time getLVT() const { return lvt;}
     
     /** The processNextEvents method.
         This is used for in house and SHOULD NEVER be used by users. Only for the Scheduler.
@@ -374,7 +380,7 @@ public:
 	
         @see getAgentID()
     */
-    Time LVT;
+    Time lvt;
 
     /** The double linked lise stateQueue.
         Houses a sorted list of state pointers. Needed incase of rollbacks

@@ -48,7 +48,7 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id),myState(agentState),LVT(0){
+Agent::Agent(AgentID  id, State * agentState) : myID(id),myState(agentState),lvt(0){
     eventPQ = new EventPQ;
 }//end ctor
 
@@ -63,7 +63,7 @@ Agent::~Agent() {
 
 bool
 Agent::processNextEvents(){
-
+    //cout <<getAgentID();cout << " eventPQ size: " <<eventPQ->size() <<endl;
     //here we make sure the list is not empty
     ASSERT(eventPQ->empty() != true);
     if (eventPQ->empty()) {
@@ -75,6 +75,7 @@ Agent::processNextEvents(){
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
 
+    cout << "Processing Event From Agent: "<<top_event->getSenderAgentID() << " at Agent: " << getAgentID()<<endl;
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     ASSERT(top_event->isAntiMessage() == false );
@@ -125,12 +126,12 @@ Agent::processNextEvents(){
     //cout << "\n";
     //}
     //here we set the agent's LVT and update agent's state timestamp
-    LVT = top_event->getReceiveTime();
-    myState->timestamp = LVT;
+    setLVT(top_event->getReceiveTime());
+    myState->timestamp = getLVT();
     executeTask(&events);
     
     //clone the state so we can archive
-    State * state = cloneState(myState );
+    State * state = cloneState(myState);
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
@@ -145,9 +146,9 @@ Agent::processNextEvents(){
     stateQueue.push_back(state);
 
     //we finally need to save the state of all SimStreams that are registered.
-    oss.saveState(LVT);
+    oss.saveState(getLVT());
     for (int i=0;i<allSimStreams.size(); i++){
-        allSimStreams[i]->saveState(LVT);
+        allSimStreams[i]->saveState(getLVT());
     }
     return true;
 }//end processNextEvents
@@ -177,7 +178,7 @@ Agent::scheduleEvent(Event *e){
         abort();
     }
     //fill in the sent time and sender agent id info
-    e->sentTime = getLVT();
+    e->sentTime      = getLVT();
     e->senderAgentID = getAgentID();
     //check to make sure we dont schedule pass the simulation end time.
     if ( e->getSentTime() >= (Simulation::getSimulator())->getEndTime() ){   
@@ -218,6 +219,7 @@ Agent::scheduleEvent(Event *e){
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
+        cout << "Sending Event From Agent: "<<getAgentID() << " To Agent: " << e->getReceiverAgentID()<<endl;
         //just add to output queue.
         e->increaseReference();
         outputQueue.push_back(e);
@@ -235,9 +237,9 @@ Agent::doRollbackRecovery(Event* straggler_event){
 
     //we need to rollback all SimStreams here.
     //LVT by now should be the restored_time
-    oss.rollback(LVT);
+    oss.rollback(getLVT());
     for (int i=0;i<allSimStreams.size(); i++){
-        allSimStreams[i]->rollback(LVT);
+        allSimStreams[i]->rollback(getLVT());
     }
 }//end doRollback
 
@@ -273,7 +275,7 @@ Agent::doRestorationPhase(Event* straggler_event){
 
     //we set our LVT to INFINITY here incase we dont find a state to restore to
     //we can revert to the initial state after the loop.
-    LVT = TIME_INFINITY;
+    setLVT(TIME_INFINITY);
     //now we go and look for a state to restore to.
     while (stateQueue.size() != 1 ){
         State * current_state = stateQueue.back();
@@ -284,7 +286,7 @@ Agent::doRestorationPhase(Event* straggler_event){
             //after we setState, remember myState will point to a new state now.
             setState( cloneState(current_state) );
             //set agent's LVT to this state's timestamp
-            LVT = myState->getTimeStamp();
+            setLVT(myState->getTimeStamp());
             //cout << "    State Found for time: "<< LVT << endl;
             break;
         }else{
@@ -297,19 +299,19 @@ Agent::doRestorationPhase(Event* straggler_event){
     
     //cout << "TIME_EQUALS(LVT,INFINITY) === " <<TIME_EQUALS(LVT,INFINITY) << endl;
     //if LVT is INFINITY then that means we have rolled back all the way to beginning.
-    if (TIME_EQUALS(LVT,TIME_INFINITY) ){
+    if (TIME_EQUALS(getLVT(),TIME_INFINITY) ){
         //state queue should have a size of one
         ASSERT(stateQueue.size() == 1);
         //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
         delete myState;
         setState( cloneState(stateQueue.front()) );
-        LVT = myState->getTimeStamp();
+        setLVT(myState->getTimeStamp()) ;
         // cout << "Restored Time To: " << LVT <<endl;
     }else{
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
         //cout << "restored  time: " <<LVT <<endl;
-        ASSERT(straggler_event->getReceiveTime() > LVT  );
+        ASSERT(straggler_event->getReceiveTime() > getLVT()  );
     }
     
     //for debugging reasons
@@ -466,13 +468,13 @@ Agent::garbageCollect(const Time gvt){
 Time
 Agent::getTime(TimeType time_type) const {
     switch(time_type){
-    case lvt:
+    case LVT:
         return getLVT();
         break;
-    case lgvt:
+    case LGVT:
         return (Simulation::getSimulator())->getLGVT();
         break;
-    case gvt:
+    case GVT:
         return (Simulation::getSimulator())->getGVT();
         break;
     }
