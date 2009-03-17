@@ -6,7 +6,7 @@
 #include <iostream>
 #include "BugDataTypes.h"
 #include "MoveIn.h"
-#include "MoveOut.h"
+#include "MoveOut.h" 
 #include "Grow.h"
 #include "Eat.h"
 #include "BugEvent.h"
@@ -30,11 +30,13 @@ Bug::initialize() throw (std::exception){
     my_location.first  =x;
     my_location.second =y;
     //cout << "Bug " <<getAgentID();cout << " Trying to Move to Space: " << coord_map[my_location] <<endl;
-
-    //now make the move in request to the space.
-    MoveIn * move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
-    scheduleEvent(move);
     
+    //now make the move in request to the space.
+    Time random_move_time = 1+getTime(); //+(int)(MTRandom::RandDouble()*(4));
+    //cout << "Random Move Time Init: " << random_move_time <<endl;
+    MoveIn * move = new MoveIn(coord_map[my_location],random_move_time , MOVE_IN);
+    scheduleEvent(move);
+    //cout << "Random Move Time Init: " << random_move_time <<endl;
 }//end initialize
 
 void
@@ -42,7 +44,7 @@ Bug::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
     //cout << "BUG Events size: " << events->size() <<endl; 
     for (; it != events->end(); it++){
-        BugEvent   * current_event = static_cast<BugEvent*>((*it));
+        BugEvent   * current_event = static_cast<BugEvent*>((*it)); 
         BugState   * my_state      = static_cast<BugState*>(getState()); 
         //we use a switch on the event type
         switch(current_event->getEventType()){
@@ -75,26 +77,26 @@ Bug::executeTask(const EventContainer* events){
                 //if x was set from random then we make sure we dont get x out of range
                 while (x == cols) x =  (MTRandom::RandDouble()*(cols));
                 int y =  (MTRandom::RandDouble()*(rows));
-                //if y was set from random then we make sure we dont get y out of range
+                //if y was set from random then we make sure we dont get y out of range 
                 while (y == rows) y =  (MTRandom::RandDouble()*(rows));
                 
                 //now set my_location and ask the space to move in
-                my_location.first =x;
-                my_location.second=y;
+                my_location.first =x; 
+                my_location.second=y; 
                 //now make the move in request to the space.
                 Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
                 MoveIn *move = new MoveIn(coord_map[my_location], random_move_time, MOVE_IN);
                 scheduleEvent(move);
             }
-            
+             
             break;
-        case MOVE_OUT:
-            cout << "Bug " <<getAgentID()<< " moved out of space "<<current_event->getSenderAgentID()<<endl;
+        case MOVE_OUT:   
+            cout << "Bug " <<getAgentID()<< " moved out of space "<<current_event->getSenderAgentID()<<endl; 
             //with equal probability see which neighbor space the bug moves to?
-            int x = my_state->getLocation().first;
-            int y = my_state->getLocation().second; 
+            int x = my_state->getLocation().first; 
+            int y = my_state->getLocation().second;  
            
-            double r=MTRandom::RandDouble();
+            double r=MTRandom::RandDouble();  
             //we do the mod operator because the space wraps around at the edges!
             if(r<0.25)       x = true_mod(x-=1,cols);
             else if(r<0.5)   y = true_mod(y-=1,rows);
@@ -109,7 +111,7 @@ Bug::executeTask(const EventContainer* events){
             MoveIn *move = new MoveIn(coord_map[my_location],random_move_time , MOVE_IN);
             scheduleEvent(move);
             
-            break;
+            break; 
         case GROW:
             //we cast it to get the size of growth
             Grow     * grow  = static_cast<Grow*>(current_event); 

@@ -30,16 +30,19 @@ Space::executeTask(const EventContainer* events){
         //we use a switch on the event type
         switch(current_event->getEventType()){
         case MOVE_IN:
-            //cout << "SPACE "<<getAgentID() << " Got MOVE IN event from bug: "<<current_event->getSenderAgentID() <<endl;
-            MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
             
+            MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
+             
             if ( my_state->getBugID() == NO_BUG){
-                //means we are not holding a bug
+                
+                //means we are not holding a bug 
                 my_state->setBugID(move_in->getSenderAgentID());
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID() , getTime()+1, MOVE_IN);
                 move->canBugMoveIn = true;
-                scheduleEvent(move);  
-            }else{
+                if (scheduleEvent(move)){
+                    //cout << "SPACE "<<getAgentID() << " OK'd MOVE IN event from bug: "<<current_event->getSenderAgentID() <<endl;
+                }
+            }else{ 
                 //means we are full and no bugs allowed
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID(), getTime()+1, MOVE_IN);
                 move->canBugMoveIn = false; //false by default, but just to be clear to reader
@@ -57,10 +60,6 @@ Space::executeTask(const EventContainer* events){
                 MoveOut * move_out = new MoveOut(current_event->getSenderAgentID(), getTime()+1, MOVE_OUT);
                 scheduleEvent(move_out);
             }
-            break;
-            
-        case GROW:
-            //we'll never receive this type of event!!
             break;
             
         case EAT:

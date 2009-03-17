@@ -64,11 +64,11 @@ Scheduler::processNextAgentEvents(){
 
     
     Agent * agent = agent_pq.top();
-    //cout << "Top before is Agent: " << agent->getAgentID() << endl;
+    cout << "\n\nTop before is Agent: " << agent_pq.top()->getAgentID() << endl;
     //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
-    changeKey(agent->fibHeapPtr,agent);
-    // cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl;
+    //changeKey(agent->fibHeapPtr,agent); <-- this does nothing here
+    cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
     return result;
 }//end processNextAgentEvents
 
@@ -80,35 +80,9 @@ Scheduler::scheduleEvent( Event *e){
     if ( agent == NULL) return false;
 
     //first check if this is a rollback!
-    if (e->getReceiveTime() <= agent->LVT){
+    if (e->getReceiveTime() <= agent->getLVT()){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-      
-        // if (agent->getAgentID() == 0){
-        //cout << "Detected a ROLLBACK @ agent: "<<agent->getAgentID() << endl;
-        // }
-        //cout <<"straggler event: " << *e <<endl;
-        //cout << "Straggler Time: "<< e->getReceiveTime() <<endl;
-        //cout << "Current LVT: "<< agent->getLVT() <<endl <<endl;
-        //cout << "myState timestamp: "<< 
-	//debug info print out
-        
-	//cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
-      	//cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
-	//cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
-	//cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-	//cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
         agent->doRollbackRecovery(e);
-        // if (agent->getAgentID() == 0){
-             //cout << "Rollback Recovery Complete\n"<<endl;
-        // }
-        //cout << "Top event at agent now is: " << *agent->eventPQ->top() <<endl;
-        //cout << "[Scheduler] - Output Queue Size: "<< agent->outputQueue.size() <<endl;
-        //cout << "[Scheduler] - State  Queue Size: "<< agent->stateQueue.size() <<endl;
-        //cout << "[Scheduler] - Input  Queue Size: "<< agent->inputQueue.size() <<endl;
-        //cout << "[Scheduler] - State  timestamp : "<< agent->myState->getTimeStamp() <<endl;
-        //cout << "[Scheduler] - eventPQ Size     : "<< agent->eventPQ->size() <<endl;
-        //exit(11);
-	
     }
     
     //check if event is an anti-message
@@ -116,7 +90,7 @@ Scheduler::scheduleEvent( Event *e){
         //since it is an anti-message we don't need to reprocess the event.
         
         //check if this anti-message is for the furture time.
-        if (e->getReceiveTime() > agent->LVT) {
+        if (e->getReceiveTime() > agent->getLVT()) {
             //we must remove it and its subtree of events.
             //cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
             Agent::EventPQ::iterator it = agent->eventPQ->begin();
@@ -147,15 +121,30 @@ Scheduler::scheduleEvent( Event *e){
     }
     e->increaseReference();
     agent->eventPQ->push(e);
-
+    cout << "Pushed Event From Agent: "<<e->getSenderAgentID() << " to Agent: "
+         << agent->getAgentID()<< " for time: " << e->getReceiveTime() << endl;
+    
     //now lets make sure that the heap is still valid
     //we have to change if the event receive time has a smaller key
     //then the top event in the heap.
     if ( e->getReceiveTime() < old_receive_time  ) {
         //we need to call for the key change
-        //cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
+        cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
         changeKey(agent->fibHeapPtr,agent);
     }
+
+    //for debugging
+    //cout << "\nTop Agent in AgentPQ is: " <<  agent_pq.top()->getAgentID();
+    //cout << " Currently AgentPQ is: " <<endl;
+    //AgentPQ::iterator it = agent_pq.begin();
+    //for(;it != agent_pq.end();it++ ){
+    //  if (!(*it)->eventPQ->empty() ){
+    //  cout << "Agent: " << (*it)->getAgentID() 
+    //       << " has EventPQ size: " << (*it)->eventPQ->size()
+    //       << " top event in EventPQ has time: "
+    //       << (*it)->eventPQ->top()->getReceiveTime() <<endl;
+    //  }
+    //}
     
     return true;
 }//end scheduleEvent
