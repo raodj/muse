@@ -23,13 +23,14 @@ Space::initialize() throw (std::exception){
 void
 Space::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
+    //cout << "SPACE Events size: " << events->size() <<endl; 
     for (; it != events->end(); it++){
         BugEvent * current_event = static_cast<BugEvent*>((*it));
         SpaceState * my_state = static_cast<SpaceState*>(getState());
         //we use a switch on the event type
         switch(current_event->getEventType()){
         case MOVE_IN:
-            //cout << "SPACE Got MOVE IN event from bug: "<<current_event->getSenderAgentID() <<endl;
+            //cout << "SPACE "<<getAgentID() << " Got MOVE IN event from bug: "<<current_event->getSenderAgentID() <<endl;
             MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
             
             if ( my_state->getBugID() == NO_BUG){
@@ -37,7 +38,7 @@ Space::executeTask(const EventContainer* events){
                 my_state->setBugID(move_in->getSenderAgentID());
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID() , getTime()+1, MOVE_IN);
                 move->canBugMoveIn = true;
-                scheduleEvent(move);
+                scheduleEvent(move);  
             }else{
                 //means we are full and no bugs allowed
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID(), getTime()+1, MOVE_IN);
@@ -45,6 +46,7 @@ Space::executeTask(const EventContainer* events){
                 scheduleEvent(move);
             }
             break;
+            
         case MOVE_OUT:
             //cout << "SPACE Got MOVE OUT event from bug: "<<current_event->getSenderAgentID() <<endl;
             
@@ -56,10 +58,13 @@ Space::executeTask(const EventContainer* events){
                 scheduleEvent(move_out);
             }
             break;
+            
         case GROW:
             //we'll never receive this type of event!!
             break;
+            
         case EAT:
+            cout << "SPACE Got EAT event from bug: "<<current_event->getSenderAgentID()<<" @ time "<<getTime()<<endl;
             //ok, we need to check how much food is in this space
             //we cast to get the eat amount, this is how much food there was in the space.
             Eat * eat_event           = static_cast<Eat*>(current_event);
@@ -83,6 +88,7 @@ Space::executeTask(const EventContainer* events){
             //now we tell the bug
             scheduleEvent(eat);
             break;
+            
         case SCOUT:
             break;
         }

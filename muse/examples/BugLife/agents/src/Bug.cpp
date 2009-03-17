@@ -22,14 +22,14 @@ Bug::Bug(AgentID id, State* state, CoordAgentIDMap * coords, int c, int r) :
 void
 Bug::initialize() throw (std::exception){
     int x =  (MTRandom::RandDouble()*(cols));
-    //make sure we dont get out of range random value
+    //make sure we dont get out of range random value 
     while (x == cols) x =  (MTRandom::RandDouble()*(cols));
     int y =  (MTRandom::RandDouble()*(rows));
     while (y == rows) y =  (MTRandom::RandDouble()*(rows));
     //cout << "Bug: " << getAgentID() << " moving to ("<<x<<","<<y<<")" <<endl;
-    my_location.first =x;
-    my_location.second=y;
-    cout << "Bug " <<getAgentID();cout << " Trying to Move to Space: " << coord_map[my_location] <<endl;
+    my_location.first  =x;
+    my_location.second =y;
+    //cout << "Bug " <<getAgentID();cout << " Trying to Move to Space: " << coord_map[my_location] <<endl;
 
     //now make the move in request to the space.
     MoveIn * move = new MoveIn(coord_map[my_location], getTime()+1, MOVE_IN);
@@ -40,21 +40,22 @@ Bug::initialize() throw (std::exception){
 void
 Bug::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
-   
+    //cout << "BUG Events size: " << events->size() <<endl; 
     for (; it != events->end(); it++){
-        BugEvent * current_event = static_cast<BugEvent*>((*it));
-        BugState   * my_state = static_cast<BugState*>(getState());
+        BugEvent   * current_event = static_cast<BugEvent*>((*it));
+        BugState   * my_state      = static_cast<BugState*>(getState()); 
         //we use a switch on the event type
         switch(current_event->getEventType()){
+            
         case MOVE_IN:
             //cout << "BUG Got MOVE IN event" <<endl;
-           
             MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
             if (move_in->canBugMoveIn){
                 //means that the space accepted the bug
-                cout << "Bug " <<getAgentID()<< " moved to ("<<my_location.first<<","<<my_location.second<<") @ time "<<getTime()<< endl;
+                //cout << "Bug " <<getAgentID()<< " moved to ("<<my_location.first<<","<<my_location.second<<") @ time "<<getTime()<< endl;
                 my_state->setLocation(my_location);
 
+                /** 
                 //lets see how much we can eat!!
                 Eat * eat   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
                 //here we figure out how much we can eat before death size is reached
@@ -62,7 +63,11 @@ Bug::executeTask(const EventContainer* events){
                 int eat_amount = 10-my_state->getSize();
                 eat->setEatAmount(eat_amount);
                 scheduleEvent(eat);
-               
+                */
+
+                //lets send a move out event, because we are going to move to another space
+                //MoveOut * move_out = new MoveOut(current_event->getSenderAgentID() , getTime()+1, MOVE_OUT);
+                //scheduleEvent(move_out);
             }else{
                 cout << "Bug " <<getAgentID()<< " move in not allowed"<<endl;
                 //with equal probability see which neighbor space the bug moves to?
@@ -72,13 +77,6 @@ Bug::executeTask(const EventContainer* events){
                 int y =  (MTRandom::RandDouble()*(rows));
                 //if y was set from random then we make sure we dont get y out of range
                 while (y == rows) y =  (MTRandom::RandDouble()*(rows));
-                
-                double r=MTRandom::RandDouble();
-                //we do the mod operator because the space wraps around at the edges!
-                if(r<0.25)       x = true_mod(x-=1,cols); //(x--) % cols; <- doesnt really work with negatives
-                else if(r<0.5)   y = true_mod(y-=1,rows);
-                else if(r<0.75)  y = true_mod(y+=1,rows);//(y++) % rows;
-                else             x = true_mod(x+=1,cols);//(x++) % cols;
                 
                 //now set my_location and ask the space to move in
                 my_location.first =x;
@@ -91,16 +89,17 @@ Bug::executeTask(const EventContainer* events){
             
             break;
         case MOVE_OUT:
+            cout << "Bug " <<getAgentID()<< " moved out of space "<<current_event->getSenderAgentID()<<endl;
             //with equal probability see which neighbor space the bug moves to?
             int x = my_state->getLocation().first;
             int y = my_state->getLocation().second; 
            
             double r=MTRandom::RandDouble();
             //we do the mod operator because the space wraps around at the edges!
-            if(r<0.25)       x = true_mod(x-=1,cols); //(x--) % cols; <- doesnt really work with negatives
+            if(r<0.25)       x = true_mod(x-=1,cols);
             else if(r<0.5)   y = true_mod(y-=1,rows);
-            else if(r<0.75)  y = true_mod(y+=1,rows);//(y++) % rows;
-            else             x = true_mod(x+=1,cols);//(x++) % cols;
+            else if(r<0.75)  y = true_mod(y+=1,rows);
+            else             x = true_mod(x+=1,cols);
             
             //now set my_location and ask the space to move in
             my_location.first =x;
@@ -119,6 +118,7 @@ Bug::executeTask(const EventContainer* events){
             cout << "Bug " <<getAgentID()<< " grew to size ("<<my_state->getSize() <<")"<< endl;
             break;
         case EAT:
+            cout << "Bug " <<getAgentID()<< " got EAT event from space ("<<current_event->getSenderAgentID() <<")"<< endl;
             //we cast to get the eat amount, this is how much food there was in the space.
             Eat * eat   = static_cast<Eat*>(current_event);
 
@@ -139,7 +139,7 @@ Bug::executeTask(const EventContainer* events){
                 scheduleEvent(eat_again);
             }else{
                 //lets send a move out event, because we are going to move to another space
-                MoveOut * move_out = new MoveOut(coord_map[my_state->getLocation()] , getTime()+1, MOVE_OUT);
+                MoveOut * move_out = new MoveOut(eat->getSenderAgentID() , getTime()+1, MOVE_OUT);
                 scheduleEvent(move_out);
             }
             break;
