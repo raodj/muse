@@ -75,7 +75,7 @@ Agent::processNextEvents(){
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
 
-    cout << "Processing Event From Agent: "<<top_event->getSenderAgentID() << " at Agent: " << getAgentID()<<endl;
+    
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     ASSERT(top_event->isAntiMessage() == false );
@@ -219,7 +219,8 @@ Agent::scheduleEvent(Event *e){
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
-        cout << "Sending Event From Agent: "<<getAgentID() << " To Agent: " << e->getReceiverAgentID()<<endl;
+        //cout << "Sending Event From Agent: "<<getAgentID() << " To Agent: "
+        //     << e->getReceiverAgentID()<<" @ time: " << e->getReceiveTime() << endl;
         //just add to output queue.
         e->increaseReference();
         outputQueue.push_back(e);
@@ -436,7 +437,7 @@ Agent::cleanOutputQueue(){
 
 void
 Agent::garbageCollect(const Time gvt){
-    // cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
+    //cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
     while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){
         State *current_state = stateQueue.front();
@@ -487,9 +488,9 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
     Time lhs_time = lhs->eventPQ->empty() ? TIME_INFINITY : lhs->eventPQ->top()->getReceiveTime();
     Time rhs_time = rhs->eventPQ->empty() ? TIME_INFINITY : rhs->eventPQ->top()->getReceiveTime();
 
-    // cout << "Comparing agents " << lhs->getAgentID()  << "(lhs_time = " << lhs_time
-    //   << ") and " << rhs->getAgentID() << " (rhs_time = " << rhs_time << ")\n";
-    
+    //cout << "Comparing agents " << lhs->getAgentID()  << "(lhs_time = " << lhs_time
+    // << ") and " << rhs->getAgentID() << " (rhs_time = " << rhs_time << ")\n";
+    //if (lhs_time != TIME_INFINITY && rhs_time != TIME_INFINITY ) return (lhs_time > rhs_time);
     return (lhs_time >= rhs_time);
 }
 

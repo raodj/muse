@@ -43,8 +43,8 @@ arg_parser::arg_record arg_list[] = {
 int main(int argc, char** argv) {
     
     //default values for parameters
-    cols        = 5;   
-    rows        = 5;   
+    cols        = 3;   
+    rows        = 3;   
     bugs        = 3;
     max_nodes   = 1;
     end_time    = 10;
