@@ -43,7 +43,7 @@ void
 Scheduler::changeKey(void * pointer, Agent * agent){
     AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
     //cout << "In changeKey: changing key for agent " << ptr->data()->getAgentID() << endl;
-    agent_pq.change(ptr, agent);
+    agent_pq.increase(ptr, agent);
 }
 
 bool
@@ -67,8 +67,7 @@ Scheduler::processNextAgentEvents(){
     cout << "\n\nTop before is Agent: " << agent_pq.top()->getAgentID() << endl;
     //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
-    //changeKey(agent->fibHeapPtr,agent); <-- this does nothing here
-   
+    agent_pq.decrease(reinterpret_cast<AgentPQ::pointer>( agent->fibHeapPtr),agent);
     cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
     return result;
 }//end processNextAgentEvents
