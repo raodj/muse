@@ -37,6 +37,10 @@ class fibonacci_heap;
 
 END_NAMESPACE(boost);
 
+// Forward declaration for insertion operator for Event
+extern std::ostream& operator<<(ostream&, const muse::Agent&);
+
+
 BEGIN_NAMESPACE(muse); //begin namespace declaration
 
 /** The base class for all agents in a simulation.
@@ -61,7 +65,7 @@ class Agent {
         LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
     */
     enum TimeType {LVT,LGVT,GVT};
-    
+    friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     //lets declare the Simulation class a friend!
     friend class Simulation;
     //lets declare the Scheduler class a friend!
