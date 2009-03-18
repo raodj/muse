@@ -70,13 +70,23 @@ protected:
     bool      is_root() const    { return m_parent == 0; }
     node*     parent() const     { return m_parent; }
     void      remove_all()       { m_children.erase(m_children.begin(), m_children.end()); }
-
+    
     T const& data() const        { return m_data; }
+    
     template <typename K> void data(K const& data) { m_data = data; }
 
     typename std::vector<node*>::const_iterator begin() const { return m_children.begin(); }
     typename std::vector<node*>::const_iterator end() const   { return m_children.end(); }
 
+  void ppHelper(std::ostream& os, const std::string &indent) const{
+      os << indent <<((is_root())? "*" : ">") << *data() << std::endl;
+      for (int i=0; i <  m_children.size(); i++) {
+          if ( m_children[i] != 0 ){
+              m_children[i]->ppHelper(os,indent+"-");
+          }
+      }
+  }
+    
   private:
     size_type          m_index;  // index of the object in the parent's vector
     node*              m_parent; // pointer to the parent node
@@ -128,6 +138,14 @@ public:
   iterator begin() const { return iterator(this); }
   iterator end() const   { return iterator(this, 0); }
 
+  void prettyPrint(std::ostream& os) const {
+      for (int i=0; i < m_roots.size(); i++){
+          if (m_roots[i] != 0 ){
+              m_roots[i]->ppHelper(os,"-");
+          }
+      }
+  }
+ 
 protected:
   std::vector<node*> m_roots;
   size_type          m_size;

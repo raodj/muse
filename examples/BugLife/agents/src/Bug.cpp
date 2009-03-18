@@ -1,10 +1,10 @@
 #ifndef _BUG_CPP
-#define	_BUG_CPP
+#define	_BUG_CPP 
 
 #include "Bug.h"
 #include "MTRandom.h"
 #include <iostream>
-#include "BugDataTypes.h"
+#include "BugDataTypes.h" 
 #include "MoveIn.h"
 #include "MoveOut.h" 
 #include "Grow.h"

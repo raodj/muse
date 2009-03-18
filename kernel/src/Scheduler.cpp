@@ -68,6 +68,7 @@ Scheduler::processNextAgentEvents(){
     //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
     //changeKey(agent->fibHeapPtr,agent); <-- this does nothing here
+   
     cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
     return result;
 }//end processNextAgentEvents
@@ -129,23 +130,18 @@ Scheduler::scheduleEvent( Event *e){
     //then the top event in the heap.
     if ( e->getReceiveTime() < old_receive_time  ) {
         //we need to call for the key change
-        cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
+        //cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
         changeKey(agent->fibHeapPtr,agent);
     }
 
     //for debugging
     //cout << "\nTop Agent in AgentPQ is: " <<  agent_pq.top()->getAgentID();
     //cout << " Currently AgentPQ is: " <<endl;
-    //AgentPQ::iterator it = agent_pq.begin();
+    // AgentPQ::iterator it = agent_pq.begin();
     //for(;it != agent_pq.end();it++ ){
-    //  if (!(*it)->eventPQ->empty() ){
-    //  cout << "Agent: " << (*it)->getAgentID() 
-    //       << " has EventPQ size: " << (*it)->eventPQ->size()
-    //       << " top event in EventPQ has time: "
-    //       << (*it)->eventPQ->top()->getReceiveTime() <<endl;
-    //  }
+    //    cout << *(*it) <<endl; 
     //}
-    
+    agent_pq.prettyPrint(std::cout);
     return true;
 }//end scheduleEvent
 

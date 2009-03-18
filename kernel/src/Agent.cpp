@@ -494,6 +494,14 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
     return (lhs_time >= rhs_time);
 }
 
+ostream&
+operator<<(ostream& os, const muse::Agent& agent) {
+    os << "Agent[id="           << agent.getAgentID()   << ","
+       << "top time="     << ((!agent.eventPQ->empty()) ? agent.eventPQ->top()->getReceiveTime():TIME_INFINITY) << "]";
+    return os;
+}
+
+
 
 #endif
  
