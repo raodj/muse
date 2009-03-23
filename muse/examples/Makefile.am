@@ -21,5 +21,5 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation RoundRobinSimulation PHOLDSimulation BugLife
+SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation RoundRobinSimulation PHOLDSimulation BugLife ClockExample
 

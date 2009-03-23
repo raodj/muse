@@ -37,17 +37,17 @@ int main(int argc, char** argv) {
     //cout << "Kernel ID: " << kernel_id << endl;
     PingPongAgent *pp_agent = NULL;
     if (kernel_id == PING_KERNEL){
-        AgentID my_id = 1;
+        AgentID my_id = 0;
         pp_agent = new PingPongAgent(my_id,pingpong_state);
         kernel->registerAgent(pp_agent);
     }else if (kernel_id == PONG_KERNEL){
-        AgentID my_id = 2;
+        AgentID my_id = 1;
         pp_agent = new PingPongAgent(my_id,pingpong_state);
         kernel->registerAgent(pp_agent);
     }//end if-elseif
 
     //we set the start and end time of the simulation here
-    Time start=0, end=20000; 
+    Time start=0, end=10; 
     kernel->setStartTime(start);
     kernel->setStopTime(end);
 

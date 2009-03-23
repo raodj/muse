@@ -14,10 +14,9 @@ PingPongAgent::initialize() throw (std::exception){
     cout << "PingPong Agent ["; cout <<getAgentID() ; cout << "] INITIALIZE" << endl;
    //this is a custom pingpong simulation, so we can assume only two agents!
     //the first agent is to start the ping
-    if (getAgentID() == 1){
-        Time sent=0, receive=1;
-        AgentID other_agent = 2;
-        Event * e = new Event(getAgentID(),other_agent,sent, receive);
+    if (getAgentID() == 0){
+       
+        Event * e = new Event(AgentID(1),getTime()+1);
         this->scheduleEvent(e);
         cout << "Sent ---> PING" << endl;
     }//end if
@@ -25,17 +24,13 @@ PingPongAgent::initialize() throw (std::exception){
 
 void
 PingPongAgent::executeTask(const EventContainer* events){
-    cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getLVT() << endl;
-    AgentID other_agent = 1;
-    if (getAgentID() == 1){
-      other_agent = 2;
-    }
+    cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getTime() << endl;
+   
     if (!events->empty()){
-        Time sent=(*events->begin())->getReceiveTime(),
-             receive=(*events->begin())->getReceiveTime()+1;
-        Event * e = new Event(getAgentID(),other_agent,sent, receive);
+        
+        Event * e = new Event( (getAgentID()+1)%2 ,getTime()+1);
         this->scheduleEvent(e);
-        if (getAgentID() == 2){
+        if (getAgentID() == 1){
             cout << "Got  ---> PING" << endl;
             cout << "Sent ---> PONG" << endl;
         }else{

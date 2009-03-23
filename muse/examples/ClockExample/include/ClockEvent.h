@@ -13,8 +13,7 @@ using namespace muse;
 
 class ClockEvent : public Event {
 public:
-    ClockEvent(const AgentID & senderID,const AgentID & receiverID,
-                   const Time & sentTime, const Time & receiveTime);
+    ClockEvent( AgentID receiverID, Time receiveTime);
     
 };
 
