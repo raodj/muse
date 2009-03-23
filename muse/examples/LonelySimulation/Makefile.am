@@ -31,8 +31,8 @@ lonelyTest_LDFLAGS = -L../../kernel
 lonelyTest_LDADD = $(STDCPP) -lmuse
 
 lonelyTest_SOURCES = \
+	arg_parser.cpp\
 	LonelySimulation.cpp\
-	LonelyAgent.h\
 	LonelyAgent.cpp
 
 # end of Makefile.am

@@ -78,7 +78,10 @@ Agent::processNextEvents(){
     
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
-    ASSERT(top_event->isAntiMessage() == false );
+    if (top_event->isAntiMessage() ){
+        cout << "TOP EVENT: " << *top_event <<endl;
+        ASSERT(top_event->isAntiMessage() == false );
+    }
    
    
     //we add the top event we popped to the event container
@@ -127,18 +130,18 @@ Agent::processNextEvents(){
     //}
     //here we set the agent's LVT and update agent's state timestamp
     setLVT(top_event->getReceiveTime());
-    myState->timestamp = getLVT();
+    getState()->timestamp = getLVT();
     executeTask(&events);
     
     //clone the state so we can archive
-    State * state = cloneState(myState);
+    State * state = cloneState(getState());
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
     //if (getAgentID() == 0)cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
     //if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
     //after the second state in the stateQueue, there should never be a duplicate again
-    if (stateQueue.size() > 2) {
+    if ( stateQueue.size() > 2 ) {
         ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
         ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
     }
@@ -193,6 +196,7 @@ Agent::scheduleEvent(Event *e){
             //this should NEVER happen. It's time to abort
             abort();
         }
+        ASSERT(e->isAntiMessage() == false );
         //will use this to figure out if we need to change our key in
         //scheduler
         Time old_receive_time = TIME_INFINITY;
@@ -231,7 +235,7 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(Event* straggler_event){
-    cout << "Rollback recovery started"<< endl;
+    //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event);
     doCancellationPhaseOutputQueue();
     doCancellationPhaseInputQueue(straggler_event);
@@ -265,14 +269,8 @@ Agent::doRestorationPhase(Event* straggler_event){
     */
 
     //for debugging reasons
-    // if (getAgentID() == 0){
-    ///    list<State*>::reverse_iterator rit = stateQueue.rbegin();
-    //    cout << "StateQueue before Restoration: ";
-    //    for (; rit != stateQueue.rend(); rit++){
-    //        cout <<(*rit)->getTimeStamp() << " ";
-    //    }
-    //    cout << "\n";
-    // }
+    cout << "StateQueue B Restoration: ";
+    cout << *this << endl;
 
     //we set our LVT to INFINITY here incase we dont find a state to restore to
     //we can revert to the initial state after the loop.
@@ -316,14 +314,9 @@ Agent::doRestorationPhase(Event* straggler_event){
     }
     
     //for debugging reasons
-    //  if (getAgentID() == 0){
-    //list<State*>::reverse_iterator rit2 = stateQueue.rbegin();
-    //cout << "StateQueue after Restoration: ";
-    //for (; rit2 != stateQueue.rend(); rit2++){
-    //    cout <<(*rit2)->getTimeStamp() << " ";
-    //}
-    //cout << "\n";
-    //}
+    cout << "StateQueue A Restoration: ";
+    cout << *this << endl;
+
 }//end doStepOne
 
 void
@@ -495,9 +488,22 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
 }
 
 ostream&
+statePrinter(ostream& os, list<muse::State*> state_q ){
+    //list<muse::State*>::reverse_iterator rit = state_q.rbegin();
+    //for (; rit != state_q.rend(); rit++){
+    list<muse::State*>::iterator it = state_q.begin();
+    for (; it != state_q.end(); it++){
+        os << (*it)->getTimeStamp() << ",";
+    }
+    os << ")]    " ;
+    return os;
+}
+
+ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
     os << "Agent[id="           << agent.getAgentID()   << ","
-       << "top time="     << ((!agent.eventPQ->empty()) ? agent.eventPQ->top()->getReceiveTime():TIME_INFINITY) << "]";
+        //<< "top time="           << ((!agent.eventPQ->empty()) ? agent.eventPQ->top()->getReceiveTime():TIME_INFINITY) << ","
+       << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;
     return os;
 }
 

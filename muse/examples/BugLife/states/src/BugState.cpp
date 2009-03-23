@@ -3,7 +3,7 @@
 
 #include "BugState.h"
 
-BugState::BugState() : size(1) , location(-1,-1) {}
+BugState::BugState() : size(1) , location(-1,-1),scoutReturned(0), bestScoutSpace(-1u, 0) {}
 
 State*
 BugState::getClone(){
@@ -12,6 +12,9 @@ BugState::getClone(){
     BugState* clone = new BugState();
     clone->setSize(size);
     clone->setLocation(getLocation());
+    clone->setIsAlive(isAlive());
+    clone->setScoutReturned(getScoutReturned());
+    clone->setScoutSpace(getScoutSpace());
     return clone;
     //Caller should handle deleting the memory when done with State pointer
 }

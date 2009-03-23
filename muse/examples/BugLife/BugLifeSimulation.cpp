@@ -17,6 +17,8 @@
 #include "Bug.h"
 #include <ostream>
 #include "oSimStream.h"
+#include "MTRandom.h"
+
 using namespace muse;
 
 // These must be static or global scope...
@@ -101,6 +103,9 @@ int main(int argc, char** argv) {
     AgentID bug_id = -1u;
     for (AgentID i= max_space_agents;i < max_space_agents+bug_agents_per_node ; i++){
         BugState *bs = new BugState();
+        //for version 14, we need random bug size
+        int random_bug_size = (int)(MTRandom::RandDouble()*MAX_BUG_SIZE);
+        bs->setSize(random_bug_size);
         bug_id =  (bugs/max_nodes)*rank + i;
         //cout << "bug id: " << bug_id <<endl;
         Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);

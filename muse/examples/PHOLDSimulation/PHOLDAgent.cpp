@@ -40,7 +40,7 @@ void
 PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
-        Time  receive(1+(int)(MTRandom::RandDouble()*Delay));
+        Time  receive(getTime()+1+(int)(MTRandom::RandDouble()*Delay));
         //cout << "INIT Random Receive Time: " <<receive <<endl;
         Event * e = new Event(getAgentID(),receive); 
         scheduleEvent(e);
@@ -54,7 +54,7 @@ PHOLDAgent::executeTask(const EventContainer* events){
     //for every event we get we send out one event
     for(int i=0;i < events->size(); i++){
         //first make a random receive time for the future
-        Time receive(getTime()+(int)(MTRandom::RandDouble()*Delay));
+        Time receive(getTime()+1+(int)(MTRandom::RandDouble()*Delay));
         //now we need to choose which agent to send this event to.
         //we do this with equal probability for all 4 neighbours and send to one.
         AgentID receiverAgentID = -1;

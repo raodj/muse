@@ -52,5 +52,8 @@ typedef map<coord, muse::AgentID > CoordAgentIDMap;
  */
 #define true_mod(num,mod)((mod+(num%mod))%mod)
 
+/** the max size a bug can grow before giving birth and dies.
+ */
+#define MAX_BUG_SIZE 10
 
 #endif

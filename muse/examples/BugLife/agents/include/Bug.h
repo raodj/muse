@@ -12,9 +12,13 @@
 #include "BugDataTypes.h"
 
 using namespace muse;
+class Bug;
+// Forward declaration for insertion operator for Event
+extern std::ostream& operator<<(ostream&, const Bug&);
 
 class Bug : public Agent {
-
+  
+friend std::ostream& ::operator<<(ostream&, const Bug&);
 public:
     Bug(AgentID , State *,CoordAgentIDMap *, int c, int r);
 

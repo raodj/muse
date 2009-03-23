@@ -7,6 +7,7 @@
 #include "MoveIn.h"
 #include "MoveOut.h"
 #include "Eat.h"
+#include "Scout.h"
 #include "SpaceState.h"
 
 using namespace std;
@@ -23,7 +24,7 @@ Space::initialize() throw (std::exception){
 void
 Space::executeTask(const EventContainer* events){
     EventContainer::const_iterator it = events->begin();
-    //cout << "SPACE Events size: " << events->size() <<endl; 
+    
     for (; it != events->end(); it++){
         BugEvent * current_event = static_cast<BugEvent*>((*it));
         SpaceState * my_state = static_cast<SpaceState*>(getState());
@@ -39,9 +40,9 @@ Space::executeTask(const EventContainer* events){
                 my_state->setBugID(move_in->getSenderAgentID());
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID() , getTime()+1, MOVE_IN);
                 move->canBugMoveIn = true;
-                if (scheduleEvent(move)){
-                    //cout << "SPACE "<<getAgentID() << " OK'd MOVE IN event from bug: "<<current_event->getSenderAgentID() <<endl;
-                }
+                scheduleEvent(move);
+                  
+                
             }else{ 
                 //means we are full and no bugs allowed
                 MoveIn * move = new MoveIn(move_in->getSenderAgentID(), getTime()+1, MOVE_IN);
@@ -51,8 +52,7 @@ Space::executeTask(const EventContainer* events){
             break;
             
         case MOVE_OUT:
-            //cout << "SPACE Got MOVE OUT event from bug: "<<current_event->getSenderAgentID() <<endl;
-            
+           
             //we dont need to static cast to MoveOut because we all need info from base class
             if (my_state->getBugID() == current_event->getSenderAgentID()){
                 //this means that current bug living here wants to move out.
@@ -63,7 +63,7 @@ Space::executeTask(const EventContainer* events){
             break;
             
         case EAT:
-            cout << "SPACE Got EAT event from bug: "<<current_event->getSenderAgentID()<<" @ time "<<getTime()<<endl;
+            
             //ok, we need to check how much food is in this space
             //we cast to get the eat amount, this is how much food there was in the space.
             Eat * eat_event           = static_cast<Eat*>(current_event);
@@ -89,6 +89,11 @@ Space::executeTask(const EventContainer* events){
             break;
             
         case SCOUT:
+            //ok here we send the bug info about the space.
+            //cout << "space got scout"<<endl;
+            Scout * scout_reply = new Scout(current_event->getSenderAgentID(), getTime()+1, SCOUT);
+            scout_reply->foodCount = my_state->getFood();
+            scheduleEvent(scout_reply);
             break;
         }
     }//end for
