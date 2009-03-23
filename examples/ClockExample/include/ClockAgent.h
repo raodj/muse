@@ -14,7 +14,7 @@ using namespace muse;
 class ClockAgent : public Agent {
 
 public:
-    ClockAgent(AgentID &, ClockState *);
+    ClockAgent(AgentID , ClockState *);
 
     void initialize() throw (std::exception);
 
