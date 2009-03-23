@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include
+AM_CXXFLAGS += -I../../include -I./include
 
 bin_PROGRAMS = rollbackTest
 
@@ -31,8 +31,8 @@ rollbackTest_LDFLAGS = -L../../kernel
 rollbackTest_LDADD = $(STDCPP) -lmuse
 
 rollbackTest_SOURCES = \
-	RollbackSimulation.cpp\
-	RollbackAgent.h\
-	RollbackAgent.cpp
+	src/RollbackAgent.cpp\
+	src/arg_parser.cpp\
+	RollbackSimulation.cpp 
 
 # end of Makefile.am

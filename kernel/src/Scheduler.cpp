@@ -64,11 +64,11 @@ Scheduler::processNextAgentEvents(){
 
     
     Agent * agent = agent_pq.top();
-    cout << "\n\nTop before is Agent: " << agent_pq.top()->getAgentID() << endl;
+    //cout << "\n\nTop before is Agent: " << agent_pq.top()->getAgentID() << endl;
     //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
     agent_pq.decrease(reinterpret_cast<AgentPQ::pointer>( agent->fibHeapPtr),agent);
-    cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
+    //cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
     return result;
 }//end processNextAgentEvents
 
@@ -121,8 +121,8 @@ Scheduler::scheduleEvent( Event *e){
     }
     e->increaseReference();
     agent->eventPQ->push(e);
-    cout << "Pushed Event From Agent: "<<e->getSenderAgentID() << " to Agent: "
-         << agent->getAgentID()<< " for time: " << e->getReceiveTime() << endl;
+    //cout << "Pushed Event From Agent: "<<e->getSenderAgentID() << " to Agent: "
+    //     << agent->getAgentID()<< " for time: " << e->getReceiveTime() << endl;
     
     //now lets make sure that the heap is still valid
     //we have to change if the event receive time has a smaller key
@@ -132,15 +132,8 @@ Scheduler::scheduleEvent( Event *e){
         //cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
         changeKey(agent->fibHeapPtr,agent);
     }
-
-    //for debugging
-    //cout << "\nTop Agent in AgentPQ is: " <<  agent_pq.top()->getAgentID();
-    //cout << " Currently AgentPQ is: " <<endl;
-    // AgentPQ::iterator it = agent_pq.begin();
-    //for(;it != agent_pq.end();it++ ){
-    //    cout << *(*it) <<endl; 
-    //}
-    agent_pq.prettyPrint(std::cout);
+   
+    //agent_pq.prettyPrint(std::cout);
     return true;
 }//end scheduleEvent
 

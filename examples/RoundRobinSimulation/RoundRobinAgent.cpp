@@ -12,12 +12,8 @@ RoundRobinAgent::RoundRobinAgent(AgentID& id, State* state, int max_a) : Agent(i
 void
 RoundRobinAgent::initialize() throw (std::exception){
     if (getAgentID() == 0){
-        Time  receive=1;
         AgentID other_agent_id = (getAgentID() + 1) % max_agents;
-        //cout << "OTHER AGENT ID: " << other_agent_id <<endl;
-        Event * e = new Event(other_agent_id,receive); 
-        //if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
-        //else cout << "Scheduling event : FAILED" <<endl; 
+        Event * e = new Event(other_agent_id,getTime()+1); 
         scheduleEvent(e);
     }
 }//end initialize
@@ -25,17 +21,10 @@ RoundRobinAgent::initialize() throw (std::exception){
 void
 RoundRobinAgent::executeTask(const EventContainer* events){
     if (!events->empty()){
-        Time receive= (*events->begin())->getReceiveTime()+1;
-
-        //cout << "GOT TOKEN @ TIME: " << getLVT() <<endl;
-        
         AgentID other_agent_id = (getAgentID() + 1) % max_agents;
-        //cout << "OTHER AGENT ID: " << other_agent_id <<endl;
-        Event * e = new Event(other_agent_id,receive); 
-        //if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
-        //else cout << "Scheduling event : FAILED" <<endl;
+        Event * e = new Event(other_agent_id,getTime()+1); 
+        // if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
         scheduleEvent(e);
-       
     }
 }//end executeTask
 
