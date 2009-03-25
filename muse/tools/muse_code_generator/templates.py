@@ -1,3 +1,24 @@
+#---------------------------------------------------------------------------
+#
+# Copyright (c) Miami University, Oxford, OH.
+# All rights reserved.
+#
+# Miami University (MU) makes no representations or warranties about
+# the suitability of the software, either express or implied,
+# including but not limited to the implied warranties of
+# merchantability, fitness for a particular purpose, or
+# non-infringement.  MU shall not be liable for any damages suffered
+# by licensee as a result of using, result of using, modifying or
+# distributing this software or its derivatives.
+#
+# By using or copying this Software, Licensee agrees to abide by the
+# intellectual property laws, and all other applicable laws of the
+# U.S., and the terms of this license.
+#
+# Authors: Meseret R. Gebre       meseret.gebre@gmail.com
+#
+#---------------------------------------------------------------------------
+
 """
 This is the muse code generator templates module.
 Here is where we define the templates that we use in the
@@ -198,5 +219,16 @@ EVENT_NAME_HERE::~EVENT_NAME_HERE(){
 """ ***************BELOW IS MAKEFILE TEMPLATE********************* """
 
 makefile_template = """
+AM_CXXFLAGS += -wd 810 -IMUSE_INCLUDE -I./agents/include -I./events/include -I./states/include
 
+bin_PROGRAMS = PROJECT_NAME_HEREexec
+
+PROJECT_NAME_HEREexec_LDFLAGS = -L../../kernel
+PROJECT_NAME_HEREexec = $(STDCPP) -lmuse
+
+PROJECT_NAME_HEREexec_SOURCES = \
+	ALL_CLASSES_HERE
+	PROJECT_NAME_HERESimulation.cpp
+
+# end of Makefile.am
 """
