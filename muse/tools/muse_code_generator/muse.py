@@ -1,3 +1,6 @@
+from templates import agent_cpp_template
+from templates import agent_header_template
+import os.path
 import sys
 __author__="Meseret R. Gebre"
 __date__  ="Mar 25, 2009"
@@ -18,7 +21,8 @@ add what you modified or extended belowe.
 
 from sys import argv
 import os
-import templates
+from templates import *
+
 
 possible_action_command = ['create']
 possible_commands = ['project','agent','state','event']
@@ -53,6 +57,10 @@ def create_project(project_name, parent_directory=os.getcwd()):
         @param project_name, this is a string that contains the desired project name to create
         @param parent_directory, by default it's the current working directory. where the project will reside.
     """
+    if os.path.exists(parent_directory+os.sep+project_name):
+        print "Error: cannot create project. It already exists in current working directory"
+        return
+
     print "Creating Project .."+project_name
     os.makedirs(parent_directory+os.sep+project_name+os.sep+"agents"+os.sep+"src")
     print "Created .."+parent_directory+os.sep+project_name+os.sep+"agents"+os.sep+"src"
@@ -70,25 +78,94 @@ def create_project(project_name, parent_directory=os.getcwd()):
     os.makedirs(parent_directory+os.sep+project_name+os.sep+"temp")
     print "Created .."+parent_directory+os.sep+project_name+os.sep+"temp"
 
+
+#some global variables for later use
+correct_header_template = ""
+correct_cpp_template    = ""
+correct_string_replace  = ""
+
+def header_cpp_create_helper(directory,template,file_names=[]):
+    """ This method is a helper that creates a header and cpp file in a given
+    directory. The parent of the given directory is always the current working
+    directory.
+
+    @param directory, this is the directory to create files in.
+    @param file_names, a list of the different files names for header and cpp.
+    """
+    #first we check if the directories needed exists i.e. agents/src and agents/include
+    if not os.path.exists(os.getcwd()+os.sep+directory+os.sep+"src"):
+        print "Error: You are missing directory '"+directory+os.sep+"src'"
+        print """
+        
+        Make sure you have run the create project command.
+        -OR-  (for help use command --help)
+        Make sure you are in the project directory.
+        """
+        return
+    if not os.path.exists(os.getcwd()+os.sep+directory+os.sep+"include"):
+        print "Error: You are missing directory '"+directory+os.sep+"include'"
+        print """
+
+        Make sure you have run the create project command.
+        -OR-  (for help use command --help)
+        Make sure you are in the project directory.
+        """
+        return
+
+    print "Creating "+directory+"...."
+    #lets make sure we create from the correct template!
+    global correct_header_template
+    global correct_cpp_template
+    global correct_string_replace
+    
+    if template == "agent":
+        correct_header_template = agent_header_template
+        correct_cpp_template    = agent_cpp_template
+        correct_string_replace  = "AGENT_NAME_HERE"
+    elif template == "state":
+        correct_header_template = state_header_template
+        correct_cpp_template    = state_cpp_template
+        correct_string_replace  = "STATE_NAME_HERE"
+    elif template == "event":
+        correct_header_template = event_header_template
+        correct_cpp_template    = event_cpp_template
+        correct_string_replace  = "EVENT_NAME_HERE"
+
+    for name in file_names:
+        header_path = os.getcwd()+os.sep+directory+os.sep+"include"+os.sep+name+".h"
+        if os.path.exists(header_path):
+            print "FYI "+name+".h already exists, so no action taken"
+        else:
+            header_file = open(header_path, 'w')
+            header_file.write(correct_header_template.replace(correct_string_replace, name))
+            header_file.close()
+            print "Created .."+header_path
+
+        cpp_path = os.getcwd()+os.sep+directory+os.sep+"src"+os.sep+name+".cpp"
+        if os.path.exists(cpp_path):
+            print "FYI "+name+".cpp already exists, so no action taken."
+        else:
+            cpp_file    = open(cpp_path, 'w')
+            cpp_file.write(correct_cpp_template.replace(correct_string_replace, name));
+            cpp_file.close()
+            print "Created .."+cpp_path
+
 def create_agent(agent_names=[]):
     """ This method will generate agents headers and cpp that are subclasses of
     muse::Agent class.
 
     @param agent_names, a list of agent names to create header and cpp files for.
     """
-    print "Creating agents: "
-    for agent in agent_names:
-        print "...["+agent+".h | "+agent+".cpp]"
-
+    header_cpp_create_helper("agents", "agent",agent_names)
+    
 def create_state(state_names=[]):
     """ This method will generate states headers and cpp that are subclasses of
     muse::State class.
 
     @param state_names, a list of state names to create header and cpp files for.
     """
-    print "Creating states: "
-    for state in states_names:
-        print "...["+state+".h | "+state+".cpp]"
+    header_cpp_create_helper("states","state", state_names)
+
 
 def create_event(event_names=[]):
     """ This method will generate events headers and cpp that are subclasses of
@@ -96,10 +173,7 @@ def create_event(event_names=[]):
 
     @param event_names, a list of event names to create header and cpp files for.
     """
-    print "Creating events: "
-    for event in event_names:
-        print "...["+event+".h | "+event+".cpp]"
-
+    header_cpp_create_helper("events", "event",event_names)
 
 
 def action_create(command, command_arg=[]):
