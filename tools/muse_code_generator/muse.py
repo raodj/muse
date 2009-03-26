@@ -226,9 +226,12 @@ def create_makefile(muse_directory_path):
     for dirpath,dirnames,filenames in os.walk(os.getcwd()):
         for filename in filenames:
             if filename.endswith(".cpp"):
-                source_list += os.path.join(dirpath.replace(os.getcwd()+os.sep, ""),filename)+" "
+                if dirpath == os.getcwd():
+                    source_list += filename+" "
+                else:
+                    source_list += os.path.join(dirpath.replace(os.getcwd()+os.sep, ""),filename)+" "
     #now we have all cpp files for compile list
-    ready_makefile_template = almost_ready_makefile_template.replace("ALL_CLASSES_HERE",source_list)
+    ready_makefile_template = almost_ready_makefile_template.replace("ALL_CLASSES_HERE",source_list).replace("COMPILER_HERE","mpicxx")
     makefile_path = os.getcwd()+os.sep+"Makefile"
     makefile_file = open(makefile_path, 'w')
     makefile_file.write(ready_makefile_template)
