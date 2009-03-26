@@ -262,14 +262,17 @@ int main(int argc, char** argv) {
 
 """ ***************BELOW IS MAKEFILE TEMPLATE********************* """
 
-makefile_template = """AM_CXXFLAGS += -wd 810 -IMUSE_PATH_HERE/include -I./agents/include -I./events/include -I./states/include
+makefile_template = """CXXC=COMPILER_HERE
 
-bin_PROGRAMS = exec_PROJECT_NAME_HERE
+CXXFLAGS=-IMUSE_PATH_HERE/include -I./agents/include -I./events/include -I./states/include -LMUSE_PATH_HERE/kernel -lmuse -lstdc++
 
-exec_PROJECT_NAME_HERE_LDFLAGS = -LMUSE_PATH_HERE/kernel
-exec_PROJECT_NAME_HERE = $(STDCPP) -lmuse
+EXEC=exec_PROJECT_NAME_HERE
 
-exec_PROJECT_NAME_HERE_SOURCES = ALL_CLASSES_HERE
-	
-# end of Makefile.am
+SOURCES=ALL_CLASSES_HERE
+
+all:
+	$(CXXC) $(CXXFLAGS) $(SOURCES) -o $(EXEC)
+
+clean:
+	rm -rf *o $(EXEC)
 """
