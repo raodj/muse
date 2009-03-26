@@ -1,10 +1,27 @@
-from templates import agent_cpp_template
-from templates import agent_header_template
-import os.path
-import sys
+#---------------------------------------------------------------------------
+#
+# Copyright (c) Miami University, Oxford, OH.
+# All rights reserved.
+#
+# Miami University (MU) makes no representations or warranties about
+# the suitability of the software, either express or implied,
+# including but not limited to the implied warranties of
+# merchantability, fitness for a particular purpose, or
+# non-infringement.  MU shall not be liable for any damages suffered
+# by licensee as a result of using, result of using, modifying or
+# distributing this software or its derivatives.
+#
+# By using or copying this Software, Licensee agrees to abide by the
+# intellectual property laws, and all other applicable laws of the
+# U.S., and the terms of this license.
+#
+# Authors: Meseret R. Gebre       meseret.gebre@gmail.com
+#
+#---------------------------------------------------------------------------
+
 __author__="Meseret R. Gebre"
-__date__  ="Mar 25, 2009"
-__version__="0.1"
+__date__  ="Mar 26, 2009"
+__version__="0.2"
 
 """
 This is the muse code generator module.
@@ -19,18 +36,23 @@ Please leave everything above this line as is. If you modify or add anything
 add what you modified or extended belowe.
 """
 
+from templates import main_cpp_template
+from templates import makefile_template
 from sys import argv
 import os
 from templates import *
-
+import sys
 
 possible_action_command = ['create']
-possible_commands = ['project','agent','state','event']
+possible_commands = ['project','agent','state','event','makefile']
 
 def usage():
     return """Welcome to the muse code generator help menu.
 
     --help - brings you here!
+
+    GENERAL USAGE:
+    python muse.py [action command] [command] [command args]
 
     CREATE PROJECT USAGE - should be called FIRST:
     python muse.py create project <project_name_here>
@@ -38,11 +60,25 @@ def usage():
     CREATE AGENT USAGE:
     python muse.py create agent <agent_name_here>
 
+        GOTCHA: You should be in the project directory when making this call
+
     CREATE STATE USAGE:
     python muse.py create state <state_name_here>
 
+        GOTCHA: You should be in the project directory when making this call
+
     CREATE EVENT USAGE:
     python muse.py create event <event_name_here>
+
+        GOTCHA: You should be in the project directory when making this call
+
+    CREATE MAKEFILE USAGE
+    python muse.py create makefile <full path to root directory of muse>
+
+       GOTCHA: if the full path has a directory with spaces wrap the entire
+               path with double quotes, like....."path to muse"
+
+       GOTCHA: You should be in the project directory when making this call
 
     NOTES aka READ FIRST:
     You should call the create project command first before creating 
@@ -62,6 +98,7 @@ def create_project(project_name, parent_directory=os.getcwd()):
         return
 
     print "Creating Project .."+project_name
+    
     os.makedirs(parent_directory+os.sep+project_name+os.sep+"agents"+os.sep+"src")
     print "Created .."+parent_directory+os.sep+project_name+os.sep+"agents"+os.sep+"src"
     os.makedirs(parent_directory+os.sep+project_name+os.sep+"agents"+os.sep+"include")
@@ -78,11 +115,11 @@ def create_project(project_name, parent_directory=os.getcwd()):
     os.makedirs(parent_directory+os.sep+project_name+os.sep+"temp")
     print "Created .."+parent_directory+os.sep+project_name+os.sep+"temp"
 
-
-#some global variables for later use
-correct_header_template = ""
-correct_cpp_template    = ""
-correct_string_replace  = ""
+    mainfile_path = parent_directory+os.sep+project_name+os.sep+project_name+"_main.cpp"
+    mainfile_file = open(mainfile_path, 'w')
+    mainfile_file.write(main_cpp_template)
+    mainfile_file.close()
+    print "Created .."+mainfile_path
 
 def header_cpp_create_helper(directory,template,file_names=[]):
     """ This method is a helper that creates a header and cpp file in a given
@@ -114,9 +151,9 @@ def header_cpp_create_helper(directory,template,file_names=[]):
 
     print "Creating "+directory+"...."
     #lets make sure we create from the correct template!
-    global correct_header_template
-    global correct_cpp_template
-    global correct_string_replace
+    correct_header_template = ""
+    correct_cpp_template    = ""
+    correct_string_replace  = ""
     
     if template == "agent":
         correct_header_template = agent_header_template
@@ -175,7 +212,29 @@ def create_event(event_names=[]):
     """
     header_cpp_create_helper("events", "event",event_names)
 
+def create_makefile(muse_directory_path):
+    """ This method will generate a Makefile.am file in the project directory
 
+    @param muse_directory_path, this should be the root directory of muse
+    """
+
+    #this assumes we are in the project directory
+    project_name = os.getcwd().split(os.sep)[-1]
+    almost_ready_makefile_template = makefile_template.replace("MUSE_PATH_HERE", muse_directory_path).replace("PROJECT_NAME_HERE", project_name)
+    #time to scan for all cpp files and add to list of source to compile.
+    source_list = ""
+    for dirpath,dirnames,filenames in os.walk(os.getcwd()):
+        for filename in filenames:
+            if filename.endswith(".cpp"):
+                source_list += os.path.join(dirpath.replace(os.getcwd()+os.sep, ""),filename)+" "
+    #now we have all cpp files for compile list
+    ready_makefile_template = almost_ready_makefile_template.replace("ALL_CLASSES_HERE",source_list)
+    makefile_path = os.getcwd()+os.sep+"Makefile"
+    makefile_file = open(makefile_path, 'w')
+    makefile_file.write(ready_makefile_template)
+    makefile_file.close()
+    print "Created .."+makefile_path
+   
 def action_create(command, command_arg=[]):
     """This method handles the action 'create'
 
@@ -196,6 +255,8 @@ def action_create(command, command_arg=[]):
         create_state(command_arg)
     elif command == 'event':
         create_event(command_arg)
+    elif command == 'makefile':
+        create_makefile(command_arg[0])
 
 
 def execute_action(action_command, command, command_arg=[]):
@@ -215,12 +276,12 @@ def execute_action(action_command, command, command_arg=[]):
         action_create(command, command_arg)
 
 #make sure there are not asking for help
+
+
 if len(argv) >= 2 and argv[1] == '--help':
     print usage();
-    sys.exit(0);
-
 #check if we have enough args
-if len(argv) >= 4:
+elif len(argv) >= 4:
     #we need to get the arguments and execute the action
     action_command = argv[1]
     command        = argv[2]

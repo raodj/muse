@@ -26,8 +26,8 @@ muse code generator to create the Agents, Events and State header and cpp files.
 """
 
 __author__="Meseret R. Gebre"
-__date__="Mar 25, 2009"
-__version__="0.1"
+__date__="Mar 26, 2009"
+__version__="0.2"
 
 """
 Feel free to extend modify this any way you see fit. TAKE THIS CODE AS-IS.
@@ -188,8 +188,10 @@ State*
 STATE_NAME_HERE::getClone(){
     //make sure you clone the state object correctly
     //check out muse examples for some hints
-    //for primitive types shallow copy should work, however for pointers or
+    //for primitive types shallow copy using default copy ctor should work, however for pointers or
     //class you need to do a deep copy.
+    //STATE_NAME_HERE *clone_state = new STATE_NAME_HERE(this);
+    //return clone_state;
 }//end getClone
 
 STATE_NAME_HERE::~STATE_NAME_HERE(){
@@ -216,19 +218,58 @@ EVENT_NAME_HERE::~EVENT_NAME_HERE(){
 #endif /* EVENT_NAME_HERE_CPP */
 """
 
+main_cpp_template = """
+/*
+   Auto generated main class by muse code generator.
+   This source does some of the setup for you.
+   Check out musesimulation.org for the API to see Simulation class methods.
+*/
+
+#include "Simulation.h"
+#include "DataTypes.h"
+#include <iostream>
+//#include "MTRandom.h" //uncomment to get Mersenne Twister random generator
+
+using namespace muse;
+
+/* The main
+ */
+int main(int argc, char** argv) {
+    //first get simulation kernel instance to work with
+    Simulation * kernel = Simulation::getSimulator();
+
+    //now lets initialize the kernel
+    kernel->initialize(argc,argv);
+
+
+    //..........register agents and do stuff here..................
+    std::cout << "Muse Linked and Compiled OK :-)" << std::endl;
+
+    //we set the start and end time of the simulation here
+    Time start=0, end=100;
+    kernel->setStartTime(start);
+    kernel->setStopTime(end);
+
+    //we finally start the simulation here!!
+    kernel->start();
+
+    //now we finalize the kernel to make sure it cleans up.
+    kernel->finalize();
+
+    return (0);
+}
+"""
+
 """ ***************BELOW IS MAKEFILE TEMPLATE********************* """
 
-makefile_template = """
-AM_CXXFLAGS += -wd 810 -IMUSE_INCLUDE -I./agents/include -I./events/include -I./states/include
+makefile_template = """AM_CXXFLAGS += -wd 810 -IMUSE_PATH_HERE/include -I./agents/include -I./events/include -I./states/include
 
-bin_PROGRAMS = PROJECT_NAME_HEREexec
+bin_PROGRAMS = exec_PROJECT_NAME_HERE
 
-PROJECT_NAME_HEREexec_LDFLAGS = -L../../kernel
-PROJECT_NAME_HEREexec = $(STDCPP) -lmuse
+exec_PROJECT_NAME_HERE_LDFLAGS = -LMUSE_PATH_HERE/kernel
+exec_PROJECT_NAME_HERE = $(STDCPP) -lmuse
 
-PROJECT_NAME_HEREexec_SOURCES = \
-	ALL_CLASSES_HERE
-	PROJECT_NAME_HERESimulation.cpp
-
+exec_PROJECT_NAME_HERE_SOURCES = ALL_CLASSES_HERE PROJECT_NAME_HERE_main.cpp
+	
 # end of Makefile.am
 """
