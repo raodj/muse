@@ -116,6 +116,8 @@ Simulation::scheduleEvent( Event *e){
 
 void 
 Simulation::start(){
+    //if no agents registered we need to leave start and end sim
+    if (allAgents.empty()) return;
     //first we setup the AgentMap for all kernels
     commManager->registerAgents(allAgents);
     // Create and initialize our GVT manager.
