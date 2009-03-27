@@ -101,6 +101,7 @@ Simulation::getSimulator(){
 bool 
 Simulation::scheduleEvent( Event *e){
     AgentID recvAgentID = e->getReceiverAgentID();
+   
     if (isAgentLocal(recvAgentID)){
         // Local events are directly inserted into our own scheduler
         return scheduler->scheduleEvent(e);
