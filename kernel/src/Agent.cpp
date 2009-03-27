@@ -78,11 +78,9 @@ Agent::processNextEvents(){
     
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
-    if (top_event->isAntiMessage() ){
-        cout << "TOP EVENT: " << *top_event <<endl;
-        ASSERT(top_event->isAntiMessage() == false );
-    }
    
+    ASSERT(top_event->isAntiMessage() == false );
+    
    
     //we add the top event we popped to the event container
     events.push_back(top_event);
@@ -269,8 +267,8 @@ Agent::doRestorationPhase(Event* straggler_event){
     */
 
     //for debugging reasons
-    cout << "StateQueue B Restoration: ";
-    cout << *this << endl;
+    //cout << "StateQueue B Restoration: ";
+    //cout << *this << endl;
 
     //we set our LVT to INFINITY here incase we dont find a state to restore to
     //we can revert to the initial state after the loop.
@@ -285,7 +283,7 @@ Agent::doRestorationPhase(Event* straggler_event){
             //after we setState, remember myState will point to a new state now.
             setState( cloneState(current_state) );
             //set agent's LVT to this state's timestamp
-            setLVT(myState->getTimeStamp());
+            setLVT(getState()->getTimeStamp());
             //cout << "    State Found for time: "<< LVT << endl;
             break;
         }else{
@@ -304,7 +302,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
         delete myState;
         setState( cloneState(stateQueue.front()) );
-        setLVT(myState->getTimeStamp()) ;
+        setLVT(getState()->getTimeStamp()) ;
         // cout << "Restored Time To: " << LVT <<endl;
     }else{
         //there is a problem if this happens
@@ -314,15 +312,15 @@ Agent::doRestorationPhase(Event* straggler_event){
     }
     
     //for debugging reasons
-    cout << "StateQueue A Restoration: ";
-    cout << *this << endl;
+    //cout << "StateQueue A Restoration: ";
+    //cout << *this << endl;
 
 }//end doStepOne
 
 void
 Agent::doCancellationPhaseOutputQueue(){
     //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time restored_time = myState->getTimeStamp(); //TODO change name
+    Time restored_time = getState()->getTimeStamp(); //TODO change name
    
     AgentIDBoolMap bitMap;
     
@@ -349,11 +347,12 @@ Agent::doCancellationPhaseOutputQueue(){
         //check if the event is invalid.
         if ( current_event->getSentTime() > restored_time ){
             //check if bitMap to receiver agent has been set.
-            if (current_event->getReceiverAgentID() != myID && bitMap[current_event->getReceiverAgentID()] == false ){ 
+            if (current_event->getReceiverAgentID() != getAgentID() &&
+                bitMap[current_event->getReceiverAgentID()] == false ){
+                
                 bitMap[current_event->getReceiverAgentID()] = true;
                 current_event->makeAntiMessage();
-               
-                
+                //cout << "Making Anti-Message: " << *current_event << endl;
                 (Simulation::getSimulator())->scheduleEvent(current_event);
             }
             //invalid events automatically get removed
@@ -366,7 +365,7 @@ Agent::doCancellationPhaseOutputQueue(){
 void
 Agent::doCancellationPhaseInputQueue(Event* straggler_event){
     //cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time restored_time = myState->getTimeStamp();
+    Time restored_time = getState()->getTimeStamp();
 
     /** OK, for step three, here is what we are doing. First, we have
         the restored_time. This is the time we rollbacked to.  This
@@ -387,8 +386,10 @@ Agent::doCancellationPhaseInputQueue(Event* straggler_event){
         //check if the event is invalid.
         if ( current_event->getReceiveTime() > restored_time){
             //check if we need to re-process the current_event
-            if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID()){
+            if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID() &&
+                !current_event->isAntiMessage() ){
                 current_event->increaseReference();
+                ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );
             }
             //invalid events automatically get removed

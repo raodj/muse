@@ -75,8 +75,9 @@ PHOLDAgent::executeTask(const EventContainer* events){
         //make event
         Event * e = new Event(receiverAgentID,receive);
         //schedule the event
-        if( scheduleEvent(e))oss << "Agent ["<<getAgentID(); oss << "] Sent Event to Agent ["<<receiverAgentID <<
-                                 "] for time [" <<receive <<"]"<<endl;
+        //if( scheduleEvent(e))oss << "Agent ["<<getAgentID(); oss << "] Sent Event to Agent ["<<receiverAgentID <<
+        //                         "] for time [" <<receive <<"]"<<endl;
+        scheduleEvent(e);
     }
 }//end executeTask
 

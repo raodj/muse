@@ -41,11 +41,12 @@ Event::decreaseReference(){
     ASSERT ( referenceCount >= 0 );
     // Declreate reference count.
     if (!referenceCount) {
-        
+        //cout << "Deleting " << *this << endl;
         //std::cout << "Getting deleted: " << *this << std::endl;
         if (Simulation::getSimulator()->isAgentLocal(senderAgentID)) {
             // This event was allocated using new operator as a
             // standard event. Do delete it appropriately.
+            
             delete this;
         } else{
             //cout << "Event was not local: calling delete[]\n\n";
