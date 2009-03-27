@@ -78,8 +78,13 @@ Agent::processNextEvents(){
     
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
+    if (top_event->isAntiMessage() ){
+        cout << "TOP EVENT: " << *top_event <<endl;
+        top_event->decreaseReference();
+        return false;
+        /// ASSERT(top_event->isAntiMessage() == false );
+    }
    
-    ASSERT(top_event->isAntiMessage() == false );
     
    
     //we add the top event we popped to the event container
@@ -173,6 +178,7 @@ bool
 Agent::scheduleEvent(Event *e){
     ASSERT(TIME_EQUALS(e->getSentTime(),TIME_INFINITY) );
     ASSERT(e->getSenderAgentID() == -1u);
+    ASSERT(e->isAntiMessage() == false );
     //check to make sure that event scheduled via this method is
     //a new event
     if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() != -1u ) {
@@ -194,7 +200,7 @@ Agent::scheduleEvent(Event *e){
             //this should NEVER happen. It's time to abort
             abort();
         }
-        ASSERT(e->isAntiMessage() == false );
+        
         //will use this to figure out if we need to change our key in
         //scheduler
         Time old_receive_time = TIME_INFINITY;
