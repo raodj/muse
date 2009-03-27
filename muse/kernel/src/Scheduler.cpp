@@ -86,11 +86,11 @@ Scheduler::scheduleEvent( Event *e){
     }
     
     //check if event is an anti-message
-    if (e->isAntiMessage() ){
+    if ( e->isAntiMessage() ){
         //since it is an anti-message we don't need to reprocess the event.
-        
+        //cout << "GOT ANIT_MESSAGE: " << *e <<endl;
         //check if this anti-message is for the furture time.
-        if (e->getReceiveTime() > agent->getLVT()) {
+        if (e->getReceiveTime() >= agent->getLVT()) {
             //we must remove it and its subtree of events.
             //cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
             Agent::EventPQ::iterator it = agent->eventPQ->begin();
@@ -104,12 +104,14 @@ Scheduler::scheduleEvent( Event *e){
                     
                     //if the receive times are the same or greater then we dont need this event
                     if ( (*del_it)->getReceiveTime() >= e->getReceiveTime() ){
+                        //cerr<< "***Deleting Event: " << *(*del_it) << endl;
                         //cout << "---found useless future event  deleting from fib heap"<<endl;
                         agent->eventPQ->remove(del_it.getNode());
                     }
                 }
             }//end while
         }
+        e->decreaseReference();
         return false;   
     }//end anti-message check if
 
@@ -119,6 +121,7 @@ Scheduler::scheduleEvent( Event *e){
     if (!agent->eventPQ->empty()){
         old_receive_time = agent->eventPQ->top()->getReceiveTime();
     }
+    ASSERT(e->isAntiMessage() == false );
     e->increaseReference();
     agent->eventPQ->push(e);
     //cout << "Pushed Event From Agent: "<<e->getSenderAgentID() << " to Agent: "

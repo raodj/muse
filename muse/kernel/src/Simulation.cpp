@@ -73,7 +73,7 @@ Simulation::initialize(int argc, char* argv[]){
 
 Simulation::~Simulation() {
     delete scheduler;
-    delete commManager;
+    delete commManager; 
 }
 
 const AgentContainer&
