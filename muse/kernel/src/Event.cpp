@@ -38,12 +38,12 @@ Event::~Event(){}
 
 void
 Event::decreaseReference(){
-    ASSERT ( referenceCount >= 0 );
+    ASSERT ( getReferenceCount() >= 0 );
     // Declreate reference count.
-    if (!referenceCount) {
+    if (!getReferenceCount()) {
         //cout << "Deleting " << *this << endl;
         //std::cout << "Getting deleted: " << *this << std::endl;
-        if (Simulation::getSimulator()->isAgentLocal(senderAgentID)) {
+        if (Simulation::getSimulator()->isAgentLocal(getSenderAgentID() )) {
             // This event was allocated using new operator as a
             // standard event. Do delete it appropriately.
             
@@ -83,7 +83,7 @@ operator<<(ostream& os, const muse::Event& event) {
        << "sentTime="     << event.getSentTime()        << ","
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
-       << "Ref. count="   << event.referenceCount       << ","
+       << "Ref. count="   << event.getReferenceCount()  << ","
        << "color="        << event.getColor()           << "]";
     
     return os;

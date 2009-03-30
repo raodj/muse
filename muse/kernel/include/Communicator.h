@@ -100,7 +100,7 @@ class Communicator {
 	@param id , the agent id is used to check. true if it is local.
 	@see AgentID
     */
-    bool isAgentLocal(AgentID &);
+    bool isAgentLocal(AgentID );
 
     /** The getOwnerRank method.
 	Method to obtain the rank of the process on which a given

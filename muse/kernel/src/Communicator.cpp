@@ -203,7 +203,7 @@ Communicator::receiveEvent(){
 
 
 bool
-Communicator::isAgentLocal(AgentID &id){
+Communicator::isAgentLocal(AgentID id){
     SimulatorID my_id = MPI::COMM_WORLD.Get_rank();
     return (agentMap[id] == my_id);
 }
@@ -233,7 +233,7 @@ Communicator::getOwnerRank(const AgentID &id) const {
         return entry->second;
     }
     // Invalid or unknown agent id.
-    return -1;
+    return -1u;
 }
 
 void

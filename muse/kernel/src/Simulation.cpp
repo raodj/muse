@@ -201,7 +201,7 @@ Simulation::garbageCollect(const Time gvt){
 
 
 bool
-Simulation::isAgentLocal(AgentID & id){ return commManager->isAgentLocal(id); }
+Simulation::isAgentLocal(AgentID id){ return commManager->isAgentLocal(id); }
 
 void Simulation::stop(){}
 
