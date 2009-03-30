@@ -205,7 +205,7 @@ public:
 	@param reference to the Agent's id
 	@return bool, True if the AgentID is registered to this kernel.
     */
-    bool isAgentLocal(AgentID &);
+    bool isAgentLocal(AgentID );
     
     /** The getStartTime method.
 	@return the start time of this simulation kernel.

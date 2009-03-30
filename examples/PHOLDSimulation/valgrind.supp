@@ -347,3 +347,11 @@
    fun:dlopen_doit
    ...
 }
+
+{
+   <insert a suppression name here>
+   Memcheck:Addr8
+   ...
+   fun:MPID_Iprobe
+   ... 
+}

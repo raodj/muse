@@ -76,8 +76,14 @@ bool
 Scheduler::scheduleEvent( Event *e){
   
     //make sure the recevier agent has an entry
-    Agent * agent = agentMap[e->getReceiverAgentID()];
-    if ( agent == NULL) return false;
+    AgentID agent_id = e->getReceiverAgentID();
+    AgentIDAgentPointerMap::iterator entry = agentMap.find(agent_id);
+    Agent * agent =(entry != agentMap.end()) ? entry->second : NULL ;
+    if ( agent == NULL){
+        //does not exist in the scheduler we need to destroy the event and return false
+        e->decreaseReference();
+        return false;
+    }
 
     //first check if this is a rollback!
     if (e->getReceiveTime() <= agent->getLVT()){

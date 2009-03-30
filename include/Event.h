@@ -65,24 +65,26 @@ class Event {
       @return reference to the sender AgentID.
       @see AgentID
   */
-  inline const AgentID& getSenderAgentID() const { return senderAgentID;}
+  inline AgentID getSenderAgentID() const { return senderAgentID;}
 
   /** The getReceiverAgentID method.
       @return reference to the receiver AgentID.
       @see AgentID
   */
-  inline const AgentID& getReceiverAgentID() const { return receiverAgentID; }
+  inline AgentID getReceiverAgentID() const { return receiverAgentID; }
   
   /** The getSentTime method.
       @return reference to the sent time of this event.
       @see Time
   */
-  inline const Time& getSentTime() const { return sentTime; }
+  inline  Time getSentTime() const { return sentTime; }
   
   /** The getReceiveTime method.
       @return reference to the receive time of this event.
   */
-  inline const Time& getReceiveTime() const { return receiveTime; }
+  inline Time getReceiveTime() const { return receiveTime; }
+
+  inline int getReferenceCount() const {return referenceCount;}
 
  protected:
   /** The getColor method.
