@@ -140,7 +140,7 @@ public:
 	@return reference to the AgentContainer. 
 	@see AgentContainer
     */
-    const AgentContainer& getRegisteredAgents();
+    inline const AgentContainer& getRegisteredAgents() const {return allAgents;}
         
     /** The getSimulator method.  The simulation class implements a
 	singleton pattern. Call this method to get a pointer to the
@@ -180,14 +180,15 @@ public:
 	@param the start time.
 	@see Time
     */
-    void setStartTime(Time startTime);
+    inline void setStartTime(Time start_time) {startTime = start_time;}
 
     /** The stop method.
 	When this method is invoked the simulation will come to a big STOP. muse will go through and finalize all 
 	agents and clean up.
 
+	@note Don't use this method until oterwise stated, maybe in the next release
 	@todo implement this. Currently does nothing.
-	@todo does this method make sense to store here.
+	
     */
     void stop();
         
@@ -197,7 +198,7 @@ public:
 	@param the stop time.
 	@see Time
     */
-    void setStopTime(Time stopTime);
+    inline void setStopTime(Time end_time) {endTime = end_time;}
 
     /** The isAgentLocal method.
 	Used to check if a given AgentID is local to this kernel.
@@ -213,11 +214,11 @@ public:
     */
     inline Time getStartTime() const { return startTime;}
 
-    /** The getEndTime method.
+    /** The getStopTime method.
 	@return the end time of this simulation kernel.
 	@see Time
     */
-    inline Time getEndTime() const { return endTime; }
+    inline Time getStopTime() const { return endTime; }
 
     
 protected:

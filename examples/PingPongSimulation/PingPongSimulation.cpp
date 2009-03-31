@@ -10,6 +10,7 @@
 #include "Simulation.h"
 #include "State.h"
 #include "DataTypes.h"
+#include <cstdlib>
 
 using namespace muse;
 using namespace std;
@@ -47,7 +48,7 @@ int main(int argc, char** argv) {
     }//end if-elseif
 
     //we set the start and end time of the simulation here
-    Time start=0, end=10; 
+    Time start=0, end= (argc >= 2) ? atof(argv[1]) : 10; 
     kernel->setStartTime(start);
     kernel->setStopTime(end);
 

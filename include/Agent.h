@@ -30,6 +30,11 @@
 #include "Event.h"
 #include "State.h"
 #include "oSimStream.h"
+#include <cmath>
+
+/** Use this macro to compare to Time values safely
+ */
+#define TIME_EQUALS(t1,t2)(fabs(t1-t2)<1e-8)
 
 BEGIN_NAMESPACE(boost);
 template <typename T, typename Comp >

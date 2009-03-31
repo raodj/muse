@@ -27,9 +27,7 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "Scheduler.h"
-#include <sys/types.h>
-#include <sys/stat.h>
-
+#include <cstdlib>
 
 // The number of iterations of event processing after which GVT
 // estimation is triggered
@@ -58,11 +56,7 @@ Simulation::initialize(){
     myID             = commManager->initialize(x, arg);
     // Free memory as MPI no longer needs this information.
     delete[] arg;
-    //lets make a temp directory for oSimStream temp files.
-    //if (mkdir("oSimStreamTemp",0777) == -1) {  // Create the directory
-    //  std::cerr << "Error: " << std::endl;
-    //  exit(1);
-    //}
+   
 
 }
 
@@ -76,10 +70,6 @@ Simulation::~Simulation() {
     delete commManager; 
 }
 
-const AgentContainer&
-Simulation::getRegisteredAgents(){
-    return allAgents;
-}
 
 bool
 Simulation::registerAgent(  muse::Agent* agent)  { 
@@ -100,6 +90,10 @@ Simulation::getSimulator(){
 
 bool 
 Simulation::scheduleEvent( Event *e){
+    if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() == -1u ) {
+        cerr << "Dont use this method with a new event, go through the agent's scheduleEvent method." <<endl;
+        abort();
+    }
     AgentID recvAgentID = e->getReceiverAgentID();
    
     if (isAgentLocal(recvAgentID)){
@@ -205,15 +199,6 @@ Simulation::isAgentLocal(AgentID id){ return commManager->isAgentLocal(id); }
 
 void Simulation::stop(){}
 
-void 
-Simulation::setStartTime(Time start_time){
-    startTime = start_time;
-}
-
-void 
-Simulation::setStopTime( Time  end_time){
-    endTime = end_time;
-}
 
 Time
 Simulation::getLGVT() const {

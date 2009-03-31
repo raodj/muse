@@ -46,6 +46,7 @@ class Event {
   friend class Simulation;
   friend class Scheduler;
   friend class GVTManager;
+  friend class Communicator;
  public:
   /** The ctor method.
       This is the fastest way to create an Event object. The AgentID

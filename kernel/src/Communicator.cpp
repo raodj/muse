@@ -131,6 +131,7 @@ Communicator::sendEvent(Event * e, const int event_size){
                               agentMap[e->getReceiverAgentID()],EVENT);
         //cout << "SENT an Event of size: " << event_size << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
+        //e->decreaseReference();
     } catch (MPI::Exception e) {
         cerr << "MPI ERROR (sendEvent): ";cerr << e.Get_error_string() << endl;
     }
@@ -174,6 +175,7 @@ Communicator::receiveEvent(){
     } catch (MPI::Exception e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
+        delete[] incoming_event;
         return NULL;
     }
     
@@ -204,6 +206,8 @@ Communicator::receiveEvent(){
 
 bool
 Communicator::isAgentLocal(AgentID id){
+    //cout << "Check if Local Agent: " << id <<endl;
+    //ASSERT(id >= 0 && id <= 4);
     SimulatorID my_id = MPI::COMM_WORLD.Get_rank();
     return (agentMap[id] == my_id);
 }
