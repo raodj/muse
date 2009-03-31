@@ -18,25 +18,25 @@ PingPongAgent::initialize() throw (std::exception){
        
         Event * e = new Event(AgentID(1),getTime()+1);
         this->scheduleEvent(e);
-        cout << "Sent ---> PING" << endl;
+        //cout << "Sent ---> PING" << endl;
     }//end if
 }//end initialize
 
 void
 PingPongAgent::executeTask(const EventContainer* events){
-    cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getTime() << endl;
+    // cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getTime() << endl;
    
     if (!events->empty()){
         
         Event * e = new Event( (getAgentID()+1)%2 ,getTime()+1);
         this->scheduleEvent(e);
-        if (getAgentID() == 1){
+        /* if (getAgentID() == 1){
             cout << "Got  ---> PING" << endl;
             cout << "Sent ---> PONG" << endl;
         }else{
             cout << "Got  ---> PONG" << endl;
             cout << "Sent ---> PING" << endl;
-        }
+            }*/
     }
 }//end executeTask
 

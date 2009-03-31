@@ -28,15 +28,13 @@
 #include <iostream>
 #include "f_heap.h"
 #include "HashMap.h"
-#include <cmath>
+
 #include <cstdlib>
 
 using namespace std;
 using namespace muse;
 
-/** Use this macro to compare to Time values safely
- */
-#define TIME_EQUALS(t1,t2)(fabs(t1-t2)<1e-8)
+
 
 void
 Agent::initialize() throw (std::exception) {}
@@ -188,7 +186,7 @@ Agent::scheduleEvent(Event *e){
     e->sentTime      = getLVT();
     e->senderAgentID = getAgentID();
     //check to make sure we dont schedule pass the simulation end time.
-    if ( e->getSentTime() >= (Simulation::getSimulator())->getEndTime() ){   
+    if ( e->getSentTime() >= (Simulation::getSimulator())->getStopTime() ){   
         e->decreaseReference();
         return false;
     }
