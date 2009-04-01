@@ -177,6 +177,7 @@ Agent::scheduleEvent(Event *e){
     ASSERT(TIME_EQUALS(e->getSentTime(),TIME_INFINITY) );
     ASSERT(e->getSenderAgentID() == -1u);
     ASSERT(e->isAntiMessage() == false );
+    
     //check to make sure that event scheduled via this method is
     //a new event
     if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() != -1u ) {
@@ -185,6 +186,7 @@ Agent::scheduleEvent(Event *e){
     //fill in the sent time and sender agent id info
     e->sentTime      = getLVT();
     e->senderAgentID = getAgentID();
+    
     //check to make sure we dont schedule pass the simulation end time.
     if ( e->getSentTime() >= (Simulation::getSimulator())->getStopTime() ){   
         e->decreaseReference();
@@ -201,12 +203,8 @@ Agent::scheduleEvent(Event *e){
         
         //will use this to figure out if we need to change our key in
         //scheduler
-        Time old_receive_time = TIME_INFINITY;
-        
-        if (!eventPQ->empty()){
-            old_receive_time = eventPQ->top()->getReceiveTime();
-        }
-       
+        Time old_receive_time = (!eventPQ->empty()) ? eventPQ->top()->getReceiveTime() : TIME_INFINITY;
+               
         //add to event scheduler this is a optimization trick, because
         //we dont go through the Simulation scheduler method.
         e->increaseReference(); 
@@ -225,13 +223,13 @@ Agent::scheduleEvent(Event *e){
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
-        //cout << "Sending Event From Agent: "<<getAgentID() << " To Agent: "
-        //     << e->getReceiverAgentID()<<" @ time: " << e->getReceiveTime() << endl;
         //just add to output queue.
         e->increaseReference();
         outputQueue.push_back(e);
         return true;
     }//end if
+    
+    e->decreaseReference();
     return false;
 }//end scheduleEvent
 
