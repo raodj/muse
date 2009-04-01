@@ -113,7 +113,7 @@ Scheduler::scheduleEvent( Event *e){
     //will use this to figure out if we need to change our key in
     //scheduler
     Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
-    cout << "old rec time: " << old_receive_time << endl;
+    //cout << "old rec time: " << old_receive_time << endl;
     ASSERT(e->isAntiMessage() == false );
     e->increaseReference();
     agent->eventPQ->push(e);
