@@ -25,6 +25,8 @@
 
 #include "Scheduler.h"
 #include "f_heap.h"
+#include <cstdlib>
+#include "Simulation.h"
 
 using namespace muse;
 Scheduler::Scheduler(){}
@@ -42,33 +44,18 @@ Scheduler::addAgentToScheduler(Agent * agent){
 void
 Scheduler::changeKey(void * pointer, Agent * agent){
     AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
-    //cout << "In changeKey: changing key for agent " << ptr->data()->getAgentID() << endl;
     agent_pq.increase(ptr, agent);
 }
 
 bool
 Scheduler::processNextAgentEvents(){
     if (agent_pq.top()->eventPQ->empty()){
-        //changeKey(agent_pq.top()->fibHeapPtr,agent_pq.top()  );
-        //cout << "Agent eventPQ top is empty changing key" <<endl;
         return false;
     }
-
-    //for debugging
-    //cout << "AgentPQ is: " <<endl;
-    //AgentPQ::iterator it = agent_pq.begin();
-    //for(;it != agent_pq.end();it++ ){
-    //    cout << "Agent: " << (*it)->getAgentID() 
-    //         << " has EventPQ size: " << (*it)->eventPQ->size() <<endl;
-    // }
-
     
     Agent * agent = agent_pq.top();
-    //cout << "\n\nTop before is Agent: " << agent_pq.top()->getAgentID() << endl;
-    //cout << "Agent eventPQ top empty ? " << ((agent->eventPQ->empty()) ? "true" : "false") << endl;
     bool result = agent->processNextEvents();
     agent_pq.decrease(reinterpret_cast<AgentPQ::pointer>( agent->fibHeapPtr),agent);
-    //cout << "Top after is Agent: " << agent_pq.top()->getAgentID() << endl <<endl;
     return result;
 }//end processNextAgentEvents
 
@@ -79,26 +66,25 @@ Scheduler::scheduleEvent( Event *e){
     AgentID agent_id = e->getReceiverAgentID();
     AgentIDAgentPointerMap::iterator entry = agentMap.find(agent_id);
     Agent * agent =(entry != agentMap.end()) ? entry->second : NULL ;
+    
     if ( agent == NULL){
-        //does not exist in the scheduler we need to destroy the event and return false
-        e->decreaseReference();
-        return false;
+        cerr << "Trying to schedule to local agent that doesn't exist" <<endl;
+        abort();
+        //THIS CASE SHOULD NEVER HAPPEN
     }
 
     //first check if this is a rollback!
-    if (e->getReceiveTime() <= agent->getLVT()){
+    if ( e->getReceiveTime() <= agent->getLVT() ){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
         agent->doRollbackRecovery(e);
     }
     
     //check if event is an anti-message
     if ( e->isAntiMessage() ){
-        //since it is an anti-message we don't need to reprocess the event.
-        //cout << "GOT ANIT_MESSAGE: " << *e <<endl;
+        
         //check if this anti-message is for the furture time.
         if (e->getReceiveTime() >= agent->getLVT()) {
             //we must remove it and its subtree of events.
-            //cout << "-Detected Anti-message for the future to agent: "<< e->getReceiverAgentID()<<endl;
             Agent::EventPQ::iterator it = agent->eventPQ->begin();
             
             while ( it != agent->eventPQ->end() ) {
@@ -117,28 +103,24 @@ Scheduler::scheduleEvent( Event *e){
                 }
             }//end while
         }
-        e->decreaseReference();
+        if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false ){
+            //means the event came from the wire and we should delete it.
+            e->decreaseReference();
+        }
         return false;   
     }//end anti-message check if
 
     //will use this to figure out if we need to change our key in
     //scheduler
-    Time old_receive_time = TIME_INFINITY;
-    if (!agent->eventPQ->empty()){
-        old_receive_time = agent->eventPQ->top()->getReceiveTime();
-    }
+    Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
+    cout << "old rec time: " << old_receive_time << endl;
     ASSERT(e->isAntiMessage() == false );
     e->increaseReference();
     agent->eventPQ->push(e);
-    //cout << "Pushed Event From Agent: "<<e->getSenderAgentID() << " to Agent: "
-    //     << agent->getAgentID()<< " for time: " << e->getReceiveTime() << endl;
-    
-    //now lets make sure that the heap is still valid
+   
     //we have to change if the event receive time has a smaller key
     //then the top event in the heap.
     if ( e->getReceiveTime() < old_receive_time  ) {
-        //we need to call for the key change
-        //cout <<"**** Agent: "<<agent->getAgentID() << "****changed key in Scheduler::scheduleEvent" <<endl;
         changeKey(agent->fibHeapPtr,agent);
     }
    
