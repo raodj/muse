@@ -103,10 +103,10 @@ Scheduler::scheduleEvent( Event *e){
                 }
             }//end while
         }
-        if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false ){
+        /* if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false ){
             //means the event came from the wire and we should delete it.
             e->decreaseReference();
-        }
+            }*/
         return false;   
     }//end anti-message check if
 
@@ -115,6 +115,14 @@ Scheduler::scheduleEvent( Event *e){
     Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
     //cout << "old rec time: " << old_receive_time << endl;
     ASSERT(e->isAntiMessage() == false );
+
+    if (e->isAntiMessage() ){
+            cerr.flush();
+            cerr <<"Go Anti Event @ scheduler: " <<*e <<endl;
+            cerr.flush();
+            //invalid events automatically get removed
+           
+        }
     e->increaseReference();
     agent->eventPQ->push(e);
    

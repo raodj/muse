@@ -77,9 +77,12 @@ Agent::processNextEvents(){
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     if (top_event->isAntiMessage() ){
-        cout << "TOP EVENT: " << *top_event <<endl;
-        top_event->decreaseReference();
-        return false;
+        cerr.flush();
+        cerr<<"Processing: " << *top_event<<endl;
+        cerr.flush();
+        cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
+        cerr.flush();
+        abort();
         /// ASSERT(top_event->isAntiMessage() == false );
     }
    
@@ -121,14 +124,7 @@ Agent::processNextEvents(){
         }
     }//end while
 
-    // if (getAgentID() == 0){
-    // list<State*>::iterator rit = stateQueue.begin();
-    //cout << "StateQueue before PUSH: ";
-    //for (; rit != stateQueue.end(); rit++){
-    //    cout <<(*rit)->getTimeStamp() << " ";
-    //}
-    //cout << "\n";
-    //}
+   
     //here we set the agent's LVT and update agent's state timestamp
     setLVT(top_event->getReceiveTime());
     getState()->timestamp = getLVT();
@@ -181,6 +177,7 @@ Agent::scheduleEvent(Event *e){
     //check to make sure that event scheduled via this method is
     //a new event
     if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() != -1u ) {
+        cerr << "Can't schedule this event it has already been scheduled and most likely to become a straggler event" <<endl;
         abort();
     }
     //fill in the sent time and sender agent id info
@@ -198,6 +195,8 @@ Agent::scheduleEvent(Event *e){
     if (e->getReceiverAgentID() == getAgentID()){
         if (e->getReceiveTime() <= getLVT()){
             //this should NEVER happen. It's time to abort
+            cerr << "You are trying to schedule an event to the same agent with a smaller "
+                 << "timestamp, this is impossible and will cause a rollback" <<endl;
             abort();
         }
         
@@ -228,7 +227,8 @@ Agent::scheduleEvent(Event *e){
         outputQueue.push_back(e);
         return true;
     }//end if
-    
+
+    //if it got to this point it was rejected for scheduling and we should release the memory
     e->decreaseReference();
     return false;
 }//end scheduleEvent
@@ -385,11 +385,19 @@ Agent::doCancellationPhaseInputQueue(Event* straggler_event){
         list<Event*>::iterator del_it = inQ_it;
         inQ_it++;
         Event *current_event = (*del_it);
+
         //check if the event is invalid.
-        if ( current_event->getReceiveTime() > restored_time){
+        if (current_event->isAntiMessage() ){
+            //cerr.flush();
+            //cerr <<"Go Anti Event @ step3: " <<*current_event <<endl;
+            //cerr.flush();
+            //invalid events automatically get removed
+            current_event->decreaseReference();
+            inputQueue.erase(del_it);
+        }
+        else if ( current_event->getReceiveTime() > restored_time){
             //check if we need to re-process the current_event
-            if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID() &&
-                !current_event->isAntiMessage() ){
+            if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID() ){
                 current_event->increaseReference();
                 ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );
