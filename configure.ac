@@ -171,8 +171,7 @@ AC_CONFIG_FILES([Makefile\
 	examples/LonelySimulation/Makefile\
 	examples/RoundRobinSimulation/Makefile\
 	examples/PHOLDSimulation/Makefile\
-	examples/BugLife/Makefile\
-	examples/ClockExample/Makefile])
+	examples/BugLife/Makefile])
 
 AC_OUTPUT
 
