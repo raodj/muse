@@ -239,7 +239,6 @@ public:
     */
     void registerSimStream(SimStream * theSimStream);
 
- protected:
 
     /** The getState method.
 	This will return the current state of the agent.
@@ -248,7 +247,8 @@ public:
 	@see State
     */
     inline State * getState() const {return myState;}
-    
+
+ protected:
     /** The oSimStream type oss.
 	This is the default provided by MUSE and when its safe will push all data
 	to std::cout.

@@ -150,18 +150,6 @@ public:
 	@see Simulation()
     */
     static Simulation* getSimulator();
-        
-    /** The scheduleEvent method.
-	Agents actually use this method to schedule events that are not local.
-
-	@note Users should not be using this method. If used, will cause undefined behavior.
-	      Use Agent::scheduleEvent method to avoid potential problems.
-     
-	@param pointer to the event you wish to schedule.
-	@return bool True if scheduling is successful.
-	@see Event()
-    */
-    bool scheduleEvent( Event *e);
 
     
     /** The start method.  When this method is invoked the client
@@ -223,6 +211,18 @@ public:
     
 protected:
 
+    /** The scheduleEvent method.
+	Agents actually use this method to schedule events that are not local.
+
+	@note Users should not be using this method. If used, will cause undefined behavior.
+	      Use Agent::scheduleEvent method to avoid potential problems.
+     
+	@param pointer to the event you wish to schedule.
+	@return bool True if scheduling is successful.
+	@see Event()
+    */
+    bool scheduleEvent( Event *e);
+    
     /** The getGVT method.
 	This is GVT (Global Virtual Time).
 
