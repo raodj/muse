@@ -191,7 +191,7 @@ Communicator::receiveEvent(){
         // Dispatch event for further processing.
         return the_event;
    
-    } else {
+    } else if (status.Get_tag() == GVT_MESSAGE ) {
         // For now this must be a GVT message.
         ASSERT ( status.Get_tag() == GVT_MESSAGE );
         // Type cast does the trick as GVT messages are binary blobs
