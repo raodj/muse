@@ -83,15 +83,22 @@ Agent::processNextEvents(){
         /// ASSERT(top_event->isAntiMessage() == false );
     }
    
-    
+
+    // Ensure that the top event is greater than LVT
+    if (top_event->getReceiveTime() <= getLVT()) {
+        std::cerr << "Agent is being scheduled to process an event ("
+                  << *top_event << ") that is at or below it LVT (LVT="
+                  << getLVT() << "). This is a serious error. Aborting.\n";
+        abort();
+    }
    
     //we add the top event we popped to the event container
     events.push_back(top_event);
-
+    
     //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-
+    std::cout << "Processing: " << *top_event << std::endl;
     //since we popped an event from the eventPQ, we must call to
     //decrease the reference.
     top_event->decreaseReference();
@@ -112,6 +119,7 @@ Agent::processNextEvents(){
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
+            std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
             //finally, we decrease the reference count for the pop.
             next_event->decreaseReference(); 
@@ -217,6 +225,7 @@ Agent::scheduleEvent(Event *e){
         
         //add to output queue
         e->increaseReference();
+        std::cout << "Scheduled: " << *e << std::endl;
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
@@ -235,8 +244,8 @@ void
 Agent::doRollbackRecovery(Event* straggler_event){
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event);
-    doCancellationPhaseOutputQueue();
     doCancellationPhaseInputQueue(straggler_event);
+    doCancellationPhaseOutputQueue();
 
     //we need to rollback all SimStreams here.
     //LVT by now should be the restored_time
@@ -303,7 +312,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         delete myState;
         setState( cloneState(stateQueue.front()) );
         setLVT(getState()->getTimeStamp()) ;
-        // cout << "Restored Time To: " << LVT <<endl;
+        std::cout << "Restored Time To: " << getLVT() << std::endl;
     }else{
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
@@ -441,7 +450,7 @@ void
 Agent::garbageCollect(const Time gvt){
     //cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
-    while(!stateQueue.empty() && stateQueue.front()->getTimeStamp() < gvt){
+    while((stateQueue.size() > 2) && (stateQueue.front()->getTimeStamp() < gvt)) {
         State *current_state = stateQueue.front();
         delete current_state;
         stateQueue.pop_front();
