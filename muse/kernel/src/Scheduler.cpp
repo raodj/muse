@@ -106,6 +106,13 @@ Scheduler::scheduleEvent( Event *e){
             agent->eventPQ->prettyPrint(std::cerr);
             std::cerr << ". This is a serious error. Aborting."
                       << std::endl;
+
+            list<Event*>::iterator it = agent->inputQueue.begin();
+            cerr << "InputQueue looks " <<endl;
+            while ( it != agent->inputQueue.end()) {
+                cerr << *(*it) <<endl;
+                it++;
+            }
             abort();
         }
         /* if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false ){
