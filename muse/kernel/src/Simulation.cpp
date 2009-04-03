@@ -90,7 +90,8 @@ Simulation::getSimulator(){
 
 bool 
 Simulation::scheduleEvent( Event *e){
-    if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() == -1u ) {
+    if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
+        (e->getSenderAgentID() == -1)) {
         cerr << "Dont use this method with a new event, go through the agent's scheduleEvent method." <<endl;
         abort();
     }
