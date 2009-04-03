@@ -28,7 +28,6 @@
 #include <iostream>
 #include "f_heap.h"
 #include "HashMap.h"
-
 #include <cstdlib>
 
 using namespace std;
@@ -73,16 +72,13 @@ Agent::processNextEvents(){
     //agent's executeTask method.
     EventContainer events;
     Event *top_event = eventPQ->top();eventPQ->pop();
-
+    
     
     //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
     //we should never process an anti-message.
     if (top_event->isAntiMessage() ){
-        cerr.flush();
         cerr<<"Processing: " << *top_event<<endl;
-        cerr.flush();
         cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-        cerr.flush();
         abort();
         /// ASSERT(top_event->isAntiMessage() == false );
     }
@@ -109,7 +105,6 @@ Agent::processNextEvents(){
         //if the receive times match, then they are to be processed at
         //the same time.
         if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
-        //if ( top_event->getReceiveTime() == next_event->getReceiveTime() ){
             //first remove it from the eventPQ
             eventPQ->pop();
             //now we add it to the event container
@@ -199,7 +194,7 @@ Agent::scheduleEvent(Event *e){
         if (e->getReceiveTime() <= getLVT()){
             //this should NEVER happen. It's time to abort
             cerr << "You are trying to schedule an event to the same agent with a smaller "
-                 << "timestamp, this is impossible and will cause a rollback" <<endl;
+                 << "timestamp than LVT, this is impossible and will cause a rollback" <<endl;
             abort();
         }
         
