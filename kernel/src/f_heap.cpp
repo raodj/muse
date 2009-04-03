@@ -17,6 +17,8 @@
 
 // -------------------------------------------------------------------------- 
 
+#include <iostream>
+
 #if !defined(BOOST_F_HEAP_CC)
 #define BOOST_F_HEAP_CC 1
 

@@ -52,11 +52,12 @@ PHOLDAgent::executeTask(const EventContainer* events){
    
     
     //for every event we get we send out one event
-    for(int i=0;i < events->size(); i++){
+    for(size_t i = 0; (i < events->size()); i++){
         //first make a random receive time for the future
         Time receive(getTime()+1+(int)(MTRandom::RandDouble()*Delay));
-        //now we need to choose which agent to send this event to.
-        //we do this with equal probability for all 4 neighbours and send to one.
+        //now we need to choose which agent to send this event to.  we
+        //do this with equal probability for all 4 neighbours and send
+        //to one.
         AgentID receiverAgentID  = getAgentID();
         double r=MTRandom::RandDouble();
         if(r<0.25)      receiverAgentID--;
@@ -64,10 +65,12 @@ PHOLDAgent::executeTask(const EventContainer* events){
         else if(r<0.75) receiverAgentID+=Y;
         else            receiverAgentID++;
         
-        
-        if(receiverAgentID < 0)receiverAgentID+=X*Y;
-        if(receiverAgentID >=(int)(X*Y))receiverAgentID-=X*Y;
-        
+        if(receiverAgentID < 0) {
+            receiverAgentID+=X*Y;
+        }
+        if(receiverAgentID >=(int)(X*Y)) {
+            receiverAgentID-=X*Y;
+        }
        
         //make event
         Event * e = new Event(receiverAgentID,receive);

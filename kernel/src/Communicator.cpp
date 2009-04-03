@@ -127,8 +127,8 @@ Communicator::sendEvent(Event * e, const int event_size){
         //no good way to send objects via MPI make Event to a char*
         //aka ghetto hack :-)
         char* serialEvent = reinterpret_cast<char*>(e);
-        MPI::COMM_WORLD.Isend(serialEvent, event_size, MPI::CHAR,
-                              agentMap[e->getReceiverAgentID()],EVENT);
+        MPI::COMM_WORLD.Send(serialEvent, event_size, MPI::CHAR,
+                             agentMap[e->getReceiverAgentID()],EVENT);
         //cout << "SENT an Event of size: " << event_size << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
         //e->decreaseReference();
@@ -142,8 +142,8 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
     try {
         // GVT messages are already serialized.
         const char *data = reinterpret_cast<const char*>(msg);
-        MPI::COMM_WORLD.Isend(data, msg->getSize(), MPI::CHAR,
-                              destRank, GVT_MESSAGE);
+        MPI::COMM_WORLD.Send(data, msg->getSize(), MPI::CHAR,
+                             destRank, GVT_MESSAGE);
     } catch (MPI::Exception e) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
@@ -171,7 +171,7 @@ Communicator::receiveEvent(){
     // Read the actual data.
     try {
         MPI::COMM_WORLD.Recv(incoming_event, event_size, MPI::CHAR,
-                             MPI_ANY_SOURCE, MPI_ANY_TAG, status);
+                             status.Get_source(), status.Get_tag(), status);
     } catch (MPI::Exception e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;

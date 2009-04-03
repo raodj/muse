@@ -46,7 +46,8 @@ void
 Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
-Agent::Agent(AgentID  id, State * agentState) : myID(id),myState(agentState),lvt(0){
+Agent::Agent(AgentID  id, State * agentState)
+  : myID(id), lvt(0), myState(agentState) {
     eventPQ = new EventPQ;
 }//end ctor
 
@@ -147,7 +148,7 @@ Agent::processNextEvents(){
 
     //we finally need to save the state of all SimStreams that are registered.
     oss.saveState(getLVT());
-    for (int i=0;i<allSimStreams.size(); i++){
+    for (size_t i = 0; (i < allSimStreams.size()); i++){
         allSimStreams[i]->saveState(getLVT());
     }
     return true;
@@ -171,13 +172,15 @@ Agent::registerSimStream(SimStream * theSimStream){
 bool 
 Agent::scheduleEvent(Event *e){
     ASSERT(TIME_EQUALS(e->getSentTime(),TIME_INFINITY) );
-    ASSERT(e->getSenderAgentID() == -1u);
+    ASSERT(e->getSenderAgentID() == -1);
     ASSERT(e->isAntiMessage() == false );
     
     //check to make sure that event scheduled via this method is
     //a new event
-    if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) || e->getSenderAgentID() != -1u ) {
-        cerr << "Can't schedule this event it has already been scheduled and most likely to become a straggler event" <<endl;
+    if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
+        (e->getSenderAgentID() != -1)) {
+        cerr << "Can't schedule this event it has already been scheduled "
+             << "and most likely to become a straggler event" << endl;
         abort();
     }
     //fill in the sent time and sender agent id info
@@ -243,7 +246,7 @@ Agent::doRollbackRecovery(Event* straggler_event){
     //we need to rollback all SimStreams here.
     //LVT by now should be the restored_time
     oss.rollback(getLVT());
-    for (int i=0;i<allSimStreams.size(); i++){
+    for (size_t i=0; (i < allSimStreams.size()); i++){
         allSimStreams[i]->rollback(getLVT());
     }
 }//end doRollback
@@ -465,7 +468,7 @@ Agent::garbageCollect(const Time gvt){
 
     //we need to garbageCollect all SimStreams here.
     oss.garbageCollect(gvt);
-    for (int i=0;i<allSimStreams.size(); i++){
+    for (size_t i = 0; (i < allSimStreams.size()); i++){
         allSimStreams[i]->garbageCollect(gvt);
     }
 }

@@ -80,9 +80,9 @@ protected:
 
   void ppHelper(std::ostream& os, const std::string &indent) const{
       os << indent <<((is_root())? "*" : ">") << *data() << std::endl;
-      for (int i=0; i <  m_children.size(); i++) {
+      for (size_t i=0; (i <  m_children.size()); i++) {
           if ( m_children[i] != 0 ){
-              m_children[i]->ppHelper(os,indent+"-");
+              m_children[i]->ppHelper(os, indent + "-");
           }
       }
   }
@@ -139,7 +139,7 @@ public:
   iterator end() const   { return iterator(this, 0); }
 
   void prettyPrint(std::ostream& os) const {
-      for (int i=0; i < m_roots.size(); i++){
+      for (size_t i=0; (i < m_roots.size()); i++){
           if (m_roots[i] != 0 ){
               m_roots[i]->ppHelper(os,"-");
           }
