@@ -71,7 +71,8 @@ PHOLDAgent::executeTask(const EventContainer* events){
         if(receiverAgentID >=(int)(X*Y)) {
             receiverAgentID-=X*Y;
         }
-       
+        ASSERT((receiverAgentID >= 0) && (receiverAgentID < X*Y));
+        
         //make event
         Event * e = new Event(receiverAgentID,receive);
         //schedule the event
