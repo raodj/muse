@@ -35,14 +35,14 @@ using namespace muse;
 
 
 
-void
-Agent::initialize() throw (std::exception) {}
+//void
+//Agent::initialize() throw (std::exception) {}
 
-void
-Agent::executeTask(const EventContainer *events){}
+//void
+//Agent::executeTask(const EventContainer *events){}
 
-void
-Agent::finalize() {}
+//void
+//Agent::finalize() {}
 
 //-----------------remianing methods are defined by muse-----------
 Agent::Agent(AgentID  id, State * agentState)
@@ -70,77 +70,20 @@ Agent::processNextEvents(){
 
     //create the event container.  this will be passed on to the
     //agent's executeTask method.
-    EventContainer events;
-    Event *top_event = eventPQ->top();eventPQ->pop();
-    
-    
-    //if (getAgentID() == 0) cout << "NEW LVT: " <<top_event->getReceiveTime() <<endl;
-    //we should never process an anti-message.
-    if (top_event->isAntiMessage() ){
-        cerr<<"Processing: " << *top_event<<endl;
-        cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-        abort();
-        /// ASSERT(top_event->isAntiMessage() == false );
-    }
-   
-
-    // Ensure that the top event is greater than LVT
-    if (top_event->getReceiveTime() <= getLVT()) {
-        std::cerr << "Agent is being scheduled to process an event ("
-                  << *top_event << ") that is at or below it LVT (LVT="
-                  << getLVT() << "). This is a serious error. Aborting.\n";
-        abort();
-    }
-   
-    //we add the top event we popped to the event container
-    events.push_back(top_event);
-    
-    //increase reference count, so we can add it to the agent's input queue
-    top_event->increaseReference(); 
-    inputQueue.push_back(top_event);
-    std::cout << "Processing: " << *top_event << std::endl;
-    //since we popped an event from the eventPQ, we must call to
-    //decrease the reference.
-    top_event->decreaseReference();
-
-    //this while is used to gather the remaining event that will be
-    //processed
-    while(eventPQ->size() != 0){
-        //first top the next event for checking.
-        Event *next_event = eventPQ->top();
-        
-        //if the receive times match, then they are to be processed at
-        //the same time.
-        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
-            //first remove it from the eventPQ
-            eventPQ->pop();
-            //now we add it to the event container
-            events.push_back(next_event);
-            //increase the reference count, since it will be added to
-            //the input queue.
-            next_event->increaseReference();
-            std::cout << "Processing: " << *next_event << std::endl;
-            inputQueue.push_back(next_event);
-            //finally, we decrease the reference count for the pop.
-            next_event->decreaseReference(); 
-        }else{
-            break;
-        }
-    }//end while
+    const EventContainer * next_events = getNextEvents();
 
    
     //here we set the agent's LVT and update agent's state timestamp
-    setLVT(top_event->getReceiveTime());
+    setLVT( next_events->front()->getReceiveTime() );
     getState()->timestamp = getLVT();
-    executeTask(&events);
+    executeTask(next_events);
     
     //clone the state so we can archive
     State * state = cloneState(getState());
     
     //lets inspect the last state in the queue and make sure the next
     //state to be push has a bigger timestep
-    //if (getAgentID() == 0)cout << "stateQueue.back()->getTimeStamp() === " << stateQueue.back()->getTimeStamp() <<endl;
-    //if (getAgentID() == 0)cout << "state->getTimeStamp()             === " << state->getTimeStamp() <<endl;
+   
     //after the second state in the stateQueue, there should never be a duplicate again
     if ( stateQueue.size() > 2 ) {
         ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
@@ -156,6 +99,75 @@ Agent::processNextEvents(){
     }
     return true;
 }//end processNextEvents
+
+EventContainer *
+Agent::getNextEvents() {
+
+    //lets make container to store our events in!
+    EventContainer * events = new EventContainer();
+
+    Event *top_event = eventPQ->top();eventPQ->pop();
+    
+    //we should never process an anti-message.
+    if (top_event->isAntiMessage() ){
+        cerr<<"Processing: " << *top_event<<endl;
+        cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
+        abort();
+    }
+   
+
+    // Ensure that the top event is greater than LVT
+    if (top_event->getReceiveTime() <= getLVT()) {
+        std::cerr << "Agent is being scheduled to process an event ("
+                  << *top_event << ") that is at or below it LVT (LVT="
+                  << getLVT() << "). This is a serious error. Aborting.\n";
+        abort();
+    }
+   
+    //we add the top event we popped to the event container
+    events->push_back(top_event);
+    
+    //increase reference count, so we can add it to the agent's input queue
+    top_event->increaseReference(); 
+    inputQueue.push_back(top_event);
+    std::cout << "Processing: " << *top_event << std::endl;
+
+    //since we popped an event from the eventPQ, we must call to
+    //decrease the reference.
+    top_event->decreaseReference();
+
+    //this while is used to gather the remaining event that will be
+    //processed
+    while(eventPQ->size() != 0){
+        //first top the next event for checking.
+        Event *next_event = eventPQ->top();
+        //we should never process an anti-message.
+        if (next_event->isAntiMessage() ){
+            cerr<<"Processing: " << *top_event<<endl;
+            cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
+            abort();
+        }
+        //if the receive times match, then they are to be processed at
+        //the same time.
+        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
+            //first remove it from the eventPQ
+            eventPQ->pop();
+            //now we add it to the event container
+            events->push_back(next_event);
+            //increase the reference count, since it will be added to
+            //the input queue.
+            next_event->increaseReference();
+            std::cout << "Processing: " << *next_event << std::endl;
+            inputQueue.push_back(next_event);
+            //finally, we decrease the reference count for the pop.
+            next_event->decreaseReference(); 
+        }else{
+            break;
+        }
+    }//end while
+
+    return (events->empty()) ? NULL : events;
+}//end getNextEvents
 
 State*
 Agent::cloneState(State * state){
