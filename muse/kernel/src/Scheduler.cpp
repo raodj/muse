@@ -75,8 +75,13 @@ Scheduler::scheduleEvent( Event *e){
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
         handleFutureAntiMessage(e, agent);
+        return false;
     }
-    
+
+    //for debug reasons
+    if (e->isAntiMessage() ){
+        cerr << "Anti Passed Gate: " << *e <<endl;
+    }
     ASSERT(e->isAntiMessage() == false );
     
     //will use this to figure out if we need to change our key in
