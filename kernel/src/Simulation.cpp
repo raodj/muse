@@ -29,13 +29,10 @@
 #include "Scheduler.h"
 #include <cstdlib>
 
-// The number of iterations of event processing after which GVT
-// estimation is triggered
-#define GVT_DELAY 1
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),garbage_collection_rate(100) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID = -1u;
@@ -100,8 +97,7 @@ Simulation::scheduleEvent( Event *e){
     if (isAgentLocal(recvAgentID)){
         // Local events are directly inserted into our own scheduler
         return scheduler->scheduleEvent(e);
-    }
-    else{
+    }else{
         // Remote events are sent via the GVTManager to aid tracking
         // GVT. The gvt manager calls communicator.
         gvtManager->sendRemoteEvent(e);
@@ -139,13 +135,13 @@ Simulation::start(){
    
     //BIG loop for event processing
     //int count=0;
-    int gvtTimer = GVT_DELAY;
+    int gvtTimer = gvt_delay_rate;
    
     while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         
         if (--gvtTimer == 0 ) {
-            gvtTimer = GVT_DELAY;
+            gvtTimer = gvt_delay_rate;
             //cout << "[Simulation] starting startGVTestimation*********" <<endl;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
@@ -188,12 +184,12 @@ Simulation::finalize(){
 
 void
 Simulation::garbageCollect(const Time gvt){
-    if ( ((int)gvt % garbage_collection_rate ) == 0 ){
-        AgentContainer::iterator it=allAgents.begin();
-        for (; it != allAgents.end(); it++) {  
-            (*it)->garbageCollect(gvt);
-        }//end for
-    }//end it
+    
+    AgentContainer::iterator it=allAgents.begin();
+    for (; it != allAgents.end(); it++) {  
+        (*it)->garbageCollect(gvt);
+    }//end for
+    
 }//end garbageCollect
 
 

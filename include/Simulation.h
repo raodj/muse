@@ -188,16 +188,17 @@ public:
     */
     inline void setStopTime(Time end_time) {endTime = end_time;}
 
-    /** The setGarbageCollectionRate method.
-	Different Simulation models perform better with different rates of garbage collection.
+    /** The setGVTDelayRate method.
+	Different Simulation models perform better with different rates of GVTEstimation.
 	If you have a large number of agents its better to make this a smaller number between (1-50)
 	otherwise it would make your simulation faster to minimize garbage collection
 
 	@note default is rate = 100
-	@param rate, the rate at which to garbage collect (rate representing timesteps)
+	@param rate, the rate at which to delay GVT estimation(rate representing timesteps)
 	
      */
-    inline void setGarbageCollectionRate(int rate) {garbage_collection_rate=rate;}
+    inline void setGVTDelayRate(int rate) {gvt_delay_rate=rate;}
+    
     /** The isAgentLocal method.
 	Used to check if a given AgentID is local to this kernel.
 
@@ -306,7 +307,7 @@ private:
     GVTManager *gvtManager;
 
     /** Used to control the rate at which garbage is collected */
-    int garbage_collection_rate;
+    int gvt_delay_rate;
 };
 
 END_NAMESPACE(muse); //end namespace declaration

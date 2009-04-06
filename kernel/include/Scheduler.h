@@ -107,8 +107,8 @@ public:
   bool checkAndHandleRollback(const Event * e,  Agent * agent);
 
 
-  /** The checkAndHandleAntiMessage method.
-      This is a helper which checks for an anti-message and handles it if it is
+  /** The handleFutureAntiMessage method.
+      This is a helper which takes care of future anti-message.
 
       @param e, the event to check
       @param agent, the agent to check against
@@ -116,7 +116,8 @@ public:
       @return bool, if true then it was an anti-message
 
   */
-  bool checkAndHandleAntiMessage(const Event * e,  Agent * agent);
+  void handleFutureAntiMessage(const Event * e,  Agent * agent);
+  
  protected:
 
  
