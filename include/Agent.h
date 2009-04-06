@@ -108,7 +108,7 @@ public:
     @throw std::exception This method throws an exception when
     errors occur.
     */
-    virtual void initialize() throw (std::exception);
+    virtual void initialize() throw (std::exception)  =0;
         
     /** The finalize method.
      
@@ -120,7 +120,7 @@ public:
     @note Whenever a new agent is created, the derived child class
     should override this method.
     */
-    virtual void finalize();
+    virtual void finalize() = 0;
     
     /** The executeTask method.
      
@@ -138,7 +138,7 @@ public:
         
     @see EventContainer
     */
-    virtual void executeTask(const EventContainer * events);
+    virtual void executeTask(const EventContainer * events) = 0;
 
     //------------Provided by muse----below-----------------//
     
@@ -250,12 +250,20 @@ public:
 
  protected:
     /** The oSimStream type oss.
-	This is the default provided by MUSE and when its safe will push all data
-	to std::cout.
+	This is the default provided by MUSE and when its
+	safe will push all data to std::cout.
     */
     oSimStream oss;
     
  private:
+
+    /** The getNextEvents method.
+	This method is a helper that will grab the next
+	set of events to be processed by this agent.
+
+	@return events, an EventContainer with the events to be processed or NULL if none
+     */
+    EventContainer * getNextEvents();
 
     /** The setLVT method.
         
@@ -273,8 +281,9 @@ public:
     inline Time getLVT() const { return lvt;}
     
     /** The processNextEvents method.
-        This is used for in house and SHOULD NEVER be used by users. Only for the Scheduler.
-        This is used to get the next set of events to be processed by this agent. The scheduler 
+        This is used for in house and SHOULD NEVER be used
+	by users. Only for the Scheduler. This is used to get the next
+	set of events to be processed by this agent. The scheduler 
         will call this method, when it is time for processing.
      
         @return bool, true if there were events to process at the time of the method call
