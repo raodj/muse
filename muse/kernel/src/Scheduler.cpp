@@ -72,83 +72,20 @@ Scheduler::scheduleEvent( Event *e){
         //THIS CASE SHOULD NEVER HAPPEN
     }
 
-
-    if ( e->isAntiMessage() && e->getReceiveTime() > agent->getLVT() ) {
-        std::cout << "*Cancelling due to: " << *e << std::endl;
-        // This event is an anti-message we must remove it and
-        // future events from this agent.
-        bool foundAtleastOne = false;
-        Agent::EventPQ::iterator it = agent->eventPQ->begin();
-        while (it != agent->eventPQ->end()) {
-            Agent::EventPQ::iterator del_it = it;
-            it++;
-            // first check if the event matchs the straggler
-            // event's senderAgentID
-            if ((*del_it)->getSenderAgentID() == e->getSenderAgentID() &&
-                ((*del_it)->getReceiveTime() >= e->getReceiveTime())) {
-                //if the receive times are the same or greater then we
-                //dont need this event
-                //cerr<< "***Deleting Event: " << *(*del_it) << endl;
-                //cout << "---found useless future event  deleting from fib heap"<<endl;
-                std::cout << "Cancelling: " << *(*del_it) << std::endl;
-                agent->eventPQ->remove(del_it.getNode());
-                foundAtleastOne = true;
-            }
-        }//end while
-        
-        // We must have deleted at least one event for this anit-message
-        if (!foundAtleastOne) {
-            cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
-            std::cerr << "Did not find an event to cancel for anti-message \n"
-                      << *e << std::endl;
-            // Print the fibonacci heap for reference purposes
-            std::cerr << "The list of pending events (at LVT="
-                      << agent->getLVT() << "):\n";
-            agent->eventPQ->prettyPrint(std::cerr);
-            std::cerr << ". This is a serious error. Aborting."
-                      << std::endl;
-
-            list<Event*>::iterator it = agent->inputQueue.begin();
-            cerr << "InputQueue looks " <<endl;
-            while ( it != agent->inputQueue.end()) {
-                cerr << *(*it) <<endl;
-                it++;
-            }
-            abort();
-        }
-        /* if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false ){
-        //means the event came from the wire and we should delete it.
-        e->decreaseReference();
-        }*/
-        return false;
-        
-    } //end anti-message check if
-
-    //control drops here that means that its not an anti-message for the future.
     //now check if this is a rollback!
-    if ( e->getReceiveTime() <= agent->getLVT() ){
-        ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-        std::cout << "Rollingback due to: " << *e << std::endl;
-        agent->doRollbackRecovery(e);
-        if (e->getReceiveTime() <= agent->getLVT()) {
-            // Error condition.
-            std::cerr << "Rollback logic did not restore state correctly?\n";
-            std::cerr << "Agent info:\n" << *agent << std::endl;
-            abort();
-        }
-    }
+    checkAndHandleRollback(e, agent);
 
-    //if this is anti-message not for the future we just return false.
-    if (e->isAntiMessage() ){
-        return false;
-    }
+    //check if this is an anti-message!
+    if (checkAndHandleAntiMessage(e, agent)) return false;
+
+
+    ASSERT(e->isAntiMessage() == false );
     
     //will use this to figure out if we need to change our key in
     //scheduler
     Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
-    //cout << "old rec time: " << old_receive_time << endl;
-    ASSERT(e->isAntiMessage() == false );
-    
+
+    //increase reference and push to agent's heap
     e->increaseReference();
     agent->eventPQ->push(e);
     std::cout << "Scheduled: " << *e << std::endl;
@@ -158,11 +95,83 @@ Scheduler::scheduleEvent( Event *e){
     if ( e->getReceiveTime() < old_receive_time  ) {
         changeKey(agent->fibHeapPtr,agent);
     }
-   
-    //agent_pq.prettyPrint(std::cout);
-    //cout << "Agent ID: " << agent_id << " Pushed " << *e << endl;
+
+    //everything went well!
     return true;
 }//end scheduleEvent
+
+
+bool
+Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
+    if ( e->getReceiveTime() <= agent->getLVT() ){
+        ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
+        std::cout << "Rollingback due to: " << *e << std::endl;
+        agent->doRollbackRecovery(e);
+        if (e->getReceiveTime() <= agent->getLVT()) {
+            // Error condition.
+            std::cerr << "Rollback logic did not restore state correctly?\n";
+            std::cerr << "Agent info:\n" << *agent << std::endl;
+            abort();
+        }//end if
+    }//end if
+}
+
+bool
+Scheduler::checkAndHandleAntiMessage(const Event * e,Agent * agent){
+    
+    if ( e->isAntiMessage() ) {
+        if( e->getReceiveTime() >= agent->getLVT() ) {
+            std::cout << "*Cancelling due to: " << *e << std::endl;
+            // This event is an anti-message we must remove it and
+            // future events from this agent.
+            bool foundAtleastOne = false;
+            Agent::EventPQ::iterator it = agent->eventPQ->begin();
+            while (it != agent->eventPQ->end()) {
+                Agent::EventPQ::iterator del_it = it;
+                it++;
+                // first check if the event matchs the straggler
+                // event's senderAgentID
+                if ((*del_it)->getSenderAgentID() == e->getSenderAgentID() &&
+                    ((*del_it)->getReceiveTime() >= e->getReceiveTime())) {
+                    //if the receive times are the same or greater then we
+                    //dont need this event
+                    //cerr<< "***Deleting Event: " << *(*del_it) << endl;
+                    //cout << "---found useless future event  deleting from fib heap"<<endl;
+                    std::cout << "Future Cancelling: " << *(*del_it) << std::endl;
+                    agent->eventPQ->remove(del_it.getNode());
+                    foundAtleastOne = true;
+                }// end if
+            }//end while
+            
+            // We must have deleted at least one event for this anit-message
+            if (!foundAtleastOne) {
+                cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
+                std::cerr << "Did not find an event to cancel for anti-message \n"
+                          << *e << std::endl;
+                // Print the fibonacci heap for reference purposes
+                std::cerr << "The list of pending events (at LVT="
+                          << agent->getLVT() << "):\n";
+                agent->eventPQ->prettyPrint(std::cerr);
+                std::cerr << ". This is a serious error. Aborting."
+                          << std::endl;
+                
+                list<Event*>::iterator it = agent->inputQueue.begin();
+                cerr << "InputQueue looks " <<endl;
+                while ( it != agent->inputQueue.end()) {
+                    cerr << *(*it) <<endl;
+                    it++;
+                }
+                abort();
+            }//end if 
+            //if ( Simulation::getSimulator()->isAgentLocal(e->getSenderAgentID()) == false )
+        }
+        //ok it was an anti-message!
+        return true;
+    }
+
+    //means this event was not an anti-message
+    return false;
+}
 
 Scheduler::~Scheduler(){}//end Scheduler
 

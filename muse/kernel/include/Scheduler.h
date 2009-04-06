@@ -92,6 +92,31 @@ public:
       
    */
   void changeKey(void*,Agent*);
+
+ private:
+
+  /** The checkAndHandleRollback method.
+      This is a helper which checks for a rollback and handles it if it is
+
+      @param e, the event to check
+      @param agent, the agent to check against
+
+      @return bool, if true then it was a rollback event
+
+  */
+  bool checkAndHandleRollback(const Event * e,  Agent * agent);
+
+
+  /** The checkAndHandleAntiMessage method.
+      This is a helper which checks for an anti-message and handles it if it is
+
+      @param e, the event to check
+      @param agent, the agent to check against
+
+      @return bool, if true then it was an anti-message
+
+  */
+  bool checkAndHandleAntiMessage(const Event * e,  Agent * agent);
  protected:
 
  
