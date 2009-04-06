@@ -195,16 +195,17 @@ Agent::scheduleEvent(Event *e){
         e->decreaseReference();
         return false;
     }
-
+    
+    //Make sure we dont schedule an event with a receive time that is <= our LVT
+    if (e->getReceiveTime() <= getLVT()){
+        cerr << "You are trying to schedule an event with a smaller or equal "
+             << "timestamp to your LVT, this is impossible and will cause a rollback." <<endl;
+        abort();
+    }
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
-        if (e->getReceiveTime() <= getLVT()){
-            //this should NEVER happen. It's time to abort
-            cerr << "You are trying to schedule an event to the same agent with a smaller "
-                 << "timestamp than LVT, this is impossible and will cause a rollback" <<endl;
-            abort();
-        }
+        
         
         //will use this to figure out if we need to change our key in
         //scheduler
@@ -241,25 +242,24 @@ Agent::scheduleEvent(Event *e){
 }//end scheduleEvent
 
 void
-Agent::doRollbackRecovery(Event* straggler_event){
+Agent::doRollbackRecovery(const Event* straggler_event){
     //cout << "Rollback recovery started"<< endl;
-    doRestorationPhase(straggler_event);
-    doCancellationPhaseInputQueue(straggler_event);
-    doCancellationPhaseOutputQueue();
-
+    doRestorationPhase(straggler_event->getReceiveTime());
+    //After state is restored, that means out current time is the restored time!
+    Time restored_time = getTime(LVT);
+    doCancellationPhaseInputQueue(restored_time , straggler_event->getSenderAgentID());
+    doCancellationPhaseOutputQueue(restored_time);
+    
     //we need to rollback all SimStreams here.
-    //LVT by now should be the restored_time
-    oss.rollback(getLVT());
+    oss.rollback(restored_time);
     for (size_t i=0; (i < allSimStreams.size()); i++){
-        allSimStreams[i]->rollback(getLVT());
+        allSimStreams[i]->rollback(restored_time);
     }
 }//end doRollback
 
 void
-Agent::doRestorationPhase(Event* straggler_event){
-    // cout << "Step 1. Find the state before the straggler time: "<< straggler_event->getReceiveTime() << endl;
-    Time straggler_time = straggler_event->getReceiveTime();
-    
+Agent::doRestorationPhase(const Time & straggler_time){
+   
     /** OK, here is the plan. First, there is a straggler_time.Second,
         the stateQueue should be sorted by the nature of its
         containt.We want to find a state with a timestamp smaller than
@@ -298,8 +298,10 @@ Agent::doRestorationPhase(Event* straggler_event){
         }else{
             //we should delete and remove this state from the list because it is no longer valid
             //cout << "Deleting Current_State @ timestamp: " << current_state->getTimeStamp() << endl;
+           
             delete current_state;
             stateQueue.pop_back();
+            
         }
     }
     
@@ -317,7 +319,7 @@ Agent::doRestorationPhase(Event* straggler_event){
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
         //cout << "restored  time: " <<LVT <<endl;
-        ASSERT(straggler_event->getReceiveTime() > getLVT()  );
+        ASSERT(straggler_time > getLVT()  );
     }
     
     //for debugging reasons
@@ -327,10 +329,8 @@ Agent::doRestorationPhase(Event* straggler_event){
 }//end doStepOne
 
 void
-Agent::doCancellationPhaseOutputQueue(){
-    //cout << "Step 2. Send Anit-messages and remove from Output Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time restored_time = getState()->getTimeStamp(); //TODO change name
-   
+Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
+  
     AgentIDBoolMap bitMap;
     
     /** OK, for step two here is what we are doing. First, we have the
@@ -372,10 +372,8 @@ Agent::doCancellationPhaseOutputQueue(){
 }//end doStepTwo
 
 void
-Agent::doCancellationPhaseInputQueue(Event* straggler_event){
-    //cout << "Step 3. Remove from  input Queue for events with time > "<<myState->getTimeStamp() << endl;
-    Time restored_time = getState()->getTimeStamp();
-
+Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID & straggler_sender_agent_id ){
+   
     /** OK, for step three, here is what we are doing. First, we have
         the restored_time. This is the time we rollbacked to.  This
         step is relatively straight forward. In this step, an invalid
@@ -395,16 +393,21 @@ Agent::doCancellationPhaseInputQueue(Event* straggler_event){
 
         //check if the event is invalid.
         if (current_event->isAntiMessage() ){
-            //cerr.flush();
-            //cerr <<"Go Anti Event @ step3: " <<*current_event <<endl;
-            //cerr.flush();
+            
+            cerr <<getTime()<<" Got Anti Event @ step3: " <<*current_event <<endl;
+            if( current_event->getReceiveTime() > restored_time ){
+                current_event->increaseReference();
+                //knownly push in an anti-message. The rollback recovery will clear it
+                eventPQ->push(current_event);
+            }
+            
             //invalid events automatically get removed
             current_event->decreaseReference();
             inputQueue.erase(del_it);
         }
         else if ( current_event->getReceiveTime() > restored_time){
             //check if we need to re-process the current_event
-            if( straggler_event->getSenderAgentID() != current_event->getSenderAgentID() ){
+            if( straggler_sender_agent_id  != current_event->getSenderAgentID() ){
                 current_event->increaseReference();
                 ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );

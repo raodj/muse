@@ -317,7 +317,7 @@ public:
 	@param pointer to the event that caused the rollback aka straggler
 	event
     */
-    void doRollbackRecovery(Event * );
+    void doRollbackRecovery(const Event * );
 
     /** The doRestorationPhase method.  This is the first step of the
         rollback recovery process.  In this method we first search the
@@ -327,9 +327,9 @@ public:
         time
 
         @note Only should be called by the doRollbackRecovery method.
-        @param pointer to the event that caused the rollback aka straggler event
+        @param straggler_time, reference to the strggler event's receive time
     */
-    void doRestorationPhase(Event * );
+    void doRestorationPhase(const Time & straggler_time);
 
     /** The doCancellationPhaseOutputQueue method.  This is the second
         step of the rollback recovery process.  In this method we
@@ -341,7 +341,7 @@ public:
         @note Only should be called by the doRollbackRecovery method.
         
     */
-    void doCancellationPhaseOutputQueue();
+    void doCancellationPhaseOutputQueue(const Time & restored_time);
 
     /** The doCancellationPhaseInputQueue method.
         This is the third and final step of the rollback recovery process.
@@ -350,10 +350,16 @@ public:
         from the input queue. 
 	
         @note Only should be called by the doRollbackRecovery method.
-        @param pointer to the event that caused the rollback aka straggler event
+	
+        @param restored_time, this is the time restored from the state
+	@param straggler_sender_agent_id, this is the agent that sent the straggler event
+
+	@see doRestorationPhase
+	@see Time
+	@see AgentID
 	
     */
-    void doCancellationPhaseInputQueue(Event * );
+    void doCancellationPhaseInputQueue(const Time & restored_time, const AgentID & straggler_sender_agent_id );
 
     /** The agentComp class.
         This is used by the scheduler class to figure out which agent to schedule next.

@@ -35,7 +35,7 @@
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),garbage_collection_rate(100) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID = -1u;
@@ -188,11 +188,13 @@ Simulation::finalize(){
 
 void
 Simulation::garbageCollect(const Time gvt){
-    AgentContainer::iterator it=allAgents.begin();
-     for (; it != allAgents.end(); it++) {  
-         (*it)->garbageCollect(gvt);
-     }
-}
+    if ( ((int)gvt % garbage_collection_rate ) == 0 ){
+        AgentContainer::iterator it=allAgents.begin();
+        for (; it != allAgents.end(); it++) {  
+            (*it)->garbageCollect(gvt);
+        }//end for
+    }//end it
+}//end garbageCollect
 
 
 bool
