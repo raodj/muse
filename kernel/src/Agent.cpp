@@ -35,16 +35,6 @@ using namespace muse;
 
 
 
-//void
-//Agent::initialize() throw (std::exception) {}
-
-//void
-//Agent::executeTask(const EventContainer *events){}
-
-//void
-//Agent::finalize() {}
-
-//-----------------remianing methods are defined by muse-----------
 Agent::Agent(AgentID  id, State * agentState)
   : myID(id), lvt(0), myState(agentState) {
     eventPQ = new EventPQ;
@@ -70,7 +60,7 @@ Agent::processNextEvents(){
 
     //create the event container.  this will be passed on to the
     //agent's executeTask method.
-    const EventContainer * next_events = getNextEvents();
+    EventContainer * next_events = getNextEvents();
 
    
     //here we set the agent's LVT and update agent's state timestamp
@@ -78,20 +68,21 @@ Agent::processNextEvents(){
     getState()->timestamp = getLVT();
     executeTask(next_events);
     
-    //clone the state so we can archive
-    State * state = cloneState(getState());
+    //now we delete EventContainer
+    next_events->clear();
+    delete next_events;
     
-    //lets inspect the last state in the queue and make sure the next
-    //state to be push has a bigger timestep
-   
+    //clone the state so we can archive
+    State * state = cloneState( getState() );
+    
     //after the second state in the stateQueue, there should never be a duplicate again
     if ( stateQueue.size() > 2 ) {
         ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
         ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
     }
-
+    
     stateQueue.push_back(state);
-
+    
     //we finally need to save the state of all SimStreams that are registered.
     oss.saveState(getLVT());
     for (size_t i = 0; (i < allSimStreams.size()); i++){

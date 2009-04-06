@@ -191,7 +191,6 @@ Scheduler::getNextEventTime() const {
         // No events on the top-most queue.
         //cout << "Agent eventPQ TOp is Empty" <<endl;
         return TIME_INFINITY;
-        
     }
     //cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;
     // Use the top-agent's top-event.
