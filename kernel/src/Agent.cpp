@@ -414,6 +414,11 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
                 current_event->increaseReference();
                 ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );
+                std::cerr << "Moved from inputQueue to eventPQ: "
+                          << *current_event << std::endl;
+            } else {
+                std::cerr << "Removed from inputQueue: "
+                          << *current_event << std::endl;
             }
             //invalid events automatically get removed
             current_event->decreaseReference();
