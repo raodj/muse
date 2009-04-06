@@ -34,7 +34,6 @@ using namespace std;
 using namespace muse;
 
 
-
 Agent::Agent(AgentID  id, State * agentState)
   : myID(id), lvt(0), myState(agentState) {
     eventPQ = new EventPQ;
@@ -101,7 +100,7 @@ Agent::getNextEvents() {
     
     //we should never process an anti-message.
     if (top_event->isAntiMessage() ){
-        cerr<<"Processing: " << *top_event<<endl;
+        cerr<<"Anti-message Processing: " << *top_event<<endl;
         cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
         abort();
     }
@@ -134,7 +133,7 @@ Agent::getNextEvents() {
         Event *next_event = eventPQ->top();
         //we should never process an anti-message.
         if (next_event->isAntiMessage() ){
-            cerr<<"Processing: " << *top_event<<endl;
+            cerr<<"Anti-message Processing: " << *next_event<<endl;
             cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
             abort();
         }
@@ -398,10 +397,15 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
         if (current_event->isAntiMessage() ){
             
             cerr <<getTime()<<" Got Anti Event @ step3: " <<*current_event <<endl;
-            if( current_event->getReceiveTime() > restored_time ){
+            if( false &&  current_event->getReceiveTime() > restored_time ){
                 current_event->increaseReference();
                 //knownly push in an anti-message. The rollback recovery will clear it
                 eventPQ->push(current_event);
+                std::cerr << "Moved anti-message from inputQueue to eventPQ: "
+                          << *current_event << std::endl;
+            }else{
+                std::cerr << "Removed anti-message from inputQueue to eventPQ: "
+                          << *current_event << std::endl;
             }
             
             //invalid events automatically get removed

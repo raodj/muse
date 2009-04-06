@@ -73,15 +73,20 @@ Scheduler::scheduleEvent( Event *e){
     }
 
     //now check if this is a rollback!
-    if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
+    if ( checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
+        //means that it was a rollback anti-message, so it was handled and we return false
+        return false;
+    }
+    
+
+    //for debug reasons
+    if ( e->isAntiMessage() && e->getReceiveTime() > agent->getTime() ){
+        //means that it was not a rollback, but it was anti-message
+        //so we need to clean agent's eventPQ and return false
         handleFutureAntiMessage(e, agent);
         return false;
     }
-
-    //for debug reasons
-    if (e->isAntiMessage() ){
-        cerr << "Anti Passed Gate: " << *e <<endl;
-    }
+    
     ASSERT(e->isAntiMessage() == false );
     
     //will use this to figure out if we need to change our key in
@@ -147,7 +152,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
     }//end while
     
     // We must have deleted at least one event for this anit-message
-    if (!foundAtleastOne) {
+    /* if (!foundAtleastOne) {
         cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
         std::cerr << "Did not find an event to cancel for anti-message \n"
                   << *e << std::endl;
@@ -165,7 +170,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
             it++;
         }
         abort();
-    }//end if 
+        }//end if */
 }
 
 Scheduler::~Scheduler(){}//end Scheduler
