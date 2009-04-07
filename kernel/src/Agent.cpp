@@ -482,9 +482,15 @@ Agent::garbageCollect(const Time gvt){
     cerr << "Collecting Garbage now.....GVT: " << gvt << "\n";
     //first we collect from the stateQueue
     cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
-    //list<State*>::iterator state_it = stateQueue.begin();
-    //now we start looking 
-    while((stateQueue.size() > 2) && (stateQueue.front()->getTimeStamp() < gvt)) {
+    list<State*>::iterator safe_point_it = stateQueue.begin();
+    Time one_below_gvt = 0;
+    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt ) {
+        one_below_gvt = (*safe_point_it)->getTimeStamp();
+        safe_point_it++;
+    }
+    
+    //now we start looking
+    while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
         State *current_state = stateQueue.front();
         cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
         delete current_state;
@@ -493,23 +499,23 @@ Agent::garbageCollect(const Time gvt){
     cerr << *this << endl;
     
     //second we collect from the inputQueue
-    while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < gvt){
+    while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < one_below_gvt){
         Event *current_event = inputQueue.front();
         current_event->decreaseReference();
         inputQueue.pop_front();
     }
 
     //last we collect from the outputQueue
-    while(!outputQueue.empty() && outputQueue.front()->getSentTime() < gvt){
+    while(!outputQueue.empty() && outputQueue.front()->getSentTime() < one_below_gvt){
         Event *current_event = outputQueue.front();
         current_event->decreaseReference();
         outputQueue.pop_front();
     }
 
     //we need to garbageCollect all SimStreams here.
-    oss.garbageCollect(gvt);
+    oss.garbageCollect(one_below_gvt);
     for (size_t i = 0; (i < allSimStreams.size()); i++){
-        allSimStreams[i]->garbageCollect(gvt);
+        allSimStreams[i]->garbageCollect(one_below_gvt);
     }
 }
 
