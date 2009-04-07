@@ -29,6 +29,7 @@
 #include "Simulation.h"
 
 using namespace muse;
+
 Scheduler::Scheduler(){}
 
 bool
@@ -67,23 +68,26 @@ Scheduler::scheduleEvent( Event *e){
     Agent* agent = (entry != agentMap.end()) ? entry->second : NULL ;
     
     if (agent == NULL) {
+        cerr << "Trying to schedule ("<<*e<<") to unknown agent\n";
+        cerr << "Available agents are: \n";
+        AgentIDAgentPointerMap::iterator it = agentMap.begin();
+        for (;it!=agentMap.end(); it++) {
+            cerr << *(it->second) << "\n";
+        }
         cerr << "Trying to schedule to local agent that doesn't exist" <<endl;
         abort();
         //THIS CASE SHOULD NEVER HAPPEN
     }
 
     //now check if this is a rollback!
-    if ( checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
-        //means that it was a rollback anti-message, so it was handled and we return false
+    if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
+        handleFutureAntiMessage(e, agent);
         return false;
     }
-    
 
-    //for debug reasons
-    if ( e->isAntiMessage() && e->getReceiveTime() > agent->getTime() ){
-        //means that it was not a rollback, but it was anti-message
-        //so we need to clean agent's eventPQ and return false
-        handleFutureAntiMessage(e, agent);
+    //this handles cases where the anti-message was for the past
+    if ( e->isAntiMessage() ){
+        //this means that it was already rollback'd so we just need to return false
         return false;
     }
     
@@ -93,9 +97,8 @@ Scheduler::scheduleEvent( Event *e){
     //scheduler
     Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
 
-    //increase reference and push to agent's heap
-    e->increaseReference();
-    agent->eventPQ->push(e);
+    //push to agent's heap
+    agent->pushEventToEventPQ(e);
     std::cout << "Scheduled: " << *e << std::endl;
     
     //we have to change if the event receive time has a smaller key
@@ -108,18 +111,17 @@ Scheduler::scheduleEvent( Event *e){
     return true;
 }//end scheduleEvent
 
-
 bool
 Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
     if ( e->getReceiveTime() <= agent->getLVT() ){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
         std::cout << "Rollingback due to: " << *e << std::endl;
         agent->doRollbackRecovery(e);
-        if (e->getReceiveTime() <= agent->getLVT()) {
+        if ( e->getReceiveTime() <= agent->getLVT() ) { //CHECK WITH RAO ABOU THIS CHANGE from <= TO <
             // Error condition.
             std::cerr << "Rollback logic did not restore state correctly?\n";
             std::cerr << "Agent info:\n" << *agent << std::endl;
-            abort();
+            //abort();
         }//end if
         return true;
     }//end if
@@ -152,7 +154,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
     }//end while
     
     // We must have deleted at least one event for this anit-message
-    /* if (!foundAtleastOne) {
+    if (!foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
         cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
         std::cerr << "Did not find an event to cancel for anti-message \n"
                   << *e << std::endl;
@@ -169,8 +171,8 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
             cerr << *(*it) <<endl;
             it++;
         }
-        abort();
-        }//end if */
+        //abort();
+     }//end if 
 }
 
 Scheduler::~Scheduler(){}//end Scheduler

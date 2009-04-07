@@ -3,7 +3,7 @@
 cd /home/gebremr/research/muse/examples/PHOLDSimulation 
 ulimit -c unlimited
           #<X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
-./phold    2  2  2    10       3          1000 &
+./phold    3  3  3    10       2          500 &
 pid=$!
 wait $pid
 status=$?
