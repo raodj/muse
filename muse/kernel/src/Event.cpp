@@ -85,7 +85,8 @@ operator<<(ostream& os, const muse::Event& event) {
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
        << "Ref. count="   << event.getReferenceCount()  << ","
-       << "color="        << event.getColor()           << "]";
+       << "color="        << event.getColor()           << ","
+       << "ID="           << &event                      << "]";
     
     return os;
 }

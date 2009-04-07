@@ -257,6 +257,17 @@ public:
     
  private:
 
+    /** Consistently pushs an event to the agent's eventPQ
+	@param e, the event to push on, should be heap allocated
+     */
+    void pushEventToEventPQ(Event * e);
+
+    /** Consistently pops an event from the agent's eventPQ
+	
+	@return e, the event that was popped or NULL if eventPQ is empty
+     */
+    Event* popEventFromEventPQ();
+    
     /** The getNextEvents method.
 	This method is a helper that will grab the next
 	set of events to be processed by this agent.

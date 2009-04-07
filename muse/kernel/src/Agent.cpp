@@ -56,12 +56,15 @@ Agent::processNextEvents(){
     if (eventPQ->empty()) {
       return false;
     }
-
+    
     //create the event container.  this will be passed on to the
     //agent's executeTask method.
     EventContainer * next_events = getNextEvents();
-
-   
+    
+    if (next_events == NULL){
+        return false;
+    }
+    
     //here we set the agent's LVT and update agent's state timestamp
     setLVT( next_events->front()->getReceiveTime() );
     getState()->timestamp = getLVT();
@@ -92,20 +95,19 @@ Agent::processNextEvents(){
 
 EventContainer *
 Agent::getNextEvents() {
-
-    //lets make container to store our events in!
-    EventContainer * events = new EventContainer();
-
-    Event *top_event = eventPQ->top();eventPQ->pop();
+    Event *top_event =  popEventFromEventPQ(); //eventPQ->top();eventPQ->pop();top_event->decreaseReference();
     
     //we should never process an anti-message.
-    if (top_event->isAntiMessage() ){
+    if (top_event->isAntiMessage() ){ 
         cerr<<"Anti-message Processing: " << *top_event<<endl;
         cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-        abort();
+        //TODO temp fix, need to handle issue of events changing to anti-messages while they are in the eventPQ
+        top_event->decreaseReference();
+        return NULL;//2. MADE A CHANGE TO RESTURN QUITE 
+        // abort();
     }
-   
-
+    
+    
     // Ensure that the top event is greater than LVT
     if (top_event->getReceiveTime() <= getLVT()) {
         std::cerr << "Agent is being scheduled to process an event ("
@@ -113,6 +115,9 @@ Agent::getNextEvents() {
                   << getLVT() << "). This is a serious error. Aborting.\n";
         abort();
     }
+
+    //lets make container to store our events in!
+    EventContainer * events = new EventContainer();
    
     //we add the top event we popped to the event container
     events->push_back(top_event);
@@ -124,24 +129,29 @@ Agent::getNextEvents() {
 
     //since we popped an event from the eventPQ, we must call to
     //decrease the reference.
-    top_event->decreaseReference();
+    //top_event->decreaseReference();
 
     //this while is used to gather the remaining event that will be
     //processed
     while(eventPQ->size() != 0){
         //first top the next event for checking.
-        Event *next_event = eventPQ->top();
+        //Event *next_event = eventPQ->top();
         //we should never process an anti-message.
-        if (next_event->isAntiMessage() ){
-            cerr<<"Anti-message Processing: " << *next_event<<endl;
+        if ( eventPQ->top()->isAntiMessage() ){
+            cerr<<"Anti-message Processing: " << *eventPQ->top() <<endl;
             cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-            abort();
+            Event * anti_event = popEventFromEventPQ();
+            anti_event->decreaseReference(); //3. CHECK WITH RAO< CHANGED TO POP ANTI MESSAGE AND IGNORE
+            continue;
+            //delete events;
+            //abort();
         }
         //if the receive times match, then they are to be processed at
         //the same time.
-        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
+        if ( TIME_EQUALS( top_event->getReceiveTime() , eventPQ->top()->getReceiveTime()) ){
             //first remove it from the eventPQ
-            eventPQ->pop();
+            //eventPQ->pop();
+            Event *next_event = popEventFromEventPQ();
             //now we add it to the event container
             events->push_back(next_event);
             //increase the reference count, since it will be added to
@@ -150,7 +160,7 @@ Agent::getNextEvents() {
             std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
             //finally, we decrease the reference count for the pop.
-            next_event->decreaseReference(); 
+            //next_event->decreaseReference(); 
         }else{
             break;
         }
@@ -183,7 +193,7 @@ Agent::scheduleEvent(Event *e){
     //check to make sure that event scheduled via this method is
     //a new event
     if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
-        (e->getSenderAgentID() != -1)) {
+        (e->getSenderAgentID() != -1) ) {
         cerr << "Can't schedule this event it has already been scheduled "
              << "and most likely to become a straggler event" << endl;
         abort();
@@ -202,6 +212,7 @@ Agent::scheduleEvent(Event *e){
     if (e->getReceiveTime() <= getLVT()){
         cerr << "You are trying to schedule an event with a smaller or equal "
              << "timestamp to your LVT, this is impossible and will cause a rollback." <<endl;
+        e->decreaseReference();
         abort();
     }
     
@@ -215,8 +226,7 @@ Agent::scheduleEvent(Event *e){
                
         //add to event scheduler this is a optimization trick, because
         //we dont go through the Simulation scheduler method.
-        e->increaseReference(); 
-        eventPQ->push(e);
+        pushEventToEventPQ(e);
 
         //now lets make sure that the heap is still valid
         //we have to change if the event receive time has a smaller key
@@ -396,7 +406,7 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
         //check if the event is invalid.
         if (current_event->isAntiMessage() ){
             
-            cerr <<getTime()<<" Got Anti Event @ step3: " <<*current_event <<endl;
+            /* cerr <<getTime()<<" Got Anti Event @ step3: " <<*current_event <<endl;
             if( false &&  current_event->getReceiveTime() > restored_time ){
                 current_event->increaseReference();
                 //knownly push in an anti-message. The rollback recovery will clear it
@@ -404,10 +414,12 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
                 std::cerr << "Moved anti-message from inputQueue to eventPQ: "
                           << *current_event << std::endl;
             }else{
-                std::cerr << "Removed anti-message from inputQueue to eventPQ: "
+                std::cerr << "Removed anti-message from inputQueue: "
                           << *current_event << std::endl;
-            }
-            
+                          } */
+
+            std::cerr << "Removed anti-message from inputQueue: "
+                          << *current_event << std::endl;
             //invalid events automatically get removed
             current_event->decreaseReference();
             inputQueue.erase(del_it);
@@ -430,6 +442,21 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
         }
     }
 }//end doStepThree
+
+void
+Agent::pushEventToEventPQ(Event * e){
+    e->increaseReference();
+    eventPQ->push(e);
+}
+
+Event *
+Agent::popEventFromEventPQ() {
+    if (eventPQ->empty()) return NULL;
+    Event *top_event = eventPQ->top();
+    eventPQ->pop();
+    top_event->decreaseReference();
+    return top_event;
+}
 
 void
 Agent::cleanStateQueue(){
@@ -465,7 +492,7 @@ void
 Agent::garbageCollect(const Time gvt){
     //cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
     //first we collect from the stateQueue
-    while((stateQueue.size() > 2) && (stateQueue.front()->getTimeStamp() < gvt)) {
+    while((stateQueue.size() > 10) && (stateQueue.front()->getTimeStamp() < gvt)) {
         State *current_state = stateQueue.front();
         delete current_state;
         stateQueue.pop_front();
