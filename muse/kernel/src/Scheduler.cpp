@@ -99,7 +99,7 @@ Scheduler::scheduleEvent( Event *e){
 
     //push to agent's heap
     agent->pushEventToEventPQ(e);
-    std::cout << "Scheduled: " << *e << std::endl;
+    //std::cout << "Scheduled: " << *e << std::endl;
     
     //we have to change if the event receive time has a smaller key
     //then the top event in the heap.
@@ -115,7 +115,7 @@ bool
 Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
     if ( e->getReceiveTime() <= agent->getLVT() ){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-        std::cout << "Rollingback due to: " << *e << std::endl;
+        //std::cout << "Rollingback due to: " << *e << std::endl;
         agent->doRollbackRecovery(e);
         if ( e->getReceiveTime() <= agent->getLVT() ) { //CHECK WITH RAO ABOU THIS CHANGE from <= TO <
             // Error condition.
@@ -131,7 +131,7 @@ Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
 void
 Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
     
-    std::cout << "*Cancelling due to: " << *e << std::endl;
+    //std::cout << "*Cancelling due to: " << *e << std::endl;
     // This event is an anti-message we must remove it and
     // future events from this agent.
     bool foundAtleastOne = false;
@@ -147,7 +147,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
             //dont need this event
             //cerr<< "***Deleting Event: " << *(*del_it) << endl;
             //cout << "---found useless future event  deleting from fib heap"<<endl;
-            std::cout << "Future Cancelling: " << *(*del_it) << std::endl;
+            //std::cout << "Future Cancelling: " << *(*del_it) << std::endl;
             agent->eventPQ->remove(del_it.getNode());
             foundAtleastOne = true;
         }// end if

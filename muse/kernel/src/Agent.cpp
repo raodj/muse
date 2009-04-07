@@ -125,7 +125,7 @@ Agent::getNextEvents() {
     //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-    std::cout << "Processing: " << *top_event << std::endl;
+    //std::cout << "Processing: " << *top_event << std::endl;
 
     //since we popped an event from the eventPQ, we must call to
     //decrease the reference.
@@ -157,7 +157,7 @@ Agent::getNextEvents() {
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
-            std::cout << "Processing: " << *next_event << std::endl;
+            //std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
             //finally, we decrease the reference count for the pop.
             //next_event->decreaseReference(); 
@@ -238,7 +238,7 @@ Agent::scheduleEvent(Event *e){
         
         //add to output queue
         e->increaseReference();
-        std::cout << "Scheduled: " << *e << std::endl;
+        //std::cout << "Scheduled: " << *e << std::endl;
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
@@ -405,21 +405,10 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
 
         //check if the event is invalid.
         if (current_event->isAntiMessage() ){
+          
+            //std::cerr << "Removed anti-message from inputQueue: "
+            //              << *current_event << std::endl;
             
-            /* cerr <<getTime()<<" Got Anti Event @ step3: " <<*current_event <<endl;
-            if( false &&  current_event->getReceiveTime() > restored_time ){
-                current_event->increaseReference();
-                //knownly push in an anti-message. The rollback recovery will clear it
-                eventPQ->push(current_event);
-                std::cerr << "Moved anti-message from inputQueue to eventPQ: "
-                          << *current_event << std::endl;
-            }else{
-                std::cerr << "Removed anti-message from inputQueue: "
-                          << *current_event << std::endl;
-                          } */
-
-            std::cerr << "Removed anti-message from inputQueue: "
-                          << *current_event << std::endl;
             //invalid events automatically get removed
             current_event->decreaseReference();
             inputQueue.erase(del_it);
@@ -430,11 +419,11 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
                 current_event->increaseReference();
                 ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );
-                std::cerr << "Moved from inputQueue to eventPQ: "
-                          << *current_event << std::endl;
+                //std::cerr << "Moved from inputQueue to eventPQ: "
+                //          << *current_event << std::endl;
             } else {
-                std::cerr << "Removed from inputQueue: "
-                          << *current_event << std::endl;
+                // std::cerr << "Removed from inputQueue: "
+                //          << *current_event << std::endl;
             }
             //invalid events automatically get removed
             current_event->decreaseReference();
@@ -490,13 +479,18 @@ Agent::cleanOutputQueue(){
 
 void
 Agent::garbageCollect(const Time gvt){
-    //cout << "Collecting Garbage now.....GVT: " << gvt <<endl;
+    cerr << "Collecting Garbage now.....GVT: " << gvt << "\n";
     //first we collect from the stateQueue
-    while((stateQueue.size() > 10) && (stateQueue.front()->getTimeStamp() < gvt)) {
+    cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
+    //list<State*>::iterator state_it = stateQueue.begin();
+    //now we start looking 
+    while((stateQueue.size() > 2) && (stateQueue.front()->getTimeStamp() < gvt)) {
         State *current_state = stateQueue.front();
+        cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
         delete current_state;
         stateQueue.pop_front();
     }
+    cerr << *this << endl;
     
     //second we collect from the inputQueue
     while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < gvt){
