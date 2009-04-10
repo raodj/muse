@@ -326,7 +326,7 @@ Agent::doRestorationPhase(const Time & straggler_time){
         delete myState;
         setState( cloneState(stateQueue.front()) );
         setLVT(getState()->getTimeStamp()) ;
-        std::cout << "Restored Time To: " << getLVT() << std::endl;
+        //std::cout << "Restored Time To: " << getLVT() << std::endl;
     }else{
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
@@ -479,9 +479,9 @@ Agent::cleanOutputQueue(){
 
 void
 Agent::garbageCollect(const Time gvt){
-    cerr << "Collecting Garbage now.....GVT: " << gvt << "\n";
+    //cerr << "Collecting Garbage now.....GVT: " << gvt << "\n";
     //first we collect from the stateQueue
-    cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
+    //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
     list<State*>::iterator safe_point_it = stateQueue.begin();
     Time one_below_gvt = 0;
     while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt ) {
@@ -492,11 +492,11 @@ Agent::garbageCollect(const Time gvt){
     //now we start looking
     while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
         State *current_state = stateQueue.front();
-        cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
+        //cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
         delete current_state;
         stateQueue.pop_front();
     }
-    cerr << *this << endl;
+    //cerr << *this << endl;
     
     //second we collect from the inputQueue
     while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < one_below_gvt){

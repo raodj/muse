@@ -11,7 +11,7 @@ PingPongAgent::PingPongAgent(AgentID& id, State* state) : Agent(id,state) {}
 
 void
 PingPongAgent::initialize() throw (std::exception){
-    cout << "PingPong Agent ["; cout <<getAgentID() ; cout << "] INITIALIZE" << endl;
+    
    //this is a custom pingpong simulation, so we can assume only two agents!
     //the first agent is to start the ping
     if (getAgentID() == 0){
@@ -43,7 +43,7 @@ PingPongAgent::executeTask(const EventContainer* events){
 void
 PingPongAgent::finalize() {
     //cleanup and shutdown
-    cout << "PingPong Agent [";cout <<getAgentID();cout << "] FINALIZE" << endl;
+  
 }//end finalize
 #endif //_PINGPONGAGENT_CPP
 
