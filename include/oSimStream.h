@@ -23,7 +23,9 @@
 //---------------------------------------------------------------------------
 #include <ostream>
 #include <fstream>
+#include <sstream>
 #include <list>
+#include <string>
 #include "DataTypes.h"
 #include "SimStream.h"
 
@@ -34,6 +36,8 @@ using std::fstream;
 using std::streampos;
 using std::streambuf;
 using std::streamsize;
+using std::string;
+using std::ostringstream;
 
 BEGIN_NAMESPACE(muse);
 
@@ -62,19 +66,18 @@ public:
         @param use_temp_file, flag, if true will use a temp file for the temp
         storage before the push to the choosen stream buffer
     */
-    oSimStream(streambuf * the_streambuf, bool use_temp_file);
-
-    /** The default ctor.
-        Sets stream buffer to std::cout.rdbuf() and sets use_temp_file
-        flag to true.
-    */
-    oSimStream();
+    oSimStream(ostream * the_ostream, bool use_temp_file=false);
     
     /** The dtor.
      */
     ~oSimStream();
     
- private:   
+ private:
+    /** The default ctor.
+        Sets stream buffer to std::cout.rdbuf().
+    */
+    oSimStream();
+
     /** The saveState method.
         This is a helper method that is used to save the state.
           
@@ -123,6 +126,7 @@ public:
             This is usually the time the state was saved.
         */
         Time timestamp;
+        
         /** The stream_position variable of type std::streampos.
             When we are using the temp file for storage, we use this
             to ID the position of the file write pointer of the saving point.
@@ -134,6 +138,11 @@ public:
             This is used to store that information.
         */
         streamsize size;
+
+        /** Used for memory buffer usage. If we are using the memory we dont need
+            to worry about positions in the file.
+         */
+        string content;
     };
 
     /** The the_original_streambuff variable of type std::streambuf.
@@ -141,6 +150,10 @@ public:
         comes in handy when its time to push the save data into the stream.
     */
     streambuf               * the_original_streambuff;
+
+    /** Holds a pointer to the original ostream
+     */
+    ostream                 * the_original_ostream;
 
     /** The the_temp_streambuff variable of type std::streambuf.
         This is used to keep track of the temp file stream buffer and
@@ -158,6 +171,7 @@ public:
         This is the name of the temp file that will be created.
     */
     char                      the_temp_file_name[30];
+    
     /** The the_last_stream_position variable of type std::streampos.
         This is used when we are saving the state of the oSimStream.
         To calculate the oSimStreamState::size, we subtract this from
@@ -173,8 +187,18 @@ public:
         allocated in heap memory.
     */
     typedef list<oSimStreamState*>  state_storage;
+    
     state_storage  oSimStreamState_storage;
-   
+
+    /** Always pointes to the ostringstream that contains the data.
+        Used for the memory buffer, before the data is pushed out to
+        the provided ostream
+     */
+    ostringstream * oss;
+
+    /** So we can know if the user wants to use memory or file for temp storage.
+     */
+    bool use_temp_file;
 };
 
 END_NAMESPACE(muse);
