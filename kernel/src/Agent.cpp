@@ -98,7 +98,7 @@ Agent::getNextEvents() {
     Event *top_event =  popEventFromEventPQ(); //eventPQ->top();eventPQ->pop();top_event->decreaseReference();
     
     //we should never process an anti-message.
-    if (top_event->isAntiMessage() ){ 
+    if ( top_event->isAntiMessage() ){ 
         cerr<<"Anti-message Processing: " << *top_event<<endl;
         cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
         //TODO temp fix, need to handle issue of events changing to anti-messages while they are in the eventPQ
@@ -113,6 +113,7 @@ Agent::getNextEvents() {
         std::cerr << "Agent is being scheduled to process an event ("
                   << *top_event << ") that is at or below it LVT (LVT="
                   << getLVT() << "). This is a serious error. Aborting.\n";
+        cerr << *this <<endl;
         abort();
     }
 
@@ -331,12 +332,16 @@ Agent::doRestorationPhase(const Time & straggler_time){
         //there is a problem if this happens
         //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
         //cout << "restored  time: " <<LVT <<endl;
-        ASSERT(straggler_time > getLVT()  );
+        ASSERT( straggler_time > getLVT() );
     }
     
     //for debugging reasons
-    //cout << "StateQueue A Restoration: ";
-    //cout << *this << endl;
+    if (stateQueue.size() <= 2) cerr << "StateQ After Restore: "
+                                     << *this << endl;
+                                    //<< " GVT: " << getTime(GVT)
+                                    //<< " Straggler Time: "<< straggler_time
+                                    //<< " Restored Time: "<< getTime() << endl;
+   
 
 }//end doStepOne
 
@@ -479,15 +484,15 @@ Agent::cleanOutputQueue(){
 
 void
 Agent::garbageCollect(const Time gvt){
-    //cerr << "Collecting Garbage now.....GVT: " << gvt << "\n";
-    //first we collect from the stateQueue
-    //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
+
     list<State*>::iterator safe_point_it = stateQueue.begin();
     Time one_below_gvt = 0;
     while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt ) {
         one_below_gvt = (*safe_point_it)->getTimeStamp();
         safe_point_it++;
     }
+    //cerr << "Collecting Garbage now.....one_below_GVT: " << one_below_gvt <<" real GVT: "<<gvt << "\n";
+    //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
     
     //now we start looking
     while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
