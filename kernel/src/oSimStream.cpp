@@ -28,7 +28,7 @@
 #include <string.h>
 
 
-//using namespace muse;
+using namespace muse;
 
 oSimStream::oSimStream() : ostream(std::cout.rdbuf()) , the_original_ostream(&std::cout), use_temp_file(false){
     //default we use memory instead of a temp file for storage.

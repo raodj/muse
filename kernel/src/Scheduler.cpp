@@ -154,7 +154,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
     }//end while
     
     // We must have deleted at least one event for this anit-message
-    if (!foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
+    if (false && !foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
         cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
         std::cerr << "Did not find an event to cancel for anti-message \n"
                   << *e << std::endl;
