@@ -112,7 +112,7 @@ Agent::getNextEvents() {
     if (top_event->getReceiveTime() <= getLVT()) {
         std::cerr << "Agent is being scheduled to process an event ("
                   << *top_event << ") that is at or below it LVT (LVT="
-                  << getLVT() << "). This is a serious error. Aborting.\n";
+                  << getLVT() << ", GVT=" <<getTime(GVT) << "). This is a serious error. Aborting.\n";
         cerr << *this <<endl;
         abort();
     }
@@ -314,7 +314,6 @@ Agent::doRestorationPhase(const Time & straggler_time){
            
             delete current_state;
             stateQueue.pop_back();
-            
         }
     }
     
@@ -326,7 +325,7 @@ Agent::doRestorationPhase(const Time & straggler_time){
         //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
         delete myState;
         setState( cloneState(stateQueue.front()) );
-        setLVT(getState()->getTimeStamp()) ;
+        setLVT( getState()->getTimeStamp() ) ;
         //std::cout << "Restored Time To: " << getLVT() << std::endl;
     }else{
         //there is a problem if this happens
@@ -342,7 +341,6 @@ Agent::doRestorationPhase(const Time & straggler_time){
                                     //<< " Straggler Time: "<< straggler_time
                                     //<< " Restored Time: "<< getTime() << endl;
    
-
 }//end doStepOne
 
 void
