@@ -153,6 +153,8 @@ Simulation::start(){
 
         //process the next agent
         //bool was_event_processed =
+        // Update lgvt to the time of the next event to be processed.
+        LGVT = scheduler->getNextEventTime();
         scheduler->processNextAgentEvents();
         //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
@@ -201,7 +203,7 @@ void Simulation::stop(){}
 
 Time
 Simulation::getLGVT() const {
-    return scheduler->getNextEventTime();
+    return LGVT;
 }
 
 Time
