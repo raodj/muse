@@ -262,11 +262,11 @@ protected:
         that are registered to this kernel take place. Please see Agent::collectGarbage
         for more details about how garbage is collected at the agent level.
 
-        @param gvt, this is the GVT time that is calculated by GVTManager.
+       
         @see GVTManager
         @see Time
      */
-    void garbageCollect(const Time gvt);
+    void garbageCollect();
     
 private:
 
@@ -308,6 +308,12 @@ private:
 
     /** Used to control the rate at which garbage is collected */
     int gvt_delay_rate;
+
+    /** Used for garbage collection
+	This is used to calculate the smallest time that is just under the GVT
+	value.
+    */
+    Time one_below_gvt;
 };
 
 END_NAMESPACE(muse); //end namespace declaration
