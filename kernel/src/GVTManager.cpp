@@ -321,7 +321,7 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Update our local GVT value.
         gvt = gvtEst;
         // Do garbage collection every 100 timesteps.
-        Simulation::getSimulator()->garbageCollect(gvt);
+        Simulation::getSimulator()->garbageCollect();
     }
 }
 

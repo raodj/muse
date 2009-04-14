@@ -335,8 +335,8 @@ Agent::doRestorationPhase(const Time & straggler_time){
     }
     
     //for debugging reasons
-    if (stateQueue.size() <= 2) cerr << "StateQ After Restore: "
-                                     << *this << endl;
+    //if (stateQueue.size() <= 2) cerr << "StateQ After Restore: "
+    //                                << *this << endl;
                                     //<< " GVT: " << getTime(GVT)
                                     //<< " Straggler Time: "<< straggler_time
                                     //<< " Restored Time: "<< getTime() << endl;
@@ -485,11 +485,12 @@ Agent::garbageCollect(const Time gvt){
 
     list<State*>::iterator safe_point_it = stateQueue.begin();
     Time one_below_gvt = 0;
-    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt ) {
+    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() <= gvt ) {
         one_below_gvt = (*safe_point_it)->getTimeStamp();
         safe_point_it++;
     }
-    //cerr << "Collecting Garbage now.....one_below_GVT: " << one_below_gvt <<" real GVT: "<<gvt << "\n";
+    
+    //cerr << "Collecting Garbage now.....one_below_GVT: " << one_below_gvt <<" real GVT: "<<getTime(GVT) << "\n";
     //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
     
     //now we start looking

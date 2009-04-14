@@ -21,9 +21,11 @@ RoundRobinAgent::initialize() throw (std::exception){
 void
 RoundRobinAgent::executeTask(const EventContainer* events){
     if (!events->empty()){
-        AgentID other_agent_id = (getAgentID() + 1) % max_agents;
+        AgentID other_agent_id = (getAgentID() + 1) % max_agents; 
         Event * e = new Event(other_agent_id,getTime()+1); 
-        // if ( scheduleEvent(e) ) oss << "Passed token to Round Robin Agent: " << other_agent_id <<endl;
+        if (getAgentID()==0 ) {
+            oss << "Passed token @ time: " << getTime() <<endl;
+        }
         scheduleEvent(e);
     }
 }//end executeTask

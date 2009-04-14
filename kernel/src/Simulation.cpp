@@ -32,7 +32,7 @@
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10), one_below_gvt(0) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID = -1u;
@@ -136,7 +136,10 @@ Simulation::start(){
     //BIG loop for event processing
     //int count=0;
     int gvtTimer = gvt_delay_rate;
-   
+
+    // this is used to help calculate one_below_gvt
+    Time old_lgvt = LGVT;
+    
     while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         
@@ -151,10 +154,18 @@ Simulation::start(){
             scheduleEvent(incoming_event);
         } //end if
 
-        //process the next agent
-        //bool was_event_processed =
+      
+      
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
+
+        //lets check if we need to update one_below_gvt value
+        //cerr << "OLD_LGVT: " << old_lgvt << " LGVT: " << LGVT
+        //     << " ONE_BELOW_GVT: " << one_below_gvt << " GVT: " << getGVT()<<endl;
+        if ( old_lgvt < getGVT() ){
+            one_below_gvt = old_lgvt;
+            old_lgvt = LGVT;
+        }
         scheduler->processNextAgentEvents();
         //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
@@ -185,11 +196,11 @@ Simulation::finalize(){
 }//end finalize
 
 void
-Simulation::garbageCollect(const Time gvt){
+Simulation::garbageCollect(){
     
     AgentContainer::iterator it=allAgents.begin();
     for (; it != allAgents.end(); it++) {  
-        (*it)->garbageCollect(gvt);
+        (*it)->garbageCollect(one_below_gvt);
     }//end for
     
 }//end garbageCollect
