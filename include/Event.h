@@ -146,6 +146,9 @@ class Event {
   */
   void makeAntiMessage();
 
+  /** Only should be used by the agent rollback method.
+   */
+  inline void setReferenceCount(int count) { referenceCount = count;}
  
   /** The dtor.
       User should not be able to delete events. Also events can only be created

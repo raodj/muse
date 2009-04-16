@@ -103,8 +103,8 @@ Agent::getNextEvents() {
         cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
         //TODO temp fix, need to handle issue of events changing to anti-messages while they are in the eventPQ
         top_event->decreaseReference();
-        return NULL;//2. MADE A CHANGE TO RESTURN QUITE 
-        // abort();
+        //return NULL;//2. MADE A CHANGE TO RESTURN QUITE 
+        abort();
     }
     
     
@@ -143,9 +143,9 @@ Agent::getNextEvents() {
             cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
             Event * anti_event = popEventFromEventPQ();
             anti_event->decreaseReference(); //3. CHECK WITH RAO< CHANGED TO POP ANTI MESSAGE AND IGNORE
-            continue;
+            //continue;
             //delete events;
-            //abort();
+            abort();
         }
         //if the receive times match, then they are to be processed at
         //the same time.
@@ -375,9 +375,22 @@ Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
                 bitMap[current_event->getReceiverAgentID()] == false ){
                 
                 bitMap[current_event->getReceiverAgentID()] = true;
-                current_event->makeAntiMessage();
-                //cout << "Making Anti-Message: " << *current_event << endl;
-                (Simulation::getSimulator())->scheduleEvent(current_event);
+                if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID()) ){
+                    current_event->makeAntiMessage();
+                    //cout << "Making Anti-Message: " << *current_event << endl;
+                    (Simulation::getSimulator())->scheduleEvent(current_event);
+                }else{
+                    //here we have to make a fresh new copy of the event and make the
+                    //copy an anti-message. This clears alot of issues.
+                    Event *  anti_event = new Event(*current_event);
+                    anti_event->setReferenceCount(0);
+                    anti_event->makeAntiMessage();
+                    //cerr << "***Current Event: " << *current_event << "\n"
+                    //    << "***Anti_event: "    << *anti_event << endl;
+                    //cerr << "Created a fresh copy anti-event" <<endl;
+                    (Simulation::getSimulator())->scheduleEvent(anti_event);
+                    //abort();
+                }
             }
             //invalid events automatically get removed
             current_event->decreaseReference();
@@ -405,22 +418,12 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
         list<Event*>::iterator del_it = inQ_it;
         inQ_it++;
         Event *current_event = (*del_it);
-
-        //check if the event is invalid.
-        if (current_event->isAntiMessage() ){
-          
-            //std::cerr << "Removed anti-message from inputQueue: "
-            //              << *current_event << std::endl;
-            
-            //invalid events automatically get removed
-            current_event->decreaseReference();
-            inputQueue.erase(del_it);
-        }
-        else if ( current_event->getReceiveTime() > restored_time){
+        ASSERT(current_event->isAntiMessage() == false );
+        
+        if ( current_event->getReceiveTime() > restored_time){
             //check if we need to re-process the current_event
             if( straggler_sender_agent_id  != current_event->getSenderAgentID() ){
                 current_event->increaseReference();
-                ASSERT(current_event->isAntiMessage() == false );
                 eventPQ->push(current_event );
                 //std::cerr << "Moved from inputQueue to eventPQ: "
                 //          << *current_event << std::endl;
