@@ -26,9 +26,9 @@
 #include "Agent.h"
 #include "Simulation.h"
 #include <iostream>
-#include "f_heap.h"
 #include "HashMap.h"
 #include <cstdlib>
+#include "BinaryHeapWrapper.h"
 
 using namespace std;
 using namespace muse;
@@ -36,13 +36,14 @@ using namespace muse;
 
 Agent::Agent(AgentID  id, State * agentState)
   : myID(id), lvt(0), myState(agentState) {
-    eventPQ = new EventPQ;
+    //eventPQ = new EventPQ;
+    eventPQ = new BinaryHeapWrapper();
 }//end ctor
 
 Agent::~Agent() {
     //lets make sure we dont have any left over events
     while(!eventPQ->empty()){
-        eventPQ->top()->decreaseReference();
+        //eventPQ->top()->decreaseReference();
         eventPQ->pop();
     }
     delete eventPQ;
@@ -95,7 +96,8 @@ Agent::processNextEvents(){
 
 EventContainer *
 Agent::getNextEvents() {
-    Event *top_event =  popEventFromEventPQ(); //eventPQ->top();eventPQ->pop();top_event->decreaseReference();
+    Event *top_event = eventPQ->top();
+    eventPQ->pop();
     
     //we should never process an anti-message.
     if ( top_event->isAntiMessage() ){ 
@@ -128,40 +130,33 @@ Agent::getNextEvents() {
     inputQueue.push_back(top_event);
     //std::cout << "Processing: " << *top_event << std::endl;
 
-    //since we popped an event from the eventPQ, we must call to
-    //decrease the reference.
-    //top_event->decreaseReference();
 
     //this while is used to gather the remaining event that will be
     //processed
     while(eventPQ->size() != 0){
         //first top the next event for checking.
-        //Event *next_event = eventPQ->top();
+        Event *next_event = eventPQ->top();
         //we should never process an anti-message.
-        if ( eventPQ->top()->isAntiMessage() ){
-            cerr<<"Anti-message Processing: " << *eventPQ->top() <<endl;
+        if ( next_event->isAntiMessage() ){
+            cerr<<"Anti-message Processing: " << *next_event << "\n";
             cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-            Event * anti_event = popEventFromEventPQ();
-            anti_event->decreaseReference(); //3. CHECK WITH RAO< CHANGED TO POP ANTI MESSAGE AND IGNORE
-            //continue;
-            //delete events;
+            next_event->decreaseReference(); 
             abort();
         }
         //if the receive times match, then they are to be processed at
         //the same time.
-        if ( TIME_EQUALS( top_event->getReceiveTime() , eventPQ->top()->getReceiveTime()) ){
+        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
             //first remove it from the eventPQ
-            //eventPQ->pop();
-            Event *next_event = popEventFromEventPQ();
+            eventPQ->pop();
+           
             //now we add it to the event container
             events->push_back(next_event);
+
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
             //std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
-            //finally, we decrease the reference count for the pop.
-            //next_event->decreaseReference(); 
         }else{
             break;
         }
@@ -227,7 +222,7 @@ Agent::scheduleEvent(Event *e){
                
         //add to event scheduler this is a optimization trick, because
         //we dont go through the Simulation scheduler method.
-        pushEventToEventPQ(e);
+        eventPQ->push(e);
 
         //now lets make sure that the heap is still valid
         //we have to change if the event receive time has a smaller key
@@ -437,21 +432,6 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
         }
     }
 }//end doStepThree
-
-void
-Agent::pushEventToEventPQ(Event * e){
-    e->increaseReference();
-    eventPQ->push(e);
-}
-
-Event *
-Agent::popEventFromEventPQ() {
-    if (eventPQ->empty()) return NULL;
-    Event *top_event = eventPQ->top();
-    eventPQ->pop();
-    top_event->decreaseReference();
-    return top_event;
-}
 
 void
 Agent::cleanStateQueue(){
