@@ -171,6 +171,7 @@ GVTManager::forwardCtrlMsg() {
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
     const Time lgvt = Simulation::getSimulator()->getLGVT();
+    std::cout << "Process " << rank << " LGVT: " << lgvt << std::endl;
     if (rank != ROOT_KERNEL) {
         // This is non-initiator sequence.
         ctrlMsg->setGVTEstimate(std::min<Time>(ctrlMsg->getGVTEstimate(),lgvt));
@@ -302,7 +303,7 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Destroy message as we no longer need it.
         GVTMessage::destroy(gvtMsg);
         // Print gvt value for reference purposes;
-        //std::cout << "GVT: " << gvtEst << std::endl;
+        std::cout << "GVT: " << gvtEst << std::endl;
     } else {
         // Received a GVT update from process 0. Send an
         // acknowledgement back.

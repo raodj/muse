@@ -28,112 +28,113 @@
 #include "Agent.h"
 #include "f_heap.h"
 
-BEGIN_NAMESPACE(muse)
+BEGIN_NAMESPACE(muse);
      
 class Scheduler {
-  
+    friend class Simulation;
 public:
 
-  /** The ctor method.
-   */
-  Scheduler();
+    /** The ctor method.
+     */
+    Scheduler();
 
-  /** The dtor method.
-   */
-  ~Scheduler();
+    /** The dtor method.
+     */
+    ~Scheduler();
 
-  /** The scheduleEvent method.
-      Only used by the Simulation kernel. Users of MUSE API should not touch this function.
-      Check for rollback is done at this level.
+    /** The scheduleEvent method.
+        Only used by the Simulation kernel. Users of MUSE API should not touch this function.
+        Check for rollback is done at this level.
       
-      @param event pointer of the event to be scheduled.
-   */
-  bool scheduleEvent(Event *);
-
-  /** The processNextAgentEvents method.  Only used by the Simulation
-      kernel. Users of MUSE API should not touch this function.  Uses
-      a fibonacci heapfor scheduling the agents. The agent witht he
-      smallest event timestamp to process is chosen.
-
-      @return bool, True if the chosen agent had events to process.
-   */
-  bool processNextAgentEvents();
-
-  /** The addAgentToScheduler method.  Adds the agent to the
-      scheduler. This happend in the Simulation::registerAgent method.
-      Only used by the Simulation kernel. Users of MUSE API should not
-      touch this function.
-
-      @param pointer to the agent.
-      @return bool, True if the agent was added to the scheduler.
-   */
-  bool addAgentToScheduler(Agent *);
-
-  /** The getNextEventTime method.
-      Determine the timestamp of the next top-most event in the
-      scheduler.
-
-      This method can be used to determine the timestamp (aka
-      Event::receiveTime) assocaited with the next event to be
-      executed on the heap.  If the heap is empty, then this method
-      returns INFINITY.
-
-      @return The timestamp of the next event to be executed.
+        @param event pointer of the event to be scheduled.
     */
-  Time getNextEventTime() const;
+    bool scheduleEvent(Event *);
+
+    /** The processNextAgentEvents method.  Only used by the Simulation
+        kernel. Users of MUSE API should not touch this function.  Uses
+        a fibonacci heapfor scheduling the agents. The agent witht he
+        smallest event timestamp to process is chosen.
+
+        @return bool, True if the chosen agent had events to process.
+    */
+    bool processNextAgentEvents();
+
+    /** The addAgentToScheduler method.  Adds the agent to the
+        scheduler. This happend in the Simulation::registerAgent method.
+        Only used by the Simulation kernel. Users of MUSE API should not
+        touch this function.
+
+        @param pointer to the agent.
+        @return bool, True if the agent was added to the scheduler.
+    */
+    bool addAgentToScheduler(Agent *);
+
+    /** The getNextEventTime method.
+        Determine the timestamp of the next top-most event in the
+        scheduler.
+
+        This method can be used to determine the timestamp (aka
+        Event::receiveTime) assocaited with the next event to be
+        executed on the heap.  If the heap is empty, then this method
+        returns INFINITY.
+
+        @return The timestamp of the next event to be executed.
+    */
+    Time getNextEventTime() const;
 	
 
-  /** The agent class uses this method to change
-      its key in the fib heap agent_pq. This makes
-      sure that the heap properties are valid.
+    /** The agent class uses this method to change
+        its key in the fib heap agent_pq. This makes
+        sure that the heap properties are valid.
 
-      @param pointer, this is type casted in the method to node*
-      @param agent, the agent pointer that wants to be changed
+        @param pointer, this is type casted in the method to node*
+        @param agent, the agent pointer that wants to be changed
       
-   */
-  void changeKey(void*,Agent*);
+    */
+    void changeKey(void*,Agent*);
 
- private:
+private:
 
-  /** The checkAndHandleRollback method.
-      This is a helper which checks for a rollback and handles it if it is
+    /** The checkAndHandleRollback method.
+        This is a helper which checks for a rollback and handles it if it is
 
-      @param e, the event to check
-      @param agent, the agent to check against
+        @param e, the event to check
+        @param agent, the agent to check against
 
-      @return bool, if true then it was a rollback event
+        @return bool, if true then it was a rollback event
 
-  */
-  bool checkAndHandleRollback(const Event * e,  Agent * agent);
+    */
+    bool checkAndHandleRollback(const Event * e,  Agent * agent);
 
 
-  /** The handleFutureAntiMessage method.
-      This is a helper which takes care of future anti-message.
+    /** The handleFutureAntiMessage method.
+        This is a helper which takes care of future anti-message.
 
-      @param e, the event to check
-      @param agent, the agent to check against
+        @param e, the event to check
+        @param agent, the agent to check against
 
-      @return bool, if true then it was an anti-message
+        @return bool, if true then it was an anti-message
 
-  */
-  void handleFutureAntiMessage(const Event * e,  Agent * agent);
+    */
+    void handleFutureAntiMessage(const Event * e,  Agent * agent);
   
- protected:
+protected:
 
  
 
-  /** The agentMap is used to quickly match AgentID to agent pointers
-      in the scheduler.
-   */
-  AgentIDAgentPointerMap agentMap;
+    /** The agentMap is used to quickly match AgentID to agent pointers
+        in the scheduler.
+    */
+    AgentIDAgentPointerMap agentMap;
   
-  /** The agent_pq is a fibonacci heap data structure, and used for
-      scheduling the agents.  This is used in the
-      processNextAgentEvents method.
-   */
-  typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
-  AgentPQ agent_pq;
+    /** The agent_pq is a fibonacci heap data structure, and used for
+        scheduling the agents.  This is used in the
+        processNextAgentEvents method.
+    */
+    typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
+    AgentPQ agent_pq;
 };
 
-END_NAMESPACE(muse)
+END_NAMESPACE(muse);
+
 #endif
