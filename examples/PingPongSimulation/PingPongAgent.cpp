@@ -24,7 +24,7 @@ PingPongAgent::initialize() throw (std::exception){
 
 void
 PingPongAgent::executeTask(const EventContainer* events){
-    // cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getTime() << endl;
+    cout << "PingPong Agent [";cout <<getAgentID();cout << "] @ LVT: ";cout << this->getTime() << endl;
    
     if (!events->empty()){
         

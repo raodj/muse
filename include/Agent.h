@@ -36,12 +36,6 @@
  */
 #define TIME_EQUALS(t1,t2)(fabs(t1-t2)<1e-8)
 
-BEGIN_NAMESPACE(boost);
-template <typename T, typename Comp >
-class fibonacci_heap;
-
-END_NAMESPACE(boost);
-
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(ostream&, const muse::Agent&);
 
@@ -62,6 +56,11 @@ requirements of the variuos methods in this class.</p>
 from this Agent Class, Also be sure to override all methods that
 are declared virtual.</p>
 */
+
+
+//forward declare here
+class BinaryHeapWrapper;
+
 class Agent {
 
     /** enum for return Time.
@@ -75,24 +74,7 @@ class Agent {
     friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
-  
-public:
-    /** The eventComp class.
-        Compares delivery times. puts the one with the smaller ahead.
-    */
-    class eventComp{
-    public:
-        eventComp(){}
-        inline bool operator() ( Event *lhs,  Event *rhs) const{
-            Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
-            return (lhs_time > rhs->getReceiveTime());
-        }
-    };
-    
-private:
-    //forward declare
-    //class State;
-    
+
 public:
     /** The initialize method.
         
@@ -256,17 +238,6 @@ public:
     oSimStream oss;
     
  private:
-
-    /** Consistently pushs an event to the agent's eventPQ
-	@param e, the event to push on, should be heap allocated
-     */
-    void pushEventToEventPQ(Event * e);
-
-    /** Consistently pops an event from the agent's eventPQ
-	
-	@return e, the event that was popped or NULL if eventPQ is empty
-     */
-    Event* popEventFromEventPQ();
     
     /** The getNextEvents method.
 	This method is a helper that will grab the next
@@ -390,17 +361,6 @@ public:
         bool operator()(const Agent *lhs, const Agent *rhs) const;
     };
 
-   
-    /** The EventPQ type.
-        This is data structure that houses the events to be processed by this agent.
-        This is a fibonacci heap! Uses the eventComp as a comparator.
-
-        @see f_heap()
-        @see eventComp()
-        @see Event()
-    */
-    typedef boost::fibonacci_heap<Event* , eventComp> EventPQ;
-
     /** The AgentID type myID.
         This is inialized when the agent is registered to a simulator.
         Only one way to access this, use the getAgentID method.
@@ -423,12 +383,6 @@ public:
     */
     list<State*> stateQueue;
 
-
-    /** The intrusive pointer for events. This way we dont have to worry
-	about what container has what reference and we can be leak free
-	for Event memory.
-    */
-    //typedef boost::intrusive_ptr<Event> SharedEventPointer;
     
     /** The double linked lise outputQueue.
         Houses a sorted list of event pointers. Needed incase of rollbacks
@@ -450,28 +404,23 @@ public:
     */
     State *myState;
 
-   
 
-    /** The EventPQ type eventPQ.
-        This is access to the fibonacci heap data structure that houses or events to process.
-        @see f_heap()
-        @see EventPQ
+    /** The BinaryHeapWrapper type eventPQ.
+        This is access to the custom binary heap data structure that houses events to process.
+        @see BinaryHeapWrapper()
     */
-    EventPQ *eventPQ;
+    BinaryHeapWrapper * eventPQ;
 
     /** The pointer type.
         this is the pointer that points to the location
         of the agent in the fibonacci heap.
     */
-    
     void* fibHeapPtr;
 
     /** The SimStreamContainer type allSimStreams.
 	This is used to store registered SimStream, typically are user defined.
     */
     SimStreamContainer allSimStreams;
-
-
     
 };
 END_NAMESPACE(muse);//end namespace declaration

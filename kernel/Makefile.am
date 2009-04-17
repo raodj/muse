@@ -46,6 +46,7 @@ libmuse_a_SOURCES = \
 	src/GVTManager.cpp\
 	src/oSimStream.cpp\
 	src/SimStream.cpp\
-	src/MTRandom.cpp
+	src/MTRandom.cpp\
+	src/BinaryHeapWrapper.cpp
 
 # end of Makefile.am

@@ -27,6 +27,7 @@
 #include "f_heap.h"
 #include <cstdlib>
 #include "Simulation.h"
+#include "BinaryHeapWrapper.h"
 
 using namespace muse;
 
@@ -98,7 +99,7 @@ Scheduler::scheduleEvent( Event *e){
     Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
 
     //push to agent's heap
-    agent->pushEventToEventPQ(e);
+    agent->eventPQ->push(e);
     //std::cout << "Scheduled: " << *e << std::endl;
     
     //we have to change if the event receive time has a smaller key
@@ -134,25 +135,8 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
     //std::cout << "*Cancelling due to: " << *e << std::endl;
     // This event is an anti-message we must remove it and
     // future events from this agent.
-    bool foundAtleastOne = false;
-    Agent::EventPQ::iterator it = agent->eventPQ->begin();
-    while (it != agent->eventPQ->end()) {
-        Agent::EventPQ::iterator del_it = it;
-        it++;
-        // first check if the event matchs the straggler
-        // event's senderAgentID
-        if ((*del_it)->getSenderAgentID() == e->getSenderAgentID() &&
-            ((*del_it)->getReceiveTime() >= e->getReceiveTime())) {
-            //if the receive times are the same or greater then we
-            //dont need this event
-            //cerr<< "***Deleting Event: " << *(*del_it) << endl;
-            //cout << "---found useless future event  deleting from fib heap"<<endl;
-            //std::cout << "Future Cancelling: " << *(*del_it) << std::endl;
-            agent->eventPQ->remove(del_it.getNode());
-            foundAtleastOne = true;
-        }// end if
-    }//end while
-    
+    bool foundAtleastOne = agent->eventPQ->removeFutureEvents(e);
+     
     // We must have deleted at least one event for this anit-message
     if (false && !foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
         cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
@@ -161,7 +145,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
         // Print the fibonacci heap for reference purposes
         std::cerr << "The list of pending events (at LVT="
                   << agent->getLVT() << "):\n";
-        agent->eventPQ->prettyPrint(std::cerr);
+       
         std::cerr << ". This is a serious error. Aborting."
                   << std::endl;
         
