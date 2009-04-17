@@ -87,6 +87,7 @@ Simulation::getSimulator(){
 
 bool 
 Simulation::scheduleEvent( Event *e){
+    ASSERT ( e->getReceiveTime() >= getGVT() );
     if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
         (e->getSenderAgentID() == -1)) {
         cerr << "Dont use this method with a new event, go through the agent's scheduleEvent method." <<endl;
@@ -158,7 +159,14 @@ Simulation::start(){
       
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
-
+        if (LGVT < getGVT()) {
+            std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+                      << " which is serious error. Scheduled agents: \n";
+            scheduler->agent_pq.prettyPrint(std::cerr);
+            std::cerr << "Aborting.\n";
+            ASSERT ( false );
+        }
+        
         //lets check if we need to update one_below_gvt value
         //cerr << "OLD_LGVT: " << old_lgvt << " LGVT: " << LGVT
         //     << " ONE_BELOW_GVT: " << one_below_gvt << " GVT: " << getGVT()<<endl;

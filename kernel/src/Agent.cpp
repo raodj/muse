@@ -549,7 +549,7 @@ statePrinter(ostream& os, list<muse::State*> state_q ){
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
     os << "Agent[id="           << agent.getAgentID()   << ","
-        //<< "top time="           << ((!agent.eventPQ->empty()) ? agent.eventPQ->top()->getReceiveTime():TIME_INFINITY) << ","
+       << "top time="           << ((!agent.eventPQ->empty()) ? agent.eventPQ->top()->getReceiveTime():TIME_INFINITY) << ","
        << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;
     return os;
 }
