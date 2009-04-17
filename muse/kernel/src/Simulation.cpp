@@ -154,11 +154,12 @@ Simulation::start(){
         if ( incoming_event != NULL ){	  
             scheduleEvent(incoming_event);
         } //end if
-
-      
       
         // Update lgvt to the time of the next event to be processed.
-        LGVT = scheduler->getNextEventTime();
+        if (scheduler->getNextEventTime() < TIME_INFINITY ){
+            LGVT = scheduler->getNextEventTime();
+        }
+        
         if (LGVT < getGVT()) {
             std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
