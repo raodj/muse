@@ -30,6 +30,9 @@ using namespace muse;
 
 GVTMessage*
 GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
+    // A static variable to generate sequence numbers
+    static unsigned int GlobalSequenceCounter = 0;
+    
     // First compute the message size.
     const int vecSize = (msgKind != GVT_CTRL_MSG) ? 0 :
         (sizeof(unsigned int) * numProcesses);
@@ -38,6 +41,8 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
     char *memory = new char[msgSize];
     // Now use the flat memory to instantiate an object.
     GVTMessage *msg = new (memory) GVTMessage(msgKind, msgSize);
+    // Setup the sequence number for this newly created message
+    msg->sequenceNumber = GlobalSequenceCounter++;
     // Now we have a message object to return/work-with
     return msg;
 }
@@ -87,7 +92,8 @@ GVTMessage::~GVTMessage() {
 std::ostream&
 operator<<(std::ostream& os, const muse::GVTMessage& gvtMsg) {
     os << "GVTMessage(kind=" << gvtMsg.kind << ", " << "size="
-       << gvtMsg.size << "): gvtEstimate=" << gvtMsg.gvtEstimate
+       << gvtMsg.size << ", seq#=" << gvtMsg.sequenceNumber
+       << "): gvtEstimate=" << gvtMsg.gvtEstimate
        << ", tMin = "<< gvtMsg.tMin << ". Vector counters = { ";
 
     const int MaxCounters = (gvtMsg.size - sizeof(muse::GVTMessage)) / sizeof(int);

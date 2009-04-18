@@ -211,6 +211,9 @@ Agent::scheduleEvent(Event *e){
         e->decreaseReference();
         abort();
     }
+    ASSERT ( e->getReceiveTime() >= getTime(GVT) );
+
+    std::cout << "Scheduled: " << *e << std::endl;
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
@@ -234,7 +237,6 @@ Agent::scheduleEvent(Event *e){
         
         //add to output queue
         e->increaseReference();
-        //std::cout << "Scheduled: " << *e << std::endl;
         outputQueue.push_back(e);
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
@@ -251,10 +253,17 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(const Event* straggler_event){
+    std::cout << "Rolling back due to: " << *straggler_event << std::endl;
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
     Time restored_time = getTime(LVT);
+    if (restored_time < getTime(GVT)) {
+        std::cout << "*** Agent(" << myID << "): restored time to "
+                  << restored_time << ", while GVT = " << getTime(GVT)
+                  << std::endl;
+    }
+    
     doCancellationPhaseInputQueue(restored_time , straggler_event->getSenderAgentID());
     doCancellationPhaseOutputQueue(restored_time);
     
@@ -263,6 +272,8 @@ Agent::doRollbackRecovery(const Event* straggler_event){
     for (size_t i=0; (i < allSimStreams.size()); i++){
         allSimStreams[i]->rollback(restored_time);
     }
+
+  
 }//end doRollback
 
 void
