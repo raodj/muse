@@ -339,6 +339,16 @@ private:
         GVT_CTRL_MSG.  In other messages, its value is undefined.
     */
     Time tMin;
+
+    /** A unique sequence number set by Rank 0 process for this GVTMessage.
+
+        This instance variable is used to track a global sequence number for
+	each GVT token. The global sequence counter essentially helps to
+	track GVT tokens as they circulate through the system and helps to
+	troubleshoot issues. This value is set by the GVTManager::create
+	method whenever a new GVTMessage is created.
+    */
+    unsigned int sequenceNumber;
     
     /** The variable length array of vector counters.
 

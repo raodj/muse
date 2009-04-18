@@ -171,7 +171,7 @@ GVTManager::forwardCtrlMsg() {
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
     const Time lgvt = Simulation::getSimulator()->getLGVT();
-    std::cout << "Process " << rank << " LGVT: " << lgvt << std::endl;
+    std::cout << "Process " << rank << " LGVT: " << lgvt << ", tMin = " << ctrlMsg->getTmin() << std::endl;
     if (rank != ROOT_KERNEL) {
         // This is non-initiator sequence.
         ctrlMsg->setGVTEstimate(std::min<Time>(ctrlMsg->getGVTEstimate(),lgvt));
@@ -218,6 +218,7 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
     ASSERT ( ctrlMsg == NULL );
     // Setup the new control message.
     ctrlMsg = message;
+    std::cout << "GVT ctrlMsg: " << *ctrlMsg << std::endl;
     // Change our current active color if needed.
     if ((rank != ROOT_KERNEL) && (activeColor == white)) {
         activeColor = !white;
@@ -302,8 +303,6 @@ GVTManager::setGVT(const Time& gvtEst) {
         }
         // Destroy message as we no longer need it.
         GVTMessage::destroy(gvtMsg);
-        // Print gvt value for reference purposes;
-        std::cout << "GVT: " << gvtEst << std::endl;
     } else {
         // Received a GVT update from process 0. Send an
         // acknowledgement back.
@@ -321,6 +320,7 @@ GVTManager::setGVT(const Time& gvtEst) {
     if (gvtEst > gvt) {
         // Update our local GVT value.
         gvt = gvtEst;
+        std::cout << "GVT: " << gvtEst << std::endl;
         // Do garbage collection every 100 timesteps.
         Simulation::getSimulator()->garbageCollect();
     }

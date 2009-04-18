@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd /home/gebremr/research/muse/examples/PHOLDSimulation 
+cd $HOME/research/muse/examples/PHOLDSimulation 
 ulimit -c unlimited
           #<X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
 ./phold    3  3  3    10       2          500 &

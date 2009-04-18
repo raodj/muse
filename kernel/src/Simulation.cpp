@@ -94,7 +94,7 @@ Simulation::scheduleEvent( Event *e){
         abort();
     }
     AgentID recvAgentID = e->getReceiverAgentID();
-   
+    
     if (isAgentLocal(recvAgentID)){
         // Local events are directly inserted into our own scheduler
         return scheduler->scheduleEvent(e);
@@ -140,6 +140,11 @@ Simulation::start(){
 
     // this is used to help calculate one_below_gvt
     Time old_lgvt = LGVT;
+
+    char logFileName[128];
+    sprintf(logFileName, "Log%u.txt", myID);
+    ofstream logFile(logFileName);
+    std::streambuf *oldstream = std::cout.rdbuf(logFile.rdbuf());
     
     while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
@@ -156,15 +161,13 @@ Simulation::start(){
         } //end if
       
         // Update lgvt to the time of the next event to be processed.
-        if (scheduler->getNextEventTime() < TIME_INFINITY ){
-            LGVT = scheduler->getNextEventTime();
-        }
-        
+        LGVT = scheduler->getNextEventTime();
         if (LGVT < getGVT()) {
-            std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+            std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
-            scheduler->agent_pq.prettyPrint(std::cerr);
-            std::cerr << "Aborting.\n";
+            scheduler->agent_pq.prettyPrint(std::cout);
+            std::cout << "Aborting.\n";
+            std::cout << std::flush; 
             ASSERT ( false );
         }
         
@@ -179,7 +182,7 @@ Simulation::start(){
         //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
     
-    
+    std::cout.rdbuf(oldstream);
 }//end start
 
 void
