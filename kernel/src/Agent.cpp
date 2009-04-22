@@ -127,7 +127,7 @@ Agent::getNextEvents() {
     //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-    //std::cout << "Processing: " << *top_event << std::endl;
+    std::cout << "Processing: " << *top_event << std::endl;
 
 
     //this while is used to gather the remaining event that will be
@@ -154,8 +154,9 @@ Agent::getNextEvents() {
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
-            //std::cout << "Processing: " << *next_event << std::endl;
+            std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
+            
         }else{
             break;
         }
