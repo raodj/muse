@@ -81,24 +81,27 @@ Scheduler::scheduleEvent( Event *e){
         //THIS CASE SHOULD NEVER HAPPEN
     }
 
+    //will use this to figure out if we need to change our key in
+    //scheduler
+    Time old_top_time = agent->getTopTime();
+
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
         handleFutureAntiMessage(e, agent);
+        updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
 
     //this handles cases where the anti-message was for the past
     if ( e->isAntiMessage() ){
         //this means that it was already rollback'd so we just need to return false
+        updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
     
     ASSERT(e->isAntiMessage() == false );
     
-    //will use this to figure out if we need to change our key in
-    //scheduler
-    Time old_top_time = agent->getTopTime();
-
+   
     //push to agent's heap
     agent->eventPQ->push(e);
     //std::cout << "Scheduled: " << *e << std::endl;
