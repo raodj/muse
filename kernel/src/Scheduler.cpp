@@ -24,7 +24,6 @@
 //---------------------------------------------------------------------------
 
 #include "Scheduler.h"
-#include "f_heap.h"
 #include <cstdlib>
 #include "Simulation.h"
 #include "BinaryHeapWrapper.h"
