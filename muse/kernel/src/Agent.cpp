@@ -1,4 +1,3 @@
-
 #ifndef MUSE_AGENT_CPP
 #define MUSE_AGENT_CPP
 
@@ -221,20 +220,15 @@ Agent::scheduleEvent(Event *e){
         
         //will use this to figure out if we need to change our key in
         //scheduler
-        Time old_receive_time = (!eventPQ->empty()) ? eventPQ->top()->getReceiveTime() : TIME_INFINITY;
+        Time old_top_time = getTopTime();
                
         //add to event scheduler this is a optimization trick, because
         //we dont go through the Simulation scheduler method.
         eventPQ->push(e);
 
         //now lets make sure that the heap is still valid
-        //we have to change if the event receive time has a smaller key
-        //then the top event in the heap.
-        if ( e->getReceiveTime() < old_receive_time  ) {
-            //we need to call for the key change
-            (Simulation::getSimulator())->changeKey(fibHeapPtr,this);
-        }
-        
+        (Simulation::getSimulator())->updateKey(fibHeapPtr,old_top_time);
+                
         //add to output queue
         e->increaseReference();
         outputQueue.push_back(e);
@@ -531,6 +525,11 @@ Agent::getTime(TimeType time_type) const {
         break;
     }
     return TIME_INFINITY;
+}
+
+Time
+Agent::getTopTime() const {
+    return eventPQ->empty() ? TIME_INFINITY : eventPQ->top()->getReceiveTime();
 }
 
 bool

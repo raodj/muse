@@ -252,11 +252,12 @@ protected:
      */
     Time getLGVT() const;
 
-    /** the changeKey method.
-	Used to reheap the fibonacci heap in the scheduler.
+    /** the updateKey method.
+	Used to update the position on the agent in the fibonacci heap.
 	@note Users should not use this. 
      */
-    void changeKey(void*, Agent *);
+    void updateKey(void*, Time old_top_time);
+    
     /** The collectGarbage method.
         When this method is called, garbage collections for all the agents
         that are registered to this kernel take place. Please see Agent::collectGarbage

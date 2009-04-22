@@ -235,8 +235,8 @@ Simulation::getGVT() const {
 }
 
 void
-Simulation::changeKey(void* pointer, Agent * agent){
-    scheduler->changeKey(pointer,agent);
+Simulation::updateKey(void* pointer,  Time old_top_time){
+    scheduler->updateKey(pointer,old_top_time);
 }
 
 #endif

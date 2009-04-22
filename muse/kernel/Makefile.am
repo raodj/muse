@@ -38,8 +38,7 @@ libmuse_a_SOURCES = \
 	src/Communicator.cpp\
 	src/Scheduler.cpp\
 	src/State.cpp \
-	src/Compatibility.cpp \
-	src/f_heap.cpp \
+	src/Compatibility.cpp\
 	include/GVTMessage.h\
 	src/GVTMessage.cpp\
 	include/GVTManager.h\
@@ -47,6 +46,7 @@ libmuse_a_SOURCES = \
 	src/oSimStream.cpp\
 	src/SimStream.cpp\
 	src/MTRandom.cpp\
-	src/BinaryHeapWrapper.cpp
+	src/BinaryHeapWrapper.cpp\
+	src/AgentPQ.cpp
 
 # end of Makefile.am

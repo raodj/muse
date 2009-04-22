@@ -26,7 +26,7 @@
 #include "DataTypes.h"
 #include "HashMap.h"
 #include "Agent.h"
-#include "f_heap.h"
+#include "AgentPQ.h"
 
 BEGIN_NAMESPACE(muse);
      
@@ -80,7 +80,7 @@ public:
 
         @return The timestamp of the next event to be executed.
     */
-    Time getNextEventTime() const;
+    Time getNextEventTime() ;
 	
 
     /** The agent class uses this method to change
@@ -91,7 +91,7 @@ public:
         @param agent, the agent pointer that wants to be changed
       
     */
-    void changeKey(void*,Agent*);
+    void updateKey(void*,Time old_top_time);
 
 private:
 
@@ -128,10 +128,8 @@ protected:
     AgentIDAgentPointerMap agentMap;
   
     /** The agent_pq is a fibonacci heap data structure, and used for
-        scheduling the agents.  This is used in the
-        processNextAgentEvents method.
+        scheduling the agents.
     */
-    typedef class boost::fibonacci_heap<Agent* , Agent::agentComp> AgentPQ;
     AgentPQ agent_pq;
 };
 
