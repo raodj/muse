@@ -44,9 +44,9 @@ Scheduler::addAgentToScheduler(Agent * agent){
 }//end addAgentToScheduler
 
 void
-Scheduler::changeKey(void * pointer, Agent * agent){
+Scheduler::updateKey(void * pointer, Time old_top_time){
     AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
-    agent_pq.increase(ptr, agent);
+    agent_pq.update(ptr, old_top_time);
 }
 
 bool
@@ -56,8 +56,10 @@ Scheduler::processNextAgentEvents(){
     }
     
     Agent * agent = agent_pq.top();
+    //lets get the old_top_time
+    Time old_top_time = agent->getTopTime();
     bool result = agent->processNextEvents();
-    agent_pq.decrease(reinterpret_cast<AgentPQ::pointer>( agent->fibHeapPtr),agent);
+    updateKey(reinterpret_cast<AgentPQ::pointer>(agent->fibHeapPtr),old_top_time);
     return result;
 }//end processNextAgentEvents
 
@@ -96,18 +98,14 @@ Scheduler::scheduleEvent( Event *e){
     
     //will use this to figure out if we need to change our key in
     //scheduler
-    Time old_receive_time = (!agent->eventPQ->empty()) ? agent->eventPQ->top()->getReceiveTime() : TIME_INFINITY;
+    Time old_top_time = agent->getTopTime();
 
     //push to agent's heap
     agent->eventPQ->push(e);
     //std::cout << "Scheduled: " << *e << std::endl;
     
-    //we have to change if the event receive time has a smaller key
-    //then the top event in the heap.
-    if ( e->getReceiveTime() < old_receive_time  ) {
-        changeKey(agent->fibHeapPtr,agent);
-    }
-
+    updateKey(agent->fibHeapPtr,old_top_time);
+    
     //everything went well!
     return true;
 }//end scheduleEvent
@@ -163,24 +161,15 @@ Scheduler::~Scheduler(){}//end Scheduler
 
 
 Time
-Scheduler::getNextEventTime() const {
+Scheduler::getNextEventTime()  {
     if (agent_pq.empty()) {
         // The queue is empty. So return infinity.
         return TIME_INFINITY;
     }
     // Obtain reference to the top agent in the priority queue.
-    const Agent *agent = agent_pq.top();
-    //cout << "TOP agent id is: " << agent->getAgentID() << endl;
-    //cout << "Agent address: " << 
-    // Now, look at the agent's sub-queue to determine top event.
-    if (agent->eventPQ->empty()) {
-        // No events on the top-most queue.
-        //cout << "Agent eventPQ TOp is Empty" <<endl;
-        return TIME_INFINITY;
-    }
-    //cout << "TOP @ scheduler is: " << *agent->eventPQ->top() << endl;
-    // Use the top-agent's top-event.
-    return agent->eventPQ->top()->getReceiveTime();
+    //getTopTime returns the time or TIME_INFINITY if agent's eventPQ is empty
+    return  agent_pq.top()->getTopTime();
+   
 }
 
 #endif

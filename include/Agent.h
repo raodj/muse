@@ -74,6 +74,7 @@ class Agent {
     friend class Simulation;
     //lets declare the Scheduler class a friend!
     friend class Scheduler;
+    friend class AgentPQ;
 
 public:
     /** The initialize method.
@@ -238,6 +239,15 @@ public:
     oSimStream oss;
     
  private:
+
+    /** The getTopTime method.
+	Simply returns the receive Time of the top event in the eventPQ. If eventPQ is empty
+	then TIME_INIFINITY is returned. This is used heavily in AgentPQ class.
+
+	@return Time, the top event recv time or TIME_INFINITY if eventPQ empty.
+
+    */
+    Time getTopTime() const;
     
     /** The getNextEvents method.
 	This method is a helper that will grab the next
