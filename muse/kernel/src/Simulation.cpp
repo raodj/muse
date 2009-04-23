@@ -32,10 +32,13 @@
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10), one_below_gvt(0) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID = -1u;
+    
+
+  
 }
 
 void
@@ -53,18 +56,30 @@ Simulation::initialize(){
     myID             = commManager->initialize(x, arg);
     // Free memory as MPI no longer needs this information.
     delete[] arg;
-   
+
+    //here we hijack cerr any move the data to file for logging.
+    char logFileName[128];
+    sprintf(logFileName, "Log%u.txt", myID);
+    logFile = new  ofstream(logFileName);
+    oldstream = std::cerr.rdbuf(logFile->rdbuf());
 
 }
 
 void
 Simulation::initialize(int argc, char* argv[]){
     myID = commManager->initialize(argc, argv);
+
+    //here we hijack cerr any move the data to file for logging.
+    char logFileName[128];
+    sprintf(logFileName, "Log%u.txt", myID);
+    logFile = new  ofstream(logFileName);
+    oldstream = std::cerr.rdbuf(logFile->rdbuf());
 }
 
 Simulation::~Simulation() {
     delete scheduler;
-    delete commManager; 
+    delete commManager;
+    delete logFile;
 }
 
 
@@ -131,21 +146,12 @@ Simulation::start(){
         
     }//end for
     
-
     LGVT = startTime;
    
     //BIG loop for event processing
     //int count=0;
     int gvtTimer = gvt_delay_rate;
 
-    // this is used to help calculate one_below_gvt
-    Time old_lgvt = LGVT;
-
-    char logFileName[128];
-    sprintf(logFileName, "Log%u.txt", myID);
-    ofstream logFile(logFileName);
-    std::streambuf *oldstream = std::cout.rdbuf(logFile.rdbuf());
-    
     while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
         
@@ -163,26 +169,19 @@ Simulation::start(){
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
         if (LGVT < getGVT()) {
-            std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+            std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
             scheduler->agent_pq.prettyPrint(std::cout);
-            std::cout << "Aborting.\n";
-            std::cout << std::flush; 
+            std::cerr << "Aborting.\n";
+            std::cerr << std::flush; 
             ASSERT ( false );
         }
         
-        //lets check if we need to update one_below_gvt value
-        //cerr << "OLD_LGVT: " << old_lgvt << " LGVT: " << LGVT
-        //     << " ONE_BELOW_GVT: " << one_below_gvt << " GVT: " << getGVT()<<endl;
-        if ( old_lgvt < getGVT() ){
-            one_below_gvt = old_lgvt;
-            old_lgvt = LGVT;
-        }
         scheduler->processNextAgentEvents();
         //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
     }//end BIG loop
     
-    std::cout.rdbuf(oldstream);
+    
 }//end start
 
 void
@@ -195,6 +194,10 @@ Simulation::finalize(){
         (*it)->cleanInputQueue();
         (*it)->cleanStateQueue();
         (*it)->cleanOutputQueue();
+        std::cerr << "Agent[" <<(*it)->getAgentID()
+                  <<"] Total Scheduled Events[" <<(*it)->num_scheduled_events
+                  <<"] Total Processed Events[" <<(*it)->num_processed_events
+                  << "] Total rollbacks[" << (*it)->num_rollbacks << "]" <<std::endl;
         delete (*it);  
     }//end for
 
@@ -205,6 +208,9 @@ Simulation::finalize(){
     
     //finalize the communicator
     commManager->finalize();
+
+    //lets give cerr back its streambuf
+    std::cerr.rdbuf(oldstream);
 }//end finalize
 
 void
@@ -212,7 +218,7 @@ Simulation::garbageCollect(){
     
     AgentContainer::iterator it=allAgents.begin();
     for (; it != allAgents.end(); it++) {  
-        (*it)->garbageCollect(one_below_gvt);
+        (*it)->garbageCollect(getGVT());
     }//end for
     
 }//end garbageCollect

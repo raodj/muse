@@ -310,11 +310,11 @@ private:
     /** Used to control the rate at which garbage is collected */
     int gvt_delay_rate;
 
-    /** Used for garbage collection
-	This is used to calculate the smallest time that is just under the GVT
-	value.
-    */
-    Time one_below_gvt;
+    /** Used for logging purposes.
+     */
+    ofstream * logFile;
+    std::streambuf *oldstream;
+
 };
 
 END_NAMESPACE(muse); //end namespace declaration

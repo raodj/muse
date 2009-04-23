@@ -34,7 +34,7 @@ using namespace muse;
 
 
 Agent::Agent(AgentID  id, State * agentState)
-  : myID(id), lvt(0), myState(agentState) {
+  : myID(id), lvt(0), myState(agentState), num_rollbacks(0), num_scheduled_events(0), num_processed_events(0) {
     //eventPQ = new EventPQ;
     eventPQ = new BinaryHeapWrapper();
 }//end ctor
@@ -69,6 +69,9 @@ Agent::processNextEvents(){
     setLVT( next_events->front()->getReceiveTime() );
     getState()->timestamp = getLVT();
     executeTask(next_events);
+
+    //keep track number of processed events
+    num_processed_events+= next_events->size();
     
     //now we delete EventContainer
     next_events->clear();
@@ -127,7 +130,7 @@ Agent::getNextEvents() {
     //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-    std::cout << "Processing: " << *top_event << std::endl;
+    //std::cout << "Processing: " << *top_event << std::endl;
 
 
     //this while is used to gather the remaining event that will be
@@ -154,7 +157,7 @@ Agent::getNextEvents() {
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
-            std::cout << "Processing: " << *next_event << std::endl;
+            //std::cout << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
             
         }else{
@@ -213,7 +216,7 @@ Agent::scheduleEvent(Event *e){
     }
     ASSERT ( e->getReceiveTime() >= getTime(GVT) );
 
-    std::cout << "Scheduled: " << *e << std::endl;
+    //std::cout << "Scheduled: " << *e << std::endl;
     
     //check to make sure we are not scheduling to one self.
     if (e->getReceiverAgentID() == getAgentID()){
@@ -233,11 +236,19 @@ Agent::scheduleEvent(Event *e){
         //add to output queue
         e->increaseReference();
         outputQueue.push_back(e);
+
+        //lets keep track of event being scheduled
+        num_scheduled_events++;
+        
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
         //just add to output queue.
         e->increaseReference();
         outputQueue.push_back(e);
+
+        //lets keep track of event being scheduled
+        num_scheduled_events++;
+        
         return true;
     }//end if
 
@@ -248,16 +259,16 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(const Event* straggler_event){
-    std::cout << "Rolling back due to: " << *straggler_event << std::endl;
+    std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
     Time restored_time = getTime(LVT);
-    if (restored_time < getTime(GVT)) {
-        std::cout << "*** Agent(" << myID << "): restored time to "
-                  << restored_time << ", while GVT = " << getTime(GVT)
-                  << std::endl;
-    }
+    
+    std::cerr << "*** Agent(" << myID << "): restored time to "
+              << restored_time << ", while GVT = " << getTime(GVT)
+              << std::endl;
+   
     
     doCancellationPhaseInputQueue(restored_time , straggler_event->getSenderAgentID());
     doCancellationPhaseOutputQueue(restored_time);
@@ -268,6 +279,8 @@ Agent::doRollbackRecovery(const Event* straggler_event){
         allSimStreams[i]->rollback(restored_time);
     }
 
+    //lets keep track of number of rollbacks
+    num_rollbacks++;
   
 }//end doRollback
 

@@ -122,7 +122,7 @@ Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
             // Error condition.
             std::cerr << "Rollback logic did not restore state correctly?\n";
             std::cerr << "Agent info:\n" << *agent << std::endl;
-            //abort();
+            abort();
         }//end if
         return true;
     }//end if
@@ -155,7 +155,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
             cerr << *(*it) <<endl;
             it++;
         }
-        //abort();
+        abort();
      }//end if 
 }
 
