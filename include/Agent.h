@@ -431,6 +431,14 @@ public:
 	This is used to store registered SimStream, typically are user defined.
     */
     SimStreamContainer allSimStreams;
+
+    ////////////////////////////////////////////////////////
+    
+    /** The next two variables are used for benchmarking and statistics
+     */
+    int num_rollbacks;
+    int num_scheduled_events;
+    int num_processed_events;
     
 };
 END_NAMESPACE(muse);//end namespace declaration
