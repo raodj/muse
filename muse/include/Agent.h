@@ -63,12 +63,7 @@ class BinaryHeapWrapper;
 
 class Agent {
 
-    /** enum for return Time.
-        when agent ask for time via getTime()
-        user will be able to pass in TimeType and get
-        LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
-    */
-    enum TimeType {LVT,LGVT,GVT};
+
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     //lets declare the Simulation class a friend!
     friend class Simulation;
@@ -230,6 +225,13 @@ public:
 	@see State
     */
     inline State * getState() const {return myState;}
+
+	/** enum for return Time.
+        when agent ask for time via getTime()
+        user will be able to pass in TimeType and get
+        LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
+    */
+    enum TimeType {LVT,LGVT,GVT};
 
  protected:
     /** The oSimStream type oss.
