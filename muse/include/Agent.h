@@ -72,6 +72,14 @@ class Agent {
     friend class AgentPQ;
 
 public:
+    
+    /** enum for return Time.
+        when agent ask for time via getTime()
+        user will be able to pass in TimeType and get
+        LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
+    */
+    enum TimeType {LVT,LGVT,GVT};
+    
     /** The initialize method.
         
     This method is invoked just when a simulation
@@ -226,12 +234,6 @@ public:
     */
     inline State * getState() const {return myState;}
 
-	/** enum for return Time.
-        when agent ask for time via getTime()
-        user will be able to pass in TimeType and get
-        LVT,LGVT, or GVT. default will be LVT (Local Virtual Time)
-    */
-    enum TimeType {LVT,LGVT,GVT};
 
  protected:
     /** The oSimStream type oss.
@@ -441,7 +443,7 @@ public:
     int num_rollbacks;
     int num_scheduled_events;
     int num_processed_events;
-    
+    int num_mpi_messages;
 };
 END_NAMESPACE(muse);//end namespace declaration
 #endif

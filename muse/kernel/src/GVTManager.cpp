@@ -320,7 +320,7 @@ GVTManager::setGVT(const Time& gvtEst) {
     if (gvtEst > gvt) {
         // Update our local GVT value.
         gvt = gvtEst;
-        std::cout << "GVT: " << gvtEst << std::endl;
+        //std::cout << "GVT: " << gvtEst << std::endl;
         // Do garbage collection every 100 timesteps.
         Simulation::getSimulator()->garbageCollect();
     }

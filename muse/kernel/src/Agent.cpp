@@ -34,7 +34,7 @@ using namespace muse;
 
 
 Agent::Agent(AgentID  id, State * agentState)
-  : myID(id), lvt(0), myState(agentState), num_rollbacks(0), num_scheduled_events(0), num_processed_events(0) {
+  : myID(id), lvt(0), myState(agentState), num_rollbacks(0), num_scheduled_events(0), num_processed_events(0),num_mpi_messages(0) {
     //eventPQ = new EventPQ;
     eventPQ = new BinaryHeapWrapper();
 }//end ctor
@@ -61,7 +61,7 @@ Agent::processNextEvents(){
     //agent's executeTask method.
     EventContainer * next_events = getNextEvents();
     
-    if (next_events == NULL){
+    if (next_events == NULL || next_events->empty() ){
         return false;
     }
     
@@ -79,12 +79,11 @@ Agent::processNextEvents(){
     
     //clone the state so we can archive
     State * state = cloneState( getState() );
+    state->timestamp = getLVT();
     
     //after the second state in the stateQueue, there should never be a duplicate again
-    if ( stateQueue.size() > 2 ) {
-        ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
-        ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
-    }
+    ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
+    ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
     
     stateQueue.push_back(state);
     
@@ -248,7 +247,11 @@ Agent::scheduleEvent(Event *e){
 
         //lets keep track of event being scheduled
         num_scheduled_events++;
-        
+
+        //this is to keep track of how many MPI message we use
+        if (!(Simulation::getSimulator())->isAgentLocal(e->getReceiverAgentID())){
+            num_mpi_messages++;
+        }
         return true;
     }//end if
 
