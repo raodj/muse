@@ -121,7 +121,7 @@ using namespace muse;
 
 class EVENT_NAME_HERE : public Event {
 public:
-    EVENT_NAME_HERE();
+    EVENT_NAME_HERE(AgentID receiver_id, Time receive_time);
 
     /** The getEventSize method.
         This is needed by muse kernel, do not erase.
@@ -207,7 +207,7 @@ event_cpp_template = """
 
 #include "EVENT_NAME_HERE.h"
 
-EVENT_NAME_HERE::EVENT_NAME_HERE(){
+EVENT_NAME_HERE::EVENT_NAME_HERE(AgentID receiver_id, Time receive_time) : Event(receiver_id, receive_time){
     //insert ctor code here
 }//end ctor
 
