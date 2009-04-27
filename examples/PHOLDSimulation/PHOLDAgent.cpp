@@ -30,6 +30,7 @@
 #include "PHOLDAgent.h"
 #include "Event.h"
 #include "MTRandom.h"
+#include "Simulation.h"
 
 using namespace std;
 
@@ -40,45 +41,51 @@ void
 PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
-        Time  receive(getTime()+1+(int)(MTRandom::RandDouble()*Delay));
-        //cout << "INIT Random Receive Time: " <<receive <<endl;
-        Event * e = new Event(getAgentID(),receive); 
-        scheduleEvent(e);
+        const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        Time  receive(getTime()+1+RndDelay);
+
+        if ( receive < Simulation::getSimulator()->getStopTime() ){
+            //cout << "INIT Random Receive Time: " <<receive <<endl;
+            Event * e = new Event(getAgentID(),receive); 
+            scheduleEvent(e);
+        }
     }
 }//end initialize
 
 void
 PHOLDAgent::executeTask(const EventContainer* events){
    
-    
     //for every event we get we send out one event
     for(size_t i = 0; (i < events->size()); i++){
         //first make a random receive time for the future
-        Time receive(getTime()+1+(int)(MTRandom::RandDouble()*Delay));
-        //now we need to choose which agent to send this event to.  we
-        //do this with equal probability for all 4 neighbours and send
-        //to one.
-        AgentID receiverAgentID  = getAgentID();
-        double r=MTRandom::RandDouble();
-        if(r<0.25)      receiverAgentID--;
-        else if(r<0.5)  receiverAgentID-=Y;
-        else if(r<0.75) receiverAgentID+=Y;
-        else            receiverAgentID++;
+        const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        Time  receive(getTime()+1+RndDelay);
+
+        if ( receive < Simulation::getSimulator()->getStopTime() ){
+            //now we need to choose which agent to send this event to.  we
+            //do this with equal probability for all 4 neighbours and send
+            //to one.
         
-        if(receiverAgentID < 0) {
-            receiverAgentID+=X*Y;
-        }
-        if(receiverAgentID >=(int)(X*Y)) {
-            receiverAgentID-=X*Y;
-        }
-        ASSERT((receiverAgentID >= 0) && (receiverAgentID < X*Y));
+            const int Change[4] = {-1, -Y, Y, 1};
+            // Compute index into the Change array
+            int index = (int) (MTRandom::RandDouble() * 4);
+            // Determine the receiver neighbor
+            int receiverAgentID = getAgentID() + Change[index];
+
+            if(receiverAgentID < 0) {
+                receiverAgentID+=X*Y;
+            }
+            if(receiverAgentID >= (X*Y)) {
+                receiverAgentID -= X*Y;
+            }
+            ASSERT((receiverAgentID >= 0) && (receiverAgentID < X*Y));
         
-        //make event
-        Event * e = new Event(receiverAgentID,receive);
-        //schedule the event
-        //if( scheduleEvent(e))cout << "Agent ["<<getAgentID(); oss << "] Sent Event to Agent ["<<receiverAgentID <<
-        //                         "] for time [" <<receive <<"]"<<endl;
-        scheduleEvent(e);
+            //make event
+            Event * e = new Event(receiverAgentID,receive);
+            
+            //schedule the event
+            scheduleEvent(e);
+        }
     }
 }//end executeTask
 

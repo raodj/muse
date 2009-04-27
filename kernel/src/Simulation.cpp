@@ -117,6 +117,7 @@ Simulation::scheduleEvent( Event *e){
         // Remote events are sent via the GVTManager to aid tracking
         // GVT. The gvt manager calls communicator.
         gvtManager->sendRemoteEvent(e);
+
     }
     return true;
 }
@@ -186,7 +187,6 @@ Simulation::start(){
 
 void
 Simulation::finalize(){
-    myID = -1u;
     //loop for the finalization
     AgentContainer::iterator it=allAgents.begin();
     for (; it != allAgents.end(); it++) {  
@@ -194,13 +194,14 @@ Simulation::finalize(){
         (*it)->cleanInputQueue();
         (*it)->cleanStateQueue();
         (*it)->cleanOutputQueue();
-        std::cerr << "Agent[" <<(*it)->getAgentID()
+        std::cout << "Agent[" <<(*it)->getAgentID()
                   <<"] Total Scheduled Events[" <<(*it)->num_scheduled_events
-                  <<"] Total Processed Events[" <<(*it)->num_processed_events
-                  << "] Total rollbacks[" << (*it)->num_rollbacks << "]" <<std::endl;
+                  <<"] Total Committed Events[" <<( (*it)->num_processed_events-(*it)->num_rollbacks)
+                  << "] Total rollbacks[" << (*it)->num_rollbacks
+                  << "] Total MPI messages[" <<(*it)->num_mpi_messages << "]"<<std::endl;
         delete (*it);  
     }//end for
-
+  
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);
     delete gvtManager;
@@ -209,6 +210,9 @@ Simulation::finalize(){
     //finalize the communicator
     commManager->finalize();
 
+    //invalid kernel id
+    myID = -1u;
+    
     //lets give cerr back its streambuf
     std::cerr.rdbuf(oldstream);
 }//end finalize
