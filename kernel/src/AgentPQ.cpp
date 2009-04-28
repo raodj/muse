@@ -119,6 +119,7 @@ AgentPQ::cut(node* n)                {
 //fibonacci heap modifying methods
 void
 AgentPQ::update(pointer n, double old_top_time){
+    Time ott = top()->getTopTime();
     if ( n->data()->getTopTime() >= old_top_time) {
         //means we need to decrease the key towards leafs
         decrease(n,n->data());
@@ -126,6 +127,11 @@ AgentPQ::update(pointer n, double old_top_time){
         //means we need to move up the heap towards root
         increase(n,n->data());
     }
+    Time tt = top()->getTopTime();
+
+    //assert to make sure we are changing the top to a bigger value
+    //then the old top time
+    ASSERT ( ott >= tt );
 }
 
 void
