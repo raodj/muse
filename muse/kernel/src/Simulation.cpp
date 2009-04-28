@@ -151,28 +151,39 @@ Simulation::start(){
    
     //BIG loop for event processing
     //int count=0;
-    int gvtTimer = gvt_delay_rate;
+    int gvtTimer              = gvt_delay_rate;
+    unsigned int rank         = -1u;
+    unsigned int numProcesses = -1u;
+    commManager->getProcessInfo(rank,numProcesses);
 
     while(gvtManager->getGVT() < endTime){
         //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
-        
+
         if (--gvtTimer == 0 ) {
             gvtTimer = gvt_delay_rate;
             //cout << "[Simulation] starting startGVTestimation*********" <<endl;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-        Event* incoming_event = commManager->receiveEvent();
-        if ( incoming_event != NULL ){	  
-            scheduleEvent(incoming_event);
-        } //end if
-      
+
+        //if we only have one process, then we don't need to check the wire
+        if (numProcesses > 1 ) {
+            //A optimization trick we learned from WARPED is to try to get as many event
+            //from the wire as we can. A good magic number is 1000
+            for (int magic=0; magic < 1000 ; magic++ ){
+                Event* incoming_event = commManager->receiveEvent();
+                if ( incoming_event != NULL ){	  
+                    scheduleEvent(incoming_event);
+                } //end if
+            }//end magic mpi for loop
+        }//end check if
+        
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
         if (LGVT < getGVT()) {
             std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
-            scheduler->agent_pq.prettyPrint(std::cout);
+            scheduler->agent_pq.prettyPrint(std::cerr);
             std::cerr << "Aborting.\n";
             std::cerr << std::flush; 
             ASSERT ( false );
@@ -196,7 +207,7 @@ Simulation::finalize(){
         (*it)->cleanOutputQueue();
         std::cout << "Agent[" <<(*it)->getAgentID()
                   <<"] Total Scheduled Events[" <<(*it)->num_scheduled_events
-                  <<"] Total Committed Events[" <<( (*it)->num_processed_events-(*it)->num_rollbacks)
+                  <<"] Total Committed Events[" <<(*it)->num_processed_events
                   << "] Total rollbacks[" << (*it)->num_rollbacks
                   << "] Total MPI messages[" <<(*it)->num_mpi_messages << "]"<<std::endl;
         delete (*it);  

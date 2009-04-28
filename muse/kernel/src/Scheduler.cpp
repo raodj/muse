@@ -88,7 +88,7 @@ Scheduler::scheduleEvent( Event *e){
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
         handleFutureAntiMessage(e, agent);
-        updateKey(agent->fibHeapPtr,old_top_time);
+        //updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
 
@@ -104,7 +104,7 @@ Scheduler::scheduleEvent( Event *e){
    
     //push to agent's heap
     agent->eventPQ->push(e);
-    //std::cout << "Scheduled: " << *e << std::endl;
+    std::cerr << "Scheduled: " << *e << std::endl;
     
     updateKey(agent->fibHeapPtr,old_top_time);
     
