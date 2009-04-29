@@ -175,7 +175,9 @@ Simulation::start(){
                 if ( incoming_event != NULL ){	  
                     scheduleEvent(incoming_event);
                     LGVT = scheduler->getNextEventTime();
-                } //end if
+                }else{
+                    break;
+                }
             }//end magic mpi for loop
         }//end check if
         
