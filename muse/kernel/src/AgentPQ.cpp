@@ -129,7 +129,7 @@ AgentPQ::update(pointer n, double old_top_time){
     }
     Time tt = top()->getTopTime();
 
-    //assert to make sure we are changing the top to a bigger value
+    //assert to make sure we are not changing the top to a bigger value
     //then the old top time
     ASSERT ( ott >= tt );
 }
