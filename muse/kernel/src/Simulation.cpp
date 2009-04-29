@@ -215,7 +215,8 @@ Simulation::finalize(){
                   << "] Total MPI messages[" <<(*it)->num_mpi_messages << "]"<<std::endl;
         delete (*it);  
     }//end for
-  
+
+    std::cout << "Done with agents: SHUTTING DOWN" <<endl;
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);
     delete gvtManager;
