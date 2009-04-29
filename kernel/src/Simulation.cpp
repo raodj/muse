@@ -174,6 +174,7 @@ Simulation::start(){
                 Event* incoming_event = commManager->receiveEvent();
                 if ( incoming_event != NULL ){	  
                     scheduleEvent(incoming_event);
+                    LGVT = scheduler->getNextEventTime();
                 } //end if
             }//end magic mpi for loop
         }//end check if
@@ -190,7 +191,7 @@ Simulation::start(){
         }
         
         scheduler->processNextAgentEvents();
-        //if (!was_event_processed) cout << "[Simulation] no events to process at this time..." << endl;
+        
     }//end BIG loop
     
     
