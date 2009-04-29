@@ -104,7 +104,7 @@ Scheduler::scheduleEvent( Event *e){
    
     //push to agent's heap
     agent->eventPQ->push(e);
-    std::cerr << "Scheduled: " << *e << std::endl;
+    //std::cerr << "Scheduled: " << *e << std::endl;
     
     updateKey(agent->fibHeapPtr,old_top_time);
     

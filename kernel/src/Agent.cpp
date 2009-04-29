@@ -126,7 +126,7 @@ Agent::getNextEvents() {
     //increase reference count, so we can add it to the agent's input queue
     top_event->increaseReference(); 
     inputQueue.push_back(top_event);
-    std::cerr << "Processing: " << *top_event << std::endl;
+    //std::cerr << "Processing: " << *top_event << std::endl;
 
 
     //this while is used to gather the remaining event that will be
@@ -153,7 +153,7 @@ Agent::getNextEvents() {
             //increase the reference count, since it will be added to
             //the input queue.
             next_event->increaseReference();
-            std::cerr << "Processing: " << *next_event << std::endl;
+            //std::cerr << "Processing: " << *next_event << std::endl;
             inputQueue.push_back(next_event);
             
         }else{
@@ -224,7 +224,7 @@ Agent::scheduleEvent(Event *e){
         //we dont go through the Simulation scheduler method.
         eventPQ->push(e);
 
-        std::cerr << "Scheduled: " << *e << std::endl;
+        //std::cerr << "Scheduled: " << *e << std::endl;
          
         //now lets make sure that the heap is still valid
         (Simulation::getSimulator())->updateKey(fibHeapPtr,old_top_time);
@@ -259,15 +259,15 @@ Agent::scheduleEvent(Event *e){
 
 void
 Agent::doRollbackRecovery(const Event* straggler_event){
-    std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
+    //std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
     Time restored_time = getTime(LVT);
     
-    std::cerr << "*** Agent(" << myID << "): restored time to "
-              << restored_time << ", while GVT = " << getTime(GVT)
-              << std::endl;
+    //std::cerr << "*** Agent(" << myID << "): restored time to "
+    //          << restored_time << ", while GVT = " << getTime(GVT)
+    //          << std::endl;
    
     
     doCancellationPhaseInputQueue(restored_time , straggler_event->getSenderAgentID());
@@ -439,11 +439,11 @@ Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID &
             if( straggler_sender_agent_id  != current_event->getSenderAgentID() ){
                 current_event->increaseReference();
                 eventPQ->push(current_event );
-                std::cerr << "Moved from inputQueue to eventPQ: "
-                          << *current_event << std::endl;
+                //std::cerr << "Moved from inputQueue to eventPQ: "
+                //          << *current_event << std::endl;
             } else {
-                std::cerr << "Removed from inputQueue: "
-                          << *current_event << std::endl;
+                // std::cerr << "Removed from inputQueue: "
+                //         << *current_event << std::endl;
             }
             //invalid events automatically get removed
             current_event->decreaseReference();
