@@ -184,7 +184,7 @@ Simulation::start(){
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
         if (LGVT < getGVT()) {
-            std::cerr << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+            std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
             scheduler->agent_pq.prettyPrint(std::cerr);
             std::cerr << "Aborting.\n";
@@ -203,20 +203,27 @@ void
 Simulation::finalize(){
     //loop for the finalization
     AgentContainer::iterator it=allAgents.begin();
+    int total_rollbacks =0, total_committed_events=0, total_mpi_messages=0, total_scheduled_events=0;
     for (; it != allAgents.end(); it++) {  
         (*it)->finalize();
         (*it)->cleanInputQueue();
         (*it)->cleanStateQueue();
         (*it)->cleanOutputQueue();
-        std::cout << "Agent[" <<(*it)->getAgentID()
-                  <<"] Total Scheduled Events[" <<(*it)->num_scheduled_events
-                  <<"] Total Committed Events[" <<(*it)->num_processed_events
-                  << "] Total rollbacks[" << (*it)->num_rollbacks
-                  << "] Total MPI messages[" <<(*it)->num_mpi_messages << "]"<<std::endl;
+        
+        total_rollbacks += (*it)->num_rollbacks;
+        total_committed_events += (*it)->num_processed_events;
+        total_mpi_messages += (*it)->num_mpi_messages;
+        total_scheduled_events += (*it)->num_mpi_messages;
+        
+        
         delete (*it);  
     }//end for
-
-    std::cout << "Done with agents: SHUTTING DOWN" <<endl;
+    std::cout << "\nKernel[" << myID
+                  <<"]\n Total Scheduled Events[" <<total_scheduled_events 
+                  <<"]\n Total Committed Events[" <<total_committed_events
+                  << "]\n Total rollbacks[" << total_rollbacks
+                  << "]\n Total MPI messages[" << total_mpi_messages << "]"<<std::endl;
+    //std::cout << "Done with agents: SHUTTING DOWN" <<endl;
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);
     delete gvtManager;
