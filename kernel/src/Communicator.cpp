@@ -74,28 +74,35 @@ Communicator::registerAgents(AgentContainer& allAgents){
             //time to add this list to master AgentMap
             for(int i=0; i<agent_list_size; ++i){
                 agentMap[agentList[i]] = status.Get_source();
-            }//end for 
+            }//end for
+            //std::cout << "Got agents list from kernel [" <<status.Get_source() << "]" <<std::endl;
             done_count++;
         }//end while
-        
+
+        //std::cout << "Got all agents lists. AgentMap size: "<<agentMap.size() <<std::endl;
         //next chunk of code converts agentMap to a flat list for Bcasting!!
-        AgentIDSimulatorIDMap::iterator it;
+        
         int agentMap_size = agentMap.size()*2;
-        unsigned int  agentMap_flat[agentMap_size];
+        //std::cout << "AgentMapFlat size: "<<agentMap_size <<std::endl;
+        //unsigned int  agentMap_flat[agentMap_size];
+        AgentID  * agentMap_flat = (AgentID*)(malloc(sizeof(AgentID) * agentMap_size));
+        
         int counter=0;
-        for (it=agentMap.begin(); it != agentMap.end(); ++it){
-            ///cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
-            agentMap_flat[counter] = it->first;
+        //std::cout << "AgentMap Size [" << agentMap.size() << "] AgentMapFlat Size [" << agentMap_size << "]"  << std::endl;
+        AgentIDSimulatorIDMap::iterator it = agentMap.begin();
+        for (; it != agentMap.end(); ++it){
+            //cout << "Agent ID: " << it->first << " Registered to Kernel ID: " << it->second << endl;
+            agentMap_flat[counter]   = it->first;
             agentMap_flat[counter+1] = it->second;
             counter+=2;
         }//end for
-        
+        //cout << "Flat list created!" <<endl;
         //before we bcast the agentMap, we must Bcast the size of the list!
         MPI::COMM_WORLD.Bcast(&agentMap_size, 1 ,MPI::INT, ROOT_KERNEL );
         //bcast here
-        MPI::COMM_WORLD.Bcast(&agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
-        
-        
+        MPI::COMM_WORLD.Bcast(agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
+        cout << "Agent Registeration: complete!" <<endl;
+        delete[] agentMap_flat;
     }else{
         AgentID agentList[allAgents.size()];
         for (size_t i=0; i < allAgents.size(); ++i){
@@ -104,19 +111,21 @@ Communicator::registerAgents(AgentContainer& allAgents){
         //now send flat list across the wire (MPI)
         MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
         //get the size of incoming agentMap list
-        int agentMap_length;
+        int agentMap_length=0;
         MPI::COMM_WORLD.Bcast(&agentMap_length, 1 ,MPI::INT, ROOT_KERNEL );
         
         //finally receive the complete agentMap flat list!!!
-        unsigned int agentMap_flatList[agentMap_length];
-        MPI::COMM_WORLD.Bcast(&agentMap_flatList, agentMap_length,MPI::UNSIGNED, ROOT_KERNEL );
+        //unsigned int agentMap_flatList[agentMap_length];
+        AgentID  * agentMap_flatList = (AgentID*)(malloc(sizeof(AgentID) * agentMap_length));
+        MPI::COMM_WORLD.Bcast(agentMap_flatList, agentMap_length,MPI::UNSIGNED, ROOT_KERNEL );
         
         //use final flat list and populate local AgentMap list!!
         for (int i=0; i < agentMap_length; i+=2){
             agentMap[agentMap_flatList[i]] = agentMap_flatList[i+1];
             //cout << "Agent ID: " << agentMap_flatList[i] << " Registered to Kernel ID: " << agentMap_flatList[i+1] << endl;
         }//end for
-        
+
+        delete[] agentMap_flatList;
     }//end if
 }//end registerAgent method
 
