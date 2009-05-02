@@ -42,29 +42,30 @@ class Communicator;
 
 /** The Simulation Class.
  
-This is the heart of muse. All core operation that the engine handles
-are done from this class. This class implaments the Singleton pattern
-and should NOT be used as a superclass to derive from. Also the client
-should not try and create an instance using the constructor. use the
-getSimulator() method which will return a pointer to a Simulation
-object. Once you have all your agents and their events in place you
-can get the simulation going with the following three easy steps:
-
-<ol>
-
-<li> Get a simulation object via the getSimulator() method.</li>
-
-<li> Register all your agents by repeatedly invoking the
-register() method.</li>
-
-<li>Finally get the simulation stared via the start() method. To
-stop the simulation early just call the stop() method.</li>
-
-</ol>
+    This is the heart of muse. All core operation that the engine
+    handles are done from this class. This class implaments the
+    Singleton pattern and should NOT be used as a superclass to derive
+    from. Also the client should not try and create an instance using
+    the constructor. use the getSimulator() method which will return a
+    pointer to a Simulation object. Once you have all your agents and
+    their events in place you can get the simulation gwoing with the
+    following three easy steps:
+    
+    <ol>
+    
+    <li> Get a simulation object via the getSimulator() method.</li>
+    
+    <li> Register all your agents by repeatedly invoking the
+    register() method.</li>
+    
+    <li>Finally get the simulation stared via the start() method. To
+    stop the simulation early just call the stop() method.</li>
+    
+    </ol>
     
     
-@note refer to each method documentation for more details on the
-features provided.
+    @note refer to each method documentation for more details on the
+    features provided.
     
 */
 class Simulation {
@@ -152,18 +153,22 @@ public:
     static Simulation* getSimulator();
 
     
-    /** The start method.  When this method is invoked the client
-	should have all agents registered.  Also a flavor of the
-	initialize method should be called.Lastly, you should set the
-	start and end time for the simuatlion.  The simulation will
-	start.
+    /** The start method.
+
+        When this method is invoked the client should have all agents
+	registered.  Also a flavor of the initialize method should be
+	called.Lastly, you should set the start and end time for the
+	simuatlion.  The simulation will start.
     */
     void start();
         
     /** The setStartTime method.
-	Sets the simulation start time. Keep in mind that the simulation does not have to start at time
-	Zero(0) each simulation object could start at different times. Warning, if you decided to start
-	at different times, it could cause rollbacks.
+        
+	Sets the simulation start time. Keep in mind that the
+	simulation does not have to start at time Zero(0) each
+	simulation object could start at different times. Warning, if
+	you decided to start at different times, it could cause
+	rollbacks.
 
 	@param the start time.
 	@see Time
@@ -171,12 +176,15 @@ public:
     inline void setStartTime(Time start_time) {startTime = start_time;}
 
     /** The stop method.
-	When this method is invoked the simulation will come to a big STOP. muse will go through and finalize all 
-	agents and clean up.
+        
+	When this method is invoked the simulation will come to a big
+	STOP. muse will go through and finalize all agents and clean
+	up.
 
-	@note Don't use this method until oterwise stated, maybe in the next release
+	@note Don't use this method until oterwise stated, maybe in
+	the next release
+        
 	@todo implement this. Currently does nothing.
-	
     */
     void stop();
         
@@ -189,12 +197,17 @@ public:
     inline void setStopTime(Time end_time) {endTime = end_time;}
 
     /** The setGVTDelayRate method.
-	Different Simulation models perform better with different rates of GVTEstimation.
-	If you have a large number of agents its better to make this a smaller number between (1-50)
-	otherwise it would make your simulation faster to minimize garbage collection
+        
+	Different Simulation models perform better with different
+	rates of GVTEstimation.  If you have a large number of agents
+	its better to make this a smaller number between (1-50)
+	otherwise it would make your simulation faster to minimize
+	garbage collection
 
 	@note default is rate = 100
-	@param rate, the rate at which to delay GVT estimation(rate representing timesteps)
+        
+	@param rate, the rate at which to delay GVT estimation(rate
+	representing timesteps)
 	
      */
     inline void setGVTDelayRate(int rate) {gvt_delay_rate=rate;}
@@ -225,8 +238,9 @@ protected:
     /** The scheduleEvent method.
 	Agents actually use this method to schedule events that are not local.
 
-	@note Users should not be using this method. If used, will cause undefined behavior.
-	      Use Agent::scheduleEvent method to avoid potential problems.
+	@note Users should not be using this method. If used, will
+        cause undefined behavior.  Use Agent::scheduleEvent method to
+        avoid potential problems.
      
 	@param pointer to the event you wish to schedule.
 	@return bool True if scheduling is successful.
@@ -312,8 +326,8 @@ private:
 
     /** Used for logging purposes.
      */
-    ofstream * logFile;
-    std::streambuf *oldstream;
+    DEBUG(ofstream * logFile);
+    DEBUG(std::streambuf *oldstream);
 
 };
 

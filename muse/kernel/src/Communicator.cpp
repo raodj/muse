@@ -85,7 +85,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
         int agentMap_size = agentMap.size()*2;
         //std::cout << "AgentMapFlat size: "<<agentMap_size <<std::endl;
         //unsigned int  agentMap_flat[agentMap_size];
-        AgentID  * agentMap_flat = (AgentID*)(malloc(sizeof(AgentID) * agentMap_size));
+        AgentID  * agentMap_flat = new AgentID[agentMap_size];
         
         int counter=0;
         //std::cout << "AgentMap Size [" << agentMap.size() << "] AgentMapFlat Size [" << agentMap_size << "]"  << std::endl;
@@ -116,7 +116,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
         
         //finally receive the complete agentMap flat list!!!
         //unsigned int agentMap_flatList[agentMap_length];
-        AgentID  * agentMap_flatList = (AgentID*)(malloc(sizeof(AgentID) * agentMap_length));
+        AgentID  * agentMap_flatList = new AgentID[agentMap_length];
         MPI::COMM_WORLD.Bcast(agentMap_flatList, agentMap_length,MPI::UNSIGNED, ROOT_KERNEL );
         
         //use final flat list and populate local AgentMap list!!

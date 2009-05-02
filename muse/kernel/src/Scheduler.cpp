@@ -88,13 +88,14 @@ Scheduler::scheduleEvent( Event *e){
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
         handleFutureAntiMessage(e, agent);
-        //updateKey(agent->fibHeapPtr,old_top_time);
+        updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
 
     //this handles cases where the anti-message was for the past
     if ( e->isAntiMessage() ){
-        //this means that it was already rollback'd so we just need to return false
+        //this means that it was already rollback'd so we just need to
+        //return false
         updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
@@ -116,9 +117,9 @@ bool
 Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
     if ( e->getReceiveTime() <= agent->getLVT() ){
         ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
-        //std::cout << "Rollingback due to: " << *e << std::endl;
+        DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
         agent->doRollbackRecovery(e);
-        if ( e->getReceiveTime() <= agent->getLVT() ) { //CHECK WITH RAO ABOU THIS CHANGE from <= TO <
+        if ( e->getReceiveTime() <= agent->getLVT() ) {
             // Error condition.
             std::cerr << "Rollback logic did not restore state correctly?\n";
             std::cerr << "Agent info:\n" << *agent << std::endl;
@@ -131,21 +132,20 @@ Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
 
 void
 Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
-    
-    //std::cout << "*Cancelling due to: " << *e << std::endl;
+    DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
     // This event is an anti-message we must remove it and
     // future events from this agent.
     bool foundAtleastOne = agent->eventPQ->removeFutureEvents(e);
      
     // We must have deleted at least one event for this anit-message
     if (false && !foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
-        cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
+        std::cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
         std::cerr << "Did not find an event to cancel for anti-message \n"
                   << *e << std::endl;
         // Print the fibonacci heap for reference purposes
         std::cerr << "The list of pending events (at LVT="
                   << agent->getLVT() << "):\n";
-       
+        
         std::cerr << ". This is a serious error. Aborting."
                   << std::endl;
         
@@ -156,7 +156,7 @@ Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
             it++;
         }
         abort();
-     }//end if 
+    }//end if 
 }
 
 Scheduler::~Scheduler(){}//end Scheduler
@@ -171,7 +171,6 @@ Scheduler::getNextEventTime()  {
     // Obtain reference to the top agent in the priority queue.
     //getTopTime returns the time or TIME_INFINITY if agent's eventPQ is empty
     return  agent_pq.top()->getTopTime();
-   
 }
 
 #endif
