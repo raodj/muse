@@ -118,10 +118,7 @@ private:
     */
     void handleFutureAntiMessage(const Event * e,  Agent * agent);
   
-protected:
-
- 
-
+protected: 
     /** The agentMap is used to quickly match AgentID to agent pointers
         in the scheduler.
     */
@@ -131,6 +128,9 @@ protected:
         scheduling the agents.
     */
     AgentPQ agent_pq;
+
+private:
+    void verifyQueues();
 };
 
 END_NAMESPACE(muse);

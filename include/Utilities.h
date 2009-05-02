@@ -51,6 +51,28 @@
 #endif
 #endif
 
+/** \def DEBUG(x)
+
+    \brief Define a convenient macro for conditionally compiling
+    additional debugging information.
+
+    Define a custom macro DEBUG (note the all caps) macro to be used
+    to conditionally compile in debugging code to generate detailed
+    logs.  This helps to minimize code modification to insert and
+    remove debugging messages.
+*/
+#ifndef DEBUG
+#ifdef DEBUG_OUTPUT
+
+#define DEBUG(x) x
+
+#else // !DEBUG_OUTPUT
+
+#define DEBUG(x)
+
+#endif
+#endif
+
 /**\def END_NAMESPACE(x)
 
    \brief A convenient macro for ending namespace declarations

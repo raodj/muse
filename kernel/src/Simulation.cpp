@@ -56,13 +56,6 @@ Simulation::initialize(){
     myID             = commManager->initialize(x, arg);
     // Free memory as MPI no longer needs this information.
     delete[] arg;
-
-    //here we hijack cerr any move the data to file for logging.
-    char logFileName[128];
-    sprintf(logFileName, "Log%u.txt", myID);
-    logFile = new  ofstream(logFileName);
-    oldstream = std::cerr.rdbuf(logFile->rdbuf());
-
 }
 
 void
@@ -70,16 +63,18 @@ Simulation::initialize(int argc, char* argv[]){
     myID = commManager->initialize(argc, argv);
 
     //here we hijack cerr any move the data to file for logging.
-    char logFileName[128];
-    sprintf(logFileName, "Log%u.txt", myID);
-    logFile = new  ofstream(logFileName);
-    oldstream = std::cerr.rdbuf(logFile->rdbuf());
+    DEBUG({
+        char logFileName[128];
+        sprintf(logFileName, "Log%u.txt", myID);
+        logFile = new  ofstream(logFileName);
+        oldstream = std::cout.rdbuf(logFile->rdbuf());
+    });
 }
 
 Simulation::~Simulation() {
     delete scheduler;
     delete commManager;
-    delete logFile;
+    DEBUG(delete logFile);
 }
 
 
@@ -105,7 +100,8 @@ Simulation::scheduleEvent( Event *e){
     ASSERT ( e->getReceiveTime() >= getGVT() );
     if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
         (e->getSenderAgentID() == -1)) {
-        cerr << "Dont use this method with a new event, go through the agent's scheduleEvent method." <<endl;
+        cerr << "Dont use this method with a new event, go "
+             << "through the agent's scheduleEvent method." <<endl;
         abort();
     }
     AgentID recvAgentID = e->getReceiverAgentID();
@@ -139,10 +135,11 @@ Simulation::start(){
     AgentContainer::iterator it;
     for (it=allAgents.begin(); it != allAgents.end(); ++it){
          (*it)->initialize();
-        //time to archive the agent's init state
+         // time to archive the agent's init state
          State *agent_state = (*it)->getState();
          State * state = (*it)->cloneState( agent_state );
-         //cout << "agent :"<<(*it)->getAgentID()<< " first state timestamp: "<<state->getTimeStamp()<<endl;
+         // cout << "agent :"<<(*it)->getAgentID()
+         //      << " first state timestamp: "<<state->getTimeStamp()<<endl;
          (*it)->stateQueue.push_back(state);
         
     }//end for
@@ -157,24 +154,32 @@ Simulation::start(){
     commManager->getProcessInfo(rank,numProcesses);
 
     while(gvtManager->getGVT() < endTime){
-        //if (myID == 0 ) cout << "GVT @ time: " << gvtManager->getGVT() << endl;
-
         if (--gvtTimer == 0 ) {
             gvtTimer = gvt_delay_rate;
-            //cout << "[Simulation] starting startGVTestimation*********" <<endl;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
 
         //if we only have one process, then we don't need to check the wire
         if (numProcesses > 1 ) {
-            //A optimization trick we learned from WARPED is to try to get as many event
-            //from the wire as we can. A good magic number is 1000
+            //A optimization trick we learned from WARPED is to try to
+            //get as many event from the wire as we can. A good magic
+            //number is 1000
             for (int magic=0; magic < 1000 ; magic++ ){
                 Event* incoming_event = commManager->receiveEvent();
                 if ( incoming_event != NULL ){	  
                     scheduleEvent(incoming_event);
-                    LGVT = scheduler->getNextEventTime();
+                    if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
+                        std::cout << "LGVT = " << LGVT << " is below GVT: "
+                                  << getGVT()
+                                  << " which is serious error. "
+                                  << "Scheduled agents:\n";
+                        scheduler->agent_pq.prettyPrint(std::cout);
+                        std::cerr << "Rank " << myID << " Aborting.\n";
+                        std::cerr << std::flush;
+                        DEBUG(logFile->close());
+                        ASSERT ( false );
+                    }
                 }else{
                     break; 
                 }
@@ -187,8 +192,9 @@ Simulation::start(){
             std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
             scheduler->agent_pq.prettyPrint(std::cerr);
-            std::cerr << "Aborting.\n";
-            std::cerr << std::flush; 
+            std::cerr << "Rank " << myID << " Aborting.\n";
+            std::cerr << std::flush;
+            DEBUG(logFile->close());
             ASSERT ( false );
         }
         
@@ -236,7 +242,7 @@ Simulation::finalize(){
     myID = -1u;
     
     //lets give cerr back its streambuf
-    std::cerr.rdbuf(oldstream);
+    DEBUG(std::cerr.rdbuf(oldstream));
 }//end finalize
 
 void
