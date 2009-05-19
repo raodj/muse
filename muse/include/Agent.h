@@ -251,7 +251,7 @@ public:
 	@return Time, the top event recv time or TIME_INFINITY if eventPQ empty.
 
     */
-    Time getTopTime() const;
+    Time getTopTime() const ;
     
     /** The getNextEvents method.
 	This method is a helper that will grab the next

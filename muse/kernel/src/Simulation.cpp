@@ -32,7 +32,7 @@
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10), number_of_processes(-1u) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID = -1u;
@@ -130,6 +130,10 @@ Simulation::start(){
     gvtManager->initialize(startTime, commManager);
     // Set gvt manager with the communicator.
     commManager->setGVTManager(gvtManager);
+
+    //information about the simulation environment
+    unsigned int rank         = -1u;
+    commManager->getProcessInfo(rank, number_of_processes);
     
     //loop for the initialization
     AgentContainer::iterator it;
@@ -138,9 +142,10 @@ Simulation::start(){
          // time to archive the agent's init state
          State *agent_state = (*it)->getState();
          State * state = (*it)->cloneState( agent_state );
-         // cout << "agent :"<<(*it)->getAgentID()
-         //      << " first state timestamp: "<<state->getTimeStamp()<<endl;
-         (*it)->stateQueue.push_back(state);
+        
+         if (getNumberOfProcesses() > 1 ){
+             (*it)->stateQueue.push_back(state);
+         }
         
     }//end for
     
@@ -149,9 +154,7 @@ Simulation::start(){
     //BIG loop for event processing
     //int count=0;
     int gvtTimer              = gvt_delay_rate;
-    unsigned int rank         = -1u;
-    unsigned int numProcesses = -1u;
-    commManager->getProcessInfo(rank,numProcesses);
+    
 
     while(gvtManager->getGVT() < endTime){
         if (--gvtTimer == 0 ) {
@@ -161,7 +164,7 @@ Simulation::start(){
         }
 
         //if we only have one process, then we don't need to check the wire
-        if (numProcesses > 1 ) {
+        if ( getNumberOfProcesses() > 1 ) {
             //A optimization trick we learned from WARPED is to try to
             //get as many event from the wire as we can. A good magic
             //number is 1000

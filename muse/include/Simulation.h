@@ -73,6 +73,7 @@ class Simulation {
     //GVTManager class.
     friend class GVTManager;
     friend class Agent;
+    friend class Scheduler;
 public:
 
     /** The initialize method.  Once the simulation instance is
@@ -282,6 +283,8 @@ protected:
         @see Time
      */
     void garbageCollect();
+
+    inline unsigned int getNumberOfProcesses() const { return number_of_processes;}
     
 private:
 
@@ -323,6 +326,8 @@ private:
 
     /** Used to control the rate at which garbage is collected */
     int gvt_delay_rate;
+
+    unsigned int number_of_processes;
 
     /** Used for logging purposes.
      */
