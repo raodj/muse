@@ -42,7 +42,6 @@ Agent::Agent(AgentID  id, State * agentState)
 Agent::~Agent() {
     //lets make sure we dont have any left over events
     while(!eventPQ->empty()){
-        //eventPQ->top()->decreaseReference();
         eventPQ->pop();
     }
     delete eventPQ;
@@ -69,20 +68,31 @@ Agent::processNextEvents(){
     setLVT( next_events->front()->getReceiveTime() );
     getState()->timestamp = getLVT();
     executeTask(next_events);
-    
-    //now we delete EventContainer
-    next_events->clear();
-    delete next_events;
-    
-    //clone the state so we can archive
-    State * state = cloneState( getState() );
-    state->timestamp = getLVT();
-    
-    //after the second state in the stateQueue, there should never be a duplicate again
-    ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
-    ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
-    
-    stateQueue.push_back(state);
+
+    if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
+        //now we delete EventContainer
+        next_events->clear();
+        delete next_events;
+        
+        //clone the state so we can archive
+        State * state = cloneState( getState() );
+        state->timestamp = getLVT();
+        
+        //after the second state in the stateQueue, there should never be a duplicate again
+        ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
+        ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
+        
+        stateQueue.push_back(state);
+    }else{
+        //only on process. Means we dont need to save state or keep the processed events.
+        while (!next_events->empty()){
+            Event * e = next_events->back();
+            //cout << "Event ref count: " << e->getReferenceCount() << endl;
+            e->decreaseReference();
+            //e->decreaseReference();
+            next_events->pop_back();
+        }
+    }
     
     //we finally need to save the state of all SimStreams that are registered.
     oss.saveState(getLVT());
@@ -230,8 +240,10 @@ Agent::scheduleEvent(Event *e){
         (Simulation::getSimulator())->updateKey(fibHeapPtr,old_top_time);
                 
         //add to output queue
-        e->increaseReference();
-        outputQueue.push_back(e);
+        if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
+            e->increaseReference();
+            outputQueue.push_back(e);
+        }
 
         //lets keep track of event being scheduled
         num_scheduled_events++;
@@ -239,8 +251,10 @@ Agent::scheduleEvent(Event *e){
         return true;
     }else if ((Simulation::getSimulator())->scheduleEvent(e)){
         //just add to output queue.
-        e->increaseReference();
-        outputQueue.push_back(e);
+        if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
+            e->increaseReference();
+            outputQueue.push_back(e);
+        }
 
         //lets keep track of event being scheduled
         num_scheduled_events++;
@@ -497,32 +511,35 @@ Agent::garbageCollect(const Time gvt){
     
     //cerr << "Collecting Garbage now.....one_below_GVT: " << one_below_gvt <<" real GVT: "<<getTime(GVT) << "\n";
     //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
-    
-    //now we start looking
-    while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
-        State *current_state = stateQueue.front();
-        //cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
-        delete current_state;
-        stateQueue.pop_front();
-    }
-    //cerr << *this << endl;
-    
-    //second we collect from the inputQueue
-    while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < one_below_gvt){
-        Event *current_event = inputQueue.front();
-        current_event->decreaseReference();
-        inputQueue.pop_front();
-        
-        //keep track number of processed events
-        num_processed_events++;
-    }
 
-    //last we collect from the outputQueue
-    while(!outputQueue.empty() && outputQueue.front()->getSentTime() < one_below_gvt){
-        Event *current_event = outputQueue.front();
-        current_event->decreaseReference();
-        outputQueue.pop_front();
-    }
+    if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
+        //now we start looking
+        while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
+            State *current_state = stateQueue.front();
+            //cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
+            delete current_state;
+            stateQueue.pop_front();
+        }
+        //cerr << *this << endl;
+        
+        //second we collect from the inputQueue
+        while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < one_below_gvt){
+            Event *current_event = inputQueue.front();
+            current_event->decreaseReference();
+            inputQueue.pop_front();
+            
+            //keep track number of processed events
+            num_processed_events++;
+        }
+        
+        //last we collect from the outputQueue
+        while(!outputQueue.empty() && outputQueue.front()->getSentTime() < one_below_gvt){
+            Event *current_event = outputQueue.front();
+            current_event->decreaseReference();
+            outputQueue.pop_front();
+        }
+        
+    }//end if
 
     //we need to garbageCollect all SimStreams here.
     oss.garbageCollect(one_below_gvt);

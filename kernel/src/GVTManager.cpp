@@ -47,7 +47,7 @@ GVTManager::GVTManager() {
     cycle          = 0;
     commManager    = NULL;
     ctrlMsg        = NULL;
-    rank           = -1;
+    rank           = -1u;
     // Set active color to white
     activeColor    = white;
 }
@@ -325,10 +325,12 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Report GVT value only on root kernel
         if (rank == ROOT_KERNEL) {
             // Report GVT update
-            std::cout << "GVT: " << gvtEst << std::endl;
+            //std::cout << "GVT: " << gvtEst << std::endl;
         }
-        // Do garbage collection every 100 timesteps.
+        // Do garbage collection
+        
         Simulation::getSimulator()->garbageCollect();
+       
     }
 }
 

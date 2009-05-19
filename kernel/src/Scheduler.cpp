@@ -85,6 +85,7 @@ Scheduler::scheduleEvent( Event *e){
     //scheduler
     Time old_top_time = agent->getTopTime();
 
+    if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
         handleFutureAntiMessage(e, agent);
@@ -99,7 +100,8 @@ Scheduler::scheduleEvent( Event *e){
         updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
-    
+
+    }
     ASSERT(e->isAntiMessage() == false );
     
    

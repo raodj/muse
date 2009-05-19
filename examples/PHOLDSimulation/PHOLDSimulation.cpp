@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
     Time start=0, end=endTime;
     kernel->setStartTime(start);
     kernel->setStopTime(end);
-    kernel->setGVTDelayRate(200);
+    kernel->setGVTDelayRate(4000);
     //we finally start the ping pong simulation here!!
     kernel->start();
     
