@@ -46,7 +46,7 @@ PHOLDAgent::initialize() throw (std::exception){
 
         if ( receive < Simulation::getSimulator()->getStopTime() ){
             //cout << "INIT Random Receive Time: " <<receive <<endl;
-            Event * e = new Event(getAgentID(),receive); 
+            Event * e = Event::create(getAgentID(),receive); 
             scheduleEvent(e);
         }
     }
@@ -81,7 +81,7 @@ PHOLDAgent::executeTask(const EventContainer* events){
             ASSERT((receiverAgentID >= 0) && (receiverAgentID < X*Y));
         
             //make event
-            Event * e = new Event(receiverAgentID,receive);
+            Event * e = Event::create(receiverAgentID,receive);
             
             //schedule the event
             scheduleEvent(e);

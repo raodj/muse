@@ -44,20 +44,22 @@ Event::decreaseReference(){
     if (!getReferenceCount()) {
         //cout << "Deleting " << *this << endl;
         //std::cout << "Getting deleted: " << *this << std::endl;
-        if (Simulation::getSimulator()->isAgentLocal(getSenderAgentID() )) {
+        // if (Simulation::getSimulator()->isAgentLocal(getSenderAgentID() )) {
             // This event was allocated using new operator as a
             // standard event. Do delete it appropriately.
             
-            delete this;
-        } else{
+        //    delete this;
+        //} else{
             //cout << "Event was not local: calling delete[]\n\n";
             // This event was received over the wire. Therefore
             // this event must be deleted as an array of characters
             char* buffer = reinterpret_cast<char*>(this);
             delete []  buffer;
-        }
+            //}
         
-    }else referenceCount--;
+    } else {
+        referenceCount--;
+    }
 }//end decreaseReference
 
 void
