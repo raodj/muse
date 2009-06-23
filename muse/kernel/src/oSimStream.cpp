@@ -166,7 +166,10 @@ oSimStream::garbageCollect(const Time& gvt){
             //we need to get the oSimStreamState and write out its content
             oSimStreamState * current_state = oSimStreamState_storage.front();
             //here we finally push the data into the the orginal stream buffer
-            *the_original_ostream <<  current_state->content ;
+            // prefer to write the data than to insert it so that binary
+            // information is handled correctly.
+            the_original_ostream->write(current_state->content.c_str(),
+                                        current_state->content.size());
             //now we delete the state and pop from storage
             delete current_state;
             oSimStreamState_storage.pop_front();
