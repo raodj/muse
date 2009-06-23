@@ -74,7 +74,7 @@ BinaryHeapWrapper::removeFutureEvents(const Event * future_event){
         }
     }
 
-    assert (the_container->empty());
+    ASSERT (the_container->empty());
     //now delete the container and have its pointer point to temp pointee
     delete the_container;
     the_container = temp;

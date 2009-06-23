@@ -123,7 +123,7 @@ class Event {
 
       @return int, the size of the event.
    */
-  virtual int getEventSize() {return sizeof(Event); }
+  virtual int getEventSize() const {return sizeof(Event); }
   
   /** The decreaseReference method.
       Used for memory management.

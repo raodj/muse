@@ -51,7 +51,7 @@ oSimStream::oSimStream(ostream * the_ostream, bool use_tf) :
         //first we create a temp file name
         char temp_file_name[30] = "oSimStreamTempFile.XXXXXXXXXX";
         
-        mktemp(temp_file_name);
+        mkstemp(temp_file_name);
         strcpy(the_temp_file_name, temp_file_name);
         //now we create the file to grab its stream buffer
         std::ofstream hack(temp_file_name); hack.close();
