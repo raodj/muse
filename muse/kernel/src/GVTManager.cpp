@@ -325,7 +325,7 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Report GVT value only on root kernel
         if (rank == ROOT_KERNEL) {
             // Report GVT update
-            std::cout << "GVT: " << gvtEst << std::endl;
+            //std::cout << "GVT: " << gvtEst << std::endl;
         }
         // Do garbage collection
         

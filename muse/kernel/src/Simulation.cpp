@@ -141,11 +141,10 @@ Simulation::start(){
     for (it=allAgents.begin(); it != allAgents.end(); it++) {
          (*it)->initialize();
          // time to archive the agent's init state
-         if (getNumberOfProcesses() > 1 ){
-             State* agent_state = (*it)->getState();
-             State* state = (*it)->cloneState( agent_state );
-             (*it)->stateQueue.push_back(state);
-         }
+         
+         State* agent_state = (*it)->getState();
+         State* state = (*it)->cloneState( agent_state );
+         (*it)->stateQueue.push_back(state);
         
     }//end for
     
@@ -163,31 +162,30 @@ Simulation::start(){
             gvtManager->startGVTestimation();
         }
 
-        //if we only have one process, then we don't need to check the wire
-        if ( getNumberOfProcesses() > 1 ) {
-            //A optimization trick we learned from WARPED is to try to
-            //get as many event from the wire as we can. A good magic
-            //number is 1000
-            for (int magic=0; magic < 1000 ; magic++ ){
-                Event* incoming_event = commManager->receiveEvent();
-                if ( incoming_event != NULL ){	  
-                    scheduleEvent(incoming_event);
-                    if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
-                        std::cout << "LGVT = " << LGVT << " is below GVT: "
-                                  << getGVT()
-                                  << " which is serious error. "
+       
+        //A optimization trick we learned from WARPED is to try to
+        //get as many event from the wire as we can. A good magic
+        //number is 1000
+        for (int magic=0; magic < 1000 ; magic++ ){
+            Event* incoming_event = commManager->receiveEvent();
+            if ( incoming_event != NULL ){	  
+                scheduleEvent(incoming_event);
+                if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
+                    std::cout << "LGVT = " << LGVT << " is below GVT: "
+                              << getGVT()
+                              << " which is serious error. "
                                   << "Scheduled agents:\n";
-                        scheduler->agent_pq.prettyPrint(std::cout);
-                        std::cerr << "Rank " << myID << " Aborting.\n";
-                        std::cerr << std::flush;
-                        DEBUG(logFile->close());
-                        ASSERT ( false );
-                    }
-                }else{
-                    break; 
+                    scheduler->agent_pq.prettyPrint(std::cout);
+                    std::cerr << "Rank " << myID << " Aborting.\n";
+                    std::cerr << std::flush;
+                    DEBUG(logFile->close());
+                    ASSERT ( false );
                 }
-            }//end magic mpi for loop
-        }//end check if
+            }else{
+                break; 
+            }
+        }//end magic mpi for loop
+        
         
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
