@@ -61,7 +61,8 @@ Simulation::initialize(){
 void
 Simulation::initialize(int argc, char* argv[]){
     myID = commManager->initialize(argc, argv);
-
+    commManager->getProcessInfo(myID, number_of_processes);
+    
     //here we hijack cerr any move the data to file for logging.
     DEBUG({
         char logFileName[128];
@@ -137,13 +138,12 @@ Simulation::start(){
     
     //loop for the initialization
     AgentContainer::iterator it;
-    for (it=allAgents.begin(); it != allAgents.end(); ++it){
+    for (it=allAgents.begin(); it != allAgents.end(); it++) {
          (*it)->initialize();
          // time to archive the agent's init state
-         State *agent_state = (*it)->getState();
-         State * state = (*it)->cloneState( agent_state );
-        
          if (getNumberOfProcesses() > 1 ){
+             State* agent_state = (*it)->getState();
+             State* state = (*it)->cloneState( agent_state );
              (*it)->stateQueue.push_back(state);
          }
         
