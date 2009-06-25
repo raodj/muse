@@ -117,7 +117,9 @@ public:
 	@see SimulatorID
     */
     inline SimulatorID getSimulatorID() const { return myID;}
-        
+
+    inline unsigned int getNumberOfProcesses() const { return number_of_processes;}
+    
     /** The registerAgent method.  Once you design and create an agent
 	for your simulation, use this method to register the agent to
 	the simulator. For example a client could check the
@@ -284,7 +286,6 @@ protected:
      */
     void garbageCollect();
 
-    inline unsigned int getNumberOfProcesses() const { return number_of_processes;}
     
 private:
 

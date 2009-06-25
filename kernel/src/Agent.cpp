@@ -45,6 +45,7 @@ Agent::~Agent() {
         eventPQ->pop();
     }
     delete eventPQ;
+    delete myState;
 }
 
 bool
@@ -68,12 +69,11 @@ Agent::processNextEvents(){
     setLVT( next_events->front()->getReceiveTime() );
     getState()->timestamp = getLVT();
     executeTask(next_events);
-
+    
     if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
         //now we delete EventContainer
         next_events->clear();
         delete next_events;
-        
         //clone the state so we can archive
         State * state = cloneState( getState() );
         state->timestamp = getLVT();
@@ -84,7 +84,8 @@ Agent::processNextEvents(){
         
         stateQueue.push_back(state);
     }else{
-        //only on process. Means we dont need to save state or keep the processed events.
+        //only oen process. Means we dont need to save state or keep
+        //the processed events.
         while (!next_events->empty()){
             Event * e = next_events->back();
             //cout << "Event ref count: " << e->getReferenceCount() << endl;
@@ -92,6 +93,7 @@ Agent::processNextEvents(){
             //e->decreaseReference();
             next_events->pop_back();
         }
+        delete next_events;
     }
     
     //we finally need to save the state of all SimStreams that are registered.
@@ -171,7 +173,12 @@ Agent::getNextEvents() {
         }
     }//end while
 
-    return (events->empty()) ? NULL : events;
+    if (events->empty()) {
+        delete events;
+        return NULL;
+    }
+    
+    return events;
 }//end getNextEvents
 
 State*
@@ -503,16 +510,20 @@ void
 Agent::garbageCollect(const Time gvt){
 
     list<State*>::iterator safe_point_it = stateQueue.begin();
-    Time one_below_gvt = 0;
-    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() <= gvt ) {
-        one_below_gvt = (*safe_point_it)->getTimeStamp();
-        safe_point_it++;
-    }
-    
-    //cerr << "Collecting Garbage now.....one_below_GVT: " << one_below_gvt <<" real GVT: "<<getTime(GVT) << "\n";
-    //cerr << "States being collected for agent ("<<getAgentID()<<") are: \n";
+    Time one_below_gvt = gvt;
 
     if (Simulation::getSimulator()->getNumberOfProcesses() > 1 ){
+        one_below_gvt = 0;
+        while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() <= gvt ) {
+            one_below_gvt = (*safe_point_it)->getTimeStamp();
+            safe_point_it++;
+        }
+        
+        //cerr << "Collecting Garbage now.....one_below_GVT: " <<
+        //one_below_gvt <<" real GVT: "<<getTime(GVT) << "\n"; cerr <<
+        //"States being collected for agent ("<<getAgentID()<<") are:
+        //\n";
+        
         //now we start looking
         while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
             State *current_state = stateQueue.front();
@@ -523,7 +534,8 @@ Agent::garbageCollect(const Time gvt){
         //cerr << *this << endl;
         
         //second we collect from the inputQueue
-        while(!inputQueue.empty() &&  inputQueue.front()->getReceiveTime() < one_below_gvt){
+        while(!inputQueue.empty() &&
+              inputQueue.front()->getReceiveTime() < one_below_gvt){
             Event *current_event = inputQueue.front();
             current_event->decreaseReference();
             inputQueue.pop_front();
@@ -533,12 +545,12 @@ Agent::garbageCollect(const Time gvt){
         }
         
         //last we collect from the outputQueue
-        while(!outputQueue.empty() && outputQueue.front()->getSentTime() < one_below_gvt){
+        while(!outputQueue.empty() &&
+              outputQueue.front()->getSentTime() < one_below_gvt){
             Event *current_event = outputQueue.front();
             current_event->decreaseReference();
             outputQueue.pop_front();
         }
-        
     }//end if
 
     //we need to garbageCollect all SimStreams here.

@@ -131,6 +131,7 @@ oSimStream::saveState(const Time& lvt) {
             //now we delete and create a new ostringstream
             delete oss;
             oss = new ostringstream;
+            rdbuf(oss->rdbuf());
         }
     }
 }

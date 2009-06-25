@@ -94,7 +94,7 @@ This define provides a more human readable time corresponding to
 infinity that is used for gvt computations.  This is also the
 default value to which time instance variables are initialized.
 */
-#define TIME_INFINITY Time(1e30)
+#define TIME_INFINITY muse::Time(1e30)
 
 
 
