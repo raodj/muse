@@ -70,6 +70,7 @@ int main(int argc, char** argv) {
         State *phold_state = new State();
         id =  (max_agents/max_nodes)*rank + i;
         PHOLDAgent *phold_agent = new PHOLDAgent(id,phold_state,x,y,n,delay);
+        // cout << "Rank: " << rank << " is servicing lp: " << id << endl;
         kernel->registerAgent(phold_agent);
     }//end for
     

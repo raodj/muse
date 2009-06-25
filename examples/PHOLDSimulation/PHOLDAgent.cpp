@@ -26,11 +26,13 @@
     MTRandom mt(unsigned long seed); //this created with the given seed value.
 */
 
-
 #include "PHOLDAgent.h"
 #include "Event.h"
 #include "MTRandom.h"
 #include "Simulation.h"
+#include <cstdlib>
+#include <cstdio>
+//#include "ross-random.h"
 
 using namespace std;
 
@@ -41,7 +43,8 @@ void
 PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
-        const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        const int RndDelay = (int)(rand() % Delay);
         Time  receive(getTime()+1+RndDelay);
 
         if ( receive < Simulation::getSimulator()->getStopTime() ){
@@ -58,7 +61,8 @@ PHOLDAgent::executeTask(const EventContainer* events){
     //for every event we get we send out one event
     for(size_t i = 0; (i < events->size()); i++){
         //first make a random receive time for the future
-        const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
+        const int RndDelay = (int)(rand() % Delay);
         Time  receive(getTime()+1+RndDelay);
 
         if ( receive < Simulation::getSimulator()->getStopTime() ){
@@ -68,7 +72,8 @@ PHOLDAgent::executeTask(const EventContainer* events){
         
             const int Change[4] = {-1, -Y, Y, 1};
             // Compute index into the Change array
-            int index = (int) (MTRandom::RandDouble() * 4);
+            //int index = (int) (MTRandom::RandDouble() * 4);
+            int index  = (int)(rand() % 4);
             // Determine the receiver neighbor
             int receiverAgentID = getAgentID() + Change[index];
 
@@ -82,9 +87,11 @@ PHOLDAgent::executeTask(const EventContainer* events){
         
             //make event
             Event * e = Event::create(receiverAgentID,receive);
-            
+            //cout << "Sending to Agent: "<< receiverAgentID << " Rand: " <<RndDelay <<endl;
+            //printf ("Sending to LP: %d @ time %lf\n",receiverAgentID , receive);
             //schedule the event
             scheduleEvent(e);
+            printf("SendTime %lf, RecvTime %lf, SenderID %4d, ReceiverID %4d\n", getTime(), receive, getAgentID(), receiverAgentID);
         }
     }
 }//end executeTask
