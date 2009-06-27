@@ -16,7 +16,7 @@ PingPongAgent::initialize() throw (std::exception){
     //the first agent is to start the ping
     if (getAgentID() == 0){
        
-        Event * e = new Event(AgentID(1),getTime()+1);
+        Event * e = Event::create(AgentID(1),getTime()+1);
         this->scheduleEvent(e);
         //cout << "Sent ---> PING" << endl;
     }//end if
@@ -28,7 +28,7 @@ PingPongAgent::executeTask(const EventContainer* events){
    
     if (!events->empty()){
         
-        Event * e = new Event( (getAgentID()+1)%2 ,getTime()+1);
+        Event * e = Event::create( (getAgentID()+1)%2 ,getTime()+1);
         this->scheduleEvent(e);
         /* if (getAgentID() == 1){
             cout << "Got  ---> PING" << endl;
