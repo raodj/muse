@@ -24,164 +24,131 @@
 //---------------------------------------------------------------------------
 #include "Agent.h"
 #include "Simulation.h"
-#include <iostream>
 #include "HashMap.h"
-#include <cstdlib>
 #include "BinaryHeapWrapper.h"
+
+#include <iostream>
+#include <cstdlib>
 
 using namespace std;
 using namespace muse;
 
-
-Agent::Agent(AgentID  id, State * agentState)
-  : myID(id), lvt(0), myState(agentState), num_rollbacks(0), num_scheduled_events(0), num_processed_events(0),num_mpi_messages(0) {
-    //eventPQ = new EventPQ;
+Agent::Agent(AgentID  id, State* agentState)
+    : myID(id), lvt(0), myState(agentState), num_rollbacks(0),
+      num_scheduled_events(0), num_processed_events(0), num_mpi_messages(0),
+      numCommittedEvents(0) {
+    // Make an Event Priority Queue
     eventPQ = new BinaryHeapWrapper();
-}//end ctor
+}
 
 Agent::~Agent() {
-    //lets make sure we dont have any left over events
-    while(!eventPQ->empty()){
-        eventPQ->pop();
-    }
+    // Let's make sure we dont have any left over events because
+    // finalize() method should have properly cleaned up the Priority
+    // Queue
+    ASSERT(eventPQ->empty());
+    
     delete eventPQ;
     delete myState;
 }
 
 bool
-Agent::processNextEvents(){
-    //cout <<getAgentID();cout << " eventPQ size: " <<eventPQ->size() <<endl;
-    //here we make sure the list is not empty
-    ASSERT(eventPQ->empty() != true);
-    if (eventPQ->empty()) {
-      return false;
-    }
-    
-    //create the event container.  this will be passed on to the
-    //agent's executeTask method.
-    EventContainer * next_events = getNextEvents();
-    
-    if (next_events == NULL || next_events->empty() ){
+Agent::processNextEvents() {
+    // The event Queue cannot be empty
+    ASSERT(!eventPQ->empty());
+    const Time gvt = getTime(GVT);
+    if (getLVT() - gvt > 1209600000) {
         return false;
     }
+    // create the event container.  this will be passed on to the
+    // agent's executeTask method.
+    EventContainer next_events;
+    getNextEvents(next_events);
+    // There *has* to be a next event
+    ASSERT(!next_events.empty());
     
     //here we set the agent's LVT and update agent's state timestamp
-    setLVT( next_events->front()->getReceiveTime() );
+    setLVT(next_events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
-    executeTask(next_events);
+    executeTask(&next_events);
     
     //keep track number of processed events
-    num_processed_events+= next_events->size();
+    num_processed_events += next_events.size();
     
-    //now we delete EventContainer
-    next_events->clear();
-    delete next_events;
+    // Clear the references for the events in the container and clear it
+    for (size_t i = 0; (i < next_events.size()); i++) {
+        next_events[i]->decreaseReference();
+    }
+    next_events.clear();
     
     //clone the state so we can archive
-    State * state = cloneState( getState() );
+    State* state = cloneState(getState());
     state->timestamp = getLVT();
     
-    //after the second state in the stateQueue, there should never be a duplicate again
-    ASSERT( !TIME_EQUALS(stateQueue.back()->getTimeStamp(),state->getTimeStamp()) );
-    ASSERT( stateQueue.back()->getTimeStamp() < state->getTimeStamp() );
-    
+    // There should not be a duplicate state in the queue
+    ASSERT(!TIME_EQUALS(stateQueue.back()->getTimeStamp(),
+                        state->getTimeStamp()));
+    // The states should be monotomically increasing in timestamp
+    ASSERT(stateQueue.back()->getTimeStamp() < state->getTimeStamp());
+    // Save current state
     stateQueue.push_back(state);
     
-    
-    //we finally need to save the state of all SimStreams that are registered.
+    // Save the states of all of the SimStreams
     oss.saveState(getLVT());
     for (size_t i = 0; (i < allSimStreams.size()); i++){
         allSimStreams[i]->saveState(getLVT());
     }
+    
     return true;
-}//end processNextEvents
+}
 
-EventContainer *
-Agent::getNextEvents() {
-    Event *top_event = eventPQ->top();
-    eventPQ->pop();
-    
-    //we should never process an anti-message.
-    if ( top_event->isAntiMessage() ){ 
-        cerr<<"Anti-message Processing: " << *top_event<<endl;
-        cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-        //TODO temp fix, need to handle issue of events changing to anti-messages while they are in the eventPQ
-        top_event->decreaseReference();
-        //return NULL;//2. MADE A CHANGE TO RESTURN QUITE 
-        abort();
-    }
-    
-    
-    // Ensure that the top event is greater than LVT
-    if (top_event->getReceiveTime() <= getLVT()) {
-        std::cerr << "Agent is being scheduled to process an event ("
-                  << *top_event << ") that is at or below it LVT (LVT="
-                  << getLVT() << ", GVT=" <<getTime(GVT) << "). This is a serious error. Aborting.\n";
-        cerr << *this <<endl;
-        abort();
-    }
-
-    //lets make container to store our events in!
-    EventContainer * events = new EventContainer();
-   
-    //we add the top event we popped to the event container
-    events->push_back(top_event);
-    
-    //increase reference count, so we can add it to the agent's input queue
-    top_event->increaseReference(); 
-    inputQueue.push_back(top_event);
-    //std::cerr << "Processing: " << *top_event << std::endl;
-
-
-    //this while is used to gather the remaining event that will be
-    //processed
-    while(eventPQ->size() != 0){
-        //first top the next event for checking.
-        Event *next_event = eventPQ->top();
+void
+Agent::getNextEvents(EventContainer& container) {
+    ASSERT(container.empty());
+    ASSERT(eventPQ->top() != NULL);
+    const Time currTime = eventPQ->top()->getReceiveTime();
+    do {
+        Event* event = eventPQ->top();
+        eventPQ->pop();
+        
         //we should never process an anti-message.
-        if ( next_event->isAntiMessage() ){
-            cerr<<"Anti-message Processing: " << *next_event << "\n";
-            cerr << "Trying to process an anti-message event, please notify MUSE developers of this issue" << endl;
-            next_event->decreaseReference(); 
+        if (event->isAntiMessage()) { 
+            cerr << "Anti-message Processing: " << *event << endl;
+            cerr << "Trying to process an anti-message event, "
+                 << "please notify MUSE developers of this issue" << endl;
             abort();
         }
-        //if the receive times match, then they are to be processed at
-        //the same time.
-        if ( TIME_EQUALS( top_event->getReceiveTime() , next_event->getReceiveTime()) ){
-            //first remove it from the eventPQ
-            eventPQ->pop();
-           
-            //now we add it to the event container
-            events->push_back(next_event);
-
-            //increase the reference count, since it will be added to
-            //the input queue.
-            next_event->increaseReference();
-            //std::cerr << "Processing: " << *next_event << std::endl;
-            inputQueue.push_back(next_event);
-            
-        }else{
-            break;
-        }
-    }//end while
-
-    if (events->empty()) {
-        delete events;
-        return NULL;
-    }
     
-    return events;
-}//end getNextEvents
+        // Ensure that the top event is greater than LVT
+        if (event->getReceiveTime() <= getLVT()) {
+            cerr << "Agent is being scheduled to process an event ("
+                 << *event << ") that is at or below it LVT (LVT="
+                 << getLVT() << ", GVT=" << getTime(GVT)
+                 << "). This is a serious error. Aborting.\n";
+            cerr << *this << endl;
+            abort();
+        }
+
+        // We add the top event we popped to the event container
+        container.push_back(event);
+    
+        // Increase reference count, so we can add it to the agent's
+        // input queue
+        event->increaseReference(); 
+        inputQueue.push_back(event);
+                
+    } while ((!eventPQ->empty()) &&
+             (TIME_EQUALS(eventPQ->top()->getReceiveTime(), currTime)));   
+}
 
 State*
 Agent::cloneState(State * state){
     return state->getClone();
-}//end cloneState
+}
 
 void
 Agent::setState(State * state){
     myState = state;
-}//end setState
+}
 
 void
 Agent::registerSimStream(SimStream * theSimStream){
@@ -189,86 +156,80 @@ Agent::registerSimStream(SimStream * theSimStream){
 }
 
 bool 
-Agent::scheduleEvent(Event *e){
-    ASSERT(TIME_EQUALS(e->getSentTime(),TIME_INFINITY) );
+Agent::scheduleEvent(Event *e) {
+    // Perform some sanity checks.
+    ASSERT(TIME_EQUALS(e->getSentTime(), TIME_INFINITY));
     ASSERT(e->getSenderAgentID() == -1);
-    ASSERT(e->isAntiMessage() == false );
+    ASSERT(e->isAntiMessage() == false);
+    ASSERT(e->getReferenceCount() == 1);
     
-    //check to make sure that event scheduled via this method is
-    //a new event
-    if (!TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
-        (e->getSenderAgentID() != -1) ) {
-        cerr << "Can't schedule this event it has already been scheduled "
-             << "and most likely to become a straggler event" << endl;
-        abort();
-    }
-    //fill in the sent time and sender agent id info
+    // Fill in the sent time and sender agent id info.
     e->sentTime      = getLVT();
     e->senderAgentID = getAgentID();
     
-    //check to make sure we dont schedule pass the simulation end time.
-    if ( e->getSentTime() >= (Simulation::getSimulator())->getStopTime() ){   
+    // Check to make sure we don't schedule past the simulation end time.
+    if (e->getSentTime() >= Simulation::getSimulator()->getStopTime()) {
         e->decreaseReference();
         return false;
     }
     
-    //Make sure we dont schedule an event with a receive time that is <= our LVT
+    // Make sure we don't schedule an event with a receive time that is
+    // less than or equal to our LVT
     if (e->getReceiveTime() <= getLVT()){
         cerr << "You are trying to schedule an event with a smaller or equal "
-             << "timestamp to your LVT, this is impossible and will cause a rollback." <<endl;
+             << "timestamp to your LVT, this is impossible and will cause "
+             << "a rollback." << endl;
         e->decreaseReference();
         abort();
     }
-    ASSERT ( e->getReceiveTime() >= getTime(GVT) );
     
-    //check to make sure we are not scheduling to one self.
-    if (e->getReceiverAgentID() == getAgentID()){
-        
-        //will use this to figure out if we need to change our key in
-        //scheduler
+    ASSERT(e->getReceiveTime() >= getTime(GVT));
+    
+    // Check and short-circuit scheduling to ourselves.
+    if (e->getReceiverAgentID() == getAgentID()) {
         Time old_top_time = getTopTime();
         
-        //add to event scheduler this is a optimization trick, because
-        //we dont go through the Simulation scheduler method.
+        // Add directly to the event queue - there is no need to go
+        // through the Scheduler.
         eventPQ->push(e);
         
-        //std::cerr << "Scheduled: " << *e << std::endl;
+        // Make sure the heap is still valid.
+        Simulation::getSimulator()->updateKey(fibHeapPtr, old_top_time);
          
-        //now lets make sure that the heap is still valid
-        (Simulation::getSimulator())->updateKey(fibHeapPtr,old_top_time);
-                
-        //add to output queue
+        // Add the event to the to output queue
         e->increaseReference();
         outputQueue.push_back(e);
 
-        //lets keep track of event being scheduled
+        // Keep track of event being scheduled.
         num_scheduled_events++;
         
         return true;
-    }else if ((Simulation::getSimulator())->scheduleEvent(e)){
-        //just add to output queue.
-        e->increaseReference();
+    } else if (Simulation::getSimulator()->scheduleEvent(e)) {
+        // Now that the event is in the Scheduler, update the output queue.
+        if (Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
+            e->increaseReference();
+        }
         outputQueue.push_back(e);
        
-
-        //lets keep track of event being scheduled
+        // Keep track of event being scheduled.
         num_scheduled_events++;
 
-        //this is to keep track of how many MPI message we use
-        if (!(Simulation::getSimulator())->isAgentLocal(e->getReceiverAgentID())){
+        // this is to keep track of how many MPI message we use
+        if (!Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
             num_mpi_messages++;
         }
         return true;
-    }//end if
+    }
 
-    //if it got to this point it was rejected for scheduling and we should release the memory
+    // If control drops here, the event was rejected from
+    // scheduling. Clean up.
     e->decreaseReference();
     return false;
-}//end scheduleEvent
+}
 
 void
 Agent::doRollbackRecovery(const Event* straggler_event){
-    //std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
+    // std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
@@ -278,7 +239,8 @@ Agent::doRollbackRecovery(const Event* straggler_event){
     //          << restored_time << ", while GVT = " << getTime(GVT)
     //          << std::endl;
    
-    doCancellationPhaseInputQueue(restored_time , straggler_event->getSenderAgentID());
+    doCancellationPhaseInputQueue(restored_time,
+                                  straggler_event->getSenderAgentID());
     doCancellationPhaseOutputQueue(restored_time);
     
     //we need to rollback all SimStreams here.
@@ -293,7 +255,7 @@ Agent::doRollbackRecovery(const Event* straggler_event){
 }//end doRollback
 
 void
-Agent::doRestorationPhase(const Time & straggler_time){
+Agent::doRestorationPhase(const Time& straggler_time){
    
     /** OK, here is the plan. First, there is a straggler_time.Second,
         the stateQueue should be sorted by the nature of its
@@ -391,27 +353,23 @@ Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
         outQ_it++; 
         Event *current_event = (*del_it);
         //check if the event is invalid.
-        if ( current_event->getSentTime() > restored_time ){
+        if (current_event->getSentTime() > restored_time) {
             //check if bitMap to receiver agent has been set.
             if (current_event->getReceiverAgentID() != getAgentID() &&
-                bitMap[current_event->getReceiverAgentID()] == false ){
-                
+                bitMap[current_event->getReceiverAgentID()] == false) {
                 bitMap[current_event->getReceiverAgentID()] = true;
                 if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID()) ){
                     current_event->makeAntiMessage();
                     //cout << "Making Anti-Message: " << *current_event << endl;
-                    (Simulation::getSimulator())->scheduleEvent(current_event);
+                    Simulation::getSimulator()->scheduleEvent(current_event);
                 }else{
-                    //here we have to make a fresh new copy of the event and make the
-                    //copy an anti-message. This clears alot of issues.
-                    Event *  anti_event = new Event(*current_event);
-                    anti_event->setReferenceCount(0);
+                    //here we have to make a fresh new copy of the
+                    //event and make the copy an anti-message. This
+                    //clears a lot of issues.
+                    Event*  anti_event = new Event(*current_event);
+                    anti_event->setReferenceCount(1);
                     anti_event->makeAntiMessage();
-                    //cerr << "***Current Event: " << *current_event << "\n"
-                    //    << "***Anti_event: "    << *anti_event << endl;
-                    //cerr << "Created a fresh copy anti-event" <<endl;
-                    (Simulation::getSimulator())->scheduleEvent(anti_event);
-                    //abort();
+                    Simulation::getSimulator()->scheduleEvent(anti_event);
                 }
             }
             //invalid events automatically get removed
@@ -528,7 +486,7 @@ Agent::garbageCollect(const Time gvt){
         inputQueue.pop_front();
         
         //keep track number of processed events
-        num_processed_events++;
+        numCommittedEvents++;
     }
     
     //last we collect from the outputQueue

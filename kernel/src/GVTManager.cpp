@@ -211,6 +211,8 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
         // Acknowledgement for gvt update from a remote process
         ASSERT ( pendingAcks > 0 );
         pendingAcks--;
+        // Delete this message as we no longer need it.
+        GVTMessage::destroy(message);
         return;
     }
     

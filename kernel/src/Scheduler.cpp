@@ -30,10 +30,10 @@
 
 using namespace muse;
 
-Scheduler::Scheduler(){}
+Scheduler::Scheduler() {}
 
 bool
-Scheduler::addAgentToScheduler(Agent * agent){
+Scheduler::addAgentToScheduler(Agent * agent) {
     if (agentMap[agent->getAgentID()] == NULL) {
         agentMap[agent->getAgentID()] = agent;
         agent->fibHeapPtr = reinterpret_cast<void *>(agent_pq.push(agent));
@@ -43,13 +43,13 @@ Scheduler::addAgentToScheduler(Agent * agent){
 }//end addAgentToScheduler
 
 void
-Scheduler::updateKey(void * pointer, Time old_top_time){
+Scheduler::updateKey(void * pointer, Time old_top_time) {
     AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
     agent_pq.update(ptr, old_top_time);
 }
 
 bool
-Scheduler::processNextAgentEvents(){
+Scheduler::processNextAgentEvents() {
     if (agent_pq.top()->eventPQ->empty()){
         return false;
     }
@@ -63,14 +63,14 @@ Scheduler::processNextAgentEvents(){
 }//end processNextAgentEvents
 
 bool
-Scheduler::scheduleEvent( Event *e){
+Scheduler::scheduleEvent(Event* e){
     //make sure the recevier agent has an entry
     AgentID agent_id = e->getReceiverAgentID();
     AgentIDAgentPointerMap::iterator entry = agentMap.find(agent_id);
     Agent* agent = (entry != agentMap.end()) ? entry->second : NULL ;
     
     if (agent == NULL) {
-        cerr << "Trying to schedule ("<<*e<<") to unknown agent\n";
+        cerr << "Trying to schedule (" << *e <<") to unknown agent\n";
         cerr << "Available agents are: \n";
         AgentIDAgentPointerMap::iterator it = agentMap.begin();
         for (;it!=agentMap.end(); it++) {
@@ -84,7 +84,6 @@ Scheduler::scheduleEvent( Event *e){
     //will use this to figure out if we need to change our key in
     //scheduler
     Time old_top_time = agent->getTopTime();
-
     
     //now check if this is a rollback!
     if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){

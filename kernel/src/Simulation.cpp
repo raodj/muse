@@ -27,18 +27,17 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "Scheduler.h"
+#include "SimulationListener.h"
 #include <cstdlib>
-
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),gvt_delay_rate(10), number_of_processes(-1u) {
+Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),
+                            gvt_delay_rate(10), number_of_processes(-1u) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
-    myID = -1u;
-    
-
-  
+    myID        = -1u;
+    listener    = NULL;
 }
 
 void
@@ -97,24 +96,25 @@ Simulation::getSimulator(){
 
 
 bool 
-Simulation::scheduleEvent( Event *e){
-    ASSERT ( e->getReceiveTime() >= getGVT() );
-    if (TIME_EQUALS(e->getSentTime(),TIME_INFINITY) ||
+Simulation::scheduleEvent(Event* e) {
+    ASSERT(e->getReceiveTime() >= getGVT());
+    ASSERT(e->getReferenceCount() == 1);
+    
+    if (TIME_EQUALS(e->getSentTime(), TIME_INFINITY) ||
         (e->getSenderAgentID() == -1)) {
-        cerr << "Dont use this method with a new event, go "
-             << "through the agent's scheduleEvent method." <<endl;
+        cerr << "Don't use this method with a new event, go "
+             << "through the agent's scheduleEvent method." << endl;
         abort();
     }
     AgentID recvAgentID = e->getReceiverAgentID();
     
-    if (isAgentLocal(recvAgentID)){
+    if (isAgentLocal(recvAgentID)) {
         // Local events are directly inserted into our own scheduler
         return scheduler->scheduleEvent(e);
-    }else{
+    } else {
         // Remote events are sent via the GVTManager to aid tracking
         // GVT. The gvt manager calls communicator.
         gvtManager->sendRemoteEvent(e);
-
     }
     return true;
 }
@@ -163,12 +163,13 @@ Simulation::start(){
         }
 
        
-        //A optimization trick we learned from WARPED is to try to
-        //get as many event from the wire as we can. A good magic
-        //number is 1000
-        for (int magic=0; magic < 1000 ; magic++ ){
+        // An optimization trick we learned from WARPED is to try to
+        // get as many event from the wire as we can. A good magic
+        // number is 1000
+        for (int magic = 0; (magic < 1000); magic++) {
             Event* incoming_event = commManager->receiveEvent();
-            if ( incoming_event != NULL ){	  
+            if (incoming_event != NULL) {
+                ASSERT(incoming_event->getReferenceCount() == 1);
                 scheduleEvent(incoming_event);
                 if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
                     std::cout << "LGVT = " << LGVT << " is below GVT: "
@@ -181,7 +182,7 @@ Simulation::start(){
                     DEBUG(logFile->close());
                     ASSERT ( false );
                 }
-            }else{
+            } else{
                 break; 
             }
         }//end magic mpi for loop
@@ -213,15 +214,15 @@ Simulation::finalize(){
     int total_rollbacks =0, total_committed_events=0, total_mpi_messages=0, total_scheduled_events=0;
     for (; it != allAgents.end(); it++) {  
         (*it)->finalize();
+        (*it)->garbageCollect(TIME_INFINITY);
         (*it)->cleanInputQueue();
         (*it)->cleanStateQueue();
         (*it)->cleanOutputQueue();
         
         total_rollbacks += (*it)->num_rollbacks;
-        total_committed_events += (*it)->num_processed_events;
+        total_committed_events += (*it)->numCommittedEvents;
         total_mpi_messages += (*it)->num_mpi_messages;
-        total_scheduled_events += (*it)->num_mpi_messages;
-        
+        total_scheduled_events += (*it)->num_scheduled_events;
         
         delete (*it);  
     }//end for
@@ -248,12 +249,15 @@ Simulation::finalize(){
 
 void
 Simulation::garbageCollect(){
-    
-    AgentContainer::iterator it=allAgents.begin();
-    for (; it != allAgents.end(); it++) {  
+    for (AgentContainer::iterator it=allAgents.begin();
+         (it != allAgents.end()); it++) {  
         (*it)->garbageCollect(getGVT());
-    }//end for
-    
+    }
+    // Let listener know garbage collection for a given GVT value has
+    // been completed.
+    if (listener != NULL) {
+        listener->garbageCollectionDone(getGVT());
+    }
 }//end garbageCollect
 
 
@@ -276,6 +280,11 @@ Simulation::getGVT() const {
 void
 Simulation::updateKey(void* pointer,  Time old_top_time){
     scheduler->updateKey(pointer,old_top_time);
+}
+
+void
+Simulation::setListener(SimulationListener *callback) {
+    listener = callback;
 }
 
 #endif
