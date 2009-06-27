@@ -14,7 +14,7 @@ RollbackAgent::initialize() throw (std::exception){
     if (getAgentID() == 0){
         Time  receive=1;
         // for (int i = 0; i < max_agents; i++){
-                Event * e = new Event(getAgentID(), receive); 
+                Event * e = Event::create(getAgentID(), receive); 
                 scheduleEvent(e);
                 // }
     }
@@ -23,10 +23,10 @@ RollbackAgent::initialize() throw (std::exception){
 void
 RollbackAgent::executeTask(const EventContainer* events){
     if (!events->empty()){
-        Time receive=(*events->begin())->getReceiveTime()+1;
+        Time receive= getTime()+1;
         //cout << "LVT TIME: " << getLVT() <<endl;
         for (int i = 0; i < max_agents; i++){
-          Event * e = new Event(AgentID(i),receive);
+          Event * e = Event::create(AgentID(i),receive);
           // if (scheduleEvent(e)) oss << "Sending to Rollback Agent: " << i  <<endl;
           scheduleEvent(e);
              

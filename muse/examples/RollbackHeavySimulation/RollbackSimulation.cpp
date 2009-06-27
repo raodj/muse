@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
     for (AgentID i= 0;i < agentsPerNode; i++){
         State *rb_state = new State();
         id =(max_agents/max_nodes) *kernel->getSimulatorID() + i;
-        cout << "i: " << id <<endl;
+        //cout << "i: " << id <<endl;
         RollbackAgent *rb_agent = new RollbackAgent(id,rb_state,max_agents);
         kernel->registerAgent(rb_agent);
     }//end for

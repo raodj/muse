@@ -212,6 +212,7 @@ Simulation::finalize(){
     //loop for the finalization
     AgentContainer::iterator it=allAgents.begin();
     int total_rollbacks =0, total_committed_events=0, total_mpi_messages=0, total_scheduled_events=0;
+        
     for (; it != allAgents.end(); it++) {  
         (*it)->finalize();
         (*it)->garbageCollect(TIME_INFINITY);
@@ -231,6 +232,7 @@ Simulation::finalize(){
                   <<"]\n Total Committed Events[" <<total_committed_events
                   << "]\n Total rollbacks[" << total_rollbacks
                   << "]\n Total MPI messages[" << total_mpi_messages << "]"<<std::endl;
+    // << "]\n Total Deleted Events[" << total_deleted_events << "]"<<std::endl;
     //std::cout << "Done with agents: SHUTTING DOWN" <<endl;
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);

@@ -45,6 +45,12 @@ Event::decreaseReference(){
     if (referenceCount == 0) {
         char* buffer = reinterpret_cast<char*>(this);
         delete []  buffer;
+        //if the reference count was 1 it would be zero, but we would loss
+        //reference to it so we should delete it now or could cause some leaks
+        //if (referenceCount == 0){
+        //  char* buffer = reinterpret_cast<char*>(this);
+        //  delete []  buffer;
+        //}
     }
 }
 

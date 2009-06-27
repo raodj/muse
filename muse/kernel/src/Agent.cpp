@@ -45,7 +45,7 @@ Agent::~Agent() {
     // Let's make sure we dont have any left over events because
     // finalize() method should have properly cleaned up the Priority
     // Queue
-    ASSERT(eventPQ->empty());
+    // ASSERT(eventPQ->empty());
     
     delete eventPQ;
     delete myState;
@@ -355,8 +355,9 @@ Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
         //check if the event is invalid.
         if (current_event->getSentTime() > restored_time) {
             //check if bitMap to receiver agent has been set.
-            if (current_event->getReceiverAgentID() != getAgentID() &&
-                bitMap[current_event->getReceiverAgentID()] == false) {
+            //if (current_event->getReceiverAgentID() != getAgentID() &&
+            
+             if (bitMap[current_event->getReceiverAgentID()] == false) {
                 bitMap[current_event->getReceiverAgentID()] = true;
                 if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID()) ){
                     current_event->makeAntiMessage();
