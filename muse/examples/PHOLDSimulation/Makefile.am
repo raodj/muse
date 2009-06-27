@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include -O2
+AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = phold
 

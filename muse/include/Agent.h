@@ -254,12 +254,14 @@ public:
     Time getTopTime() const ;
     
     /** The getNextEvents method.
+        
 	This method is a helper that will grab the next
 	set of events to be processed by this agent.
 
-	@return events, an EventContainer with the events to be processed or NULL if none
+        @param[out] container The reference of the container into
+        which events should be added.        
      */
-    EventContainer * getNextEvents();
+    void getNextEvents(EventContainer& container);
 
     /** The setLVT method.
         
@@ -444,6 +446,14 @@ public:
     int num_scheduled_events;
     int num_processed_events;
     int num_mpi_messages;
+    /**
+       Instance variable to track the number of events there were
+       actually processed and not rolled-back. This instance variable
+       is incremented each time an event is garbage collected (because
+       garbage collected events are committed and are never
+       rolled-back).
+    */
+    int numCommittedEvents;
 };
 END_NAMESPACE(muse);//end namespace declaration
 #endif

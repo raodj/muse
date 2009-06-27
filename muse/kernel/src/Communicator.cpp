@@ -181,28 +181,25 @@ Communicator::receiveEvent(){
     try {
         MPI::COMM_WORLD.Recv(incoming_event, event_size, MPI::CHAR,
                              status.Get_source(), status.Get_tag(), status);
-    } catch (MPI::Exception e) {
+    } catch (MPI::Exception& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         delete[] incoming_event;
         return NULL;
     }
+
+    // Ensure some of the core data is valid.        
+    ASSERT( gvtManager != NULL );
     
     // Now handle the incoming data based on the tag value.
     if (status.Get_tag() == EVENT) {
         // Type cast does the trick as events are binary blobs
         Event* the_event = reinterpret_cast<Event*>(incoming_event);
-        // Ensure some of the core data is valid.
-        
-        ASSERT( gvtManager != NULL );
         // Let GVT manager inspect incoming events.
         gvtManager->inspectRemoteEvent(the_event);
         // Dispatch event for further processing.
         return the_event;
-   
     } else if (status.Get_tag() == GVT_MESSAGE ) {
-        // For now this must be a GVT message.
-        ASSERT ( status.Get_tag() == GVT_MESSAGE );
         // Type cast does the trick as GVT messages are binary blobs
         GVTMessage *msg = reinterpret_cast<GVTMessage*>(incoming_event);
         // Let the GVT manager handle it.

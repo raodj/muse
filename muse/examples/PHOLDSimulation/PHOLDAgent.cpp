@@ -60,6 +60,10 @@ PHOLDAgent::executeTask(const EventContainer* events){
    
     //for every event we get we send out one event
     for(size_t i = 0; (i < events->size()); i++){
+        // Log information about the message for verification purposes.
+        const Event* e = (*events)[i];
+        oss << "Agent #" << getAgentID()
+            << " processed event: " << *e << std::endl;
         //first make a random receive time for the future
         //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
         const int RndDelay = (int)(rand() % Delay);
@@ -91,7 +95,7 @@ PHOLDAgent::executeTask(const EventContainer* events){
             //printf ("Sending to LP: %d @ time %lf\n",receiverAgentID , receive);
             //schedule the event
             scheduleEvent(e);
-            printf("SendTime %lf, RecvTime %lf, SenderID %4d, ReceiverID %4d\n", getTime(), receive, getAgentID(), receiverAgentID);
+            // printf("SendTime %lf, RecvTime %lf, SenderID %4d, ReceiverID %4d\n", getTime(), receive, getAgentID(), receiverAgentID);
         }
     }
 }//end executeTask

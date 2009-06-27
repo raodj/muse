@@ -30,15 +30,16 @@
 
 
 /** The muse namespace.
- * Everything in the api is in the muse namespace.
- *
- */
+    
+    Everything in the api is in the muse namespace.
+*/
 BEGIN_NAMESPACE(muse); //begin namespace declaration
 
 // Forward declaration to make compiler happy and fast
 class GVTManager;
 class Scheduler;
 class Communicator;
+class SimulationListener;
 
 /** The Simulation Class.
  
@@ -235,9 +236,23 @@ public:
     */
     inline Time getStopTime() const { return endTime; }
 
+    /** Set a callback class to report major simulation phases.
+
+	This method must be used to set an listener to be used to
+	report major occurrences within the simulator.  Any previous
+	listener is discarded and a new listener is set. If the
+	parameter is NULL, then the listeners are cleared.
+
+	\param[in] listener The listener to be used to report major
+	phases during the course of simulation.  No special checks are
+	made on the pointer.
+
+	\note It is the caller's responsibility to delete the listener
+	as needed once it is removed (by calling setListener(NULL);)
+    */
+    void setListener(SimulationListener *listener);
     
 protected:
-
     /** The scheduleEvent method.
 	Agents actually use this method to schedule events that are not local.
 
@@ -330,11 +345,20 @@ private:
 
     unsigned int number_of_processes;
 
+    /** The listener to be used to report occurance of major phases
+	during simulation.
+
+	This instance variable is initialized to NULL in the
+	constructor. It is set/reset by the setListener method in this
+	class.  It is used by various methods in this class to report
+	occurance of major phases during simulation.
+    */
+    SimulationListener *listener;
+    
     /** Used for logging purposes.
      */
     DEBUG(ofstream * logFile);
     DEBUG(std::streambuf *oldstream);
-
 };
 
 END_NAMESPACE(muse); //end namespace declaration

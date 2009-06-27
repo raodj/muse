@@ -30,37 +30,23 @@ using namespace muse;
 
 Event::Event(const AgentID  receiverID, const Time  receiveTime):
     senderAgentID(-1u), receiverAgentID(receiverID), sentTime(TIME_INFINITY), 
-    receiveTime(receiveTime), antiMessage(false), referenceCount(0),
+    receiveTime(receiveTime), antiMessage(false), referenceCount(1),
     color('*') {
     // Nothing else to be done in the constructor.
 }
 
-Event::~Event(){}
+Event::~Event() {}
 
 void
 Event::decreaseReference(){
-    ASSERT ( getReferenceCount() >= 0 );
-    // Declreate reference count.
-    if (!getReferenceCount()) {
-        //cout << "Deleting " << *this << endl;
-        //std::cout << "Getting deleted: " << *this << std::endl;
-        // if (Simulation::getSimulator()->isAgentLocal(getSenderAgentID() )) {
-            // This event was allocated using new operator as a
-            // standard event. Do delete it appropriately.
-            
-        //    delete this;
-        //} else{
-            //cout << "Event was not local: calling delete[]\n\n";
-            // This event was received over the wire. Therefore
-            // this event must be deleted as an array of characters
-            char* buffer = reinterpret_cast<char*>(this);
-            delete []  buffer;
-            //}
-        
-    } else {
-        referenceCount--;
+    ASSERT (getReferenceCount() >= 0);
+    // Decrement the reference count.
+    referenceCount--;
+    if (referenceCount == 0) {
+        char* buffer = reinterpret_cast<char*>(this);
+        delete []  buffer;
     }
-}//end decreaseReference
+}
 
 void
 Event::increaseReference(){
@@ -70,7 +56,7 @@ Event::increaseReference(){
 
 void
 Event::makeAntiMessage() {
-    antiMessage=true;
+    antiMessage = true;
 }
 
 void
