@@ -18,7 +18,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       gebremr@muohio.edu
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //
 //---------------------------------------------------------------------------
@@ -85,42 +87,31 @@ Scheduler::scheduleEvent(Event* e){
     //scheduler
     Time old_top_time = agent->getTopTime();
     
-    //now check if this is a rollback!
-    if ( !checkAndHandleRollback(e, agent) && e->isAntiMessage() ){
+    //now check if this is a rollback and handle rollback(s)
+    checkAndHandleRollback(e, agent);
+    // If the event is an anti-message then all pending future events
+    // from the sender should also be deleted.
+    if (e->isAntiMessage()) {
         handleFutureAntiMessage(e, agent);
         updateKey(agent->fibHeapPtr,old_top_time);
         return false;
     }
-
-    //this handles cases where the anti-message was for the past
-    if ( e->isAntiMessage() ){
-        //this means that it was already rollback'd so we just need to
-        //return false
-        updateKey(agent->fibHeapPtr,old_top_time);
-        return false;
-    }
-
     
-    ASSERT(e->isAntiMessage() == false );
-    
-   
-    //push to agent's heap
+    ASSERT(e->isAntiMessage() == false);
+    // Actually add the event (push increments reference count)
     agent->eventPQ->push(e);
-    //std::cerr << "Scheduled: " << *e << std::endl;
-    
     updateKey(agent->fibHeapPtr,old_top_time);
     
-    //everything went well!
     return true;
 }//end scheduleEvent
 
 bool
-Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
-    if ( e->getReceiveTime() <= agent->getLVT() ){
-        ASSERT(e->getSenderAgentID() !=  e->getReceiverAgentID());
+Scheduler::checkAndHandleRollback(const Event* e,  Agent* agent) {
+    if (e->getReceiveTime() <= agent->getLVT()) {
+        ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
         agent->doRollbackRecovery(e);
-        if ( e->getReceiveTime() <= agent->getLVT() ) {
+        if (e->getReceiveTime() <= agent->getLVT()) {
             // Error condition.
             std::cerr << "Rollback logic did not restore state correctly?\n";
             std::cerr << "Agent info:\n" << *agent << std::endl;
@@ -132,32 +123,17 @@ Scheduler::checkAndHandleRollback(const Event * e,  Agent * agent){
 }
 
 void
-Scheduler::handleFutureAntiMessage(const Event * e,Agent * agent){
+Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
     // This event is an anti-message we must remove it and
     // future events from this agent.
     bool foundAtleastOne = agent->eventPQ->removeFutureEvents(e);
-     
-    // We must have deleted at least one event for this anit-message
-    if (false && !foundAtleastOne ) { //1. MADE A CHANGE TO MAKE SURE NOT EMPTY
-        std::cerr << "eventPQ size: " << agent->eventPQ->size() << endl;
-        std::cerr << "Did not find an event to cancel for anti-message \n"
-                  << *e << std::endl;
-        // Print the fibonacci heap for reference purposes
-        std::cerr << "The list of pending events (at LVT="
-                  << agent->getLVT() << "):\n";
-        
-        std::cerr << ". This is a serious error. Aborting."
-                  << std::endl;
-        
-        list<Event*>::iterator it = agent->inputQueue.begin();
-        cerr << "InputQueue looks " <<endl;
-        while ( it != agent->inputQueue.end()) {
-            cerr << *(*it) <<endl;
-            it++;
-        }
-        abort();
-    }//end if 
+    // There are cases when we may not have a future anti-message as
+    // partial cleanup of input-queues done by
+    // Agent::doCancellationPhaseInputQueue method may have already
+    // removed this message.  Maybe there is a better way to rework
+    // the whole input-queue handling in Agent to correctly detect and
+    // report fast-anti messages.
 }
 
 Scheduler::~Scheduler(){}//end Scheduler

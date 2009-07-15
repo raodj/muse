@@ -20,6 +20,7 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -28,16 +29,20 @@
 #include "GVTManager.h"
 #include "Scheduler.h"
 #include "SimulationListener.h"
+#include "BinaryHeapWrapper.h"
 #include <cstdlib>
+
+#include <csignal>
 
 using namespace muse;
 
-Simulation::Simulation() :  LGVT(0), startTime(0), endTime(0),
-                            gvt_delay_rate(10), number_of_processes(-1u) {
+Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
+                           gvt_delay_rate(10), number_of_processes(-1u) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID        = -1u;
     listener    = NULL;
+    doDumpStats = false;
 }
 
 void
@@ -69,6 +74,15 @@ Simulation::initialize(int argc, char* argv[]){
         logFile = new  ofstream(logFileName);
         oldstream = std::cout.rdbuf(logFile->rdbuf());
     });
+
+    // Register a signal handler on SIGUSR1 to trap "dump" event. Use
+    // sigaction() instead of signal() as per the signal(2) manpage.
+    struct sigaction dumpStatAction;
+    dumpStatAction.sa_handler = Simulation::dumpStatsSignalHandler;
+    sigemptyset(&dumpStatAction.sa_mask);
+    dumpStatAction.sa_flags = 0;
+    sigaction(SIGUSR1, &dumpStatAction, NULL);
+    sigaction(SIGUSR2, &dumpStatAction, NULL);
 }
 
 Simulation::~Simulation() {
@@ -79,7 +93,7 @@ Simulation::~Simulation() {
 
 
 bool
-Simulation::registerAgent(  muse::Agent* agent)  { 
+Simulation::registerAgent(muse::Agent* agent)  { 
     if (scheduler->addAgentToScheduler(agent)){
         allAgents.push_back(agent);
         return true;
@@ -138,13 +152,10 @@ Simulation::start(){
     
     //loop for the initialization
     AgentContainer::iterator it;
-    for (it=allAgents.begin(); it != allAgents.end(); it++) {
-         (*it)->initialize();
+    for (it = allAgents.begin(); (it != allAgents.end()); it++) {
+        (*it)->initialize();
          // time to archive the agent's init state
-         
-         State* agent_state = (*it)->getState();
-         State* state = (*it)->cloneState( agent_state );
-         (*it)->stateQueue.push_back(state);
+        (*it)->saveState();
         
     }//end for
     
@@ -155,7 +166,12 @@ Simulation::start(){
     int gvtTimer              = gvt_delay_rate;
     
 
-    while(gvtManager->getGVT() < endTime){
+    while (gvtManager->getGVT() < endTime) {
+        // See if a stat dump has been requested
+        if (doDumpStats) {
+            dumpStats();
+            doDumpStats = false;
+        }
         if (--gvtTimer == 0 ) {
             gvtTimer = gvt_delay_rate;
             // Initate another round of GVT calculations if needed.
@@ -171,6 +187,13 @@ Simulation::start(){
             if (incoming_event != NULL) {
                 ASSERT(incoming_event->getReferenceCount() == 1);
                 scheduleEvent(incoming_event);
+                // Decrease the reference because if it was rejected,
+                // the event will be properly deleted. However, if it
+                // is in the eventPQ, it will be unharmed (reference
+                // count will actually be fixed to correct for lack of
+                // local output queue)
+                ASSERT(incoming_event->getReferenceCount() < 3);
+                incoming_event->decreaseReference();
                 if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
                     std::cout << "LGVT = " << LGVT << " is below GVT: "
                               << getGVT()
@@ -185,6 +208,9 @@ Simulation::start(){
             } else{
                 break; 
             }
+            // Let the GVT Manager forward any pending control
+            // messages, if needed
+            gvtManager->checkWaitingCtrlMsg();
         }//end magic mpi for loop
         
         
@@ -197,7 +223,7 @@ Simulation::start(){
             std::cerr << "Rank " << myID << " Aborting.\n";
             std::cerr << std::flush;
             DEBUG(logFile->close());
-            ASSERT ( false );
+            abort();
         }
         
         scheduler->processNextAgentEvents();
@@ -287,6 +313,50 @@ Simulation::updateKey(void* pointer,  Time old_top_time){
 void
 Simulation::setListener(SimulationListener *callback) {
     listener = callback;
+}
+
+void
+Simulation::dumpStatsSignalHandler(int sigNum) {
+    // This is a static method in Simulation, which means we need to
+    // get a reference to ourselves.
+    Simulation* sim = Simulation::getSimulator();
+    // If we get USR1, this is a lazy (safe) dump. If we get USR, it's
+    // an emergency (unsafe) dump
+    if (sigNum == SIGUSR1) {
+        // Tell the simulator to dump stats on the next cycle
+        sim->doDumpStats = true;
+    } else if (sigNum == SIGUSR2) {
+        sim->dumpStats();
+    }
+
+}
+void
+Simulation::dumpStats() {
+    // Figure out a file name for these statistics
+    char statsFileName[128];
+    sprintf(statsFileName, "Stats%u.txt", myID);
+    std::ofstream statsFile(statsFileName, std::ios::app);
+    statsFile.precision(20);
+    // Now that we have a file output stream, let's print a header.
+    statsFile << "# GVT: " << gvtManager->getGVT()
+              << ", LGVT: " << LGVT << std::endl;
+    statsFile << "AgentID LVT InputQueueSize OutputQueueSize StateQueueSize"
+              << " EventQueueSize" << std::endl;
+    
+    for (AgentContainer::iterator i = allAgents.begin();
+         (i != allAgents.end()); i++) {
+        // Get a pointer to the agent (to avoid confusion)
+        Agent* agent = *i;
+        statsFile << agent->getAgentID() << " "
+                  << agent->lvt << " "
+                  << agent->inputQueue.size() << " "
+                  << agent->outputQueue.size() << " "
+                  << agent->stateQueue.size() << " "
+                  << agent->eventPQ->size() << std::endl;
+    }
+    statsFile.flush();
+    statsFile.close();
+    
 }
 
 #endif

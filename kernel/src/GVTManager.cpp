@@ -18,8 +18,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors:  Dhananjai M. Rao       raodm@muohio.edu
-//           Meseret R. Gebre       meseret.gebre@gmail.com
+// Authors: Dhananjai M. Rao       raodm@muohio.edu
+//          Meseret R. Gebre       meseret.gebre@gmail.com
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -100,11 +101,12 @@ GVTManager::sendRemoteEvent(Event *event) {
     ASSERT ((activeColor == 0) || (activeColor == 1));
     event->setColor(activeColor);
     commManager->sendEvent(event, event->getEventSize());
+    DEBUG(std::cout << *event << std::endl);
     // Now track event counters immaterial of whether the event is
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
     vecCounters[(int) activeColor][destRank]++;
-    // For non-white messages track minimum outsoing event time stamp
+    // For non-white messages track minimum outgoing event time stamp
     // as well
     if (activeColor != white) {
         tMin = std::min<Time>(tMin, event->getReceiveTime());
@@ -118,9 +120,8 @@ GVTManager::inspectRemoteEvent(Event *event) {
     ASSERT ( event != NULL ); //false assertion doesn't work
     // Update vector counters associated with this process.
     vecCounters[(int) event->getColor()][rank]--;
-    // If there is a pending control message then update and forward
-    // it as necessary.
-    checkWaitingCtrlMsg();
+    // Any waiting control message must be forwarded only after this
+    // incoming event has been scheduled.
 }
 
 void
@@ -183,6 +184,7 @@ GVTManager::forwardCtrlMsg() {
     }
     // Now send control message to next process
     commManager->sendMessage(ctrlMsg, (rank + 1) % numProcesses);
+    DEBUG(std::cout << "Sent GVT ctrlMsg: " << *ctrlMsg << std::endl);
     // We no longer have a control message.
     GVTMessage::destroy(ctrlMsg);
     ctrlMsg = NULL;
@@ -221,7 +223,7 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
     ASSERT ( ctrlMsg == NULL );
     // Setup the new control message.
     ctrlMsg = message;
-    DEBUG(std::cout << "GVT ctrlMsg: " << *ctrlMsg << std::endl);
+    DEBUG(std::cout << "Recieved GVT ctrlMsg: " << *ctrlMsg << std::endl);
     // Change our current active color if needed.
     if ((rank != ROOT_KERNEL) && (activeColor == white)) {
         activeColor = !white;
@@ -327,8 +329,9 @@ GVTManager::setGVT(const Time& gvtEst) {
         // Report GVT value only on root kernel
         if (rank == ROOT_KERNEL) {
             // Report GVT update
-            //std::cout << "GVT: " << gvtEst << std::endl;
+            std::cout << "GVT: " << gvtEst << std::endl;
         }
+        DEBUG(std::cout << "GVT: " << gvtEst << std::endl);
         // Do garbage collection
         
         Simulation::getSimulator()->garbageCollect();

@@ -18,7 +18,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       meseret.gebre@gmail.com
+// Authors: Meseret Gebre          meseret.gebre@gmail.com
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -55,33 +57,39 @@ BinaryHeapWrapper::push(Event * event){
 }
 
 bool
-BinaryHeapWrapper::removeFutureEvents(const Event * future_event){
-    bool foundAtleastOne = false;
-    //we get to iterate over the heap aka vector !!
-    EventContainer * temp = new EventContainer;
-    while (!the_container->empty()){
-        //std::cout << "Checking: " << the_container->back() << " against: " << future_event<<std::endl;
-        if ( the_container->back()->getSenderAgentID() == future_event->getSenderAgentID() &&
-             the_container->back()->getReceiveTime() >= future_event->getReceiveTime()   ) {
-            //std::cout << "Purging: " << the_container->back() << std::endl;
-            the_container->back()->decreaseReference();
-            the_container->pop_back();
-            foundAtleastOne = true;
-        }else{
-            //std::cout << "Adding: " << the_container->back() << std::endl;
-            temp->push_back(the_container->back());
-            the_container->pop_back();
+BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
+    bool foundAtLeastOne = false;
+    EventContainer* temp = new EventContainer;
+    
+    while (!the_container->empty()) {
+        // First, get a pointer to the last event, and remove it from
+        // the container (it will be either deleted or requeued as
+        // necessary)
+        Event* lastEvent = the_container->back();
+        the_container->pop_back();
+        // An event is deleted only if the *sent* time is greater than
+        // the antiMessage's and if the event is from same sender
+        if ((lastEvent->getSenderAgentID() == antiMsg->getSenderAgentID()) &&
+            (lastEvent->getSentTime() >= antiMsg->getSentTime())) {
+            // This event needs to be cancelled
+            lastEvent->decreaseReference();
+            foundAtLeastOne = true;
+        } else {
+            // This event is still valid, and needs to be processed
+            temp->push_back(lastEvent);
         }
     }
 
     ASSERT (the_container->empty());
-    //now delete the container and have its pointer point to temp pointee
+
+    // Replace the container with the new one we just created
     delete the_container;
     the_container = temp;
     
-    //lets make sure we still have valid heap
-    make_heap(the_container->begin(),the_container->end(), eventComp() );
-    return foundAtleastOne;
+    // Fix up the heap
+    make_heap(the_container->begin(),the_container->end(), eventComp());
+    
+    return foundAtLeastOne;
 }
 
 #endif

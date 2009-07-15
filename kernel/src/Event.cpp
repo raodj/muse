@@ -20,6 +20,7 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -58,6 +59,7 @@ void
 Event::increaseReference(){
     //std::cout << "Increasing ref" << std::endl;
     referenceCount++;
+    ASSERT ( referenceCount < 4 );
 }//end increaseReference
 
 void
@@ -79,8 +81,8 @@ operator<<(ostream& os, const muse::Event& event) {
        << "recvTime="     << event.getReceiveTime()     << ","
        << "Anti-Message=" << event.isAntiMessage()      << ","
        << "Ref. count="   << event.getReferenceCount()  << ","
-       << "color="        << event.getColor()           << ","
-       << "ID="           << &event                      << "]";
+       << "color="        << '0' + event.getColor()     << ","
+       << "ID="           << &event                     << "]";
     
     return os;
 }
