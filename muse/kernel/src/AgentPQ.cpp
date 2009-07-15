@@ -1,6 +1,29 @@
 #ifndef AGENTPQ_CPP
 #define AGENTPQ_CPP
 
+//---------------------------------------------------------------------------
+//
+// Copyright (c) Miami University, Oxford, OHIO.
+// All rights reserved.
+//
+// Miami University (MU) makes no representations or warranties about
+// the suitability of the software, either express or implied,
+// including but not limited to the implied warranties of
+// merchantability, fitness for a particular purpose, or
+// non-infringement.  MU shall not be liable for any damages suffered
+// by licensee as a result of using, result of using, modifying or
+// distributing this software or its derivatives.
+//
+// By using or copying this Software, Licensee agrees to abide by the
+// intellectual property laws, and all other applicable laws of the
+// U.S., and the terms of this license.
+//
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
+//
+//---------------------------------------------------------------------------
+
 #include "AgentPQ.h"
 
 using namespace muse;
@@ -118,20 +141,14 @@ AgentPQ::cut(node* n)                {
 
 //fibonacci heap modifying methods
 void
-AgentPQ::update(pointer n, double old_top_time){
-    //Time ott = top()->getTopTime();
-    if ( n->data()->getTopTime() >= old_top_time) {
-        //means we need to decrease the key towards leafs
-        decrease(n,n->data());
-    }else{
-        //means we need to move up the heap towards root
-        increase(n,n->data());
+AgentPQ::update(pointer n, Time old_top_time) {
+    if (n->data()->getTopTime() > old_top_time) {
+        // Means we need to push the data towards leafs
+        decrease(n, n->data());
+    }else if (n->data()->getTopTime() < old_top_time) {
+        // Means we need to move up the heap towards root
+        increase(n, n->data());
     }
-    //Time tt = top()->getTopTime();
-
-    //assert to make sure we are not changing the top to a bigger value
-    //then the old top time
-    //SSERT ( ott >= tt );
 }
 
 void

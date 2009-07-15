@@ -44,17 +44,17 @@ BEGIN_NAMESPACE(muse); //begin namespace declaration
 
 /** The base class for all agents in a simulation.
         
-<p>This class represents the base class from which all
-user-defined simulation agents must be derived. This class
-provides several methods that expose the core functionality of a
-muse simulation. In addition, the user is expected to implement
-some of the methods in this class. Refer to the documentation
-associated with each method for details on the functionality and
-requirements of the variuos methods in this class.</p>
+    <p>This class represents the base class from which all
+    user-defined simulation agents must be derived. This class
+    provides several methods that expose the core functionality of a
+    muse simulation. In addition, the user is expected to implement
+    some of the methods in this class. Refer to the documentation
+    associated with each method for details on the functionality and
+    requirements of the variuos methods in this class.</p>
         
-<p>To create an agent for your simulation, make sure you derive
-from this Agent Class, Also be sure to override all methods that
-are declared virtual.</p>
+    <p>To create an agent for your simulation, make sure you derive
+    from this Agent Class, Also be sure to override all methods that
+    are declared virtual.</p>
 */
 
 
@@ -62,15 +62,10 @@ are declared virtual.</p>
 class BinaryHeapWrapper;
 
 class Agent {
-
-
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
-    //lets declare the Simulation class a friend!
     friend class Simulation;
-    //lets declare the Scheduler class a friend!
     friend class Scheduler;
     friend class AgentPQ;
-
 public:
     
     /** enum for return Time.
@@ -82,47 +77,47 @@ public:
     
     /** The initialize method.
         
-    This method is invoked just when a simulation
-    commences. The core simulation engine invokes this
-    mehtod. This mehtod may perform any agent specific
-    initialization activites that may be necessary. This includes
-    opening new streams for performing I/O.
+        This method is invoked just when a simulation
+        commences. The core simulation engine invokes this
+        mehtod. This mehtod may perform any agent specific
+        initialization activites that may be necessary. This includes
+        opening new streams for performing I/O.
     
-    @note Whenever a new agent is created, the derived child class
-    should override this method.
+        @note Whenever a new agent is created, the derived child class
+        should override this method.
 
-    @throw std::exception This method throws an exception when
-    errors occur.
+        @throw std::exception This method throws an exception when
+        errors occur.
     */
     virtual void initialize() throw (std::exception)  =0;
         
     /** The finalize method.
      
-    This method is invoked once the simulation has finished
-    processing all events and is ending.  The core simulation
-    engine invokes this method. This method may perform any final
-    clean up or displaying results, basic I/O.
+        This method is invoked once the simulation has finished
+        processing all events and is ending.  The core simulation
+        engine invokes this method. This method may perform any final
+        clean up or displaying results, basic I/O.
      
-    @note Whenever a new agent is created, the derived child class
-    should override this method.
+        @note Whenever a new agent is created, the derived child class
+        should override this method.
     */
     virtual void finalize() = 0;
     
     /** The executeTask method.
      
-    This method is invoked only when the agent has some events to
-    process. The events that this agent must process at a given
-    time step is all passed in one single shot to this method.
+        This method is invoked only when the agent has some events to
+        process. The events that this agent must process at a given
+        time step is all passed in one single shot to this method.
      
-    @note That this method must not modify the events passed in.
+        @note That this method must not modify the events passed in.
         
-    @note Whenever a new agent is implemented by extending this
-    base class, the derived class should override this method.
+        @note Whenever a new agent is implemented by extending this
+        base class, the derived class should override this method.
         
-    @param events The set of concurrent (events at the same time)
-    events that this method should process.
+        @param events The set of concurrent (events at the same time)
+        events that this method should process.
         
-    @see EventContainer
+        @see EventContainer
     */
     virtual void executeTask(const EventContainer * events) = 0;
 
@@ -130,15 +125,15 @@ public:
     
     /** The scheduleEvent method.
      
-    This method is used to schedule an event to be processed by any
-    agent.  
+        This method is used to schedule an event to be processed by any
+        agent.  
 
-    @note once event is scheduled MUSE will take full ownership, thus it will handle
-    deleting the memory.
+        @note once event is scheduled MUSE will take full ownership, thus it will handle
+        deleting the memory.
 		  
-    @param pointer to the event to schedule.
-    @return bool True if the event was correctly scheduled.
-    @see Event()
+        @param pointer to the event to schedule.
+        @return bool True if the event was correctly scheduled.
+        @see Event()
     */
     bool scheduleEvent(Event * e);
 
@@ -172,8 +167,8 @@ public:
     
     /** The destructor.
      
-    The dtor is not supposed to be overriden.
-    @todo make sure that the above statement is a accurate statement.
+        The dtor is not supposed to be overriden.
+        @todo make sure that the above statement is a accurate statement.
     */
     virtual ~Agent();
 
@@ -235,14 +230,27 @@ public:
     inline State * getState() const {return myState;}
 
 
- protected:
+protected:
     /** The oSimStream type oss.
 	This is the default provided by MUSE and when its
 	safe will push all data to std::cout.
     */
     oSimStream oss;
+
+    /** Save the current state
+
+        This method is a wrapper to save the state of this Agent and
+        all necessary Simulation Streams. It is called by
+        Agent::processNextEvents() and Simulation::start() as
+        needed. Deriving classes should not call this method unless
+        they are working with MUSE Simulation kernel internals.  This
+        method can be overrided for advanced purposes, but it is
+        highly recommended to avoid doing so.
+
+     */
+    virtual void saveState();
     
- private:
+private:
 
     /** The getTopTime method.
 	Simply returns the receive Time of the top event in the eventPQ. If eventPQ is empty
@@ -260,7 +268,7 @@ public:
 
         @param[out] container The reference of the container into
         which events should be added.        
-     */
+    */
     void getNextEvents(EventContainer& container);
 
     /** The setLVT method.
@@ -366,7 +374,7 @@ public:
 	@see AgentID
 	
     */
-    void doCancellationPhaseInputQueue(const Time & restored_time, const AgentID & straggler_sender_agent_id );
+    void doCancellationPhaseInputQueue(const Time& restored_time, const Event* straggler);
 
     /** The agentComp class.
         This is used by the scheduler class to figure out which agent to schedule next.
@@ -378,6 +386,7 @@ public:
     };
 
     /** The AgentID type myID.
+        
         This is inialized when the agent is registered to a simulator.
         Only one way to access this, use the getAgentID method.
 	
@@ -386,6 +395,7 @@ public:
     AgentID myID;
 
     /** The AgentID type myID.
+        
         This is inialized when the agent is registered to a simulator.
         Only one way to access this, use the getAgentID method.
 	
@@ -394,25 +404,35 @@ public:
     Time lvt;
 
     /** The double linked lise stateQueue.
-        Houses a sorted list of state pointers. Needed incase of rollbacks
+        
+        Houses a sorted list of state pointers. Needed incase of
+        rollbacks
+
         @see State()
     */
     list<State*> stateQueue;
 
     
     /** The double linked lise outputQueue.
-        Houses a sorted list of event pointers. Needed incase of rollbacks
+        
+        Houses a sorted list of event pointers. Needed incase of
+        rollbacks
+
         @see Event()
     */
     list<Event*> outputQueue;
 
     /** The double linked lise inputQueue.
-        Houses a sorted list of event pointers. Needed incase of rollbacks
+        
+        Houses a sorted list of event pointers. Needed incase of
+        rollbacks
+
         @see Event()
     */
     list<Event*> inputQueue;
 
     /** The State type myState.
+        
         This is a auto pointer to the current state of the Agent.
 	Using smart pointer allows worry free use of the state class and
 	doesn't leak memory.

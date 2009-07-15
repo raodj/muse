@@ -18,7 +18,7 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors:  Dhananjai M. Rao       raodm@muohio.edu
+// Authors: Dhananjai M. Rao       raodm@muohio.edu
 //
 //---------------------------------------------------------------------------
 
@@ -192,6 +192,7 @@ public:
 	@see Time
      */
     void recvGVTEstimateTime(Time gvt_estimate_time);
+    
 protected:
     /** Helper method to set the GVT value.
 

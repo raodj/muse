@@ -17,7 +17,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       gebremr@muohio.edu
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //
 //---------------------------------------------------------------------------
@@ -30,7 +32,9 @@
 
 using namespace muse;
 
-oSimStream::oSimStream() : ostream(std::cout.rdbuf()) , the_original_ostream(&std::cout), use_temp_file(false){
+oSimStream::oSimStream() : ostream(std::cout.rdbuf()),
+                           the_original_ostream(&std::cout),
+                           use_temp_file(false) {
     //default we use memory instead of a temp file for storage.
 
     //heap allocate the ostringstream
@@ -44,8 +48,9 @@ oSimStream::oSimStream() : ostream(std::cout.rdbuf()) , the_original_ostream(&st
     clear();
 }
 
-oSimStream::oSimStream(ostream * the_ostream, bool use_tf) :
-        ostream(the_ostream->rdbuf()), the_original_ostream(the_ostream) , use_temp_file(use_tf){
+oSimStream::oSimStream(ostream* the_ostream, bool use_tf) :
+        ostream(the_ostream->rdbuf()), the_original_ostream(the_ostream),
+        use_temp_file(use_tf){
     //lets see what they want the temp storage to be.
     if (use_temp_file){
         //first we create a temp file name
@@ -91,7 +96,7 @@ oSimStream::~oSimStream() {
         //lets destroy the temp file that was created
         the_temp_file.close();
         remove(the_temp_file_name);
-   }else{
+   } else {
        delete oss;
    }
    //lets make sure we dont leak and memory from the storage of states
@@ -103,7 +108,7 @@ oSimStream::~oSimStream() {
 
 void
 oSimStream::saveState(const Time& lvt) {
-    if (use_temp_file){
+    if (use_temp_file) {
         //first we grab the current get pointer
         streampos current_streampos = the_temp_file.tellp();
         //now we check if there was any data collect since the last save point
@@ -118,13 +123,13 @@ oSimStream::saveState(const Time& lvt) {
         oSimStreamState_storage.push_back(new_state);
         //lets update the_last_stream_position for the next time
         the_last_stream_position = current_streampos;
-    }else{
+    } else {
         //first we check if there is anything in the memory buffer
-        if (oss->str().length() > 1){
+        if (oss->str().length() > 0){
             //We create a state to hold the content
-            oSimStreamState * new_state  = new oSimStreamState;
-            new_state->timestamp         = lvt;
-            new_state->content           = oss->str();
+            oSimStreamState* new_state = new oSimStreamState;
+            new_state->timestamp       = lvt;
+            new_state->content         = oss->str();
             //now we push this to our collection of states in storage
             oSimStreamState_storage.push_back(new_state);
 
@@ -138,7 +143,7 @@ oSimStream::saveState(const Time& lvt) {
 
 void
 oSimStream::garbageCollect(const Time& gvt){
-    if (use_temp_file){
+    if (use_temp_file) {
         //save our put pointer because garbage collect will change
         //and we need to put back
         streampos current_streampos = the_temp_file.tellp();
@@ -160,12 +165,13 @@ oSimStream::garbageCollect(const Time& gvt){
         }
         //now that we are done garbage collection lets restore the put pointer position
         the_temp_file.seekg(current_streampos);
-    }else{
+    } else {
         //now we need to loop through our storage and send the stuff
         //into the original ostream until one timstamp before gvt
-        while(!oSimStreamState_storage.empty() && oSimStreamState_storage.front()->timestamp < gvt){
+        while((!oSimStreamState_storage.empty()) &&
+              (oSimStreamState_storage.front()->timestamp < gvt)) {
             //we need to get the oSimStreamState and write out its content
-            oSimStreamState * current_state = oSimStreamState_storage.front();
+            oSimStreamState* current_state = oSimStreamState_storage.front();
             //here we finally push the data into the the orginal stream buffer
             // prefer to write the data than to insert it so that binary
             // information is handled correctly.
@@ -182,7 +188,7 @@ void
 oSimStream::rollback(const Time& restored_time) {
     //better to do if statement once and suplicate the while loop, instead of
     //the if statement inside
-    if (use_temp_file){
+    if (use_temp_file) {
         //we start from the back and delete anything with a bigger timestamp
         //than restored time.
         while (!oSimStreamState_storage.empty() &&
@@ -197,7 +203,7 @@ oSimStream::rollback(const Time& restored_time) {
             //finally pop the state
             oSimStreamState_storage.pop_back();
         }
-    }else{
+    } else {
         //we start from the back and delete anything with a bigger timestamp
         //than restored time.
         while (!oSimStreamState_storage.empty() &&
@@ -231,4 +237,4 @@ oSimStream::printAllStates(){
         }
     }
 }
-#endif	/* _OSIMSTREAM_CPP */
+#endif

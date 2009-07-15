@@ -18,10 +18,12 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       gebremr@muohio.edu
-//          Dhananjai M. Rao    raodm@muohio.edu
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
+
 #include "Agent.h"
 #include "Simulation.h"
 #include "HashMap.h"
@@ -45,10 +47,32 @@ Agent::~Agent() {
     // Let's make sure we dont have any left over events because
     // finalize() method should have properly cleaned up the Priority
     // Queue
-    // ASSERT(eventPQ->empty());
+    ASSERT(eventPQ->empty());
+    ASSERT(inputQueue.empty());
+    ASSERT(outputQueue.empty());
+    ASSERT(stateQueue.empty());
     
     delete eventPQ;
     delete myState;
+}
+
+void
+Agent::saveState() {
+    // Clone the current state so it can be saved
+    State* state = cloneState(getState());
+    state->timestamp = getLVT();
+    
+    // The states should be monotomically increasing in timestamp
+    ASSERT(stateQueue.empty() ||
+           (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
+    // Save current state
+    stateQueue.push_back(state);
+    
+    // Save the states of all of the SimStreams
+    oss.saveState(getLVT());
+    for (size_t i = 0; (i < allSimStreams.size()); i++){
+        allSimStreams[i]->saveState(getLVT());
+    }
 }
 
 bool
@@ -56,7 +80,7 @@ Agent::processNextEvents() {
     // The event Queue cannot be empty
     ASSERT(!eventPQ->empty());
     const Time gvt = getTime(GVT);
-    if (getLVT() - gvt > 1209600000) {
+    if (getLVT() - gvt > 604800000) {
         return false;
     }
     // create the event container.  this will be passed on to the
@@ -73,30 +97,9 @@ Agent::processNextEvents() {
     
     //keep track number of processed events
     num_processed_events += next_events.size();
-    
-    // Clear the references for the events in the container and clear it
-    for (size_t i = 0; (i < next_events.size()); i++) {
-        next_events[i]->decreaseReference();
-    }
-    next_events.clear();
-    
-    //clone the state so we can archive
-    State* state = cloneState(getState());
-    state->timestamp = getLVT();
-    
-    // There should not be a duplicate state in the queue
-    ASSERT(!TIME_EQUALS(stateQueue.back()->getTimeStamp(),
-                        state->getTimeStamp()));
-    // The states should be monotomically increasing in timestamp
-    ASSERT(stateQueue.back()->getTimeStamp() < state->getTimeStamp());
-    // Save current state
-    stateQueue.push_back(state);
-    
-    // Save the states of all of the SimStreams
-    oss.saveState(getLVT());
-    for (size_t i = 0; (i < allSimStreams.size()); i++){
-        allSimStreams[i]->saveState(getLVT());
-    }
+
+    // We need to save state now
+    saveState();
     
     return true;
 }
@@ -108,8 +111,6 @@ Agent::getNextEvents(EventContainer& container) {
     const Time currTime = eventPQ->top()->getReceiveTime();
     do {
         Event* event = eventPQ->top();
-        eventPQ->pop();
-        
         //we should never process an anti-message.
         if (event->isAntiMessage()) { 
             cerr << "Anti-message Processing: " << *event << endl;
@@ -128,14 +129,21 @@ Agent::getNextEvents(EventContainer& container) {
             abort();
         }
 
+        ASSERT(event->getReferenceCount() < 3);
+        
         // We add the top event we popped to the event container
         container.push_back(event);
-    
+
+        DEBUG(std::cout << "Delivering: " << *event << std::endl);
+        
         // Increase reference count, so we can add it to the agent's
         // input queue
         event->increaseReference(); 
         inputQueue.push_back(event);
-                
+
+        // Finally it is safe to remove this event from the eventPQ as
+        // it has been added to the inputQueue
+        eventPQ->pop();
     } while ((!eventPQ->empty()) &&
              (TIME_EQUALS(eventPQ->top()->getReceiveTime(), currTime)));   
 }
@@ -168,7 +176,7 @@ Agent::scheduleEvent(Event *e) {
     e->senderAgentID = getAgentID();
     
     // Check to make sure we don't schedule past the simulation end time.
-    if (e->getSentTime() >= Simulation::getSimulator()->getStopTime()) {
+    if (e->getReceiveTime() >= Simulation::getSimulator()->getStopTime()) {
         e->decreaseReference();
         return false;
     }
@@ -197,7 +205,6 @@ Agent::scheduleEvent(Event *e) {
         Simulation::getSimulator()->updateKey(fibHeapPtr, old_top_time);
          
         // Add the event to the to output queue
-        e->increaseReference();
         outputQueue.push_back(e);
 
         // Keep track of event being scheduled.
@@ -205,10 +212,6 @@ Agent::scheduleEvent(Event *e) {
         
         return true;
     } else if (Simulation::getSimulator()->scheduleEvent(e)) {
-        // Now that the event is in the Scheduler, update the output queue.
-        if (Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
-            e->increaseReference();
-        }
         outputQueue.push_back(e);
        
         // Keep track of event being scheduled.
@@ -228,8 +231,8 @@ Agent::scheduleEvent(Event *e) {
 }
 
 void
-Agent::doRollbackRecovery(const Event* straggler_event){
-    // std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
+Agent::doRollbackRecovery(const Event* straggler_event) {
+    //std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
     //cout << "Rollback recovery started"<< endl;
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
@@ -240,7 +243,7 @@ Agent::doRollbackRecovery(const Event* straggler_event){
     //          << std::endl;
    
     doCancellationPhaseInputQueue(restored_time,
-                                  straggler_event->getSenderAgentID());
+                                  straggler_event);
     doCancellationPhaseOutputQueue(restored_time);
     
     //we need to rollback all SimStreams here.
@@ -280,10 +283,11 @@ Agent::doRestorationPhase(const Time& straggler_time){
     //we can revert to the initial state after the loop.
     setLVT(TIME_INFINITY);
     //now we go and look for a state to restore to.
+    ASSERT(!stateQueue.empty());
     while (stateQueue.size() != 1 ){
-        State * current_state = stateQueue.back();
+        State* current_state = stateQueue.back();
         if (current_state->getTimeStamp() < straggler_time){
-             //first we destroy the state we are in now <--kind of wierd to say right?
+            //first we destroy the state we are in now <--kind of wierd to say right?
             delete myState;
             //set out state to this old consistent state
             //after we setState, remember myState will point to a new state now.
@@ -292,8 +296,10 @@ Agent::doRestorationPhase(const Time& straggler_time){
             setLVT(getState()->getTimeStamp());
             //cout << "    State Found for time: "<< LVT << endl;
             break;
-        }else{
-            //we should delete and remove this state from the list because it is no longer valid
+        } else {
+            // we should delete and remove this state from the list
+            // because it is no longer valid
+            
             //cout << "Deleting Current_State @ timestamp: " << current_state->getTimeStamp() << endl;
            
             delete current_state;
@@ -303,7 +309,7 @@ Agent::doRestorationPhase(const Time& straggler_time){
     
     //cout << "TIME_EQUALS(LVT,INFINITY) === " <<TIME_EQUALS(LVT,INFINITY) << endl;
     //if LVT is INFINITY then that means we have rolled back all the way to beginning.
-    if (TIME_EQUALS(getLVT(),TIME_INFINITY) ){
+    if (TIME_EQUALS(getLVT(), TIME_INFINITY)) {
         //state queue should have a size of one
         ASSERT(stateQueue.size() == 1);
         //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
@@ -311,13 +317,10 @@ Agent::doRestorationPhase(const Time& straggler_time){
         setState( cloneState(stateQueue.front()) );
         setLVT( getState()->getTimeStamp() ) ;
         //std::cout << "Restored Time To: " << getLVT() << std::endl;
-    }else{
-        //there is a problem if this happens
-        //cout << "straggler time: " <<straggler_event->getReceiveTime() <<endl;
-        //cout << "restored  time: " <<LVT <<endl;
-        ASSERT( straggler_time > getLVT() );
     }
     
+    ASSERT( straggler_time > getLVT() );
+        
     //for debugging reasons
     //if (stateQueue.size() <= 2) cerr << "StateQ After Restore: "
     //                                << *this << endl;
@@ -328,49 +331,36 @@ Agent::doRestorationPhase(const Time& straggler_time){
 }//end doStepOne
 
 void
-Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
+Agent::doCancellationPhaseOutputQueue(const Time & restored_time) {
   
     AgentIDBoolMap bitMap;
-    
-    /** OK, for step two here is what we are doing. First, we have the
-        restored_time. This is the time we rollbacked to.  Second, is
-        the bitMap, this is used for the anti-message optimization
-        feature. Since we only need to send one anti-message of the
-        earliest invalid event to each agent that needs the
-        anti-message, we use the bitMap to mark if an agent has
-        already received an anti-message. In this step we are checking
-        the sent times all all the events in the outputQueue and those
-        events with sent times greater than the restored_time are
-        considered invalid events. If the receiver agentID is NOT
-        equal to <this> agentID AND the bitMap is not set to TRUE,
-        then we set it, and send the anti-message.  Lasly we remove
-        all invalid events from the outputQueue. The following
-        implements this idea!
-     */
     list<Event*>::iterator outQ_it = outputQueue.begin();
-    while(outQ_it != outputQueue.end()){
+    while(outQ_it != outputQueue.end()) {
         list<Event*>::iterator del_it = outQ_it;
         outQ_it++; 
         Event *current_event = (*del_it);
         //check if the event is invalid.
         if (current_event->getSentTime() > restored_time) {
             //check if bitMap to receiver agent has been set.
-            //if (current_event->getReceiverAgentID() != getAgentID() &&
-            
-             if (bitMap[current_event->getReceiverAgentID()] == false) {
+            if (bitMap[current_event->getReceiverAgentID()] == false) {
                 bitMap[current_event->getReceiverAgentID()] = true;
-                if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID()) ){
+                if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID())) {
                     current_event->makeAntiMessage();
                     //cout << "Making Anti-Message: " << *current_event << endl;
                     Simulation::getSimulator()->scheduleEvent(current_event);
-                }else{
-                    //here we have to make a fresh new copy of the
-                    //event and make the copy an anti-message. This
-                    //clears a lot of issues.
-                    Event*  anti_event = new Event(*current_event);
+                } else {
+                    // Send an anti-message to the agent on the same
+                    // process so that it rolls back. Since pointers
+                    // are shared, a duplicate needs to be made.
+                    char* flatAntiEvent = new char[sizeof(Event)];
+                    memcpy(flatAntiEvent, current_event, sizeof(Event));
+                    Event* anti_event = reinterpret_cast<Event*>(flatAntiEvent);
                     anti_event->setReferenceCount(1);
                     anti_event->makeAntiMessage();
-                    Simulation::getSimulator()->scheduleEvent(anti_event);
+                    if (!Simulation::getSimulator()->scheduleEvent(anti_event)) {
+                        // The scheduler rejected our anti-message.
+                        anti_event->decreaseReference();
+                    }
                 }
             }
             //invalid events automatically get removed
@@ -378,46 +368,55 @@ Agent::doCancellationPhaseOutputQueue(const Time & restored_time ){
             outputQueue.erase(del_it);
         }
     }
-}//end doStepTwo
+}
 
 void
-Agent::doCancellationPhaseInputQueue(const Time & restored_time, const AgentID & straggler_sender_agent_id ){
-   
-    /** OK, for step three, here is what we are doing. First, we have
-        the restored_time. This is the time we rollbacked to.  This
-        step is relatively straight forward. In this step, an invalid
-        event is defined as and event with a receive time greater than
-        the restored_time. Hence, all invalid events are automatically
-        removed from the inputQueue. However, if the current_event's
-        sender agent id is NOT EQUAL to the straggler_event's agent,
-        then this means that we need to add it back into our event
-        scheduler because we need to re-process this
-        current_event. The following implements this idea!
-    */
+Agent::doCancellationPhaseInputQueue(const Time& restored_time, const Event* straggler) {
+
+    ASSERT(straggler != NULL);
+
     list<Event*>::iterator inQ_it = inputQueue.begin();
-    while ( inQ_it != inputQueue.end()) {
+    while (inQ_it != inputQueue.end()) {
         list<Event*>::iterator del_it = inQ_it;
         inQ_it++;
         Event *current_event = (*del_it);
-        ASSERT(current_event->isAntiMessage() == false );
+        ASSERT(current_event->isAntiMessage() == false);
+
+        if (current_event->getReceiveTime() <= restored_time) {
+            // This event needs to stay in the input queue - it does
+            // not need to be reprocessed or deleted.
+            continue;
+        }
         
-        if ( current_event->getReceiveTime() > restored_time){
-            //check if we need to re-process the current_event
-            if( straggler_sender_agent_id  != current_event->getSenderAgentID() ){
-                current_event->increaseReference();
-                eventPQ->push(current_event );
-                //std::cerr << "Moved from inputQueue to eventPQ: "
-                //          << *current_event << std::endl;
-            } else {
-                // std::cerr << "Removed from inputQueue: "
-                //         << *current_event << std::endl;
-            }
-            //invalid events automatically get removed
+        if ((current_event->getSenderAgentID() == myID) &&
+            (current_event->getSentTime() > restored_time)) {
+            // We sent this event in the future - it gets deleted
             current_event->decreaseReference();
             inputQueue.erase(del_it);
+            continue;
+        }
+        
+        // If control comes here, the event needs to be rescheduled if
+        // it is not from the sender of the straggler AND the straggler is NOT an antimessage
+        if (straggler->getSenderAgentID() != current_event->getSenderAgentID()) {
+            eventPQ->push(current_event);
+            current_event->decreaseReference();
+            inputQueue.erase(del_it);
+        } else if (current_event->getSentTime() >= straggler->getSentTime()) {
+            if (straggler->isAntiMessage()) {
+                // This is one needs to be nuked.
+                current_event->decreaseReference();
+                inputQueue.erase(del_it);
+            } else {
+                // Nope, this event is still safe. Even though it's
+                // from the sender of the straggler.
+                eventPQ->push(current_event);
+                current_event->decreaseReference();
+                inputQueue.erase(del_it);
+            }
         }
     }
-}//end doStepThree
+}
 
 void
 Agent::cleanStateQueue(){
@@ -460,7 +459,7 @@ Agent::garbageCollect(const Time gvt){
 
     
     one_below_gvt = 0;
-    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() <= gvt ) {
+    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt) {
         one_below_gvt = (*safe_point_it)->getTimeStamp();
         safe_point_it++;
     }
@@ -478,6 +477,9 @@ Agent::garbageCollect(const Time gvt){
         stateQueue.pop_front();
     }
     //cerr << *this << endl;
+
+    // The first state should be less than gvt
+    ASSERT(stateQueue.front()->getTimeStamp() < gvt);
     
     //second we collect from the inputQueue
     while(!inputQueue.empty() &&
@@ -500,9 +502,9 @@ Agent::garbageCollect(const Time gvt){
     
     
     //we need to garbageCollect all SimStreams here.
-    oss.garbageCollect(one_below_gvt);
+    oss.garbageCollect(gvt);
     for (size_t i = 0; (i < allSimStreams.size()); i++){
-        allSimStreams[i]->garbageCollect(one_below_gvt);
+        allSimStreams[i]->garbageCollect(gvt);
     }
 }
 

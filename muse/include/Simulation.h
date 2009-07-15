@@ -20,6 +20,7 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -28,6 +29,7 @@
 #include "State.h"
 #include "DataTypes.h"
 
+#include <csignal>
 
 /** The muse namespace.
     
@@ -359,6 +361,13 @@ private:
      */
     DEBUG(ofstream * logFile);
     DEBUG(std::streambuf *oldstream);
+
+    static void dumpStatsSignalHandler(int sigNum);
+    
+    void dumpStats();
+
+    bool doDumpStats;
+    
 };
 
 END_NAMESPACE(muse); //end namespace declaration

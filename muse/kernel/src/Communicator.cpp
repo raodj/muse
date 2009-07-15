@@ -17,8 +17,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors:  Meseret R. Gebre       meseret.gebre@gmail.com
-//           
+// Authors: Meseret R. Gebre       meseret.gebre@gmail.com
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org  
 //
 //---------------------------------------------------------------------------
 
@@ -44,21 +45,20 @@ Communicator::initialize(int argc, char* argv[]){
 
 void
 Communicator::registerAgents(AgentContainer& allAgents){
-    int  size = MPI::COMM_WORLD.Get_size();
-
-    //first lets add all kernel add local agents to map!
+    const int  size = MPI::COMM_WORLD.Get_size();
+    const int  simulator_id = MPI::COMM_WORLD.Get_rank();
+    
+    //first lets add all local agents to map!
     AgentContainer::iterator ac_it; //ac == AgentContainer
     for (ac_it=allAgents.begin(); ac_it != allAgents.end(); ++ac_it){
-         agentMap[(*ac_it)->getAgentID()] = ROOT_KERNEL;
+         agentMap[(*ac_it)->getAgentID()] = simulator_id;
     }//end for
 
     //if size == 1 : then we need not do this!
     if (size == 1) {
-        //cout << "[Communicator] Only kernel around: Registration is avoided" << endl;
         return;
     }
-    int  simulator_id = MPI::COMM_WORLD.Get_rank();
-
+    
     if (simulator_id == ROOT_KERNEL){
         //here we collect all agent id from all other simulation kernels!!
         int done_count = 1;
@@ -70,18 +70,20 @@ Communicator::registerAgents(AgentContainer& allAgents){
             int agent_list_size = status.Get_count(MPI::UNSIGNED);
             unsigned int agentList[agent_list_size];
             //now receive the agent id flat list
-            MPI::COMM_WORLD.Recv( &agentList ,agent_list_size, MPI::UNSIGNED , MPI_ANY_SOURCE , AGENT_LIST, status );
+            MPI::COMM_WORLD.Recv(&agentList, agent_list_size,
+                                 MPI::UNSIGNED, MPI_ANY_SOURCE,
+                                 AGENT_LIST, status);
             //time to add this list to master AgentMap
             for(int i=0; i<agent_list_size; ++i){
+                ASSERT ( agentMap.find(agentList[i]) == agentMap.end() );
                 agentMap[agentList[i]] = status.Get_source();
             }//end for
-            //std::cout << "Got agents list from kernel [" <<status.Get_source() << "]" <<std::endl;
             done_count++;
         }//end while
 
-        //std::cout << "Got all agents lists. AgentMap size: "<<agentMap.size() <<std::endl;
+        // std::cout << "Got all agents lists. AgentMap size: "
+        //          << agentMap.size() <<std::endl;
         //next chunk of code converts agentMap to a flat list for Bcasting!!
-        
         int agentMap_size = agentMap.size()*2;
         //std::cout << "AgentMapFlat size: "<<agentMap_size <<std::endl;
         //unsigned int  agentMap_flat[agentMap_size];
@@ -101,7 +103,7 @@ Communicator::registerAgents(AgentContainer& allAgents){
         MPI::COMM_WORLD.Bcast(&agentMap_size, 1 ,MPI::INT, ROOT_KERNEL );
         //bcast here
         MPI::COMM_WORLD.Bcast(agentMap_flat, agentMap_size,MPI::UNSIGNED, ROOT_KERNEL );
-        cout << "Agent Registeration: complete!" <<endl;
+        cout << "Agent Registration: complete!" <<endl;
         delete[] agentMap_flat;
     }else{
         AgentID agentList[allAgents.size()];
@@ -109,10 +111,10 @@ Communicator::registerAgents(AgentContainer& allAgents){
             agentList[i] = allAgents[i]->getAgentID();//populate the flat list.
         }//end for
         //now send flat list across the wire (MPI)
-        MPI::COMM_WORLD.Send(&agentList, allAgents.size(), MPI::UNSIGNED,ROOT_KERNEL,AGENT_LIST);
+        MPI::COMM_WORLD.Send(agentList, allAgents.size(), MPI::UNSIGNED, ROOT_KERNEL, AGENT_LIST);
         //get the size of incoming agentMap list
         int agentMap_length=0;
-        MPI::COMM_WORLD.Bcast(&agentMap_length, 1 ,MPI::INT, ROOT_KERNEL );
+        MPI::COMM_WORLD.Bcast(&agentMap_length, 1, MPI::INT, ROOT_KERNEL );
         
         //finally receive the complete agentMap flat list!!!
         //unsigned int agentMap_flatList[agentMap_length];
@@ -195,6 +197,8 @@ Communicator::receiveEvent(){
     if (status.Get_tag() == EVENT) {
         // Type cast does the trick as events are binary blobs
         Event* the_event = reinterpret_cast<Event*>(incoming_event);
+        // Since the event is from the network, the reference count must be 1
+        ASSERT(the_event->getReferenceCount() == 1);
         // Let GVT manager inspect incoming events.
         gvtManager->inspectRemoteEvent(the_event);
         // Dispatch event for further processing.
