@@ -33,6 +33,7 @@ phold_LDADD = $(STDCPP) -lmuse
 phold_SOURCES = \
 	PHOLDSimulation.cpp\
 	PHOLDAgent.h\
-	PHOLDAgent.cpp
-
+	PHOLDAgent.cpp\
+	PholdState.h\
+	PholdState.cpp
 # end of Makefile.am

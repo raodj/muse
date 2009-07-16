@@ -9,13 +9,13 @@
 #define	_PHOLDAgent_H
 
 #include "Agent.h"
-#include "State.h"
+#include "PholdState.h"
 using namespace muse;
 
 class PHOLDAgent : public Agent {
 
 public:
-    PHOLDAgent(AgentID , State *,int x, int y, int n, int d);
+    PHOLDAgent(AgentID , PholdState *,int x, int y, int n, int d);
 
     void initialize() throw (std::exception);
 
