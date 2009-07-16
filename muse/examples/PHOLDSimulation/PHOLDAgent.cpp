@@ -10,20 +10,7 @@
     Y = Number of agents per column
     N = Number of initial events each agent starts with
     Delay = The Delay time for the receive time, this will be max range for a random from [0,1]
-
-    MTRandom.h
-    **************************
-    The interface for MTRandom class is very simple. There are two static methods and two object methods.
-
-    MTRandom::Rand() returns random generated number uniformly distributed in the range 0 - (2^32 - 1)
-    MTRandom::RandDouble() returns MTRandom::Rand() and scales it to the range 0 - 1
-    MTRandom::rand() is just like MTRandom::Rand(), but only for instances of MTRandom.
-    MTRandom::randDouble() is just like MTRandom::RandDouble(), but only for instances of MTRandom.
-
-    Constructing MTRandom
-    ***************************
-    MTRandom mt; //this version is default and will use a hardcoded seed.
-    MTRandom mt(unsigned long seed); //this created with the given seed value.
+    
 */
 
 #include "PHOLDAgent.h"
@@ -32,11 +19,10 @@
 #include "Simulation.h"
 #include <cstdlib>
 #include <cstdio>
-//#include "ross-random.h"
 
 using namespace std;
 
-PHOLDAgent::PHOLDAgent(AgentID id, State* state, int x, int y, int n, int d) : 
+PHOLDAgent::PHOLDAgent(AgentID id, PholdState* state, int x, int y, int n, int d) : 
     Agent(id,state), X(x),Y(y), N(n), Delay(d){}
 
 void
@@ -44,8 +30,8 @@ PHOLDAgent::initialize() throw (std::exception){
     //we generate N events with random receive times to self
     for (int i = 0; i < N; i++){
         //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
-        const int RndDelay = (int)(rand() % Delay);
-        Time  receive(getTime()+1+RndDelay);
+        //const int RndDelay = (int)(rand() % Delay);
+        Time  receive(getTime()+1);//+RndDelay);
 
         if ( receive < Simulation::getSimulator()->getStopTime() ){
             //cout << "INIT Random Receive Time: " <<receive <<endl;
@@ -57,17 +43,19 @@ PHOLDAgent::initialize() throw (std::exception){
 
 void
 PHOLDAgent::executeTask(const EventContainer* events){
-   
+
+    PholdState *my_state = dynamic_cast<PholdState*>(getState());
     //for every event we get we send out one event
     for(size_t i = 0; (i < events->size()); i++){
         // Log information about the message for verification purposes.
         const Event* e = (*events)[i];
         oss << "Agent #" << getAgentID()
             << " processed event: " << *e << std::endl;
+        
         //first make a random receive time for the future
         //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
-        const int RndDelay = (int)(rand() % Delay);
-        Time  receive(getTime()+1+RndDelay);
+        //const int RndDelay = (int)(rand() % Delay);
+        Time  receive(getTime()+1);//+RndDelay);
 
         if ( receive < Simulation::getSimulator()->getStopTime() ){
             //now we need to choose which agent to send this event to.  we
@@ -76,11 +64,14 @@ PHOLDAgent::executeTask(const EventContainer* events){
         
             const int Change[4] = {-1, -Y, Y, 1};
             // Compute index into the Change array
-            //int index = (int) (MTRandom::RandDouble() * 4);
-            int index  = (int)(rand() % 4);
+            
+            int index  = my_state->getIndex();
             // Determine the receiver neighbor
+            int new_index = (index + 1) % 4;
+        
             int receiverAgentID = getAgentID() + Change[index];
-
+            my_state->setIndex(new_index);
+            
             if(receiverAgentID < 0) {
                 receiverAgentID+=X*Y;
             }
@@ -95,7 +86,7 @@ PHOLDAgent::executeTask(const EventContainer* events){
             //printf ("Sending to LP: %d @ time %lf\n",receiverAgentID , receive);
             //schedule the event
             scheduleEvent(e);
-            // printf("SendTime %lf, RecvTime %lf, SenderID %4d, ReceiverID %4d\n", getTime(), receive, getAgentID(), receiverAgentID);
+            //printf("SendTime %lf, RecvTime %lf, SenderID %4d, ReceiverID %4d\n", getTime(), receive, getAgentID(), receiverAgentID);
         }
     }
 }//end executeTask

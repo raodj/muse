@@ -17,7 +17,7 @@
 #include <iostream>
 #include "PHOLDAgent.h"
 #include "Simulation.h"
-#include "State.h"
+#include "PholdState.h"
 #include "DataTypes.h"
 #include <math.h>
 #include <cstdlib>
@@ -67,7 +67,7 @@ int main(int argc, char** argv) {
     
     AgentID id = -1u;
     for (AgentID i= 0;i < agentsPerNode; i++){
-        State *phold_state = new State();
+        PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
         PHOLDAgent *phold_agent = new PHOLDAgent(id,phold_state,x,y,n,delay);
         // cout << "Rank: " << rank << " is servicing lp: " << id << endl;
@@ -79,7 +79,6 @@ int main(int argc, char** argv) {
     kernel->setStartTime(start);
     kernel->setStopTime(end);
     kernel->setGVTDelayRate(4000);
-    //we finally start the ping pong simulation here!!
     kernel->start();
     
     //now we finalize the kernel to make sure it cleans up.

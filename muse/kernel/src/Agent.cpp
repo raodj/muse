@@ -63,6 +63,16 @@ Agent::saveState() {
     state->timestamp = getLVT();
     
     // The states should be monotomically increasing in timestamp
+    
+    //if ( !stateQueue.empty() && (stateQueue.back()->getTimeStamp() > state->getTimeStamp()) ){
+
+        cout << "GOT SaveState error.\n time is: " <<getTime() <<
+            "\n last state time is: " <<stateQueue.back()->getTimeStamp()<<
+            "\n current state time is: " <<state->getTimeStamp()<<endl ;
+        cout << *this <<endl;
+        //abort();
+        
+        //}
     ASSERT(stateQueue.empty() ||
            (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
     // Save current state
