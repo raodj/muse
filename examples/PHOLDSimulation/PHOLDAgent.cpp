@@ -49,8 +49,8 @@ PHOLDAgent::executeTask(const EventContainer* events){
     for(size_t i = 0; (i < events->size()); i++){
         // Log information about the message for verification purposes.
         const Event* e = (*events)[i];
-        oss << "Agent #" << getAgentID()
-            << " processed event: " << *e << std::endl;
+        //oss << "Agent #" << getAgentID()
+        //   << " processed event: " << *e << std::endl;
         
         //first make a random receive time for the future
         //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
