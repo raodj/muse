@@ -76,7 +76,8 @@ Agent::saveState() {
            (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
     // Save current state
     stateQueue.push_back(state);
-    
+    DEBUG( std::cout << "Agent " << myID << " saved state at LVT "
+                     << state->getTimeStamp() << std::endl );
     // Save the states of all of the SimStreams
     oss.saveState(getLVT());
     for (size_t i = 0; (i < allSimStreams.size()); i++){
@@ -246,10 +247,10 @@ Agent::doRollbackRecovery(const Event* straggler_event) {
     doRestorationPhase(straggler_event->getReceiveTime());
     //After state is restored, that means out current time is the restored time!
     Time restored_time = getTime(LVT);
-    
-    //std::cerr << "*** Agent(" << myID << "): restored time to "
-    //          << restored_time << ", while GVT = " << getTime(GVT)
-    //          << std::endl;
+    ASSERT ( restored_time < straggler_event->getReceiveTime() );
+    DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
+                    << restored_time << ", while GVT = " << getTime(GVT)
+                    << std::endl);
    
     doCancellationPhaseInputQueue(restored_time,
                                   straggler_event);
@@ -295,6 +296,8 @@ Agent::doRestorationPhase(const Time& straggler_time){
     ASSERT(!stateQueue.empty());
     while (stateQueue.size() != 1 ){
         State* current_state = stateQueue.back();
+        DEBUG(std::cout << "Agent " << myID << " checking state "
+              << current_state->getTimeStamp() << std::endl);
         if (current_state->getTimeStamp() < straggler_time){
             //first we destroy the state we are in now <--kind of wierd to say right?
             delete myState;
@@ -303,13 +306,16 @@ Agent::doRestorationPhase(const Time& straggler_time){
             setState( cloneState(current_state) );
             //set agent's LVT to this state's timestamp
             setLVT(getState()->getTimeStamp());
-            //cout << "    State Found for time: "<< LVT << endl;
+            DEBUG(std::cout << "Agent " << myID << " found state for time: "
+                            << getTime() << " and state timestamp = "
+                            << getState()->getTimeStamp() << std::endl);
             break;
         } else {
             // we should delete and remove this state from the list
             // because it is no longer valid
             
-            //cout << "Deleting Current_State @ timestamp: " << current_state->getTimeStamp() << endl;
+            DEBUG(std::cout << "Agent " << myID << " deleting Current_State @ timestamp: "
+                            << current_state->getTimeStamp() << std::endl);
            
             delete current_state;
             stateQueue.pop_back();
