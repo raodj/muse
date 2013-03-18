@@ -99,7 +99,7 @@ AC_DEFUN([AC_PROG_ICC],
 
      if test -z "$icc"; then
          AC_MSG_CHECKING([for icc])
-         icc=`mpicxx --version | grep "^icc"`
+         icc=`mpicxx --version | grep -iw "icc"`
 	 if test -n "$icc"; then
 	     icc="yes"
 	 else
