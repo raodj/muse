@@ -36,3 +36,10 @@ intellectual property laws, and all other applicable laws of the U.S.,
 and the terms of this license.
 
 ------------------------------------------------------------------------
+
+
+Downloading and Compiling MUSE:
+svn co ...(repository directory)
+./autoconf -i
+./configure
+make
