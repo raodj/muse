@@ -1,0 +1,47 @@
+AGENTS
+
+Agent
+-AgentID
+-State
+Volunteer (inheirits Agent)
+-Current Location
+-CDC Location
+-List of Known Victim Locations
+-List of Victim Locations Reported to CDC
+Comand&ControlCenter
+-Number of victims
+-List of Reported Victims
+Victim (inheirits Agent)
+-Location
+RescueArea
+
+EVENTS
+
+UpdatePositionEvent (inheirits Event)
+-purpose: update current position in space
+-from: Volunteer
+-to: RescueArea
+-sends: AgentID, time, coord
+-when: at a constant interval (TBD)
+
+UpdatePositionEvent (inheirits Event)
+-purpose: update current position in space
+-from: Victim
+-to: RescueArea
+-sends: AgentID, time, coord
+-when: once at initialization
+
+UpdateNearbyEvent (inheirits Event)
+-purpose: notify agents within close proximity
+-from: RescueArea
+-to: Volunteer
+-sends: list of AgentIDs (includes Volunteers, Medics, Victims)
+-when: after recieving an UpdatePostionEvent
+
+VolunteerEvent (inherits Event)
+-purpose: check on statuses between Volunteers
+-from: Volunteer
+-to: Volunteers newly in close Proximity
+-sends: list of Known Victim coords, list of Reported Victim coords
+-when: after recieving Update NearbyEvent and discovering new nearby Volunteers or Victims
+
