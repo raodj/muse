@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_CPP
-#define MAIN_WINDOW_CPP
+#ifndef USER_LOG_CPP
+#define USER_LOG_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,15 +36,43 @@
 //
 //---------------------------------------------------------------------
 
-#include "MainWindow.h"
+#include "UserLog.h"
 
-MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
-    this->setWindowTitle("MUSE GUI");
+#define TAB "\t"
 
+// The global singleton instance of programmer log
+UserLog UserLog::globalUserLog;
+
+UserLog::UserLog() : logData(NULL) {
+    // Nothing else to be done for now.
 }
 
-MainWindow::~MainWindow() {
-    
+UserLog::~UserLog() {
+    // Empty constructor implies empty destructor
+}
+
+Logger::LogLevel
+UserLog::getLevel(const int row) const {
+    if ((row < 0) || (row >= logData.logEntries.size())) {
+        return Logger::ERROR;
+    }
+    return logData.logEntries[row].level;
+}
+
+void
+UserLog::write(QTextStream& os) {
+    for(int i = 0; (i < logData.logEntries.size()); i++) {
+        os << logData.logEntries[i] << endl;
+    }
+}
+
+void
+UserLog::appendLogEntry(const Logger::LogLevel level,
+                        const QMessageLogContext &context, const QString &msg) {
+    // Save data in our logs
+    logData.appendLogEntry(level, context, msg);
+    // Let views (if any) know the model/data has changed
+    emit logChanged();
 }
 
 #endif

@@ -1,5 +1,6 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef DND_TAB_MIME_DATA_CPP
+#define DND_TAB_MIME_DATA_CPP
+
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,14 +37,16 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
+#include "DnDTabMimeData.h"
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-};
+// The constant string to refer to the special mime type used for dnd of tabs
+const QString DnDTabMimeData::MimeType = "application/muse-dnd";
 
-#endif // MAIN_WINDOW_H
+DnDTabMimeData::DnDTabMimeData(DnDTabBar *tabBar, int tabIndex) {
+    this->srcTabBar = tabBar;
+    this->tabIndex  = tabIndex;
+    // Setup the special mime type for this mime data
+    this->setData(MimeType, QByteArray());
+}
+
+#endif
