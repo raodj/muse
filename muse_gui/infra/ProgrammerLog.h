@@ -1,5 +1,5 @@
-#ifndef MAIN_CPP
-#define MAIN_CPP
+#ifndef PROGRAMMER_LOG_H
+#define PROGRAMMER_LOG_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,21 +36,28 @@
 //
 //---------------------------------------------------------------------
 
-#include "MainWindow.h"
-#include <QApplication>
-#include "Version.h"
+#include "Log.h"
 
-int main(int argc, char *argv[]) {
-    // Initialize QT application (initally processes command-line arguments)
-    QApplication app(argc, argv);
+class ProgrammerLog : public Log {
+    Q_OBJECT
+    friend class Logger;
+public:
+    static ProgrammerLog& get() { return programmerLog; }
+    const QString& getEntries() const { return logEntries; }
+    void write(QTextStream& os);
 
-    // Create the main window that will contain various tabbed views that
-    // can be reorganized by dragging and dropping tabs.
-    MainWindow mainWindow;
-    mainWindow.show();
-    
-    // Start the main GUI-event processing loop.
-    return app.exec();
-}
+protected slots:
+    void appendLogEntry(const Logger::LogLevel,
+                        const QMessageLogContext &context,
+                        const QString &msg);
 
-#endif
+protected:
+    QString logEntries;
+    static ProgrammerLog programmerLog;
+
+private:
+    ProgrammerLog();
+    ~ProgrammerLog();
+};
+
+#endif // PROGRAMMER_LOG_H
