@@ -76,8 +76,8 @@ MainWindow::showEvent(QShowEvent *event) {
               << endl << QString(80, '-');
 
     // Cut some initial user logs.
-    userLog(Logger::NOTICE) << FULL_TITLE << endl << MUSE_GUI_VERSION;
-    userLog(Logger::NOTICE) << MUSE_GUI_RELEASE_DATE << endl << MUSE_GUI_COPYRIGHT;
+    userLog() << FULL_TITLE << endl << MUSE_GUI_VERSION;
+    userLog() << MUSE_GUI_RELEASE_DATE << endl << MUSE_GUI_COPYRIGHT;
 }
 
 #endif

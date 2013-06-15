@@ -70,15 +70,13 @@ UserLogTableModel::data(const QModelIndex &index, int role) const {
     // Display role is used only for the first column to include
     // an icon for log-level value.
     if ((role == Qt::DecorationRole) && (index.column() == 0)) {
-        switch (ule.level)
-        {
-        case Logger::LOG_VERBOSE:   return QIcon(":/images/32x32/log_verbose.png");
-        case Logger::LOG_NOTICE:    return QIcon(":/images/32x32/log_notice.png");
-        case Logger::LOG_WARNING:   return QIcon(":/images/32x32/log_warning.png");
-        case Logger::LOG_ERROR:     return QIcon(":/images/32x32/log_error.png");
+        switch (ule.level) {
+        case Logger::LOG_NOTICE:  return QIcon(":/images/32x32/log_notice.png");
+        case Logger::LOG_WARNING: return QIcon(":/images/32x32/log_warning.png");
+        case Logger::LOG_ERROR:   return QIcon(":/images/32x32/log_error.png");
+        case Logger::LOG_VERBOSE:
+        default:                  return QIcon(":/images/32x32/log_verbose.png");
         }
-
-        return QIcon(":/images/32x32/log_verbose.png");
     }
     // Rest of the code works only if role is display role.
     if (role != Qt::DisplayRole) {
