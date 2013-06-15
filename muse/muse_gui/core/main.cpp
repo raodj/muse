@@ -39,7 +39,6 @@
 #include "MainWindow.h"
 #include "Version.h"
 #include "ProgrammerLog.h"
-#include "RemoteFileSystemProxyModel.h"
 #include <QApplication>
 #include <QFileDialog>
 #include <QDebug>
