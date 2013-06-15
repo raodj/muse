@@ -54,7 +54,7 @@ UserLog::~UserLog() {
 Logger::LogLevel
 UserLog::getLevel(const int row) const {
     if ((row < 0) || (row >= logData.logEntries.size())) {
-        return Logger::ERROR;
+        return Logger::LOG_ERROR;
     }
     return logData.logEntries[row].level;
 }
