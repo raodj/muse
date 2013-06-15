@@ -121,7 +121,7 @@ public:
      *
      * </UL>
     */
-    enum LogLevel {VERBOSE, NOTICE, WARNING, ERROR};
+    enum LogLevel{LOG_VERBOSE, LOG_NOTICE, LOG_WARNING, LOG_ERROR};
 
     /**
      * @brief toString Method to obtain string representation of a LogLevel.
@@ -178,7 +178,7 @@ public:
      * the log entry is being generated. This information is currently
      * used only in the user log.
      */
-    inline Logger(const LogLevel level = NOTICE, bool userLogEntry = false,
+    inline Logger(const LogLevel level = LOG_NOTICE, bool userLogEntry = false,
                   const char* file = "", int line = 0, const char* function = "",
                   const char* component = "") :
         context(file, line, function, component), logLevel(level),
@@ -335,7 +335,7 @@ private:
   *
   * \endcode
   */
-#define progLog Logger(Logger::NOTICE, false, __FILE__, __LINE__, \
+#define progLog Logger(Logger::LOG_NOTICE, false, __FILE__, __LINE__, \
     Q_FUNC_INFO, MUSE_SUBSYS).log
 
 /** \def userLog
@@ -371,7 +371,7 @@ private:
   *
   * \endcode
   */
-#define userLog Logger(Logger::NOTICE, true, __FILE__, __LINE__, \
+#define userLog Logger(Logger::LOG_NOTICE, true, __FILE__, __LINE__, \
     Q_FUNC_INFO, MUSE_SUBSYS).log
 
 #endif // LOGGER_H
