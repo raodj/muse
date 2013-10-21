@@ -42,6 +42,6 @@ VolunteerEvent (inherits Event)
 -purpose: check on statuses between Volunteers
 -from: Volunteer
 -to: Volunteers newly in close Proximity
--sends: list of Known Victim coords, list of Reported Victim coords
+-sends: list of Known Victim coords
 -when: after recieving Update NearbyEvent and discovering new nearby Volunteers or Victims
 

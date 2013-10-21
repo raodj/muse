@@ -104,6 +104,7 @@ am_RescueSim_OBJECTS = agents/src/RescueArea.$(OBJEXT) \
 	events/src/UpdateNearbyEvent.$(OBJEXT) \
 	events/src/UpdatePositionEvent.$(OBJEXT) \
 	events/src/VolunteerEvent.$(OBJEXT) \
+	events/src/RescueEvent.$(OBJEXT) \
 	states/src/RescueAreaState.$(OBJEXT) \
 	states/src/VictimState.$(OBJEXT) \
 	states/src/VolunteerState.$(OBJEXT) tools/arg_parser.$(OBJEXT) \
@@ -223,6 +224,7 @@ RescueSim_SOURCES = \
 	events/src/UpdateNearbyEvent.cpp\
 	events/src/UpdatePositionEvent.cpp\
 	events/src/VolunteerEvent.cpp\
+	events/src/RescueEvent.cpp\
 	states/src/RescueAreaState.cpp\
 	states/src/VictimState.cpp\
 	states/src/VolunteerState.cpp\
@@ -309,6 +311,8 @@ events/src/UpdatePositionEvent.$(OBJEXT): events/src/$(am__dirstamp) \
 	events/src/$(DEPDIR)/$(am__dirstamp)
 events/src/VolunteerEvent.$(OBJEXT): events/src/$(am__dirstamp) \
 	events/src/$(DEPDIR)/$(am__dirstamp)
+events/src/RescueEvent.$(OBJEXT): events/src/$(am__dirstamp) \
+	events/src/$(DEPDIR)/$(am__dirstamp)
 states/src/$(am__dirstamp):
 	@$(mkdir_p) states/src
 	@: > states/src/$(am__dirstamp)
@@ -338,6 +342,7 @@ mostlyclean-compile:
 	-rm -f agents/src/RescueArea.$(OBJEXT)
 	-rm -f agents/src/Victim.$(OBJEXT)
 	-rm -f agents/src/Volunteer.$(OBJEXT)
+	-rm -f events/src/RescueEvent.$(OBJEXT)
 	-rm -f events/src/UpdateNearbyEvent.$(OBJEXT)
 	-rm -f events/src/UpdatePositionEvent.$(OBJEXT)
 	-rm -f events/src/VolunteerEvent.$(OBJEXT)
@@ -353,6 +358,7 @@ include ./$(DEPDIR)/RescueSim_main.Po
 include agents/src/$(DEPDIR)/RescueArea.Po
 include agents/src/$(DEPDIR)/Victim.Po
 include agents/src/$(DEPDIR)/Volunteer.Po
+include events/src/$(DEPDIR)/RescueEvent.Po
 include events/src/$(DEPDIR)/UpdateNearbyEvent.Po
 include events/src/$(DEPDIR)/UpdatePositionEvent.Po
 include events/src/$(DEPDIR)/VolunteerEvent.Po

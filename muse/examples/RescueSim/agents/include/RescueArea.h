@@ -1,4 +1,3 @@
-
 #ifndef RescueArea_H
 #define RescueArea_H
 

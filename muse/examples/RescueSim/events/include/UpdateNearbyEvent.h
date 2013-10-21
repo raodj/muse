@@ -1,26 +1,20 @@
-
 #ifndef UpdateNearbyEvent_H
 #define UpdateNearbyEvent_H
 
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-
-    File: UpdateNearbyEvent.h
-    Author: your name
-
-    ........give brief description of what this  event means here.......
-*/
-
-#include "Event.h"
+#include "RescueEvent.h"
 #include "VolunteerDataTypes.h"
 #include <vector>
 using namespace muse;
 
-class UpdateNearbyEvent: public Event {
+class UpdateNearbyEvent: public RescueEvent {
 public:
-   UpdateNearbyEvent(AgentID receiver_id, Time receive_time);
+   UpdateNearbyEvent(AgentID receiver_id, Time receive_time, VolunteerEventType type);
    inline int getEventSize() {return sizeof(UpdateNearbyEvent);}
+   inline void setNearbyVols(std::vector<AgentID> n) { nearbyVols = n; }
+   inline void setNearbyVics(std::vector<coord> n) { nearbyVics = n; }
+   inline std::vector<AgentID> getNearbyVols() { return nearbyVols; }
+   inline std::vector<coord> getNearbyVics() { return nearbyVics; }
+protected:
    std::vector<AgentID> nearbyVols;
    std::vector<coord> nearbyVics;
 };

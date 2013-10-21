@@ -1,4 +1,3 @@
-
 #ifndef Victim_CPP
 #define Victim_CPP
 
@@ -19,8 +18,8 @@ void Victim::initialize() throw (std::exception){
    while(y == rows) y = (MTRandom::RandDouble()*(rows));
    my_location.first = x;
    my_location.second = y;
-
-   UpdatePositionEvent * updatePos = new UpdatePositionEvent(coord_map[my_location.second], getTime(), my_location, UpdatePositionVictim);
+   UpdatePositionEvent * updatePos = new UpdatePositionEvent(coord_map[(int)(my_location.second/AREA_COL_WIDTH)], 
+                                                                  getTime(), my_location, UpdatePositionVictim);
    scheduleEvent(updatePos);
 }
 

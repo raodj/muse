@@ -13,27 +13,6 @@ enum agentType {
 	agentType_END
 };
 
-struct agent {
-	int ID;
-	agentType type;
-	double xpos;
-	double ypos;
-	std::vector<agent> nearby;
-};
-
-std::ostream& operator<<(std::ostream& os, const agent& ag) {
-	return (os << ag.ID << " " << ag.type << " " << ag.xpos << " " << ag.ypos);
-}
-
-std::istream& operator>>(std::istream& is, agent& ag) {
-	is >> ag.ID;
-	int ty = 0;
-	is >> ty;
-	ag.ID = ty;
-	is >> ag.xpos >> ag.ypos;
-	return is;
-}
-
 class RescueSimOutputHelper {
 private:
 	int current;

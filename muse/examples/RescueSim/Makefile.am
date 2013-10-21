@@ -37,6 +37,7 @@ RescueSim_SOURCES = \
 	events/src/UpdateNearbyEvent.cpp\
 	events/src/UpdatePositionEvent.cpp\
 	events/src/VolunteerEvent.cpp\
+	events/src/RescueEvent.cpp\
 	states/src/RescueAreaState.cpp\
 	states/src/VictimState.cpp\
 	states/src/VolunteerState.cpp\
