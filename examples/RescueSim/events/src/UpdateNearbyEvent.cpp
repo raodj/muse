@@ -4,8 +4,7 @@
 
 #include "UpdateNearbyEvent.h"
 
-UpdateNearbyEvent::UpdateNearbyEvent(AgentID receiver_id, Time receive_time) : Event(receiver_id, receive_time){
-    //insert ctor code here
-}//end ctor
+UpdateNearbyEvent::UpdateNearbyEvent(AgentID receiver_id, Time receive_time, VolunteerEventType type)
+    : RescueEvent(receiver_id, receive_time, type){ }
 
 #endif /* UpdateNearbyEvent_CPP */

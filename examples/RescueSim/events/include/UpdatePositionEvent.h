@@ -12,16 +12,15 @@
     ........give brief description of what this  event means here.......
 */
 
-#include "Event.h"
+#include "RescueEvent.h"
 #include "VolunteerDataTypes.h"
 using namespace muse;
 
-class UpdatePositionEvent: public Event {
+class UpdatePositionEvent: public RescueEvent {
 public:
    UpdatePositionEvent(AgentID receiver_id, Time receive_time, coord loc, VolunteerEventType type);
    inline int getEventSize() {return sizeof(UpdatePositionEvent);}
    coord cur_location;
-   VolunteerEventType e_type;
 };
 
 #endif /* UpdatePositionEvent_H */

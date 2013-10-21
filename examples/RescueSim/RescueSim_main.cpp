@@ -1,10 +1,3 @@
-
-/*
-   Auto generated main class by muse code generator.
-   This source does some of the setup for you.
-   Check out musesimulation.org for the API to see Simulation class methods.
-*/
-
 #include "Simulation.h"
 #include "DataTypes.h"
 #include <cmath>
@@ -32,7 +25,6 @@ int CCC_y;
 int max_nodes;
 int end_time;
 
-//let make the arg_record
 arg_parser::arg_record arg_list[] = {
    { "-cols","The Number of columns in the space.", &cols, arg_parser::INTEGER }, 
    { "-rows","The Number of rows in the space.", &rows, arg_parser::INTEGER },
@@ -45,8 +37,6 @@ arg_parser::arg_record arg_list[] = {
    { NULL, NULL }
 };
 
-/* The main
- */
 int main(int argc, char** argv) {
    cols = 100;
    rows = 100;

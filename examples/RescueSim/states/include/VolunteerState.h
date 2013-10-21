@@ -1,16 +1,5 @@
-
 #ifndef VolunteerState_H
 #define VolunteerState_H
-
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-
-    File: VolunteerState.h
-    Author: your name
-
-    ........give brief description of what this  state contains here.......
-*/
 
 #include "State.h"
 #include "VolunteerDataTypes.h"
@@ -27,10 +16,15 @@ public:
       curLocation.second = new_coords.second;
    }
    inline std::vector<coord> getKnownVictims() const {return knownVictims;}
-   inline void addVictim(coord location) {knownVictims.push_back(location);}
+   inline std::vector<AgentID> getNearbyVolunteers() const {return nearbyVolunteers;}
+   inline int* getMoveTracker() {return moveTracker;}
+   void updateNearbyVols(std::vector<AgentID> nearbyVols);
+   void updateKnownVics(std::vector<coord> nearbyVics);
 protected:
    coord curLocation;
+   int moveTracker[8];
    coord CDCLocation;
+   std::vector<AgentID> nearbyVolunteers;
    std::vector<coord> knownVictims;
 };
 
