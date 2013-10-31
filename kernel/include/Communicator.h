@@ -1,5 +1,28 @@
-#ifndef _MUSE_COMMUNICATOR_H_
-#define _MUSE_COMMUNICATOR_H_
+#ifndef MUSE_COMMUNICATOR_H
+#define MUSE_COMMUNICATOR_H
+
+//---------------------------------------------------------------------------
+//
+// Copyright (c) Miami University, Oxford, OHIO.
+// All rights reserved.
+//
+// Miami University (MU) makes no representations or warranties about
+// the suitability of the software, either express or implied,
+// including but not limited to the implied warranties of
+// merchantability, fitness for a particular purpose, or
+// non-infringement.  MU shall not be liable for any damages suffered
+// by licensee as a result of using, result of using, modifying or
+// distributing this software or its derivatives.
+//
+// By using or copying this Software, Licensee agrees to abide by the
+// intellectual property laws, and all other applicable laws of the
+// U.S., and the terms of this license.
+//
+// Authors: Meseret R. Gebre       meseret.gebre@gmail.com
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org  
+//
+//---------------------------------------------------------------------------
 
 #include "DataTypes.h"
 #include "HashMap.h"
@@ -11,119 +34,126 @@
 #define GVT_ESTIMATE_TIME 3
 
 //these are the source types
-#define ROOT_KERNEL     0
+#define ROOT_KERNEL       0
 
 BEGIN_NAMESPACE(muse);
 
-//forward declaration here
 class GVTMessage;
 class GVTManager;
 
 class Communicator {
-  
-    //class Event;
+public:
+    /** \brief Default Constructor.
 
- public:
-    /** The ctor.
-     */
+        Initialize the Communicator without a GVTManager.
+        
+    */
     Communicator();
 
-    /** The dtor.
-     */
+    /** \brief Destructor
+
+        Do nothing, since no memory is allocated.
+    */
     ~Communicator();
 
-    /** The sendEvent method.
-	@param Event pointer, this is the event to be sent across the wire.
-	@param int eventSize, simply use the sizeof() method of the event class
-	you are sending on the wire.
+    /** \brief Send the specified Event to the appropriate remote
+        process
+        
+	\param[in] e The event to be sent across the wire
+	\param[in] eventSize The size (in bytes) of the event to send
+        
+        Example usage:
+        \code
+	ClockEvent* e = new ClockEvent();
+	sendEvent(e, sizeof(*e)); 
+        \endcode
+        
+	\see Event
+    */
+    void sendEvent(Event* e, const int eventSize);
 
-	USAGE EXAMPLE:: using the clock example!
-	ClockEvent *e = new ClockEvent();
-	sendEvent(e, sizeof(*e)); //NOTE::that you want the sizeof what the pointer points to!!
-
-	@see Event
-     */
-    void sendEvent(Event *, const int);
-
-    /** The sendMessage method.
-	Method to send out a GVT message.
+    /** \brief Send out a GVT message.
 
         This method must be used to dispatch a GVT message from
         this process to another process.  This method is typically
         invoked only from the GVTManager class.
 
-        @param msg The message to be dispatched to a remote
+        \param[in] msg The message to be dispatched to a remote
         process.
 
-        @param destRank The rank of the destination process to
+        \param[in] destRank The rank of the destination process to
         which the event is to be dispatched.
     */
     void sendMessage(const GVTMessage *msg, const int destRank);
-
-    
 	
     /** The recvEvent method.
 	
-        @note Will return a NULL if there is no Event to receive!!!
-	@return Event pointer, this is the event to be received from the wire.
-	@see Event
+        \note This method will return a NULL if there is no Event to
+        receive
+        
+	\return Event pointer, this is the event to be received from
+	the wire.
+
+        \see Event
     */
     Event* receiveEvent();
 
-    /** The initialize method.
-	This is used to sync all communicator and get the agentMap
-	populated.
+    /** \brief Sync all communicators and get the agentMap populated.
 
-	@param int, the number of arguments to pass to MPI::Init
-	@param char**, the list of arguments to pass to MPI:Init
-	@return SimulatorID, with MPI this is the rank of the process.
+	\param argc the number of arguments to pass to MPI::Init
+	\param argv the list of arguments to pass to MPI:Init
 
-	@see SimulatorID
+	\return SimulatorID (MPI rank of the process)
+
+	\see SimulatorID
     */
     SimulatorID initialize(int argc, char* argv[]);
 
-    /** The registerAgents method.
+    /** \brief Synchronize AgentMapping between Kernel and
+        Communicator
+        
 	This is used to sync the AgentMapping in the Communicator class.
 	Before you can send any events across the wire (MPI), use this to
 	get your agents and other kernel's agents mapped correctly.
      
-	@note please call the initialize method before calling this method.
+	\note initialize() must be called before this method
      
-	@param AgentContainer reference, this is the list of agents the kernel containts
-	@see AgentContainer
-    */
-    void registerAgents(AgentContainer &);
+	\param[in,out] allAgents The list of agents the kernel contains
 
-    /** The isAgentLocal method.
-	This will check if the given agent is registered locally.
+        \see AgentContainer
+    */
+    void registerAgents(AgentContainer& allAgents);
+
+    /** \brief Check if the given agent is registered locally.
 	
-	@param id , the agent id is used to check. true if it is local.
-	@see AgentID
-    */
-    bool isAgentLocal(AgentID );
+	\param[in] id The agent id is used to check
 
-    /** The getOwnerRank method.
-	Method to obtain the rank of the process on which a given
+        \return True if the agent with the specified ID is local
+        
+	\see AgentID
+    */
+    bool isAgentLocal(const AgentID id);
+
+    /** \brief Obtain the rank of the process on which a given
         agent resides.
 
         This method can be used to determine the rank of the
         remote process on which a given agent resides.
 
-        @note The values returned by this method make sense only
+        \note The values returned by this method make sense only
         after the communicator has been initialized and
         information regarding all the agents has been exchanged.
 
-        @param id The ID of the agent for which the
+        \param id The ID of the agent for which the
         corresponding process rank is desired.
 
-        @return If the id (parameter) is valid then this method
+        \return If the id (parameter) is valid then this method
         returns the rank of the process on which the given agent
         resides.  Otherwise this method returns -1.
     */
-    unsigned int getOwnerRank(const AgentID &id) const;
+    unsigned int getOwnerRank(const AgentID& id) const;
 
-    /** The getProcessInfo method.
-	Method to obtain process configuration information.
+    /** \brief Obtain process configuration information.
 
         This method may be used to obtain some of the
         configuration information associated with the processes
@@ -131,7 +161,7 @@ class Communicator {
         example in GVTManager::initialize() to determine
         simulation configuration.
 
-        @note The values returned by this method make sense only
+        \note The values returned by this method make sense only
         after the communicator has been initialized and
         information regarding all the agents has been exchanged.
         Invoking this method before the Communicator has been
@@ -143,11 +173,9 @@ class Communicator {
         \param[out] numProcesses The total number of processes
         constituting the simulation.
     */
-    void getProcessInfo(unsigned int &rank, unsigned int& numProcesses);
+    void getProcessInfo(unsigned int& rank, unsigned int& numProcesses);
 
-    /** The setGVTManager method.
-	
-	Set a reference to the GVT manager.
+    /** \brief Set a reference to the GVT manager.
 
         This method must be used to set a valid pointer to the GVT
         manager class assocaited with this simulation. The GVT manager
@@ -159,28 +187,29 @@ class Communicator {
         \param[in,out] gvtMgr The GVT manager object to be used for
         processing incoming and outgoing events.
     */
-    void setGVTManager(GVTManager *gvtMgr);
+    void setGVTManager(GVTManager* gvtMgr);
     
-    /** The finialize method.
+    /** \brief Clean up after yourself
 	
-        Use this to clean up after yourself.
 	MPI calls the MPI:Finalize
     */
     void finalize();
 
- private:
+private:
 
-    /** This is used to map the locations of all agents in the simulation.
-	When simulation starts, all simulation kernels, will perform a bcast and
-	send all agents that they have. Using the agentID as the key, the communicator
-	will be able to know the simulator kernel's ID.
+    /** \brief The locations of all agents in the simulation.
+        
+	When simulation starts, all simulation kernels, will perform a
+	bcast and send all agents that they have. Using the agentID as
+	the key, the communicator will be able to know the simulator
+	kernel's ID.
 	
-	@see AgentID
-	@see SimulatorID
-     */
+	\see AgentID
+	\see SimulatorID
+    */
     AgentIDSimulatorIDMap agentMap;
     
-    /** Instance variable to hold reference to GVT manager.
+    /** \brief Instance variable to hold reference to GVT manager.
 
         This instance variable is used to hold a pointer to the GVT
         manager associated with this simulation.  The GVT manager
@@ -189,7 +218,7 @@ class Communicator {
         the GVT manager.  This pointer is set by the Simulator just
         before it starts simulation.  
     */
-    GVTManager *gvtManager;
+    GVTManager* gvtManager;
 };
 
 END_NAMESPACE(muse)

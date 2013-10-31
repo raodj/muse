@@ -1,3 +1,6 @@
+#ifndef BINARY_HEAP_WRAPPER_H
+#define BINARY_HEAP_WRAPPER_H
+
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -15,26 +18,11 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       meseret.gebre@gmail.com
+// Authors: Meseret Gebre          meseret.gebre@gmail.com
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
-
-
-/* 
- * File:   BinaryHeapWrapper.h
- * Author: Meseret Gebre - meseret.gebre@gmail.com  - meseretgebre.com
- *
- * Created on April 15, 2009, 12:04 AM
- *
- * This wrapper classes is meant to make a vector container act as a binary heap.
- * Priority Queueu can be used, but we needed access to elements in the heap and
- * priority_queue does not have support for iterators.
- *
- * @note I appened Wrapper because it has special features made for MUSE and we wrap a vector
- */
-
-#ifndef BINARYHEAPWRAPPER_H
-#define	BINARYHEAPWRAPPER_H
 
 #include <vector>
 #include "DataTypes.h"
@@ -42,77 +30,113 @@
 
 using std::vector;
 
-BEGIN_NAMESPACE(muse); //begin namespace muse
+BEGIN_NAMESPACE(muse);
 
+/** \brief Binary (min) Heap based on std::vector
 
+    This class provides a convenient interface to a vector-backed
+    heap.  The heap is created and managed using standard methods.
+
+    Currently, the heap is MUSE-specific: it contains Event* only.
+    
+ */
 class BinaryHeapWrapper {
-
 public:
+    /** \brief Default constructor.
 
-    /** The ctor
+        The constructor initialzies the vector and creates the
+        initial, empty heap.
      */
-     BinaryHeapWrapper ();
+    BinaryHeapWrapper();
 
-     /** The dtor
+    /** \brief Destructor.
+
+        The destructor deletes all allocated memory, in this case, the
+        vector.
      */
-     ~BinaryHeapWrapper ();
+    ~BinaryHeapWrapper();
 
-     /** The top method.
-         Nothing special, gives access to the min event in the heap
+    /** \brief Get the top element of the heap
 
-         @return event pointer, a pointer to the min event.
-      */
-     inline Event * top() const { return the_container->front();}
+        This method returns a pointer to the current top elemenet of
+        the heap.
 
-     /** The pop method.
-        This will return the next heap event.
+        \return A pointer to the top Event
+    */
+    inline Event* top() const { return heapContainer->front(); }
 
-        @return event, the event with highest priority.
+    /** \brief Remove the top element from the heap
+
+        This method will remove the current top element from the heap,
+        and then fixup the heap.
+
+        \note This method does not return the top element from the
+        heap -- however, calling this method may cause the Event to be
+        deleted as it will decreaseReference().
+    */
+    void pop();
+
+    /** \brief Push an element onto the heap
+
+        This method will add the specified element to the heap.
+
+        \note This class will call increaseReference() on the event,
+        preventing it from being automatically deleted.
+
+        \param[in] event The event to be push into the heap
+    */
+    void push(Event* event);
+
+    /** \brief Remove all events that occur after the specified Event
+
+        This method will compare the timestamps of all events in the
+        heap with that of the specified event. Any Event (from the
+        same sender) that occurs at a time greater than or equal to
+        that of the specified event will be deleted.
+        
+        \param[in] antiMsg The Anti-Message indicating what should be
+        removed
+        
+        \return True if any cancellation was done
+    */
+    bool removeFutureEvents(const Event* antiMsg);
+
+    /** \brief Get the current size of the heap
+
+        \return The current size of the heap        
      */
-     void pop(void);
+    inline EventContainer::size_type size() const {
+        return heapContainer->size();
+    }
 
-     /** The push method.
-         This will push the heap element into the heap.
+    /** \brief Check if the heap is empty
 
-        @param event, the event to be push into the heap.
+        \return True if the heap is empty
      */
-     void push(Event * event);
-
-     /** The  removeFutureEvents method.
-         This will cancel all elements (events) with timestamp equal or greater
-         to the passed in element (event) from the sender agent of the event.
-
-         @param future_event, the event to use for cancellation.
-         @return bool, if any cancellation was done, true will be returned.
-      */
-     bool removeFutureEvents(const Event * future_event);
-
-     inline EventContainer::size_type size() const {return the_container->size();}
-     inline bool empty() const { return the_container->empty(); }
+    inline bool empty() const { return heapContainer->empty(); }
 
 private:
+    /// The vector backing the heap
+    EventContainer* heapContainer;
 
-    /** This is the container that is used with the wrapper.
-        When the user wishes to iterate, a pointer to this class
-        is returned.
-     */
-    EventContainer * the_container;
+    /** \brief Event Comparator for min-heap creation
 
-    /** The eventComp class.
-        Compares delivery times. puts the one with the smaller ahead.
+        This class provides a functor for compariing two Event
+        instances. It is used internally for heap operations.
+
+        Events are ordered by their recieve times.
+        
     */
-    class eventComp{
+    class EventComp {
     public:
-        eventComp(){}
-        inline bool operator() ( muse::Event *lhs,  muse::Event *rhs) const{
-            Time lhs_time = lhs->getReceiveTime(); //hack to remove warning during compile time
+        EventComp() {}
+        inline bool operator() (muse::Event *lhs, muse::Event *rhs) const {
+            Time lhs_time = lhs->getReceiveTime();
             return (lhs_time > rhs->getReceiveTime());
         }
     };
-
 };
 
-END_NAMESPACE(muse); //end namespace muse
+END_NAMESPACE(muse);
 
-#endif	/* BINARYHEAPWRAPPER_H */
-
+#endif

@@ -37,7 +37,7 @@
 using namespace muse;
 
 Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
-                           gvt_delay_rate(10), number_of_processes(-1u) {
+                           gvtDelayRate(10), numberOfProcesses(-1u) {
     commManager = new Communicator();
     scheduler   = new Scheduler();
     myID        = -1u;
@@ -46,34 +46,18 @@ Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
 }
 
 void
-Simulation::initialize(){
-    // The following initialization creates dummy arguments to be
-    // passed to initialize MPI. Without these parmaeters mpi
-    // initialization causes problems.  This is a workaround for a bug
-    // seemingly present in MPI.
-    int x            = 0;
-    char emptyStr[1] = "";  // An empty string
-    char **arg       = new char*[1];
-    arg[0]           = emptyStr;
-    // Initialize MPI and determine the ID of this simulation based on
-    // the MPI rank associated with this process.
-    myID             = commManager->initialize(x, arg);
-    // Free memory as MPI no longer needs this information.
-    delete[] arg;
-}
-
-void
-Simulation::initialize(int argc, char* argv[]){
+Simulation::initialize(int argc, char* argv[]) {
     myID = commManager->initialize(argc, argv);
-    commManager->getProcessInfo(myID, number_of_processes);
+    commManager->getProcessInfo(myID, numberOfProcesses);
     
-    //here we hijack cerr any move the data to file for logging.
+    // If debugging is enabled, hijack cout and redirect it to a
+    // LogID.txt file
     DEBUG({
-        char logFileName[128];
-        sprintf(logFileName, "Log%u.txt", myID);
-        logFile = new  ofstream(logFileName);
-        oldstream = std::cout.rdbuf(logFile->rdbuf());
-    });
+            char logFileName[128];
+            sprintf(logFileName, "Log%u.txt", myID);
+            logFile = new ofstream(logFileName);
+            oldstream = std::cout.rdbuf(logFile->rdbuf());
+        });
 
     // Register a signal handler on SIGUSR1 to trap "dump" event. Use
     // sigaction() instead of signal() as per the signal(2) manpage.
@@ -91,23 +75,20 @@ Simulation::~Simulation() {
     DEBUG(delete logFile);
 }
 
-
 bool
 Simulation::registerAgent(muse::Agent* agent)  { 
-    if (scheduler->addAgentToScheduler(agent)){
+    if (scheduler->addAgentToScheduler(agent)) {
         allAgents.push_back(agent);
         return true;
     }
     return false;
-}//end registerAgent
-
+}
 
 Simulation*
-Simulation::getSimulator(){
+Simulation::getSimulator() {
     static Simulation kernel;
-    return &kernel; // address of sole instance
-}//end getSimulator
-
+    return &kernel;
+}
 
 bool 
 Simulation::scheduleEvent(Event* e) {
@@ -133,9 +114,8 @@ Simulation::scheduleEvent(Event* e) {
     return true;
 }
 
-
 void 
-Simulation::start(){
+Simulation::start() {
     //if no agents registered we need to leave start and end sim
     if (allAgents.empty()) return;
     //first we setup the AgentMap for all kernels
@@ -147,25 +127,21 @@ Simulation::start(){
     commManager->setGVTManager(gvtManager);
 
     //information about the simulation environment
-    unsigned int rank         = -1u;
-    commManager->getProcessInfo(rank, number_of_processes);
+    unsigned int rank = -1u;
+    commManager->getProcessInfo(rank, numberOfProcesses);
     
     //loop for the initialization
     AgentContainer::iterator it;
     for (it = allAgents.begin(); (it != allAgents.end()); it++) {
         (*it)->initialize();
-         // time to archive the agent's init state
+        // time to archive the agent's init state
         (*it)->saveState();
         
-    }//end for
+    }
     
-    LGVT = startTime;
-   
-    //BIG loop for event processing
-    //int count=0;
-    int gvtTimer              = gvt_delay_rate;
+    LGVT         = startTime;
+    int gvtTimer = gvtDelayRate;
     
-
     while (gvtManager->getGVT() < endTime) {
         // See if a stat dump has been requested
         if (doDumpStats) {
@@ -173,11 +149,10 @@ Simulation::start(){
             doDumpStats = false;
         }
         if (--gvtTimer == 0 ) {
-            gvtTimer = gvt_delay_rate;
+            gvtTimer = gvtDelayRate;
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-
        
         // An optimization trick we learned from WARPED is to try to
         // get as many event from the wire as we can. A good magic
@@ -198,28 +173,27 @@ Simulation::start(){
                     std::cout << "LGVT = " << LGVT << " is below GVT: "
                               << getGVT()
                               << " which is serious error. "
-                                  << "Scheduled agents:\n";
-                    scheduler->agent_pq.prettyPrint(std::cout);
+                              << "Scheduled agents:\n";
+                    scheduler->agentPQ.prettyPrint(std::cout);
                     std::cerr << "Rank " << myID << " Aborting.\n";
                     std::cerr << std::flush;
                     DEBUG(logFile->close());
                     ASSERT ( false );
                 }
-            } else{
+            } else {
                 break; 
             }
             // Let the GVT Manager forward any pending control
             // messages, if needed
             gvtManager->checkWaitingCtrlMsg();
-        }//end magic mpi for loop
-        
+        }        
         
         // Update lgvt to the time of the next event to be processed.
         LGVT = scheduler->getNextEventTime();
         if (LGVT < getGVT()) {
             std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
                       << " which is serious error. Scheduled agents: \n";
-            scheduler->agent_pq.prettyPrint(std::cerr);
+            scheduler->agentPQ.prettyPrint(std::cerr);
             std::cerr << "Rank " << myID << " Aborting.\n";
             std::cerr << std::flush;
             DEBUG(logFile->close());
@@ -227,57 +201,57 @@ Simulation::start(){
         }
         
         scheduler->processNextAgentEvents();
-        
-    }//end BIG loop
-    
-    
-}//end start
+    }    
+}
 
 void
-Simulation::finalize(){
-    //loop for the finalization
-    AgentContainer::iterator it=allAgents.begin();
-    int total_rollbacks =0, total_committed_events=0, total_mpi_messages=0, total_scheduled_events=0;
-        
+Simulation::finalize() {
+    int totalRollbacks          = 0;
+    int totalCommittedEvents    = 0;
+    int totalMPIMessages        = 0;
+    int totalScheduledEvents    = 0;
+    AgentContainer::iterator it = allAgents.begin();
     for (; it != allAgents.end(); it++) {  
         (*it)->finalize();
         (*it)->garbageCollect(TIME_INFINITY);
+        int outputQueueSize = (*it)->outputQueue.size();
         (*it)->cleanInputQueue();
         (*it)->cleanStateQueue();
         (*it)->cleanOutputQueue();
         
-        total_rollbacks += (*it)->num_rollbacks;
-        total_committed_events += (*it)->numCommittedEvents;
-        total_mpi_messages += (*it)->num_mpi_messages;
-        total_scheduled_events += (*it)->num_scheduled_events;
+        totalRollbacks       += (*it)->numRollbacks;
+        totalCommittedEvents += (*it)->numCommittedEvents + outputQueueSize;
+        totalMPIMessages     += (*it)->numMPIMessages;
+        totalScheduledEvents += (*it)->numScheduledEvents;
         
         delete (*it);  
-    }//end for
+    }
+    
     std::cout << "\nKernel[" << myID
-                  <<"]\n Total Scheduled Events[" <<total_scheduled_events 
-                  <<"]\n Total Committed Events[" <<total_committed_events
-                  << "]\n Total rollbacks[" << total_rollbacks
-                  << "]\n Total MPI messages[" << total_mpi_messages << "]"<<std::endl;
-    // << "]\n Total Deleted Events[" << total_deleted_events << "]"<<std::endl;
-    //std::cout << "Done with agents: SHUTTING DOWN" <<endl;
+              << "]\n Total Scheduled Events[" << totalScheduledEvents 
+              << "]\n Total Committed Events[" << totalCommittedEvents
+              << "]\n Total rollbacks[" << totalRollbacks
+              << "]\n Total MPI messages[" << totalMPIMessages
+              << "]" << std::endl;
+
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);
     delete gvtManager;
     gvtManager = NULL;
     
-    //finalize the communicator
+    // Finalize the communicator
     commManager->finalize();
 
-    //invalid kernel id
+    // Invalidate the  kernel ID
     myID = -1u;
     
-    //lets give cerr back its streambuf
-    DEBUG(std::cerr.rdbuf(oldstream));
-}//end finalize
+    // Un-hijack cout
+    DEBUG(std::cout.rdbuf(oldstream));
+}
 
 void
-Simulation::garbageCollect(){
-    for (AgentContainer::iterator it=allAgents.begin();
+Simulation::garbageCollect() {
+    for (AgentContainer::iterator it = allAgents.begin();
          (it != allAgents.end()); it++) {  
         (*it)->garbageCollect(getGVT());
     }
@@ -286,14 +260,12 @@ Simulation::garbageCollect(){
     if (listener != NULL) {
         listener->garbageCollectionDone(getGVT());
     }
-}//end garbageCollect
-
+}
 
 bool
-Simulation::isAgentLocal(AgentID id){ return commManager->isAgentLocal(id); }
+Simulation::isAgentLocal(AgentID id) { return commManager->isAgentLocal(id); }
 
-void Simulation::stop(){}
-
+void Simulation::stop() {}
 
 Time
 Simulation::getLGVT() const {
@@ -306,8 +278,8 @@ Simulation::getGVT() const {
 }
 
 void
-Simulation::updateKey(void* pointer,  Time old_top_time){
-    scheduler->updateKey(pointer,old_top_time);
+Simulation::updateKey(void* pointer, Time uTime) {
+    scheduler->updateKey(pointer, uTime);
 }
 
 void

@@ -38,9 +38,9 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
         (sizeof(unsigned int) * numProcesses);
     const int msgSize = sizeof(GVTMessage) + vecSize;
     // Allocate flat memory for the message.
-    char *memory = new char[msgSize];
+    char* memory = new char[msgSize];
     // Now use the flat memory to instantiate an object.
-    GVTMessage *msg = new (memory) GVTMessage(msgKind, msgSize);
+    GVTMessage* msg = new (memory) GVTMessage(msgKind, msgSize);
     // Setup the sequence number for this newly created message
     msg->sequenceNumber = GlobalSequenceCounter++;
     // Now we have a message object to return/work-with
@@ -48,9 +48,9 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
 }
 
 void
-GVTMessage::destroy(GVTMessage *msg) {
+GVTMessage::destroy(GVTMessage* msg) {
     if (msg != NULL) {
-        char *buffer = reinterpret_cast<char*>(msg);
+        char* buffer = reinterpret_cast<char*>(msg);
         delete [] buffer;
     }
 }
@@ -67,7 +67,7 @@ GVTMessage::setGVTEstimate(const Time& estimate) {
 
 bool
 GVTMessage::areCountersZero(const int numProcesses) const {
-    ASSERT ( kind == GVT_CTRL_MSG );
+    ASSERT(kind == GVT_CTRL_MSG);
     for(int pid = 0; (pid < numProcesses); pid++) {
         if (count[pid]) {
             // There is at least one non-zero entry.
@@ -86,7 +86,7 @@ GVTMessage::GVTMessage(const GVTMsgKind msgKind, const int msgSize)
 
 GVTMessage::~GVTMessage() {
     // The destructor should never get called.
-    ASSERT ( "GVTMessage destructor should not get called" == NULL );
+    ASSERT("GVTMessage destructor should not get called" == NULL);
 }
 
 std::ostream&
@@ -97,7 +97,7 @@ operator<<(std::ostream& os, const muse::GVTMessage& gvtMsg) {
        << ", tMin = "<< gvtMsg.tMin << ". Vector counters = { ";
 
     const int MaxCounters = (gvtMsg.size - sizeof(muse::GVTMessage)) / sizeof(int);
-    for(int i = 0; (i < MaxCounters); i++) {
+    for (int i = 0; (i < MaxCounters); i++) {
         os << gvtMsg.count[i] << " ";
     }
     os << "}";

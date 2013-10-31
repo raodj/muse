@@ -35,9 +35,9 @@
 using namespace std;
 using namespace muse;
 
-Agent::Agent(AgentID  id, State* agentState)
-    : myID(id), lvt(0), myState(agentState), num_rollbacks(0),
-      num_scheduled_events(0), num_processed_events(0), num_mpi_messages(0),
+Agent::Agent(AgentID id, State* agentState)
+    : myID(id), lvt(0), myState(agentState), numRollbacks(0),
+      numScheduledEvents(0), numProcessedEvents(0), numMPIMessages(0),
       numCommittedEvents(0) {
     // Make an Event Priority Queue
     eventPQ = new BinaryHeapWrapper();
@@ -63,24 +63,14 @@ Agent::saveState() {
     state->timestamp = getLVT();
     
     // The states should be monotomically increasing in timestamp
-    
-    if ( !stateQueue.empty() && (stateQueue.back()->getTimeStamp() >= state->getTimeStamp()) ){
-        
-        cout << "GOT SaveState error.\n time is: " <<getTime() <<
-            "\n last state time is: " <<stateQueue.back()->getTimeStamp()<<
-            "\n current state time is: " <<state->getTimeStamp()<<endl ;
-        cout << *this <<endl;
-        abort();
-    }
     ASSERT(stateQueue.empty() ||
            (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
     // Save current state
     stateQueue.push_back(state);
-    DEBUG( std::cout << "Agent " << myID << " saved state at LVT "
-                     << state->getTimeStamp() << std::endl );
+    
     // Save the states of all of the SimStreams
     oss.saveState(getLVT());
-    for (size_t i = 0; (i < allSimStreams.size()); i++){
+    for (size_t i = 0; (i < allSimStreams.size()); i++) {
         allSimStreams[i]->saveState(getLVT());
     }
 }
@@ -93,22 +83,22 @@ Agent::processNextEvents() {
     if (getLVT() - gvt > 604800000) {
         return false;
     }
-    // create the event container.  this will be passed on to the
+    // Create the event container. This will be passed on to the
     // agent's executeTask method.
-    EventContainer next_events;
-    getNextEvents(next_events);
+    EventContainer nextEvents;
+    getNextEvents(nextEvents);
     // There *has* to be a next event
-    ASSERT(!next_events.empty());
+    ASSERT(!nextEvents.empty());
     
-    //here we set the agent's LVT and update agent's state timestamp
-    setLVT(next_events.front()->getReceiveTime());
+    // Set the LVT and timestamp
+    setLVT(nextEvents.front()->getReceiveTime());
     getState()->timestamp = getLVT();
-    executeTask(&next_events);
+    executeTask(&nextEvents);
     
-    //keep track number of processed events
-    num_processed_events += next_events.size();
+    // Increment the numProcessedEvents counter
+    numProcessedEvents += nextEvents.size();
 
-    // We need to save state now
+    // Save the state now that events have been processed.
     saveState();
     
     return true;
@@ -121,7 +111,7 @@ Agent::getNextEvents(EventContainer& container) {
     const Time currTime = eventPQ->top()->getReceiveTime();
     do {
         Event* event = eventPQ->top();
-        //we should never process an anti-message.
+        // We should never process an anti-message.
         if (event->isAntiMessage()) { 
             cerr << "Anti-message Processing: " << *event << endl;
             cerr << "Trying to process an anti-message event, "
@@ -159,22 +149,22 @@ Agent::getNextEvents(EventContainer& container) {
 }
 
 State*
-Agent::cloneState(State * state){
+Agent::cloneState(State* state) {
     return state->getClone();
 }
 
 void
-Agent::setState(State * state){
+Agent::setState(State* state) {
     myState = state;
 }
 
 void
-Agent::registerSimStream(SimStream * theSimStream){
-    allSimStreams.push_back(theSimStream);
+Agent::registerSimStream(SimStream* newSimStream) {
+    allSimStreams.push_back(newSimStream);
 }
 
 bool 
-Agent::scheduleEvent(Event *e) {
+Agent::scheduleEvent(Event* e) {
     // Perform some sanity checks.
     ASSERT(TIME_EQUALS(e->getSentTime(), TIME_INFINITY));
     ASSERT(e->getSenderAgentID() == -1);
@@ -193,7 +183,7 @@ Agent::scheduleEvent(Event *e) {
     
     // Make sure we don't schedule an event with a receive time that is
     // less than or equal to our LVT
-    if (e->getReceiveTime() <= getLVT()){
+    if (e->getReceiveTime() <= getLVT()) {
         cerr << "You are trying to schedule an event with a smaller or equal "
              << "timestamp to your LVT, this is impossible and will cause "
              << "a rollback." << endl;
@@ -218,18 +208,18 @@ Agent::scheduleEvent(Event *e) {
         outputQueue.push_back(e);
 
         // Keep track of event being scheduled.
-        num_scheduled_events++;
+        numScheduledEvents++;
         
         return true;
     } else if (Simulation::getSimulator()->scheduleEvent(e)) {
         outputQueue.push_back(e);
        
         // Keep track of event being scheduled.
-        num_scheduled_events++;
+        numScheduledEvents++;
 
         // this is to keep track of how many MPI message we use
         if (!Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
-            num_mpi_messages++;
+            numMPIMessages++;
         }
         return true;
     }
@@ -241,152 +231,147 @@ Agent::scheduleEvent(Event *e) {
 }
 
 void
-Agent::doRollbackRecovery(const Event* straggler_event) {
-    //std::cerr << "Rolling back due to: " << *straggler_event << std::endl;
+Agent::doRollbackRecovery(const Event* stragglerEvent) {
+    //std::cerr << "Rolling back due to: " << *stragglerEvent << std::endl;
     //cout << "Rollback recovery started"<< endl;
-    doRestorationPhase(straggler_event->getReceiveTime());
-    //After state is restored, that means out current time is the restored time!
-    Time restored_time = getTime(LVT);
-    ASSERT ( restored_time < straggler_event->getReceiveTime() );
-    DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
-                    << restored_time << ", while GVT = " << getTime(GVT)
-                    << std::endl);
+    doRestorationPhase(stragglerEvent->getReceiveTime());
+    // After state is restored, that means out current time is the restored time
+    Time restoredTime = getTime(LVT);
+    
+    //std::cerr << "*** Agent(" << myID << "): restored time to "
+    //          << restoredTime << ", while GVT = " << getTime(GVT)
+    //          << std::endl;
    
-    doCancellationPhaseInputQueue(restored_time,
-                                  straggler_event);
-    doCancellationPhaseOutputQueue(restored_time);
+    doCancellationPhaseInputQueue(restoredTime, stragglerEvent);
+    doCancellationPhaseOutputQueue(restoredTime);
     
     //we need to rollback all SimStreams here.
-    oss.rollback(restored_time);
-    for (size_t i=0; (i < allSimStreams.size()); i++){
-        allSimStreams[i]->rollback(restored_time);
+    oss.rollback(restoredTime);
+    for (size_t i = 0; (i < allSimStreams.size()); i++) {
+        allSimStreams[i]->rollback(restoredTime);
     }
 
-    //lets keep track of number of rollbacks
-    num_rollbacks++;
+    // Remember to increment the rollback counter
+    numRollbacks++;
   
-}//end doRollback
+}
 
 void
-Agent::doRestorationPhase(const Time& straggler_time){
+Agent::doRestorationPhase(const Time& stragglerTime) {
    
-    /** OK, here is the plan. First, there is a straggler_time.Second,
+    /** OK, here is the plan. First, there is a stragglerTime.Second,
         the stateQueue should be sorted by the nature of its
         containt.We want to find a state with a timestamp smaller than
-        the straggler_time.  Assuming the second reason is correct, if
+        the stragglerTime.  Assuming the second reason is correct, if
         we search the stateQueue starting at the back, we not only
         find the state we want quicker, but we also find the time
-        that's directly behind the straggler_time.  Since the
+        that's directly behind the stragglerTime.  Since the
         stateQueue is a double linked list, we can by pass dealing
         with reverse_iterators and keep popping from the back until we
         find the state we want.If we fail to locate state with a
-        timestamp that is older than straggler_time, then we revert
+        timestamp that is older than stragglerTime, then we revert
         back to the init_state that we got from the ctor.  The
         following code implements this idea!
     */
 
-    //for debugging reasons
-    //cout << "StateQueue B Restoration: ";
-    //cout << *this << endl;
+    // For debugging
+    // cout << "StateQueue B Restoration: ";
+    // cout << *this << endl;
 
-    //we set our LVT to INFINITY here incase we dont find a state to restore to
-    //we can revert to the initial state after the loop.
+    // We set our LVT to INFINITY here in case we don't find a state to
+    // restore to -- we can revert to the initial state after the loop.
     setLVT(TIME_INFINITY);
-    //now we go and look for a state to restore to.
+    // Now go and look for a state to restore to.
     ASSERT(!stateQueue.empty());
-    while (stateQueue.size() != 1 ){
-        State* current_state = stateQueue.back();
-        DEBUG(std::cout << "Agent " << myID << " checking state "
-              << current_state->getTimeStamp() << std::endl);
-        if (current_state->getTimeStamp() < straggler_time){
-            //first we destroy the state we are in now <--kind of wierd to say right?
+    while (stateQueue.size() != 1) {
+        State* currentState = stateQueue.back();
+        if (currentState->getTimeStamp() < stragglerTime) {
+            // Destroy the current state
             delete myState;
-            //set out state to this old consistent state
-            //after we setState, remember myState will point to a new state now.
-            setState( cloneState(current_state) );
-            //set agent's LVT to this state's timestamp
+            // Set the state to the known-good state in the queue
+            setState(cloneState(currentState));
+            // Set agent's LVT to this state's timestamp
             setLVT(getState()->getTimeStamp());
-            DEBUG(std::cout << "Agent " << myID << " found state for time: "
-                            << getTime() << " and state timestamp = "
-                            << getState()->getTimeStamp() << std::endl);
+            // cout << "    State Found for time: "<< LVT << endl;
             break;
         } else {
-            // we should delete and remove this state from the list
-            // because it is no longer valid
+            // This state refers to a time later than the time of the
+            // straggler message. It is no longer valid, so delete it.
             
-            DEBUG(std::cout << "Agent " << myID << " deleting Current_State @ timestamp: "
-                            << current_state->getTimeStamp() << std::endl);
+            // cout << "Deleting CurrentState @ timestamp: "
+            //      << currentState->getTimeStamp() << endl;
            
-            delete current_state;
+            delete currentState;
             stateQueue.pop_back();
         }
     }
     
-    //cout << "TIME_EQUALS(LVT,INFINITY) === " <<TIME_EQUALS(LVT,INFINITY) << endl;
-    //if LVT is INFINITY then that means we have rolled back all the way to beginning.
+    // If LVT is INFINITY, we've have rolled back all the way to beginning.
     if (TIME_EQUALS(getLVT(), TIME_INFINITY)) {
-        //state queue should have a size of one
+        // There should be only one state in the queue
         ASSERT(stateQueue.size() == 1);
-        //cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
+        // cout << "TIME_EQUALS(LVT,INFINITY) = TRUE" << endl;
         delete myState;
-        setState( cloneState(stateQueue.front()) );
-        setLVT( getState()->getTimeStamp() ) ;
-        //std::cout << "Restored Time To: " << getLVT() << std::endl;
+        setState(cloneState(stateQueue.front()));
+        setLVT(getState()->getTimeStamp());
+        // std::cout << "Restored Time To: " << getLVT() << std::endl;
     }
     
-    ASSERT( straggler_time > getLVT() );
+    ASSERT(stragglerTime > getLVT());
         
-    //for debugging reasons
-    //if (stateQueue.size() <= 2) cerr << "StateQ After Restore: "
-    //                                << *this << endl;
-                                    //<< " GVT: " << getTime(GVT)
-                                    //<< " Straggler Time: "<< straggler_time
-                                    //<< " Restored Time: "<< getTime() << endl;
-   
-}//end doStepOne
+    // For debugging
+    // if (stateQueue.size() <= 2) {
+    //     cerr << "StateQ After Restore: "
+    //          << *this << endl;
+    //     << " GVT: " << getTime(GVT)
+    //     << " Straggler Time: "<< stragglerTime
+    //     << " Restored Time: "<< getTime() << endl;
+    // }
+}
 
 void
-Agent::doCancellationPhaseOutputQueue(const Time & restored_time) {
+Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
   
     AgentIDBoolMap bitMap;
     list<Event*>::iterator outQ_it = outputQueue.begin();
-    while(outQ_it != outputQueue.end()) {
+    while (outQ_it != outputQueue.end()) {
         list<Event*>::iterator del_it = outQ_it;
         outQ_it++; 
-        Event *current_event = (*del_it);
+        Event* currentEvent = (*del_it);
         //check if the event is invalid.
-        if (current_event->getSentTime() > restored_time) {
+        if (currentEvent->getSentTime() > restoredTime) {
             //check if bitMap to receiver agent has been set.
-            if (bitMap[current_event->getReceiverAgentID()] == false) {
-                bitMap[current_event->getReceiverAgentID()] = true;
-                if (!(Simulation::getSimulator())->isAgentLocal(current_event->getReceiverAgentID())) {
-                    current_event->makeAntiMessage();
-                    //cout << "Making Anti-Message: " << *current_event << endl;
-                    Simulation::getSimulator()->scheduleEvent(current_event);
+            if (bitMap[currentEvent->getReceiverAgentID()] == false) {
+                bitMap[currentEvent->getReceiverAgentID()] = true;
+                if (!(Simulation::getSimulator())->isAgentLocal(currentEvent->getReceiverAgentID())) {
+                    currentEvent->makeAntiMessage();
+                    //cout << "Making Anti-Message: " << *currentEvent << endl;
+                    Simulation::getSimulator()->scheduleEvent(currentEvent);
                 } else {
                     // Send an anti-message to the agent on the same
                     // process so that it rolls back. Since pointers
                     // are shared, a duplicate needs to be made.
                     char* flatAntiEvent = new char[sizeof(Event)];
-                    memcpy(flatAntiEvent, current_event, sizeof(Event));
-                    Event* anti_event = reinterpret_cast<Event*>(flatAntiEvent);
-                    anti_event->setReferenceCount(1);
-                    anti_event->makeAntiMessage();
-                    if (!Simulation::getSimulator()->scheduleEvent(anti_event)) {
+                    memcpy(flatAntiEvent, currentEvent, sizeof(Event));
+                    Event* antiEvent = reinterpret_cast<Event*>(flatAntiEvent);
+                    antiEvent->setReferenceCount(1);
+                    antiEvent->makeAntiMessage();
+                    if (!Simulation::getSimulator()->scheduleEvent(antiEvent)) {
                         // The scheduler rejected our anti-message.
-                        anti_event->decreaseReference();
+                        antiEvent->decreaseReference();
                     }
                 }
             }
-            //invalid events automatically get removed
-            current_event->decreaseReference();
+            // Invalid events automatically get removed
+            currentEvent->decreaseReference();
             outputQueue.erase(del_it);
         }
     }
 }
 
 void
-Agent::doCancellationPhaseInputQueue(const Time& restored_time, const Event* straggler) {
+Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
+                                     const Event* straggler) {
 
     ASSERT(straggler != NULL);
 
@@ -394,39 +379,40 @@ Agent::doCancellationPhaseInputQueue(const Time& restored_time, const Event* str
     while (inQ_it != inputQueue.end()) {
         list<Event*>::iterator del_it = inQ_it;
         inQ_it++;
-        Event *current_event = (*del_it);
-        ASSERT(current_event->isAntiMessage() == false);
+        Event *currentEvent = (*del_it);
+        ASSERT(currentEvent->isAntiMessage() == false);
 
-        if (current_event->getReceiveTime() <= restored_time) {
+        if (currentEvent->getReceiveTime() <= restoredTime) {
             // This event needs to stay in the input queue - it does
             // not need to be reprocessed or deleted.
             continue;
         }
         
-        if ((current_event->getSenderAgentID() == myID) &&
-            (current_event->getSentTime() > restored_time)) {
+        if ((currentEvent->getSenderAgentID() == myID) &&
+            (currentEvent->getSentTime() > restoredTime)) {
             // We sent this event in the future - it gets deleted
-            current_event->decreaseReference();
+            currentEvent->decreaseReference();
             inputQueue.erase(del_it);
             continue;
         }
         
         // If control comes here, the event needs to be rescheduled if
-        // it is not from the sender of the straggler AND the straggler is NOT an antimessage
-        if (straggler->getSenderAgentID() != current_event->getSenderAgentID()) {
-            eventPQ->push(current_event);
-            current_event->decreaseReference();
+        // it is not from the sender of the straggler AND the
+        // straggler is NOT an antimessage
+        if (straggler->getSenderAgentID() != currentEvent->getSenderAgentID()) {
+            eventPQ->push(currentEvent);
+            currentEvent->decreaseReference();
             inputQueue.erase(del_it);
-        } else if (current_event->getSentTime() >= straggler->getSentTime()) {
+        } else if (currentEvent->getSentTime() >= straggler->getSentTime()) {
             if (straggler->isAntiMessage()) {
                 // This is one needs to be nuked.
-                current_event->decreaseReference();
+                currentEvent->decreaseReference();
                 inputQueue.erase(del_it);
             } else {
                 // Nope, this event is still safe. Even though it's
                 // from the sender of the straggler.
-                eventPQ->push(current_event);
-                current_event->decreaseReference();
+                eventPQ->push(currentEvent);
+                currentEvent->decreaseReference();
                 inputQueue.erase(del_it);
             }
         }
@@ -434,61 +420,57 @@ Agent::doCancellationPhaseInputQueue(const Time& restored_time, const Event* str
 }
 
 void
-Agent::cleanStateQueue(){
-    //lets take care of all the states still not removed
-    while(!stateQueue.empty() ){
-        State *current_state = stateQueue.front();
-        delete current_state;
+Agent::cleanStateQueue() {
+    while (!stateQueue.empty()) {
+        State *currentState = stateQueue.front();
+        delete currentState;
         stateQueue.pop_front();
     }
-}//end cleanStateQueue
+}
 
 void
-Agent::cleanInputQueue(){
-    //lets take care of all the events in the inputQueue
-    while(!inputQueue.empty() ){
-        Event *current_event = inputQueue.front();
-        current_event->decreaseReference();
+Agent::cleanInputQueue() {
+     while (!inputQueue.empty()) {
+        Event *currentEvent = inputQueue.front();
+        currentEvent->decreaseReference();
         inputQueue.pop_front();
 
-        //keep track number of processed events
-        num_processed_events++;
+        // Remember to keep track number of processed events
+        numProcessedEvents++;
     }
-}//end cleanInputQueue
+}
 
 void
-Agent::cleanOutputQueue(){
-    //now lets delete all remaining events in each agent's outputQueue
-    while(!outputQueue.empty() ){
-        Event *current_event = outputQueue.front();
-        current_event->decreaseReference();
+Agent::cleanOutputQueue() {
+    while (!outputQueue.empty()) {
+        Event *currentEvent = outputQueue.front();
+        currentEvent->decreaseReference();
         outputQueue.pop_front();
     }
-}//end cleanOutputQueue
+}
 
 void
-Agent::garbageCollect(const Time gvt){
+Agent::garbageCollect(const Time gvt) {
 
     list<State*>::iterator safe_point_it = stateQueue.begin();
-    Time one_below_gvt = gvt;
+    Time oneBelowGVT = gvt;
 
-    
-    one_below_gvt = 0;
+    oneBelowGVT = 0;
     while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt) {
-        one_below_gvt = (*safe_point_it)->getTimeStamp();
+        oneBelowGVT = (*safe_point_it)->getTimeStamp();
         safe_point_it++;
     }
     
-    //cerr << "Collecting Garbage now.....one_below_GVT: " <<
-    //one_below_gvt <<" real GVT: "<<getTime(GVT) << "\n"; cerr <<
+    //cerr << "Collecting Garbage now.....oneBelowGVT: " <<
+    //oneBelowGVT <<" real GVT: "<<getTime(GVT) << "\n"; cerr <<
     //"States being collected for agent ("<<getAgentID()<<") are:
     //\n";
     
     //now we start looking
-    while(stateQueue.front()->getTimeStamp() < one_below_gvt) {
-        State *current_state = stateQueue.front();
-        //cerr << "State @ time: " << current_state->getTimeStamp()<<"\n";
-        delete current_state;
+    while (stateQueue.front()->getTimeStamp() < oneBelowGVT) {
+        State *currentState = stateQueue.front();
+        //cerr << "State @ time: " << currentState->getTimeStamp()<<"\n";
+        delete currentState;
         stateQueue.pop_front();
     }
     //cerr << *this << endl;
@@ -497,10 +479,10 @@ Agent::garbageCollect(const Time gvt){
     ASSERT(stateQueue.front()->getTimeStamp() < gvt);
     
     //second we collect from the inputQueue
-    while(!inputQueue.empty() &&
-          inputQueue.front()->getReceiveTime() < one_below_gvt){
-        Event *current_event = inputQueue.front();
-        current_event->decreaseReference();
+    while (!inputQueue.empty() &&
+          inputQueue.front()->getReceiveTime() < oneBelowGVT) {
+        Event *currentEvent = inputQueue.front();
+        currentEvent->decreaseReference();
         inputQueue.pop_front();
         
         //keep track number of processed events
@@ -508,24 +490,24 @@ Agent::garbageCollect(const Time gvt){
     }
     
     //last we collect from the outputQueue
-    while(!outputQueue.empty() &&
-          outputQueue.front()->getSentTime() < one_below_gvt){
-        Event *current_event = outputQueue.front();
-        current_event->decreaseReference();
+    while (!outputQueue.empty() &&
+          outputQueue.front()->getSentTime() < oneBelowGVT) {
+        Event *currentEvent = outputQueue.front();
+        currentEvent->decreaseReference();
         outputQueue.pop_front();
     }
     
     
     //we need to garbageCollect all SimStreams here.
     oss.garbageCollect(gvt);
-    for (size_t i = 0; (i < allSimStreams.size()); i++){
+    for (size_t i = 0; (i < allSimStreams.size()); i++) {
         allSimStreams[i]->garbageCollect(gvt);
     }
 }
 
 Time
-Agent::getTime(TimeType time_type) const {
-    switch(time_type){
+Agent::getTime(TimeType timeType) const {
+    switch(timeType) {
     case LVT:
         return getLVT();
         break;
@@ -558,11 +540,11 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
 
 
 ostream&
-statePrinter(ostream& os, list<muse::State*> state_q ){
+statePrinter(ostream& os, list<muse::State*> state_q ) {
     //list<muse::State*>::reverse_iterator rit = state_q.rbegin();
-    //for (; rit != state_q.rend(); rit++){
+    //for (; rit != state_q.rend(); rit++) {
     list<muse::State*>::iterator it = state_q.begin();
-    for (; it != state_q.end(); it++){
+    for (; it != state_q.end(); it++) {
         os << (*it)->getTimeStamp() << ",";
     }
     os << ")]    " ;
@@ -571,12 +553,12 @@ statePrinter(ostream& os, list<muse::State*> state_q ){
 
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
-    if ( !agent.eventPQ->empty() ){
+    if (!agent.eventPQ->empty()) {
         os << "Agent[id="           << agent.getAgentID()    << ","
            << "# of Events in heap="<< agent.eventPQ->size() << ","
            << "top "                << *agent.eventPQ->top() << ","
            << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;
-    }else{
+    } else {
         os << "Agent[id="           << agent.getAgentID()    << ","
            << "top EVENT:"          << "EMPTY"               << ","
            << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;

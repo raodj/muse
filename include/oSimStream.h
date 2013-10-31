@@ -60,10 +60,10 @@ public:
         for the storage or just memory. It is recommend to use et this
         flag to true if you are expecting large amount of output.
          
-        @param the_streambuf, this is a poitner to the stream buffer, where you
+        \param the_streambuf, this is a poitner to the stream buffer, where you
         the data pushed.
          
-        @param use_temp_file, flag, if true will use a temp file for the temp
+        \param use_temp_file, flag, if true will use a temp file for the temp
         storage before the push to the choosen stream buffer
     */
     oSimStream(ostream * the_ostream, bool use_temp_file=false);
@@ -81,9 +81,9 @@ public:
     /** The saveState method.
         This is a helper method that is used to save the state.
           
-        @note MUSE will automatically use this to handle the data correctly.
-        @param lvt, this is the local virtual time of the agent.
-        @see Time
+        \note MUSE will automatically use this to handle the data correctly.
+        \param lvt, this is the local virtual time of the agent.
+        \see Time
     */
     void saveState(const Time& lvt);
     
@@ -92,9 +92,9 @@ public:
         that was done. Any information collected passed the restored time
         is now useless and is discarded.
           
-        @note MUSE will automatically use this to handle the data correctly.
-        @param restored_time, this is the time the agent rollback to.
-        @see Time
+        \note MUSE will automatically use this to handle the data correctly.
+        \param restored_time, this is the time the agent rollback to.
+        \see Time
     */
     void rollback(const Time& restored_time);
     
@@ -105,10 +105,10 @@ public:
         stream buffer and records of it has to be cleaned up to make room
         for new data in the temp storage.
           
-        @note MUSE will automatically use this to handle the data correctly.
-        @param gvt, this is global virtual time.
-        @see Time
-        @see GVTManager
+        \note MUSE will automatically use this to handle the data correctly.
+        \param gvt, this is global virtual time.
+        \see Time
+        \see GVTManager
     */
     void garbageCollect(const Time& gvt);
     

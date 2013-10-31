@@ -46,7 +46,8 @@ BEGIN_NAMESPACE(muse);
     terminate the simulation.
 */
 
-/** A class to encapsulate information associated with GVT messages.
+/** \brief A class to encapsulate information associated with GVT
+    messages.
 
     This class essentially serves to encapsulate information about
     Global Virtual Time (GVT) messages that are circulated between
@@ -105,7 +106,7 @@ class GVTMessage {
     // Let the insertion operator be our friend
     friend std::ostream& ::operator << (std::ostream&, const muse::GVTMessage&);
 public:
-    /** Enumeration for different kinds of GVT messages.
+    /** \brief Enumeration for different kinds of GVT messages.
 
         This enumeration defines the different kinds of GVT messages
         that are circulated between various processes in the
@@ -132,7 +133,7 @@ public:
     */
     enum GVTMsgKind{INVALID_GVT_MSG, GVT_CTRL_MSG, GVT_EST_MSG, GVT_ACK_MSG};
 
-    /** Method to create a GVT message.
+    /** \brief Method to create a GVT message.
 
         This method must be used to create a GVT message. The message
         is created such that memory is allocated in a serialized form
@@ -149,7 +150,7 @@ public:
     static GVTMessage* create(const GVTMsgKind kind,
                               const int numProcesses = 0);
 
-    /** Method to destroy (or delete) a GVT message.
+    /** \brief Method to destroy (or delete) a GVT message.
 
         This method must be used to destroy (or delete) a GVT message
         thereby freeing the memory allocated to hold a GVT message.
@@ -162,9 +163,10 @@ public:
         \note After this method call, the msg pointer is no longer
         points to a valid GVT message and its contents is undefined.
     */
-    static void destroy(GVTMessage *msg);
+    static void destroy(GVTMessage* msg);
 
-    /** Method to obtain the counter values associated with this message.
+    /** \brief Method to obtain the counter values associated with
+        this message.
 
         This method must be used to obtain a pointer to the vector
         counter values stored in this class.  
@@ -176,9 +178,9 @@ public:
         gvt message is \c GVT_CTRL_MSG.  The caller must not delete
         the returned pointer.
     */
-    inline int *getCounters() { return count; }
+    inline int* getCounters() { return count; }
 
-    /** Obtain the type of GVT message.
+    /** \brief Obtain the type of GVT message.
 
         This method must be used to determine what kind of GVT message
         (and associated information) that is contained by this GVT
@@ -190,7 +192,7 @@ public:
     */
     inline GVTMsgKind getKind() const { return kind; }
 
-    /** Obtain the raw size (in bytes) of this message.
+    /** \brief Obtain the raw size (in bytes) of this message.
 
         This method must be used to determine the raw size (in bytes)
         of this message.  This information is used to dispatch this
@@ -202,7 +204,7 @@ public:
     */
     inline int getSize() const { return size; }
 
-    /** Obtain the Tmin value associated with this event.
+    /** \brief Obtain the Tmin value associated with this event.
 
         This method must be used to obtain the cumulative minimum
         timestamp of all the outgoing events dispatched by the
@@ -217,7 +219,7 @@ public:
     */
     inline Time getTmin() const { return tMin; }
 
-    /** Set the tMin value assocaited with this message.
+    /** \brief Set the tMin value assocaited with this message.
 
         This method must be used to set the tMin value for this
         message.  This value is meaningful only in messages of kind \c
@@ -229,7 +231,7 @@ public:
     */
     void setTmin(const Time& tMin);
     
-    /** Obtain the current estimate of GVT.
+    /** \brief Obtain the current estimate of GVT.
 
         This method must be used to obtain the estimated GVT value
         stored in this message.  If the kind of the message is \c
@@ -241,7 +243,7 @@ public:
     */
     inline Time getGVTEstimate() const { return gvtEstimate; }
 
-    /** Set the estimated GVT value contained in this message.
+    /** \brief Set the estimated GVT value contained in this message.
 
         This method must be used to set the estimated GVT value
         contained in this message.
@@ -251,7 +253,8 @@ public:
     */
     void setGVTEstimate(const Time& gvtEstimate);
 
-    /** Utility method to determine if all counter values are zeros.
+    /** \brief Utility method to determine if all counter values are
+        zeros.
 
 	This is a utility method that can be used to determine if all
 	the counters in this event are all zeros.  This method is used
@@ -266,7 +269,7 @@ public:
     bool areCountersZero(const int numProcesses) const;
     
  protected:
-    /** Constructor.
+    /** \brief Constructor.
 
         The constructor has been made protected to ensure that this
         class is never directly instantiated.  Instead the static
@@ -284,7 +287,7 @@ public:
     */
     GVTMessage(const GVTMsgKind kind, const int size);
 
-    /** The destructor.
+    /** \brief The destructor.
 
         The destructor has been made protected to ensure that a GVT
         message is never directly deleted.  It should not be directly
@@ -296,7 +299,7 @@ public:
     ~GVTMessage();
 
 private:
-    /** Instance variable to hold the type of GVT message.
+    /** \brief Instance variable to hold the type of GVT message.
 
         This instance variable contains what kind of GVT message (and
         associated information) that is contained by this GVT
@@ -305,7 +308,8 @@ private:
     */
     const GVTMsgKind kind;
 
-    /** Instance variable to hold the size of the message (in bytes).
+    /** \brief Instance variable to hold the size of the message (in
+        bytes).
 
         This method must be used to determine the raw size (in bytes)
         of this message.  This information is used to dispatch this
@@ -315,7 +319,7 @@ private:
     */
     const int size;
 
-    /** The current GVT estimate value.
+    /** \brief The current GVT estimate value.
 
         This instance variable is used to hold the currently estimated
         GVT value associated with this message.  This value is set via
@@ -327,7 +331,7 @@ private:
     */
     Time gvtEstimate;
 
-    /** The minimum timestamp of all outgoing events.
+    /** \brief The minimum timestamp of all outgoing events.
 
         This instance variable is used to the cumulative minimum
         timestamp of all the outgoing events dispatched by the
@@ -340,7 +344,8 @@ private:
     */
     Time tMin;
 
-    /** A unique sequence number set by Rank 0 process for this GVTMessage.
+    /** \brief A unique sequence number set by Rank 0 process for this
+        GVTMessage.
 
         This instance variable is used to track a global sequence number for
 	each GVT token. The global sequence counter essentially helps to
@@ -350,7 +355,7 @@ private:
     */
     unsigned int sequenceNumber;
     
-    /** The variable length array of vector counters.
+    /** \brief The variable length array of vector counters.
 
         This instance variable contains a variable number of entries
         depending on the number of processes participating in a

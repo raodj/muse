@@ -40,27 +40,20 @@ Event::~Event() {}
 
 void
 Event::decreaseReference(){
-    ASSERT (getReferenceCount() >= 0);
+    ASSERT(getReferenceCount() >= 0);
     // Decrement the reference count.
     referenceCount--;
     if (referenceCount == 0) {
         char* buffer = reinterpret_cast<char*>(this);
         delete []  buffer;
-        //if the reference count was 1 it would be zero, but we would loss
-        //reference to it so we should delete it now or could cause some leaks
-        //if (referenceCount == 0){
-        //  char* buffer = reinterpret_cast<char*>(this);
-        //  delete []  buffer;
-        //}
     }
 }
 
 void
 Event::increaseReference(){
-    //std::cout << "Increasing ref" << std::endl;
     referenceCount++;
-    ASSERT ( referenceCount < 4 );
-}//end increaseReference
+    ASSERT(referenceCount < 4);
+}
 
 void
 Event::makeAntiMessage() {
@@ -71,7 +64,6 @@ void
 Event::setColor(const char col) {
     color = col;
 }
-
 
 ostream&
 operator<<(ostream& os, const muse::Event& event) {
@@ -87,6 +79,4 @@ operator<<(ostream& os, const muse::Event& event) {
     return os;
 }
 
-
 #endif
-

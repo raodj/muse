@@ -24,7 +24,7 @@
 
 #include "DataTypes.h"
 
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse);
 
 // Forward declarations to keep compiler happy and fast
 class Simulation;
@@ -77,7 +77,7 @@ public:
         to determine information about the processes involved in the
         simulation.
     */
-    void initialize(const Time& startTime, Communicator *comm);
+    void initialize(const Time& startTime, Communicator* comm);
 
     /** Method to update information and send a remote event.
 
@@ -116,7 +116,7 @@ public:
         dispatched successfully.  On errors this method returns \c
         false.
     */
-    bool sendRemoteEvent(Event *event);
+    bool sendRemoteEvent(Event* event);
 
     /** Method to inspect an incoming remote event and update vector
 	counters.
@@ -132,7 +132,7 @@ public:
 	
         </ol>
     */
-    void inspectRemoteEvent(Event *event);
+    void inspectRemoteEvent(Event* event);
    
     /** Obtain the current estimate of GVT.
 
@@ -166,7 +166,7 @@ public:
 	\param[in,out] message The incoming GVT message to be
 	processed by this method.
     */
-    void recvGVTMessage(GVTMessage *message);
+    void recvGVTMessage(GVTMessage* message);
 
     /** Method to initate a new round of GVT estimation.
 
@@ -184,15 +184,6 @@ public:
     */
     void startGVTestimation();
 
-    /** The recvGVTEstimateTime method.
-	This method means that ROOT_KERNEL has sent a new gvt estimate time.
-	Other kernels will set the new time here.
-
-	@param gvt_estimate_time, this is the new gvt time.
-	@see Time
-     */
-    void recvGVTEstimateTime(Time gvt_estimate_time);
-    
 protected:
     /** Helper method to set the GVT value.
 
@@ -295,7 +286,7 @@ private:
         processes in the simulation is known.  In the algorithmic
         description in Mattern's paper, this vector is called \c V.
     */
-    int *vecCounters[2];
+    int* vecCounters[2];
     
     /** Instance variable to maintain minimum timestamp of output
         going events.
@@ -344,7 +335,7 @@ private:
         updated to point to the actual communicator in the
         initialize() method.
     */
-    Communicator *commManager;
+    Communicator* commManager;
 
     /** Instance variable to hold any pending GVT control message.
 

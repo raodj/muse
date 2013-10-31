@@ -165,4 +165,28 @@ char* getSystemTime(char *buffer, const time_t *codedTime = NULL);
 #define ctime_s(buffer, size, time) ctime_r(time, buffer);
 #endif
 
+/**\def UNUSED_PARAM(x)
+
+   \brief A convenient macro for specifying that a parameter to a
+   method is not used.
+
+   This macro provides a convenient approach for tagging unused
+   parameters to avoid compiler warnings.  These are only meant to be
+   used for parameters that are really not used (possibly in a base
+   class or a derived class) but are necessary for API compatibility
+   and documentation purposes.  Here is an example of how to use this
+   macro:
+
+   \code
+
+    virtual void garbageCollectionDone(const muse::Time& gvt) {
+	UNUSED_PARAM(gvt);
+	// Possibly more code goes here.
+    }
+
+   \endcode
+*/
+#define UNUSED_PARAM(x) (void) x
+
+
 #endif

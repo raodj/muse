@@ -23,52 +23,19 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstring>
+
 #ifndef _WINDOWS
-#include <ext/hash_map>
+#include "LinuxHashMap.h"
 #else
-#include <hash_map>
+#include "WindowsHashMap.h"
 #endif
 
-#include <string.h>
 #include "DataTypes.h"
 
-#ifndef _WINDOWS
-/** With GCC 3.2 and above the hash map data structure has been moded
-    to a extended directory under a non-std namespace.  The following
-    typedef attempts to put the hash map in the standard context
-    making it much easier to work with.
-*/
-#define HashMap __gnu_cxx::hash_map
-#define Hash    __gnu_cxx::hash
+// Below are MUSE specific hash maps
 
-struct EqualStr {
-    bool operator()(const char* s1, const char* s2) const {
-        return strcmp(s1, s2) == 0;
-    }
-};
-
-// Hasher for std::string. This hash function is needed to use std::string
-// objects as key value in hash_map
-struct StringHasher  {
-    inline size_t operator()(const std::string& s) const {
-        Hash<const char*> hasher;
-        return hasher(s.c_str());
-    }
-};
-
-/** \typedef A hash_map<const char *, int>
-
-    A typedef for a hash map whose key is char* and contains integers.
-
-    The following typedef provides a short cut for using a hash map 
-    whose key is a C string and contains integers.
-*/
-typedef HashMap<const char *, int, Hash<const char *>, EqualStr> StringIntMap;
-
-
-//Below is MUSE specific hash maps
-
-//forward delcare so everyone is happy and fast.
+// forward delcare so everyone is happy and fast.
 namespace muse {
     class Agent;
 }
@@ -111,50 +78,4 @@ typedef HashMap<muse::AgentID, muse::Agent*, Hash<muse::AgentID>, EqualAgentID> 
 */
 typedef HashMap<muse::AgentID, bool, Hash<muse::AgentID>, EqualAgentID> AgentIDBoolMap;
 
-
-
-#else  // Below is windows define
-
-// In windows the following mappings are used.
-#define HashMap stdext::hash_map
-
-/** String comparison structure for const char *.
-
-    The following structure essentially provides the comparison
-    operator needed by the hash_map for comparing hash_key values.
-    This structure specifically provides comparison for hash_map's
-    whose key values are C strings.
-*/
-struct LessString {
-    inline bool operator()(const char *s1, const char *s2) const {
-        return strcmp(s1, s2) > 0;
-    }
-};
-
-/** \typedef A hash_map<const char *, int>
-
-    A typedef for a hash map whose key is char* and contains integers.
-
-    The following typedef provides a short cut for using a hash map 
-    whose key is a C string and contains integers.
-*/
-typedef HashMap<const char *, int, stdext::hash_compare<const char *, LessString> > StringIntMap;
-
-#endif
-
-/** Integer comparison structure for std::hash_map.
-
-    The following structure essentially provides the comparison
-    operator needed by the hash_map for comparing hash_key values.
-    This structure specifically provides comparison for hash_map's
-    whose key values are standard integers.
-*/
-struct EqualInteger {
-    inline bool operator()(const int i1, const int i2) const {
-        return (i1 == i2);
-    }
-};
-
-//hash_map<Key, Data, HashFcn, EqualKey, Alloc>
-
-#endif
+#endif  // HASH_MAP_H

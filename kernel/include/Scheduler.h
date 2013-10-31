@@ -18,8 +18,9 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre       gebremr@muohio.edu
-//         
+// Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -33,104 +34,121 @@ BEGIN_NAMESPACE(muse);
 class Scheduler {
     friend class Simulation;
 public:
+    /** \brief Default Constructor
 
-    /** The ctor method.
-     */
+        Does nothing.
+    */
     Scheduler();
 
-    /** The dtor method.
-     */
+    /** \brief Destructor
+
+        Does nothing, as the constructor does nothing
+    */
     ~Scheduler();
 
-    /** The scheduleEvent method.
-        Only used by the Simulation kernel. Users of MUSE API should not touch this function.
-        Check for rollback is done at this level.
-      
-        @param event pointer of the event to be scheduled.
+    /** \brief Schedule the given event
+        
+        Only used by the Simulation kernel. Users of MUSE API should
+        not touch this function.  Rollback checks are done at this
+        level.
+
+        After the appropriate processing has occured, the Event will
+        be placed into the appropraite Agent's Event Priority Queue.
+        
+        \param[in] e Event to be scheduled
+
+        \return True if the Event was scheduled successfully
     */
-    bool scheduleEvent(Event *);
+    bool scheduleEvent(Event *e);
 
-    /** The processNextAgentEvents method.  Only used by the Simulation
-        kernel. Users of MUSE API should not touch this function.  Uses
-        a fibonacci heapfor scheduling the agents. The agent witht he
-        smallest event timestamp to process is chosen.
+    /** \brief Instruct the current 'top' Agent to process its Events
 
-        @return bool, True if the chosen agent had events to process.
+        Only used by the Simulation kernel. Users of MUSE API should
+        not touch this function.
+
+        The 'top' Agent currently in the Fibonacci heap will be
+        instructed to process all events at the current Simulation
+        Time.
+        
+        \return True if the chosen agent had events to process.
     */
     bool processNextAgentEvents();
 
-    /** The addAgentToScheduler method.  Adds the agent to the
-        scheduler. This happend in the Simulation::registerAgent method.
-        Only used by the Simulation kernel. Users of MUSE API should not
-        touch this function.
+    /** \brief Add the specified Agent to the Scheduler
 
-        @param pointer to the agent.
-        @return bool, True if the agent was added to the scheduler.
+        Adds the agent to the scheduler. This happens in the
+        Simulation::registerAgent method.  Only used by the Simulation
+        kernel. Users of MUSE API should not touch this function.
+
+        \param[in] agent Agent to be added to the Scheduler
+        
+        \return True if the agent was added to the scheduler.
     */
-    bool addAgentToScheduler(Agent *);
+    bool addAgentToScheduler(Agent *agent);
 
-    /** The getNextEventTime method.
-        Determine the timestamp of the next top-most event in the
-        scheduler.
+    /** \brief Determine the timestamp of the next top-most event in
+        the scheduler.
 
         This method can be used to determine the timestamp (aka
-        Event::receiveTime) assocaited with the next event to be
+        Event::receiveTime) associated with the next event to be
         executed on the heap.  If the heap is empty, then this method
         returns INFINITY.
 
-        @return The timestamp of the next event to be executed.
+        \return The timestamp of the next event to be executed.
     */
-    Time getNextEventTime() ;
-	
+    Time getNextEventTime();	
 
-    /** The agent class uses this method to change
-        its key in the fib heap agent_pq. This makes
-        sure that the heap properties are valid.
+    /** \brief Update the specified Agent's key to the specified time
 
-        @param pointer, this is type casted in the method to node*
-        @param agent, the agent pointer that wants to be changed
-      
+        This method instructions the Scheduler's internal AgentPQ to
+        change the Agent's key to the specified time, and then perform
+        the necessary heap fixup.
+
+        \param[in] pointer Pointer to the AgentPQ's internal structure
+        for this Agent
+
+        \param[in] uTime The time to update the specified Agent's key
+        to
     */
-    void updateKey(void*,Time old_top_time);
+    void updateKey(void* pointer, Time uTime);
 
 private:
+    /** \brief Handle a rollback, if necessary
+        
+        This method checks if the specified event occurs before the
+        agent's LVT, and performs a rollback if it does.
 
-    /** The checkAndHandleRollback method.
-        This is a helper which checks for a rollback and handles it if it is
+        \param[in] e The event to check
+        
+        \param[in,out] agent The agent to check against
 
-        @param e, the event to check
-        @param agent, the agent to check against
-
-        @return bool, if true then it was a rollback event
-
+        \return True if a rollback occured
     */
-    bool checkAndHandleRollback(const Event * e,  Agent * agent);
+    bool checkAndHandleRollback(const Event* e, Agent* agent);
 
+    /** \brief Perform processing of future anti-messages
 
-    /** The handleFutureAntiMessage method.
-        This is a helper which takes care of future anti-message.
+        If we receive an anti-message that does not cause rollbacks,
+        then currently-scheduled events that are invalidated by this
+        anti-message must be removed from the given agent's event
+        queue.
 
-        @param e, the event to check
-        @param agent, the agent to check against
-
-        @return bool, if true then it was an anti-message
-
+        \param[in] e The anti-message causing cancellations
+        
+        \param[in,out] agent The agent whose event queue needs to be cleaned
     */
-    void handleFutureAntiMessage(const Event * e,  Agent * agent);
+    void handleFutureAntiMessage(const Event* e, Agent* agent);
   
 protected: 
-    /** The agentMap is used to quickly match AgentID to agent pointers
-        in the scheduler.
+    /** The agentMap is used to quickly match AgentID to agent
+        pointers in the scheduler.
     */
     AgentIDAgentPointerMap agentMap;
   
-    /** The agent_pq is a fibonacci heap data structure, and used for
+    /** The agentPQ is a fibonacci heap data structure, and used for
         scheduling the agents.
     */
-    AgentPQ agent_pq;
-
-private:
-    void verifyQueues();
+    AgentPQ agentPQ;
 };
 
 END_NAMESPACE(muse);
