@@ -38,18 +38,17 @@ CPPFLAGS=""
 # Define MPI library (http://www.open-mpi.org)
 AC_DEFUN([AC_PROG_MPI],
 [
-    AC_ARG_WITH(mpi,
-            AS_HELP_STRING(--with-mpi=PATH,path to mpicc),
-    [ if test "$withval" != "yes"; then
-          AC_MSG_CHECKING([for MPI])
-	  if test -x "$withval" ; then
-	      MPI="$withval"
-	      AC_MSG_RESULT([$MPI])
-	  else
-	      MPI="no"
-	      AC_MSG_RESULT(no)
-	  fi
-      fi
+    AC_ARG_WITH(mpi, AC_HELP_STRING(--with-mpi=PATH,path to mpicc),
+        [ if test "$withval" != "yes"; then
+              AC_MSG_CHECKING([for MPI])
+	      if test -x "$withval" ; then
+	          MPI="$withval"
+	          AC_MSG_RESULT([$MPI])
+	      else
+	          MPI="no"
+	          AC_MSG_RESULT(no)
+	      fi
+          fi
      ])
      
      if test -z "$MPI"; then
@@ -68,12 +67,37 @@ AC_DEFUN([AC_PROG_MPI],
      AC_SUBST(MPI)
 ])
 
+# A custom helper to check to ensure C++ version of MPI is operational
+# Call AC_PROG_MPI before calling this check
+AC_DEFUN([AC_CHECK_MPICC],
+[
+    if test -n "$have_mpi" && test $have_mpi = 1; then
+        AC_MSG_CHECKING([whether $CXX is operational])
+	AC_LANG([C++])
+     
+	AC_LINK_IFELSE(
+            [AC_LANG_PROGRAM([[#include "mpi.h"],[#include <cstdlib>]],[[int argc=0; char **argv = 0; MPI::Init(argc, argv); MPI::Finalize()]])],
+	    [AC_MSG_RESULT([yes])],
+            [AC_MSG_RESULT([no])
+  	        AC_MSG_ERROR([
+	            There is a serious configuration issue on this
+	            machine.  It claims MPI is installed and mpicc is
+	            your path. However, mpicc is not operational and
+	            can't even compile a simple MPI program. This is
+	            not a problem with PEACE. Most likely no MPI
+	            program will compile on this machine.  Ensure you
+	            are loading the correct version of MPI (possibly
+	            using the 'module' command (example: module load
+	            openmpi-x86_64) in ~/.bashrc])
+        ])
+    fi
+])
+
 # Check if mpicxx requires -lstdc++ option (needed on redhawk)
 AC_DEFUN([AC_LINK_STDCPP],
 [
      AC_MSG_CHECKING([if $CXX needs stdc++])
      AC_LANG([C++])
-     AC_LANG_CONFTEST()
      
      AC_LINK_IFELSE(
          [AC_LANG_PROGRAM([[#include "mpi.h"]],[[std::cout << "Hello";]])],
@@ -88,8 +112,8 @@ AC_DEFUN([AC_LINK_STDCPP],
 # Check if we are using icc to supress a couple of useless remarks
 AC_DEFUN([AC_PROG_ICC],
 [
-    AC_ARG_WITH(icc,
-            AS_HELP_STRING(--with-icc,Code will be compiled with icc),
+    AC_ARG_WITH([icc],
+            AS_HELP_STRING([--with-icc],[Code will be compiled with icc]),
     [ if test "$withval" != "yes"; then
 	  icc="yes"
       else
@@ -109,32 +133,236 @@ AC_DEFUN([AC_PROG_ICC],
      fi
 
      if test "yes" == "$icc"; then
+          USING_ICC="-DICC"
           ICC_NO_WARN_SOME="-wd981 -wd383 -wd424"
+	  ICC_NO_WARN_FOR_CONFIGURE="-wd981 -wd383 -wd1419"
      else
+          USING_ICC=""
           ICC_NO_WARN_SOME=""
+	  ICC_NO_WARN_FOR_CONFIGURE=""
      fi
-     
+
+     AC_SUBST(USING_ICC)
      AC_SUBST(ICC_NO_WARN_SOME)
 ])
 
+# A convenience macro to check if the compiler accepts a specific
+# compiler flag or argument (and does not generate an error)
+AC_DEFUN([AC_CHECK_ARGS],
+[
+    AC_MSG_CHECKING([whether _AC_LANG compiler accepts $1])
+    if test -z "[$4]"; then
+        AC_LANG_CONFTEST([AC_LANG_PROGRAM([[#include <iostream>]],
+				          [[std::cout << "ac_check_args"]])])
+        src=`ls conftest.c*`
+        output=`$CXX $1 $CXXFLAGS $LIBS $ICC_NO_WARN_FOR_CONFIGURE $src 2>&1`
+        if test -z "$output"; then
+            AC_MSG_RESULT([yes])
+            m4_default([$2], :)
+	    CPPFLAGS+=" [$1]"
+        else
+	    AC_MSG_RESULT([no])
+	    m4_default([$3], :)
+        fi
+    else
+        AC_MSG_RESULT([skipped (because "$4" overrides)])
+	m4_default([$3], :)
+    fi
+])
+
+# Check if we are using correct version of gcc
+AC_DEFUN([AC_CHECK_GCC_VERSION],
+[
+    AC_MSG_CHECKING([whether gcc is sufficiently new])
+    # Get version from GCC version header in the form:
+    # gcc (GCC) 4.x.x ...
+    version=`g++ --version 2>&1 | head -1 | cut -d' ' -f3`
+    majorVer=`echo $version | cut -d'.' -f1`
+    minorVer=`echo $version | cut -d'.' -f2`
+    patchLevel=`echo $version| cut -d'.' -f3`
+
+    good="yes"
+    # Check to ensure gcc is at least 4.0.1
+    if test $majorVer -lt 4; then
+       good="no"
+    elif test $majorVer -eq 4; then
+	 if test $minorVer -lt 1 && test $patchLevel -lt 1; then
+ 	     good="no"
+	 fi
+	     # Add checks for buggy gcc 4.0.1+ versions here
+    fi
+
+    if test $good = no; then
+        AC_MSG_RESULT([no])
+	AC_MSG_ERROR([
+	  MUSE has been developed using the latest C++ standards.
+	  It requires atleast GCC Version 4.0.1 to compile. The gcc
+	  version on your machine is $version which is not
+	  sufficiently recent to compile MUSE. You need upgrade
+	  gcc. If you are on a cluster environment contact your
+	  system adminstrator to determine how to load a more recent
+	  gcc module by default.
+	 ])
+    else
+        AC_MSG_RESULT([yes, $version])
+    fi
+])
+
+# Check if we are using gcc to supress a couple of useless remarks
+AC_DEFUN([AC_PROG_GCC],
+[
+    AC_ARG_WITH(gcc,
+        AC_HELP_STRING([--with-gcc],[Code will be compiled with gcc]),
+        [ if test "$withval" == "yes"; then
+	  	 gcc="yes"
+          else
+		gcc="no"
+          fi
+        ])
+
+     if test -z "$gcc"; then
+         AC_MSG_CHECKING([for gcc])
+         gcc=`$CXX --version 2>&1 | grep -i -w "GCC"`
+	 if test -n "$gcc"; then
+	     gcc="yes"
+	 else
+	     gcc="no"
+	 fi
+         AC_MSG_RESULT([$gcc])
+     fi
+
+     if test "yes" == "$gcc"; then
+         USING_GCC="-DGCC"
+	 AC_CHECK_GCC_VERSION
+         AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
+         AC_SUBST(OPT_O3)
+     else
+     	 USING_GCC=""
+     fi
+
+     AC_SUBST(USING_GCC) 
+])
+
+# A custom helper to check if a given version of hash map is
+# operational.  The parameters to this macro call are:
+# $1 The header file name being used (just for display purposes)
+# $2 The defined to be set for compiler flags used to compile code
+# $3 Flag to indicate if custom string hasher should be used.
+# $4 Flag to indicate if this check is required in a series of checks.
+AC_DEFUN([AC_CHECK_HASHMAP_OPTION],
+[
+     AC_MSG_CHECKING([whether hash map from $1 is operational])
+     if test -z "[$4]"; then
+	 old_cpp_flags=$CPPFLAGS
+	 CPPFLAGS+=" -I include -I kernel/include"
+         # Try to compile a simple hash map code with necessary headers
+         AC_LINK_IFELSE(
+             [AC_LANG_PROGRAM([[#define $2]
+	               [#define $3]
+                       [#include "HashMap.h"]],
+		       [[const StringIntMap map; map.find("1")]])],
+	 [AC_MSG_RESULT([yes]) # sucessful compile
+	      found_hashmap=yes
+              AC_DEFINE([$2], [1], [Version of hash map to use])	      
+	      if test "[$3]" == "NEED_STRING_HASHER"; then
+	          # String hasher is needed for successful compilation
+	          AC_DEFINE([NEED_STRING_HASHER], [1],
+		            [needs custom std::string hasher])
+	      fi
+	 ],
+         [ AC_MSG_RESULT([no])
+         ]) # outer link_ifelse
+	 CPPFLAGS=$old_cpp_flags
+    else
+        AC_MSG_RESULT([skipped])
+    fi
+])
+
+AC_DEFUN([AC_CHECK_HASHMAP],
+[
+    found_hashmap=""
+    AC_LANG_PUSH([C++])
+    
+    # Check if the most recent unordered_map is usable.
+    AC_CHECK_HASHMAP_OPTION([unordered_map], [HAVE_UNORDERED_MAP], [NO_STRING_HASHER], [$found_hashmap])
+    AC_CHECK_HASHMAP_OPTION([unordered_map (custom hasher)], [HAVE_UNORDERED_MAP], [NEED_STRING_HASHER], [$found_hashmap])
+    # Check if the previous iteration of tr1/unordered_map is usable.
+    AC_CHECK_HASHMAP_OPTION([tr1/unordered_map], [HAVE_TR1_UNORDERED_MAP], [NO_STRING_HASHER], [$found_hashmap])
+    AC_CHECK_HASHMAP_OPTION([tr1/unordered_map (custom hasher)], [HAVE_TR1_UNORDERED_MAP], [NEED_STRING_HASHER], [$found_hashmap])
+
+    # Check if the older ext/hash_map is usable.
+    AC_CHECK_HASHMAP_OPTION([ext/hash_map], [HAVE_EXT_HASH_MAP], [NO_STRING_HASHER], [$found_hashmap])
+    AC_CHECK_HASHMAP_OPTION([ext/hash_map (custom hasher)], [HAVE_EXT_HASH_MAP], [NEED_STRING_HASHER], [$found_hashmap])
+
+    # Finally fall back to default catch-all case
+    AC_CHECK_HASHMAP_OPTION([hash_map], [HAVE_HASH_MAP], [NO_STRING_HASHER], [$found_hashmap])
+    AC_CHECK_HASHMAP_OPTION([hash_map (custom hasher)], [HAVE_HASH_MAP], [NEED_STRING_HASHER], [$found_hashmap])
+    
+    AC_LANG_POP([C++])
+
+    # If a useable hash map was not detected then report an error.
+    if test -z "$found_hashmap"; then
+        AC_MSG_ERROR([
+	    Despite best efforts this machine does not seem to have an
+	    operational version of hash_map or unordered_map. This
+	    indicates your C++ compiler is not sufficiently recent to
+	    be upto date with standards.  Possibly you are using a
+	    very old C++ compiler and you need to upgrade it. If you
+	    are on a cluster environment contact your administrator to
+	    see if you can load a more recent C++ compiler module by
+	    default
+	])
+    fi
+])
+
 # Checks for programs.
-AC_PROG_ICC
-AC_LINK_STDCPP
-AC_PROG_CXX
 AC_PROG_MPI
 AC_MSG_CHECKING([properties of MPI compiler])
 AC_MSG_RESULT([$CXX])
+AC_PROG_CXX
+AC_LINK_STDCPP
+AC_PROG_ICC
+AC_PROG_GCC
+AC_CHECK_MPICC
 AC_PROG_RANLIB
+
+# Checks for suitable archiver to be used
+AM_PROG_AR
+
+# Check and set some default compiler flags for the build
+AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])
+AC_SUBST(INFORM_WARN)
+AC_CHECK_ARGS([-Wall], [WALL="-Wall"], [WALL=""], [])
+AC_SUBST(WALL)
+AC_CHECK_ARGS([-Wextra], [WEXTRA="-Wextra"], [WEXTRA=""], [])
+AC_SUBST(WEXTRA)
+AC_CHECK_ARGS([-pipe], [PIPE="-pipe"], [PIPE=""], [])
+AC_SUBST(PIPE)
+AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
+AC_SUBST(FAST)
+
+# For now we are intentionally not using new C++ standards. Hopefully
+# we will starting using them very soon.
+
+# AC_CHECK_ARGS([-std=c++14], [CPP14="-std=c++14"], [CPP14=""], [])
+# AC_SUBST(CPP14)
+# AC_CHECK_ARGS([-std=c++11], [CPP11="-std=c++11"], [CPP11=""], [$CPP14])
+# AC_SUBST(CPP11)
+# AC_CHECK_ARGS([-std=c++0x], [CPP0X="-std=c++0x"], [CPP0X=""], [$CPP11])
+# AC_SUBST(CPP0X)
 
 # Put object files in corresponding directories even if make is not
 # running directly in the source directory.
 AM_PROG_CC_C_O
 
 # Checks for libraries.
-AC_CHECK_LIB([pthread], [pthread_create])
-AC_CHECK_LIB([m],[asin])
-AC_SEARCH_LIBS([gethostname], [c,nsl])
-AC_SEARCH_LIBS([bind],[c,nsl,socket])
+AC_CHECK_LIB([m],[asin],,,[-lstdc++])
+AC_CHECK_FUNCS([MPI_Init])
+AC_SEARCH_LIBS([initscr],[curses],,,[-lstdc++])
+AC_CHECK_LIB([readline],[readline],,,[-lstdc++])
+AC_CHECK_LIB([pthread], [pthread_create],,,[-lstdc++])
+AC_SEARCH_LIBS([gethostname], [c,nsl],,,[-lstdc++])
+AC_SEARCH_LIBS([bind],[c,nsl,socket],,,[-lstdc++])
 
 # Checks for header files.
 AC_HEADER_STDC
@@ -150,11 +378,6 @@ AC_C_VOLATILE
 AC_C_RESTRICT
 AC_STRUCT_TM
 
-# check if recent version of hash map is available in c++ land
-AC_LANG_PUSH([C])
-AC_LANG([C++])
-AC_CHECK_HEADERS([tr1/unordered_map])
-AC_LANG_POP([C++])
 
 # Checks for library functions.
 AC_FUNC_MALLOC
@@ -162,6 +385,10 @@ AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
 AC_CHECK_FUNCS([bzero floor gethostbyname gethostname gethrtime gettimeofday memset mkdir modf pow rint socket sqrt strcasecmp strchr strdup strstr strtol])
+
+# Finally detect the most recent and working version of hash map is
+# available in c++ land
+AC_CHECK_HASHMAP
 
 AC_CONFIG_FILES([Makefile\
 	kernel/Makefile\

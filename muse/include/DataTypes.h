@@ -50,7 +50,7 @@ typedef std::vector<Event*> EventContainer;
     struct to make sure the client know exactly what the param of a
     method is asking for. For more details check out the method
     Agent::getAgentID().
-    @see getAgentID()
+    \see getAgentID()
     
 */
 typedef int AgentID; 
@@ -67,7 +67,7 @@ typedef double  Time;
  * simulator(Singleton). MUSE uses this SimulatorID type to make
  * sure the client know exactly what the param of a method is asking
  * for. For more details check out the method getSimulatorID().
- @see getSimulatorID()
+ \see getSimulatorID()
  *
  */
 typedef unsigned int SimulatorID;

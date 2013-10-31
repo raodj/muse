@@ -1,5 +1,5 @@
-#ifndef BINARYHEAPWRAPPER_CPP
-#define	BINARYHEAPWRAPPER_CPP
+#ifndef BINARY_HEAP_WRAPPER_CPP
+#define BINARY_HEAP_WRAPPER_CPP
 
 //---------------------------------------------------------------------------
 //
@@ -35,25 +35,27 @@ using std::push_heap;
 using std::sort_heap;
 
 BinaryHeapWrapper::BinaryHeapWrapper() {
-    the_container = new EventContainer;
-    make_heap(the_container->begin(),the_container->end(), eventComp() );
+    heapContainer = new EventContainer;
+    make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
 
-BinaryHeapWrapper::~BinaryHeapWrapper(){ delete the_container; }
+BinaryHeapWrapper::~BinaryHeapWrapper() {
+    delete heapContainer;
+}
 
 void
 BinaryHeapWrapper::pop() {
-    if (the_container->empty()) return;
-    pop_heap(the_container->begin(),the_container->end(),eventComp());
-    the_container->back()->decreaseReference();
-    the_container->pop_back();
+    if (heapContainer->empty()) return;
+    pop_heap(heapContainer->begin(), heapContainer->end(), EventComp());
+    heapContainer->back()->decreaseReference();
+    heapContainer->pop_back();
 }
 
 void
 BinaryHeapWrapper::push(Event * event){
     event->increaseReference();
-    the_container->push_back(event);
-    push_heap(the_container->begin(),the_container->end(),eventComp());
+    heapContainer->push_back(event);
+    push_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
 
 bool
@@ -61,12 +63,12 @@ BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
     bool foundAtLeastOne = false;
     EventContainer* temp = new EventContainer;
     
-    while (!the_container->empty()) {
+    while (!heapContainer->empty()) {
         // First, get a pointer to the last event, and remove it from
         // the container (it will be either deleted or requeued as
         // necessary)
-        Event* lastEvent = the_container->back();
-        the_container->pop_back();
+        Event* lastEvent = heapContainer->back();
+        heapContainer->pop_back();
         // An event is deleted only if the *sent* time is greater than
         // the antiMessage's and if the event is from same sender
         if ((lastEvent->getSenderAgentID() == antiMsg->getSenderAgentID()) &&
@@ -80,14 +82,14 @@ BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
         }
     }
 
-    ASSERT (the_container->empty());
+    ASSERT (heapContainer->empty());
 
     // Replace the container with the new one we just created
-    delete the_container;
-    the_container = temp;
+    delete heapContainer;
+    heapContainer = temp;
     
     // Fix up the heap
-    make_heap(the_container->begin(),the_container->end(), eventComp());
+    make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
     
     return foundAtLeastOne;
 }

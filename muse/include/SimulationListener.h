@@ -70,7 +70,9 @@ public:
         collection has been completed.  There is a guarantee that GVT
         will monotonically increase each time this method is invoked.
     */
-    virtual void garbageCollectionDone(const muse::Time& gvt) {}
+    virtual void garbageCollectionDone(const muse::Time& gvt) {
+	UNUSED_PARAM(gvt);
+    }
 };
 
 END_NAMESPACE(muse); //end namespace declaration

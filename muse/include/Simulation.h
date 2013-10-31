@@ -31,11 +31,7 @@
 
 #include <csignal>
 
-/** The muse namespace.
-    
-    Everything in the api is in the muse namespace.
-*/
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse);
 
 // Forward declaration to make compiler happy and fast
 class GVTManager;
@@ -67,142 +63,128 @@ class SimulationListener;
     </ol>
     
     
-    @note refer to each method documentation for more details on the
+    \note refer to each method documentation for more details on the
     features provided.
     
 */
 class Simulation {
-    //has to be a friend class because garbage collection is called from the
-    //GVTManager class.
+    // GVTManager needs to be able to call garbageCollect()
     friend class GVTManager;
     friend class Agent;
     friend class Scheduler;
 public:
+    /** \brief Complete initialization of the Simulation
 
-    /** The initialize method.  Once the simulation instance is
-	returned. This method must be called to fully init the
-	simulation kernel. Things like the simulatorID is generated in
-	this method.
-     
-	@note if this method is not called and you start the simulation then
-	the SimualtorID will equal -1u !!
-    */
-    void initialize();
-
-    /** The initialize method.  Once the simulation instance is
-	returned. This method must be called to fully init the
-	simulation kernel. Things like the simulatorID is generated in
-	this method.
+        Once the simulation instance is created, it must be full
+        initialized.  Notably, this includes initializing
+        MPI. Afterwards, important instance variables such as the
+        SimulatorID are set.
 	
-	@note if this method is not called and you start the simulation then
-	the SimualtorID will equal -1u !!
-     
-	@param argc, the number of arguments
-	@param argv, the arguments to pass into MPI.
+	\param argc the number of arguments
+	\param argv the arguments to pass into MPI
     */
     void initialize(int argc, char* argv[]);
 
-    /** The finalize method.  After calling the start method and the
-	simualtion starts, this should be the next method called. In
-	this method clean up occurs. Running this method will insure
-	that all memory used by the Simulation kernel are properly
-	disposed!
-	
-	@note if this method is called the SimualtorID will equal -1u !!
+    /** \brief Finalize the Simulation
+
+        This method will cause every Agent in the system to finalize,
+        and will then delete the GVTManager and finalize the
+        communicator.
+
+        This method will also print statistics about the simulation.
     */
     void finalize();
         
-    /** The getSimulatorID method.
-	Use this method to obtain the id of the simulator you are working with. Typically 
-	in parallel simulation this will be the MPI_Rank. 
+    /** \brief Get the Simulator ID
      
-	@return  the id of the simulation kernel
-	@see SimulatorID
+	\return The ID of the simulation kernel
+        
+	\see SimulatorID
     */
-    inline SimulatorID getSimulatorID() const { return myID;}
+    inline SimulatorID getSimulatorID() const { return myID; }
 
-    inline unsigned int getNumberOfProcesses() const { return number_of_processes;}
+    /** \brief Get the total number of processes
+
+        \return The total number of processes collaborating in this
+        simulation
+     */
+    inline unsigned int getNumberOfProcesses() const { return numberOfProcesses;}
     
-    /** The registerAgent method.  Once you design and create an agent
-	for your simulation, use this method to register the agent to
-	the simulator. For example a client could check the
-	SimulatorID and with a switch statement register agents to
-	different simulators on different processes.See examples.
+    /** \brief Register the given Agent to the Simulation
 
-	@note Once regiestered agents will be handled by
+        Once you design and create an agent for your simulation, use
+	this method to register the agent to the simulator. For
+	example a client could check the SimulatorID and with a switch
+	statement register agents to different simulators on different
+	processes. See examples.
+
+	\note Once regiestered agents will be handled by
 	MUSE. Deleting of agent will be handled by MUSE. Please only
 	allocate agent on the heap.
      
-	@param agent pointer, this is of type Agent.
-	@return bool, True if the agent was register correctly.
-	@see Agent()
-	@see AgentID 
+	\param agent pointer, this is of type Agent.
+	\return True if the agent was register correctly.
+	\see Agent()
+	\see AgentID 
     */
-    bool registerAgent(Agent * agent);
+    bool registerAgent(Agent* agent);
         
-    /** The getRegisteredAgents method.  When this method is invoked,
-	it will return all agents that are registered to a given
-	simulation kernel.
+    /** \brief Get all Agents registered to the simulation
 	
-	@return reference to the AgentContainer. 
-	@see AgentContainer
+	\return An AgentContainer with all registered agents
+	\see AgentContainer
     */
-    inline const AgentContainer& getRegisteredAgents() const {return allAgents;}
+    inline const AgentContainer& getRegisteredAgents() const { return allAgents; }
         
-    /** The getSimulator method.  The simulation class implements a
-	singleton pattern. Call this method to get a pointer to the
-	simulation kernel.
+    /** \brief Get the only Simulation
+
+        The simulation class implements a singleton pattern. Call this
+	method to get a pointer to the simulation kernel.
 	
-	@return the pointer to the Simulatin object.
-	@see Simulation()
+	\return A pointer to the one-and-only Simulation
     */
     static Simulation* getSimulator();
 
     
-    /** The start method.
+    /** \brief Start the Simulation
 
-        When this method is invoked the client should have all agents
-	registered.  Also a flavor of the initialize method should be
-	called.Lastly, you should set the start and end time for the
-	simuatlion.  The simulation will start.
+        This method should be called after all of the appropriate
+        initialization has been completed.  Upon doing so, the
+        Simulation will start.
     */
     void start();
         
-    /** The setStartTime method.
-        
-	Sets the simulation start time. Keep in mind that the
-	simulation does not have to start at time Zero(0) each
-	simulation object could start at different times. Warning, if
-	you decided to start at different times, it could cause
-	rollbacks.
+    /** \brief Sets the simulation start time.
 
-	@param the start time.
-	@see Time
+        Keep in mind that the simulation does not have to start at
+	time Zero (0) -- each simulation object could start at
+	different times. Warning, if you decided to start at different
+	times, it could cause rollbacks.
+
+	\param sTime The start time
+	\see Time
     */
-    inline void setStartTime(Time start_time) {startTime = start_time;}
+    inline void setStartTime(Time sTime) { startTime = sTime; }
 
-    /** The stop method.
-        
-	When this method is invoked the simulation will come to a big
-	STOP. muse will go through and finalize all agents and clean
-	up.
+    /** \brief Stop the simulation
 
-	@note Don't use this method until oterwise stated, maybe in
-	the next release
+        Currently unimplemented.
+
+        This method stops the Simulation.  There should be no need to
+        use this method, use setStopTime() instead.
         
-	@todo implement this. Currently does nothing.
+	\todo Implement this. Currently does nothing.
     */
     void stop();
         
-    /** The setStopTime method.
-	Sets the simulation stop time. 
+    /** \brief Sets the simulation stop time. 
 
-	@param the stop time.
-	@see Time
+	\param eTime The stop time.
+	\see Time
     */
-    inline void setStopTime(Time end_time) {endTime = end_time;}
+    inline void setStopTime(Time eTime) { endTime = eTime;}
 
-    /** The setGVTDelayRate method.
+    /** \brief Set the GVT Delay Rate
         
 	Different Simulation models perform better with different
 	rates of GVTEstimation.  If you have a large number of agents
@@ -210,35 +192,39 @@ public:
 	otherwise it would make your simulation faster to minimize
 	garbage collection
 
-	@note default is rate = 100
+	\note The default is rate is 100
         
-	@param rate, the rate at which to delay GVT estimation(rate
+	\param rate The rate at which to delay GVT estimation (rate
 	representing timesteps)
 	
      */
-    inline void setGVTDelayRate(int rate) {gvt_delay_rate=rate;}
+    inline void setGVTDelayRate(int rate) { gvtDelayRate = rate;}
     
-    /** The isAgentLocal method.
-	Used to check if a given AgentID is local to this kernel.
+    /** \brief Determine if the givent Agent is local 
 
-	@param reference to the Agent's id
-	@return bool, True if the AgentID is registered to this kernel.
+	This method will check the registration tables to determine if
+	the Agent that has the given ID is local or not
+
+	\param[in] id ID of the agent to check
+	\return True if the AgentID is registered to this kernel.
     */
-    bool isAgentLocal(AgentID );
+    bool isAgentLocal(AgentID id);
     
-    /** The getStartTime method.
-	@return the start time of this simulation kernel.
-	@see Time
-    */
-    inline Time getStartTime() const { return startTime;}
+    /** \brief Get the start-time of the Simulation
 
-    /** The getStopTime method.
-	@return the end time of this simulation kernel.
-	@see Time
+        \return the start time of this simulation
+	\see Time
+    */
+    inline Time getStartTime() const { return startTime; }
+
+    /** \brief Get the end-time of the Simulation
+        
+	\return the end time of this simulation
+	\see Time
     */
     inline Time getStopTime() const { return endTime; }
 
-    /** Set a callback class to report major simulation phases.
+    /** \brief Set a callback class to report major simulation phases.
 
 	This method must be used to set an listener to be used to
 	report major occurrences within the simulator.  Any previous
@@ -252,71 +238,72 @@ public:
 	\note It is the caller's responsibility to delete the listener
 	as needed once it is removed (by calling setListener(NULL);)
     */
-    void setListener(SimulationListener *listener);
+    void setListener(SimulationListener* listener);
     
 protected:
-    /** The scheduleEvent method.
-	Agents actually use this method to schedule events that are not local.
+    /** \brief Schedule the specified event
+        
+	Agents actually use this method to schedule events that are
+	not local.
 
-	@note Users should not be using this method. If used, will
+	\note Users should not be using this method. If used, will
         cause undefined behavior.  Use Agent::scheduleEvent method to
         avoid potential problems.
      
-	@param pointer to the event you wish to schedule.
-	@return bool True if scheduling is successful.
-	@see Event()
+	\param e The event you wish to schedule.
+	\return True if scheduling is successful.
+	\see Event()
     */
-    bool scheduleEvent( Event *e);
+    bool scheduleEvent(Event* e);
     
-    /** The getGVT method.
-	This is GVT (Global Virtual Time).
-
-	@return Time, the GVT.
-	@see Time
+    /** \brief Get the Global Virtual Time
+        
+        \return The GVT
+        \see Time
     */
     Time getGVT() const;
 
+    /** \brief Get the LGVT
+        
+        The LGVT is the next time that will become the LVT.
 
-    /** The getLGVT() method.
-	This method is used to peek into the next agent to be processed time.
-	This effectively gives you the smallest time in this kernel.
-
-	@return Time, the time.
-	@see Time
+	\return The LGVT
+	\see Time
      */
     Time getLGVT() const;
 
-    /** the updateKey method.
-	Used to update the position on the agent in the fibonacci heap.
-	@note Users should not use this. 
-     */
-    void updateKey(void*, Time old_top_time);
-    
-    /** The collectGarbage method.
-        When this method is called, garbage collections for all the agents
-        that are registered to this kernel take place. Please see Agent::collectGarbage
-        for more details about how garbage is collected at the agent level.
+    /** \brief Update the specified Agent's key to the specified time
 
+        \see Scheduler#updateKey
        
-        @see GVTManager
-        @see Time
+     */
+    void updateKey(void* pointer, Time uTime);
+    
+    /** \brief Clean up old States and Events
+
+        When this method is called, garbage collections for all the agents
+        that are registered to this kernel take place.
+
+        Please see Agent::collectGarbage for more details about how
+        garbage is collected at the agent level.
+       
+        \see GVTManager
+        \see Time
      */
     void garbageCollect();
-
     
 private:
-
-    //the kernel singleton instance
-    ////the ctor method, must be private (singleton pattern)
+    // Constructors and Destructor -- Private to enforce Singleton
+    // pattern
     Simulation();
     Simulation(const Simulation &);
     Simulation& operator=(const Simulation&);
     ~Simulation();
 
-    //used to contain all agents registered to this simulator
+    /// All of the Agents in the Simulation
     AgentContainer allAgents;
 
-    //usually the MPI_Rank, otherwise a globally unique id for the simulator.
+    // Globally unique ID of the simulator -- MPI_Rank in this case
     SimulatorID myID;
 
     Time LGVT, startTime, endTime;
@@ -327,25 +314,28 @@ private:
     */
     Scheduler* scheduler;
 
-    /** Instance variable to hold a pointer to the Communicator manager.  
-	This instance variable holds pointer to an Communicator object
-	that is used to send events to agents that reside on other Simulation kernels (nodes).
+    /** Instance variable to hold a pointer to the Communicator
+	manager.  This instance variable holds pointer to an
+	Communicator object that is used to send events to agents that
+	reside on other Simulation kernels (nodes).
     */
-    Communicator *commManager;
+    Communicator* commManager;
 
-    /** Instance variable to hold a pointer to the GVT manager. 
-	This instance variable holds pointer to an GVTManager object
-	that is used to compute Global Virtual Time (GVT) in the
+    /** Instance variable to hold a pointer to the GVT manager.  This
+	instance variable holds pointer to an GVTManager object that
+	is used to compute Global Virtual Time (GVT) in the
 	simulation. GVT is necessary for automatic garbage collection
-	and to terminate a parallel simulation.  This instance variable
-	is initialized only after the simulation has been initialized.
+	and to terminate a parallel simulation.  This instance
+	variable is initialized only after the simulation has been
+	initialized.
     */
-    GVTManager *gvtManager;
+    GVTManager* gvtManager;
 
-    /** Used to control the rate at which garbage is collected */
-    int gvt_delay_rate;
+    /// Used to control the rate at which garbage is collected
+    int gvtDelayRate;
 
-    unsigned int number_of_processes;
+    /// Number of Processes collaborating in the Simulation
+    unsigned int numberOfProcesses;
 
     /** The listener to be used to report occurance of major phases
 	during simulation.
@@ -355,21 +345,34 @@ private:
 	class.  It is used by various methods in this class to report
 	occurance of major phases during simulation.
     */
-    SimulationListener *listener;
+    SimulationListener* listener;
     
-    /** Used for logging purposes.
-     */
-    DEBUG(ofstream * logFile);
-    DEBUG(std::streambuf *oldstream);
+    // Debug-only logging purposes.
+    DEBUG(ofstream* logFile);
+    DEBUG(std::streambuf* oldstream);
 
+    /** \brief Handler for sigaction USR1/USR2
+
+        This method is called upon receipt of a USR1/USR2. Depending
+        on the type of signal received, it will either set stats to be
+        dumped on the next cycle (safe, USR1) or dump them immediately
+        (unsafe, will probably crash the Simulation, USR2).
+
+     */
     static void dumpStatsSignalHandler(int sigNum);
-    
+
+    /** \brief Do the actual stats dump
+
+        This method is called by the dumpStatsSignalHandler to actuall
+        do the work
+     */
     void dumpStats();
 
+    /// Keep track of if stats should be dumped this cycle
     bool doDumpStats;
     
 };
 
-END_NAMESPACE(muse); //end namespace declaration
+END_NAMESPACE(muse);
 
 #endif

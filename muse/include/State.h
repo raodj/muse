@@ -1,7 +1,6 @@
-#ifndef _MUSE_STATE_H_
-#define _MUSE_STATE_H_
+#ifndef MUSE_STATE_H
+#define MUSE_STATE_H
 
-#include "DataTypes.h"
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -20,50 +19,58 @@
 // U.S., and the terms of this license.
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
+//          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
+#include "DataTypes.h"
 
-BEGIN_NAMESPACE(muse) //begin namespace declaration 
+BEGIN_NAMESPACE(muse)
 
 /** The State class.
-    This class is a base class and SHOULD be used as a superclass. All agents must have a State. 
-    Think of the State as all the information that can be changed within an agent. When an agent
-    has to process a collection of events, what actually happens is information in the state is changed
-    based on the event being processed. 
- */
+
+    This is a base class fo all states of Agents.  Any instance
+    variable that changes as the simulation progresses must be stored
+    in a corresponding State.  This base class allows MUSE to do
+    automatic state management to make rollbacks transparent to the
+    Agents.
+*/
 class State {
+    friend class Agent;
+public:
+    /** \brief Default Constructor.
 
-  //let make the Agent class a friend
-  friend class Agent;
-  
- public:
-  /** The getClone method.
-      This method must be implemented by the client. This is because there is no way 
-      muse can know what information the client has in the State class. 
+        Initialize core variables shared across all States: the
+        timestamp.
+     */
+    State();
+
+    /** \brief Destructor
+
+        Does nothing, as State does not allocate any memory.
+    */
+    virtual ~State();
+
+    /** \brief Make a copy of this State
+        
+        This method must be overriden by all deriving classes.  This
+        method should construct a new State (allocated on the heap)
+        that is identical to this state.  This is typically
+        accomplished with a copy constructor.
       
-      @return State* a pointer to the clone of this State. Should be a new state allocated in the heap.
-  */
-  virtual State * getClone(); //must override this.
+    */
+    virtual State* getClone();
+    
+    /** \brief Get the time for which this State is valid
+              
+        \return Reference to the timestamp of this State
+    */
+    inline const Time& getTimeStamp() const { return timestamp; }
   
-  /** The ctor method.
-  */
-  State();
-
-  /** The getTimeStamp method.
-      @return reference to the timestamp of this state.
-   */
-  inline const Time & getTimeStamp() const { return timestamp;}
-  
- 
-  /** The dtor method.
-      Cleans up all mess created by muse.
-  */
-  virtual ~State();
-  
- protected:
-  // this is used for storage purpose. Incase of a rollback this is used to get a state before the rollback time. 
-  Time timestamp;
+protected:
+    /// The time at which this State represents
+    Time timestamp;
 };
 
 END_NAMESPACE(muse)

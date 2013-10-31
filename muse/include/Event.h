@@ -20,6 +20,7 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
+//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -28,11 +29,11 @@
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(ostream&, const muse::Event&);
 
-/** \def CREATE(EventClasName, int size, receiverID, recveTime)
-
+/** \def CREATE(EventClassName, int size, receiverID, recvTime)
+    
     \brief A convenience macro to facilitate the definition of MUSE
     API compliant static create method for instantiating events.
-
+    
     This macro must be used in each class that is derived from this
     Event class to implement a suitate create method.
 */
@@ -46,7 +47,7 @@ extern std::ostream& operator<<(ostream&, const muse::Event&);
         return event;                                                   \
     }
 
-BEGIN_NAMESPACE(muse); //begin namespace declaration
+BEGIN_NAMESPACE(muse);
 
 /** The base class for all events in a simulation.
     This class represents the base class from which all user-defined
@@ -58,7 +59,6 @@ BEGIN_NAMESPACE(muse); //begin namespace declaration
     receiving the event needs to process the event.
 */
 class Event {
- 
     friend std::ostream& ::operator<<(ostream&, const muse::Event&);
     friend class Agent;
     friend class Simulation;
@@ -66,132 +66,159 @@ class Event {
     friend class GVTManager;
     friend class Communicator;
     friend class BinaryHeapWrapper;
-  
 public:
-    // Use MUSE macro to define the create method to isntantiate
+    // Use MUSE macro to define the create method to instantiate
     // this event class.
     CREATE(Event);
 
-    /** The getSenderAgentID method.
-        @return reference to the sender AgentID.
-        @see AgentID
+    /** \brief Get the ID of the Agent that sent this Event
+        
+        \return The sender AgentID.
+        \see AgentID
     */
-    inline AgentID getSenderAgentID() const { return senderAgentID;}
+    inline AgentID getSenderAgentID() const { return senderAgentID; }
 
-    /** The getReceiverAgentID method.
-        @return reference to the receiver AgentID.
-        @see AgentID
+    /** \brief Get the ID of the Agent that will receive this Event
+        
+        \return The receiver AgentID.
+        \see AgentID
     */
     inline AgentID getReceiverAgentID() const { return receiverAgentID; }
   
-    /** The getSentTime method.
-        @return reference to the sent time of this event.
-        @see Time
+    /** \brief Get the Time that this event was sent
+        
+        \return Send time of this event.
+        \see Time
     */
     inline  Time getSentTime() const { return sentTime; }
   
-    /** The getReceiveTime method.
-        @return reference to the receive time of this event.
+    /** \brief Get the Time that this event will be delivered
+        
+        \return Delivery/receive time of this event
     */
     inline Time getReceiveTime() const { return receiveTime; }
 
-    inline int getReferenceCount() const {return referenceCount;}
+    inline int getReferenceCount() const {return referenceCount; }
 
 protected:
-    /** The ctor method.
+    /** \brief Type-setting constructor
         
         The constructor is protected to ensure that the user always
         uses the static CREATE method to create events. The AgentID of
         the agent receiving the event and the delivery time is the
         least amount of information needed to be a vaild Event.
         
-        @param receiverID the id of the receiver agent
+        \param receiverID the id of the receiver agent
         
-        @param receiveTime this is the time the receiving agent should
+        \param receiveTime this is the time the receiving agent should
         process this event.
         
-        @see AgentID
-        @see Time
+        \see AgentID
+        \see Time
     */
-    explicit Event(const AgentID  receiverID,const Time  receiveTime);
+    explicit Event(const AgentID  receiverID, const Time  receiveTime);
     
-    /** The getColor method.
+    /** \brief Get the color of the Event
+        
         This method must be used to determine the color value
         associated with this event.  The color value is typically used
         for GVT computations during simulation.
       
-        @return The color value associated with this event.  The color
+        \return The color value associated with this event.  The color
         value is always zero or one. Any other value potentially
         indicates an error.
     */
     inline char getColor() const { return color; }
   
-    /** Set the color value for this event.
+    /** \brief Set the color value for this event.
+        
         This method must be used to set the color value associated
         with this event.  The color value is typically used for GVT
         computations during simulation.
       
-        @param color The color value associated with this event.
+        \param color The color value associated with this event.
         The color value is always zero or one. Any other value
         potentially indicates an error.
     */
     void setColor(const char color);
 
+    /** \brief Get the size of this Event
+        
+        This method is used to determine the correct size of each
+        Event so that it can be properly sent across the wire by MPI.
 
-    /** The getEventSize method.
-        This method is very important, when it comes time to send an event
-        across the wire via MPI.
+        \note Users should override this method if event class is
+        inherited and return correct size of the inherited event. For
+        example the ClockEvent would override this and returns
+        sizeof(ClockEvent)
 
-        @note USERS should override this method if event class is inherited and return
-        correct size of the inherited event. For example the ClockEvent would override
-        this and returns sizeof(ClockEvent)
-
-        @return int, the size of the event.
+        \return The size of the event
     */
-    virtual int getEventSize() const {return sizeof(Event); }
+    virtual int getEventSize() const { return sizeof(Event); }
   
-    /** The decreaseReference method.
-        Used for memory management.
-        This method should not be used by users. MUSE usues this to handle memory for you.
+    /** \brief Decrease the internal reference counter
+        
+        Used for memory management.  This method should not be used by
+        users. MUSE uses this to handle memory for you.
     */
     void decreaseReference();
   
-    /** The increaseReference method.
-        Used for memory management.
-        This method should not be used by users. MUSE usues this to handle memory for you.
+    /** \brief Increase the internal reference counter
+        
+        Used for memory management.  This method should not be used by
+        users. MUSE uses this to handle memory for you.
     */
     void increaseReference();
   
-    /** The isAntiMessage method.
-        @return bool True if this event is an anti-message.
+    /** \brief Determine if this Event is an anti-message
+        
+        \return True if this event is an anti-message.
     */
     inline bool isAntiMessage() const { return antiMessage; }
   
-    /** The makeAntiMessage
-        converts this event into an anti-message
-        This method should only be used by muse internal operations.
+    /** \brief Turn this Event into an anti-message
+        
+        Converts this event into an anti-message This method should
+        only be used by MUSE internal operations.
     */
     void makeAntiMessage();
 
-    /** Only should be used by the agent rollback method.
+    /** \brief Directly set the internal reference counter
+
+        Set the internal reference count to the specified value,
+        bypassing the increase/decrease reference count methods.  Note
+        that this method will not delete the message if the reference
+        count is set to 0.
+
+        This method is intended to be used only during rollbacks.
      */
-    inline void setReferenceCount(int count) { referenceCount = count;}
+    inline void setReferenceCount(int count) { referenceCount = count; }
  
-    /** The dtor.
-        User should not be able to delete events. Also events can only be created
-        in the heap.
+    /** \brief Destructor
+        
+        Events are allocated by the CREATE method, and deleted by
+        decreaseReference().  The Destructor will be called manually
+        as the CREATE method allocates the Event in a special manner
+        to guarantee that it is "flat" and ready to be sent across the
+        wire.
     */
     ~Event(); 
-  
-    AgentID senderAgentID, receiverAgentID;
-    Time sentTime,receiveTime;
-    //this is used to let the scheduler know that this event is an anti-message
+
+    /// The ID of the Agent that sent this Event
+    AgentID senderAgentID;
+    /// The ID of teh Agent that will receive this Event
+    AgentID receiverAgentID;
+    /// The Time this Event was sent
+    Time sentTime;
+    /// The Time this Event will be delivered/was received
+    Time receiveTime;
+    /// Is this an anti-message?
     bool antiMessage;      
-    //this is for memory managements
+    /// Internal reference counter for memory management
     int referenceCount; 
   
-    /** Instance variable to hold the color of this event for GVT
-        computation.
+    /** \brief Instance variable to hold the color of this event for
+        GVT computation.
       
         This instance variable is used to hold the color of this event
         for GVT computation using Mattern's GVT algorithm.  This
@@ -200,15 +227,12 @@ protected:
         is created and then used by the GVT manager to track events
         for GVT computation.
       
-        @see GVTManager
+        \see GVTManager
     */
     char color;
-
  
 };
 
-
-
-END_NAMESPACE(muse); //end namespace declaration
+END_NAMESPACE(muse);
 
 #endif
