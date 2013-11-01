@@ -1,16 +1,5 @@
-
 #ifndef UpdatePositionEvent_H
 #define UpdatePositionEvent_H
-
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-
-    File: UpdatePositionEvent.h
-    Author: your name
-
-    ........give brief description of what this  event means here.......
-*/
 
 #include "RescueEvent.h"
 #include "VolunteerDataTypes.h"

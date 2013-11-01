@@ -15,12 +15,14 @@ public:
       curLocation.first = new_coords.first;
       curLocation.second = new_coords.second;
    }
+   inline void setAgentID(AgentID i) { id = i; }
    inline std::vector<coord> getKnownVictims() const {return knownVictims;}
    inline std::vector<AgentID> getNearbyVolunteers() const {return nearbyVolunteers;}
    inline int* getMoveTracker() {return moveTracker;}
    void updateNearbyVols(std::vector<AgentID> nearbyVols);
    void updateKnownVics(std::vector<coord> nearbyVics);
 protected:
+   AgentID id;
    coord curLocation;
    int moveTracker[8];
    coord CDCLocation;
