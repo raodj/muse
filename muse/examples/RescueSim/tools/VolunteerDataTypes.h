@@ -14,14 +14,6 @@ enum VolunteerEventType {UpdatePositionVictim, UpdatePositionVolunteer, Voluntee
  */
 typedef pair<int, int> coord;
 
-/** \typedef A map<y-coord, AgentID>
-
-    A typedef for a hash map whose key is the y-coord and contains AgentID.
-
-    player agents will use this to get the space agent id for a given coord.
-*/
-typedef map<int, muse::AgentID> CoordAgentIDMap;
-
 /** The mod operator % really is a remainder operation.
     However we need true mod operator for wrapping around the space. The following macro
     implements true mod.

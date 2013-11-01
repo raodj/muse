@@ -18,14 +18,15 @@ void RescueArea::executeTask(const EventContainer* events){
    UpdateNearbyEvent * updateNear;
    for(; it != events->end(); it++) {
       RescueEvent * current_event = static_cast<RescueEvent*>((*it));
+      AgentID sender = (int)current_event->getSenderAgentID();
       RescueAreaState *my_state = static_cast<RescueAreaState*>(getState());
       switch(current_event->getEventType()) {
       curEvent = static_cast<UpdatePositionEvent*>(current_event);
       case UpdatePositionVolunteer:
-         my_state->updateVolunteerPosition(curEvent->getSenderAgentID(), curEvent->cur_location);
-         updateNear = new UpdateNearbyEvent(curEvent->getSenderAgentID(), getTime(), UpdateNearby);
-         updateNear->setNearbyVols(my_state->getNearbyVolunteers(curEvent->getSenderAgentID()));
-         updateNear->setNearbyVics(my_state->getNearbyVictims(curEvent->getSenderAgentID()));
+         my_state->updateVolunteerPosition(sender, curEvent->cur_location);
+         updateNear = new UpdateNearbyEvent(sender, getTime()+.01, UpdateNearby);
+         updateNear->setNearbyVols(my_state->getNearbyVolunteers(sender));
+         updateNear->setNearbyVics(my_state->getNearbyVictims(sender));
          scheduleEvent(updateNear);
       break;
       case UpdatePositionVictim:

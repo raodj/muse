@@ -1,16 +1,6 @@
 #ifndef RescueArea_H
 #define RescueArea_H
 
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-    
-    File: RescueArea.h
-    Author: your name
-
-    ........give brief description of what this  agent does here.......
-*/
-
 #include "Agent.h"
 #include "State.h"
 using namespace muse;

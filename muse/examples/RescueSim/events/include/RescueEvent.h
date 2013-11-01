@@ -1,16 +1,5 @@
-
 #ifndef RescueEvent_H
 #define RescueEvent_H
-
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-
-    File: RescueEvent.h
-    Author: your name
-
-    ........give brief description of what this  event means here.......
-*/
 
 #include "Event.h"
 #include "VolunteerDataTypes.h"

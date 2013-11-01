@@ -19,8 +19,10 @@ void VolunteerState::updateNearbyVols(std::vector<AgentID> nearbyVols) {
 
 void VolunteerState::updateKnownVics(std::vector<coord> foundVics) {
    for(std::vector<coord>::iterator it = foundVics.begin(); it != foundVics.end(); it++) {
-      if(std::find(knownVictims.begin(), knownVictims.end(), (*it)) == knownVictims.end())
+      if(std::find(knownVictims.begin(), knownVictims.end(), (*it)) == knownVictims.end()) {
+         std::cout << "Volunteer " << id << " found Victim at (" << (*it).first << ", " << (*it).second << ").\n";
          knownVictims.push_back(*it);
+      }
    }
 }
 
