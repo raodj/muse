@@ -47,6 +47,7 @@ libmuse_a_SOURCES = \
 	src/SimStream.cpp\
 	src/MTRandom.cpp\
 	src/BinaryHeapWrapper.cpp\
-	src/AgentPQ.cpp
+	src/AgentPQ.cpp \
+	src/ArgParser.cpp
 
 # end of Makefile.am

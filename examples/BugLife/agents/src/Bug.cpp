@@ -50,6 +50,7 @@ Bug::executeTask(const EventContainer* events){
         switch(current_event->getEventType()){
             
         case MOVE_IN:
+	    {
             MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
             if (move_in->canBugMoveIn){
                 //means that the space accepted the bug
@@ -82,7 +83,9 @@ Bug::executeTask(const EventContainer* events){
             }
              
             break;
-        case MOVE_OUT:   
+	    }
+        case MOVE_OUT:
+	    {
             /** This was for version 10 and below
             //with equal probability see which neighbor space the bug moves to?
             int x = my_state->getLocation().first; 
@@ -111,15 +114,19 @@ Bug::executeTask(const EventContainer* events){
             MoveIn *move = new MoveIn(my_state->getScoutSpace().first,random_move_time , MOVE_IN);
             scheduleEvent(move);
             cout << "Send Move In" <<endl;
-            break; 
+            break;
+	    }
         case GROW:
+	    {
             //we cast it to get the size of growth
             Grow     * grow  = static_cast<Grow*>(current_event); 
             int growth = my_state->getSize()+grow->size;
             my_state->setSize(growth);
             
             break;
+	    }
         case EAT:
+	    {
             //we cast to get the eat amount, this is how much food there was in the space.
             Eat * eat   = static_cast<Eat*>(current_event);
 
@@ -139,11 +146,15 @@ Bug::executeTask(const EventContainer* events){
                 eat_again->setEatAmount(eat_amount);
                 scheduleEvent(eat_again);
             }else{
-                //we need to send scouts to al four neighbors
-                coord c1(true_mod(my_state->getLocation().first-=1,cols),my_state->getLocation().second);
-                coord c2(true_mod(my_state->getLocation().first+=1,cols),my_state->getLocation().second);
-                coord c3(my_state->getLocation().first ,true_mod(my_state->getLocation().second-=1,rows));
-                coord c4(my_state->getLocation().first ,true_mod(my_state->getLocation().second+=1,rows));
+                //we need to send scouts to all four neighbors
+                coord c1(true_mod(my_state->getLocation().first-1,cols),
+			 my_state->getLocation().second);
+                coord c2(true_mod(my_state->getLocation().first+1,cols),
+			 my_state->getLocation().second);
+                coord c3(my_state->getLocation().first ,
+			 true_mod(my_state->getLocation().second-1,rows));
+                coord c4(my_state->getLocation().first ,
+			 true_mod(my_state->getLocation().second+1,rows));
 
                 cout << "current location:(" <<my_state->getLocation().first<<"," <<
                     my_state->getLocation().second << ")" << endl;
@@ -162,7 +173,9 @@ Bug::executeTask(const EventContainer* events){
                 scheduleEvent(s4);
             }
             break;
+	    }
         case SCOUT:
+	    {
             Scout * scout_reply = static_cast<Scout*>(current_event);
             //first we increase the number of scouts returned.
             int scouts_returned =  my_state->getScoutReturned()+1;
@@ -188,6 +201,7 @@ Bug::executeTask(const EventContainer* events){
             }
             
             break;
+	    }
         }
     }//end for
     
