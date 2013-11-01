@@ -8,7 +8,7 @@
 #include "DataTypes.h"
 #include <cmath>
 #include <cstdlib>
-#include "arg_parser.h"
+#include "ArgParser.h"
 #include "BugDataTypes.h"
 #include <vector>
 #include "SpaceState.h"
@@ -29,14 +29,13 @@ int max_nodes;
 int end_time;
 
 //let make the arg_record
-arg_parser::arg_record arg_list[] = {
-    { "-cols","The Number of columns in the space.", &cols, arg_parser::INTEGER }, 
-    { "-rows","The Number of rows in the space.", &rows, arg_parser::INTEGER },
-    { "-bugs","The number of bugs you want in the simulation.", &bugs, arg_parser::INTEGER },
-    { "-nodes","The max numbers of nodes used for this simulation.", &max_nodes, arg_parser::INTEGER },
-    { "-end","The end time for the simulation.", &end_time, arg_parser::INTEGER },
-    
-    { NULL, NULL }
+ArgParser::ArgRecord arg_list[] = {
+    { "-cols","The Number of columns in the space.", &cols, ArgParser::INTEGER }, 
+    { "-rows","The Number of rows in the space.", &rows, ArgParser::INTEGER },
+    { "-bugs","The number of bugs you want in the simulation.", &bugs, ArgParser::INTEGER },
+    { "-nodes","The max numbers of nodes used for this simulation.", &max_nodes, ArgParser::INTEGER },
+    { "-end","The end time for the simulation.", &end_time, ArgParser::INTEGER },
+    {"", "", NULL, ArgParser::INVALID}	 
 };
 
 
@@ -50,8 +49,8 @@ int main(int argc, char** argv) {
     bugs        = 3;
     max_nodes   = 1;
     end_time    = 10;
-    arg_parser ap( arg_list );
-    ap.check_args( argc, argv ,true);
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv ,true);
 
     
     //first get simulation kernel instance to work with
@@ -76,10 +75,8 @@ int main(int argc, char** argv) {
         for (int y=0;y < rows; y++){
             coord location(x,y);
             coord_map[location] = id;
-            //cout << "(" << location.first << "," << location.second << ") -> " << id;
             id++;
         }
-        //cout <<endl;
     }
 
     if ( rank == (max_nodes-1) && (max_space_agents % max_nodes) > 0 ){
@@ -129,4 +126,3 @@ int main(int argc, char** argv) {
     
     return (0);
 }
-

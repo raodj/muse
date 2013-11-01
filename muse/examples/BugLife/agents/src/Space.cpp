@@ -31,7 +31,7 @@ Space::executeTask(const EventContainer* events){
         //we use a switch on the event type
         switch(current_event->getEventType()){
         case MOVE_IN:
-            
+	    {   
             MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
              
             if ( my_state->getBugID() == NO_BUG){
@@ -50,9 +50,9 @@ Space::executeTask(const EventContainer* events){
                 scheduleEvent(move);
             }
             break;
-            
+	}
         case MOVE_OUT:
-           
+	    {
             //we dont need to static cast to MoveOut because we all need info from base class
             if (my_state->getBugID() == current_event->getSenderAgentID()){
                 //this means that current bug living here wants to move out.
@@ -61,9 +61,9 @@ Space::executeTask(const EventContainer* events){
                 scheduleEvent(move_out);
             }
             break;
-            
+            }
         case EAT:
-            
+	    {  
             //ok, we need to check how much food is in this space
             //we cast to get the eat amount, this is how much food there was in the space.
             Eat * eat_event           = static_cast<Eat*>(current_event);
@@ -87,7 +87,7 @@ Space::executeTask(const EventContainer* events){
             //now we tell the bug
             scheduleEvent(eat);
             break;
-            
+            }
         case SCOUT:
             //ok here we send the bug info about the space.
             //cout << "space got scout"<<endl;
