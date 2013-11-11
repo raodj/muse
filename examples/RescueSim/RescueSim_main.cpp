@@ -2,7 +2,7 @@
 #include "DataTypes.h"
 #include <cmath>
 #include <cstdlib>
-#include "arg_parser.h"
+#include "ArgParser.h"
 #include "VolunteerDataTypes.h"
 #include <vector>
 #include <ostream>
@@ -26,15 +26,15 @@ int CCC_y;
 int max_nodes;
 int end_time;
 
-arg_parser::arg_record arg_list[] = {
-   { "-cols","The Number of columns in the space.", &cols, arg_parser::INTEGER }, 
-   { "-rows","The Number of rows in the space.", &rows, arg_parser::INTEGER },
-   { "-vols","The number of volunteers you want in the simulation.", &vols, arg_parser::INTEGER },
-   { "-vics","The number of victims you want in the simulation.", &vics, arg_parser::INTEGER },
-   { "-CCCx","The x-coordinate of the CCC.", &CCC_x, arg_parser::INTEGER },
-   { "-CCCy","The y-coordinate of the CCC.", &CCC_y, arg_parser::INTEGER },
-   { "-end","The end time for the simulation.", &end_time, arg_parser::INTEGER },
-   { NULL, NULL }
+ArgParser::ArgRecord arg_list[] = {
+   { "-cols","The Number of columns in the space.", &cols, ArgParser::INTEGER }, 
+   { "-rows","The Number of rows in the space.", &rows, ArgParser::INTEGER },
+   { "-vols","The number of volunteers you want in the simulation.", &vols, ArgParser::INTEGER },
+   { "-vics","The number of victims you want in the simulation.", &vics, ArgParser::INTEGER },
+   { "-CCCx","The x-coordinate of the CCC.", &CCC_x, ArgParser::INTEGER },
+   { "-CCCy","The y-coordinate of the CCC.", &CCC_y, ArgParser::INTEGER },
+   { "-end","The end time for the simulation.", &end_time, ArgParser::INTEGER },
+   { "", "", NULL, ArgParser::INVALID }
 };
 
 int main(int argc, char** argv) {
@@ -47,8 +47,8 @@ int main(int argc, char** argv) {
    CCC_y = 0;
    max_nodes = 1;
    end_time = 100;
-   arg_parser ap(arg_list);
-   ap.check_args(argc, argv, true);
+   ArgParser ap(arg_list);
+   ap.parseArguments(argc, argv, true);
 
    //first get simulation kernel instance to work with
    Simulation * kernel = Simulation::getSimulator();
