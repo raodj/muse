@@ -108,7 +108,7 @@ class ArgParser {
 	\code
 
 	StringList fileList
-	ArgParser::arg_record arg_list[] = {
+	ArgParser::ArgRecord arg_list[] = {
 	    {"--inputFiles", "One or more input files", &fileList, ArgParser::STRING_LIST},
 	    {"", "", NULL, ArgParser::INVALID}
 	};
