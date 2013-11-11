@@ -107,7 +107,7 @@ am_RescueSim_OBJECTS = agents/src/RescueArea.$(OBJEXT) \
 	events/src/RescueEvent.$(OBJEXT) \
 	states/src/RescueAreaState.$(OBJEXT) \
 	states/src/VictimState.$(OBJEXT) \
-	states/src/VolunteerState.$(OBJEXT) tools/arg_parser.$(OBJEXT) \
+	states/src/VolunteerState.$(OBJEXT) \
 	RescueSim_main.$(OBJEXT)
 RescueSim_OBJECTS = $(am_RescueSim_OBJECTS)
 RescueSim_DEPENDENCIES =
@@ -236,7 +236,6 @@ RescueSim_SOURCES = \
 	states/src/RescueAreaState.cpp\
 	states/src/VictimState.cpp\
 	states/src/VolunteerState.cpp\
-	tools/arg_parser.cpp\
 	RescueSim_main.cpp	
 
 all: all-am
@@ -339,8 +338,6 @@ tools/$(am__dirstamp):
 tools/$(DEPDIR)/$(am__dirstamp):
 	@$(mkdir_p) tools/$(DEPDIR)
 	@: > tools/$(DEPDIR)/$(am__dirstamp)
-tools/arg_parser.$(OBJEXT): tools/$(am__dirstamp) \
-	tools/$(DEPDIR)/$(am__dirstamp)
 RescueSim$(EXEEXT): $(RescueSim_OBJECTS) $(RescueSim_DEPENDENCIES) 
 	@rm -f RescueSim$(EXEEXT)
 	$(CXXLINK) $(RescueSim_LDFLAGS) $(RescueSim_OBJECTS) $(RescueSim_LDADD) $(LIBS)
@@ -357,7 +354,6 @@ mostlyclean-compile:
 	-rm -f states/src/RescueAreaState.$(OBJEXT)
 	-rm -f states/src/VictimState.$(OBJEXT)
 	-rm -f states/src/VolunteerState.$(OBJEXT)
-	-rm -f tools/arg_parser.$(OBJEXT)
 
 distclean-compile:
 	-rm -f *.tab.c
@@ -373,7 +369,6 @@ distclean-compile:
 @AMDEP_TRUE@@am__include@ @am__quote@states/src/$(DEPDIR)/RescueAreaState.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@states/src/$(DEPDIR)/VictimState.Po@am__quote@
 @AMDEP_TRUE@@am__include@ @am__quote@states/src/$(DEPDIR)/VolunteerState.Po@am__quote@
-@AMDEP_TRUE@@am__include@ @am__quote@tools/$(DEPDIR)/arg_parser.Po@am__quote@
 
 .cpp.o:
 @am__fastdepCXX_TRUE@	depbase=`echo $@ | sed 's|[^/]*$$|$(DEPDIR)/&|;s|\.o$$||'`; \

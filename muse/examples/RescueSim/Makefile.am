@@ -41,7 +41,6 @@ RescueSim_SOURCES = \
 	states/src/RescueAreaState.cpp\
 	states/src/VictimState.cpp\
 	states/src/VolunteerState.cpp\
-	tools/arg_parser.cpp\
 	RescueSim_main.cpp	
 
 # end of Makefile.am

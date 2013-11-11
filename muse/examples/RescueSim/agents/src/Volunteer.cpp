@@ -101,8 +101,8 @@ void Volunteer::calculateMove() {
    my_state->getMoveTracker()[(nextMove+5)%8] -= 1;
    for(int i = 0; i < 8; i++) if(my_state->getMoveTracker()[i] < 0) my_state->getMoveTracker()[i] = 0;
    my_state->setLocation(curLoc);
-   std::cout << "Voluneeter " << getAgentID() << " moves to " << "(" << curLoc.first << ", " 
-             << curLoc.second << ") at time " << (getTime()+1) << ".\n";
+   //std::cout << "Voluneeter " << getAgentID() << " moves to " << "(" << curLoc.first << ", " 
+   //          << curLoc.second << ") at time " << (getTime()+1) << ".\n";
 }
 
 void Volunteer::finalize(){ }
