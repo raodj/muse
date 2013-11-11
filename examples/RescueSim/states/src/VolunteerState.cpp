@@ -8,7 +8,12 @@ VolunteerState::VolunteerState() : curLocation(-1, -1) { }
 
 State* VolunteerState::getClone(){
    VolunteerState *clone_state = new VolunteerState();
+   clone_state->timestamp = getTimeStamp();
    clone_state->setLocation(getLocation());
+   for(int i = 0; i < 8; i++) clone_state->moveTracker[i] = moveTracker[i];
+   clone_state->CCCLocation = CCCLocation;
+   clone_state->nearbyVolunteers = nearbyVolunteers;
+   clone_state->knownVictims = knownVictims;
    return clone_state;
 }
 

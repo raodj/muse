@@ -7,8 +7,11 @@
 
 RescueAreaState::RescueAreaState(int col) : colID(col){ }
 
-State* RescueAreaState::getClone(){
-   RescueAreaState *clone_state = new RescueAreaState(colID);
+State* RescueAreaState::getClone() {
+   RescueAreaState *clone_state    = new RescueAreaState(colID);
+   clone_state->timestamp          = getTimeStamp();
+   clone_state->victimLocations    = victimLocations;
+   clone_state->volunteerLocations = volunteerLocations;
    return clone_state;
 }
 

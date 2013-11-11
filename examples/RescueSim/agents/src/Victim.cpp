@@ -18,7 +18,7 @@ void Victim::initialize() throw (std::exception){
    my_location.second = y;
    std::cout << "Initial position of Victim " << getAgentID() << ": " 
       << "(" << my_location.first << ", " << my_location.second << ") at time " << getTime() << ".\n";
-   UpdatePositionEvent * updatePos = new UpdatePositionEvent((int)(my_location.second/AREA_COL_WIDTH), 
+   UpdatePositionEvent * updatePos = UpdatePositionEvent::create((int)(my_location.second/AREA_COL_WIDTH), 
                                                                   getTime()+.001, my_location, UpdatePositionVictim);
    scheduleEvent(updatePos);
 }
