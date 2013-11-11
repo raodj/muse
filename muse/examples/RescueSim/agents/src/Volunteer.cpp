@@ -20,16 +20,15 @@ void Volunteer::initialize() throw (std::exception) {
    std::cout << "Initial position of Voluneeter " << getAgentID() << ": " 
       << "(" << my_location.first << ", " << my_location.second << ") at time " << getTime() << ".\n";
    calculateMove();
-   UpdatePositionEvent * updatePos = new UpdatePositionEvent((int)(my_location.second/AREA_COL_WIDTH), 
+   UpdatePositionEvent * updatePos = UpdatePositionEvent::create((int)(my_location.second/AREA_COL_WIDTH), 
                                                                   getTime()+1, my_location, UpdatePositionVolunteer);
    scheduleEvent(updatePos);
 }
 
 void Volunteer::executeTask(const EventContainer* events){
-   EventContainer::const_iterator it = events->begin();
-   UpdateNearbyEvent* upEvent;
-   VolunteerEvent* volEvent;
-   for (; it != events->end(); it++){
+   UpdateNearbyEvent* upEvent = NULL;
+   VolunteerEvent* volEvent = NULL;
+   for(EventContainer::const_iterator it = events->begin(); it != events->end(); it++){
       RescueEvent * current_event = static_cast<RescueEvent*>((*it));
       VolunteerState * my_state = static_cast<VolunteerState*>(getState());
       if(current_event->getEventType() == VolunteerReport) {
@@ -41,11 +40,12 @@ void Volunteer::executeTask(const EventContainer* events){
          my_state->updateNearbyVols(upEvent->getNearbyVols());
          my_state->updateKnownVics(upEvent->getNearbyVics());
          for(unsigned int i = 0; i < my_state->getNearbyVolunteers().size(); i++) {
-            VolunteerEvent * reportEvent = new VolunteerEvent(my_state->getNearbyVolunteers()[i], getTime()+0.01, VolunteerReport);
+            VolunteerEvent * reportEvent = VolunteerEvent::create(my_state->getNearbyVolunteers()[i], 
+                                                                     getTime()+0.01, VolunteerReport);
             scheduleEvent(reportEvent);
          }
          calculateMove();
-         UpdatePositionEvent * updatePos = new UpdatePositionEvent((int)(my_state->getLocation().second/AREA_COL_WIDTH), 
+         UpdatePositionEvent * updatePos = UpdatePositionEvent::create((int)(my_state->getLocation().second/AREA_COL_WIDTH), 
                                                          getTime()+1, my_state->getLocation(), UpdatePositionVolunteer);
          scheduleEvent(updatePos);
       }
@@ -60,6 +60,7 @@ void Volunteer::calculateMove() {
    coord curLoc = my_state->getLocation();
    int nextMove = 0;
    int probMove[8];
+   for(int i = 0; i < 8; i++) if(my_state->getMoveTracker()[i] == 0) my_state->getMoveTracker()[i]++;
    if(curLoc.first == 0) {
       my_state->getMoveTracker()[0] = 0;
       my_state->getMoveTracker()[6] = 0;

@@ -25,7 +25,7 @@ protected:
    AgentID id;
    coord curLocation;
    int moveTracker[8];
-   coord CDCLocation;
+   coord CCCLocation;
    std::vector<AgentID> nearbyVolunteers;
    std::vector<coord> knownVictims;
 };
