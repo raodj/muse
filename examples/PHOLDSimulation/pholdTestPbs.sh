@@ -4,12 +4,13 @@
 
 #PBS -N phold_benchmark
 #PBS -l walltime=4:00:00
-#PBS -l mem=40GB
-#PBS -l nodes=2:ppn=2
+#PBS -l mem=170GB
+#PBS -l nodes=8:ppn=8
 #PBS -S /bin/bash
 
 cd $HOME/research/muse/examples/PHOLDSimulation
-time mpiexec ./phold 10 10 10 5 4 30
+echo "time mpiexec ./phold 4000 4000 5 1 40 30 ..\n\n"
+time mpiexec ./phold 4000 4000 5 1 40 30
 
 #end of script
 
