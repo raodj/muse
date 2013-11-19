@@ -554,14 +554,14 @@ statePrinter(ostream& os, list<muse::State*> state_q ) {
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
     if (!agent.eventPQ->empty()) {
-        os << "Agent[id="           << agent.getAgentID()    << ","
+        DEBUG(os << "Agent[id="           << agent.getAgentID()    << ","
            << "# of Events in heap="<< agent.eventPQ->size() << ","
            << "top "                << *agent.eventPQ->top() << ","
-           << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;
+           << "StateQueue: ("       << statePrinter(os,agent.stateQueue) ); //<< ")]" ;
     } else {
-        os << "Agent[id="           << agent.getAgentID()    << ","
+        DEBUG(os << "Agent[id="           << agent.getAgentID()    << ","
            << "top EVENT:"          << "EMPTY"               << ","
-           << "StateQueue: ("       << statePrinter(os,agent.stateQueue); //<< ")]" ;
+           << "StateQueue: ("       << statePrinter(os,agent.stateQueue) ); //<< ")]" ;
     }
     return os;
 }
