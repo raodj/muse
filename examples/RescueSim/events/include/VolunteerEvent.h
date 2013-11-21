@@ -1,4 +1,3 @@
-
 #ifndef VolunteerEvent_H
 #define VolunteerEvent_H
 
@@ -16,9 +15,15 @@ public:
       return event;
    }
    inline int getEventSize() { return sizeof(VolunteerEvent); }
-   inline std::vector<coord> getNearbyVics() { return foundVictims; }
-   std::vector<coord> foundVictims;
+   inline void setFoundVics(coord n[], int c) {
+      for(int i = 0; i < c; i++) foundVictims[i] = n[i];
+      foundVicCount = c;
+   }
+   inline coord* getNearbyVics() { return foundVictims; }
+   inline int getNearbyVicCount() { return foundVicCount; }
 protected:
+   coord foundVictims[MAX_EVENT_ARRAY_SIZE];
+   int foundVicCount;
    VolunteerEvent(AgentID receiver_id, Time receive_time,VolunteerEventType e_type);
 };
 

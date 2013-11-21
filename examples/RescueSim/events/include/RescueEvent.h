@@ -3,19 +3,8 @@
 
 #include "Event.h"
 #include "VolunteerDataTypes.h"
-
 using namespace muse;
 
-/**
-   Here is an example of how to create a RescueEvent:
-
-   \code
-
-   // Create an event to be sent to agent ID 10, at virtual time 100.
-   RescueEvent *re = RescueEvent::create(10, 100, USER);
-
-   \endcode
- */
 class RescueEvent : public Event {
 public:          
    static RescueEvent* create(const muse::AgentID receiverID, 

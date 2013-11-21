@@ -20,10 +20,40 @@ void RescueArea::executeTask(const EventContainer* events){
       RescueAreaState *my_state = static_cast<RescueAreaState*>(getState());
       if(current_event->getEventType() == UpdatePositionVolunteer) {
          curEvent = static_cast<UpdatePositionEvent*>(current_event);
-         my_state->updateVolunteerPosition(sender, curEvent->getCurrentLocation());
+         coord loc = curEvent->getCurrentLocation();
+         my_state->updateVolunteerPosition(sender, loc);
          updateNear = UpdateNearbyEvent::create(sender, getTime()+0.01, UpdateNearby);
-         updateNear->setNearbyVols(my_state->getNearbyVolunteers(sender));
-         updateNear->setNearbyVics(my_state->getNearbyVictims(sender));
+         std::vector<AgentID> nearbyVols = my_state->getNearbyVolunteers(sender);
+         std::vector<coord> nearbyVics = my_state->getNearbyVictims(sender);
+         unsigned int vo = 0;
+         unsigned int vi = 0;
+         int numVol = 0;
+         int numVic = 0;
+         AgentID Vols[MAX_EVENT_ARRAY_SIZE];
+         coord Vics[MAX_EVENT_ARRAY_SIZE];
+         while(vo < nearbyVols.size() || vi < nearbyVics.size()) {
+            if(vo < nearbyVols.size()) {
+               Vols[numVol] = nearbyVols[vo];
+               vo++;
+               numVol++;
+            }
+            if(vi < nearbyVics.size()) {
+               Vics[numVic] = nearbyVics[vi];
+               vi++;
+               numVic++;
+            }
+            if(numVic == MAX_EVENT_ARRAY_SIZE || numVol == MAX_EVENT_ARRAY_SIZE) {
+               updateNear->setNearbyVols(Vols, numVol);
+               updateNear->setNearbyVics(Vics, numVic);
+               scheduleEvent(updateNear);
+               numVol = 0;
+               numVic = 0;
+            }
+         }
+         updateNear->setNearbyVols(Vols, numVol);
+         updateNear->setNearbyVics(Vics, numVic);
+         if(my_state->getColID() == loc.second/AREA_COL_WIDTH) 
+            updateNear->setMessageFinal();
          scheduleEvent(updateNear);
       }
       else if(current_event->getEventType() == UpdatePositionVictim) {

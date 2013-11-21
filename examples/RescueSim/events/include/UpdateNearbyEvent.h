@@ -15,14 +15,29 @@ public:
       return event;
    }
    inline int getEventSize() {return sizeof(UpdateNearbyEvent);}
-   inline void setNearbyVols(std::vector<AgentID> n) { nearbyVols = n; }
-   inline void setNearbyVics(std::vector<coord> n) { nearbyVics = n; }
-   inline std::vector<AgentID> getNearbyVols() { return nearbyVols; }
-   inline std::vector<coord> getNearbyVics() { return nearbyVics; }
+   inline void setNearbyVols(AgentID n[], int c) { 
+      for(int i = 0; i < c; i++) nearbyVols[i] = n[i]; 
+      nearbyVolCount = c; 
+      messageFin = false;
+   }
+   inline void setNearbyVics(coord n[], int c) { 
+      for(int i = 0; i < c; i++) nearbyVics[i] = n[i]; 
+      nearbyVicCount = c; 
+      messageFin = false;
+   }
+   inline AgentID* getNearbyVols() { return nearbyVols; }
+   inline coord* getNearbyVics(){ return nearbyVics; }
+   inline int getNearbyVolCount() { return nearbyVolCount; }
+   inline int getNearbyVicCount() { return nearbyVicCount; }
+   inline void setMessageFinal() { messageFin = true; }
+   inline bool getMessageFinal() { return messageFin; }
 protected:
    UpdateNearbyEvent(AgentID receiver_id, Time receive_time, VolunteerEventType type);
-   std::vector<AgentID> nearbyVols;
-   std::vector<coord> nearbyVics;
+   AgentID nearbyVols[MAX_EVENT_ARRAY_SIZE];
+   int nearbyVolCount;
+   coord nearbyVics[MAX_EVENT_ARRAY_SIZE];
+   int nearbyVicCount;
+   bool messageFin;
 };
 
 #endif /* UpdateNearbyEvent_H */

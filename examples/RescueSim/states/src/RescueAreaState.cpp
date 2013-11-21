@@ -1,4 +1,3 @@
-
 #ifndef RescueAreaState_CPP
 #define RescueAreaState_CPP
 
@@ -20,7 +19,7 @@ void RescueAreaState::addVictim(coord loc) {
 }
 
 void RescueAreaState::updateVolunteerPosition(muse::AgentID id, coord loc) {
-   if(loc.second/AREA_COL_WIDTH == colID) volunteerLocations[id] = loc;
+   if(loc.second/AREA_COL_WIDTH >= colID-1 && loc.second/AREA_COL_WIDTH <= colID+1) volunteerLocations[id] = loc;
    else volunteerLocations.erase(id);
 }
 

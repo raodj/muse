@@ -18,10 +18,10 @@ void Volunteer::initialize() throw (std::exception) {
    (static_cast<VolunteerState*>(getState()))->setAgentID(getAgentID());
    for(int i = 0; i < 8; i++) (static_cast<VolunteerState*>(getState()))->getMoveTracker()[i] = 3;
    std::cout << "Initial position of Voluneeter " << getAgentID() << ": " 
-      << "(" << my_location.first << ", " << my_location.second << ") at time " << getTime() << ".\n";
+             << "(" << my_location.first << ", " << my_location.second << ") at time " << getTime() << ".\n";
    calculateMove();
    UpdatePositionEvent * updatePos = UpdatePositionEvent::create((int)(my_location.second/AREA_COL_WIDTH), 
-                                                                  getTime()+1, my_location, UpdatePositionVolunteer);
+                                                                     getTime()+1, my_location, UpdatePositionVolunteer);
    scheduleEvent(updatePos);
 }
 
@@ -33,21 +33,46 @@ void Volunteer::executeTask(const EventContainer* events){
       VolunteerState * my_state = static_cast<VolunteerState*>(getState());
       if(current_event->getEventType() == VolunteerReport) {
          volEvent = static_cast<VolunteerEvent*>(current_event);
-         my_state->updateKnownVics(volEvent->getNearbyVics());
+         my_state->updateKnownVics(volEvent->getNearbyVics(), volEvent->getNearbyVicCount());
       }
       else if(current_event->getEventType() == UpdateNearby) {
          upEvent = static_cast<UpdateNearbyEvent*>(current_event);
-         my_state->updateNearbyVols(upEvent->getNearbyVols());
-         my_state->updateKnownVics(upEvent->getNearbyVics());
-         for(unsigned int i = 0; i < my_state->getNearbyVolunteers().size(); i++) {
-            VolunteerEvent * reportEvent = VolunteerEvent::create(my_state->getNearbyVolunteers()[i], 
-                                                                     getTime()+0.01, VolunteerReport);
-            scheduleEvent(reportEvent);
+         my_state->updateNearbyVols(upEvent->getNearbyVols(), upEvent->getNearbyVolCount());
+         my_state->updateKnownVics(upEvent->getNearbyVics(), upEvent->getNearbyVicCount());
+         std::vector<coord> knownVics = my_state->getKnownVictims();
+         std::vector<AgentID> nearbyVolunteers = my_state->getNearbyVolunteers();
+         for(int i = 0; i < (signed int)nearbyVolunteers.size(); i++) {
+            VolunteerEvent * reportEvent = VolunteerEvent::create(nearbyVolunteers[i], getTime()+0.01, VolunteerReport);
+            unsigned int vi = 0;
+            int numVic = 0;
+            coord Vics[MAX_EVENT_ARRAY_SIZE];
+            while(vi < knownVics.size()) {
+               Vics[numVic] = knownVics[vi];
+               numVic++;
+               vi++;
+               if(numVic == MAX_EVENT_ARRAY_SIZE) {
+                  reportEvent->setFoundVics(Vics, numVic);
+                  scheduleEvent(reportEvent);
+                  numVic = 0;
+               }
+            }
+            if(numVic > 0) {
+               reportEvent->setFoundVics(Vics, numVic);
+               scheduleEvent(reportEvent);
+            }
          }
-         calculateMove();
-         UpdatePositionEvent * updatePos = UpdatePositionEvent::create((int)(my_state->getLocation().second/AREA_COL_WIDTH), 
-                                                         getTime()+1, my_state->getLocation(), UpdatePositionVolunteer);
-         scheduleEvent(updatePos);
+         if(upEvent->getMessageFinal()) {
+            calculateMove();
+            AgentID locr = (int)((my_state->getLocation().second-VOL_SIGNAL_RANGE)/AREA_COL_WIDTH)-1;
+            if(locr < 0) locr = 0;
+            AgentID locl = (int)((my_state->getLocation().second+VOL_SIGNAL_RANGE)/AREA_COL_WIDTH)+1;
+            if(locr > (int)(cols/AREA_COL_WIDTH)) locr = (int)(cols/AREA_COL_WIDTH);
+            for(int i = locr; i <= locl; i++) {
+               UpdatePositionEvent * updatePos = UpdatePositionEvent::create((AgentID)i, getTime()+1, 
+                                                                      my_state->getLocation(), UpdatePositionVolunteer);
+               scheduleEvent(updatePos);
+            }
+         }
       }
    }
 }
@@ -82,7 +107,6 @@ void Volunteer::calculateMove() {
       my_state->getMoveTracker()[6] = 0;
    }
    for(int i = 0; i < 8; i++) probMove[i] = my_state->getMoveTracker()[i];
-   //std::cout << "Before: "; for(int i = 0; i < 8; i++) std::cout << probMove[i] << " "; std::cout << std::endl;
    for(int i = 1; i < 8; i++) probMove[i] = probMove[i-1] + probMove[i];
    int r = rand() % probMove[7];
    for(int i = 0; i < 8; i++) {
@@ -101,8 +125,8 @@ void Volunteer::calculateMove() {
    my_state->getMoveTracker()[(nextMove+5)%8] -= 1;
    for(int i = 0; i < 8; i++) if(my_state->getMoveTracker()[i] < 0) my_state->getMoveTracker()[i] = 0;
    my_state->setLocation(curLoc);
-   //std::cout << "Voluneeter " << getAgentID() << " moves to " << "(" << curLoc.first << ", " 
-   //          << curLoc.second << ") at time " << (getTime()+1) << ".\n";
+   std::cout << "Voluneeter " << getAgentID() << " moves to " << "(" << curLoc.first << ", " 
+             << curLoc.second << ") at time " << (getTime()+1) << ".\n";
 }
 
 void Volunteer::finalize(){ }

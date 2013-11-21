@@ -24,4 +24,6 @@ typedef pair<int, int> coord;
 
 #define AREA_COL_WIDTH 10
 
+#define MAX_EVENT_ARRAY_SIZE 10
+
 #endif
