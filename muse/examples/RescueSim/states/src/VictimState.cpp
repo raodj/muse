@@ -1,4 +1,3 @@
-
 #ifndef VICTIM_STATE_CPP
 #define VICTIM_STATE_CPP
 

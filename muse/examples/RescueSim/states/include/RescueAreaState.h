@@ -1,16 +1,5 @@
-
 #ifndef RescueAreaState_H
 #define RescueAreaState_H
-
-/*
-    Auto generated with the muse code generator.
-    Visit musesimulation.org for more info.
-
-    File: RescueAreaState.h
-    Author: your name
-
-    ........give brief description of what this  state contains here.......
-*/
 
 #include "State.h"
 #include "VolunteerDataTypes.h"
@@ -24,6 +13,7 @@ public:
    void updateVolunteerPosition(muse::AgentID id, coord loc);
    std::vector<coord> getNearbyVictims(muse::AgentID id);
    std::vector<muse::AgentID> getNearbyVolunteers(muse::AgentID id);
+   inline int getColID() { return colID; }
 private:
    bool withinRange(coord a1, coord a2);
    int colID;

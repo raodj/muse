@@ -17,16 +17,18 @@ State* VolunteerState::getClone(){
    return clone_state;
 }
 
-void VolunteerState::updateNearbyVols(std::vector<AgentID> nearbyVols) {
+void VolunteerState::updateNearbyVols(AgentID* nearbyVols, int count) {
    nearbyVolunteers.clear();
-   nearbyVolunteers = nearbyVols;
+   for(int i = 0; i < count; i++)
+      nearbyVolunteers.push_back(nearbyVols[i]);
 }
 
-void VolunteerState::updateKnownVics(std::vector<coord> foundVics) {
-   for(std::vector<coord>::iterator it = foundVics.begin(); it != foundVics.end(); it++) {
-      if(std::find(knownVictims.begin(), knownVictims.end(), (*it)) == knownVictims.end()) {
-         std::cout << "Volunteer " << id << " found Victim at (" << (*it).first << ", " << (*it).second << ").\n";
-         knownVictims.push_back(*it);
+void VolunteerState::updateKnownVics(coord* foundVics, int count) {
+  for(int i = 0; i < count; i++) {
+      if(std::find(knownVictims.begin(), knownVictims.end(), foundVics[i]) == knownVictims.end()) {
+         std::cout << "Volunteer " << id << " found Victim at (" << foundVics[i].first << ", " 
+                   << foundVics[i].second << ").\n";
+         knownVictims.push_back(foundVics[i]);
       }
    }
 }

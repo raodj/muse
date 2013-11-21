@@ -19,8 +19,8 @@ public:
    inline std::vector<coord> getKnownVictims() const {return knownVictims;}
    inline std::vector<AgentID> getNearbyVolunteers() const {return nearbyVolunteers;}
    inline int* getMoveTracker() {return moveTracker;}
-   void updateNearbyVols(std::vector<AgentID> nearbyVols);
-   void updateKnownVics(std::vector<coord> nearbyVics);
+   void updateNearbyVols(AgentID* nearbyVols, int count);
+   void updateKnownVics(coord* nearbyVics, int count);
 protected:
    AgentID id;
    coord curLocation;
