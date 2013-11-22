@@ -107,8 +107,7 @@ am_RescueSim_OBJECTS = agents/src/RescueArea.$(OBJEXT) \
 	events/src/RescueEvent.$(OBJEXT) \
 	states/src/RescueAreaState.$(OBJEXT) \
 	states/src/VictimState.$(OBJEXT) \
-	states/src/VolunteerState.$(OBJEXT) \
-	RescueSim_main.$(OBJEXT)
+	states/src/VolunteerState.$(OBJEXT) RescueSim_main.$(OBJEXT)
 RescueSim_OBJECTS = $(am_RescueSim_OBJECTS)
 RescueSim_DEPENDENCIES =
 DEFAULT_INCLUDES = -I. -I$(srcdir) -I$(top_builddir)
@@ -332,12 +331,6 @@ states/src/VictimState.$(OBJEXT): states/src/$(am__dirstamp) \
 	states/src/$(DEPDIR)/$(am__dirstamp)
 states/src/VolunteerState.$(OBJEXT): states/src/$(am__dirstamp) \
 	states/src/$(DEPDIR)/$(am__dirstamp)
-tools/$(am__dirstamp):
-	@$(mkdir_p) tools
-	@: > tools/$(am__dirstamp)
-tools/$(DEPDIR)/$(am__dirstamp):
-	@$(mkdir_p) tools/$(DEPDIR)
-	@: > tools/$(DEPDIR)/$(am__dirstamp)
 RescueSim$(EXEEXT): $(RescueSim_OBJECTS) $(RescueSim_DEPENDENCIES) 
 	@rm -f RescueSim$(EXEEXT)
 	$(CXXLINK) $(RescueSim_LDFLAGS) $(RescueSim_OBJECTS) $(RescueSim_LDADD) $(LIBS)
@@ -496,8 +489,6 @@ distclean-generic:
 	-rm -f events/src/$(am__dirstamp)
 	-rm -f states/src/$(DEPDIR)/$(am__dirstamp)
 	-rm -f states/src/$(am__dirstamp)
-	-rm -f tools/$(DEPDIR)/$(am__dirstamp)
-	-rm -f tools/$(am__dirstamp)
 
 maintainer-clean-generic:
 	@echo "This command is intended for maintainers to use"
@@ -507,7 +498,7 @@ clean: clean-am
 clean-am: clean-binPROGRAMS clean-generic mostlyclean-am
 
 distclean: distclean-am
-	-rm -rf ./$(DEPDIR) agents/src/$(DEPDIR) events/src/$(DEPDIR) states/src/$(DEPDIR) tools/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) agents/src/$(DEPDIR) events/src/$(DEPDIR) states/src/$(DEPDIR)
 	-rm -f Makefile
 distclean-am: clean-am distclean-compile distclean-generic \
 	distclean-tags
@@ -533,7 +524,7 @@ install-man:
 installcheck-am:
 
 maintainer-clean: maintainer-clean-am
-	-rm -rf ./$(DEPDIR) agents/src/$(DEPDIR) events/src/$(DEPDIR) states/src/$(DEPDIR) tools/$(DEPDIR)
+	-rm -rf ./$(DEPDIR) agents/src/$(DEPDIR) events/src/$(DEPDIR) states/src/$(DEPDIR)
 	-rm -f Makefile
 maintainer-clean-am: distclean-am maintainer-clean-generic
 
