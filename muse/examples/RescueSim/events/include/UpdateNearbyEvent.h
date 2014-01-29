@@ -9,18 +9,19 @@ using namespace muse;
 class UpdateNearbyEvent: public RescueEvent {
 public:
    static UpdateNearbyEvent* create(const muse::AgentID receiverID,
-                                    const muse::Time recvTime, VolunteerEventType type) {
+                                    const muse::Time recvTime,
+									VolunteerEventType type = UpdateNearby) {
       UpdateNearbyEvent* event = reinterpret_cast<UpdateNearbyEvent*>(new char[sizeof(UpdateNearbyEvent)]);
       new (event) UpdateNearbyEvent(receiverID, recvTime, type);
       return event;
    }
    inline int getEventSize() {return sizeof(UpdateNearbyEvent);}
-   inline void setNearbyVols(AgentID n[], int c) { 
+   inline void setNearbyVols(const AgentID n[], int c) { 
       for(int i = 0; i < c; i++) nearbyVols[i] = n[i]; 
       nearbyVolCount = c; 
       messageFin = false;
    }
-   inline void setNearbyVics(coord n[], int c) { 
+   inline void setNearbyVics(const coord n[], int c) { 
       for(int i = 0; i < c; i++) nearbyVics[i] = n[i]; 
       nearbyVicCount = c; 
       messageFin = false;
