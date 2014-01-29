@@ -8,7 +8,8 @@
 
 /** The following are the different event types in the players in the rescue simulation
  */
-enum VolunteerEventType {UpdatePositionVictim, UpdatePositionVolunteer, VolunteerReport, UpdateNearby};
+enum VolunteerEventType {UpdatePositionVictim, UpdatePositionVolunteer,
+						 VolunteerReport, UpdateNearby};
 
 /** This used to represent a coord in the space for the players
  */
@@ -24,6 +25,6 @@ typedef pair<int, int> coord;
 
 #define AREA_COL_WIDTH 10
 
-#define MAX_EVENT_ARRAY_SIZE 10
+#define MAX_EVENT_ARRAY_SIZE 10ul
 
 #endif

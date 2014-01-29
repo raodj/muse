@@ -26,8 +26,8 @@ void VolunteerState::updateNearbyVols(AgentID* nearbyVols, int count) {
 void VolunteerState::updateKnownVics(coord* foundVics, int count) {
   for(int i = 0; i < count; i++) {
       if(std::find(knownVictims.begin(), knownVictims.end(), foundVics[i]) == knownVictims.end()) {
-         std::cout << "Volunteer " << id << " found Victim at (" << foundVics[i].first << ", " 
-                   << foundVics[i].second << ").\n";
+//         std::cout << "Volunteer " << id << " found Victim at (" << foundVics[i].first << ", " 
+//                   << foundVics[i].second << ").\n";
          knownVictims.push_back(foundVics[i]);
       }
    }

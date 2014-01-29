@@ -31,7 +31,8 @@ std::vector<coord> RescueAreaState::getNearbyVictims(muse::AgentID id) {
    return nearby;
 }
 
-std::vector<muse::AgentID> RescueAreaState::getNearbyVolunteers(muse::AgentID id) {
+std::vector<muse::AgentID>
+RescueAreaState::getNearbyVolunteers(muse::AgentID id) {
    std::vector<muse::AgentID> nearby;
    for(std::map<muse::AgentID, coord>::iterator it = volunteerLocations.begin(); it != volunteerLocations.end(); it++)
       if(it->first != id && withinRange(volunteerLocations[id], it->second))
