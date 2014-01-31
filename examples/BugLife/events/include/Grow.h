@@ -14,11 +14,18 @@
 using namespace muse; 
 
 class Grow : public BugEvent {
-public:
-    Grow(AgentID receiverID,Time receiveTime, BugEventType e_type);
-    inline int getEventSize() {return sizeof(Grow); }
-    inline void setSize(int growth_size) {size=growth_size; }
+ public:
+    static Grow* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+        Grow* event = reinterpret_cast<Grow*>(new char[sizeof(Grow)]);
+        new (event) Grow(receiverID, receiveTime, e_type);
+        return event;
+    }
+    inline int getEventSize() { return sizeof(Grow); }
+    inline void setSize(int growth_size) { size=growth_size; }
     int size;
+
+ protected:
+    Grow(AgentID receiverID,Time receiveTime, BugEventType e_type);
 };
 
 #endif	/* _GROW_H */

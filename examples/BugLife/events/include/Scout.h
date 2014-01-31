@@ -14,15 +14,21 @@
 using namespace muse; 
 
 class Scout : public BugEvent {
-public:
-    Scout(AgentID receiverID,Time receiveTime, BugEventType e_type);
-    inline int getEventSize() {return sizeof(Scout); }
+ public:
+    static Scout* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+        Scout* event = reinterpret_cast<Scout*>(new char[sizeof(Scout)]);
+        new (event) Scout(receiverID, receiveTime, e_type);
+        return event;
+    }
+    inline int getEventSize() { return sizeof(Scout); }
 
     /** the space sets this value to report how much food is in the
 	space at the time of receving this event.
 	Version 11
      */
     int foodCount;
+ protected:
+    Scout(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };
 
 #endif	/* _SCOUT_H */

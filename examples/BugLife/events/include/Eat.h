@@ -13,13 +13,20 @@
 using namespace muse; 
 
 class Eat : public BugEvent {
-public:
-    Eat(AgentID receiverID,Time receiveTime, BugEventType e_type);
+ public:
+    static Eat* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+        Eat* event = reinterpret_cast<Eat*>(new char[sizeof(Eat)]);
+        new (event) Eat(receiverID, receiveTime, e_type);
+        return event;
+    }
     inline int getEventSize() {return sizeof(Eat); }
     //the space agent use this to set how much a bug can eat from the space.
     //this is used by the bug to figure out how much to grow
     inline void setEatAmount(int amount) {eatAmount=amount;}
     int eatAmount;
+
+ protected:
+    Eat(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };
 
 #endif	/* _EAT_H */

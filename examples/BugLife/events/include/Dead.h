@@ -14,14 +14,14 @@ using namespace muse;
 
 class Dead : public BugEvent {
 public:
-    static Dead* create(const muse::AgentID id, const muse::Time t, BugEventType ty) {
+    static Dead* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
         Dead* event = reinterpret_cast<Dead*>(new char[sizeof(Dead)]);
-        new (event) BugEvent(id, t, ty);
+        new (event) Dead(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() {return sizeof(Dead); }
+    inline int getEventSize() { return sizeof(Dead); }
 protected:
-    Dead(AgentID receiverID,Time receiveTime, BugEventType e_type);
+    Dead(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };
 
 #endif	/* _DEAD_H */
