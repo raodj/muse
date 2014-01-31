@@ -34,6 +34,8 @@ bugsim_SOURCES = \
 	agents/src/Bug.cpp\
 	agents/src/Space.cpp\
 	events/src/BugEvent.cpp\
+	events/src/Born.cpp\
+	events/src/Dead.cpp\
 	events/src/Eat.cpp\
 	events/src/Grow.cpp\
 	events/src/MoveIn.cpp\

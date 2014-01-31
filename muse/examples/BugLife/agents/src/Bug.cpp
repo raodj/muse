@@ -163,13 +163,13 @@ Bug::executeTask(const EventContainer* events){
                 cout << "c3:(" <<c3.first<<"," <<c3.second << ")" << endl;
                 cout << "c4:(" <<c4.first<<"," <<c4.second << ")" << endl;
                 
-                Scout * s1 = Scout::create(coord_map[c1], getTime()+1, SCOUT);
+                Scout * s1 = Scout::create(coord_map[c1], getTime()+1);
                 scheduleEvent(s1);
-                Scout * s2 = Scout::create(coord_map[c2], getTime()+1, SCOUT);
+                Scout * s2 = Scout::create(coord_map[c2], getTime()+1);
                 scheduleEvent(s2);
-                Scout * s3 = Scout::create(coord_map[c3], getTime()+1, SCOUT);
+                Scout * s3 = Scout::create(coord_map[c3], getTime()+1);
                 scheduleEvent(s3);
-                Scout * s4 = Scout::create(coord_map[c4], getTime()+1, SCOUT);
+                Scout * s4 = Scout::create(coord_map[c4], getTime()+1);
                 scheduleEvent(s4);
             }
             break;
