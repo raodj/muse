@@ -91,7 +91,7 @@ Space::executeTask(const EventContainer* events){
         case SCOUT:
             //ok here we send the bug info about the space.
             //cout << "space got scout"<<endl;
-            Scout * scout_reply = Scout::create(current_event->getSenderAgentID(), getTime()+1, SCOUT);
+            Scout * scout_reply = Scout::create(current_event->getSenderAgentID(), getTime()+1);
             scout_reply->foodCount = my_state->getFood();
             scheduleEvent(scout_reply);
             break;
