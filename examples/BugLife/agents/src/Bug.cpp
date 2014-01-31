@@ -33,8 +33,8 @@ Bug::initialize() throw (std::exception){
     
     
     //now make the move in request to the space.
-    Time random_move_time = getTime()+(int)(MTRandom::RandDouble()*(4));
-    MoveIn * move = new MoveIn(coord_map[my_location],random_move_time , MOVE_IN);
+    Time random_move_time = getTime() + 1 + (int)(MTRandom::RandDouble() * 4);
+    MoveIn * move = MoveIn::create(coord_map[my_location],random_move_time , MOVE_IN);
     scheduleEvent(move);
    
 }//end initialize
@@ -57,7 +57,7 @@ Bug::executeTask(const EventContainer* events){
                 my_state->setLocation(my_location);
 
                 //lets see how much we can eat!!
-                Eat * eat   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
+                Eat * eat   = Eat::create(current_event->getSenderAgentID(), getTime()+1, EAT);
                 //here we figure out how much we can eat before death size is reached
                 //death size being 10
                 int eat_amount = MAX_BUG_SIZE-my_state->getSize();
@@ -78,7 +78,7 @@ Bug::executeTask(const EventContainer* events){
                 my_location.second=y; 
                 //now make the move in request to the space.
                 Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
-                MoveIn *move = new MoveIn(coord_map[my_location], random_move_time, MOVE_IN);
+                MoveIn *move = MoveIn::create(coord_map[my_location], random_move_time, MOVE_IN);
                 scheduleEvent(move);
             }
              
@@ -109,9 +109,9 @@ Bug::executeTask(const EventContainer* events){
             */
 
             //for version 11 and above, we simple ask what the best scout space returned is :-)
-            Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
+            Time random_move_time = 0.1+getTime()+(int)(MTRandom::RandDouble()*(5));
             cout << "About to Send Move In to space: " << my_state->getScoutSpace().first <<endl;
-            MoveIn *move = new MoveIn(my_state->getScoutSpace().first,random_move_time , MOVE_IN);
+            MoveIn *move = MoveIn::create(my_state->getScoutSpace().first,random_move_time , MOVE_IN);
             scheduleEvent(move);
             cout << "Send Move In" <<endl;
             break;
@@ -134,12 +134,12 @@ Bug::executeTask(const EventContainer* events){
             //otherwise we move out of the space.
             if (eat->eatAmount > 0){
                 //now lets send ourself a grow event
-                Grow * grow_event = new Grow(getAgentID(), getTime()+1, GROW);
+                Grow * grow_event = Grow::create(getAgentID(), getTime()+1, GROW);
                 grow_event->setSize(eat->eatAmount);
                 scheduleEvent(grow_event);
 
                 //let try to eat again!!!
-                Eat * eat_again   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
+                Eat * eat_again   = Eat::create(current_event->getSenderAgentID(), getTime()+1, EAT);
                 //here we figure out how much we can eat before death size is reached
                 //death size being 10
                 int eat_amount = MAX_BUG_SIZE-my_state->getSize();
@@ -163,13 +163,13 @@ Bug::executeTask(const EventContainer* events){
                 cout << "c3:(" <<c3.first<<"," <<c3.second << ")" << endl;
                 cout << "c4:(" <<c4.first<<"," <<c4.second << ")" << endl;
                 
-                Scout * s1 = new Scout(coord_map[c1], getTime()+1, SCOUT);
+                Scout * s1 = Scout::create(coord_map[c1], getTime()+1, SCOUT);
                 scheduleEvent(s1);
-                Scout * s2 = new Scout(coord_map[c2], getTime()+1, SCOUT);
+                Scout * s2 = Scout::create(coord_map[c2], getTime()+1, SCOUT);
                 scheduleEvent(s2);
-                Scout * s3 = new Scout(coord_map[c3], getTime()+1, SCOUT);
+                Scout * s3 = Scout::create(coord_map[c3], getTime()+1, SCOUT);
                 scheduleEvent(s3);
-                Scout * s4 = new Scout(coord_map[c4], getTime()+1, SCOUT);
+                Scout * s4 = Scout::create(coord_map[c4], getTime()+1, SCOUT);
                 scheduleEvent(s4);
             }
             break;
@@ -191,7 +191,7 @@ Bug::executeTask(const EventContainer* events){
                 my_state->setScoutReturned(0);
                
                  //lets send a move out event, because we are going to move to another space
-                MoveOut * move_out = new MoveOut(coord_map[my_state->getLocation()] , getTime()+1, MOVE_OUT);
+                MoveOut * move_out = MoveOut::create(coord_map[my_state->getLocation()] , getTime()+1, MOVE_OUT);
                 scheduleEvent(move_out);
                
             }else{
