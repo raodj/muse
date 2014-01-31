@@ -1,133 +1,193 @@
-/* 
-   This is a template to quickly get going with development
-   The usuless task of setting up the bases classes is done for you.
-   Just change names around and get to the good part.
-*/
+#ifndef BUG_LIFE_SIMULATION_CPP
+#define BUG_LIFE_SIMULATION_CPP
 
-#include "Simulation.h"
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
+
+#include "BugLifeSimulation.h"
 #include "DataTypes.h"
-#include <cmath>
-#include <cstdlib>
 #include "ArgParser.h"
-#include "BugDataTypes.h"
-#include <vector>
+
 #include "SpaceState.h"
 #include "BugState.h"
 #include "Space.h"
 #include "Bug.h"
-#include <ostream>
 #include "oSimStream.h"
 #include "MTRandom.h"
 
+#include <cmath>
+#include <cstdlib>
+#include <vector>
+#include <ostream>
+
 using namespace muse;
 
-// These must be static or global scope...
-int cols;      
-int rows;
-int bugs;
-int max_nodes;
-int end_time;
+BugLifeSimulation::BugLifeSimulation() {
+    cols      = 3;   
+    rows      = 3;   
+    bugs      = 3;
+    max_nodes = 1;
+    end_time  = 10;
+}
 
-//let make the arg_record
-ArgParser::ArgRecord arg_list[] = {
-    { "-cols","The Number of columns in the space.", &cols, ArgParser::INTEGER }, 
-    { "-rows","The Number of rows in the space.", &rows, ArgParser::INTEGER },
-    { "-bugs","The number of bugs you want in the simulation.", &bugs, ArgParser::INTEGER },
-    { "-nodes","The max numbers of nodes used for this simulation.", &max_nodes, ArgParser::INTEGER },
-    { "-end","The end time for the simulation.", &end_time, ArgParser::INTEGER },
-    {"", "", NULL, ArgParser::INVALID}	 
-};
+BugLifeSimulation::~BugLifeSimulation() {
+    // Nothing much to be done here for this class.
+}
 
+void
+BugLifeSimulation::processArgs(int& argc, char *argv[]) {
+    // Make the arg_record
+    ArgParser::ArgRecord arg_list[] = {
+	{ "--cols", "The Number of columns in the space.", &cols,
+	  ArgParser::INTEGER }, 
+	{ "--rows", "The Number of rows in the space.",
+	  &rows, ArgParser::INTEGER },
+	{ "--bugs", "The number of bugs you want in the simulation.",
+	  &bugs, ArgParser::INTEGER },
+	{ "--nodes", "The max numbers of nodes used for this simulation.",
+	  &max_nodes, ArgParser::INTEGER },
+	{ "--end", "The end time for the simulation.", &end_time,
+	  ArgParser::INTEGER },
+	{"", "", NULL, ArgParser::INVALID}	 
+    };
 
-/* The main
- */
-int main(int argc, char** argv) {
-    
-    //default values for parameters
-/*    cols        = 3;   
-    rows        = 3;   
-    bugs        = 3;
-    max_nodes   = 1;
-    end_time    = 10;	*/
-    cols        = atoi(argv[1]);
-    rows        = atoi(argv[2]);
-    bugs        = atoi(argv[3]);
-    max_nodes   = atoi(argv[4]);
-    end_time    = atoi(argv[5]);
+    // Use the MUSE argument parser to parse command-line arguments
+    // and update instance variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv ,true);
 
-    
-    //first get simulation kernel instance to work with
-    Simulation * kernel = Simulation::getSimulator();
-    
-    //now lets initialize the kernel
-    kernel->initialize(argc,argv);
-    
-    int max_space_agents       = cols*rows;
-    int space_agents_per_node  = max_space_agents/max_nodes;
-    int bug_agents_per_node    = bugs/max_nodes;
-    int rank                   = kernel->getSimulatorID(); 
+    // Let the kernel initialize using any additional command-line
+    // arguments.
+    Simulation* const kernel = Simulation::getSimulator();
+    kernel->initialize(argc, argv);
+}
 
-    cout << "rank: " << rank <<endl;
-    ASSERT(max_space_agents >= bugs ); //make sure we have space for all the bugs
-
-    //create the location to agent id mapping here
-    vector<coord*> coords;
-    CoordAgentIDMap coord_map;
+void
+BugLifeSimulation::createMap() {
     AgentID id = 0;
-    for (int x=0;x < cols; x++ ){
-        for (int y=0;y < rows; y++){
-            coord location(x,y);
+    for (int x = 0; (x < cols); x++) {
+        for (int y = 0; (y < rows); y++) {
+            const coord location(x,y);
             coord_map[location] = id;
             id++;
         }
     }
-
-    if ( rank == (max_nodes-1) && (max_space_agents % max_nodes) > 0 ){
-        //means we have to add the extra agents to the last kernel
-        space_agents_per_node = (max_space_agents/max_nodes) + (max_space_agents % max_nodes);
-        bug_agents_per_node   = (bugs/max_nodes) + (bugs % max_nodes);
-    }
-
-    //lets create space agents and register them to kernels
-    AgentID space_id = -1u;
-    for (AgentID i= 0;i <space_agents_per_node ; i++){
-        SpaceState *ss = new SpaceState();
-        space_id =  (max_space_agents/max_nodes)*rank + i;
-        cout << "space id: " << space_id <<endl;
-        Space * space = new Space(space_id,ss);
-        kernel->registerAgent(space);
-    }//end for
-
-    SimStreamContainer simStreams;
-    //now we need to create and register the bugs
-    AgentID bug_id = -1u;
-    for (AgentID i= max_space_agents;i < max_space_agents+bug_agents_per_node ; i++){
-        BugState *bs = new BugState();
-        //for version 14, we need random bug size
-        int random_bug_size = (int)(MTRandom::RandDouble()*MAX_BUG_SIZE);
-        bs->setSize(random_bug_size);
-        bug_id =  (bugs/max_nodes)*rank + i;
-        cout << "bug id: " << bug_id <<endl;
-        Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);
-        //lets register oSimStream to file output
-        
-        kernel->registerAgent(bug);
-    }//end for
-
-
-    
-    //we set the start and end time of the simulation here
-    Time start=0, end=end_time;
-    kernel->setStartTime(start);
-    kernel->setStopTime(end);
-    
-    //we finally start the ping pong simulation here!!
-    kernel->start();
-    
-    //now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
-    
-    return (0);
 }
+
+void
+BugLifeSimulation::createSpaces() {
+    // Convenient local reference to simulation kernel
+    Simulation* const kernel = Simulation::getSimulator();    
+    const int max_space_agents = cols * rows;
+    // Figure out number of agents per node.
+    int space_agents_on_node = max_space_agents / max_nodes;
+    // Any additional space agents are partitioned to the last compute node
+    const int rank = kernel->getSimulatorID();
+    if (rank == max_nodes - 1) {
+	space_agents_on_node += max_space_agents % max_nodes;
+    }
+    // Create space agents and register them to kernels
+    int space_id = (max_space_agents / max_nodes) * rank;
+    for (int i = 0; (i < space_agents_on_node); i++, space_id++) {
+        SpaceState *ss = new SpaceState();
+        Space * space = new Space(space_id, ss);
+        kernel->registerAgent(space);
+    }
+}
+
+void
+BugLifeSimulation::createBugs() {
+    // Convenient local reference to simulation kernel
+    Simulation* const kernel = Simulation::getSimulator();
+    // Figure out number of bug-agents per node.
+    int bug_agents_on_node = bugs / max_nodes;
+    // Any additional space agents are partitioned to the last compute node
+    const int rank = kernel->getSimulatorID();
+    if (rank == max_nodes - 1) {
+	bug_agents_on_node += bugs % max_nodes;
+    }
+    
+    // Now we need to create and register the bugs
+    const int max_space_agents = cols * rows; // ID's already used up
+    int bug_id = max_space_agents + (bugs / max_nodes) * rank;
+    for (int i = 0; (i < bug_agents_on_node); i++, bug_id++) {
+        BugState *bs = new BugState();
+        // For version 14, we need random bug size
+        const int random_bug_size = int(MTRandom::RandDouble() * MAX_BUG_SIZE);
+        bs->setSize(random_bug_size);
+        Bug* const bug = new Bug(bug_id, bs, &coord_map, cols, rows);
+        kernel->registerAgent(bug);
+    }
+}
+
+void
+BugLifeSimulation::simulate() {
+    // Convenient local reference to simulation kernel
+    Simulation* const kernel = Simulation::getSimulator();    
+    // Setup start and end time of the simulation
+    kernel->setStartTime(0);
+    kernel->setStopTime(end_time);
+    // Finally start the simulation here!!
+    kernel->start();
+    // Now we finalize the kernel to make sure it cleans up.
+    kernel->finalize();
+}
+
+void
+BugLifeSimulation::run(int &argc, char* argv[]) {
+    ASSERT( argc > 0 );
+    ASSERT( argv != NULL );
+    // Create the singleton instance and parse command-line arguments.
+    BugLifeSimulation blSim;
+    blSim.processArgs(argc, argv);
+    // Now create a coordinate map, space agents, and bug agents in
+    // simulation using suitable helper methods.
+    blSim.createMap();
+    blSim.createSpaces();
+    blSim.createBugs();
+    // Now that the various agents for this parallel compute node have
+    // been created, run the actual simulation.
+    blSim.simulate();
+}
+
+// The main method that essentially transfers control to the
+// BugLifeSimulation
+int
+main(int argc, char *argv[]) {
+    BugLifeSimulation::run(argc, argv);
+    return 0;
+}
+
+#endif
