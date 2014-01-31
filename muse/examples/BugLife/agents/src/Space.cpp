@@ -38,14 +38,14 @@ Space::executeTask(const EventContainer* events){
                 
                 //means we are not holding a bug 
                 my_state->setBugID(move_in->getSenderAgentID());
-                MoveIn * move = new MoveIn(move_in->getSenderAgentID() , getTime()+1, MOVE_IN);
+                MoveIn * move = MoveIn::create(move_in->getSenderAgentID() , getTime()+1, MOVE_IN);
                 move->canBugMoveIn = true;
                 scheduleEvent(move);
                   
                 
             }else{ 
                 //means we are full and no bugs allowed
-                MoveIn * move = new MoveIn(move_in->getSenderAgentID(), getTime()+1, MOVE_IN);
+                MoveIn * move = MoveIn::create(move_in->getSenderAgentID(), getTime()+1, MOVE_IN);
                 move->canBugMoveIn = false; //false by default, but just to be clear to reader
                 scheduleEvent(move);
             }
@@ -57,7 +57,7 @@ Space::executeTask(const EventContainer* events){
             if (my_state->getBugID() == current_event->getSenderAgentID()){
                 //this means that current bug living here wants to move out.
                 my_state->setBugID(NO_BUG);
-                MoveOut * move_out = new MoveOut(current_event->getSenderAgentID(), getTime()+1, MOVE_OUT);
+                MoveOut * move_out = MoveOut::create(current_event->getSenderAgentID(), getTime()+1, MOVE_OUT);
                 scheduleEvent(move_out);
             }
             break;
@@ -71,8 +71,8 @@ Space::executeTask(const EventContainer* events){
             int food_here       = my_state->getFood();
             int bug_eat_amount  = eat_event->eatAmount;
             //if we can provide the full eat amount then we do else we give what we have left
-            Eat * eat   = new Eat(current_event->getSenderAgentID(), getTime()+1, EAT);
-            if (food_here > bug_eat_amount){
+            Eat * eat   = Eat::create(current_event->getSenderAgentID(), getTime()+1, EAT);
+            if (food_here > bug_eat_amount) {
                 //good news for the bug it gets what it wants
                 eat->setEatAmount(bug_eat_amount);
                 //now we need to reduce the food count in our state
@@ -91,7 +91,7 @@ Space::executeTask(const EventContainer* events){
         case SCOUT:
             //ok here we send the bug info about the space.
             //cout << "space got scout"<<endl;
-            Scout * scout_reply = new Scout(current_event->getSenderAgentID(), getTime()+1, SCOUT);
+            Scout * scout_reply = Scout::create(current_event->getSenderAgentID(), getTime()+1, SCOUT);
             scout_reply->foodCount = my_state->getFood();
             scheduleEvent(scout_reply);
             break;
