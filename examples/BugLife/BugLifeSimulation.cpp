@@ -44,11 +44,16 @@ ArgParser::ArgRecord arg_list[] = {
 int main(int argc, char** argv) {
     
     //default values for parameters
-    cols        = 3;   
+/*    cols        = 3;   
     rows        = 3;   
     bugs        = 3;
     max_nodes   = 1;
-    end_time    = 10;
+    end_time    = 10;	*/
+    cols        = atoi(argv[1]);
+    rows        = atoi(argv[2]);
+    bugs        = atoi(argv[3]);
+    max_nodes   = atoi(argv[4]);
+    end_time    = atoi(argv[5]);
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv ,true);
 
@@ -64,7 +69,7 @@ int main(int argc, char** argv) {
     int bug_agents_per_node    = bugs/max_nodes;
     int rank                   = kernel->getSimulatorID(); 
 
-    //cout << "rank: " << rank <<endl;
+    cout << "rank: " << rank <<endl;
     ASSERT(max_space_agents >= bugs ); //make sure we have space for all the bugs
 
     //create the location to agent id mapping here
@@ -90,7 +95,7 @@ int main(int argc, char** argv) {
     for (AgentID i= 0;i <space_agents_per_node ; i++){
         SpaceState *ss = new SpaceState();
         space_id =  (max_space_agents/max_nodes)*rank + i;
-        //cout << "space id: " << space_id <<endl;
+        cout << "space id: " << space_id <<endl;
         Space * space = new Space(space_id,ss);
         kernel->registerAgent(space);
     }//end for
@@ -104,7 +109,7 @@ int main(int argc, char** argv) {
         int random_bug_size = (int)(MTRandom::RandDouble()*MAX_BUG_SIZE);
         bs->setSize(random_bug_size);
         bug_id =  (bugs/max_nodes)*rank + i;
-        //cout << "bug id: " << bug_id <<endl;
+        cout << "bug id: " << bug_id <<endl;
         Bug * bug = new Bug(bug_id,bs, &coord_map, cols, rows);
         //lets register oSimStream to file output
         
