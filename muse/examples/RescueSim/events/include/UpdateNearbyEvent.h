@@ -10,7 +10,7 @@ class UpdateNearbyEvent: public RescueEvent {
 public:
    static UpdateNearbyEvent* create(const muse::AgentID receiverID,
                                     const muse::Time recvTime,
-									VolunteerEventType type = UpdateNearby) {
+                                    VolunteerEventType type = UpdateNearby) {
       UpdateNearbyEvent* event = reinterpret_cast<UpdateNearbyEvent*>(new char[sizeof(UpdateNearbyEvent)]);
       new (event) UpdateNearbyEvent(receiverID, recvTime, type);
       return event;
