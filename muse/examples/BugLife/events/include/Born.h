@@ -16,10 +16,17 @@
 using namespace muse; 
 
 class Born : public BugEvent {
-public:
-    Born(AgentID receiverID,Time receiveTime, BugEventType e_type);
-    inline int getEventSize() {return sizeof(Born); }
+ public:
+    static Born* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+        Born* event = reinterpret_cast<Born*>(new char[sizeof(Born)]);
+        new (event) Born(receiverID, receiveTime, e_type);
+        return event;
+    }
+    inline int getEventSize() { return sizeof(Born); }
  
+ protected:
+	Born(AgentID receiverID, Time receiveTime, BugEventType e_type);
+
 };
 
 #endif	/*  _BORN_H */

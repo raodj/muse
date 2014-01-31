@@ -14,10 +14,16 @@
 using namespace muse; 
 
 class MoveIn : public BugEvent {
-public:
-    MoveIn(AgentID receiverID, Time  receiveTime, BugEventType e_type);
-	inline int getEventSize() {return sizeof(MoveIn); }
-	bool canBugMoveIn; 
+ public:
+    static MoveIn* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+        MoveIn* event = reinterpret_cast<MoveIn*>(new char[sizeof(MoveIn)]);
+        new (event) MoveIn(receiverID, receiveTime, e_type);
+        return event;
+    }
+    inline int getEventSize() { return sizeof(MoveIn); }
+    bool canBugMoveIn;
+ protected:
+    MoveIn(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };
 
 #endif	/* _MOVEIN_H */
