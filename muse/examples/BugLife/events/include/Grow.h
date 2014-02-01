@@ -20,7 +20,7 @@ class Grow : public BugEvent {
         new (event) Grow(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() { return sizeof(Grow); }
+    inline int getEventSize() const { return sizeof(Grow); }
     inline void setSize(int growth_size) { size=growth_size; }
     int size;
 

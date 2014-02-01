@@ -19,7 +19,7 @@ public:
         new (event) Dead(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() { return sizeof(Dead); }
+    inline int getEventSize() const { return sizeof(Dead); }
 protected:
     Dead(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };

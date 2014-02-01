@@ -20,7 +20,7 @@ public:
         new (event) MoveOut(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() { return sizeof(MoveOut); }
+    inline int getEventSize() const { return sizeof(MoveOut); }
  protected:
     MoveOut(AgentID receiverID, Time receiveTime, BugEventType e_type);
 };
