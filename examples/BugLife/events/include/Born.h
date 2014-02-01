@@ -22,7 +22,7 @@ class Born : public BugEvent {
         new (event) Born(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() { return sizeof(Born); }
+    inline int getEventSize() const { return sizeof(Born); }
  
  protected:
 	Born(AgentID receiverID, Time receiveTime, BugEventType e_type);

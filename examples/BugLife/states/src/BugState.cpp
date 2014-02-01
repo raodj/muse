@@ -15,6 +15,7 @@ BugState::getClone(){
     clone->setIsAlive(isAlive());
     clone->setScoutReturned(getScoutReturned());
     clone->setScoutSpace(getScoutSpace());
+    clone->timestamp = this->timestamp;
     return clone;
     //Caller should handle deleting the memory when done with State pointer
 }

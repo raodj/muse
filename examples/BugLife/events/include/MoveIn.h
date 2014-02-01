@@ -20,7 +20,7 @@ class MoveIn : public BugEvent {
         new (event) MoveIn(receiverID, receiveTime, e_type);
         return event;
     }
-    inline int getEventSize() { return sizeof(MoveIn); }
+    inline int getEventSize() const { return sizeof(MoveIn); }
     bool canBugMoveIn;
  protected:
     MoveIn(AgentID receiverID, Time receiveTime, BugEventType e_type);
