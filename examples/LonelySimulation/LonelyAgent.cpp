@@ -7,32 +7,32 @@
 
 using namespace std;
 
-LonelyAgent::LonelyAgent(AgentID& id, State* state) : Agent(id,state){}
+LonelyAgent::LonelyAgent(AgentID& id, State* state) : Agent(id,state) {
+    // Nothing else to be done in the constructor
+}
 
 void
-LonelyAgent::initialize() throw (std::exception){
-       
-        Event * e = new Event(getAgentID(),getTime()+1); 
-        if ( scheduleEvent(e) ) oss << "Talking to self: " << getAgentID() <<endl;
-       
-}//end initialize
+LonelyAgent::initialize() throw (std::exception) {
+    Event* e = Event::create(getAgentID(),getTime()+1); 
+    if (scheduleEvent(e)) {
+        oss << "Talking to self: " << getAgentID() << endl;
+    }
+} //end initialize
 
 void
 LonelyAgent::executeTask(const EventContainer* events){
-    if (!events->empty()){
-        
-        Event * e = new Event(getAgentID(),getTime()+1); 
-        //if ( scheduleEvent(e) ) oss << "Talking to self: " << other_agent_id <<endl;
-       
-        //scheduleEvent(e);
-        if ( scheduleEvent(e) ) oss << "Talking to self: " << getAgentID() <<endl;
-        
+    if (!events->empty()) {
+        Event * e = Event::create(getAgentID(), getTime() + 1); 
+        if (scheduleEvent(e)) {
+            oss << "Talking to self: " << getAgentID() <<endl;
+        }
     }
 }//end executeTask
 
 void
 LonelyAgent::finalize() {
-    //cout << "LonelyAgent [";cout <<getAgentID();cout << "] FINALIZE" << endl;
+    // cout << "LonelyAgent [" << getAgentID() << "] FINALIZE" << endl;
 }//end finalize
+
 #endif 
 
