@@ -14,7 +14,7 @@ public:
       new (event) VolunteerEvent(receiverID, recvTime, type);
       return event;
    }
-   inline int getEventSize() { return sizeof(VolunteerEvent); }
+   inline int getEventSize() const { return sizeof(VolunteerEvent); }
    inline void setFoundVics(coord n[], int c) {
       for(int i = 0; i < c; i++) foundVictims[i] = n[i];
       foundVicCount = c;
