@@ -15,7 +15,7 @@ public:
       new (event) UpdateNearbyEvent(receiverID, recvTime, type);
       return event;
    }
-   inline int getEventSize() {return sizeof(UpdateNearbyEvent);}
+   inline int getEventSize() const {return sizeof(UpdateNearbyEvent);}
    inline void setNearbyVols(const AgentID n[], int c) { 
       for(int i = 0; i < c; i++) nearbyVols[i] = n[i]; 
       nearbyVolCount = c; 

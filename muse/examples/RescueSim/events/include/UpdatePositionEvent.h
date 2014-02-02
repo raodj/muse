@@ -13,7 +13,7 @@ public:
       new (event) UpdatePositionEvent(receiverID, recvTime, loc, type);
       return event;
    }
-   inline int getEventSize() { return sizeof(UpdatePositionEvent); }
+   inline int getEventSize() const { return sizeof(UpdatePositionEvent); }
    inline coord getCurrentLocation() { return cur_location; }
 protected:
    UpdatePositionEvent(AgentID receiver_id, Time receive_time, coord loc, VolunteerEventType type);
