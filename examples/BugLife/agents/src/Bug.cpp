@@ -109,7 +109,7 @@ Bug::executeTask(const EventContainer* events){
             */
 
             //for version 11 and above, we simple ask what the best scout space returned is :-)
-            Time random_move_time = 0.1+getTime()+(int)(MTRandom::RandDouble()*(5));
+            Time random_move_time = 1+getTime()+(int)(MTRandom::RandDouble()*(5));
             cout << "About to Send Move In to space: " << my_state->getScoutSpace().first <<endl;
             MoveIn *move = MoveIn::create(my_state->getScoutSpace().first,random_move_time , MOVE_IN);
             scheduleEvent(move);
