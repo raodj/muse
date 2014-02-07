@@ -70,7 +70,7 @@ int main(int argc, char** argv) {
         PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
         PHOLDAgent *phold_agent = new PHOLDAgent(id,phold_state,x,y,n,delay);
-        // cout << "Rank: " << rank << " is servicing lp: " << id << endl;
+        //cout << "Rank: " << rank << " is servicing lp: " << id << endl;
         kernel->registerAgent(phold_agent);
     }//end for
     
@@ -79,6 +79,7 @@ int main(int argc, char** argv) {
     kernel->setStartTime(start);
     kernel->setStopTime(end);
     kernel->setGVTDelayRate(4000);
+    cout << "Calling kernel start." << endl;
     kernel->start();
     
     //now we finalize the kernel to make sure it cleans up.
