@@ -94,11 +94,13 @@ void PHOLDSimulation::processArgs(int argc, char** argv) {
 void PHOLDSimulation::createAgents() {
     AgentID id = -1u;
     Simulation* const kernel = Simulation::getSimulator();
+    
     for (AgentID i= 0;i < agentsPerNode; i++){
         PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
         PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state,rows,cols,events,delay);
-        //cout << "Rank: " << rank << " is servicing lp: " << id << endl;
+    
+        cout << "Rank: " << rank << " is servicing lp: " << id << endl;
         kernel->registerAgent(phold_agent);
     }//end for
 

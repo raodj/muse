@@ -2,8 +2,8 @@
 
 cd $HOME/research/muse/examples/PHOLDSimulation 
 ulimit -c unlimited
-          #<X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
-./phold    3  3  3    10       1          10 &
+
+./phold --rows 3  --cols 3  --eventsPerAgent 3 --computeNodes 10 --delay 1 --simEndTime 100 &
 pid=$!
 wait $pid
 status=$?
