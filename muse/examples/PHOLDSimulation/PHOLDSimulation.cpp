@@ -1,17 +1,17 @@
 /* 
-   Author: Meseret Gebre
+Author: Meseret Gebre
 
-   This is a Synthetic Simulation done for benchmarking. P-HOLD simulation is 
-   meant to mimic a typical load for a given simulation and can be scaled.
-   Simply play with the parameters args = <X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
-   X = Number of agents per row
-   Y = Number of agents per column
-   N = Number of initial events each agent starts with
-   Delay = The Delay time for the receive time, this will be max range for a random from [0,1]
-   Max Nodes = The max number of nodes to run P-HOLD.
-   Simulation endTime = The end time for the simulation.
+This is a Synthetic Simulation done for benchmarking. P-HOLD simulation is 
+meant to mimic a typical load for a given simulation and can be scaled.
+Simply play with the parameters args = <X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
+X = Number of agents per row
+Y = Number of agents per column
+N = Number of initial events each agent starts with
+Delay = The Delay time for the receive time, this will be max range for a random from [0,1]
+Max Nodes = The max number of nodes to run P-HOLD.
+Simulation endTime = The end time for the simulation.
 
-   @note Please see PHOLDAgent.cpp for more detail :-)
+@note Please see PHOLDAgent.cpp for more detail :-)
 */
 
 #include <iostream>
@@ -21,70 +21,124 @@
 #include "DataTypes.h"
 #include <math.h>
 #include <cstdlib>
+#include "ArgParser.h"
 
 using namespace muse;
 using namespace std;
 
-/*
- */
-int main(int argc, char** argv) {
-    
-    if (argc != 7){
-        cout << "Correct USAGE: "<<argv[0] <<" <X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>"<<endl;
-        cout << "  X     = Number of agents per row\n" <<
-            "  Y     = Number of agents per column\n" <<
-            "  N     = Number of initial events each agent starts with\n" <<
-            "  Delay = The Delay time for the receive time, this will be max range for a random from [0,1]\n" <<
-            "  Max Nodes = The max number of nodes to run P-HOLD.\n" << 
-            "  Simulation endTime = The end time for the simulation." << endl;
-        exit(1);
-    }
-    //first get simulation kernel instance to work with
-    Simulation * kernel = Simulation::getSimulator();
-    
-    //now lets initialize the kernel
-    kernel->initialize(argc,argv);
+class PHOLDSimulation {
+    public:
+        PHOLDSimulation();
+        ~PHOLDSimulation();
+        void processArgs(int argc, char** argv);
+        void createAgents();
+        void simulate();
+        static void run(int argc, char** argv);
+    private:
+        int cols, rows, events, delay, max_nodes, end_time, max_agents, agentsPerNode, rank;
 
-    //variables we need
-    int x             = atoi(argv[1]);
-    int y             = atoi(argv[2]);
-    int n             = atoi(argv[3]);
-    int delay         = atoi(argv[4]);
-    int max_nodes     = atoi(argv[5]);
-    int endTime       = atoi(argv[6]);
-    int max_agents    = x*y;
-    int agentsPerNode = max_agents/max_nodes;
-    int rank          = kernel->getSimulatorID(); 
+};
+
+PHOLDSimulation::PHOLDSimulation() {
+    rows = 3;
+    cols = 3;
+    events = 3;
+    delay = 1;
+    max_nodes = 5;
+    end_time = 100;
+}
+
+PHOLDSimulation::~PHOLDSimulation() {}
+
+void PHOLDSimulation::processArgs(int argc, char** argv) {
+    // Make the arg_record
+    ArgParser::ArgRecord arg_list[] = {
+        { "--cols", "The Number of columns in the space.", &cols,
+            ArgParser::INTEGER },
+        { "--rows", "The Number of rows in the space.",
+            &rows, ArgParser::INTEGER },
+        { "--delay", "The Delay time for the receive time, this will be max range for a random from [0,1]",
+            &delay, ArgParser::INTEGER },
+        { "--eventsPerAgent", "The number of bugs you want in the simulation.",
+            &events, ArgParser::INTEGER },
+        { "--computeNodes", "The max numbers of nodes used for this simulation.",
+            &max_nodes, ArgParser::INTEGER },
+        { "--simEndTime", "The end time for the simulation.", &end_time,
+            ArgParser::INTEGER },
+        {"", "", NULL, ArgParser::INVALID}
+    };
+
+    // Use the MUSE argument parser to parse command-line arguments
+    // and update instance variables
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv ,true);
+
+    // Let the kernel initialize using any additional command-line
+    // arguments.
+    Simulation* const kernel = Simulation::getSimulator();
+    kernel->initialize(argc, argv);
+
+    max_agents = rows * cols;
+    agentsPerNode = max_agents/max_nodes;
+    rank = kernel->getSimulatorID();
 
     ASSERT(max_agents >= max_nodes);
-    //check to make sure agents fit into nodes
-    //if uneven then last node carries the extra
-    //agents.
+
+    // ensure agents fit into nodes.
+    //  - if uneven, then last node carries extra agents.
     if ( rank == (max_nodes-1) && (max_agents % max_nodes) > 0 ){
-        //means we have to add the extra agents to the last kernel
         agentsPerNode = (max_agents/max_nodes) + (max_agents % max_nodes);
     }
-    
+}
+
+void PHOLDSimulation::createAgents() {
     AgentID id = -1u;
+    Simulation* const kernel = Simulation::getSimulator();
     for (AgentID i= 0;i < agentsPerNode; i++){
         PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
-        PHOLDAgent *phold_agent = new PHOLDAgent(id,phold_state,x,y,n,delay);
+        PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state,rows,cols,events,delay);
         //cout << "Rank: " << rank << " is servicing lp: " << id << endl;
         kernel->registerAgent(phold_agent);
     }//end for
-    
-    //we set the start and end time of the simulation here
-    Time start=0, end=endTime;
-    kernel->setStartTime(start);
-    kernel->setStopTime(end);
+
+}
+
+void PHOLDSimulation::simulate() {
+    // Convenient local reference to simulation kernel
+    Simulation* const kernel = Simulation::getSimulator();
+    // Setup start and end time of the simulation
+    kernel->setStartTime(0);
+    kernel->setStopTime(end_time);
     kernel->setGVTDelayRate(4000);
     cout << "Calling kernel start." << endl;
+    // Finally start the simulation here!!
     kernel->start();
-    
-    //now we finalize the kernel to make sure it cleans up.
+    // Now we finalize the kernel to make sure it cleans up.
     kernel->finalize();
-    
-    return (0);
+}
+
+void PHOLDSimulation::run(int argc, char** argv) {
+    // validate input
+    ASSERT(argc > 0);
+    ASSERT(argv != NULL);
+
+    // Create simulation, populate variables
+    PHOLDSimulation sim;
+    sim.processArgs(argc, argv);
+
+    // Create Agents
+    sim.createAgents();
+
+    // Run simulation
+    sim.simulate();
+
+}
+
+/*
+*/
+int main(int argc, char** argv) {
+    PHOLDSimulation::run(argc, argv);
+    return 0;
 }
 
