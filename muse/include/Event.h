@@ -27,7 +27,7 @@
 #include "DataTypes.h"
 
 // Forward declaration for insertion operator for Event
-extern std::ostream& operator<<(ostream&, const muse::Event&);
+extern std::ostream& operator<<(std::ostream&, const muse::Event&);
 
 /** \def CREATE(EventClassName, int size, receiverID, recvTime)
     
@@ -59,7 +59,7 @@ BEGIN_NAMESPACE(muse);
     receiving the event needs to process the event.
 */
 class Event {
-    friend std::ostream& ::operator<<(ostream&, const muse::Event&);
+    friend std::ostream& ::operator<<(std::ostream&, const muse::Event&);
     friend class Agent;
     friend class Simulation;
     friend class Scheduler;

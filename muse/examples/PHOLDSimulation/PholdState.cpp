@@ -5,7 +5,7 @@
 
 PholdState::PholdState() : index(0) {}
 
-State*
+muse::State*
 PholdState::getClone(){
     //keep in mind this shallow copy works because there are no complex
     //pointers that i need to take care of. Just primative datatypes.

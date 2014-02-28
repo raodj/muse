@@ -21,6 +21,7 @@
 #include <cstdio>
 
 using namespace std;
+using namespace muse;
 
 PHOLDAgent::PHOLDAgent(AgentID id, PholdState* state, int x, int y, int n, int d) : 
     Agent(id,state), X(x),Y(y), N(n), Delay(d){}
@@ -47,11 +48,6 @@ PHOLDAgent::executeTask(const EventContainer* events){
     PholdState *my_state = dynamic_cast<PholdState*>(getState());
     //for every event we get we send out one event
     for(size_t i = 0; (i < events->size()); i++){
-        // Log information about the message for verification purposes.
-        const Event* e = (*events)[i];
-        //oss << "Agent #" << getAgentID()
-        //   << " processed event: " << *e << std::endl;
-        
         //first make a random receive time for the future
         //const int RndDelay = (int)(MTRandom::RandDouble()*Delay);
         //const int RndDelay = (int)(rand() % Delay);

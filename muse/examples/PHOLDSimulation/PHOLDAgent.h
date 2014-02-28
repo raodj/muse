@@ -10,16 +10,15 @@
 
 #include "Agent.h"
 #include "PholdState.h"
-using namespace muse;
 
-class PHOLDAgent : public Agent {
+class PHOLDAgent : public muse::Agent {
 
 public:
-    PHOLDAgent(AgentID , PholdState *,int x, int y, int n, int d);
+    PHOLDAgent(muse::AgentID , PholdState *,int x, int y, int n, int d);
 
     void initialize() throw (std::exception);
 
-    void executeTask(const EventContainer* events);
+    void executeTask(const muse::EventContainer* events);
 
     void finalize();
 
