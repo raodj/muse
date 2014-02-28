@@ -27,8 +27,6 @@
 #include <vector>
 #include <iostream>
 
-using namespace std;
-
 BEGIN_NAMESPACE(muse)
 
 // Forward declaration to define EventContainer
@@ -51,7 +49,6 @@ typedef std::vector<Event*> EventContainer;
     method is asking for. For more details check out the method
     Agent::getAgentID().
     \see getAgentID()
-    
 */
 typedef int AgentID; 
 
@@ -60,44 +57,41 @@ typedef int AgentID;
     sure the client know exactly what the param of a method is asking
     for. 
  
- */
+*/
 typedef double  Time;
 
 /** The SimulatorID type.  This is used to store the id of a
- * simulator(Singleton). MUSE uses this SimulatorID type to make
- * sure the client know exactly what the param of a method is asking
- * for. For more details check out the method getSimulatorID().
- \see getSimulatorID()
- *
- */
+    simulator(Singleton). MUSE uses this SimulatorID type to make
+    sure the client know exactly what the param of a method is asking
+    for. For more details check out the method getSimulatorID().
+    \see getSimulatorID()
+*/
 typedef unsigned int SimulatorID;
 
 /** The AgentContainer.
- * Holds a collection of agents, this is basically a set of Agents. Always
- * use the AgentContainer type, because the underlying implamentation could change.
- *
- */
-typedef vector<Agent*> AgentContainer;
+    
+    Holds a collection of agents, this is basically a set of
+    Agents. Always use the AgentContainer type, because the underlying
+    implamentation could change.
+*/
+typedef std::vector<Agent*> AgentContainer;
 
 /** The SimStreamContainer of type vector.
     This is a container for storing pointers to
     SimStream derived objects.
- */
-typedef vector<SimStream*> SimStreamContainer;
+*/
+typedef std::vector<SimStream*> SimStreamContainer;
 
 
 /** \def INFINITY
     
-\brief A #define for virtual time corresponding to infinity.
-
-This define provides a more human readable time corresponding to
-infinity that is used for gvt computations.  This is also the
-default value to which time instance variables are initialized.
+	\brief A #define for virtual time corresponding to infinity.
+	
+	This define provides a more human readable time corresponding to
+	infinity that is used for gvt computations.  This is also the
+	default value to which time instance variables are initialized.
 */
 #define TIME_INFINITY muse::Time(1e30)
-
-
-
 
 END_NAMESPACE(muse)
 

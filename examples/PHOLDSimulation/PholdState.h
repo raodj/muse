@@ -3,9 +3,7 @@
 
 #include "State.h"
 
-using namespace muse;
-
-class PholdState : public State {
+class PholdState : public muse::State {
 
 public:
     State * getClone();

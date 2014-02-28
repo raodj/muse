@@ -1,59 +1,60 @@
-/* 
-Author: Meseret Gebre
+#ifndef PHOLD_SIMULATION_CPP
+#define PHOLD_SIMULATION_CPP
 
-This is a Synthetic Simulation done for benchmarking. P-HOLD simulation is 
-meant to mimic a typical load for a given simulation and can be scaled.
-Simply play with the parameters args = <X> <Y> <N> <Delay> <Max Nodes> <Simulation endTime>
-X = Number of agents per row
-Y = Number of agents per column
-N = Number of initial events each agent starts with
-Delay = The Delay time for the receive time, this will be max range for a random from [0,1]
-Max Nodes = The max number of nodes to run P-HOLD.
-Simulation endTime = The end time for the simulation.
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
 
-@note Please see PHOLDAgent.cpp for more detail :-)
-*/
-/*
-#include <iostream>
-#include "PHOLDAgent.h"
 #include "Simulation.h"
+#include "PHOLDSimulation.h"
+#include "PHOLDAgent.h"
 #include "PholdState.h"
-#include "DataTypes.h"
-#include <math.h>
-#include <cstdlib>
 #include "ArgParser.h"
 
-using namespace muse;
-using namespace std;
-
-class PHOLDSimulation {
-    public:
-        PHOLDSimulation();
-        ~PHOLDSimulation();
-        void processArgs(int argc, char** argv);
-        void createAgents();
-        void simulate();
-        static void run(int argc, char** argv);
-    private:
-        int cols, rows, events, delay, max_nodes, end_time, max_agents, agentsPerNode, rank;
-
-};
-*/
-
-#include "PHOLDSimulation.h"
-
 PHOLDSimulation::PHOLDSimulation() {
-    rows = 3;
-    cols = 3;
-    events = 3;
-    delay = 1;
+    rows      = 3;
+    cols      = 3;
+    events    = 3;
+    delay     = 1;
     max_nodes = 5;
-    end_time = 100;
+    end_time  = 100;
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
 
-void PHOLDSimulation::processArgs(int argc, char** argv) {
+void
+PHOLDSimulation::processArgs(int argc, char** argv) {
     // Make the arg_record
     ArgParser::ArgRecord arg_list[] = {
         { "--cols", "The Number of columns in the space.", &cols,
@@ -78,7 +79,7 @@ void PHOLDSimulation::processArgs(int argc, char** argv) {
 
     // Let the kernel initialize using any additional command-line
     // arguments.
-    Simulation* const kernel = Simulation::getSimulator();
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     kernel->initialize(argc, argv);
 
     max_agents = rows * cols;
@@ -94,35 +95,37 @@ void PHOLDSimulation::processArgs(int argc, char** argv) {
     }
 }
 
-void PHOLDSimulation::createAgents() {
-    AgentID id = -1u;
-    Simulation* const kernel = Simulation::getSimulator();
-    for (AgentID i= 0;i < agentsPerNode; i++){
+void
+PHOLDSimulation::createAgents() {
+    muse::AgentID id = -1u;
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
+    for (muse::AgentID i= 0;i < agentsPerNode; i++){
         PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
-        PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state,rows,cols,events,delay);
-         
+        PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state, rows,
+                                                 cols, events, delay);
         kernel->registerAgent(phold_agent);
-        cout << kernel << endl;
-    }//end for
-
+        std::cout << kernel << std::endl;
+    }
 }
 
-void PHOLDSimulation::simulate() {
+void
+PHOLDSimulation::simulate() {
     // Convenient local reference to simulation kernel
-    Simulation* const kernel = Simulation::getSimulator();
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     // Setup start and end time of the simulation
     kernel->setStartTime(0);
     kernel->setStopTime(end_time);
     kernel->setGVTDelayRate(4000);
-    cout << "Calling kernel start." << endl;
+    std::cout << "Calling kernel start." << std::endl;
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
     kernel->finalize();
 }
 
-void PHOLDSimulation::run(int argc, char** argv) {
+void
+PHOLDSimulation::run(int argc, char** argv) {
     // validate input
     ASSERT(argc > 0);
     ASSERT(argv != NULL);
@@ -136,13 +139,21 @@ void PHOLDSimulation::run(int argc, char** argv) {
 
     // Run simulation
     sim.simulate();
-
 }
 
 /*
+    The main method coordinates all the activtes of the
+    simulation. Note that the main method runs on all the parallel
+    processes used for simulation.
+
+    \param[in] argc The number of command-line arguments.
+
+    \param[in] argv The command-line arguments to be parsed
 */
-int main(int argc, char** argv) {
+int
+main(int argc, char** argv) {
     PHOLDSimulation::run(argc, argv);
     return 0;
 }
 
+#endif
