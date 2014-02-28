@@ -13,7 +13,7 @@ Simulation endTime = The end time for the simulation.
 
 @note Please see PHOLDAgent.cpp for more detail :-)
 */
-
+/*
 #include <iostream>
 #include "PHOLDAgent.h"
 #include "Simulation.h"
@@ -38,6 +38,9 @@ class PHOLDSimulation {
         int cols, rows, events, delay, max_nodes, end_time, max_agents, agentsPerNode, rank;
 
 };
+*/
+
+#include "PHOLDSimulation.h"
 
 PHOLDSimulation::PHOLDSimulation() {
     rows = 3;
@@ -94,14 +97,13 @@ void PHOLDSimulation::processArgs(int argc, char** argv) {
 void PHOLDSimulation::createAgents() {
     AgentID id = -1u;
     Simulation* const kernel = Simulation::getSimulator();
-    
     for (AgentID i= 0;i < agentsPerNode; i++){
         PholdState * phold_state = new PholdState();
         id =  (max_agents/max_nodes)*rank + i;
         PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state,rows,cols,events,delay);
-    
-        cout << "Rank: " << rank << " is servicing lp: " << id << endl;
+         
         kernel->registerAgent(phold_agent);
+        cout << kernel << endl;
     }//end for
 
 }

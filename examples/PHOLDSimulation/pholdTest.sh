@@ -3,7 +3,7 @@
 cd $HOME/research/muse/examples/PHOLDSimulation 
 ulimit -c unlimited
 
-./phold --rows 3  --cols 3  --eventsPerAgent 3 --computeNodes 10 --delay 1 --simEndTime 100 &
+time mpiexec -n 1 ./phold --rows 3  --cols 3  --eventsPerAgent 3 --computeNodes 10 --delay 1 --simEndTime 100 &
 pid=$!
 wait $pid
 status=$?
