@@ -97,8 +97,8 @@ Simulation::scheduleEvent(Event* e) {
     
     if (TIME_EQUALS(e->getSentTime(), TIME_INFINITY) ||
         (e->getSenderAgentID() == -1)) {
-        cerr << "Don't use this method with a new event, go "
-             << "through the agent's scheduleEvent method." << endl;
+        std::cerr << "Don't use this method with a new event, go "
+                  << "through the agent's scheduleEvent method." << std::endl;
         abort();
     }
     AgentID recvAgentID = e->getReceiverAgentID();

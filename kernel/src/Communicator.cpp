@@ -102,7 +102,7 @@ Communicator::registerAgents(AgentContainer& allAgents) {
         // Broadcast the actual flat agent map
         MPI::COMM_WORLD.Bcast(flatAgentMap, flatAgentMapSize, MPI::UNSIGNED,
                               ROOT_KERNEL);
-        cout << "Agent Registration: complete!" <<endl;
+        std::cout << "Agent Registration: complete!" << std::endl;
         delete[] flatAgentMap;
     } else {
         // Other processes need to send their registrations along.
@@ -144,8 +144,8 @@ Communicator::sendEvent(Event* e, const int eventSize){
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
         //e->decreaseReference();
     } catch (MPI::Exception e) {
-        cerr << "MPI ERROR (sendEvent): "
-             << e.Get_error_string() << endl;
+        std::cerr << "MPI ERROR (sendEvent): "
+                  << e.Get_error_string() << std::endl;
     }
 }
 
@@ -227,8 +227,8 @@ Communicator::finalize() {
         MPI::Finalize();
         // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
     } catch (MPI::Exception e) {
-        cerr << "MPI ERROR (finalize): "
-             << e.Get_error_string() << endl;
+        std::cerr << "MPI ERROR (finalize): "
+                  << e.Get_error_string() << std::endl;
     }
 }
 

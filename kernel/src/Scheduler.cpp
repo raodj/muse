@@ -71,13 +71,14 @@ Scheduler::scheduleEvent(Event* e) {
     Agent* agent = (entry != agentMap.end()) ? entry->second : NULL ;
     
     if (agent == NULL) {
-        cerr << "Trying to schedule (" << *e <<") to unknown agent\n";
-        cerr << "Available agents are: \n";
+        std::cerr << "Trying to schedule (" << *e <<") to unknown agent\n";
+        std::cerr << "Available agents are: \n";
         AgentIDAgentPointerMap::iterator it = agentMap.begin();
         for (; it!=agentMap.end(); it++) {
-            cerr << *(it->second) << "\n";
+            std::cerr << *(it->second) << std::endl;
         }
-        cerr << "Trying to schedule to local agent that doesn't exist" <<endl;
+        std::cerr << "Trying to schedule to local agent "
+                  << "that doesn't exist" << std::endl;
         abort();
     }
 
