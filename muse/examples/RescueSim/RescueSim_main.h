@@ -23,12 +23,11 @@ public:
 protected:
    RescueSim_main();
    void processArgs(int &argc, char* argv[]);
-   void createArea();
-   void createVols();
-   void createVics();
+   void createArea(int startNum, int endNum, int rank);
+   void createVols(int startNum, int endNum, int rank);
+   void createVics(int startNum, int endNum, int rank);
    void simulate();
    int max_nodes;
-private:
    int cols;
    int rows;
    int vols;
@@ -36,4 +35,6 @@ private:
    int CCC_x;
    int CCC_y;
    int end_time;
+   int vert_emph;
+   int horz_emph;
 };

@@ -19,6 +19,8 @@ public:
    inline std::vector<coord> getKnownVictims() const {return knownVictims;}
    inline std::vector<AgentID> getNearbyVolunteers() const {return nearbyVolunteers;}
    inline int* getMoveTracker() {return moveTracker;}
+   inline void setVerticalEmphasis(int i) { moveTracker[1] = moveTracker[5] = i; }
+   inline void setHorizontalEmphasis(int i) { moveTracker[3] = moveTracker[7] = i; }
    void updateNearbyVols(AgentID* nearbyVols, int count);
    void updateKnownVics(coord* nearbyVics, int count);
 protected:
