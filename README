@@ -40,6 +40,6 @@ and the terms of this license.
 
 Downloading and Compiling MUSE:
 svn co ...(repository directory)
-./autoconf -i
+./autoconf -i (if this fails, uncomment line 330 of configure.ac and run autoreconf -i -v instead)
 ./configure
 make

@@ -327,7 +327,7 @@ AC_CHECK_MPICC
 AC_PROG_RANLIB
 
 # Checks for suitable archiver to be used
-# AM_PROG_AR
+AM_PROG_AR
 
 # Check and set some default compiler flags for the build
 AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])

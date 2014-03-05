@@ -105,7 +105,7 @@ PHOLDSimulation::createAgents() {
         PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state, rows,
                                                  cols, events, delay);
         kernel->registerAgent(phold_agent);
-        std::cout << kernel << std::endl;
+        //std::cout << kernel << std::endl;
     }
 }
 
