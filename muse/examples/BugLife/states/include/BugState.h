@@ -34,8 +34,8 @@ public:
     inline int getScoutReturned() const {return scoutReturned;}
     inline void setScoutReturned(int scouts) {scoutReturned = scouts;}
 
-    inline pair<AgentID, int> getScoutSpace() const {return bestScoutSpace;}
-    inline void setScoutSpace(pair<AgentID, int> ss) {
+    inline std::pair<AgentID, int> getScoutSpace() const {return bestScoutSpace;}
+    inline void setScoutSpace(std::pair<AgentID, int> ss) {
       bestScoutSpace.first = ss.first;
       bestScoutSpace.second = ss.second;
       
@@ -61,7 +61,7 @@ public:
 	Version 11
      */
     int scoutReturned;
-    pair<AgentID, int> bestScoutSpace;
+    std::pair<AgentID, int> bestScoutSpace;
 };
 
 #endif	/* _BUGSTATE_H */

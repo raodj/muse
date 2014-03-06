@@ -399,8 +399,8 @@ AC_CONFIG_FILES([Makefile\
 	examples/RoundRobinSimulation/Makefile\
 	examples/PHOLDSimulation/Makefile\
        examples/RescueSim/Makefile\
-	examples/BugLife/Makefile])
-
+	examples/BugLife/Makefile\
+    ../../mySim/Makefile])
 AC_OUTPUT
 
 # End of script

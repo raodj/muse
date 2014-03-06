@@ -34,7 +34,7 @@ enum BugEventType {MOVE_IN, MOVE_OUT, EAT, GROW, SCOUT,DEAD,BORN};
 
 /** This used to represent a coord in the space for the bugs
  */
-typedef pair<int,int> coord;
+typedef std::pair<int,int> coord;
 
 
 
@@ -44,7 +44,7 @@ typedef pair<int,int> coord;
 
     Bug agents will use this to get the space agent id for a given coord.
 */
-typedef map<coord, muse::AgentID > CoordAgentIDMap;
+typedef std::map<coord, muse::AgentID > CoordAgentIDMap;
 
 /** The mod operator % really is a remainder operation.
     However we need true mod operator for wrapping around the space. The following macro
