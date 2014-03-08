@@ -18,7 +18,7 @@ private:
    bool withinRange(coord a1, coord a2);
    int colID;
    std::vector<coord> victimLocations;
-   map<muse::AgentID, coord> volunteerLocations;
+   std::map<muse::AgentID, coord> volunteerLocations;
 };
 
 #endif /* RescueAreaState_H */
