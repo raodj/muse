@@ -23,7 +23,7 @@ void Victim::initialize() throw (std::exception){
    scheduleEvent(updatePos);
 }
 
-void Victim::executeTask(const EventContainer* events){ }
+void Victim::executeTask(const EventContainer* ){ }
 
 void Victim::finalize(){ }
 

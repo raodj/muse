@@ -13,7 +13,7 @@ enum VolunteerEventType {UpdatePositionVictim, UpdatePositionVolunteer,
 
 /** This used to represent a coord in the space for the players
  */
-typedef pair<int, int> coord;
+typedef std::pair<int, int> coord;
 
 /** The mod operator % really is a remainder operation.
     However we need true mod operator for wrapping around the space. The following macro
