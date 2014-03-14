@@ -2,9 +2,9 @@
 
 #if you are getting bugs use this script to get a core dump for use with gdb
 
-cd path/to/project
+cd $HOME/research/muse/examples/BugLife
 ulimit -c unlimited
-./executable_name <params here> &
+qsub -l epilogue=$HOME/research/myepilogue.sh BugSimPbs.sh
 pid=$!
 wait $pid
 status=$?
