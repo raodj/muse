@@ -10,6 +10,8 @@
 #include "Agent.h"
 #include "State.h"
 #include "BugDataTypes.h"
+#include "BugEvent.h"
+#include "BugState.h"
 
 using namespace muse;
 class Bug;
@@ -20,18 +22,23 @@ class Bug : public Agent {
   
 friend std::ostream& ::operator<<(ostream&, const Bug&);
 public:
-    Bug(AgentID , State *,CoordAgentIDMap *, int c, int r);
+	Bug(AgentID , State *,CoordAgentIDMap *, int c, int r);
 
-    void initialize() throw (std::exception);
+	void initialize() throw (std::exception);
 
-    void executeTask(const EventContainer* events);
+	void executeTask(const EventContainer* events);
 
-    void finalize();
+	void finalize();
 
-    CoordAgentIDMap coord_map;
-    int cols,rows;
-    coord my_location;
+	void executeMoveIn(BugEvent * , BugState * );
+	void executeMoveOut(BugEvent * , BugState * );
+	void executeGrow(BugEvent * , BugState * );
+	void executeEat(BugEvent * , BugState * );
+	void executeScout(BugEvent * , BugState * );
+
+	CoordAgentIDMap coord_map;
+	int cols,rows;
+	coord my_location;
 };
 
 #endif	/* _BUG_H */
-
