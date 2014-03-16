@@ -15,7 +15,9 @@ using namespace muse;
 
 class MoveIn : public BugEvent {
  public:
-    static MoveIn* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static MoveIn* create(const muse::AgentID receiverID,
+			  const muse::Time receiveTime,
+			  BugEventType e_type = MOVE_IN) {
         MoveIn* event = reinterpret_cast<MoveIn*>(new char[sizeof(MoveIn)]);
         new (event) MoveIn(receiverID, receiveTime, e_type);
         return event;
