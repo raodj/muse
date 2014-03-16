@@ -143,11 +143,7 @@ BugLifeSimulation::createBugs() {
     const int max_space_agents = cols * rows; // ID's already used up
     int bug_id = max_space_agents + (bugs / max_nodes) * rank;
     for (int i = 0; (i < bug_agents_on_node); i++, bug_id++) {
-        BugState *bs = new BugState();
-        // For version 14, we need random bug size
-        const int random_bug_size = int(MTRandom::RandDouble() * MAX_BUG_SIZE);
-        bs->setSize(random_bug_size);
-        Bug* const bug = new Bug(bug_id, bs, &coord_map, cols, rows);
+        Bug* const bug = new Bug(bug_id, coord_map, cols, rows);
         kernel->registerAgent(bug);
     }
 }

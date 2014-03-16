@@ -15,7 +15,9 @@ using namespace muse;
 
 class Grow : public BugEvent {
  public:
-    static Grow* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static Grow* create(const muse::AgentID receiverID,
+			const muse::Time receiveTime,
+			BugEventType e_type = GROW) {
         Grow* event = reinterpret_cast<Grow*>(new char[sizeof(Grow)]);
         new (event) Grow(receiverID, receiveTime, e_type);
         return event;

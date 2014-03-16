@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include -I./agents/include -I./events/include -I./states/include -I./tools
+AM_CXXFLAGS += -I../../include -Isrc
 
 bin_PROGRAMS = bugsim
 
@@ -31,18 +31,31 @@ bugsim_LDFLAGS = -L../../kernel
 bugsim_LDADD = $(STDCPP) -lmuse
 
 bugsim_SOURCES = \
-	agents/src/Bug.cpp\
-	agents/src/Space.cpp\
-	events/src/BugEvent.cpp\
-	events/src/Born.cpp\
-	events/src/Dead.cpp\
-	events/src/Eat.cpp\
-	events/src/Grow.cpp\
-	events/src/MoveIn.cpp\
-	events/src/MoveOut.cpp\
-	events/src/Scout.cpp\
-	states/src/BugState.cpp\
-	states/src/SpaceState.cpp\
+	src/Bug.cpp\
+	src/Bug.h\
+	src/Space.cpp\
+	src/Space.h\
+	src/BugEvent.cpp\
+	src/BugEvent.h\
+	src/Born.cpp\
+	src/Born.h\
+	src/Dead.cpp\
+	src/Dead.h\
+	src/Eat.cpp\
+	src/Eat.h\
+	src/Grow.cpp\
+	src/Grow.h\
+	src/MoveIn.cpp\
+	src/MoveIn.h\
+	src/MoveOut.cpp\
+	src/MoveOut.h\
+	src/Scout.cpp\
+	src/Scout.h\
+	src/BugState.cpp\
+	src/BugState.h\
+	src/SpaceState.cpp\
+	src/SpaceState.h\
+	src/BugDataTypes.h\
 	BugLifeSimulation.cpp	
 
 # end of Makefile.am

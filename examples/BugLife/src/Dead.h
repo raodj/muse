@@ -14,7 +14,9 @@ using namespace muse;
 
 class Dead : public BugEvent {
 public:
-    static Dead* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static Dead* create(const muse::AgentID receiverID,
+			const muse::Time receiveTime,
+			BugEventType e_type = DEAD) {
         Dead* event = reinterpret_cast<Dead*>(new char[sizeof(Dead)]);
         new (event) Dead(receiverID, receiveTime, e_type);
         return event;

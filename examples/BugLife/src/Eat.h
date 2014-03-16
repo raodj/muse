@@ -14,7 +14,9 @@ using namespace muse;
 
 class Eat : public BugEvent {
  public:
-    static Eat* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static Eat* create(const muse::AgentID receiverID,
+		       const muse::Time receiveTime,
+		       BugEventType e_type = EAT) {
         Eat* event = reinterpret_cast<Eat*>(new char[sizeof(Eat)]);
         new (event) Eat(receiverID, receiveTime, e_type);
         return event;

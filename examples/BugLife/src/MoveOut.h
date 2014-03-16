@@ -15,7 +15,9 @@ using namespace muse;
 
 class MoveOut : public BugEvent {
 public:
-    static MoveOut* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static MoveOut* create(const muse::AgentID receiverID,
+			   const muse::Time receiveTime,
+			   BugEventType e_type = MOVE_OUT) {
         MoveOut* event = reinterpret_cast<MoveOut*>(new char[sizeof(MoveOut)]);
         new (event) MoveOut(receiverID, receiveTime, e_type);
         return event;

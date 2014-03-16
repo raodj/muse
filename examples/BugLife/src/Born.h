@@ -17,7 +17,9 @@ using namespace muse;
 
 class Born : public BugEvent {
  public:
-    static Born* create(const muse::AgentID receiverID, const muse::Time receiveTime, BugEventType e_type) {
+    static Born* create(const muse::AgentID receiverID,
+			const muse::Time receiveTime,
+			BugEventType e_type = BORN) {
         Born* event = reinterpret_cast<Born*>(new char[sizeof(Born)]);
         new (event) Born(receiverID, receiveTime, e_type);
         return event;
