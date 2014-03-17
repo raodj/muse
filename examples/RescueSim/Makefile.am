@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include -I./agents/include -I./events/include -I./states/include -I./tools
+AM_CXXFLAGS += -I./tools -I../../include -I./agents/include -I./events/include -I./states/include
 
 bin_PROGRAMS = RescueSim
 
