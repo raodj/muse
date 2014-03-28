@@ -129,9 +129,9 @@ private:
     */
     class EventComp {
     public:
-        EventComp() {}
-        inline bool operator() (muse::Event *lhs, muse::Event *rhs) const {
-            Time lhs_time = lhs->getReceiveTime();
+        inline EventComp() {}
+        inline bool operator()(const muse::Event* const lhs, const muse::Event* const rhs) const {
+            const Time lhs_time = lhs->getReceiveTime();
             return (lhs_time > rhs->getReceiveTime());
         }
     };

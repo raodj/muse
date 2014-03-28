@@ -31,7 +31,6 @@
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include <cstdlib>
-
 #include <csignal>
 
 using namespace muse;
@@ -55,7 +54,7 @@ Simulation::initialize(int argc, char* argv[]) {
     DEBUG({
             char logFileName[128];
             sprintf(logFileName, "Log%u.txt", myID);
-            logFile = new ofstream(logFileName);
+            logFile = new std::ofstream(logFileName);
             oldstream = std::cout.rdbuf(logFile->rdbuf());
         });
 
@@ -101,7 +100,7 @@ Simulation::scheduleEvent(Event* e) {
                   << "through the agent's scheduleEvent method." << std::endl;
         abort();
     }
-    AgentID recvAgentID = e->getReceiverAgentID();
+    const AgentID recvAgentID = e->getReceiverAgentID();
     
     if (isAgentLocal(recvAgentID)) {
         // Local events are directly inserted into our own scheduler
@@ -154,9 +153,10 @@ Simulation::start() {
             gvtManager->startGVTestimation();
         }
        
-        // An optimization trick we learned from WARPED is to try to
-        // get as many event from the wire as we can. A good magic
-        // number is 1000
+        // An optimization trick is to try to get as many events from
+        // the wire as we can. A good magic number is 1000.  However
+        // this number should be dynamically adapted depending on
+        // behavior of the simulation.
         for (int magic = 0; (magic < 1000); magic++) {
             Event* incoming_event = commManager->receiveEvent();
             if (incoming_event != NULL) {
@@ -210,29 +210,31 @@ Simulation::finalize() {
     int totalCommittedEvents    = 0;
     int totalMPIMessages        = 0;
     int totalScheduledEvents    = 0;
-    AgentContainer::iterator it = allAgents.begin();
-    for (; it != allAgents.end(); it++) {  
-        (*it)->finalize();
-        (*it)->garbageCollect(TIME_INFINITY);
-        int outputQueueSize = (*it)->outputQueue.size();
-        (*it)->cleanInputQueue();
-        (*it)->cleanStateQueue();
-        (*it)->cleanOutputQueue();
-        
-        totalRollbacks       += (*it)->numRollbacks;
-        totalCommittedEvents += (*it)->numCommittedEvents + outputQueueSize;
-        totalMPIMessages     += (*it)->numMPIMessages;
-        totalScheduledEvents += (*it)->numScheduledEvents;
-        
-        delete (*it);  
+
+    for (AgentContainer::iterator it = allAgents.begin();
+	 it != allAgents.end(); it++) {
+	Agent* const agent = *it;
+        agent->finalize();
+        agent->garbageCollect(TIME_INFINITY);
+        const int outputQueueSize = agent->outputQueue.size();
+        agent->cleanInputQueue();
+        agent->cleanStateQueue();
+        agent->cleanOutputQueue();
+	// Track total statistics
+        totalRollbacks       += agent->numRollbacks;
+        totalCommittedEvents += agent->numCommittedEvents + outputQueueSize;
+        totalMPIMessages     += agent->numMPIMessages;
+        totalScheduledEvents += agent->numScheduledEvents;
+        // Bye byte agent!
+        delete agent;  
     }
     
-    std::cout << "\nKernel[" << myID
-              << "]\n Total Scheduled Events[" << totalScheduledEvents 
-              << "]\n Total Committed Events[" << totalCommittedEvents
-              << "]\n Total rollbacks[" << totalRollbacks
-              << "]\n Total MPI messages[" << totalMPIMessages
-              << "]" << std::endl;
+    std::cout << "\nStats from Kernel ID  : " << myID
+              << "\nTotal Scheduled Events: " << totalScheduledEvents 
+              << "\nTotal Committed Events: " << totalCommittedEvents
+              << "\nTotal #rollbacks      : " << totalRollbacks
+              << "\nTotal #MPI messages   : " << totalMPIMessages
+              << std::endl;
 
     // Now delete GVT manager as we no longer need it.
     commManager->setGVTManager(NULL);
@@ -263,7 +265,9 @@ Simulation::garbageCollect() {
 }
 
 bool
-Simulation::isAgentLocal(AgentID id) { return commManager->isAgentLocal(id); }
+Simulation::isAgentLocal(AgentID id) {
+    return commManager->isAgentLocal(id);
+}
 
 void Simulation::stop() {}
 
@@ -319,16 +323,15 @@ Simulation::dumpStats() {
          (i != allAgents.end()); i++) {
         // Get a pointer to the agent (to avoid confusion)
         Agent* agent = *i;
-        statsFile << agent->getAgentID() << " "
-                  << agent->lvt << " "
-                  << agent->inputQueue.size() << " "
+        statsFile << agent->getAgentID()       << " "
+                  << agent->lvt                << " "
+                  << agent->inputQueue.size()  << " "
                   << agent->outputQueue.size() << " "
-                  << agent->stateQueue.size() << " "
-                  << agent->eventPQ->size() << std::endl;
+                  << agent->stateQueue.size()  << " "
+                  << agent->eventPQ->size()    << std::endl;
     }
     statsFile.flush();
     statsFile.close();
-    
 }
 
 #endif

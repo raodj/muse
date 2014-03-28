@@ -32,7 +32,6 @@ using namespace muse;
 using std::make_heap;
 using std::pop_heap;
 using std::push_heap;
-using std::sort_heap;
 
 BinaryHeapWrapper::BinaryHeapWrapper() {
     heapContainer = new EventContainer;
@@ -45,7 +44,9 @@ BinaryHeapWrapper::~BinaryHeapWrapper() {
 
 void
 BinaryHeapWrapper::pop() {
-    if (heapContainer->empty()) return;
+    if (heapContainer->empty()) {
+	return;
+    }
     pop_heap(heapContainer->begin(), heapContainer->end(), EventComp());
     heapContainer->back()->decreaseReference();
     heapContainer->pop_back();

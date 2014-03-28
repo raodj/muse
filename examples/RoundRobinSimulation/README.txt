@@ -1,15 +1,12 @@
 
 Overview:
 --------------------------------------------------
-This is the rollback heavy simulation.  The objective of this
-simulation model is to increment simulation-time slowly in the hopes
-of creating many rollback scenarios when simulation in run in
-parallel.  Note that when a single process is used for simulation,
-rollbacks do not (or cannot) occur as there are no asynchronous
-operations performed in one process.  Nevertheless, agents are not
-coerced to synchronize with each other.  Instead, the
-Least-Timestamp-First (LTSF) scheduler schedules events in the correct
-causal order thereby eliminating rollbacks in the simulation.
+This directory contains the source for a round robin simulation in
+which each agent forwards a token (single event) to its adjacent
+neighboring agent.  Agents are assumed to be organized in a logical
+circle.  Agent number 0 (zero) initiates the token/event that is
+circulated in a cycle.  A the end of each cycle, agent 0 prints a
+message indicating the token has completed another round.
 
 Compiling:
 --------------------------------------------------
@@ -26,41 +23,35 @@ $ make                  # Build MUSE kernel
 Once the MUSE kernel has been compiled, this example can be compiled
 in the following manner:
 
-$ cd ~/research/muse/examples/RollbackHeavySimulation
+$ cd ~/research/muse/examples/RoundRobinSimulation
 $ make
 
 Simulation execution:
 --------------------------------------------------
-The Rollback Heavy simulation (rollbackSim) takes three optional
+
+The round robin simulation (roundRobinSim) takes three optional
 command-line arguments as documented by the --help option:
 
-$ ./rollbackSim  --help
-A simulation that tends to be rollback heavy.
+$ ./roundRobinSim --help
+A simulation in which a token is exchanged in a round-robin manner.
 Copyright (C) PC2Lab (http://pc2lab.ece.miamiOH.edu) 2012-
-Usage: rollbackSim [options]
+Usage: roundRobinSim [options]
 The options are (default values are shown within []):
-  --agents   The number of agents in the simulation. [2]
-  --nodes    The max numbers of nodes used for this simulation. [1]
-  --end      The end time for the simulation. [10]
-  --help     Print this message [true]
-
+  --agents    Number of agents in simulation [3]
+  --nodes     The  numbers of compute nodes used for simulation. [1]
+  --endTime   The end time for the simulation. [10]
+  --help      Print this message [true]
 
 It maybe executed as shown below:
 
-$ mpiexec -n 2 ./rollbackSim --agents 2 --nodes 2 --end 100
+$ mpiexec -n 2 ./roundRobinSim --agents 20 --nodes 2 --end 100
 
-The aforementioned options indicate the simulation rollbackSim will
-run with two agents, on two nodes and simualtion to end at time
-100.
+The aforementioned options indicate the simulation will run with 20
+agents, on two compute nodes and simualtion to end at time 100.
 
-NOTE: It is important to ensure the following command-line arguments
-      are correctly supplied:
-
-      * Ensure the number of agents is at least as many as the number
-        of compute nodes used for simulation.
-
-      * Ensure the value for '--nodes' and '-n' command-line arguments
-        are the same.
+NOTE: Ensure the value for '--nodes' (command-line argument to the
+        simulation) and '-n' command-line argument to MPI are the same
+        value.
 
 Licence and Disclaimers:
 --------------------------------------------------
@@ -95,4 +86,5 @@ Licence and Disclaimers:
  \:\:\/  /  received a  copy of the  GNU General Public License along
   \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
    \/__/    from <http:www.gnu.org/licenses/>.
+
 

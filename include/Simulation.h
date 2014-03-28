@@ -348,7 +348,7 @@ private:
     SimulationListener* listener;
     
     // Debug-only logging purposes.
-    DEBUG(ofstream* logFile);
+    DEBUG(std::ofstream*  logFile);
     DEBUG(std::streambuf* oldstream);
 
     /** \brief Handler for sigaction USR1/USR2

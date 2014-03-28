@@ -1,3 +1,6 @@
+#ifndef ROLLBACK_SIMULATION_CPP
+#define ROLLBACK_SIMULATION_CPP
+
 /* 
  * File:   RollbackSimulation.cpp
  * Author: gebremr
@@ -8,97 +11,84 @@
 #include <vector>
 #include <iostream>
 #include <stdlib.h>
-#include "arg_parser.h"
+#include "ArgParser.h"
 #include "RollbackAgent.h"
 #include "Simulation.h"
 #include "State.h"
 #include "DataTypes.h"
 
-using namespace muse;
-using namespace std;
+// Setup default values for command-line arguments.
+int max_agents = 2;   // Two agents total
+int max_nodes  = 1;   // One node by default (no rollbacks in this case!)
+int end_time   = 10;  // Simulation end time
 
-
-int max_agents;
-int max_nodes;
-int end_time;
-
-//let make the arg_record
-arg_parser::arg_record arg_list[] = {
-    { "-agents","The number of agents in the simulation.", &max_agents, arg_parser::INTEGER },
-    { "-nodes","The max numbers of nodes used for this simulation.", &max_nodes, arg_parser::INTEGER },
-    { "-end","The end time for the simulation.", &end_time, arg_parser::INTEGER },
-    
-    { NULL, NULL }
+// Make the arg_record
+ArgParser::ArgRecord arg_list[] = {
+    { "--agents", "The number of agents in the simulation.",
+      &max_agents, ArgParser::INTEGER },
+    { "--nodes","The number of compute-nodes being used for this simulation.",
+      &max_nodes, ArgParser::INTEGER },
+    { "--end","The end time for the simulation.",
+      &end_time, ArgParser::INTEGER },
+    { "", "", NULL, ArgParser::INVALID}
 };
 
 
-/*
- */
-int main(int argc, char** argv) {
-    
-    // if (argc != 4){
-    //    cout << "Correct USAGE: "<<argv[0] <<" <num agents> <num nodes> <sim end time >"<<endl;
-    //    exit(0);
-    //}
-    //default values for parameters
-    
-    max_agents  = 2;
-    max_nodes   = 2;
-    end_time    = 10;
-    arg_parser ap( arg_list );
-    ap.check_args( argc, argv ,true);
+/* The main method for the Rollback simulation.
 
-   
-  //cout << "Ping Pong Simulation Example via MUSE API\n\n" << endl;
+   The main emthod parses the command-line arguments, creates the
+   agents, and runs the simulation.
+
+   \param[in] argc The number of command-line arguments supplied to
+   the simulation executable.
+
+   \param[in] argv The actual command-line arguments supplied to the
+   simulation executable.
+*/
+int main(int argc, char** argv) {
+    const std::string HelpInfo =
+	"A simulation that tends to be rollback heavy.\n"
+	"Copyright (C) PC2Lab (http://pc2lab.ece.miamiOH.edu) 2012-\n"
+	"Usage: rollbackSim [options]";
+    ArgParser ap(arg_list, HelpInfo);
+    ap.parseArguments(argc, argv, true);
+
     //first get simulation kernel instance to work with
-    Simulation * kernel = Simulation::getSimulator();
-    
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     //now lets initialize the kernel
     kernel->initialize(argc,argv);
-
-    //variables we need
-    //int max_agents    = atoi(argv[1]);
-    ///int max_nodes     = atoi(argv[2]);
-    //int end_time       = atoi(argv[3]);
-    int agentsPerNode = max_agents/max_nodes;
-    int rank          = kernel->getSimulatorID(); 
-
-	ASSERT(max_agents >= max_nodes);
-	//check to make sure agents fit into nodes
-	//if uneven then last node carries the extra
-	//agents.
-	if ( rank == (max_nodes-1) && (max_agents % max_nodes) > 0 ){
-		//means we have to add the extra agents to the last kernel
-		agentsPerNode = (max_agents/max_nodes) + (max_agents % max_nodes);
-	}
     
-    AgentID id = -1u;
-    for (AgentID i= 0;i < agentsPerNode; i++){
-        State *rb_state = new State();
-        id =(max_agents/max_nodes) *kernel->getSimulatorID() + i;
-        //cout << "i: " << id <<endl;
-        RollbackAgent *rb_agent = new RollbackAgent(id,rb_state,max_agents);
+    int agentsPerNode = max_agents / max_nodes;
+    const int rank    = kernel->getSimulatorID(); 
+    
+    ASSERT(max_agents >= max_nodes);
+    // check to make sure agents fit into nodes if uneven then last
+    // node carries the extra agents.
+    if ((rank == (max_nodes - 1)) && ((max_agents % max_nodes) > 0)) {
+	// means we have to add the extra agents to the last kernel
+	agentsPerNode = (max_agents / max_nodes) + (max_agents % max_nodes);
+    }
+    
+    const int startID = (max_agents / max_nodes) * rank;
+    muse::AgentID id  = -1u;
+    for (int i = 0; (i < agentsPerNode); i++) {
+        id = startID + i;
+        RollbackAgent *rb_agent = new RollbackAgent(id, max_agents);
         kernel->registerAgent(rb_agent);
-    }//end for
+    } 
     
-    //kernel->registerAgent(agents[kernel->getSimulatorID()]);
-    //we set the start and end time of the simulation here
-    Time start=0, end=end_time;
-    kernel->setStartTime(start);
-    kernel->setStopTime(end);
+    // We set the start and end time of the simulation here
+    kernel->setStartTime(0);
+    kernel->setStopTime(end_time);
 
     //we finally start the ping pong simulation here!!
     kernel->start();
 
-    //now we finalize the kernel to make sure it cleans up.
+    // now we finalize the kernel to make sure it cleans up.
     kernel->finalize();
 
-    //lets not forget to clean up the mez we make :-)
-    //we don't have to worry about the kernel it takes care itself
-    // for(int i = 0; i < agents.size(); i++){
-    //     if (i != kernel->getSimulatorID())
-    //         delete agents[i];
-    // }
-    return (0);
+    // All done.
+    return 0;
 }
 
+#endif

@@ -46,10 +46,11 @@
 
 #define MAXIMUM_ARGUMENTS 99
 
-ArgParser::ArgParser() {
+ArgParser::ArgParser(const std::string& info) : info(info) {
 }
 
-ArgParser::ArgParser(const ArgRecord validArguments[]) {
+ArgParser::ArgParser(const ArgRecord validArguments[],
+		     const std::string& info) : info(info) {
     addValidArguments(validArguments);
 }
 
@@ -239,6 +240,9 @@ std::ostream& operator<<(std::ostream& os, ArgParser& ap) {
     for (size_t i = 0; (i < ap.argRecords.size()); i++) {
         maxLen = std::max(maxLen, (int) ap.argRecords[i].command.size());
     }
+    // print static information
+    std::cout << ap.info << std::endl
+	      << "The options are (default values are shown within []):\n";
     // Print the argument array
     const std::string IndentStr(indentation, ' ');
     for (size_t i = 0; (i < ap.argRecords.size()); i++) {
