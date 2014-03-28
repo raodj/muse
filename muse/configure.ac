@@ -22,7 +22,7 @@
 #
 #---------------------------------------------------------------------------
 
-AC_PREREQ(2.59)
+AC_PREREQ(2.69)
 AC_INIT([muse],[0.1.0],[raodm@muohio.edu])
 AM_INIT_AUTOMAKE([-Wall -Werror subdir-objects])
 AC_CONFIG_SRCDIR([config.h.in])
