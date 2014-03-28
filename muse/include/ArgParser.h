@@ -54,7 +54,7 @@
     bool  arg2;
     char* arg3;
 	
-    ArgParser::arg_record arg_list[] = {
+    ArgParser::ArgRecord arg_list[] = {
         {"--arg1", "Toggle arg1", &arg1, ArgParser::BOOLEAN}, 
         {"--arg2", "Toggle arg2", &arg2, ArgParser::BOOLEAN},
         {"--arg3", "Set arg3 to the specified string", &arg3,
@@ -69,6 +69,7 @@
     arg3 = NULL;
 
     ArgParser ap(arg_list);
+    ap.setTitle("Example of ArgParser usage.");
     ap.parseArguments(argc, argv);
 
     // The arguments have now been parsed and ArgParser has set
@@ -160,8 +161,11 @@ class ArgParser {
         properly, the valid arguments must be populated using
         addValidArguments().
 
+	\param[in] info An optional informational message to be
+	displayed to the user (before list of arguments) when help is
+	requested.
     */    
-    ArgParser();
+    ArgParser(const std::string& info = "");
 
     /** \brief Recommended constructor for creating a usable
         ArgParser.
@@ -176,8 +180,11 @@ class ArgParser {
         \param[in] validArguments An array of arg_record terminated by
         a {NULL, NULL} entry to indicate the end of the array.
 
+	\param[in] info An optional informational message to be
+	displayed to the user (before list of arguments) when help is
+	requested.
     */
-    ArgParser(const ArgRecord validArguments[]);
+    ArgParser(const ArgRecord validArguments[], const std::string& info = "");
 
     /** \brief Default destructor.
 
@@ -299,8 +306,8 @@ class ArgParser {
         // No matches found
         return false;	  
     }
-
- protected:
+    
+protected:
     /** This is a helper method that is used to print a single command
         line argument.
 
@@ -345,7 +352,7 @@ class ArgParser {
     */
     static std::string getValue(const ArgRecord& argRec);
 
- private:
+private:
     /** \brief Remove the specified argument from the argument vector,
         shifting the others appropriately.
         
@@ -372,6 +379,15 @@ class ArgParser {
         in this class.
     */
     std::vector<ArgRecord> argRecords;
+
+    /** Informational message to be displayed to the user.
+
+	This string is simply displayed before the list of arguments
+	are displayed to the user.  This value is set in the
+	constructor(s) and is never changed during the life time of
+	this clas.
+    */
+    std::string info;
 };
 
 #endif

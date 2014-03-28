@@ -82,9 +82,9 @@ Scheduler::scheduleEvent(Event* e) {
         abort();
     }
 
-    //will use this to figure out if we need to change our key in
-    //scheduler
-    Time oldTopTime = agent->getTopTime();
+    // Will use this to figure out if we need to change our key in
+    // scheduler
+    const Time oldTopTime = agent->getTopTime();
     
     // Process rollbacks if needed
     checkAndHandleRollback(e, agent);

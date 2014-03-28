@@ -167,8 +167,8 @@ bool
 Agent::scheduleEvent(Event* e) {
     // Perform some sanity checks.
     ASSERT(TIME_EQUALS(e->getSentTime(), TIME_INFINITY));
-    ASSERT(e->getSenderAgentID() == -1);
-    ASSERT(e->isAntiMessage() == false);
+    ASSERT(e->getSenderAgentID()  == -1);
+    ASSERT(e->isAntiMessage()     == false);
     ASSERT(e->getReferenceCount() == 1);
     
     // Fill in the sent time and sender agent id info.
@@ -185,8 +185,8 @@ Agent::scheduleEvent(Event* e) {
     // less than or equal to our LVT
     if (e->getReceiveTime() <= getLVT()) {
         cerr << "You are trying to schedule an event with a smaller or equal "
-             << "timestamp to your LVT, this is impossible and will cause "
-             << "a rollback." << endl;
+             << "timestamp to your LVT, this is impossible as it violates  "
+             << "causality constraints." << endl;
         e->decreaseReference();
         abort();
     }
@@ -527,42 +527,37 @@ Agent::getTopTime() const {
 }
 
 bool
-Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const
-{
-    Time lhs_time = lhs->eventPQ->empty() ? TIME_INFINITY : lhs->eventPQ->top()->getReceiveTime();
-    Time rhs_time = rhs->eventPQ->empty() ? TIME_INFINITY : rhs->eventPQ->top()->getReceiveTime();
-
-    //cout << "Comparing agents " << lhs->getAgentID()  << "(lhs_time = " << lhs_time
-    // << ") and " << rhs->getAgentID() << " (rhs_time = " << rhs_time << ")\n";
-    //if (lhs_time != TIME_INFINITY && rhs_time != TIME_INFINITY ) return (lhs_time > rhs_time);
+Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const {
+    Time lhs_time = (lhs->eventPQ->empty() ? TIME_INFINITY :
+		     lhs->eventPQ->top()->getReceiveTime());
+    Time rhs_time = (rhs->eventPQ->empty() ? TIME_INFINITY :
+		     rhs->eventPQ->top()->getReceiveTime());
     return (lhs_time >= rhs_time);
 }
 
 
 ostream&
 statePrinter(ostream& os, list<muse::State*> state_q ) {
-    //list<muse::State*>::reverse_iterator rit = state_q.rbegin();
-    //for (; rit != state_q.rend(); rit++) {
     list<muse::State*>::iterator it = state_q.begin();
+    os << "(";
     for (; it != state_q.end(); it++) {
         os << (*it)->getTimeStamp() << ",";
     }
-    os << ")]    " ;
+    os << ")]" ;
     return os;
 }
 
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
+    os << "Agent[id: "       << agent.getAgentID() << "; "
+       << "Events in heap: " << agent.eventPQ->size();
     if (!agent.eventPQ->empty()) {
-        DEBUG(os << "Agent[id="           << agent.getAgentID()    << ","
-           << "# of Events in heap="<< agent.eventPQ->size() << ","
-           << "top "                << *agent.eventPQ->top() << ","
-           << "StateQueue: ("       << statePrinter(os,agent.stateQueue) ); //<< ")]" ;
+	DEBUG(os << "; Top Event: " << *agent.eventPQ->top());
     } else {
-        DEBUG(os << "Agent[id="           << agent.getAgentID()    << ","
-           << "top EVENT:"          << "EMPTY"               << ","
-           << "StateQueue: ("       << statePrinter(os,agent.stateQueue) ); //<< ")]" ;
+	DEBUG(os << "; Top Event: none");
     }
+    DEBUG(os << "; StateQueue: " << statePrinter(os,agent.stateQueue));
+    os << "]";
     return os;
 }
 

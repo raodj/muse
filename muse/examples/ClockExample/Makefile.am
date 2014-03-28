@@ -23,17 +23,20 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include
+AM_CXXFLAGS += -I../../include -I./include
 
-bin_PROGRAMS = roundRobinSim
+bin_PROGRAMS = clockSim
 
-roundRobinSim_LDFLAGS = -L../../kernel
-roundRobinSim_LDADD = $(STDCPP) -lmuse
+clockSim_LDFLAGS = -L../../kernel
+clockSim_LDADD = $(STDCPP) -lmuse
 
-roundRobinSim_SOURCES = \
-	RoundRobinSimulation.h\
-	RoundRobinSimulation.cpp\
-	RoundRobinAgent.h\
-	RoundRobinAgent.cpp
+clockSim_SOURCES = \
+	ClockAgent.cpp \
+	ClockAgent.h \
+	ClockEvent.cpp \
+	ClockEvent.h \
+	ClockExample.cpp \
+	ClockState.cpp \
+	ClockState.h
 
 # end of Makefile.am
