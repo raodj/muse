@@ -561,7 +561,26 @@ operator<<(ostream& os, const muse::Agent& agent) {
     return os;
 }
 
-
+void
+Agent::dumpStats(std::ostream& os, const bool printHeader) const {
+    if (printHeader) {
+        os << "AgentID\tLVT\tInputQueueSize\tOutputQueueSize\tStateQueueSize\t"
+           << "EventQueueSize\t#Sched.Evts\t#Processed.Evts\t#Rollbacks\t"
+           << "#MpiMsgs\n";
+    }
+    // Ensure that the order of output matches the header line above.
+    const std::string TAB = "\t";
+    os << getAgentID()       << TAB
+       << lvt                << TAB
+       << inputQueue.size()  << TAB
+       << outputQueue.size() << TAB
+       << stateQueue.size()  << TAB
+       << eventPQ->size()    << TAB
+       << numScheduledEvents << TAB
+       << numProcessedEvents << TAB
+       << numRollbacks       << TAB
+       << numMPIMessages     << std::endl;
+}
 
 #endif
  
