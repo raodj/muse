@@ -236,18 +236,18 @@ public:
     void registerSimStream(SimStream* newSimStream);
 
     /** The getState method.
-	This will return the current state of the agent.
+        This will return the current state of the agent.
 
-	\return the current state pointer to the agent's state.
-	\see State
+        \return the current state pointer to the agent's state.
+        \see State
     */
     inline State* getState() const { return myState; }
 
 protected:
     /** The oSimStream type oss.
         
-	This is the default provided by MUSE and when its safe will
-	push all data to std::cout.
+		This is the default provided by MUSE and when its safe will
+		push all data to std::cout.
     */
     oSimStream oss;
 
@@ -263,24 +263,46 @@ protected:
 
      */
     virtual void saveState();
-    
+
+    /** Utility method to dump running stats about this agent to an
+        output stream.
+
+        This method is typically used to generate a brief one line
+        status information about the agent during simulation.  This
+        method is typically called from Simulation::dumpStats() method
+        to generate current, aggregate status of a given process in
+        the parallel simulation.  The information logged by this
+        method is typically used for troubleshooting/debugging and
+        does not constitute the model information generated via
+        simulation.
+
+        \param[out] os The output stream to which the stats are to be
+        written.
+
+        \param[in] printHeader If this flag is true, then this method
+        must print the column titles for the different values being
+        logged in a human readable form.  Typically, the first agent
+        is asked to print the header information.
+    */
+    virtual void dumpStats(std::ostream& os,
+                           const bool printHeader = false) const;
 private:
     /** The getTopTime method.
         
-	Simply returns the receive Time of the top event in the
-	eventPQ. If eventPQ is empty then TIME_INIFINITY is
-	returned. This is used heavily in AgentPQ class.
-
-	\return Time, the top event recv time or TIME_INFINITY if
-	eventPQ empty.
+		Simply returns the receive Time of the top event in the
+		eventPQ. If eventPQ is empty then TIME_INIFINITY is
+		returned. This is used heavily in AgentPQ class.
+		
+		\return Time, the top event recv time or TIME_INFINITY if
+		eventPQ empty.
     */
     Time getTopTime() const;
     
     /** The getNextEvents method.
         
-	This method is a helper that will grab the next
-	set of events to be processed by this agent.
-
+		This method is a helper that will grab the next
+		set of events to be processed by this agent.
+		
         \param[out] container The reference of the container into
         which events should be added.        
     */

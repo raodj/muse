@@ -316,21 +316,11 @@ Simulation::dumpStats() {
     // Now that we have a file output stream, let's print a header.
     statsFile << "# GVT: " << gvtManager->getGVT()
               << ", LGVT: " << LGVT << std::endl;
-    statsFile << "AgentID LVT InputQueueSize OutputQueueSize StateQueueSize"
-              << " EventQueueSize" << std::endl;
-    
-    for (AgentContainer::iterator i = allAgents.begin();
-         (i != allAgents.end()); i++) {
-        // Get a pointer to the agent (to avoid confusion)
-        Agent* agent = *i;
-        statsFile << agent->getAgentID()       << " "
-                  << agent->lvt                << " "
-                  << agent->inputQueue.size()  << " "
-                  << agent->outputQueue.size() << " "
-                  << agent->stateQueue.size()  << " "
-                  << agent->eventPQ->size()    << std::endl;
+    // Have all the agents dump their stats to the file.
+    for (AgentContainer::iterator agentIter = allAgents.begin();
+         (agentIter != allAgents.end()); agentIter++) {
+        (*agentIter)->dumpStats(statsFile, agentIter == allAgents.begin());
     }
-    statsFile.flush();
     statsFile.close();
 }
 
