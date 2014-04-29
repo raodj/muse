@@ -1,5 +1,5 @@
-#ifndef _SPACE_H
-#define	_SPACE_H
+#ifndef SPACE_H
+#define	SPACE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -41,16 +41,13 @@
 #include "BugEvent.h"
 #include "SpaceState.h"
 
-using namespace muse;
-
-class Space : public Agent {
-
+class Space : public muse::Agent {
 public:
-    Space(AgentID , State *);
+    Space(muse::AgentID , muse::State *);
 
     void initialize() throw (std::exception);
 
-    void executeTask(const EventContainer* events);
+    void executeTask(const muse::EventContainer* events);
 
     void finalize();
 
@@ -64,7 +61,6 @@ protected:
     void executeEat(BugEvent* current_event, SpaceState* my_state);
 	
     void executeScout(BugEvent* current_event, SpaceState* my_state);
-	
 };
 
-#endif	/* _SPACE_H */
+#endif

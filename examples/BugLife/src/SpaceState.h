@@ -5,30 +5,27 @@
   This is the space state. We contain information about the space in this state.
 */
 
-#ifndef _SPACESTATE_H
-#define	_SPACESTATE_H
+#ifndef SPACESTATE_H
+#define	SPACESTATE_H
 
 #include "State.h"
 #include "DataTypes.h"
 #include "BugDataTypes.h"
 
-using namespace muse;
-
-class SpaceState : public State {
-
+class SpaceState : public muse::State {
 public:
     State* getClone();
     SpaceState();
-    inline void setFood(int f) {food=f;}
-    inline int  getFood() const {return food;} 
-    inline void setBugID(AgentID id) {bugID=id;}
-    inline int  getBugID() const {return bugID;} 
-    inline void setPredatorID(AgentID id) {predatorID=id;}
-    inline int  getPredatorID() const {return predatorID;} 
+    inline void    setFood(int f) { food=f; }
+    inline int     getFood() const { return food; } 
+    inline void    setBugID(muse::AgentID id) { bugID=id; }
+    inline muse::AgentID getBugID() const { return bugID; } 
+    inline void    setPredatorID(muse::AgentID id) { predatorID=id; }
+    inline muse::AgentID getPredatorID() const { return predatorID; } 
 protected:
     int food;
-    AgentID bugID,predatorID;
+    muse::AgentID bugID;
+    muse::AgentID predatorID;
 };
 
-#endif	/* _SPACESTATE_H */
-
+#endif
