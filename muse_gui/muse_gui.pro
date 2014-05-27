@@ -28,7 +28,10 @@ SOURCES +=\
     infra/DnDTabMimeData.cpp \
     infra/DnDTabBar.cpp \
     core/MainWindow.cpp \
-    core/main.cpp
+    core/main.cpp \
+    core/RemoteServerSession.cpp \
+    core/LocalServerSession.cpp \
+    core/ServerSession.cpp
 
 
 HEADERS  += \
@@ -45,7 +48,10 @@ HEADERS  += \
     infra/DnDTabBar.h \
     core/Version.h \
     core/MainWindow.h \
-    core/Core.h
+    core/Core.h \
+    core/serversession.h \
+    core/RemoteServerSession.h \
+    core/LocalServerSession.h
 
 
 OTHER_FILES += \
