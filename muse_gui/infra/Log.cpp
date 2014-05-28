@@ -46,4 +46,12 @@ Log::~Log() {
     // Empty constructor begets an empty destructor.
 }
 
+void Log::setLogFileName(const QString &fileName){
+    this->logFileName = fileName;
+}
+
+QString Log::getLogFileName(){
+    return logFileName;
+}
+
 #endif // LOG_CPP

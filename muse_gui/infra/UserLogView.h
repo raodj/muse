@@ -13,6 +13,7 @@ public slots:
 
 private:
     QTableView logDisplay;
+    void createToolBar();
 };
 
 #endif // USER_LOG_VIEW_H

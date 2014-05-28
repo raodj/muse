@@ -44,7 +44,7 @@
 UserLog UserLog::globalUserLog;
 
 UserLog::UserLog() : logData(NULL) {
-    // Nothing else to be done for now.
+    this->logFileName = "USER";
 }
 
 UserLog::~UserLog() {
