@@ -1,6 +1,7 @@
+#include "Core.h"
 #include "RemoteServerSession.h"
 
-RemoteServerSession::RemoteServerSession(Server *server, QWidget *parent):ServerSession(server, parent){
+RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent):ServerSession(server, parent){
 
 }
 
@@ -16,19 +17,23 @@ void RemoteServerSession::getPassword(){
 
 }
 
-int RemoteServerSession::exec(QString *command, QString *outputs){
+int RemoteServerSession::exec(const QString &command, QString &stdoutput, QString &stderrmsgs){
 
 }
 
-int RemoteServerSession::exec(QString *command, QTextDocument *output){
+int RemoteServerSession::exec(const QString &command, QTextDocument &output){
 
 }
 
-bool RemoteServerSession::verifyServerHostKey(QString *hostName, int port, QString *serverHostKeyAlgorithm, char *serverHostKey){
+bool RemoteServerSession::verifyServerHostKey(const QString &hostName, const int port,
+                                              const QString &serverHostKeyAlgorithm,
+                                              const char &serverHostKey){
 
 }
 
-void RemoteServerSession::addKnownHost(QString *hostName, int port, QString *serverHostKeyAlgorithm, char *serverHostKey){
+void RemoteServerSession::addKnownHost(const QString &hostName, const int port,
+                                       const QString &serverHostKeyAlgorithm,
+                                       const char &serverHostKey){
 
 }
 
@@ -36,11 +41,12 @@ void RemoteServerSession::loadKnownHosts(){
 
 }
 
-void RemoteServerSession::copy(std::istream *srcData, QString *destDirectory, QString *destFileName, QString *mode){
+void RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
+                               const QString &destFileName, const QString &mode){
 
 }
 
-void RemoteServerSession::copy(std::ostream *destData, QString *srcDirectory, QString *srcFileName){
+void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirectory, const QString &srcFileName){
 
 }
 
@@ -51,14 +57,14 @@ void RemoteServerSession::copy(std::ostream *destData, QString *srcDirectory, QS
 
 //}
 
-void RemoteServerSession::mkdir(QString *directory){
+void RemoteServerSession::mkdir(const QString &directory){
 
 }
 
-void RemoteServerSession::rmdir(QString *directory){
+void RemoteServerSession::rmdir(const QString &directory){
 
 }
 
-void RemoteServerSession::setPurpose(QString *text){
+void RemoteServerSession::setPurpose(const QString &text){
 
 }

@@ -2,7 +2,7 @@
 #include "LocalServerSession.h"
 //#include <libssh2.h>
 
-LocalServerSession::LocalServerSession(Server *server, QWidget *parent) :ServerSession(server, parent){
+LocalServerSession::LocalServerSession(Server &server, QWidget *parent) :ServerSession(server, parent){
 
 }
 
@@ -18,30 +18,30 @@ void LocalServerSession::disconnect(){
 
 
 
-int LocalServerSession::exec(QString *command, QString *outputs){
+int LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &stderrmsgs){
 
 }
 
-int LocalServerSession::exec(QString *command, QTextDocument *output){
+int LocalServerSession::exec(const QString &command, QTextDocument &output){
 
 }
 
 //Once libssh2 implementation is figured out....
 //LocalServerSession::startProcess(){}
 
-void LocalServerSession::copy(std::istream *srcData, QString *destDirectory, QString *destFileName, QString *mode){
+void LocalServerSession::copy(std::istream &srcData, const QString &destDirectory, const QString &destFileName, const QString &mode){
 
 }
 
-void LocalServerSession::copy(std::ostream *destData, QString *srcDirectory, QString *srcFileName){
+void LocalServerSession::copy(std::ostream &destData, const QString &srcDirectory, const QString &srcFileName){
 
 }
 
-void LocalServerSession::mkdir(QString *directory){
+void LocalServerSession::mkdir(const QString &directory){
 
 }
 
-void LocalServerSession::rmdir(QString *directory){
+void LocalServerSession::rmdir(const QString &directory){
 
 }
 
@@ -52,10 +52,10 @@ void LocalServerSession::rmdir(QString *directory){
 
 //}
 
-void LocalServerSession::setPurpose(QString *text){
+void LocalServerSession::setPurpose(const QString &text){
 
 }
 
-void LocalServerSession::setPerms(File *file, char permDigit, bool owner){
+void LocalServerSession::setPerms(File &file, const char &permDigit, const bool owner){
 
 }

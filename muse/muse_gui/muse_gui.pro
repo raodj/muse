@@ -49,9 +49,9 @@ HEADERS  += \
     core/Version.h \
     core/MainWindow.h \
     core/Core.h \
-    core/serversession.h \
     core/RemoteServerSession.h \
-    core/LocalServerSession.h
+    core/LocalServerSession.h \
+    core/ServerSession.h
 
 
 OTHER_FILES += \
