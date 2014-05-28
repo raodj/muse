@@ -37,7 +37,6 @@
 //---------------------------------------------------------------------
 
 #include "Logger.h"
-
 class Log : public QObject {
     Q_OBJECT
 public:
@@ -45,6 +44,7 @@ public:
 
 signals:
     void logChanged();
+    void logFileNameUpdated();
 
 protected:
     virtual void appendLogEntry(const Logger::LogLevel level,
@@ -56,6 +56,22 @@ protected:
 protected:
     Log();
     virtual ~Log();
+
+    QString logFileName;
+
+    /**
+     * @brief Sets the file name of the log file. Likely to be used AFTER
+     * the logChanged signal is emitted, but that is to be determined.
+     *
+     * @param fileName The new name of the log file.
+     */
+    void setLogFileName(const QString &fileName);
+
+    /**
+     * @brief Gets the name of the log file.
+     * @return The name of the log file.
+     */
+    QString getLogFileName();
 };
 
 #endif // LOG_H

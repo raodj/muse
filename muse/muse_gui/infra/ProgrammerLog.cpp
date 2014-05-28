@@ -44,6 +44,7 @@
 ProgrammerLog ProgrammerLog::programmerLog;
 
 ProgrammerLog::ProgrammerLog() {
+    this->logFileName = "PROGRAMMER";
 }
 
 ProgrammerLog::~ProgrammerLog() {

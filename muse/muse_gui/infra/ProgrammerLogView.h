@@ -49,6 +49,7 @@ public slots:
 
 private:
     QTextEdit logDisplay;
+    void createToolBar();
 };
 
 #endif // PROGRAMMERLOGVIEW_H
