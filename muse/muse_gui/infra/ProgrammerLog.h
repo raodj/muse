@@ -45,7 +45,16 @@ public:
     static ProgrammerLog& get() { return programmerLog; }
     const QString& getEntries() const { return logEntries; }
     void write(QTextStream& os);
-
+public slots:
+    /**
+     * @brief Savesthe log to a file. In this case, the write() has
+     * the same functionality,so the write() is called from saveLog().
+     * If no use for write() is discovered, then this method will
+     * replace write() in the API.
+     *
+     * @param os The output stream to save the file.
+     */
+    void saveLog(QTextStream &os);
 protected slots:
     void appendLogEntry(const Logger::LogLevel,
                         const QMessageLogContext &context,

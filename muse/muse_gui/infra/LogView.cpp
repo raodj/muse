@@ -1,9 +1,11 @@
 #include "LogView.h"
-#include <QAction.h>
-LogView::LogView(QWidget *parent, Log *log) :
+
+
+LogView::LogView(QWidget *parent) :
     QWidget(parent){
-    this->log = log;
+   // this->log = log;
     createToolBar();
+    this->shouldSave = false;
 }
 
 void LogView::createToolBar(){
@@ -16,10 +18,11 @@ void LogView::createToolBar(){
     logToolBar->addWidget(fileNameDisplay);
     logToolBar->addAction(changeLogFileName);
     logToolBar->addAction(saveToggleButton);
-}
 
-void LogView::updateFileName(){
-    fileNameDisplay->setText(log->getLogFileName());
+
+    connect(changeLogFileName, SIGNAL(triggered()),
+            this, SLOT(selectNewLogFile()));
+    connect(saveToggleButton, SIGNAL(triggered()), this, SLOT(updateSavePreference()));
 }
 
 void LogView::initializeLabel(){
@@ -36,6 +39,25 @@ void LogView::initializeActions(){
     changeLogFileName->setIcon(QIcon(":/images/16x16/ChangeLogFile.png"));
 
     saveToggleButton = new QAction("Toggle log saving", this);
-    saveToggleButton->setIcon(QIcon(":/images/16x16/SaveLog.png"));
+    saveToggleButton->setIcon(QIcon(":/images/16x16/DontSaveLog.png"));
     saveToggleButton->setEnabled(false);
+
+}
+
+void LogView::selectNewLogFile(){
+    QString fileName = QFileDialog::getSaveFileName(this, "Save File", QDir::fromNativeSeparators("/"));
+
+    if(!fileName.isEmpty()){
+        emit logFileNameChanged(fileName);
+        saveToggleButton->setEnabled(true);
+    }
+}
+
+void LogView::updateSavePreference(){
+    shouldSave = !shouldSave;
+    if(shouldSave){
+        saveToggleButton->setIcon(QIcon(":/images/16x16/SaveLog.png"));
+        emit saveFileNow();
+    }
+    else saveToggleButton->setIcon(QIcon(":/images/16x16/DontSaveLog.png"));
 }

@@ -10,5 +10,6 @@
     <qresource prefix="/images/16x16">
         <file alias="ChangeLogFile.png">images/16x16/ChangeLogFile.png</file>
         <file alias="SaveLog.png">images/16x16/SaveLog.png</file>
+        <file alias="DontSaveLog.png">images/16x16/DontSaveLog.png</file>
     </qresource>
 </RCC>

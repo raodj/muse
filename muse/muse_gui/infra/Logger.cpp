@@ -46,6 +46,14 @@ Logger::toString(const LogLevel level) {
     return LevelNames[(int) level];
 }
 
+int Logger::toInt(const QString &level){
+    static const QString LevelNames[] = {"VERBOSE", "NOTICE", "WARNING", "ERROR"};
+    for(int i=0; i<sizeof(LevelNames); i++)
+        if(level.contains(LevelNames[i]))
+            return i;
+    return -1;
+}
+
 QDebug
 Logger::log(const char *formatStr, ...) const {
     if (formatStr != NULL) {

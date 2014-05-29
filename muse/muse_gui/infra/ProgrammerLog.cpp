@@ -44,7 +44,6 @@
 ProgrammerLog ProgrammerLog::programmerLog;
 
 ProgrammerLog::ProgrammerLog() {
-    this->logFileName = "PROGRAMMER";
 }
 
 ProgrammerLog::~ProgrammerLog() {
@@ -74,6 +73,11 @@ ProgrammerLog::write(QTextStream& os) {
     os << logEntries;
 }
 
+//Current error: device did not open
+void ProgrammerLog::saveLog(QTextStream &os){
+    write(os);
+    os.flush();
+}
 
 
 #endif
