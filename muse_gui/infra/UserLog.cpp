@@ -37,14 +37,13 @@
 //---------------------------------------------------------------------
 
 #include "UserLog.h"
-
+#include <qfile.h>
 #define TAB "\t"
 
 // The global singleton instance of programmer log
 UserLog UserLog::globalUserLog;
 
 UserLog::UserLog() : logData(NULL) {
-    this->logFileName = "USER";
 }
 
 UserLog::~UserLog() {
@@ -73,6 +72,25 @@ UserLog::appendLogEntry(const Logger::LogLevel level,
     logData.appendLogEntry(level, context, msg);
     // Let views (if any) know the model/data has changed
     emit logChanged();
+}
+
+void UserLog::saveLog(QTextStream &os, const QString &level){
+
+    //Program crashes while performing this check, due to issues
+    //with string comparison...Error found in Logger class.
+
+    if(level!="ALL"){
+        for(int i = 0; (i < logData.logEntries.size()); i++) {
+            if(logData.logEntries[i].level >= Logger::toInt(level))
+            os << logData.logEntries[i] << endl;
+        }
+    }
+
+    else{
+        for(int i = 0; (i < logData.logEntries.size()); i++) {
+            os << logData.logEntries[i] << endl;
+        }
+    }
 }
 
 #endif

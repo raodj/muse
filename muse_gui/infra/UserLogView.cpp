@@ -4,7 +4,10 @@
 #include <QHeaderView>
 
 UserLogView::UserLogView(QWidget *parent) :
-    LogView(parent, &UserLog::get()), logDisplay(this) {
+    LogView(parent), logDisplay(this) {
+
+    log = &UserLog::get();
+
     // Setup the log display area's grids
     logDisplay.setShowGrid(true);
     logDisplay.setGridStyle(Qt::DotLine);
@@ -25,6 +28,14 @@ UserLogView::UserLogView(QWidget *parent) :
     // Handle signals about changes in log
     connect(static_cast<const Log*>(&UserLog::get()), SIGNAL(logChanged()),
             this, SLOT(updateLog()));
+
+    connect(this, SIGNAL(logFileNameChanged(const QString &)),
+            log, SLOT(setLogFileName(const QString &)));
+
+    connect(log, SIGNAL(logFileNameUpdated()),
+            this, SLOT(updateFileName()));
+
+    connect(this, SIGNAL(saveFileNow()), this, SLOT(callSave()));
 }
 
 void
@@ -42,8 +53,23 @@ void UserLogView::addToToolBar(){
     logToolBar->addWidget(setLoggingLevel);
 
     loggingLevelSelector = new QComboBox(this);
-    loggingLevelSelector->addItem("Testing");
+    loggingLevelSelector->addItem("All");
+    loggingLevelSelector->addItem("VERBOSE");
+    loggingLevelSelector->addItem("NOTICE");
+    loggingLevelSelector->addItem("WARNING");
+    loggingLevelSelector->addItem("ERROR");
 
     logToolBar->addWidget(loggingLevelSelector);
 
+}
+
+void UserLogView::updateFileName(){
+    fileNameDisplay->setText(log->getLogFileName());
+}
+
+void UserLogView::callSave(){
+    QFile file(log->getLogFileName());
+    QTextStream os (&file);
+
+    log->saveLog(os, loggingLevelSelector->currentText());
 }

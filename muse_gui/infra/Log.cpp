@@ -48,6 +48,7 @@ Log::~Log() {
 
 void Log::setLogFileName(const QString &fileName){
     this->logFileName = fileName;
+    emit logFileNameUpdated();
 }
 
 QString Log::getLogFileName(){

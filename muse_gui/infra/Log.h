@@ -46,7 +46,7 @@ public:
      * @return The name of the log file.
      */
     QString getLogFileName();
-
+   // virtual void saveLog(QTextStream &os) = 0;
 signals:
     void logChanged();
     void logFileNameUpdated();
@@ -64,6 +64,7 @@ protected:
 
     QString logFileName;
 
+protected slots:
     /**
      * @brief Sets the file name of the log file. Likely to be used AFTER
      * the logChanged signal is emitted, but that is to be determined.

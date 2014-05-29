@@ -38,6 +38,7 @@
 //---------------------------------------------------------------------
 
 #include <QTextEdit>
+#include "ProgrammerLog.h"
 #include "LogView.h"
 class ProgrammerLogView : public LogView {
     Q_OBJECT
@@ -47,8 +48,23 @@ public:
 public slots:
     void updateLog();
 
+    /**
+     * @brief Updates the displayed file name of the log file by using the log
+     * class' getLogFileName().
+     */
+    void updateFileName();
+
+    /**
+     * @brief Tells this UserLogView to call the save method of the log it belongs
+     * to. This must be done in order to pass the necessary parameters correctly without
+     * the signals and slots getting in the way.
+     */
+    void callSave();
+
+
 private:
     QTextEdit logDisplay;
+    ProgrammerLog *log;
 
 };
 
