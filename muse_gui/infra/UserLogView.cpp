@@ -4,7 +4,7 @@
 #include <QHeaderView>
 
 UserLogView::UserLogView(QWidget *parent) :
-    QWidget(parent), logDisplay(this) {
+    LogView(parent, &UserLog::get()), logDisplay(this) {
     // Setup the log display area's grids
     logDisplay.setShowGrid(true);
     logDisplay.setGridStyle(Qt::DotLine);
@@ -16,6 +16,10 @@ UserLogView::UserLogView(QWidget *parent) :
     logDisplay.setModel(&UserLog::get().getEntries());
     // Organize components in this widget for display.
     QVBoxLayout *layout = new QVBoxLayout();
+    //Add the toolbar here.........
+    addToToolBar();
+    layout->addWidget(this->logToolBar);
+
     layout->addWidget(&logDisplay, 100);
     this->setLayout(layout);
     // Handle signals about changes in log
@@ -31,3 +35,15 @@ UserLogView::updateLog() {
     logDisplay.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
 }
 
+void UserLogView::addToToolBar(){
+    logToolBar->addSeparator();
+
+    setLoggingLevel = new QLabel("Set logging level:");
+    logToolBar->addWidget(setLoggingLevel);
+
+    loggingLevelSelector = new QComboBox(this);
+    loggingLevelSelector->addItem("Testing");
+
+    logToolBar->addWidget(loggingLevelSelector);
+
+}

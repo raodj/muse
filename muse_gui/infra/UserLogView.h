@@ -2,18 +2,26 @@
 #define USER_LOG_VIEW_H
 
 #include <QTableView>
-
-class UserLogView : public QWidget {
+#include <qcombobox.h>
+#include "LogView.h"
+class UserLogView : public LogView {
     Q_OBJECT
 public:
-    explicit UserLogView(QWidget *parent = 0);
+    UserLogView(QWidget *parent = 0);
     
 public slots:
     void updateLog();
 
 private:
     QTableView logDisplay;
-    void createToolBar();
+    /**
+     * @brief Adds additional buttons and features to the toolbar
+     * that only exist in the user log view.
+     */
+    void addToToolBar();
+
+    QLabel *setLoggingLevel;
+    QComboBox *loggingLevelSelector;
 };
 
 #endif // USER_LOG_VIEW_H

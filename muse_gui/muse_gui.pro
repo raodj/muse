@@ -31,7 +31,8 @@ SOURCES +=\
     core/main.cpp \
     core/RemoteServerSession.cpp \
     core/LocalServerSession.cpp \
-    core/ServerSession.cpp
+    core/ServerSession.cpp \
+    infra/LogView.cpp
 
 
 HEADERS  += \
@@ -51,7 +52,8 @@ HEADERS  += \
     core/Core.h \
     core/RemoteServerSession.h \
     core/LocalServerSession.h \
-    core/ServerSession.h
+    core/ServerSession.h \
+    infra/LogView.h
 
 
 OTHER_FILES += \

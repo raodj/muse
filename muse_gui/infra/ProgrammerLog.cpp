@@ -74,4 +74,6 @@ ProgrammerLog::write(QTextStream& os) {
     os << logEntries;
 }
 
+
+
 #endif

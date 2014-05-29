@@ -5,17 +5,19 @@
 #include <iostream>
 
 ProgrammerLogView::ProgrammerLogView(QWidget *parent) :
-    QWidget(parent), logDisplay(this) {
+    LogView(parent, &ProgrammerLog::get()), logDisplay(this) {
     logDisplay.setReadOnly(true);
     logDisplay.setWordWrapMode(QTextOption::NoWrap);
     // Organize components in this widget for display.
     QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(this->logToolBar);
     layout->addWidget(&logDisplay, 100);
     this->setLayout(layout);
     // Handle signals about changes in log
     connect(&ProgrammerLog::get(), SIGNAL(logChanged()), this, SLOT(updateLog()));
     // Setup initial data in programmer log
     updateLog();
+    this->updateFileName();
 }
 
 void

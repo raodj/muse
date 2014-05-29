@@ -38,8 +38,8 @@
 //---------------------------------------------------------------------
 
 #include <QTextEdit>
-
-class ProgrammerLogView : public QWidget {
+#include "LogView.h"
+class ProgrammerLogView : public LogView {
     Q_OBJECT
 public:
     ProgrammerLogView(QWidget *parent = 0);
@@ -49,7 +49,7 @@ public slots:
 
 private:
     QTextEdit logDisplay;
-    void createToolBar();
+
 };
 
 #endif // PROGRAMMERLOGVIEW_H
