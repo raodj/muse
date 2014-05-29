@@ -1,6 +1,3 @@
-#ifndef LOG_H
-#define LOG_H
-
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -35,44 +32,45 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+#ifndef LOGVIEW_H
+#define LOGVIEW_H
 
-#include "Logger.h"
-class Log : public QObject {
+#include <QWidget>
+#include <qlineedit.h>
+#include <QLabel>
+#include <qtoolbar.h>
+#include "Log.h"
+/**
+ * @brief A base class for the log views at the bottom of the main window.
+ * Initially, this class is mainly responsible for the creation of a
+ * toolbar that will be displayed with the logs that will allow the user to
+ * save the logs to a file.
+ */
+class LogView : public QWidget{
+    friend class Log;
     Q_OBJECT
 public:
-    virtual bool isUserLog() const { return false; }
-    /**
-     * @brief Gets the name of the log file.
-     * @return The name of the log file.
-     */
-    QString getLogFileName();
+    LogView(QWidget *parent = 0, Log *log = NULL);
+    virtual void updateLog() = 0;
 
 signals:
-    void logChanged();
-    void logFileNameUpdated();
+
+public slots:
+    void updateFileName();
 
 protected:
-    virtual void appendLogEntry(const Logger::LogLevel level,
-                        const QMessageLogContext &context,
-                        const QString &msg) = 0;
+    Log *log;
+    QLabel *fileNameLabel;
+    QLineEdit *fileNameDisplay;
+    QAction *changeLogFileName;
+    QAction *saveToggleButton;
+    QToolBar *logToolBar;
 
-    virtual void write(QTextStream& os) = 0;
-
-protected:
-    Log();
-    virtual ~Log();
-
-    QString logFileName;
-
-    /**
-     * @brief Sets the file name of the log file. Likely to be used AFTER
-     * the logChanged signal is emitted, but that is to be determined.
-     *
-     * @param fileName The new name of the log file.
-     */
-    void setLogFileName(const QString &fileName);
-
-
+private:
+    void initializeLabel();
+    void initializeFileNameDisplay();
+    void initializeActions();
+    void createToolBar();
 };
 
-#endif // LOG_H
+#endif // LOGVIEW_H

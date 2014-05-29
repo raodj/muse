@@ -7,4 +7,8 @@
         <file alias="programmer_logs.png">images/32x32/programmer_logs.png</file>
         <file alias="user_logs.png">images/32x32/user_logs.png</file>
     </qresource>
+    <qresource prefix="/images/16x16">
+        <file alias="ChangeLogFile.png">images/16x16/ChangeLogFile.png</file>
+        <file alias="SaveLog.png">images/16x16/SaveLog.png</file>
+    </qresource>
 </RCC>
