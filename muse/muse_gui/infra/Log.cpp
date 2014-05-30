@@ -56,9 +56,6 @@ Log::setLogFileName(const QString& fileName) {
     logFile.setFileName(fileName);
     emit logFileNameUpdated();
 
-    QMessageBox msg;
-    msg.setText(logFile.fileName());
-    msg.exec();
     // Open the log file for appending logs.
     if (!logFile.open(QFile::Append | QFile::Text)) {
         // Error opening log file for appending. Report an error and bail out.
