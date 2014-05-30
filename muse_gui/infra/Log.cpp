@@ -85,7 +85,7 @@ Log::getLogFileName() {
 // it reports an error.
 void
 Log::checkLogStream() {
-    if (logStream.status() == QTextStream::Ok) {
+    if (logStream.status() != QTextStream::Ok) {
         QString msg = "Error appending to log file ('" + getLogFileName() +
                 "') - " + logFile.errorString() + ". Logging to file stopped.";
         emit errorSavingLog(msg);
