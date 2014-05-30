@@ -3,11 +3,7 @@
 #include <QVBoxLayout>
 #include <QHeaderView>
 
-UserLogView::UserLogView(QWidget *parent) :
-    LogView(parent), logDisplay(this) {
-
-    log = &UserLog::get();
-
+UserLogView::UserLogView(QWidget *parent) : LogView(parent), logDisplay(this) {
     // Setup the log display area's grids
     logDisplay.setShowGrid(true);
     logDisplay.setGridStyle(Qt::DotLine);
@@ -17,25 +13,28 @@ UserLogView::UserLogView(QWidget *parent) :
     logDisplay.setSelectionBehavior(QAbstractItemView::SelectRows);
     // Setup the data model for the log display
     logDisplay.setModel(&UserLog::get().getEntries());
+    //Add additional widgets to the toolbar.
+    addWidgetsToToolBar();
     // Organize components in this widget for display.
     QVBoxLayout *layout = new QVBoxLayout();
-    //Add the toolbar here.........
-    addToToolBar();
-    layout->addWidget(this->logToolBar);
-
+    layout->addWidget(logToolBar);
     layout->addWidget(&logDisplay, 100);
     this->setLayout(layout);
     // Handle signals about changes in log
-    connect(static_cast<const Log*>(&UserLog::get()), SIGNAL(logChanged()),
-            this, SLOT(updateLog()));
-
+    UserLog& uLog = UserLog::get();
+    connect(&uLog, SIGNAL(logChanged()), this, SLOT(updateLog()));
+    // Connect signals to change log file name.
     connect(this, SIGNAL(logFileNameChanged(const QString &)),
-            log, SLOT(setLogFileName(const QString &)));
-
-    connect(log, SIGNAL(logFileNameUpdated()),
+            &uLog, SLOT(setLogFileName(const QString &)));
+    // Setup signal to detect change in log file name (from a different tool/view)
+    connect(&uLog, SIGNAL(logFileNameUpdated()),
             this, SLOT(updateFileName()));
-
-    connect(this, SIGNAL(saveFileNow()), this, SLOT(callSave()));
+    // Connect signal to start/stop saving user logs.
+    connect(&saveToggleButton, SIGNAL(toggled(bool)),
+            &uLog, SLOT(setSaveStatus(bool)));
+    // Connect signal to detect change in status to change icon.
+    connect(&uLog, SIGNAL(saveStatusChanged(bool)),
+            this, SLOT(updateSavePreference(bool)));
 }
 
 void
@@ -46,30 +45,20 @@ UserLogView::updateLog() {
     logDisplay.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
 }
 
-void UserLogView::addToToolBar(){
+void
+UserLogView::addWidgetsToToolBar() {
+    // Set the log-level option in the combo box.
+    loggingLevelSelector.addItem("All (Verbose)");
+    loggingLevelSelector.addItem("Notice");
+    loggingLevelSelector.addItem("Warnings");
+    loggingLevelSelector.addItem("Errors");
+    // Add a label and log-level selector to the tool bar
     logToolBar->addSeparator();
-
-    setLoggingLevel = new QLabel("Set logging level:");
-    logToolBar->addWidget(setLoggingLevel);
-
-    loggingLevelSelector = new QComboBox(this);
-    loggingLevelSelector->addItem("All");
-    loggingLevelSelector->addItem("VERBOSE");
-    loggingLevelSelector->addItem("NOTICE");
-    loggingLevelSelector->addItem("WARNING");
-    loggingLevelSelector->addItem("ERROR");
-
-    logToolBar->addWidget(loggingLevelSelector);
-
+    logToolBar->addWidget(new QLabel("Set logging level:"));
+    logToolBar->addWidget(&loggingLevelSelector);
 }
 
-void UserLogView::updateFileName(){
-    fileNameDisplay->setText(log->getLogFileName());
-}
-
-void UserLogView::callSave(){
-    QFile file(log->getLogFileName());
-    QTextStream os (&file);
-
-    log->saveLog(os, loggingLevelSelector->currentText());
+void
+UserLogView::updateFileName() {
+    fileNameDisplay->setText(UserLog::get().getLogFileName());
 }

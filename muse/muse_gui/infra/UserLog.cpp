@@ -37,8 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "UserLog.h"
-#include <qfile.h>
-#define TAB "\t"
+#include <QFile>
 
 // The global singleton instance of programmer log
 UserLog UserLog::globalUserLog;
@@ -60,7 +59,8 @@ UserLog::getLevel(const int row) const {
 
 void
 UserLog::write(QTextStream& os) {
-    for(int i = 0; (i < logData.logEntries.size()); i++) {
+    for(int i = 0; ((os.status() == QTextStream::Ok) &&
+                    (i < logData.logEntries.size())); i++) {
         os << logData.logEntries[i] << endl;
     }
 }
@@ -72,24 +72,13 @@ UserLog::appendLogEntry(const Logger::LogLevel level,
     logData.appendLogEntry(level, context, msg);
     // Let views (if any) know the model/data has changed
     emit logChanged();
-}
-
-void UserLog::saveLog(QTextStream &os, const QString &level){
-
-    //Program crashes while performing this check, due to issues
-    //with string comparison...Error found in Logger class.
-
-    if(level!="ALL"){
-        for(int i = 0; (i < logData.logEntries.size()); i++) {
-            if(logData.logEntries[i].level >= Logger::toInt(level))
-            os << logData.logEntries[i] << endl;
-        }
-    }
-
-    else{
-        for(int i = 0; (i < logData.logEntries.size()); i++) {
-            os << logData.logEntries[i] << endl;
-        }
+    // Stream the log entry to the log file (if it has been setup).
+    if (isLogStreamGood()) {
+        const int lastRow = logData.logEntries.size() - 1;
+        logStream << logData.logEntries[lastRow];
+        logStream.flush();  // Ensure data is flushed out to detect errors early.
+        // Ensure the data was successfuly written and report any errors.
+        checkLogStream();
     }
 }
 
