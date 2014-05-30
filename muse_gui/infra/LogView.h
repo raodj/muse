@@ -99,12 +99,20 @@ protected slots:
      */
      void updateSavePreference(bool saveEnabled);
 
+     /**
+      * @brief saveErrorNotification Displays a message alerting the user that
+      * an error was encountered while saving the log file.
+      *
+      * @param errMsg The error message
+      */
+     void saveErrorNotification(const QString &errMsg);
+
 protected:
     //Log *log;
-    QLineEdit *fileNameDisplay;
-    QAction *changeLogFileName;
+    QLineEdit fileNameDisplay;
+    QAction* changeLogFileName;
     QToolButton saveToggleButton;
-    QToolBar *logToolBar;
+    QToolBar logToolBar;
     bool shouldSave;
 
 private:

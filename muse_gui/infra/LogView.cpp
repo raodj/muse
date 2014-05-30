@@ -39,6 +39,7 @@
 
 #include "LogView.h"
 #include <QFileDialog>
+#include <QMessageBox>
 
 LogView::LogView(QWidget *parent) : QWidget(parent){
     createToolBar();
@@ -46,14 +47,14 @@ LogView::LogView(QWidget *parent) : QWidget(parent){
 
 void
 LogView::createToolBar() {
-    logToolBar = new QToolBar();
+    //logToolBar = new QToolBar();
     initializeFileNameDisplay();
     initializeActions();
 
-    logToolBar->addWidget(new QLabel("Log filename: "));
-    logToolBar->addWidget(fileNameDisplay);
-    logToolBar->addAction(changeLogFileName);
-    logToolBar->addWidget(&saveToggleButton);
+    logToolBar.addWidget(new QLabel("Log filename: "));
+    logToolBar.addWidget(&fileNameDisplay);
+    logToolBar.addAction(changeLogFileName);
+    logToolBar.addWidget(&saveToggleButton);
 
     connect(changeLogFileName, SIGNAL(triggered()),
             this, SLOT(selectNewLogFile()));
@@ -61,8 +62,8 @@ LogView::createToolBar() {
 
 void
 LogView::initializeFileNameDisplay() {
-    fileNameDisplay = new QLineEdit("<none set>");
-    fileNameDisplay->setReadOnly(true);
+    fileNameDisplay.setText("<none set>");
+    fileNameDisplay.setReadOnly(true);
 }
 
 void
@@ -92,6 +93,16 @@ LogView::updateSavePreference(bool saveEnabled) {
     } else {
         saveToggleButton.setIcon(QIcon(":/images/16x16/DontSaveLog.png"));
     }
+}
+
+void
+LogView::saveErrorNotification(const QString& errMsg) {
+    QMessageBox msgBox;
+    msgBox.setText("An error occured when saving the log file.");
+    msgBox.setDetailedText(errMsg);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
 }
 
 #endif

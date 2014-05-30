@@ -63,6 +63,7 @@ UserLog::write(QTextStream& os) {
                     (i < logData.logEntries.size())); i++) {
         os << logData.logEntries[i] << endl;
     }
+    os.flush();
 }
 
 void

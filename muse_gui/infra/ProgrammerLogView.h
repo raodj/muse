@@ -64,7 +64,7 @@ public slots:
 
 private:
     QTextEdit logDisplay;
-    ProgrammerLog *log;
+    //ProgrammerLog *log;
 
 };
 

@@ -17,7 +17,7 @@ UserLogView::UserLogView(QWidget *parent) : LogView(parent), logDisplay(this) {
     addWidgetsToToolBar();
     // Organize components in this widget for display.
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(logToolBar);
+    layout->addWidget(&logToolBar);
     layout->addWidget(&logDisplay, 100);
     this->setLayout(layout);
     // Handle signals about changes in log
@@ -35,6 +35,10 @@ UserLogView::UserLogView(QWidget *parent) : LogView(parent), logDisplay(this) {
     // Connect signal to detect change in status to change icon.
     connect(&uLog, SIGNAL(saveStatusChanged(bool)),
             this, SLOT(updateSavePreference(bool)));
+
+    //Connect signal to detect an error in saving the log.
+    connect(&uLog, SIGNAL(errorSavingLog(QString)),
+            this, SLOT(saveErrorNotification(QString)));
 }
 
 void
@@ -53,12 +57,12 @@ UserLogView::addWidgetsToToolBar() {
     loggingLevelSelector.addItem("Warnings");
     loggingLevelSelector.addItem("Errors");
     // Add a label and log-level selector to the tool bar
-    logToolBar->addSeparator();
-    logToolBar->addWidget(new QLabel("Set logging level:"));
-    logToolBar->addWidget(&loggingLevelSelector);
+    logToolBar.addSeparator();
+    logToolBar.addWidget(new QLabel("Set logging level:"));
+    logToolBar.addWidget(&loggingLevelSelector);
 }
 
 void
 UserLogView::updateFileName() {
-    fileNameDisplay->setText(UserLog::get().getLogFileName());
+    fileNameDisplay.setText(UserLog::get().getLogFileName());
 }
