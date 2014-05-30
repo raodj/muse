@@ -168,6 +168,8 @@ DnDTabBar::dropEvent(QDropEvent *event) {
                                         srcTab->tabWhatsThis(tabIdx), &tabColor);
     // Inidcate the drop event was successfully processed
     event->setAccepted(true);
+    // Cut a user log for testing purposes
+    userLog() << "Tab drag-n-drop completed successfully.";
 }
 
 void

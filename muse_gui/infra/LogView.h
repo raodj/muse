@@ -1,3 +1,6 @@
+#ifndef LOG_VIEW_H
+#define LOG_VIEW_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -32,17 +35,15 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#ifndef LOGVIEW_H
-#define LOGVIEW_H
 
 #include <QWidget>
-#include <qlineedit.h>
-#include <qlabel.h>
-#include <qaction.h>
-#include <qtoolbar.h>
-#include <qfiledialog.h>
-#include <qcheckbox.h>
+#include <QLineEdit>
+#include <QLabel>
+#include <QAction>
+#include <QToolBar>
+#include <QToolButton>
 #include "Log.h"
+
 /**
  * @brief A base class for the log views at the bottom of the main window.
  * Initially, this class is mainly responsible for the creation of a
@@ -52,7 +53,6 @@
 class LogView : public QWidget{
     Q_OBJECT
 public:
-
     /**
      * @brief A simple constructor for the base LogView class. Other than
      * storing the log pointer to its instance variable, the constructor
@@ -79,10 +79,7 @@ signals:
      */
     void logFileNameChanged(const QString &filePath);
 
-    void saveFileNow();
-
-public slots:
-
+protected slots:
     /**
      * @brief Updates the displayed file name of the log file by using the log
      * class' getLogFileName().
@@ -100,16 +97,16 @@ public slots:
      * saveToggleButton to reflect the user's decision on whether
      * or not to save the log file.
      */
-    void updateSavePreference();
+     void updateSavePreference(bool saveEnabled);
 
 protected:
     //Log *log;
-    QLabel *fileNameLabel;
     QLineEdit *fileNameDisplay;
     QAction *changeLogFileName;
-    QAction *saveToggleButton;
+    QToolButton saveToggleButton;
     QToolBar *logToolBar;
     bool shouldSave;
+
 private:
     /**
      * @brief Creates the QLabel for the toolbar.

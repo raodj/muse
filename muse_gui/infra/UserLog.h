@@ -49,16 +49,6 @@ public:
     void write(QTextStream& os);
     UserLogTableModel& getEntries() { return logData; }
 
-public slots:
-
-    /**
-     * @brief Saves the log to a file. Only the logs that meet the selected
-     * importance filter will be saved to the file.
-     * @param level The lowest importance level the user wishes to have saved
-     * to the log file.
-     */
-    void saveLog(QTextStream &os, const QString &level);
-
 protected slots:
     void appendLogEntry(const Logger::LogLevel level,
                         const QMessageLogContext &context,
@@ -72,6 +62,7 @@ private:
     UserLog();
     ~UserLog();
     UserLogTableModel logData;
+
 };
 
 #endif // USER_LOG_H

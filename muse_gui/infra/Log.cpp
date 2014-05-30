@@ -46,13 +46,58 @@ Log::~Log() {
     // Empty constructor begets an empty destructor.
 }
 
-void Log::setLogFileName(const QString &fileName){
-    this->logFileName = fileName;
+bool
+Log::setLogFileName(const QString& fileName) {
+    // Close the existing file (if any) underlying the log stream.
+    logStream.setDevice(NULL);
+    logFile.close();
+
+    // Setup the new file name specified by the user.
+    logFile.setFileName(fileName);
     emit logFileNameUpdated();
+
+    // Open the log file for appending logs.
+    if (!logFile.open(QFile::Append | QFile::Text)) {
+        // Error opening log file for appending. Report an error and bail out.
+        QString msg = "Error opening log file ('" + fileName +
+                "') for appending: " + logFile.errorString();
+        emit errorSavingLog(msg);
+        return false; // error!
+    }
+    // Setup the new file as the destination for streamling logs.
+    logStream.setDevice(&logFile);
+    // Check to ensure the log stream is still good.
+    checkLogStream();
+    // Return overall status
+    return (logStream.status() == QTextStream::Ok);
 }
 
-QString Log::getLogFileName(){
-    return logFileName;
+
+QString
+Log::getLogFileName() {
+    return logFile.fileName();
+}
+
+// Convenience method to check if the log stream is in working condition. If not
+// it reports an error.
+void
+Log::checkLogStream() {
+    if (logStream.status() == QTextStream::Ok) {
+        QString msg = "Error appending to log file ('" + getLogFileName() +
+                "') - " + logFile.errorString() + ". Logging to file stopped.";
+        emit errorSavingLog(msg);
+    }
+}
+
+void
+Log::setSaveStatus(bool saveToFile) {
+    saveLogs = saveToFile;
+    emit saveStatusChanged(saveLogs);
+}
+
+void
+Log::toggleSaveStatus() {
+    setSaveStatus(!saveLogs);
 }
 
 #endif // LOG_CPP
