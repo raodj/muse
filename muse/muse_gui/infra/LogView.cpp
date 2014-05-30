@@ -51,6 +51,10 @@ LogView::createToolBar() {
     initializeFileNameDisplay();
     initializeActions();
 
+    //Test
+    fileNameDisplay.setParent(this);
+    saveToggleButton.setParent((this));
+    logToolBar.setParent(this);
     logToolBar.addWidget(new QLabel("Log filename: "));
     logToolBar.addWidget(&fileNameDisplay);
     logToolBar.addAction(changeLogFileName);

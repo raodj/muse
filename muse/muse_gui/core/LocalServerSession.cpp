@@ -16,8 +16,6 @@ void LocalServerSession::disconnect(){
 
 }
 
-
-
 int LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &stderrmsgs){
 
 }
