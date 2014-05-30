@@ -70,11 +70,13 @@ ProgrammerLog::appendLogEntry(const Logger::LogLevel level,
 
 void
 ProgrammerLog::write(QTextStream& os) {
-    os << logEntries;
+    if (os.status() == QTextStream::Ok)
+        os << logEntries;
 }
 
 //Current error: device did not open
-void ProgrammerLog::saveLog(QTextStream &os){
+void
+ProgrammerLog::saveLog(QTextStream &os) {
     write(os);
     os.flush();
 }

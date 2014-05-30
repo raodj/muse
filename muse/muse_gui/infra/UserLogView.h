@@ -2,7 +2,7 @@
 #define USER_LOG_VIEW_H
 
 #include <QTableView>
-#include <qcombobox.h>
+#include <QComboBox>
 #include "LogView.h"
 #include "UserLog.h"
 
