@@ -109,7 +109,6 @@ protected slots:
      void saveErrorNotification(const QString &errMsg);
 
 protected:
-    //Log *log;
     QLineEdit* fileNameDisplay;
     QAction* changeLogFileName;
     QToolButton* saveToggleButton;

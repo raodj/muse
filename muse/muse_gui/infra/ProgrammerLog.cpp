@@ -66,20 +66,29 @@ ProgrammerLog::appendLogEntry(const Logger::LogLevel level,
     logEntries += "\n";
     // Let views (if any) know the model/data has changed
     emit logChanged();
+
+    //If the logStream is good, add the newest entry to the file
+    if(isLogStreamGood()) {
+        logStream << Logger::toString(level) << ": ";
+        logStream << context.function << " [";
+        logStream << context.file << ":";
+        logStream << QString::number(context.line);
+        logStream << "] - ";
+        logStream << msg <<endl;
+
+        checkLogStream();
+    }
 }
 
 void
-ProgrammerLog::write(QTextStream& os) {
-    if (os.status() == QTextStream::Ok)
-        os << logEntries;
+ProgrammerLog::write() {
+    if (logStream.status() == QTextStream::Ok)
+        logStream << logEntries<<endl;
+
+    checkLogStream();
 }
 
-//Current error: device did not open
-void
-ProgrammerLog::saveLog(QTextStream &os) {
-    write(os);
-    os.flush();
-}
+
 
 
 #endif

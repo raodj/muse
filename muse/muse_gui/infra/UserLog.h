@@ -46,13 +46,52 @@ public:
     static UserLog& get() { return globalUserLog; }
     Logger::LogLevel getLevel(const int row) const;
 
-    void write(QTextStream& os);
+
     UserLogTableModel& getEntries() { return logData; }
+
+signals:
+    /**
+     * @brief saveNewestEntry Signals that the user has elected to save the log to a file,
+     * and will save the newest entry to the file as long as the entry has a level greater
+     * than or equal to what the user has set in the log filter.
+     */
+    void saveNewestEntry();
+
+public slots:
+
+    /**
+     * @brief write Writes this UserLog to a file using the
+     * logStream instance variable as the desired stream.
+     *
+     * @param lowestLevelToShow The lowest severity level
+     * of log entries to be written to the file.
+     *
+     * /note This parameter comes from the index of the
+     * QComboBox containing the listing of log severity levels.
+     * This means that the QComboBox MUST maintain the same order
+     * of severity levels as the Logger enumerations.
+     */
+    void writeAllEntries(const int lowestLevelToShow);
+
+    /**
+     * @brief writeLastEntry Writes the last (newest) log entry
+     * to the logFile as specified by the user.
+     *
+     * @param lowestLevelToShow The lowest severity level
+     * of log entries to be written to the file.
+     *
+     * /note This parameter comes from the index of the
+     * QComboBox containing the listing of log severity levels.
+     * This means that the QComboBox MUST maintain the same order
+     * of severity levels as the Logger enumerations.
+     */
+    void writeLastEntry(const int lowestLevelToShow);
 
 protected slots:
     void appendLogEntry(const Logger::LogLevel level,
                         const QMessageLogContext &context,
                         const QString &msg);
+
 
 
 protected:

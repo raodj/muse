@@ -51,7 +51,7 @@ public:
      */
     QString getLogFileName();
 
-    virtual void write(QTextStream& os) = 0;
+
 
     /**
      * @brief isSaveEnabled Method to determine if writing of logs to a file is
@@ -72,6 +72,7 @@ public slots:
      * @return This method returns true if the log file name was set successfully.
      */
     bool setLogFileName(const QString &fileName);
+
 
     /**
      * @brief setSaveStatus Enable/disable writing logs to a log file.

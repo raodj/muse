@@ -27,11 +27,15 @@ ProgrammerLogView::ProgrammerLogView(QWidget *parent) :
     connect(&log, SIGNAL(logFileNameUpdated()),
             this, SLOT(updateFileName()));
 
+    connect(saveToggleButton, SIGNAL(toggled(bool)),
+            &log, SLOT(setSaveStatus(bool)));
 
+    connect(&log, SIGNAL(saveStatusChanged(bool)),
+            this, SLOT(updateSavePreference(bool)));
     //Connect signal to detect an error in saving the log.
     connect(&log, SIGNAL(errorSavingLog(QString)),
             this, SLOT(saveErrorNotification(QString)));
-    //connect(this, SIGNAL(saveFileNow()), this, SLOT(callSave()));
+
 }
 
 void
@@ -46,11 +50,4 @@ void ProgrammerLogView::updateFileName(){
     fileNameDisplay->setText(ProgrammerLog::get().getLogFileName());
 }
 
-void ProgrammerLogView::callSave(){
-/*    QFile file(log->getLogFileName());
-    QTextStream os (&file);
 
-    log->saveLog(os);
-
-    */
-}
