@@ -79,12 +79,12 @@ UserLog::appendLogEntry(const Logger::LogLevel level,
     const int lastRow = logData.logEntries.size() - 1;
     if (isLogStreamGood()) {
         emit saveNewestEntry();
-        logStream << logData.logEntries[lastRow]<<endl;//endl flushes the data
+        /*logStream << logData.logEntries[lastRow]<<endl;//endl flushes the data
 
         //logStream.flush();  // Ensure data is flushed out to detect errors early.
 
         // Ensure the data was successfuly written and report any errors.
-        checkLogStream();
+        checkLogStream(); */
     }
 }
 
