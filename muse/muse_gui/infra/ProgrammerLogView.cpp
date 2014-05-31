@@ -13,7 +13,7 @@ ProgrammerLogView::ProgrammerLogView(QWidget *parent) :
     logDisplay.setWordWrapMode(QTextOption::NoWrap);
     // Organize components in this widget for display.
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(&logToolBar);
+    layout->addWidget(logToolBar);
     layout->addWidget(&logDisplay, 100);
     this->setLayout(layout);
     // Handle signals about changes in log
@@ -43,7 +43,7 @@ ProgrammerLogView::updateLog() {
 }
 
 void ProgrammerLogView::updateFileName(){
-    fileNameDisplay.setText(ProgrammerLog::get().getLogFileName());
+    fileNameDisplay->setText(ProgrammerLog::get().getLogFileName());
 }
 
 void ProgrammerLogView::callSave(){
