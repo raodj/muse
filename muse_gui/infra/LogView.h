@@ -62,6 +62,7 @@ public:
      * screen.
      */
     LogView(QWidget *parent = 0);
+    ~LogView();
 
     /**
      * @brief Updates the log entry with the newest information. This is an abstract
@@ -109,10 +110,10 @@ protected slots:
 
 protected:
     //Log *log;
-    QLineEdit fileNameDisplay;
+    QLineEdit* fileNameDisplay;
     QAction* changeLogFileName;
-    QToolButton saveToggleButton;
-    QToolBar logToolBar;
+    QToolButton* saveToggleButton;
+    QToolBar* logToolBar;
     bool shouldSave;
 
 private:
