@@ -10,7 +10,19 @@ class UserLogView : public LogView {
     Q_OBJECT
 public:
     UserLogView(QWidget *parent = 0);
-    
+
+signals:
+    /**
+     * @brief saveLog Alerts the GUI that the user log needs to be saved to the file.
+     * The int parameter sent by the signal is passed to the UserLog's write().
+     *
+     * /note
+     * This means the QComboBox of log levels MUST remain consistent with the Logger
+     * enumerated levels in terms of the order they are listed.
+     */
+    void saveLog(int);
+
+
 protected slots:
     void updateLog();
 
@@ -19,6 +31,13 @@ protected slots:
      * class' getLogFileName().
      */
     virtual void updateFileName();
+
+    /**
+     * @brief prepareForSave Helper slot/method that allows for the saveLog()
+     * signal to be triggered with its necessary parameter of the lowest level
+     * of log entry severity to be saved to the log file.
+     */
+    void prepareForSave();
 
 private:
     QTableView logDisplay;
@@ -29,6 +48,7 @@ private:
     void addWidgetsToToolBar();
 
     QComboBox loggingLevelSelector;
+    QAction* testSaver;
 };
 
 #endif // USER_LOG_VIEW_H

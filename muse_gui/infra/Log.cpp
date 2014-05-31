@@ -62,6 +62,7 @@ Log::setLogFileName(const QString& fileName) {
         QString msg = "Error opening log file ('" + fileName +
                 "') for appending: " + logFile.errorString();
         emit errorSavingLog(msg);
+        emit saveStatusChanged(false);
         return false; // error!
     }
     // Setup the new file as the destination for streamling logs.

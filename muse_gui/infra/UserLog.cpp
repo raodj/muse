@@ -57,13 +57,15 @@ UserLog::getLevel(const int row) const {
     return logData.logEntries[row].level;
 }
 
+
 void
-UserLog::write(QTextStream& os) {
-    for(int i = 0; ((os.status() == QTextStream::Ok) &&
+UserLog::writeAllEntries(const int lowestLevelToShow) {
+    for(int i = 0; ((logStream.status() == QTextStream::Ok) &&
                     (i < logData.logEntries.size())); i++) {
-        os << logData.logEntries[i] << endl;
+        if(getLevel(i) >= lowestLevelToShow)
+            logStream << logData.logEntries[i] << endl;
     }
-    os.flush();
+    checkLogStream();
 }
 
 void
@@ -74,11 +76,28 @@ UserLog::appendLogEntry(const Logger::LogLevel level,
     // Let views (if any) know the model/data has changed
     emit logChanged();
     // Stream the log entry to the log file (if it has been setup).
+    const int lastRow = logData.logEntries.size() - 1;
     if (isLogStreamGood()) {
-        const int lastRow = logData.logEntries.size() - 1;
-        logStream << logData.logEntries[lastRow];
-        logStream.flush();  // Ensure data is flushed out to detect errors early.
+        emit saveNewestEntry();
+        logStream << logData.logEntries[lastRow]<<endl;//endl flushes the data
+
+        //logStream.flush();  // Ensure data is flushed out to detect errors early.
+
         // Ensure the data was successfuly written and report any errors.
+        checkLogStream();
+    }
+}
+
+void
+UserLog::writeLastEntry(const int lowestLevelToShow) {
+    //Under normal use, this would have been checked in
+    //UserLog::appendLogEntry(), but in case this method
+    //is called from a different source, we still need to
+    //check.
+    if(isLogStreamGood()) {
+        const int lastRow = logData.logEntries.size() - 1;
+        if(getLevel(lastRow) >= lowestLevelToShow)
+            logStream << logData.logEntries[lastRow] << endl;
         checkLogStream();
     }
 }

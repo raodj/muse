@@ -46,8 +46,6 @@ LogView::LogView(QWidget *parent) : QWidget(parent){
 }
 
 LogView::~LogView(){
-    //fileNameDisplay = NULL;
-    //delete changeLogFileName;
 }
 
 void
@@ -105,6 +103,7 @@ LogView::updateSavePreference(bool saveEnabled) {
 
 void
 LogView::saveErrorNotification(const QString& errMsg) {
+    saveToggleButton->setEnabled(false);
     QMessageBox msgBox;
     msgBox.setText("An error occured when saving the log file.");
     msgBox.setDetailedText(errMsg);

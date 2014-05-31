@@ -39,6 +39,12 @@ UserLogView::UserLogView(QWidget *parent) : LogView(parent), logDisplay(this) {
     //Connect signal to detect an error in saving the log.
     connect(&uLog, SIGNAL(errorSavingLog(QString)),
             this, SLOT(saveErrorNotification(QString)));
+
+    //Connect signal to append the latest entry to the log file.
+    connect(&uLog, SIGNAL(saveNewestEntry()), this, SLOT(prepareForSave()));
+
+    //Connect signal to actually save the file.
+    connect(this, SIGNAL(saveLog(int)), &uLog, SLOT(writeLastEntry(int)));
 }
 
 void
@@ -65,4 +71,9 @@ UserLogView::addWidgetsToToolBar() {
 void
 UserLogView::updateFileName() {
     fileNameDisplay->setText(UserLog::get().getLogFileName());
+}
+
+void
+UserLogView::prepareForSave() {
+    emit saveLog(loggingLevelSelector.currentIndex());
 }

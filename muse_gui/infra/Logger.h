@@ -138,14 +138,6 @@ public:
      */
     static QString toString(const LogLevel level);
 
-    /**
-     * @brief Returns a numerical representation of the level's importance,
-     * with 0 being least important. Returns -1 if the parameter is not
-     * a valid LogLevel.
-     * @param level The string representation of the LogLevel
-     * @return An int representing the relative importance of the LogLevel.
-     */
-    static int toInt(const QString &level);
 
     /**
      * @brief Logger Constructor used to create a logger object that cuts

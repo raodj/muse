@@ -54,17 +54,11 @@ public slots:
      */
     void updateFileName();
 
-    /**
-     * @brief Tells this UserLogView to call the save method of the log it belongs
-     * to. This must be done in order to pass the necessary parameters correctly without
-     * the signals and slots getting in the way.
-     */
-    void callSave();
+
 
 
 private:
     QTextEdit logDisplay;
-    //ProgrammerLog *log;
 
 };
 
