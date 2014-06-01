@@ -1,5 +1,6 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVER_LIST_CPP
+#define SERVER_LIST_CPP
+
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,24 +37,12 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include "DnDTabWidget.h"
+#include "ServerList.h"
+#include <QDebug>
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+ServerList::ServerList() : XMLElement("ServerList") {
+    // Register elements in the order in which they shlould occurr.
+    addElement(XMLElementInfo("Server", &servers));
+}
 
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
-
-private:
-    DnDTabWidget *desktop;
-};
-
-#endif // MAIN_WINDOW_H
+#endif
