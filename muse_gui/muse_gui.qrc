@@ -12,4 +12,7 @@
         <file alias="SaveLog.png">images/16x16/SaveLog.png</file>
         <file alias="DontSaveLog.png">images/16x16/DontSaveLog.png</file>
     </qresource>
+    <qresource prefix="/resources">
+        <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>
+    </qresource>
 </RCC>

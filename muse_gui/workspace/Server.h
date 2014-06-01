@@ -1,0 +1,293 @@
+#ifndef SERVER_H
+#define SERVER_H
+
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
+
+#include "XMLElement.h"
+
+/**
+ * @brief The Server class that encapsulates information regarding a Server entry
+ * in a Workspace.
+ *
+ * A Server entry represents either a single stand alone machine or the head node
+ * of a supercomputing cluster on which Jobs can be run. A server entry
+ * encapsulates all the information needed to access the server and run jobs on it.
+ * In addition, it also provides the necessary infrastructure for marshaling and
+ * unmarshaling data for persisting the information in a XML configuration file.
+ */
+class Server : public XMLElement {
+public:
+    // Predefined constants consistent with XML schema values for the server status.
+    /**
+     * @brief Installing This server status indicates that the GUI is making
+     * attempt to install the runtime subsystem of PEACE onto the server.
+     * This is a
+     * relatively long-running process and the server can be in this
+     * state for 5-10 minutes initially. After that a server never
+     * transitions to this state.
+     */
+    static const QString Installing;
+
+    /**
+     * @brief InstallFailed This status indicates that the installation process of
+     * the server failed and the server is unusable.
+     */
+    static const QString InstallFailed;
+
+    /**
+     * @brief Good This status string indicates the server is good to go
+     * and is ready for further use.
+     */
+    static const QString Good;
+
+    /**
+     * @brief Uninstalling This status string indicates that the GUI is in the
+     * process of uninstalling the runtime subsystem of PEACE from the remote
+     * machine. In this state, the server is not usable.
+     */
+    static const QString Uninstalling;
+
+    /**
+     * @brief UninstallFailed This state string indicates that the uninstall
+     * attempt on the server has failed. The server is now in an undefined state
+     * and the user must try to clean up the entry manually.
+     */
+    static const QString UninstallFailed;
+
+    /**
+     * @brief ConnectFailed The previous attempt to talk to the server failed
+     * and the user needs to diagnose this server.
+     */
+    static const QString ConnectFailed;
+
+    // Predefined constants for the server type.
+
+    /**
+     * @brief Linux This predefined string constant identifies the type of the OS
+     * on this server to be Linux.
+     */
+    static const QString Linux;
+
+    /**
+     * @brief Unix This predefined string constant identifies the type of the OS
+     * on this server to be Unix/BSD.
+     */
+    static const QString Unix;
+
+    /**
+     * @brief Windows This predefined string constant identifies the type of the OS
+     * on this server to be Windows.
+     */
+    static const QString Windows;
+
+    /**
+     * @brief UnknownOS This predefined string constant is used denote OS whose
+     * actual type is not known.
+     */
+    static const QString UnknownOS;
+
+     /**
+     * @brief Server  The constructor merely initializes all the instance
+     * variables using the supplied parameters.
+     *
+     * This constructor does not perform any specific sanity checks on the
+     * parameters.  The constructor has default values set to aid unmarshalling
+     * objects from XML. Consequently, it is the caller's responsibility to
+     * ensure that the argument values have been validated piror to creating
+     * a server entry. The parameter values are mostly obtained from the user
+     * (via a suitable GUI dialog).
+     *
+     * @param ID A unique identifier for this Server entry. For new Server
+     * entries  this value is obtained via the ServerList.reserveServerID() method.
+     *
+     * @param remote If this flag is true, then the entry is a remote server
+     * entry. Otherwise the entry is for local machine.
+     *
+     * @param name The domain name (or IP address) to be used for accessing
+     * this server. For local machine, this value is simply set to null.
+     *
+     * @param port The port number (meaningful only for remote servers)
+     * over which secure connections are to be established. The default
+     * value is 22.
+     *
+     * @param description A user-assigned description for this server entry.
+     * The description can be anything the user chooses to assign.
+     *
+     * @param userID The login user ID to be used for accessing remote
+     * clusters. For the local machine, this value is set to null.
+     *
+     * @param installPath The location on the Server where PEACE is installed
+     * and the necessary runtime components of PEACE are located.
+     *
+     * @param osType The type of operating system running on the server.
+     * This value must be one of the predefined operating system types.
+     *
+     * @param status The initial status for this server (if any). The server
+     * status must be one of the predefined constant status values from this
+     * class.
+     */
+    Server(QString ID = "", bool remote = false, QString name = "", int port = 22,
+           QString description = "", QString userID = "", QString installPath = "",
+           QString osType = UnknownOS, QString status = Installing);
+
+    /**
+     * @brief ~Server The destructor.
+     *
+     * This class does not explicitly use any dynamic memory and consequenlty the
+     * destructor does not have any specific functionality. It is present as
+     * a plase holder (for any future extensions) and to adhere to coding
+     * conventions.
+     */
+    ~Server() {}
+
+    /**
+     * @brief getID Returns the workspace-unique ID assigned for this server
+     * entry.
+     *
+     * This value is used to make cross references to this server entry in
+     * other artifacts on the workspace.
+     *
+     * @return Return the workspace-unique ID assigned for this server entry.
+     */
+    QString getID() const { return ID; }
+
+    /**
+     * @brief getName Returns the server's domain name (or IP address) set
+     * for this server entry.
+     *
+     * The value returned by this method is typically the value that was set
+     * when this server entry was created (as the name is never directly
+     * changed).
+     *
+     * @return The server's domain name (or IP address).
+     */
+    QString getName() const { return name; }
+
+protected:
+    // Currently this class does not have any protected members.
+
+private:
+    /**
+     * @brief ID A unique identifier for this Server entry.
+     *
+     * For new Server entries this value is obtained via the
+     * Workspace.reserveID("Server") method.
+     */
+    QString ID;
+
+    /**
+     * @brief remote This instance variable indicates if this server entry
+     * represents a local or a remote server. If this flag is true then
+     * this entry corresponds to a remote server which will require a SSH
+     * connnection to access.
+     */
+    bool remote;
+
+    /**
+     * @brief name The domain name (such as: redhawk.hpc.muohio.edu) or
+     * IP address (such as: 134.53.13.131) to be used for accessing
+     * the server. For local machine, this value is simply set to an
+     * empty string.
+     */
+    QString name;
+
+    /**
+     * @brief port The port number over which remote servers are to be
+     * contacted.
+     *
+     * For most traditional SSH installations, the default port is 22.
+     * However, for non-traditional hosts, the port number can vary.
+     * Varying the port number permits creation of tunnels etc. which
+     * makes it convenient to work around fire walls or with multiple
+     * clients.
+     *
+     * \note The port number is meaningful only for remote servers
+     * whose remote flag is set to true.
+     */
+    int port;
+
+    /**
+     * @brief description A user-assigned description for this server entry.
+     *
+     * The description can be anything the user chooses. This is meant
+     * to be meaningful only to the user.
+     */
+    QString description;
+
+    /**
+     * The login user ID to be used for accessing remote
+     * clusters. For the local machine, this value is set to null.
+     */
+    /**
+     * @brief userID The login ID to be used for logging into the remote
+     * machine.
+     */
+    QString userID;
+
+    /**
+     * The location on the Server where PEACE is installed
+     * and the necessary runtime components of PEACE are located.
+     */
+    QString installPath;
+
+    /**
+     * @brief status The current operational status of this server. This value
+     * changes periodically as the server is installed, used, and
+     * uninstalled.  The value in this variable is one of the predefined
+     * constants Installing, InstallFailed, Good, Uninstalling,
+     * UninstallFailed, or ConnectFailed.
+     *
+     */
+    QString status;
+
+    /**
+     * @brief osType The operating system type for this server. This value
+     * is determined when a new OS entry is added to a workspace.
+     * This value is persisted in the workspace and restored when
+     * a workspace is loaded.  The values are one of the predefined
+     * constants Linux, Unix, or Windows.
+     */
+    QString osType;
+
+    /**
+     * @brief password This is a transient field that is never persisted
+     *(for security purposes). Typically, it is set once (each time the GUI
+     * is run) when an attempt is made to access the server.
+     */
+    QString password;
+};
+
+#endif // SERVER_H

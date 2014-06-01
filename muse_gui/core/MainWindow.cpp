@@ -40,9 +40,13 @@
 #include "MainWindow.h"
 #include "ProgrammerLogView.h"
 #include "UserLogView.h"
+#include "Workspace.h"
 #include "Logger.h"
 #include "Version.h"
 #include <QLabel>
+#include <QDir>
+#include <QTimer>
+#include <QShowEvent>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -50,12 +54,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     desktop = new DnDTabWidget(parent, "Desktop", true);
     // Set the desktop as the central widget
     this->setCentralWidget(desktop);
-    // Add a couple of dummy tabs to the desktop for testing?
-    // desktop->createSplitPane(new QLabel("Testing!"), "Testing", DnDTabBar::CENTER);
-    // desktop->createSplitPane(new QLabel("Second"), "Second", DnDTabBar::CENTER);
     // Create default user and programmer log views
     DnDTabWidget* const bottomTab =
-            desktop->createSplitPane(new UserLogView(), "User Log", DnDTabBar::BOTTOM,
+            desktop->createSplitPane(new UserLogView(), "User Log",
+                                     DnDTabBar::BOTTOM,
                                      QIcon(":/images/32x32/user_logs.png"));
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
@@ -68,7 +70,11 @@ MainWindow::~MainWindow() {
 
 void
 MainWindow::showEvent(QShowEvent *event) {
-    Q_UNUSED(event);
+    // Let base class do the necessary operations
+    QMainWindow::showEvent(event);
+    if (event->spontaneous()) {
+        return;
+    }
     // Cut some initial programmer logs with disclaimers.
     progLog() << endl << QString(80, '-') << endl
               << FULL_TITLE << endl << MUSE_GUI_VERSION
@@ -78,6 +84,32 @@ MainWindow::showEvent(QShowEvent *event) {
     // Cut some initial user logs.
     userLog() << FULL_TITLE << endl << MUSE_GUI_VERSION;
     userLog() << MUSE_GUI_RELEASE_DATE << endl << MUSE_GUI_COPYRIGHT;
+    // Setup signal to create/load workspace. This should eventually become
+    // a dialog that permits the user to choose a workspace even before
+    // the main window is launched.
+    QTimer::singleShot(50, this, SLOT(createLoadDefaultWorkspace()));
+}
+
+void
+MainWindow::createLoadDefaultWorkspace() {
+    // Try and load the default workspace first.
+    const QString homeDir = QDir::homePath();
+    QString errMsg = Workspace::useWorkspace(homeDir);
+    if (errMsg != "") {
+        userLog(Logger::LOG_WARNING)
+                << "Default workspace file was not found in " << homeDir << " [" << errMsg << "]";
+        userLog(Logger::LOG_WARNING)
+                << "Attempting to create default workspace in " << homeDir;
+        if ((errMsg = Workspace::createWorkspace(homeDir)) == "") {
+            userLog() << "Successfully created workspace in " << homeDir;
+        }
+    }
+    if (errMsg == "") {
+        userLog() << "Using workspace in directory " << homeDir;
+    } else {
+        userLog(Logger::LOG_ERROR) << "Error creating/using workspace in "
+                                   << homeDir << " - " << errMsg;
+    }
 }
 
 #endif

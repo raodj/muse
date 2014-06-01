@@ -209,7 +209,7 @@ public:
      *   contains the actual log entry) that already contains the formatted
      *   information (if any) from the previous feature. Additional log
      *   information can be conveniently appended/inserted into this stream.
-     *
+     *Logger::)
      * @note Typically the this method would never be directly used in the
      * source code.  Instead, convenience macros progLog() or userLog() defined
      * in this header file must be used to create log entries.
