@@ -4,6 +4,19 @@
 #include <QObject>
 #include <QDebug>
 
+/**
+ * @brief The FSEntry class provides a cross-platform consistent API for
+ * managing drives, files, and directories.
+ *
+ * This class represents the core entries in a file system, including:
+ * drives, directories, and files entries.  The class exposes an
+ * API that is independent of the underlying operating system.  Consequently,
+ * the LocalFSHelper and RemoteFSHelper can utilize the FSEntry class to
+ * represent file system artifacts in a consistent manner for populating
+ * the generic FileSystemModel (which in turn is used for display
+ * and other operations by the CustomFileDialog).
+ *
+ */
 class FSEntry {
     friend QDebug operator<<(QDebug dbg, const FSEntry& entry);
 public:
@@ -54,16 +67,34 @@ public:
     inline bool isTempEntry() const { return (flags & TEMP_FLAG) > 0; }
 
     /**
-     * @brief setPerm Sets the permissions of this FSEntry.
-     * @param category The permissions category.
-     * @param currPerms The current permissions of this FSEntry.
+     * @brief setPerm Helps build the permission bits for an FSEntry.
+     *
+     * This static method provides a convenience API for setting/constructing
+     * file permissions. Specifically, this method provides an API for
+     * composing bits for a specific category. This method is used by
+     * LocalFSHelper and RemoteFSHelper classes to normalize the file
+     * permissions from different operating systems to the consistent API
+     * explosed by the FSEntry class.
+     *
+     * @param category The permissions category. This is one of the
+     * predefined values corresponding to user, group, or owner permission.
+     *
+     * @param currPerms The current permissions of this FSEntry. This value
+     * is embodied in the new set of permissions returned by this method.
+     * The default initial value is zero.
+     *
      * @param canRead The new permission on whether or not the file
-     * can be read.
+     * can be read, from the context of the permission category specified.
+     *
      * @param canWrite The new permission of whether or not the file
-     * can be written to.
+     * can be written to, from the context of the permission category.
+     *
      * @param canExecute The new permission of whether or not the
-     * file can be executed.
-     * @return
+     * file can be executed, from the context of the permission category.
+     *
+     * @return This method returns an aggregate set of permission bits
+     * based on the currPerms and the set of permissions specified for
+     * the given permission category.
      */
     static int setPerm(const PermCategory category, int currPerms,
                        const bool canRead, const bool canWrite,

@@ -87,6 +87,22 @@ public:
      */
     bool canFetchMore(const QModelIndex& parent) const;
 
+    /**
+     * @brief toRoot Convenience method to convert a given index (typically
+     * a directory) to become the "logical" root element for display.
+     *
+     * This method enables mapping a given index (that was previously
+     * obtained from this file system model) to become the "logical" root
+     * element.  The "logical" root index can then be used to display
+     * the information in another model.  Currently, this method is
+     * unused.
+     *
+     * @param index The index from this model to be mapped as a "logical"
+     * root element.
+     *
+     * @return A model index with the element in index mapped to be the
+     * root element.
+     */
     QModelIndex toRoot(const QModelIndex& index) const;
 
     /**
@@ -134,6 +150,7 @@ protected:
      * @param dir The FileSystem entry of the parent directory.
      */
     void startLoading(const QModelIndex &parent, const FSEntry& dir) const;
+
     mutable QStringList pendingLoads;
 
     /**
@@ -143,7 +160,10 @@ protected:
      *
      * Signals sent are: layoutAboutToBeChanged(), dataChanged(),
      * and layoutChanged().
-     * @param parent
+     *
+     * @param parent The entry in the file system model whose information
+     * (or underlying information) has changed/been updated by background
+     * worker threads.
      */
     void signalModelChanges(const QModelIndex &parent);
 
