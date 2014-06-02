@@ -8,11 +8,14 @@ QT       += core gui xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
+LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
+
 TARGET = muse_gui
 TEMPLATE = app
 
 INCLUDEPATH += infra
 INCLUDEPATH += infra/xml
+INCLUDEPATH += infra/ssh
 INCLUDEPATH += workspace
 INCLUDEPATH += core
 
@@ -41,7 +44,22 @@ SOURCES +=\
     workspace/Workspace.cpp \
     workspace/ServerList.cpp \
     workspace/Server.cpp \
-    infra/xml/XMLRootElement.cpp
+    infra/xml/XMLRootElement.cpp \
+    infra/ssh/SshSocket.cpp \
+    infra/ssh/SSHKnownHosts.cpp \
+    infra/ssh/SshException.cpp \
+    infra/ssh/SFtpDir.cpp \
+    infra/ssh/SFtpChannel.cpp \
+    infra/ssh/LoginCredentialsDialog.cpp \
+    core/filediag/RemoteFSHelper.cpp \
+    core/filediag/LocalFSHelper.cpp \
+    core/filediag/LineEditDelegate.cpp \
+    core/filediag/FSMAsyncHelper.cpp \
+    core/filediag/FSHelperCommon.cpp \
+    core/filediag/FSEntry.cpp \
+    core/filediag/FileSystemModel.cpp \
+    core/filediag/CustomFileDialog.cpp \
+    core/filediag/DirFilterProxyModel.cpp
 
 
 HEADERS  += \
@@ -69,7 +87,25 @@ HEADERS  += \
     infra/xml/XMLElement.h \
     workspace/Workspace.h \
     workspace/ServerList.h \
-    workspace/Server.h
+    workspace/Server.h \
+    infra/ssh/SshSocket.h \
+    infra/ssh/SSHKnownHosts.h \
+    infra/ssh/SshException.h \
+    infra/ssh/SFtpDir.h \
+    infra/ssh/SFtpChannel.h \
+    infra/ssh/LoginCredentialsDialog.h \
+    core/filediag/RemoteFSHelper.h \
+    core/filediag/LocalFSHelper.h \
+    core/filediag/LineEditDelegate.h \
+    core/filediag/FSMAsyncHelper.h \
+    core/filediag/FSHelperCommon.h \
+    core/filediag/FSHelper.h \
+    core/filediag/FSEntry.h \
+    core/filediag/FileSystemModel.h.bak \
+    core/filediag/FileSystemModel.h \
+    core/filediag/FileSystemModel.cpp.bak \
+    core/filediag/CustomFileDialog.h \
+    core/filediag/DirFilterProxyModel.h
 
 
 OTHER_FILES += \

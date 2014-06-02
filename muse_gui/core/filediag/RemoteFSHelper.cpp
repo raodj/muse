@@ -1,0 +1,147 @@
+#include "RemoteFSHelper.h"
+#include "SshSocket.h"
+
+#include <QThread>
+
+RemoteFSHelper::RemoteFSHelper(SshSocket *ssh, const bool deleteSocket) :
+    ssh(ssh), deleteSocket(deleteSocket),
+    root(ssh->peerName(), -1, -1, FSEntry::COMPUTER_FLAG) {
+    connect(this, SIGNAL(needSocket(QThread*,SshSocket*)),
+            this, SLOT(moveToThread(QThread*,SshSocket*)),
+            Qt::BlockingQueuedConnection);
+}
+
+RemoteFSHelper::~RemoteFSHelper() {
+    if (deleteSocket) {
+        delete ssh;
+    }
+}
+
+const FSEntry&
+RemoteFSHelper::getRoot() const {
+    return root;
+}
+
+QString
+RemoteFSHelper::getSeparator() const {
+    return "/";
+}
+
+void
+RemoteFSHelper::moveToThread(QThread *thread, SshSocket *ssh) {
+    ssh->moveToThread(thread);
+    qDebug() << "Moved socket to thread.";
+}
+
+QString
+RemoteFSHelper::getHomePath() const {
+    QString home = "";
+    try {
+        // Create a Sftp channel to obtain home path.
+        Q_ASSERT(ssh != NULL);
+        SFtpChannel sftp(*ssh);
+        home = sftp.getPwd();
+    } catch (const SshException & se) {
+        // How to log-it?
+    }
+    qDebug() << "* Home = " << home;
+    return home;
+}
+
+const FSEntryList*
+RemoteFSHelper::getEntries(const FSEntry& dir) const {
+    // If base class has entry in cache, we return it immedately
+    const FSEntryList *entryList = FSHelperCommon::getEntries(dir);
+    if (entryList != NULL) {
+        // Found entry in cache. Nothing further to do.
+        return entryList;
+    }
+    // Entry not found in cache. We have to load entries.
+    populateCache(dir);
+    return FSHelperCommon::getEntries(dir);
+}
+
+bool
+RemoteFSHelper::populateCache(const FSEntry &parentDir) const {
+    Q_ASSERT (parentDir.isValid());
+    // If the cache already contains an entry do nothing further.
+    if (parentDir.isValid() && fsCache.contains(parentDir)) {
+        return true;
+    }
+    // Get path based on the parent directory
+    QString path = parentDir.isComputer() ? "/" : parentDir.getPath();
+    path += (path.endsWith("/") ? "" : "/");
+    // The following list is populated in the following try-catch block.
+    FSEntryList cacheEntries;
+    try {
+        // Create a Sftp channel to obtain the necessary information
+        Q_ASSERT(ssh != NULL);
+        if (ssh->thread() != QThread::currentThread()) {
+            emit const_cast<RemoteFSHelper*>(this)->needSocket(QThread::currentThread(), ssh);
+        }
+        SFtpChannel sftp(*ssh);
+        // Get the convenience class to obtain entries in the directory
+        SFtpDir dir = sftp.getDir(path);
+        // Depending on parent add the root directory or entries in the directory
+        parentDir.isComputer() ? addDir(parentDir, dir, cacheEntries) :
+                                 addEntries(parentDir, dir, cacheEntries);
+        // Add the cache entries to the cache.
+        fsCache.insert(parentDir, cacheEntries);
+        qDebug() << "Loaded data = " << parentDir << "(" << &parentDir << ")";
+        return true;
+    } catch (const SshException &se) {
+        // Should we log it somehow?
+        qDebug() << se.getMessage();
+        // Add an empty cache entry to avoid repeated checking.
+        fsCache.insert(parentDir, cacheEntries);
+    }
+    // Failed to add entries to cache!
+    return false;
+}
+
+void
+RemoteFSHelper::addDir(const FSEntry &parentDir,
+                       SFtpDir &dir, FSEntryList &list) const
+throw (const SshException &) {
+    // Get information about the directory itself.
+    long size  = -1, timestamp = -1;
+    int  flags = -1;
+    dir.getInfo(size, timestamp, flags);
+    // Add information to the list.
+    list.append(FSEntry(dir.getPath(), size, timestamp,
+                        convert(flags), &parentDir));
+
+}
+
+void
+RemoteFSHelper::addEntries(const FSEntry &parentDir,
+                           SFtpDir &dir, FSEntryList &list) const
+throw (const SshException &) {
+    // Extract and setup path for use further below.
+    const QString path = dir.getPath();
+    // Repeatedly get entry and add it to the cacheEntries list
+    QString name;
+    long size  = -1, timestamp = -1;
+    int  flags = -1;
+    while (dir.getEntry(name, size, timestamp, flags)) {
+        if ((name == ".") || (name == "..")) {
+            continue;
+        }
+        // Convert the entry information list into a portable FSEntry object
+        list.append(FSEntry(path + name, size, timestamp,
+                            convert(flags), &parentDir));
+    }
+}
+
+int
+RemoteFSHelper::convert(const int sftpFlags) const {
+    const int flags =
+            FSEntry::setAttributes(0, sftpFlags & LIBSSH2_SFTP_S_IFDIR,
+                                   sftpFlags & LIBSSH2_SFTP_S_IFLNK,
+                                   0) |
+            FSEntry::setPerm(FSEntry::OWNER_PERM, 0,
+                             sftpFlags & LIBSSH2_SFTP_S_IRUSR,
+                             sftpFlags & LIBSSH2_SFTP_S_IWUSR,
+                             sftpFlags & LIBSSH2_SFTP_S_IXUSR);
+    return flags;
+}

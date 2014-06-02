@@ -1,0 +1,183 @@
+#include "FileSystemModel.h"
+#include <QWidget>
+#include <QDateTime>
+
+FileSystemModel::FileSystemModel(QWidget *parent) :
+    QAbstractItemModel(parent) {
+}
+
+FileSystemModel::~FileSystemModel() {
+    // Nothing to be done here.
+}
+
+QVariant
+FileSystemModel::headerData(int section, Qt::Orientation orientation,
+                            int role) const {
+    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
+        return QVariant();
+    }
+    switch (section) {
+    case 0: return QString("Name");
+    case 1: return QString("Size");
+    case 2: return QString("Last Modified");
+    case 3: return QString("Flags");
+    }
+    return QVariant();
+}
+
+QVariant
+FileSystemModel::data(const QModelIndex& index, int role) const {
+    if (role != Qt::DisplayRole) {
+        return QVariant();
+    }
+    if (!index.isValid()) {
+        return QString("");
+    }
+    const FSEntry *entry = reinterpret_cast<const FSEntry*>(index.internalPointer());
+    switch (index.column()) {
+    case 0: return entry->getPath();
+    case 1: return QString::number(entry->getSize());
+    case 2: return QDateTime::fromTime_t(entry->getTimestamp()).toString();
+    case 3: return QString::number(entry->getFlags());
+    }
+    return QString("");
+}
+
+QModelIndex
+FileSystemModel::index(int row, int column, const QModelIndex &parent) const {
+    // If the parent is cached in our fsCache then return it directly
+    const FSEntryList *cacheEntry = getCacheEntry(parent);
+    if (cacheEntry != NULL) {
+        FSEntry &subEntry = const_cast<FSEntry &>(cacheEntry->at(row));
+        return createIndex(row, column, &subEntry);
+    }
+    // Entry not found in cache. Try and populate cache.
+    QString root = getRoot();
+    if (parent.isValid()) {
+        const FSEntry *entry = reinterpret_cast<FSEntry*>(parent.internalPointer());
+        root = entry->getPath();
+    }
+    // Use helper method to pouplate cache entries
+    if (populateCache(root)) {
+        // Return the cached entry back to the caller.
+        const FSEntryList *cachedEntryList = getCacheEntry(parent);
+        FSEntry &subEntry = const_cast<FSEntry &>(cachedEntryList->at(row));
+        return createIndex(row, column, &subEntry);
+    }
+    // Return an invalid index.
+    return QModelIndex();
+}
+
+QModelIndex
+FileSystemModel::parent(const QModelIndex & index) const {
+    if (!index.isValid() || (index.internalPointer() == NULL)) {
+        return index; // invalid index
+    }
+    const FSEntry *path = reinterpret_cast<const FSEntry*>(index.internalPointer());
+    QDir dir(path->getPath());
+    if (dir.cdUp() && !dir.isRoot()) {
+        if (populateCache(dir.absolutePath())) {
+            // Return cached parent directory information.
+            FSListMap::const_iterator entry =
+                    fsCache.find(FSEntry(dir.absolutePath()));
+            FSEntry &key = const_cast<FSEntry&>(entry.key());
+            return createIndex(0, 0, &key);
+        }
+    }
+    // Should file entries be handled separately?
+    return QModelIndex();
+}
+
+int
+FileSystemModel::rowCount(const QModelIndex &parent) const {
+    QString path = QDir::rootPath();
+    if (parent.isValid()) {
+        const FSEntry *entry = reinterpret_cast<const FSEntry*>(parent.internalPointer());
+        path = entry->getPath();
+    }
+    if (populateCache(path)) {
+        const FSEntryList* entryList = getCacheEntry(path);
+        Q_ASSERT( entryList != NULL );
+        return entryList->size();
+    }
+    return 0;
+}
+
+bool
+FileSystemModel::hasChildren(const QModelIndex &parent) const {
+    const FSEntryList *dirEntries = getCacheEntry(parent);
+    if (dirEntries != NULL) {
+        return dirEntries->size() > 0;
+    }
+    // No cached entries. But don't bother enumerating files
+    // in directories as the user may not drill-in.
+    if (parent.isValid() && (parent.internalPointer() != NULL)) {
+        const FSEntry *entry =
+                reinterpret_cast<FSEntry*>(parent.internalPointer());
+        return entry->isDir();
+    }
+    return false;
+}
+
+bool
+FileSystemModel::populateCache(const QString &dirPath) const {
+    // If the cache already contains an entry do nothing further.
+    if (fsCache.contains(FSEntry(dirPath))) {
+        return true;
+    }
+    // If the parent is not a directory, this is call is not very meanigful.
+    const QDir dir(dirPath);
+    if (!dir.exists()) {
+        return false;
+    }
+    // Obtain corresponding entry list in the parent directory.
+    const QFileInfoList dirEntries =
+            dir.entryInfoList(QDir::AllEntries | QDir::NoDotAndDotDot);
+    // Convert the entry information list into a portable FSEntry object
+    FSEntryList cacheEntries;
+    for(int i = 0; (i < dirEntries.size()); i++) {
+        const QFileInfo& fileInfo = dirEntries.at(i);
+        cacheEntries.append(convert(fileInfo));
+    }
+    // Add entries to cache for future reference
+    const QFileInfo parentInfo(dir.absolutePath());
+    const FSEntry key(parentInfo.absoluteFilePath(), parentInfo.size(),
+                      parentInfo.lastModified().toTime_t(), 0);
+    fsCache.insert(key, cacheEntries);
+    return true;
+}
+
+const FSEntryList*
+FileSystemModel::getCacheEntry(const QModelIndex& index) const {
+    if (!index.isValid() && (index.internalPointer() == NULL)) {
+        return getCacheEntry(QDir::rootPath());
+    } else if (index.internalPointer() != NULL) {
+        const FSEntry *key =
+                reinterpret_cast<const FSEntry*>(index.internalPointer());
+        FSListMap::const_iterator entry = fsCache.find(*key);
+        if (entry != fsCache.end()) {
+            // Found entry in the cache
+            return &(*entry);
+        }
+    }
+    return NULL;
+}
+
+const FSEntryList*
+FileSystemModel::getCacheEntry(const QString& path) const {
+    FSListMap::const_iterator entry = fsCache.find(FSEntry(path));
+    if (entry != fsCache.end()) {
+        // Found entry in the cache
+        return &(*entry);
+    }
+    return NULL;
+}
+
+FSEntry
+FileSystemModel::convert(const QFileInfo &info) const {
+    const int flags = FSEntry::setAttributes(0, info.isDir(), info.isSymLink()) |
+            FSEntry::setPerm(FSEntry::OWNER_PERM, 0, info.isReadable(),
+                             info.isWritable(), info.isExecutable());
+    return FSEntry(info.absoluteFilePath(), info.size(),
+                   info.lastModified().toTime_t(), flags);
+}
