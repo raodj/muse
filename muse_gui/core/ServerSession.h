@@ -37,11 +37,15 @@
 #define SERVERSESSION_H
 #include <iostream>
 #include <ostream>
+#include <QWidget>
+#include <QTextDocument>
 
-class QString;
-class QTextDocument;
+#include <QtGlobal>//until implementation of this class is made
+
+//class QString;
+//class QTextDocument;
 class Server;
-class QWidget;
+//class QWidget;
 class FileInfo;
 
 /**
