@@ -83,8 +83,20 @@ protected:
     void configureTableView();
 
     /**
-     * @brief addToolButton Adds a QPushButton to the toolbar. The button
-     * is built from the parameters of this method.
+     * @brief addToolButton Adds a QPushButton to the toolbar.
+     *
+     * This method provides a convenience API to add a button to the
+     * dialog's toolbar. The button is built from the parameters of this
+     * method. This method is currently an internal method that is used
+     * in the following manner:
+     *
+     * \code
+     *
+     * QPushButton *toolBtn =
+     * addToolButton(topBar, "ParentFolder", SLOT(toParentDir()),
+     *               "Navigate to the parent folder of current folder");
+     *
+     * \endcode
      *
      * @param toolBar The toolbar the button will be added to once
      * created.
@@ -93,12 +105,15 @@ protected:
      * as specified in the QRC file.
      *
      * @param slotMember The slot method that this button will be
-     * connected to.
+     * connected to. This is the name of the method to which the
+     * signals from this buton are dispatched to. An example argument
+     * to this parameter is shown in the earlier example.
      *
      * @param toolTip The toolTip to be displayed when the user hovers
      * over the icon or otherwise triggers the tooltip from the gui
      *
      * @return A pointer to the QPushButton that was created.
+     *
      */
     QPushButton* addToolButton(QToolBar* toolBar, const QString& iconName,
                                const char* slotMember,
@@ -193,7 +208,13 @@ protected slots:
     void toHomeDir();
 
     /**
-     * @brief selectLocalFS Sets up the local file system.
+     * @brief selectLocalFS Sets up the local file system as the current
+     * file system being operated on by this dialog.
+     *
+     * The custom file dialog has the ability to switch between the file
+     * systems on two (or more) machines. This method is used to implement
+     * a convenince API (typically via a button) through which the user
+     * can quickly switch to navigating the local file system.
      */
     void selectLocalFS();
 
@@ -211,10 +232,33 @@ protected slots:
     /**
      * @brief updating Provides visual indications to the user that
      * this CustomFileDialog is updating its view.
-     * @param parent The parent QModelIndex...
+     *
+     * This method is used to intercept asynchronous messages being
+     * dispatched by the file system model. The operations of loading
+     * data from a file system (typically a remote file system) are
+     * performed asychronously (using a pool of background worker
+     * threads) as they can be time consuming (at times can take a few
+     * seconds). This method intercepts the update notifications provided
+     * by the file system model and appropriately updates the corresponding
+     * display in the view provided by this class.
+     *
+     * @param parent The parent QModelIndex that indicates the directory
+     * or file entry that has been updated by the file system model.
+     * Currently, this method does not use this entry but rather refreshes
+     * the full display. In future this parameter could be honoured to
+     * selectively refresh the display (so as to reduce flickers/jarring
+     * when the whole display updates).  Instead, this method checks to
+     * ensure that the current user-selected directory to be loaded
+     * (indicated by the dirToLoad instance variable) has been loaded
+     * and if so, it updates the list of suggestions.
+     *
      * @param doneLoading Whether or not the background loading job
-     * is still executing or not.
-     * @param busyFlag Whether or not the dialog is busy.
+     * is still executing or if it has been completed.
+     *
+     * @param busyFlag Whether or not the file system is still busy updating
+     * other entries (or subdirectories). This method uses this flag to
+     * switch between a busy cursor (indicating to the user some background
+     * operation is still underway) or a normal cursor.
      */
     void updating(const QModelIndex& parent, bool doneLoading,
                   bool busyFlag);
