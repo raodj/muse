@@ -53,7 +53,7 @@ FileSystemModel::data(const QModelIndex& index, int role) const {
     // Obtain the entry from the index.
     const FSEntry *entry = reinterpret_cast<const FSEntry*>(index.internalPointer());
     if (role == FullPathRole) {
-        // The user want's the full path. Return it without much ado.
+        // The user wants the full path. Return it without much ado.
         return entry->getPath();
     } else if (role == Qt::DecorationRole) {
         if (index.column() == 0) {
