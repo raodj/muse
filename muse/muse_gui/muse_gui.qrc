@@ -11,6 +11,14 @@
         <file alias="ChangeLogFile.png">images/16x16/ChangeLogFile.png</file>
         <file alias="SaveLog.png">images/16x16/SaveLog.png</file>
         <file alias="DontSaveLog.png">images/16x16/DontSaveLog.png</file>
+        <file alias="CheckMark.png">images/16x16/CheckMark.png</file>
+        <file alias="CrossMark.png">images/16x16/CrossMark.png</file>
+        <file alias="HomDirectory.png">images/16x16/HomeDirectory.png</file>
+        <file alias="NewDirectory.png">images/16x16/NewDirectory.png</file>
+        <file alias="ParentFolder.png">images/16x16/ParentFolder.png</file>
+        <file alias="Refresh.png">images/16x16/Refresh.png</file>
+        <file alias="ViewGrid.png">images/16x16/ViewGrid.png</file>
+        <file alias="ViewList.png">images/16x16/ViewList.png</file>
     </qresource>
     <qresource prefix="/resources">
         <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>
