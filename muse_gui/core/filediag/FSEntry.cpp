@@ -20,7 +20,7 @@ FSEntry::setPerm(const PermCategory category, int currPerms,
                  const bool canRead, const bool canWrite,
                  const bool canExecute) {
     // First we compse lower set of bits associated with "Other"
-    // catoegry and then sift it left depending on PermCategory
+    // category and then sift it left depending on PermCategory
     const int currFlags = (canRead ? QFile::ReadOther : 0) |
             (canWrite   ? QFile::WriteOther : 0) |
             (canExecute ? QFile::ExeOther   : 0);

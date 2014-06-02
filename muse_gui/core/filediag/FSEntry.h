@@ -53,10 +53,30 @@ public:
     inline bool isLink() const { return (flags & LINK_FLAG) > 0; }
     inline bool isTempEntry() const { return (flags & TEMP_FLAG) > 0; }
 
+    /**
+     * @brief setPerm Sets the permissions of this FSEntry.
+     * @param category The permissions category.
+     * @param currPerms The current permissions of this FSEntry.
+     * @param canRead The new permission on whether or not the file
+     * can be read.
+     * @param canWrite The new permission of whether or not the file
+     * can be written to.
+     * @param canExecute The new permission of whether or not the
+     * file can be executed.
+     * @return
+     */
     static int setPerm(const PermCategory category, int currPerms,
                        const bool canRead, const bool canWrite,
                        const bool canExecute);
 
+    /**
+     * @brief setAttributes Sets the attributes of this FSEntry.
+     * @param currPerms The current permissions of this FSEntry.
+     * @param isDir Whether or not this FSEntry is a directory.
+     * @param isLink Whether or not this FSEntry is a link.
+     * @param isDrive Whether or not this FSEntry is a drive.
+     * @return
+     */
     static int setAttributes(int currPerms, const bool isDir,
                              const bool isLink, const bool isDrive);
 
