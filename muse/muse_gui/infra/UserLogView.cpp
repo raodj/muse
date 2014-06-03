@@ -45,14 +45,26 @@ UserLogView::UserLogView(QWidget *parent) : LogView(parent), logDisplay(this) {
 
     //Connect signal to actually save the file.
     connect(this, SIGNAL(saveLog(int)), &uLog, SLOT(writeLastEntry(int)));
+
+    //Connect signal to change the filter level on the log display
+    connect(&loggingLevelSelector, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(applyFilterToView(int)));
 }
 
 void
 UserLogView::updateLog() {
+
     // Ensure the last row where log was appended is now visible
     const int lastRow      = logDisplay.model()->rowCount() - 1;
-    QModelIndex modelIndex = logDisplay.model()->index(lastRow, 0);
-    logDisplay.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
+    //Check if the latest entry meets the filter requirements.
+    //If so, scroll and display it. Otherwise, hide it from view.
+    UserLog& uLog = UserLog::get();
+    if(uLog.getLevel(lastRow) >= loggingLevelSelector.currentIndex()){
+        QModelIndex modelIndex = logDisplay.model()->index(lastRow, 0);
+        logDisplay.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
+    }
+    else
+        logDisplay.hideRow(lastRow);
 }
 
 void
@@ -62,6 +74,7 @@ UserLogView::addWidgetsToToolBar() {
     loggingLevelSelector.addItem("Notice");
     loggingLevelSelector.addItem("Warnings");
     loggingLevelSelector.addItem("Errors");
+
     // Add a label and log-level selector to the tool bar
     logToolBar->addSeparator();
     logToolBar->addWidget(new QLabel("Set logging level:"));
@@ -76,4 +89,15 @@ UserLogView::updateFileName() {
 void
 UserLogView::prepareForSave() {
     emit saveLog(loggingLevelSelector.currentIndex());
+}
+
+void
+UserLogView::applyFilterToView(const int lowestLevelToShow) {
+    UserLog& uLog = UserLog::get();
+    for(int i = 0; i < logDisplay.model()->rowCount(); i ++) {
+        if(uLog.getLevel(i) >= lowestLevelToShow)
+            logDisplay.showRow(i);
+        else
+            logDisplay.hideRow(i);
+    }
 }

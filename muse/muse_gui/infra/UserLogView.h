@@ -39,6 +39,13 @@ protected slots:
      */
     void prepareForSave();
 
+    /**
+     * @brief applyFilterToView Applies the log filter to the GUI, only letting messages
+     * of greater or equal importance display on the GUI.
+     * @param lowestLevelToShow The lowest severity level of log entry to show.
+     */
+    void applyFilterToView(const int lowestLevelToShow);
+
 private:
     QTableView logDisplay;
     /**
