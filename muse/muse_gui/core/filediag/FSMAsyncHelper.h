@@ -7,11 +7,23 @@
 
 #include "FSHelper.h"
 
+/**
+ * @brief The FSMAsyncHelper class a threaded class that assists
+ * in the loading of files from the remote server in an
+ * asynchronus matter, meaning that the GUI will not be locked
+ * while this process is executing.
+ */
 class FSMAsyncHelper : public QObject, public QRunnable {
     Q_OBJECT
 public:
     FSMAsyncHelper(const QModelIndex &parent,
                    FSHelper* helper, const FSEntry& dir);
+
+    /**
+     * @brief run The threaded method that begins loading the
+     * directories requested by the user in the gui. Once complete,
+     * the method emits the entriesLoaded() signal.
+     */
     void run();
 
 signals:

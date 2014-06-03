@@ -18,6 +18,10 @@ public:
     FileSystemModel(QWidget* parent, FSHelper *helper);
     ~FileSystemModel();
 
+    /**
+     * @brief columnCount Gets the number of columns in the display.
+     * @return The number of columns.
+     */
     int columnCount(const QModelIndex & = QModelIndex()) const {
         return helper->getColumns();
     }
@@ -70,10 +74,10 @@ public:
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const;
 
     /**
-     * @brief headerData
-     * @param section
-     * @param orientation
-     * @param role
+     * @brief headerData Gets the header data for the specified object.
+     * @param section The section of the GUI that this object is found in.
+     * @param orientation The orientation of the layout of the objects in the GUI.
+     * @param role The object's display role.
      * @return The header that the data represents.
      */
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
@@ -119,7 +123,13 @@ public:
      */
     void flushCaches();
 
+    /**
+     * @brief getHelper Gets the FSHelper associated with this FileSystemModel.
+     * @return A pointer to the FSHelper associeated with this
+     * FileSystemModel.
+     */
     FSHelper* getHelper() const { return helper; }
+
     FSHelper* operator->() const { return helper; }
 
     /**

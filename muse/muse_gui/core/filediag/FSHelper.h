@@ -17,6 +17,11 @@ public:
      * @return The listing of entries.
      */
     virtual const FSEntryList* getEntries(const FSEntry& dir) const = 0;
+
+    /**
+     * @brief getRoot Gets the root of the current file system.
+     * @return The FSEntry of the root in the current file system.
+     */
     virtual const FSEntry&     getRoot() const = 0;
 
     /**
@@ -33,8 +38,20 @@ public:
      * @return The path to the parent as a QString.
      */
     virtual QString            getParentPath(const QString& path)  const = 0;
+
+    /**
+     * @brief getHomePath Gets the path to the home directory on
+     * this local file system.
+     * @return A QString representing the path to the home directory
+     */
     virtual QString            getHomePath() const = 0;
 
+    /**
+     * @brief getSeparator Gets the character used as a path separator
+     * for the file system. In Qt, this is always "/", regardless of
+     * the operating system.
+     * @return The QString representation of the path separator.
+     */
     virtual QString getSeparator() const = 0;
 
     /**
@@ -51,7 +68,21 @@ public:
      * @return The fileName of the item.
      */
     virtual QString getName(const QString& entry) const = 0;
+
+    /**
+     * @brief getColumns Gets the number of columns to use for
+     * display in the CustomFileDialog.
+     * @return The number of columns to use for displaying file and
+     * directory information.
+     */
     virtual int     getColumns() const = 0;
+
+    /**
+     * @brief hasChildren Indicates whether or not the specified
+     * directory has children.
+     * @param dir The FSEntry of interest.
+     * @return Whether or not the FSEntry has any children.
+     */
     virtual bool    hasChildren(const FSEntry& dir) const = 0;
 
     /**
