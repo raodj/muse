@@ -32,6 +32,15 @@ public:
 
     inline FSEntry() : path(""), size(-1), timestamp(-1), flags(INVALID_FLAG), parent(NULL) {}
 
+    /**
+     * @brief FSEntry A conveninece constructor to create an FSEntry quickly.
+     * @param fullPath The full path to the FSEntry being constructed.
+     * @param size The size of the file/directory that is being turned into an FSEntry.
+     * @param timestamp The timestamp on the file/directory that is being turned
+     * into an FSEntry.
+     * @param flags The set of flags to be initally set for the FSEntry.
+     * @param parent A pointer to the FSEntry of this FSEntry's parent.
+     */
     inline FSEntry(const QString& fullPath, const long size = -1,
                    const long timestamp = -1, const int flags = 0,
                    const FSEntry *parent = NULL) :
@@ -42,13 +51,42 @@ public:
 
     ~FSEntry() {}
 
+    /**
+     * @brief getPath Gets the path of this FSEntry.
+     * @return A QString representation of the path to this FSEntry.
+     */
     inline       QString& getPath()       { return path; }
+
+    /**
+     * @brief getPath Gets the path of this FSEntry.
+     * @return A QString representation of the path to this FSEntry.
+     */
     inline const QString& getPath() const { return path; }
 
-
+    /**
+     * @brief getSize Gets the size of this FSEntry.
+     * @return The size of this FSEntry.
+     */
     inline long getSize()  const { return size; }
+
+    /**
+     * @brief getTimestamp Gets the timestamp associated with this
+     * FSEntry.
+     * @return A long representing the timestamp.
+     */
     inline long getTimestamp() const { return timestamp; }
+
+    /**
+     * @brief getFlags Gets the flags associated with this FSEntry.
+     * @return An int representation of the flags.
+     */
     inline int  getFlags()     const { return flags; }
+
+    /**
+     * @brief getParent Gets the parent of this FSEntry.
+     * @return A pointer to the FSEntry to the parent of this
+     * FSEntry.
+     */
     inline const FSEntry* getParent() const { return parent; }
 
     inline bool operator<(const FSEntry& other) const {
@@ -59,11 +97,47 @@ public:
         return path == other.path;
     }
 
+    /**
+     * @brief isValid Returns true if this FSEntry is valid.
+     * @return A boolean indicating if this FSEntry is valid (true),
+     * or not (false).
+     */
     inline bool isValid() const { return (flags & INVALID_FLAG) == 0; }
+
+    /**
+     * @brief isDir Returns true if this FSEntry is a directory.
+     * @return A boolean indicating if this FSEntry is a directory (true),
+     * or not (false).
+     */
     inline bool isDir() const { return (flags & DIR_FLAG) > 0; }
+
+    /**
+     * @brief isComputer Returns true if this FSEntry is a computer.
+     * @return A boolean indicating if this FSEntry is a computer (true),
+     * or not (false).
+     */
     inline bool isComputer() const { return (flags & COMPUTER_FLAG) > 0; }
+
+    /**
+     * @brief isDrive Returns true if this FSEntry is a drive.
+     * @return A boolean indicating if this FSEntry is a drive (true),
+     * or not (false).
+     */
     inline bool isDrive() const { return (flags & DRIVE_FLAG) > 0; }
+
+    /**
+     * @brief isLink Returns true if this FSEntry is a link.
+     * @return A boolean indicating if this FSEntry is a link (true),
+     * or not (false).
+     */
     inline bool isLink() const { return (flags & LINK_FLAG) > 0; }
+
+    /**
+     * @brief isTempEntry Returns true if this FSEntry is a temporary
+     * entry.
+     * @return A boolean indicating if this FSEntry is a temporary entry (true),
+     * or not (false).
+     */
     inline bool isTempEntry() const { return (flags & TEMP_FLAG) > 0; }
 
     /**
@@ -106,7 +180,9 @@ public:
      * @param isDir Whether or not this FSEntry is a directory.
      * @param isLink Whether or not this FSEntry is a link.
      * @param isDrive Whether or not this FSEntry is a drive.
-     * @return
+     * @return An aggregate set of attribute bits based on the
+     * currPerms and the set attributes specified for the given
+     * attribute category.
      */
     static int setAttributes(int currPerms, const bool isDir,
                              const bool isLink, const bool isDrive);
