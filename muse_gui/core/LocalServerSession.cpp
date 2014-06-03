@@ -1,6 +1,6 @@
 #include "Core.h"
 #include "LocalServerSession.h"
-//#include <libssh2.h>
+#include <libssh2.h>
 
 LocalServerSession::LocalServerSession(Server &server, QWidget *parent) : ServerSession(server, parent) {
     Q_UNUSED(server);
