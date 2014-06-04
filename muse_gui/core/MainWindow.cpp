@@ -62,6 +62,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
+
+
 }
 
 MainWindow::~MainWindow() {
