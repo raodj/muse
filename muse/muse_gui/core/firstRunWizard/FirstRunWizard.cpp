@@ -7,6 +7,7 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
 
     setWindowTitle("Set up workspace");
     createTestPages();
+    setWizardStyle(QWizard::ModernStyle);
 }
 
 void
