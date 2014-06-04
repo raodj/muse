@@ -44,7 +44,10 @@
 #include <QDebug>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
-#include <CustomFileDialog.h>
+
+//for testing purposes
+#include "CustomFileDialog.h"
+#include "FirstRunWizard.h"
 
 int main(int argc, char *argv[]) {
     // Setup custom logger to cut logs in programmer log
@@ -56,8 +59,12 @@ int main(int argc, char *argv[]) {
     // can be reorganized by dragging and dropping tabs.
     MainWindow mainWindow;
     mainWindow.show();
-    //CustomFileDialog cfd;
-    //cfd.show();
+
+    FirstRunWizard frw;
+    frw.show();
+
+//    CustomFileDialog cfd;
+//    cfd.show();
     // Start the main GUI-event processing loop.
     return app.exec();
 }
