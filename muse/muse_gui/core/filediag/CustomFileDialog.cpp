@@ -53,7 +53,6 @@
 #include <QCompleter>
 #include <QPushButton>
 #include <QProgressDialog>
-#include <QMacToolBar>
 
 CustomFileDialog::CustomFileDialog(QWidget *parent, const QString &dirPath)
     : QDialog(parent), treeView(this), tableView(this),
@@ -118,7 +117,7 @@ CustomFileDialog::addToolButton(QToolBar *toolBar, const QString &iconName,
 QToolBar*
 CustomFileDialog::createToolBar() {
     // Create toolbar at the top (it is automaticlaly deleted)
-    QMacToolBar *topBar = new QToolBar("Top Bar", this);
+    QToolBar *topBar = new QToolBar("Top Bar", this);
     topBar->setIconSize(QSize(16, 16));
     // Add flat refresh button to the topBar first
     refreshButton = topBar->addAction(QIcon(":/images/16x16/Refresh.png"), "Refresh",

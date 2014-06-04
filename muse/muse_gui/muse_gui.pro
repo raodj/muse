@@ -20,6 +20,7 @@ INCLUDEPATH += infra/ssh
 INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
+INCLUDEPATH += core/firstRunWizard
 INCLUDEPATH += /usr/local/include
 
 # DEFINES += QT_NO_DEBUG_STREAM
@@ -62,7 +63,9 @@ SOURCES +=\
     core/filediag/FSEntry.cpp \
     core/filediag/FileSystemModel.cpp \
     core/filediag/CustomFileDialog.cpp \
-    core/filediag/DirFilterProxyModel.cpp
+    core/filediag/DirFilterProxyModel.cpp \
+    core/MUSEWizard.cpp \
+    core/firstRunWizard/FirstRunWizard.cpp
 
 
 HEADERS  += \
@@ -108,7 +111,9 @@ HEADERS  += \
     core/filediag/FileSystemModel.h \
     core/filediag/FileSystemModel.cpp.bak \
     core/filediag/CustomFileDialog.h \
-    core/filediag/DirFilterProxyModel.h
+    core/filediag/DirFilterProxyModel.h \
+    core/MUSEWizard.h \
+    core/firstRunWizard/FirstRunWizard.h
 
 
 OTHER_FILES += \
