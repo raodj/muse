@@ -19,6 +19,7 @@ INCLUDEPATH += infra/xml
 INCLUDEPATH += infra/ssh
 INCLUDEPATH += workspace
 INCLUDEPATH += core
+INCLUDEPATH += core/filediag
 INCLUDEPATH += /usr/local/include
 
 # DEFINES += QT_NO_DEBUG_STREAM

@@ -53,6 +53,7 @@
 #include <QCompleter>
 #include <QPushButton>
 #include <QProgressDialog>
+#include <QMacToolBar>
 
 CustomFileDialog::CustomFileDialog(QWidget *parent, const QString &dirPath)
     : QDialog(parent), treeView(this), tableView(this),
@@ -117,12 +118,11 @@ CustomFileDialog::addToolButton(QToolBar *toolBar, const QString &iconName,
 QToolBar*
 CustomFileDialog::createToolBar() {
     // Create toolbar at the top (it is automaticlaly deleted)
-    QToolBar *topBar = new QToolBar("Top Bar", this);
+    QMacToolBar *topBar = new QToolBar("Top Bar", this);
     topBar->setIconSize(QSize(16, 16));
     // Add flat refresh button to the topBar first
-    refreshButton =
-            topBar->addAction(QIcon(":/images/16x16/Refresh.png"), "Refresh",
-                              this, SLOT(refresh()));
+    refreshButton = topBar->addAction(QIcon(":/images/16x16/Refresh.png"), "Refresh",
+                                      this, SLOT(refresh()));
     topBar->addWidget(new QLabel("Look in:"));
     topBar->addWidget(&dirSelector);
     dirSelector.setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed);
@@ -178,8 +178,8 @@ CustomFileDialog::selectRemoteFS() {
     progDiag.setWindowModality(Qt::WindowModal);
     SshSocket *ssh = NULL;
     try {
-        ssh = new SshSocket("Testing SSH connectivity", this);
-        if (ssh->connectToHost("localhost", &progDiag)) {
+        ssh = new SshSocket("Testing SSH connectivity", this, "/Users/Doug4/Documents/.known_hosts");
+        if (ssh->connectToHost("redhawk.hpc.miamioh.edu", &progDiag)) {
             fsm.setHelper(new RemoteFSHelper(ssh, true));
             treeView.setCurrentIndex(dirFilter.index(0, 0));
         } else {
