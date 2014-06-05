@@ -38,8 +38,11 @@
 #include "FirstRunWizard.h"
 #include "WelcomePage.h"
 #include "LicensePage.h"
+#include "WorkSpacePage.h"
+#include "MUSEWorkSpace.h"
+#include <QDir>
+#include <QFile>
 
-#include <QWizardPage>
 FirstRunWizard::FirstRunWizard(QWidget *parent)
     : MUSEWizard(parent) {
 
@@ -48,6 +51,22 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
 
     addPage(new WelcomePage());
     addPage(new LicensePage());
+    addPage(new WorkSpacePage());
 }
 
+
+void
+FirstRunWizard::accept() {
+
+    QDir workspaceDir(MUSEWorkSpace::getWorkSpacePath());
+
+    workspaceDir.mkdir(MUSEWorkSpace::getWorkSpacePath());
+
+    QFile workspace(MUSEWorkSpace::getKnownHostsPath());
+    workspace.open(QFile::ReadWrite);
+
+    workspace.close();
+
+    QDialog::accept();
+}
 #endif

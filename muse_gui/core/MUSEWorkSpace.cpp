@@ -1,5 +1,5 @@
-#ifndef FIRSTRUNWIZARD_H
-#define FIRSTRUNWIZARD_H
+#ifndef MUSEWORKSPACE_CPP
+#define MUSEWORKSPACE_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,21 +34,24 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "MUSEWizard.h"
+#include "MUSEWorkSpace.h"
+#include <QStandardPaths>
+//MUSEWorkSpace::MUSEWorkSpace() {
+//}
 
-/**
- * @brief The FirstRunWizard class The class that is run to set up
- * the workspace for the user. This wizard only runs the first time
- * the MUSE GUI is run so that the basic workspace environement.
- * FirstRunWizard is an extension of the MUSEWizard class.
- */
-class FirstRunWizard : public MUSEWizard {
-public:
-    FirstRunWizard(QWidget* parent = 0);
-    void accept();
 
-private:
-    QWidget* stepListing;
-};
+QString
+MUSEWorkSpace::getWorkSpacePath() {
+    return QStandardPaths::locate(QStandardPaths::HomeLocation,
+                                  "",QStandardPaths::LocateDirectory)
+            +"MUSE";
+}
 
-#endif // FIRSTRUNWIZARD_H
+QString
+MUSEWorkSpace::getKnownHostsPath() {
+    return QStandardPaths::locate(QStandardPaths::HomeLocation, "",
+                                  QStandardPaths::LocateDirectory)
+            + "MUSE/known_hosts";
+}
+
+#endif

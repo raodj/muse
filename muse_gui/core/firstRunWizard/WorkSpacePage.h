@@ -1,5 +1,5 @@
-#ifndef FIRSTRUNWIZARD_H
-#define FIRSTRUNWIZARD_H
+#ifndef WORKSPACEPAGE_H
+#define WORKSPACEPAGE_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,21 +34,30 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "MUSEWizard.h"
-
+#include <QWizardPage>
+#include <QVBoxLayout>
+#include <QLabel>
 /**
- * @brief The FirstRunWizard class The class that is run to set up
- * the workspace for the user. This wizard only runs the first time
- * the MUSE GUI is run so that the basic workspace environement.
- * FirstRunWizard is an extension of the MUSEWizard class.
+ * @brief The WorkSpacePage class The final page of the FirstRunWizard,
+ * informs the user that the workspace directory will be created in the
+ * user's home directory.
  */
-class FirstRunWizard : public MUSEWizard {
+class WorkSpacePage : public QWizardPage {
+
 public:
-    FirstRunWizard(QWidget* parent = 0);
-    void accept();
+    /**
+     * @brief WorkSpacePage The constructor for the WorkSpacePage for
+     * the FirstRunWizard. It simply creates a dialog that informs the
+     * user that the workspace directory will be created when the user
+     * clicks the "Finish" or "Done" (depending on the OS).
+     * @param parent The parent QWidget this page belongs to.
+     */
+    WorkSpacePage(QWidget* parent = 0);
+
 
 private:
-    QWidget* stepListing;
+    QVBoxLayout* mainLayout;
+    QLabel* workspaceMessage;
 };
 
-#endif // FIRSTRUNWIZARD_H
+#endif // WORKSPACEPAGE_H

@@ -23,7 +23,7 @@ class SshSocket : public QTcpSocket {
 public:
     SshSocket(const QString& reason = tr("MUSE GUI Operations"),
               QWidget* parent = NULL,
-              const QString& knownHostsFile = ".known_hosts",
+              const QString& knownHostsFile = "known_hosts",
               bool handleSignals = true,
               Qt::ConnectionType connType = Qt::AutoConnection) throw ();
     ~SshSocket() throw ();

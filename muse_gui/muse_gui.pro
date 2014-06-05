@@ -67,7 +67,9 @@ SOURCES +=\
     core/MUSEWizard.cpp \
     core/firstRunWizard/FirstRunWizard.cpp \
     core/firstRunWizard/WelcomePage.cpp \
-    core/firstRunWizard/LicensePage.cpp
+    core/firstRunWizard/LicensePage.cpp \
+    core/firstRunWizard/WorkSpacePage.cpp \
+    core/MUSEWorkSpace.cpp
 
 
 HEADERS  += \
@@ -117,7 +119,9 @@ HEADERS  += \
     core/MUSEWizard.h \
     core/firstRunWizard/FirstRunWizard.h \
     core/firstRunWizard/WelcomePage.h \
-    core/firstRunWizard/LicensePage.h
+    core/firstRunWizard/LicensePage.h \
+    core/firstRunWizard/WorkSpacePage.h \
+    core/MUSEWorkSpace.h
 
 
 OTHER_FILES += \

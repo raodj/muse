@@ -59,6 +59,7 @@ LicensePage::LicensePage(QWidget* parent) : QWizardPage(parent) {
     //Fixing for Mac display currently.
     setTitle("    Welcome");
     setSubTitle("License Agreement");
+    setButtonText(QWizard::NextButton, "Accept");
 }
 
 #endif

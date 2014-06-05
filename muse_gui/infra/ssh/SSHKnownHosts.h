@@ -14,7 +14,7 @@ class SSHKnownHosts : public QObject {
     Q_OBJECT
 
 public:
-    SSHKnownHosts(const QString& knownHostsFile = ".known_hosts",
+    SSHKnownHosts(const QString& knownHostsFile = "known_hosts",
                   bool handleSignals = true,
                   Qt::ConnectionType conType = Qt::AutoConnection);
     ~SSHKnownHosts();
