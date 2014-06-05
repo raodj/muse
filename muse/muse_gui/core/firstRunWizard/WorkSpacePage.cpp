@@ -1,5 +1,5 @@
-#ifndef FIRSTRUNWIZARD_H
-#define FIRSTRUNWIZARD_H
+#ifndef WORKSPACEPAGE_CPP
+#define WORKSPACEPAGE_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,21 +34,29 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "MUSEWizard.h"
+#include "WorkSpacePage.h"
+#include <QStandardPaths>
 
-/**
- * @brief The FirstRunWizard class The class that is run to set up
- * the workspace for the user. This wizard only runs the first time
- * the MUSE GUI is run so that the basic workspace environement.
- * FirstRunWizard is an extension of the MUSEWizard class.
- */
-class FirstRunWizard : public MUSEWizard {
-public:
-    FirstRunWizard(QWidget* parent = 0);
-    void accept();
 
-private:
-    QWidget* stepListing;
-};
+WorkSpacePage::WorkSpacePage(QWidget* parent) : QWizardPage(parent) {
 
-#endif // FIRSTRUNWIZARD_H
+    setTitle("     Welcome");
+    setSubTitle("Create the workspace");
+
+    mainLayout = new QVBoxLayout();
+
+    workspaceMessage = new QLabel();
+    workspaceMessage->setText("Once you click to end this wizard, "
+                              "the workspace directory will be created "
+                              "here: " + QStandardPaths::locate(QStandardPaths::HomeLocation, "",QStandardPaths::LocateDirectory)
+                              + "MUSE<br/>Click the button to proceed.");
+
+    workspaceMessage->setWordWrap(true);
+    mainLayout->addWidget(workspaceMessage);
+    setLayout(mainLayout);
+
+}
+
+
+
+#endif

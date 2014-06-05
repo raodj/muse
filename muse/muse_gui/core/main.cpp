@@ -44,10 +44,13 @@
 #include <QDebug>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
-
-//for testing purposes
-#include "CustomFileDialog.h"
 #include "FirstRunWizard.h"
+#include <QDir>
+#include <QFile>
+#include "MUSEWorkSpace.h"
+
+//testing
+//#include "CustomFileDialog.h"
 
 int main(int argc, char *argv[]) {
     // Setup custom logger to cut logs in programmer log
@@ -58,11 +61,25 @@ int main(int argc, char *argv[]) {
     // Create the main window that will contain various tabbed views that
     // can be reorganized by dragging and dropping tabs.
     MainWindow mainWindow;
+
+
+
+    //Check that the workspace exists
+    QDir workspaceDir(MUSEWorkSpace::getWorkSpacePath());
+    if (!workspaceDir.exists()) {
+        FirstRunWizard frw;
+        frw.exec();//Don't show anything else until the user completes the dialog
+    }
+
+    else {
+        //If it does exist, verify that known hosts file is present
+        QFile knownHosts(MUSEWorkSpace::getKnownHostsPath());
+        if(!knownHosts.exists()) {
+            knownHosts.open(QFile::ReadWrite);
+        }
+        knownHosts.close();
+    }
     mainWindow.show();
-
-    FirstRunWizard frw;
-    frw.show();
-
 //    CustomFileDialog cfd;
 //    cfd.show();
     // Start the main GUI-event processing loop.
