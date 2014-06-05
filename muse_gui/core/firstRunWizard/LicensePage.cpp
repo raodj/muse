@@ -1,5 +1,5 @@
-#ifndef MUSEWIZARD_H
-#define MUSEWIZARD_H
+#ifndef LICENSEPAGE_CPP
+#define LICENSEPAGE_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,15 +34,31 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizard>
+#include "LicensePage.h"
+#include <QFile>
+#include <QTextStream>
 
-/**
- * @brief The MUSEWizard class The base class for all MUSE Wizard
- * dialogs that will be used throughout the MUSE GUI system.
- */
-class MUSEWizard : public QWizard {
-public:
-    MUSEWizard(QWidget* parent = 0);
-};
+LicensePage::LicensePage(QWidget* parent) : QWizardPage(parent) {
 
-#endif // MUSEWIZARD_H
+    licenseText = new QTextEdit();
+    licenseText->setReadOnly(true);
+
+
+    //load the text from the html file
+    QFile page(":/resources/GPL.txt");
+    if(page.open(QFile::ReadOnly)){
+        QTextStream input(&page);
+
+        licenseText->setText(input.readAll());
+        page.close();
+    }
+
+    mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(licenseText);
+    setLayout(mainLayout);
+    //Fixing for Mac display currently.
+    setTitle("    Welcome");
+    setSubTitle("License Agreement");
+}
+
+#endif

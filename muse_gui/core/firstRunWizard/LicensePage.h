@@ -1,5 +1,5 @@
-#ifndef MUSEWIZARD_H
-#define MUSEWIZARD_H
+#ifndef LICENSEPAGE_H
+#define LICENSEPAGE_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,15 +34,22 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizard>
+#include <QWizardPage>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 /**
- * @brief The MUSEWizard class The base class for all MUSE Wizard
- * dialogs that will be used throughout the MUSE GUI system.
+ * @brief The LicensePage class Displays the GPL to the user in the
+ * FirstRunWizard. This is the second page of the FirstRunWizard.
  */
-class MUSEWizard : public QWizard {
+class LicensePage : public QWizardPage {
 public:
-    MUSEWizard(QWidget* parent = 0);
+    LicensePage(QWidget *parent = 0);
+
+private:
+    QTextEdit* licenseText;
+    QVBoxLayout* mainLayout;
+
 };
 
-#endif // MUSEWIZARD_H
+#endif // LICENSEPAGE_H

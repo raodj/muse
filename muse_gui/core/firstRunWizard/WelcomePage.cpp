@@ -1,5 +1,5 @@
-#ifndef MUSEWIZARD_H
-#define MUSEWIZARD_H
+#ifndef WELCOMEPAGE_CPP
+#define WELCOMEPAGE_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,15 +34,37 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizard>
+#include "WelcomePage.h"
+#include <QTextStream>
+#include <QFile>
 
-/**
- * @brief The MUSEWizard class The base class for all MUSE Wizard
- * dialogs that will be used throughout the MUSE GUI system.
- */
-class MUSEWizard : public QWizard {
-public:
-    MUSEWizard(QWidget* parent = 0);
-};
+WelcomePage::WelcomePage(QWidget *parent)
+    : QWizardPage(parent) {
 
-#endif // MUSEWIZARD_H
+    //TODO: think about consequences of making this a commit page
+    //setCommitPage(true);
+
+    welcomeText = new QTextEdit();
+
+    //User can't edit the text in this view port.
+    welcomeText->setReadOnly(true);
+
+    //load the text from the html file
+    QFile page(":/resources/welcome.html");
+    if(page.open(QFile::ReadOnly)){
+        QTextStream input(&page);
+
+        welcomeText->setHtml(input.readAll());
+        page.close();
+    }
+    mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(welcomeText);
+    setLayout(mainLayout);
+
+    //Fixing for Mac display currently.
+    setTitle("    Welcome");
+    setSubTitle("First time setup");
+
+}
+
+#endif

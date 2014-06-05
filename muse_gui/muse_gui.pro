@@ -65,7 +65,9 @@ SOURCES +=\
     core/filediag/CustomFileDialog.cpp \
     core/filediag/DirFilterProxyModel.cpp \
     core/MUSEWizard.cpp \
-    core/firstRunWizard/FirstRunWizard.cpp
+    core/firstRunWizard/FirstRunWizard.cpp \
+    core/firstRunWizard/WelcomePage.cpp \
+    core/firstRunWizard/LicensePage.cpp
 
 
 HEADERS  += \
@@ -113,7 +115,9 @@ HEADERS  += \
     core/filediag/CustomFileDialog.h \
     core/filediag/DirFilterProxyModel.h \
     core/MUSEWizard.h \
-    core/firstRunWizard/FirstRunWizard.h
+    core/firstRunWizard/FirstRunWizard.h \
+    core/firstRunWizard/WelcomePage.h \
+    core/firstRunWizard/LicensePage.h
 
 
 OTHER_FILES += \
