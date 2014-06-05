@@ -1,5 +1,5 @@
-#ifndef MUSEWIZARD_H
-#define MUSEWIZARD_H
+#ifndef WELCOMEPAGE_H
+#define WELCOMEPAGE_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,15 +34,29 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizard>
+#include <QWizardPage>
+#include <QTextEdit>
+#include <QVBoxLayout>
 
 /**
- * @brief The MUSEWizard class The base class for all MUSE Wizard
- * dialogs that will be used throughout the MUSE GUI system.
+ * @brief The WelcomePage class The introductory page for the FirstRunWizard.
+ * This wizard page simply welcomes the user to the program and informs the
+ * user of the tasks that must be completed before using the software.
  */
-class MUSEWizard : public QWizard {
+class WelcomePage : public QWizardPage {
+
 public:
-    MUSEWizard(QWidget* parent = 0);
+    /**
+     * @brief WelcomePage Initializes everything about the page. The
+     * html file containing the text for the page is loaded into a
+     * QTextEdit for simple display.
+     * @param parent The parent QWidget this page belongs to.
+     */
+    WelcomePage(QWidget* parent = 0);
+
+private:
+    QTextEdit* welcomeText;
+    QVBoxLayout* mainLayout;
 };
 
-#endif // MUSEWIZARD_H
+#endif // WELCOMEPAGE_H

@@ -22,8 +22,12 @@
     </qresource>
     <qresource prefix="/resources">
         <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>
+        <file alias="welcome.html">resources/welcome.html</file>
+        <file alias="GPL.txt">resources/GPL.txt</file>
     </qresource>
     <qresource prefix="/images/logo">
         <file alias="MuseLogo.jpg">images/logo/muse_small_header.jpg</file>
+        <file alias="columnImg.png">images/logo/peace_wizard_column.png</file>
+        <file alias="bannerImg.png">images/logo/peace_wizard_header.png</file>
     </qresource>
 </RCC>
