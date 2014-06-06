@@ -36,11 +36,14 @@
 //---------------------------------------------------------------------
 #include "MUSEWizard.h"
 
-MUSEWizard::MUSEWizard(QWidget *parent) {
-    setPixmap(QWizard::BannerPixmap, QPixmap(":/images/logo/bannerImg.png"));
-    setPixmap(QWizard::BackgroundPixmap, QPixmap(":/images/logo/columnImg.png"));
-
-
+MUSEWizard::MUSEWizard(QWidget *parent) : QWizard(parent) {
+    setPixmap(QWizard::BannerPixmap,
+              QPixmap(":/images/logo/bannerImg.png"));
+    setPixmap(QWizard::BackgroundPixmap,
+              QPixmap(":/images/logo/columnImg.png"));
+#ifndef Q_WS_MAC
+    setWizardStyle(QWizard::ModernStyle);
+#endif
 }
 
 #endif

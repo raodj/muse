@@ -113,7 +113,6 @@ HEADERS  += \
     core/filediag/FSEntry.h \
     core/filediag/FileSystemModel.h.bak \
     core/filediag/FileSystemModel.h \
-    core/filediag/FileSystemModel.cpp.bak \
     core/filediag/CustomFileDialog.h \
     core/filediag/DirFilterProxyModel.h \
     core/MUSEWizard.h \
