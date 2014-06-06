@@ -36,12 +36,15 @@
 //---------------------------------------------------------------------
 
 #include "FirstRunWizard.h"
-#include "WelcomePage.h"
-#include "LicensePage.h"
-#include "WorkSpacePage.h"
+
 #include "MUSEApplicationDirectory.h"
+
+#include <QPalette>
 #include <QDir>
+#include <QMessageBox>
 #include <QFile>
+#include <QList>
+
 
 FirstRunWizard::FirstRunWizard(QWidget *parent)
     : MUSEWizard(parent) {
@@ -49,9 +52,91 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
     setWindowTitle("First time setup");
     //setWizardStyle(QWizard::ModernStyle);
 
-    addPage(new WelcomePage());
-    addPage(new LicensePage());
-    addPage(new WorkSpacePage());
+    welcomePage = new WelcomePage();
+    licensePage = new LicensePage();
+    appDirPage = new AppDirPage();
+
+    addPage(welcomePage);
+    addPage(licensePage);
+    addPage(appDirPage);
+
+    createSideWidget();
+
+    setSideWidget(stepListing);
+
+    //Connect the signal of a page changing to update
+    //the checklist showing the user's progress.
+    //connect;
+
+    //updateCheckList(1);
+}
+
+void
+FirstRunWizard::createSideWidget() {
+
+    stepListing = new QWidget();
+
+
+
+    welcomeStep = new QCheckBox();
+    QPalette p = welcomeStep->palette();
+    p.setColor(QPalette::Active, QPalette::WindowText, Qt::white);
+    welcomeStep->setPalette(p);
+    welcomeStep->setText("Welcome");
+    welcomeStep->setEnabled(false);
+
+    licenseStep = new QCheckBox();
+    licenseStep->setText("License Agreement");
+    licenseStep->setPalette(p);
+    licenseStep->setEnabled(false);
+
+
+    finish = new QCheckBox();
+    finish->setPalette(p);
+    finish->setText("Finish");
+    finish->setEnabled(false);
+
+    sideLayout = new QVBoxLayout();
+    sideLayout->addWidget(welcomeStep);
+    sideLayout->addWidget(licenseStep);
+    sideLayout->addWidget(finish);
+
+    stepListing->setLayout(sideLayout);
+}
+
+void
+FirstRunWizard::initializePage(int id) {
+
+
+    if (hasVisitedPage(0)) {
+        welcomeStep->setChecked(true);
+    }
+
+    if (hasVisitedPage(1)) {
+       licenseStep->setChecked(true);
+    }
+
+    if(hasVisitedPage(2))
+        finish->setChecked(true);
+
+
+    page(id)->initializePage();
+
+}
+
+void
+FirstRunWizard::cleanupPage(int id) {
+    page(id)->cleanupPage();
+    if (id == 0) {
+        welcomeStep->setChecked(false);
+    }
+
+    if (id == 1) {
+       licenseStep->setChecked(false);
+    }
+
+    if(id == 2)
+        finish->setChecked(false);
 }
 
 
@@ -69,4 +154,6 @@ FirstRunWizard::accept() {
 
     QDialog::accept();
 }
+
+
 #endif

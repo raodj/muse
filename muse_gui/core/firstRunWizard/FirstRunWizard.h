@@ -35,7 +35,11 @@
 //
 //---------------------------------------------------------------------
 #include "MUSEWizard.h"
-
+#include "WelcomePage.h"
+#include "LicensePage.h"
+#include "AppDirPage.h"
+#include <QCheckBox>
+#include <QVBoxLayout>
 /**
  * @brief The FirstRunWizard class The class that is run to set up
  * the workspace for the user. This wizard only runs the first time
@@ -45,10 +49,49 @@
 class FirstRunWizard : public MUSEWizard {
 public:
     FirstRunWizard(QWidget* parent = 0);
+
+    /**
+     * @brief accept The MUSE-specific implementation of the accept()
+     * signal, which is called when the user successfully completes
+     * the QWizard. The program will create the default application
+     * directory before closing the dialog.
+     */
     void accept();
 
+    /**
+     * @brief initializePage A simple override of the initializePage()
+     * method of the QWizard class that updates the side widget that
+     * displays the check list to update the user on their current position.
+     *
+     * @param id The id of the page to initialize.
+     */
+    void initializePage(int id);
+
+    /**
+     * @brief cleanupPage A simple override of the cleanupPage() method
+     * of the QWizard class that updates the side widget that displays
+     * the checklist to update the user on their current position.
+     * @param id The id of the page to clean up.
+     */
+    void cleanupPage(int id);
+
 private:
+
+    /**
+     * @brief createSideWidget Initializes the side widget to display
+     * a checklist of all of the steps in the FirstRunWizard.
+     */
+    void createSideWidget();
+
     QWidget* stepListing;
+    QCheckBox* welcomeStep;
+    QCheckBox* licenseStep;
+    QCheckBox* finish;
+    QVBoxLayout* sideLayout;
+    WelcomePage* welcomePage;
+    LicensePage* licensePage;
+    AppDirPage* appDirPage;
+
 };
 
 #endif // FIRSTRUNWIZARD_H

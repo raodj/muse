@@ -1,5 +1,5 @@
-#ifndef WORKSPACEPAGE_CPP
-#define WORKSPACEPAGE_CPP
+#ifndef AppDirPage_H
+#define AppDirPage_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,29 +34,29 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "WorkSpacePage.h"
-#include "MUSEApplicationDirectory.h"
+#include <QWizardPage>
+#include <QVBoxLayout>
+#include <QLabel>
+/**
+ * @brief The AppDirPage class The final page of the FirstRunWizard,
+ * informs the user that the application directory will be created.
+ */
+class AppDirPage : public QWizardPage {
+
+public:
+    /**
+     * @brief AppDirPage The constructor for the AppDirPage for
+     * the FirstRunWizard. It simply creates a dialog that informs the
+     * user that the application directory will be created when the user
+     * clicks the "Finish" or "Done" (depending on the OS).
+     * @param parent The parent QWidget this page belongs to.
+     */
+    AppDirPage(QWidget* parent = 0);
 
 
-WorkSpacePage::WorkSpacePage(QWidget* parent) : QWizardPage(parent) {
+private:
+    QVBoxLayout* mainLayout;
+    QLabel* workspaceMessage;
+};
 
-    setTitle("     Welcome");
-    setSubTitle("Create the main directory");
-
-    mainLayout = new QVBoxLayout();
-
-    workspaceMessage = new QLabel();
-    workspaceMessage->setText("Once you click to end this wizard, "
-                              "the application directory will be created "
-                              "here: " + MUSEApplicationDirectory::getAppDirPath()
-                              + "<br/>Click the button to proceed.");
-
-    workspaceMessage->setWordWrap(true);
-    mainLayout->addWidget(workspaceMessage);
-    setLayout(mainLayout);
-
-}
-
-
-
-#endif
+#endif // AppDirPage_H
