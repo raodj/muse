@@ -19,6 +19,8 @@
         <file alias="Refresh.png">images/16x16/Refresh.png</file>
         <file alias="ViewGrid.png">images/16x16/ViewGrid.png</file>
         <file alias="ViewList.png">images/16x16/ViewList.png</file>
+        <file alias="Box.png">images/16x16/Box.png</file>
+        <file alias="CheckedBox.png">images/16x16/CheckedBox.png</file>
     </qresource>
     <qresource prefix="/resources">
         <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>

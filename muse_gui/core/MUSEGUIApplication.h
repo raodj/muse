@@ -1,5 +1,5 @@
-#ifndef MUSEAPPLICATIONDIRECTORY_CPP
-#define MUSEAPPLICATIONDIRECTORY_CPP
+#ifndef MUSEGUIApplication_H
+#define MUSEGUIApplication_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,21 +34,36 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "MUSEApplicationDirectory.h"
-#include <QStandardPaths>
-//MUSEApplicationDirectory::MUSEApplicationDirectory() {
-//}
+#include <QString>
+#include <QApplication>
+#include "MainWindow.h"
+/**
+ * @brief The MUSEGUIApplication class The base class for the MUSE GUI.
+ * This class handles and manages the execution of the entire GUI system.
+ */
+class MUSEGUIApplication : public QApplication {
 
+public:
+    MUSEGUIApplication(int &argc, char *argv[]);
 
-QString
-MUSEApplicationDirectory::getAppDirPath() {
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
-}
+    /**
+     * @brief getWorkSpacePath Gets the file path to the application
+     * directory.
+     * @return A QString representing the file path to the application
+     * directory.
+     */
+    static QString getAppDirPath();
 
-QString
-MUSEApplicationDirectory::getKnownHostsPath() {
-    return QStandardPaths::writableLocation(QStandardPaths::DataLocation)
-            + "/known_hosts";
-}
+    /**
+     * @brief getKnownHostsPath Gets the file path to the known_hosts
+     * file within the application directory.
+     * @return A QString representing the file path to the known_hosts file.
+     */
+    static QString getKnownHostsPath();
 
-#endif
+    //static int exec();
+
+    MainWindow* mainWindow;
+};
+
+#endif // MUSEGUIApplication_H

@@ -37,13 +37,11 @@
 
 #include "FirstRunWizard.h"
 
-#include "MUSEApplicationDirectory.h"
+#include "MUSEGUIApplication.h"
 
 #include <QPalette>
 #include <QDir>
-#include <QMessageBox>
 #include <QFile>
-#include <QList>
 
 
 FirstRunWizard::FirstRunWizard(QWidget *parent)
@@ -60,7 +58,8 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
     addPage(licensePage);
     addPage(appDirPage);
 
-    createSideWidget();
+    stepListing = new SideWidget();
+    //createSideWidget();
 
     setSideWidget(stepListing);
 
@@ -74,51 +73,29 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
 void
 FirstRunWizard::createSideWidget() {
 
-    stepListing = new QWidget();
 
 
 
-    welcomeStep = new QCheckBox();
-    QPalette p = welcomeStep->palette();
-    p.setColor(QPalette::Active, QPalette::WindowText, Qt::white);
-    welcomeStep->setPalette(p);
-    welcomeStep->setText("Welcome");
-    welcomeStep->setEnabled(false);
-
-    licenseStep = new QCheckBox();
-    licenseStep->setText("License Agreement");
-    licenseStep->setPalette(p);
-    licenseStep->setEnabled(false);
 
 
-    finish = new QCheckBox();
-    finish->setPalette(p);
-    finish->setText("Finish");
-    finish->setEnabled(false);
-
-    sideLayout = new QVBoxLayout();
-    sideLayout->addWidget(welcomeStep);
-    sideLayout->addWidget(licenseStep);
-    sideLayout->addWidget(finish);
-
-    stepListing->setLayout(sideLayout);
 }
 
 void
 FirstRunWizard::initializePage(int id) {
 
-
+    stepListing->applyCheckMarks(id + 1);
+/*
     if (hasVisitedPage(0)) {
-        welcomeStep->setChecked(true);
+        welcomeStep->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
     }
 
     if (hasVisitedPage(1)) {
-       licenseStep->setChecked(true);
+       licenseStep->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
     }
 
     if(hasVisitedPage(2))
-        finish->setChecked(true);
-
+        finish->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
+*/
 
     page(id)->initializePage();
 
@@ -126,28 +103,32 @@ FirstRunWizard::initializePage(int id) {
 
 void
 FirstRunWizard::cleanupPage(int id) {
+
+    stepListing->applyCheckMarks(id);
     page(id)->cleanupPage();
-    if (id == 0) {
-        welcomeStep->setChecked(false);
-    }
 
-    if (id == 1) {
-       licenseStep->setChecked(false);
-    }
 
-    if(id == 2)
-        finish->setChecked(false);
+//    if (id == 0) {
+//        welcomeStep->setIcon(NULL);
+//    }
+
+//    if (id == 1) {
+//       licenseStep->setChecked(false);
+//    }
+
+//    if(id == 2)
+//        finish->setChecked(false);
 }
 
 
 void
 FirstRunWizard::accept() {
 
-    QDir workspaceDir(MUSEApplicationDirectory::getAppDirPath());
+    QDir workspaceDir(MUSEGUIApplication::getAppDirPath());
 
-    workspaceDir.mkdir(MUSEApplicationDirectory::getAppDirPath());
+    workspaceDir.mkdir(MUSEGUIApplication::getAppDirPath());
 
-    QFile workspace(MUSEApplicationDirectory::getKnownHostsPath());
+    QFile workspace(MUSEGUIApplication::getKnownHostsPath());
     workspace.open(QFile::ReadWrite);
 
     workspace.close();
