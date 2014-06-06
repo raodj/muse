@@ -40,17 +40,17 @@
 #include "Version.h"
 #include "ProgrammerLog.h"
 #include <QApplication>
-#include <QFileDialog>
 #include <QDebug>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
 #include "FirstRunWizard.h"
 #include <QDir>
 #include <QFile>
-#include "MUSEWorkSpace.h"
+#include "MUSEApplicationDirectory.h"
 
 //testing
 //#include "CustomFileDialog.h"
+//#include <QFileDialog>
 
 int main(int argc, char *argv[]) {
     // Setup custom logger to cut logs in programmer log
@@ -64,8 +64,8 @@ int main(int argc, char *argv[]) {
 
 
 
-    //Check that the workspace exists
-    QDir workspaceDir(MUSEWorkSpace::getWorkSpacePath());
+    //Check that the application directory exists
+    QDir workspaceDir(MUSEApplicationDirectory::getAppDirPath());
     if (!workspaceDir.exists()) {
         FirstRunWizard frw;
         frw.exec();//Don't show anything else until the user completes the dialog
@@ -73,12 +73,14 @@ int main(int argc, char *argv[]) {
 
     else {
         //If it does exist, verify that known hosts file is present
-        QFile knownHosts(MUSEWorkSpace::getKnownHostsPath());
+        QFile knownHosts(MUSEApplicationDirectory::getKnownHostsPath());
         if(!knownHosts.exists()) {
             knownHosts.open(QFile::ReadWrite);
         }
         knownHosts.close();
     }
+
+
     mainWindow.show();
 //    CustomFileDialog cfd;
 //    cfd.show();

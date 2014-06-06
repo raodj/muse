@@ -35,21 +35,21 @@
 //
 //---------------------------------------------------------------------
 #include "WorkSpacePage.h"
-#include <QStandardPaths>
+#include "MUSEApplicationDirectory.h"
 
 
 WorkSpacePage::WorkSpacePage(QWidget* parent) : QWizardPage(parent) {
 
     setTitle("     Welcome");
-    setSubTitle("Create the workspace");
+    setSubTitle("Create the main directory");
 
     mainLayout = new QVBoxLayout();
 
     workspaceMessage = new QLabel();
     workspaceMessage->setText("Once you click to end this wizard, "
-                              "the workspace directory will be created "
-                              "here: " + QStandardPaths::locate(QStandardPaths::HomeLocation, "",QStandardPaths::LocateDirectory)
-                              + "MUSE<br/>Click the button to proceed.");
+                              "the application directory will be created "
+                              "here: " + MUSEApplicationDirectory::getAppDirPath()
+                              + "<br/>Click the button to proceed.");
 
     workspaceMessage->setWordWrap(true);
     mainLayout->addWidget(workspaceMessage);
