@@ -1,5 +1,5 @@
-#ifndef WORKSPACEPAGE_H
-#define WORKSPACEPAGE_H
+#ifndef AppDirPage_CPP
+#define AppDirPage_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,30 +34,29 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizardPage>
-#include <QVBoxLayout>
-#include <QLabel>
-/**
- * @brief The WorkSpacePage class The final page of the FirstRunWizard,
- * informs the user that the workspace directory will be created in the
- * user's home directory.
- */
-class WorkSpacePage : public QWizardPage {
-
-public:
-    /**
-     * @brief WorkSpacePage The constructor for the WorkSpacePage for
-     * the FirstRunWizard. It simply creates a dialog that informs the
-     * user that the workspace directory will be created when the user
-     * clicks the "Finish" or "Done" (depending on the OS).
-     * @param parent The parent QWidget this page belongs to.
-     */
-    WorkSpacePage(QWidget* parent = 0);
+#include "AppDirPage.h"
+#include "MUSEApplicationDirectory.h"
 
 
-private:
-    QVBoxLayout* mainLayout;
-    QLabel* workspaceMessage;
-};
+AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
 
-#endif // WORKSPACEPAGE_H
+    setTitle("     Welcome");
+    setSubTitle("Create the main directory");
+
+    mainLayout = new QVBoxLayout();
+
+    workspaceMessage = new QLabel();
+    workspaceMessage->setText("Once you click to end this wizard, "
+                              "the application directory will be created "
+                              "here: " + MUSEApplicationDirectory::getAppDirPath()
+                              + "<br/>Click the button to proceed.");
+
+    workspaceMessage->setWordWrap(true);
+    mainLayout->addWidget(workspaceMessage);
+    setLayout(mainLayout);
+
+}
+
+
+
+#endif

@@ -68,8 +68,8 @@ SOURCES +=\
     core/firstRunWizard/FirstRunWizard.cpp \
     core/firstRunWizard/WelcomePage.cpp \
     core/firstRunWizard/LicensePage.cpp \
-    core/firstRunWizard/WorkSpacePage.cpp \
-    core/MUSEApplicationDirectory.cpp
+    core/MUSEApplicationDirectory.cpp \
+    core/firstRunWizard/AppDirPage.cpp
 
 
 HEADERS  += \
@@ -119,8 +119,8 @@ HEADERS  += \
     core/firstRunWizard/FirstRunWizard.h \
     core/firstRunWizard/WelcomePage.h \
     core/firstRunWizard/LicensePage.h \
-    core/firstRunWizard/WorkSpacePage.h \
-    core/MUSEApplicationDirectory.h
+    core/MUSEApplicationDirectory.h \
+    core/firstRunWizard/AppDirPage.h
 
 
 OTHER_FILES += \
