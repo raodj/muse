@@ -1,5 +1,5 @@
-#ifndef MUSEAPPLICATIONDIRECTORY_H
-#define MUSEAPPLICATIONDIRECTORY_H
+#ifndef MUSEAPPLICATIONDIRECTORY_CPP
+#define MUSEAPPLICATIONDIRECTORY_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,32 +34,63 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QString>
+#include "MUSEGUIApplication.h"
+#include "FirstRunWizard.h"
+#include <QStandardPaths>
+#include <QDir>
+#include <QFile>
+#include <QDialog>
+#include <QMessageBox>
 
-/**
- * @brief The MUSEApplicationDirectory class A simple class for obtaining the
- * file path to the MUSEApplicationDirectory and the files within it. This class
- * is not to be instantiated; all of its methods are static.
- */
-class MUSEApplicationDirectory {
+MUSEGUIApplication::MUSEGUIApplication(int &argc, char *argv[])
+    : QApplication (argc, argv) {
+    this->setApplicationName("MUSE");
 
-public:
-    //MUSEApplicationDirectory();
+    int frwResult = QDialog::Accepted;
+    //Check that the application directory exists
+    QDir workspaceDir(getAppDirPath());
+    if (!workspaceDir.exists()) {
+        FirstRunWizard frw;
+        frwResult = frw.exec();
+    }
 
-    /**
-     * @brief getWorkSpacePath Gets the file path to the application
-     * directory.
-     * @return A QString representing the file path to the application
-     * directory.
-     */
-    static QString getAppDirPath();
+    else {
+        //If it does exist, verify that known hosts file is present
+        QFile knownHosts(getKnownHostsPath());
+        if(!knownHosts.exists()) {
+            knownHosts.open(QFile::ReadWrite);
+        }
+        knownHosts.close();
+    }
 
-    /**
-     * @brief getKnownHostsPath Gets the file path to the known_hosts
-     * file within the application directory.
-     * @return A QString representing the file path to the known_hosts file.
-     */
-    static QString getKnownHostsPath();
-};
+    //If the user skips the FirstRunWizard, don't make the main window
+    if (frwResult != QDialog::Rejected) {
+        // Create the main window that will contain various tabbed views that
+        // can be reorganized by dragging and dropping tabs.
+        mainWindow = new MainWindow();
 
-#endif // MUSEAPPLICATIONDIRECTORY_H
+    }
+    //    CustomFileDialog cfd;
+    //    cfd.show();
+}
+
+/*int
+MUSEGUIApplication::exec() {
+    else  return 0;
+
+    //return 0;
+}*/
+
+
+QString
+MUSEGUIApplication::getAppDirPath() {
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
+}
+
+QString
+MUSEGUIApplication::getKnownHostsPath() {
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+            + "/known_hosts";
+}
+
+#endif

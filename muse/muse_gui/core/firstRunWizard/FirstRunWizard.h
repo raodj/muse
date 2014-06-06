@@ -34,12 +34,13 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+#include "Core.h"
 #include "MUSEWizard.h"
 #include "WelcomePage.h"
 #include "LicensePage.h"
 #include "AppDirPage.h"
-#include <QCheckBox>
-#include <QVBoxLayout>
+#include "SideWidget.h"
+
 /**
  * @brief The FirstRunWizard class The class that is run to set up
  * the workspace for the user. This wizard only runs the first time
@@ -83,14 +84,12 @@ private:
      */
     void createSideWidget();
 
-    QWidget* stepListing;
-    QCheckBox* welcomeStep;
-    QCheckBox* licenseStep;
-    QCheckBox* finish;
-    QVBoxLayout* sideLayout;
+    SideWidget* stepListing;
+
     WelcomePage* welcomePage;
     LicensePage* licensePage;
     AppDirPage* appDirPage;
+
 
 };
 

@@ -43,10 +43,7 @@
 #include <QDebug>
 #include <QFileSystemModel>
 #include <QSortFilterProxyModel>
-#include "FirstRunWizard.h"
-#include <QDir>
-#include <QFile>
-#include "MUSEApplicationDirectory.h"
+#include "MUSEGUIApplication.h"
 
 //testing
 //#include "CustomFileDialog.h"
@@ -56,34 +53,16 @@ int main(int argc, char *argv[]) {
     // Setup custom logger to cut logs in programmer log
     // qInstallMessageHandler(Logger::cutLogEntry);
     // Initialize QT application (initally processes command-line arguments)
-    QApplication app(argc, argv);
-    app.setApplicationName("MUSE");
-    // Create the main window that will contain various tabbed views that
-    // can be reorganized by dragging and dropping tabs.
-    MainWindow mainWindow;
+    MUSEGUIApplication app(argc, argv);
 
+    //If main window hasn't been initialized due to the user
+    //exiting the FirstRunWizard early, don't show it.
+    if(app.mainWindow != NULL)
+        app.mainWindow->show();
 
+    //DR. RAO - IF THE MAIN WINDOW == NULL, THE APP DOES NOT QUIT.
+    //IF MAIN WINDOW != NULL, 3 ERRORS THROWN UPON APP CLOSING.
 
-    //Check that the application directory exists
-    QDir workspaceDir(MUSEApplicationDirectory::getAppDirPath());
-    if (!workspaceDir.exists()) {
-        FirstRunWizard frw;
-        frw.exec();//Don't show anything else until the user completes the dialog
-    }
-
-    else {
-        //If it does exist, verify that known hosts file is present
-        QFile knownHosts(MUSEApplicationDirectory::getKnownHostsPath());
-        if(!knownHosts.exists()) {
-            knownHosts.open(QFile::ReadWrite);
-        }
-        knownHosts.close();
-    }
-
-
-    mainWindow.show();
-//    CustomFileDialog cfd;
-//    cfd.show();
     // Start the main GUI-event processing loop.
     return app.exec();
 }
