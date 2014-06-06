@@ -1,5 +1,6 @@
-#ifndef MUSEWIZARD_H
-#define MUSEWIZARD_H
+#ifndef MUSE_WIZARD_H
+#define MUSE_WIZARD_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -45,4 +46,4 @@ public:
     MUSEWizard(QWidget* parent = 0);
 };
 
-#endif // MUSEWIZARD_H
+#endif // MUSE_WIZARD_H
