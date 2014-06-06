@@ -1,5 +1,5 @@
-#ifndef MUSEWORKSPACE_H
-#define MUSEWORKSPACE_H
+#ifndef MUSEAPPLICATIONDIRECTORY_H
+#define MUSEAPPLICATIONDIRECTORY_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -37,27 +37,29 @@
 #include <QString>
 
 /**
- * @brief The MUSEWorkSpace class A simple class for obtaining the
- * file path to the MUSEWorkSpace and the files within it. This class
+ * @brief The MUSEApplicationDirectory class A simple class for obtaining the
+ * file path to the MUSEApplicationDirectory and the files within it. This class
  * is not to be instantiated; all of its methods are static.
  */
-class MUSEWorkSpace {
+class MUSEApplicationDirectory {
 
 public:
-    //MUSEWorkSpace();
+    //MUSEApplicationDirectory();
 
     /**
-     * @brief getWorkSpacePath Gets the file path to the workspace.
-     * @return A QString representing the file path to the workspace.
+     * @brief getWorkSpacePath Gets the file path to the application
+     * directory.
+     * @return A QString representing the file path to the application
+     * directory.
      */
-    static QString getWorkSpacePath();
+    static QString getAppDirPath();
 
     /**
      * @brief getKnownHostsPath Gets the file path to the known_hosts
-     * file within the workspace.
+     * file within the application directory.
      * @return A QString representing the file path to the known_hosts file.
      */
     static QString getKnownHostsPath();
 };
 
-#endif // MUSEWORKSPACE_H
+#endif // MUSEAPPLICATIONDIRECTORY_H

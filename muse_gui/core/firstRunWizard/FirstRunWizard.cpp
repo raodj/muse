@@ -39,7 +39,7 @@
 #include "WelcomePage.h"
 #include "LicensePage.h"
 #include "WorkSpacePage.h"
-#include "MUSEWorkSpace.h"
+#include "MUSEApplicationDirectory.h"
 #include <QDir>
 #include <QFile>
 
@@ -58,11 +58,11 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
 void
 FirstRunWizard::accept() {
 
-    QDir workspaceDir(MUSEWorkSpace::getWorkSpacePath());
+    QDir workspaceDir(MUSEApplicationDirectory::getAppDirPath());
 
-    workspaceDir.mkdir(MUSEWorkSpace::getWorkSpacePath());
+    workspaceDir.mkdir(MUSEApplicationDirectory::getAppDirPath());
 
-    QFile workspace(MUSEWorkSpace::getKnownHostsPath());
+    QFile workspace(MUSEApplicationDirectory::getKnownHostsPath());
     workspace.open(QFile::ReadWrite);
 
     workspace.close();

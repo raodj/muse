@@ -42,7 +42,7 @@
 #include "SshSocket.h"
 #include "LocalFSHelper.h"
 #include "RemoteFSHelper.h"
-#include "MUSEWorkSpace.h"
+#include "MUSEApplicationDirectory.h"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -178,7 +178,7 @@ CustomFileDialog::selectRemoteFS() {
     progDiag.setWindowModality(Qt::WindowModal);
     SshSocket *ssh = NULL;
     try {
-        ssh = new SshSocket("Testing SSH connectivity", this, MUSEWorkSpace::getKnownHostsPath());
+        ssh = new SshSocket("Testing SSH connectivity", this, MUSEApplicationDirectory::getKnownHostsPath());
         if (ssh->connectToHost("redhawk.hpc.miamioh.edu", &progDiag)) {
             fsm.setHelper(new RemoteFSHelper(ssh, true));
             treeView.setCurrentIndex(dirFilter.index(0, 0));

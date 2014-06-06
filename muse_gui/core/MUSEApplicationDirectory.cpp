@@ -1,5 +1,5 @@
-#ifndef MUSEWORKSPACE_CPP
-#define MUSEWORKSPACE_CPP
+#ifndef MUSEAPPLICATIONDIRECTORY_CPP
+#define MUSEAPPLICATIONDIRECTORY_CPP
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,24 +34,21 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include "MUSEWorkSpace.h"
+#include "MUSEApplicationDirectory.h"
 #include <QStandardPaths>
-//MUSEWorkSpace::MUSEWorkSpace() {
+//MUSEApplicationDirectory::MUSEApplicationDirectory() {
 //}
 
 
 QString
-MUSEWorkSpace::getWorkSpacePath() {
-    return QStandardPaths::locate(QStandardPaths::HomeLocation,
-                                  "",QStandardPaths::LocateDirectory)
-            +"MUSE";
+MUSEApplicationDirectory::getAppDirPath() {
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation);
 }
 
 QString
-MUSEWorkSpace::getKnownHostsPath() {
-    return QStandardPaths::locate(QStandardPaths::HomeLocation, "",
-                                  QStandardPaths::LocateDirectory)
-            + "MUSE/known_hosts";
+MUSEApplicationDirectory::getKnownHostsPath() {
+    return QStandardPaths::writableLocation(QStandardPaths::DataLocation)
+            + "/known_hosts";
 }
 
 #endif
