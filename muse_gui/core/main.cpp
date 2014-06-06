@@ -57,7 +57,7 @@ int main(int argc, char *argv[]) {
     // qInstallMessageHandler(Logger::cutLogEntry);
     // Initialize QT application (initally processes command-line arguments)
     QApplication app(argc, argv);
-    app.setApplicationName("MUSE GUI");
+    app.setApplicationName("MUSE");
     // Create the main window that will contain various tabbed views that
     // can be reorganized by dragging and dropping tabs.
     MainWindow mainWindow;
