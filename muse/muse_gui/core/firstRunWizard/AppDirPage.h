@@ -1,5 +1,6 @@
-#ifndef AppDirPage_H
-#define AppDirPage_H
+#ifndef APP_DIR_PAGE_H
+#define APP_DIR_PAGE_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -35,6 +36,7 @@
 //
 //---------------------------------------------------------------------
 #include <QWizardPage>
+
 #include <QVBoxLayout>
 #include <QLabel>
 /**
@@ -42,7 +44,6 @@
  * informs the user that the application directory will be created.
  */
 class AppDirPage : public QWizardPage {
-
 public:
     /**
      * @brief AppDirPage The constructor for the AppDirPage for
@@ -53,10 +54,9 @@ public:
      */
     AppDirPage(QWidget* parent = 0);
 
-
 private:
     QVBoxLayout* mainLayout;
     QLabel* workspaceMessage;
 };
 
-#endif // AppDirPage_H
+#endif

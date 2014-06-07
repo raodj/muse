@@ -1,5 +1,6 @@
-#ifndef FIRSTRUNWIZARD_H
-#define FIRSTRUNWIZARD_H
+#ifndef FIRST_RUN_WIZARD_H
+#define FIRST_RUN_WIZARD_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,22 +35,28 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+
 #include "Core.h"
 #include "MUSEWizard.h"
 #include "WelcomePage.h"
 #include "LicensePage.h"
 #include "AppDirPage.h"
 #include "SideWidget.h"
+#include "MUSEGUIApplication.h"
 
 /**
  * @brief The FirstRunWizard class The class that is run to set up
- * the workspace for the user. This wizard only runs the first time
- * the MUSE GUI is run so that the basic workspace environement.
+ * the workspace for the user.
+ *
+ * This wizard only runs the first time the MUSE GUI is run to validate
+ * EULA and create the top-level application data directory
+ * for storing default set of configuration and meta data files.
+ *
  * FirstRunWizard is an extension of the MUSEWizard class.
  */
 class FirstRunWizard : public MUSEWizard {
 public:
-    FirstRunWizard(QWidget* parent = 0);
+    FirstRunWizard(MUSEGUIApplication& app, QWidget* parent = 0);
 
     /**
      * @brief accept The MUSE-specific implementation of the accept()
@@ -77,20 +84,26 @@ public:
     void cleanupPage(int id);
 
 private:
-
     /**
      * @brief createSideWidget Initializes the side widget to display
      * a checklist of all of the steps in the FirstRunWizard.
      */
     void createSideWidget();
 
-    SideWidget* stepListing;
+    /**
+     * @brief app The top-level MUSE GUI application from where this
+     * wizard was launched.  This reference is essentially used to
+     * invoke the MUSEGUIApplication::checkCreateAppDirectory() method
+     * to create the top-level application directory and various other
+     * necessary files the first time MUSE-GUI is run by an user.
+     */
+    MUSEGUIApplication& app;
 
-    WelcomePage* welcomePage;
-    LicensePage* licensePage;
-    AppDirPage* appDirPage;
+    SideWidget stepListing;
 
-
+    WelcomePage welcomePage;
+    LicensePage licensePage;
+    AppDirPage  appDirPage;
 };
 
-#endif // FIRSTRUNWIZARD_H
+#endif

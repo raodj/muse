@@ -1,5 +1,6 @@
-#ifndef AppDirPage_CPP
-#define AppDirPage_CPP
+#ifndef APP_DIR_PAGE_CPP
+#define APP_DIR_PAGE_CPP
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,13 +35,12 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+
 #include "AppDirPage.h"
 #include "MUSEGUIApplication.h"
 
-
 AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
-
-    setTitle("     Welcome");
+    setTitle("Welcome");
     setSubTitle("Create the main directory");
 
     mainLayout = new QVBoxLayout();
@@ -54,9 +54,6 @@ AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
     workspaceMessage->setWordWrap(true);
     mainLayout->addWidget(workspaceMessage);
     setLayout(mainLayout);
-
 }
-
-
 
 #endif

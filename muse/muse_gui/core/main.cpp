@@ -36,34 +36,10 @@
 //
 //---------------------------------------------------------------------
 
-#include "MainWindow.h"
-#include "Version.h"
-#include "ProgrammerLog.h"
-#include <QApplication>
-#include <QDebug>
-#include <QFileSystemModel>
-#include <QSortFilterProxyModel>
 #include "MUSEGUIApplication.h"
 
-//testing
-//#include "CustomFileDialog.h"
-//#include <QFileDialog>
-
 int main(int argc, char *argv[]) {
-    // Setup custom logger to cut logs in programmer log
-    // qInstallMessageHandler(Logger::cutLogEntry);
-    // Initialize QT application (initally processes command-line arguments)
     MUSEGUIApplication app(argc, argv);
-
-    //If main window hasn't been initialized due to the user
-    //exiting the FirstRunWizard early, don't show it.
-    if(app.mainWindow != NULL)
-        app.mainWindow->show();
-
-    //DR. RAO - IF THE MAIN WINDOW == NULL, THE APP DOES NOT QUIT.
-    //IF MAIN WINDOW != NULL, 3 ERRORS THROWN UPON APP CLOSING.
-
-    // Start the main GUI-event processing loop.
     return app.exec();
 }
 
