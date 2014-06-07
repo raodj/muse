@@ -2,7 +2,7 @@
 
 SideWidget::SideWidget(QWidget *parent) : QWidget(parent) {
 
-    //Serves as place holder for the checkbox
+
     welcomeCheckmark = new QLabel("");
     welcomeCheckmark->setPixmap(QPixmap(":/images/16x16/Box.png"));
     licenseCheckmark = new QLabel("");
@@ -16,9 +16,6 @@ SideWidget::SideWidget(QWidget *parent) : QWidget(parent) {
 
     //So that the text can line up
     welcomeStep->setIndent(35);
-    QPalette p = welcomeStep->palette();
-    //p.setColor(QPalette::Active, QPalette::WindowText, Qt::white);
-    //welcomeStep->setPalette(p);
 
     firstRow->addWidget(welcomeCheckmark);
     firstRow->addWidget(welcomeStep);
@@ -26,14 +23,14 @@ SideWidget::SideWidget(QWidget *parent) : QWidget(parent) {
     secondRow = new QHBoxLayout();
     licenseStep = new QLabel("License");
     licenseStep->setIndent(0);
-    //licenseStep->setPalette(p);
+
     secondRow->addWidget(licenseCheckmark);
     secondRow->addWidget(licenseStep);
 
     thirdRow = new QHBoxLayout();
     finish = new QLabel("Finish");
     finish->setIndent(0);
-    //finish->setPalette(p);
+
     thirdRow->addWidget(finishedCheckmark);
     thirdRow->addWidget(finish);
 
@@ -46,17 +43,14 @@ SideWidget::SideWidget(QWidget *parent) : QWidget(parent) {
 }
 
 void
-SideWidget::applyCheckMarks(const int id) {
+SideWidget::applyCheckMarks(const int pageId) {
 
-    if (id > 1)
-        welcomeCheckmark->setPixmap(QPixmap(":/images/16x16/CheckedBox.png"));
-    else welcomeCheckmark->setPixmap(QPixmap(":/images/16x16/Box.png"));
+    QPixmap box(":/images/16x16/Box.png");
+    QPixmap checkBox(":/images/16x16/CheckedBox.png");
 
-    if (id > 2)
-        licenseCheckmark->setPixmap(QPixmap(":/images/16x16/CheckedBox.png"));
-    else licenseCheckmark->setPixmap(QPixmap(":/images/16x16/Box.png"));
+    welcomeCheckmark->setPixmap ((pageId > 1) ? checkBox : box);
+    licenseCheckmark->setPixmap ((pageId > 2) ? checkBox : box);
+    finishedCheckmark->setPixmap ((pageId > 3) ? checkBox : box);
 
-    if (id > 3)
-        finishedCheckmark->setPixmap(QPixmap(":/images/16x16/CheckedBox.png"));
-    else finishedCheckmark->setPixmap(QPixmap(":/images/16x16/Box.png"));
+
 }

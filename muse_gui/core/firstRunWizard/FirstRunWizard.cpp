@@ -53,11 +53,6 @@ FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
     // stepListing = new SideWidget();
     setSideWidget(&stepListing);
 
-    //Connect the signal of a page changing to update
-    //the checklist showing the user's progress.
-    //connect;
-
-    //updateCheckList(1);
 }
 
 void

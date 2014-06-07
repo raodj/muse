@@ -9,7 +9,7 @@
 class SideWidget : public QWidget {
 public:
     SideWidget(QWidget* parent = 0);
-    void applyCheckMarks(const int id);
+    void applyCheckMarks(const int pageId);
 
 private:
     QLabel* welcomeStep;
