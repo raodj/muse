@@ -47,6 +47,7 @@
 #include <QDir>
 #include <QTimer>
 #include <QShowEvent>
+#include "MUSEGUIApplication.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -95,7 +96,7 @@ MainWindow::showEvent(QShowEvent *event) {
 void
 MainWindow::createLoadDefaultWorkspace() {
     // Try and load the default workspace first.
-    const QString homeDir = QDir::homePath();
+    const QString homeDir = MUSEGUIApplication::getAppDirPath();
     QString errMsg = Workspace::useWorkspace(homeDir);
     if (errMsg != "") {
         userLog(Logger::LOG_WARNING)

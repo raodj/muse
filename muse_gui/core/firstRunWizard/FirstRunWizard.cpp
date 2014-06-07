@@ -1,5 +1,6 @@
-#ifndef FIRSTRUNWIZARD_CPP
-#define FIRSTRUNWIZARD_CPP
+#ifndef FIRST_RUN_WIZARD_CPP
+#define FIRST_RUN_WIZARD_CPP
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -36,32 +37,21 @@
 //---------------------------------------------------------------------
 
 #include "FirstRunWizard.h"
-
 #include "MUSEGUIApplication.h"
-
 #include <QPalette>
 #include <QDir>
 #include <QFile>
 
-
-FirstRunWizard::FirstRunWizard(QWidget *parent)
-    : MUSEWizard(parent) {
-
+FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
+    MUSEWizard(parent), app(app) {
     setWindowTitle("First time setup");
-    //setWizardStyle(QWizard::ModernStyle);
 
-    welcomePage = new WelcomePage();
-    licensePage = new LicensePage();
-    appDirPage = new AppDirPage();
+    addPage(&welcomePage);
+    addPage(&licensePage);
+    addPage(&appDirPage);
 
-    addPage(welcomePage);
-    addPage(licensePage);
-    addPage(appDirPage);
-
-    stepListing = new SideWidget();
-    //createSideWidget();
-
-    setSideWidget(stepListing);
+    // stepListing = new SideWidget();
+    setSideWidget(&stepListing);
 
     //Connect the signal of a page changing to update
     //the checklist showing the user's progress.
@@ -72,18 +62,12 @@ FirstRunWizard::FirstRunWizard(QWidget *parent)
 
 void
 FirstRunWizard::createSideWidget() {
-
-
-
-
-
-
 }
 
 void
 FirstRunWizard::initializePage(int id) {
 
-    stepListing->applyCheckMarks(id + 1);
+    stepListing.applyCheckMarks(id + 1);
 /*
     if (hasVisitedPage(0)) {
         welcomeStep->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
@@ -104,37 +88,16 @@ FirstRunWizard::initializePage(int id) {
 void
 FirstRunWizard::cleanupPage(int id) {
 
-    stepListing->applyCheckMarks(id);
+    stepListing.applyCheckMarks(id);
     page(id)->cleanupPage();
-
-
-//    if (id == 0) {
-//        welcomeStep->setIcon(NULL);
-//    }
-
-//    if (id == 1) {
-//       licenseStep->setChecked(false);
-//    }
-
-//    if(id == 2)
-//        finish->setChecked(false);
 }
 
 
 void
 FirstRunWizard::accept() {
-
-    QDir workspaceDir(MUSEGUIApplication::getAppDirPath());
-
-    workspaceDir.mkdir(MUSEGUIApplication::getAppDirPath());
-
-    QFile workspace(MUSEGUIApplication::getKnownHostsPath());
-    workspace.open(QFile::ReadWrite);
-
-    workspace.close();
-
-    QDialog::accept();
+    if (app.checkCreateAppDirectory(this)) {
+        QDialog::accept();
+    }
 }
-
 
 #endif

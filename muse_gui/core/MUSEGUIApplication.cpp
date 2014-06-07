@@ -1,5 +1,6 @@
 #ifndef MUSEAPPLICATIONDIRECTORY_CPP
 #define MUSEAPPLICATIONDIRECTORY_CPP
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,6 +35,7 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+
 #include "MUSEGUIApplication.h"
 #include "FirstRunWizard.h"
 #include <QStandardPaths>
@@ -42,44 +44,57 @@
 #include <QDialog>
 #include <QMessageBox>
 
+// Error message reported to user
+const QString MUSEGUIApplication::AppDirCreateErrMsg =
+        "Unable to create top-level application directory:\n%1\n" \
+        "MUSE (GUI) cannot proceed further without the top-level\n" \
+        "application directory. This is an unusual situation that\n" \
+        "may require your system administrator involvement to resolve.";
+
+// Error message reported to user
+const QString MUSEGUIApplication::KnownHostsCreateErrMsg =
+        "Unable to create the known hosts file required for SSH:\n%1\n" \
+        "MUSE (GUI) cannot proceed further without this default\n" \
+        "file required for operations. This is an unusual situation that\n" \
+        "may require your system administrator involvement to resolve.";
+
 MUSEGUIApplication::MUSEGUIApplication(int &argc, char *argv[])
     : QApplication (argc, argv) {
-    this->setApplicationName("MUSE");
-
-    int frwResult = QDialog::Accepted;
-    //Check that the application directory exists
-    QDir workspaceDir(getAppDirPath());
-    if (!workspaceDir.exists()) {
-        FirstRunWizard frw;
-        frwResult = frw.exec();
-    }
-
-    else {
-        //If it does exist, verify that known hosts file is present
-        QFile knownHosts(getKnownHostsPath());
-        if(!knownHosts.exists()) {
-            knownHosts.open(QFile::ReadWrite);
-        }
-        knownHosts.close();
-    }
-
-    //If the user skips the FirstRunWizard, don't make the main window
-    if (frwResult != QDialog::Rejected) {
-        // Create the main window that will contain various tabbed views that
-        // can be reorganized by dragging and dropping tabs.
-        mainWindow = new MainWindow();
-
-    }
-    //    CustomFileDialog cfd;
-    //    cfd.show();
+    setApplicationName("MUSE");
 }
 
-/*int
-MUSEGUIApplication::exec() {
-    else  return 0;
+MUSEGUIApplication::~MUSEGUIApplication() {
+    while (!mainWindowList.empty()) {
+        delete mainWindowList[0];
+        mainWindowList.removeFirst();
+    }
+}
 
-    //return 0;
-}*/
+int
+MUSEGUIApplication::exec() {
+    // Check that the application directory exists
+    QDir workspaceDir(getAppDirPath());
+    if (!workspaceDir.exists()) {
+        // It is assumed this is the first time the user is running
+        // MUSE GUI! Run the FirstRunWizard dialog.
+        FirstRunWizard frw(*this);
+        if (frw.exec() == QDialog::Rejected) {
+            // The user rejected or canceled the start. Exit right away
+            return 1;
+        }
+    }
+    // Ensure other files look all right at this point in time.
+    if (!checkCreateAppDirectory()) {
+        // Error when setting up necessary files. Bail out.
+        return 2;
+    }
+
+    // Everything went well so far. Create one main window and show it.
+    mainWindowList.append(new MainWindow());
+    mainWindowList[0]->show();
+    // Let the base class do rest of the work.
+    return QGuiApplication::exec();
+}
 
 
 QString
@@ -91,6 +106,34 @@ QString
 MUSEGUIApplication::getKnownHostsPath() {
     return QStandardPaths::writableLocation(QStandardPaths::DataLocation)
             + "/known_hosts";
+}
+
+
+bool
+MUSEGUIApplication::checkCreateAppDirectory(QWidget *parent) {
+    // Check and create the top-level application directory as needed.
+    QDir appDir(MUSEGUIApplication::getAppDirPath());
+
+    if (!appDir.exists()) {
+        if (!appDir.mkdir(MUSEGUIApplication::getAppDirPath())) {
+            // Report error message and bail out
+            QMessageBox::critical(parent, "Error during startup",
+                                  AppDirCreateErrMsg.arg(getAppDirPath()));
+            return false;
+        }
+    }
+    // Check and create the known hosts file as needed.
+    QFile knownHosts(MUSEGUIApplication::getKnownHostsPath());
+    if (!knownHosts.exists()) {
+        if (!knownHosts.open(QFile::WriteOnly)) {
+            // Report error message and bail out with failure
+            QMessageBox::critical(parent, "Error during startup",
+                                  KnownHostsCreateErrMsg.arg(getKnownHostsPath()));
+            return false;
+        }
+    }
+    // Everything seems in order
+    return true;
 }
 
 #endif
