@@ -46,12 +46,10 @@ FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
     MUSEWizard(parent), app(app) {
     setWindowTitle("First time setup");
 
-    addPage(&welcomePage);
-    addPage(&licensePage);
-    addPage(&appDirPage);
+    addPage(&welcomePage, new QLabel("Welcome"));
+    addPage(&licensePage, new QLabel("License"));
+    addPage(&appDirPage, new QLabel("Finish"));
 
-    // stepListing = new SideWidget();
-    setSideWidget(&stepListing);
 
 }
 
@@ -59,33 +57,7 @@ void
 FirstRunWizard::createSideWidget() {
 }
 
-void
-FirstRunWizard::initializePage(int id) {
 
-    stepListing.applyCheckMarks(id + 1);
-/*
-    if (hasVisitedPage(0)) {
-        welcomeStep->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
-    }
-
-    if (hasVisitedPage(1)) {
-       licenseStep->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
-    }
-
-    if(hasVisitedPage(2))
-        finish->setPixmap(QPixmap(":/images/16x16/CheckMark.png"));
-*/
-
-    page(id)->initializePage();
-
-}
-
-void
-FirstRunWizard::cleanupPage(int id) {
-
-    stepListing.applyCheckMarks(id);
-    page(id)->cleanupPage();
-}
 
 
 void

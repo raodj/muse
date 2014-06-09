@@ -41,7 +41,6 @@
 #include "WelcomePage.h"
 #include "LicensePage.h"
 #include "AppDirPage.h"
-#include "SideWidget.h"
 #include "MUSEGUIApplication.h"
 
 /**
@@ -66,22 +65,7 @@ public:
      */
     void accept();
 
-    /**
-     * @brief initializePage A simple override of the initializePage()
-     * method of the QWizard class that updates the side widget that
-     * displays the check list to update the user on their current position.
-     *
-     * @param id The id of the page to initialize.
-     */
-    void initializePage(int id);
 
-    /**
-     * @brief cleanupPage A simple override of the cleanupPage() method
-     * of the QWizard class that updates the side widget that displays
-     * the checklist to update the user on their current position.
-     * @param id The id of the page to clean up.
-     */
-    void cleanupPage(int id);
 
 private:
     /**
@@ -99,7 +83,6 @@ private:
      */
     MUSEGUIApplication& app;
 
-    SideWidget stepListing;
 
     WelcomePage welcomePage;
     LicensePage licensePage;
