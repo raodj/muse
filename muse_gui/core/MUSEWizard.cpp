@@ -48,67 +48,55 @@ MUSEWizard::MUSEWizard(QWidget *parent) : QWizard(parent) {
     sideBar.setLayout(mainLayout);
     setSideWidget(&sideBar);
 
-#ifndef Q_WS_MAC
+#ifndef Q_OS_MAC
     setWizardStyle(QWizard::ModernStyle);
 #endif
 }
 
 int
-MUSEWizard::addPage(QWizardPage *page, QLabel *stepName) {
-    QLabel* box = new QLabel();
+MUSEWizard::addPage(QWizardPage *page, const QString& stepName,
+                    const bool lastPage) {
+    QLabel* const box = new QLabel();
     box->setPixmap(QPixmap(":/images/16x16/Box.png"));
-
-    //box->setAlignment(Qt::AlignLeft);
-    //stepName->setAlignment(Qt::AlignHCenter);
+    QLabel* const step = new QLabel(stepName);
+    // Organize and add checkbox label and step-name to wizard.
+    QHBoxLayout* row = new QHBoxLayout();
+    row->addWidget(box);
+    row->addWidget(step, 1);
+    // The wizard to the wizard.
+    mainLayout->addLayout(row);
+    // Once all pages are in place, add a stretcher to make steps look nice
+    if (lastPage) {
+        mainLayout->addStretch(1);
+    }
+    // Save labels for updates as user navigates through wizard page.
     steps.append(box);
-    steps.append(stepName);
-
-    addStepToWidget();
-
+    steps.append(step);
+    // Let base clas handle actual addition of the page.
     return QWizard::addPage(page);
 }
 
-void
-MUSEWizard::addStepToWidget() {
-
-    //Get the index of the checkbox owned by the last step
-    const int lastStepAdded = steps.size() - 2;
-
-    //Wouldn't display correctly unless pointers were used
-    QHBoxLayout* row = new QHBoxLayout();
-    row->addWidget(steps.at(lastStepAdded));
-    row->addWidget(steps.at(lastStepAdded + 1));
-
-    mainLayout->addLayout(row);
-}
 
 void
 MUSEWizard::initializePage(int id) {
-
     applyCheckMarks(id + 1);
     page(id)->initializePage();
-
 }
 
 void
 MUSEWizard::cleanupPage(int id) {
-
     applyCheckMarks(id);
     page(id)->cleanupPage();
-
 }
 
 void
 MUSEWizard::applyCheckMarks(const int pageId) {
-
-    QPixmap box(":/images/16x16/Box.png");
-    QPixmap checkBox(":/images/16x16/CheckedBox.png");
+    static const QPixmap box(":/images/16x16/Box.png");
+    static const QPixmap checkBox(":/images/16x16/CheckedBox.png");
 
     for(int i = 0; i < steps.size(); i += 2) {
-
         steps.at(i)->setPixmap((pageId > i / 2) ? checkBox : box);
     }
-
 }
 
 #endif
