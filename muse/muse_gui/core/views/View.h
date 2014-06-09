@@ -37,6 +37,9 @@
 //---------------------------------------------------------------------
 
 #include <QWidget>
+#include <QToolBar>
+#include <QMenu>
+#include <QVBoxLayout>
 
 /**
  * @brief The View class A generic class for views shown in the MUSE GUI
@@ -46,9 +49,71 @@
  */
 class View : public QWidget {
     Q_OBJECT
-
 public:
-    View(QWidget* parent = 0);
+    /**
+     * @brief ~View The destructor for View objects.
+     *
+     * Currently, the default base class does not have any special clean up
+     * operations to perform.  Consequently, the destructor is present
+     * to serve as a place holder for future extensions.
+     */
+    virtual ~View() {}
+
+protected:
+    /**
+     * @brief View The constructor for creating a view.
+     *
+     * The constructor creates the default menu entries and buttons
+     * associated with the view. This class is an abstract class and is
+     * not meant to be directly instantiated.  Consequently, the constructor
+     * is protected.
+     *
+     * @param name The unique name to be associated with this view to ease
+     * locating a view within the scope of a given MainWindow.
+     *
+     * @param parent The logical parent (if any) to be associated with
+     * with the view.
+     */
+    View(const QString& name, QWidget* parent = 0);
+
+    /**
+     * @brief addAction Add an action to the view's menu and tool bar.
+     *
+     * This is a convenience method that must be used to add actions
+     * to the view's tool bar.
+     *
+     * @param action The action to be added to the tool bar. The pointer
+     * cannot be NULL and must point to a valid QAction object.
+     */
+    virtual void addAction(QAction* action);
+
+    /**
+     * @brief createDefaultLayout Create a default layout for the view.
+     *
+     * This method performs the default layout for the view by placing
+     * the toolbar at the top of the view and the central widget
+     * occupying remainder of the view.
+     *
+     * @param showToolBar If this flag is set to false, then the toolbar
+     * for the view is not displayed.
+     *
+     * @param centralWidget The main view widget that is layed out to
+     * occupy the central part of the view.
+     *
+     * @return This method returns the box layout used to organize
+     * the toolbar (if shown) and the central widget.
+     */
+    virtual QVBoxLayout* createDefaultLayout(bool showToolBar,
+                                             QWidget* centralWidget);
+
+private:
+    /**
+     * @brief viewToolbar The toolbar that is displayed at the top of a
+     * view to provide user with short cuts to common operations associated
+     * with the items.  The same set of tools are accessible via the
+     * the application-level main menu.
+     */
+    QToolBar viewToolbar;
 };
 
 #endif // VIEW_H

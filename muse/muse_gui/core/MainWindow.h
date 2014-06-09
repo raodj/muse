@@ -52,17 +52,25 @@ protected:
 
 protected slots:
     void createLoadDefaultWorkspace();
+    /**
+     * @brief showServerWidget Displays a server list view in the main frame
+     * is a view is not already present.
+     *
+     * This is a convenience method to display the server list view in this
+     * main frame. This method performs the necessary action only if a
+     * server view is not already present.  If a server view is already present
+     * then this method does not perform any operations.  This method may be
+     * invoked via the top-level application's "View" menu option.
+     */
+    void showServerListView();
 
 private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
-
     /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
+     * @brief desktop The permanent desktop area for displaying core
+     * information about a MUSE model/simulation. This desktop area
+     * essentially holds tabs that can be opened/closed as needed.
      */
-    void buildServerWidget();
+    DnDTabWidget *desktop;
 };
 
 #endif // MAIN_WINDOW_H

@@ -1,5 +1,5 @@
-#ifndef SERVERLISTVIEW_H
-#define SERVERLISTVIEW_H
+#ifndef SERVER_LIST_VIEW_H
+#define SERVER_LIST_VIEW_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -44,12 +44,17 @@
  * servers that the user has connected to in the past.
  */
 class ServerListView : public View {
-
 public:
     ServerListView(QWidget* parent = 0);
 
+    /**
+     * @brief ViewName A constant string to consistently refer to the name
+     * of this view. This string is set to "ServerListView".
+     */
+    static const QString ViewName;
+
 private:
-    QTableView serverData;
+    QTableView serverTable;
 };
 
-#endif // SERVERLISTVIEW_H
+#endif

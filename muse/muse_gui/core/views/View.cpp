@@ -38,8 +38,32 @@
 
 #include "View.h"
 
-View::View(QWidget *parent) : QWidget(parent) {
+View::View(const QString &name, QWidget *parent) :
+    QWidget(parent), viewToolbar(name + "ToolBar", this) {
+    // Set name of the object to ease finding views within a given main frame.
+    setObjectName(name);
+    // Setup default toolbar properties
+    viewToolbar.setIconSize(QSize(16, 16));
+}
 
+void
+View::addAction(QAction *action) {
+    viewToolbar.addAction(action);
+}
+
+QVBoxLayout*
+View::createDefaultLayout(bool showToolBar, QWidget *centralWidget) {
+    // Setup visibility of toolbar
+    viewToolbar.setVisible(showToolBar);
+    // Organize components in this widget for display.
+    QVBoxLayout *layout = new QVBoxLayout();
+    if (showToolBar) {
+        layout->addWidget(&viewToolbar);
+    }
+    layout->addWidget(centralWidget, 100);
+    setLayout(layout);
+    // Return the layout for further customization (if needed).
+    return layout;
 }
 
 #endif
