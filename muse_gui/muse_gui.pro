@@ -69,7 +69,6 @@ SOURCES +=\
     core/firstRunWizard/WelcomePage.cpp \
     core/firstRunWizard/LicensePage.cpp \
     core/firstRunWizard/AppDirPage.cpp \
-    core/firstRunWizard/SideWidget.cpp \
     core/MUSEGUIApplication.cpp
 
 
@@ -121,7 +120,6 @@ HEADERS  += \
     core/firstRunWizard/WelcomePage.h \
     core/firstRunWizard/LicensePage.h \
     core/firstRunWizard/AppDirPage.h \
-    core/firstRunWizard/SideWidget.h \
     core/MUSEGUIApplication.h
 
 
