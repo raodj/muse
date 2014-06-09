@@ -49,15 +49,25 @@ public:
     MUSEWizard(QWidget* parent = 0);
 
     /**
-     * @brief addPage Adds a page to the MUSEWizard. This is a MUSE-specific
-     * implementation of QWizard's addPage method in that a QLabel for the
-     * representation of the page in the side widget is also given as a parameter.
+     * @brief addPage Adds a page to the MUSEWizard.
+     *
+     * This is a MUSE-specific implementation of QWizard's addPage method in
+     * that a QLabel for the representation of the page in the side widget
+     * is also given as a parameter.
+     *
      * @param page The QWizardPage to be added to the MUSEWizard.
-     * @param stepName The QLabel textual title of <i>page</i> for display in the
-     * side widget step listing
+     *
+     * @param stepName A short textual page title of <i>page</i> for
+     * display in the wizard overview steps listing (to the left of wizard)
+     *
+     * @param lastPage If this parameter is true then the page is
+     * the last page in the wizard. This flag is used to finish GUI-layout of
+     * steps on the left-hand-side of the wizard.
+     *
      * @return The pageId of <i>page</i>, as given by QWizard::addPage().
      */
-    int addPage(QWizardPage *page, QLabel* stepName);
+    int addPage(QWizardPage *page, const QString &stepName,
+                const bool lastPage = false);
 
 protected:
     QList<QLabel*> steps;

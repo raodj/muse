@@ -69,12 +69,6 @@ public:
 
 private:
     /**
-     * @brief createSideWidget Initializes the side widget to display
-     * a checklist of all of the steps in the FirstRunWizard.
-     */
-    void createSideWidget();
-
-    /**
      * @brief app The top-level MUSE GUI application from where this
      * wizard was launched.  This reference is essentially used to
      * invoke the MUSEGUIApplication::checkCreateAppDirectory() method

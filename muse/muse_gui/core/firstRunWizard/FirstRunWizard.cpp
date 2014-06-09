@@ -46,19 +46,10 @@ FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
     MUSEWizard(parent), app(app) {
     setWindowTitle("First time setup");
 
-    addPage(&welcomePage, new QLabel("Welcome"));
-    addPage(&licensePage, new QLabel("License"));
-    addPage(&appDirPage, new QLabel("Finish"));
-
-
+    addPage(&welcomePage, "Welcome");
+    addPage(&licensePage, "Review License");
+    addPage(&appDirPage,  "Finish setup", true);
 }
-
-void
-FirstRunWizard::createSideWidget() {
-}
-
-
-
 
 void
 FirstRunWizard::accept() {
