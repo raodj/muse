@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVERLISTVIEW_H
+#define SERVERLISTVIEW_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,20 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include "View.h"
+#include <QTableView>
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
+/**
+ * @brief The ServerListView class Provides a visual, tabular listing of
+ * servers that the user has connected to in the past.
+ */
+class ServerListView : public View {
+
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
+    ServerListView(QWidget* parent = 0);
 
 private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
-
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
+    QTableView serverData;
 };
 
-#endif // MAIN_WINDOW_H
+#endif // SERVERLISTVIEW_H

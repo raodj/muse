@@ -44,10 +44,14 @@
 #include "Logger.h"
 #include "Version.h"
 #include <QLabel>
+#include <QVBoxLayout>
 #include <QDir>
 #include <QTimer>
 #include <QShowEvent>
 #include "MUSEGUIApplication.h"
+
+//Testing
+#include "ServerListView.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -63,6 +67,10 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
+
+    buildServerWidget();
+
+    addDockWidget(Qt::LeftDockWidgetArea, serverWidget, Qt::Vertical);
 
 
 }
@@ -113,6 +121,19 @@ MainWindow::createLoadDefaultWorkspace() {
         userLog(Logger::LOG_ERROR) << "Error creating/using workspace in "
                                    << homeDir << " - " << errMsg;
     }
+}
+
+void
+MainWindow::buildServerWidget() {
+    //Create the widget and set its minimum width.
+    serverWidget = new QDockWidget("Servers");
+    serverWidget->setMinimumWidth(this->width() / 5);
+
+//    QVBoxLayout* mainLayout = new QVBoxLayout();
+//    mainLayout->addWidget(new ServerListView());
+
+    //Apply the view as the main widget for the view.
+    serverWidget->setWidget(new ServerListView());
 }
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVER_LIST_VIEW_CPP
+#define SERVER_LIST_VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,23 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include "Core.h"
+#include "ServerListView.h"
+#include "ServerListTableModel.h"
+#include <QHeaderView>
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+ServerListView::ServerListView(QWidget *parent) : View(parent),
+    serverData(this) {
+    //Show a dotted line grid in the view
+    serverData.setShowGrid(true);
+    serverData.setGridStyle(Qt::DotLine);
+    //Stretch the last section across the rest of the view.
+    serverData.horizontalHeader()->setStretchLastSection(true);
 
-protected:
-    void showEvent(QShowEvent * event);
 
-protected slots:
-    void createLoadDefaultWorkspace();
+    //This is probably not the way we actually want to implement this.
+    serverData.setModel(new ServerListTableModel());
 
-private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
+}
 
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
-};
-
-#endif // MAIN_WINDOW_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef VIEW_CPP
+#define VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,10 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include "View.h"
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+View::View(QWidget *parent) : QWidget(parent) {
 
-protected:
-    void showEvent(QShowEvent * event);
+}
 
-protected slots:
-    void createLoadDefaultWorkspace();
-
-private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
-
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
-};
-
-#endif // MAIN_WINDOW_H
+#endif
