@@ -55,7 +55,7 @@ private:
     void addWidgetsToToolBar();
 
     QComboBox loggingLevelSelector;
-    QAction* testSaver;
+
 };
 
 #endif // USER_LOG_VIEW_H

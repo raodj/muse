@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVER_LIST_TABLE_CPP
+#define SERVER_LIST_TABLE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,35 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include "Core.h"
+#include "ServerListTableModel.h"
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+ServerListTableModel::ServerListTableModel() {
 
-protected:
-    void showEvent(QShowEvent * event);
+    //Set the column headers
+    setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
+    setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
+    setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
+}
 
-protected slots:
-    void createLoadDefaultWorkspace();
+QVariant
+ServerListTableModel::headerData(int section, Qt::Orientation orientation,
+                              int role) const {
+    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
+        // Ignore this type of request
+        return QVariant();
+    }
+    // Return strings for column headers
+    static const QString ColumnTitles[MAX_COLUMNS] =
+    {"Server", "Status", "ID"};
+    return  ColumnTitles[section];
+}
 
-private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
+QVariant
+ServerListTableModel::data(const QModelIndex &index, int role) const {
+//To be implemented later.
 
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
-};
+    return QVariant();
+}
 
-#endif // MAIN_WINDOW_H
+#endif

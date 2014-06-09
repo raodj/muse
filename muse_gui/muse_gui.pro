@@ -21,6 +21,7 @@ INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
 INCLUDEPATH += core/firstRunWizard
+INCLUDEPATH += core/views
 INCLUDEPATH += /usr/local/include
 
 # DEFINES += QT_NO_DEBUG_STREAM
@@ -69,7 +70,10 @@ SOURCES +=\
     core/firstRunWizard/WelcomePage.cpp \
     core/firstRunWizard/LicensePage.cpp \
     core/firstRunWizard/AppDirPage.cpp \
-    core/MUSEGUIApplication.cpp
+    core/MUSEGUIApplication.cpp \
+    core/views/View.cpp \
+    core/views/ServerListView.cpp \
+    core/views/ServerListTableModel.cpp
 
 
 HEADERS  += \
@@ -120,7 +124,10 @@ HEADERS  += \
     core/firstRunWizard/WelcomePage.h \
     core/firstRunWizard/LicensePage.h \
     core/firstRunWizard/AppDirPage.h \
-    core/MUSEGUIApplication.h
+    core/MUSEGUIApplication.h \
+    core/views/View.h \
+    core/views/ServerListView.h \
+    core/views/ServerListTableModel.h
 
 
 OTHER_FILES += \

@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVER_LIST_TABLE_MODEL_H
+#define SERVER_LIST_TABLE_MODEL_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,28 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include <QAbstractTableModel>
+#include "Server.h"
+#define MAX_COLUMNS 3
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
+/**
+ * @brief The ServerListTableModel class The table model for showing a
+ * listing of servers in MUSE GUI.
+ */
+class ServerListTableModel : public QAbstractTableModel {
+
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+    ServerListTableModel();
+    int rowCount(const QModelIndex & = QModelIndex()) const { return servers.size(); }
+    int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation,
+                                  int role) const;
 
 private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
+    QList<Server> servers;
 
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
 };
 
-#endif // MAIN_WINDOW_H
+#endif

@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef VIEW_H
+#define VIEW_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,19 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
+#include <QWidget>
 
-class MainWindow : public QMainWindow {
+/**
+ * @brief The View class A generic class for views shown in the MUSE GUI
+ * system. At this moment, this class has little to no implementation, but
+ * as various view classes are created and common functionality is realized,
+ * then the implementation of this class will begin to grow.
+ */
+class View : public QWidget {
     Q_OBJECT
-    
+
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
-
-private:
-    DnDTabWidget *desktop;
-    QDockWidget* serverWidget;
-
-    /**
-     * @brief buildServerWidget Puts the server list view into a QVBoxLayout
-     * and places the layout in the QDockWidget that displays the list of
-     * servers.
-     */
-    void buildServerWidget();
+    View(QWidget* parent = 0);
 };
 
-#endif // MAIN_WINDOW_H
+#endif // VIEW_H
