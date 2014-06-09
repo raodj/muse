@@ -67,12 +67,8 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
-
-    buildServerWidget();
-
-    addDockWidget(Qt::LeftDockWidgetArea, serverWidget, Qt::Vertical);
-
-
+    // Create a view that lists all servers in this workspace.
+    showServerListView();
 }
 
 MainWindow::~MainWindow() {
@@ -124,16 +120,15 @@ MainWindow::createLoadDefaultWorkspace() {
 }
 
 void
-MainWindow::buildServerWidget() {
-    //Create the widget and set its minimum width.
-    serverWidget = new QDockWidget("Servers");
-    serverWidget->setMinimumWidth(this->width() / 5);
-
-//    QVBoxLayout* mainLayout = new QVBoxLayout();
-//    mainLayout->addWidget(new ServerListView());
-
-    //Apply the view as the main widget for the view.
-    serverWidget->setWidget(new ServerListView());
+MainWindow::showServerListView() {
+    // Check to see if a server list view already exists in this main window.
+    // If so do not perfrom any futher operations.
+    if (findChild<ServerListView*>(ServerListView::ViewName) == NULL) {
+        // Create the widget and set its minimum width.
+        desktop->createSplitPane(new ServerListView(), "Servers",
+                                 DnDTabBar::LEFT,
+                                 QIcon(":/images/32x32/user_logs.png"));
+    }
 }
 
 #endif

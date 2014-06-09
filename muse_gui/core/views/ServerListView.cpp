@@ -41,18 +41,24 @@
 #include "ServerListTableModel.h"
 #include <QHeaderView>
 
-ServerListView::ServerListView(QWidget *parent) : View(parent),
-    serverData(this) {
+// The constant string that identifies the name of this view
+const QString ServerListView::ViewName = "ServerListView";
+
+ServerListView::ServerListView(QWidget *parent) :
+    View("ServerListView", parent), serverTable(this) {
     //Show a dotted line grid in the view
-    serverData.setShowGrid(true);
-    serverData.setGridStyle(Qt::DotLine);
+    serverTable.setShowGrid(true);
+    serverTable.setGridStyle(Qt::DotLine);
     //Stretch the last section across the rest of the view.
-    serverData.horizontalHeader()->setStretchLastSection(true);
-
-
+    serverTable.horizontalHeader()->setStretchLastSection(true);
+    // Set the full row to be selected by default
+    serverTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     //This is probably not the way we actually want to implement this.
-    serverData.setModel(new ServerListTableModel());
-
+    serverTable.setModel(new ServerListTableModel());
+    // Just a test action to see the toolbar
+    addAction(new QAction(QIcon(":/images/16x16/DontSaveLog.png"), "Action", 0));
+    // Organize components in this view for dsiplay
+    createDefaultLayout(true, &serverTable);
 }
 
 #endif
