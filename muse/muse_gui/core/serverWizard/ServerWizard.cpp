@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_VIEW_H
-#define SERVER_LIST_VIEW_H
+#ifndef SERVER_WIZARD_CPP
+#define SERVER_WIZARD_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,46 +36,12 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
-#include <QTableView>
+#include "ServerWizard.h"
 
 
-/**
- * @brief The ServerListView class Provides a visual, tabular listing of
- * servers that the user has connected to in the past.
- */
-class ServerListView : public View {
-    Q_OBJECT
-public:
-    ServerListView(QWidget* parent = 0);
+ServerWizard::ServerWizard(QWidget *parent) : MUSEWizard(parent) {
 
-    /**
-     * @brief ViewName A constant string to consistently refer to the name
-     * of this view. This string is set to "ServerListView".
-     */
-    static const QString ViewName;
-
-protected slots:
-    /**
-     * @brief showServerWizard Shows the ServerWizard when the user selects
-     * to add a server connection.
-     */
-    void showServerWizard();
-
-private:
-    QTableView serverTable;
-    QAction* addServerButton;
-    QAction* connectToServerButton;
-    QAction* myJobsButton;
-    QAction* serverInfoButton;
-    QAction* deleteServerButton;
-
-    /**
-     * @brief initializeToolBarButtons Initializes and adds the the buttons
-     * to the toolbar for the server list view.
-     */
-    void initializeToolBarButtons();
-
-};
+    addPage(&overviewPage, "Overview");
+}
 
 #endif

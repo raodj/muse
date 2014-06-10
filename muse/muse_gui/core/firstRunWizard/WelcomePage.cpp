@@ -62,7 +62,7 @@ WelcomePage::WelcomePage(QWidget *parent)
     setLayout(mainLayout);
 
     //Fixing for Mac display currently.
-    setTitle("    Welcome");
+    setTitle("Welcome");
     setSubTitle("First time setup");
 
 }

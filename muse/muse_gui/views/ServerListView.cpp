@@ -39,6 +39,7 @@
 #include "Core.h"
 #include "ServerListView.h"
 #include "ServerListTableModel.h"
+#include "ServerWizard.h"
 #include <QHeaderView>
 
 // The constant string that identifies the name of this view
@@ -55,14 +56,45 @@ ServerListView::ServerListView(QWidget *parent) :
     serverTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     //This is probably not the way we actually want to implement this.
     serverTable.setModel(new ServerListTableModel());
-    // Just a test action to see the toolbar
-    addAction(new QAction(QIcon(":/images/16x16/ServerAdd.png"), "Action", 0));
-    addAction(new QAction(QIcon(":/images/16x16/ServerConnect.png"), "Action", 0));
-    addAction(new QAction(QIcon(":/images/16x16/ServerMyJobs.png"), "Action", 0));
-    addAction(new QAction(QIcon(":/images/16x16/ServerInfo.png"), "Action", 0));
-    addAction(new QAction(QIcon(":/images/16x16/ServerDelete.png"), "Action", 0));
+    // Initialize the toolbar buttons
+    initializeToolBarButtons();
     // Organize components in this view for dsiplay
     createDefaultLayout(true, &serverTable);
+
+    connect(addServerButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
+}
+
+void
+ServerListView::initializeToolBarButtons() {
+    addServerButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+                                  "Add a server", 0);
+    addAction(addServerButton);
+
+    connectToServerButton = new QAction(QIcon(":/images/16x16/ServerConnect.png"),
+                                        "Try connecting to the server to ensure"
+                                        " connection is operational", 0);
+    addAction(connectToServerButton);
+
+    myJobsButton = new QAction(QIcon(":/images/16x16/ServerMyJobs.png"),
+                               "Show just my jobs that are running or "
+                               "queued on the server", 0);
+    addAction(myJobsButton);
+
+    serverInfoButton = new QAction(QIcon(":/images/16x16/ServerInfo.png"),
+                                   "Show all the jobs that are running or "
+                                   "queued on the server", 0);
+    addAction(serverInfoButton);
+
+    deleteServerButton = new QAction(QIcon(":/images/16x16/ServerDelete.png"),
+                                     "Uninstall MUSE runtime and remove an "
+                                     "existing server entry from the workspace", 0);
+    addAction(deleteServerButton);
+}
+
+void
+ServerListView::showServerWizard() {
+    ServerWizard sw;
+    sw.exec();
 }
 
 #endif

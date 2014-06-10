@@ -32,6 +32,7 @@
         <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>
         <file alias="welcome.html">resources/welcome.html</file>
         <file alias="GPL.txt">resources/GPL.txt</file>
+        <file alias="serverOverview.html">resources/serverOverview.html</file>
     </qresource>
     <qresource prefix="/images/logo">
         <file alias="MuseLogo.jpg">images/logo/muse_small_header.jpg</file>
