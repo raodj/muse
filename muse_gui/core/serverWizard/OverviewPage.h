@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_VIEW_H
-#define SERVER_LIST_VIEW_H
+#ifndef WELCOMEPAGE_H
+#define WELCOMEPAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,46 +36,18 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
-#include <QTableView>
+#include <QWizardPage>
+#include <QTextEdit>
 
+class OverviewPage : public QWizardPage {
 
-/**
- * @brief The ServerListView class Provides a visual, tabular listing of
- * servers that the user has connected to in the past.
- */
-class ServerListView : public View {
-    Q_OBJECT
 public:
-    ServerListView(QWidget* parent = 0);
-
-    /**
-     * @brief ViewName A constant string to consistently refer to the name
-     * of this view. This string is set to "ServerListView".
-     */
-    static const QString ViewName;
-
-protected slots:
-    /**
-     * @brief showServerWizard Shows the ServerWizard when the user selects
-     * to add a server connection.
-     */
-    void showServerWizard();
+    OverviewPage(QWidget *parent = 0);
 
 private:
-    QTableView serverTable;
-    QAction* addServerButton;
-    QAction* connectToServerButton;
-    QAction* myJobsButton;
-    QAction* serverInfoButton;
-    QAction* deleteServerButton;
 
-    /**
-     * @brief initializeToolBarButtons Initializes and adds the the buttons
-     * to the toolbar for the server list view.
-     */
-    void initializeToolBarButtons();
+    QTextEdit overviewText;
 
 };
 
-#endif
+#endif // WELCOMEPAGE_H

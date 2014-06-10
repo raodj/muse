@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_VIEW_H
-#define SERVER_LIST_VIEW_H
+#ifndef SERVERWIZARD_H
+#define SERVERWIZARD_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,46 +36,31 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
-#include <QTableView>
-
+#include "MUSEWizard.h"
+#include "OverviewPage.h"
+#include "ServerTypePage.h"
+#include "ServerInfoPage.h"
+#include "ServerSummaryPage.h"
 
 /**
- * @brief The ServerListView class Provides a visual, tabular listing of
- * servers that the user has connected to in the past.
+ * @brief The ServerWizard class This class serves as the top-level class
+ * for adding a new server entry to the work space. This top-level class
+ * merely creates the various pages and adds them to the wizard. Each
+ * page performs a specific task required to create a complete
+ * Server.
  */
-class ServerListView : public View {
-    Q_OBJECT
+class ServerWizard : public MUSEWizard {
+
 public:
-    ServerListView(QWidget* parent = 0);
-
-    /**
-     * @brief ViewName A constant string to consistently refer to the name
-     * of this view. This string is set to "ServerListView".
-     */
-    static const QString ViewName;
-
-protected slots:
-    /**
-     * @brief showServerWizard Shows the ServerWizard when the user selects
-     * to add a server connection.
-     */
-    void showServerWizard();
+    ServerWizard(QWidget* parent = 0);
 
 private:
-    QTableView serverTable;
-    QAction* addServerButton;
-    QAction* connectToServerButton;
-    QAction* myJobsButton;
-    QAction* serverInfoButton;
-    QAction* deleteServerButton;
-
-    /**
-     * @brief initializeToolBarButtons Initializes and adds the the buttons
-     * to the toolbar for the server list view.
-     */
-    void initializeToolBarButtons();
+    OverviewPage overviewPage;
+    ServerTypePage serverTypePage;
+    ServerInfoPage serverInfoPage;
+//    ComponentsPage componentsPage;
+    ServerSummaryPage serverSummaryPage;
 
 };
 
-#endif
+#endif // SERVERWIZARD_H

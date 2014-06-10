@@ -21,6 +21,7 @@ INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
 INCLUDEPATH += core/firstRunWizard
+INCLUDEPATH += core/serverWizard
 INCLUDEPATH += views
 INCLUDEPATH += /usr/local/include
 
@@ -73,7 +74,12 @@ SOURCES +=\
     core/MUSEGUIApplication.cpp \
     views/View.cpp \
     views/ServerListView.cpp \
-    views/ServerListTableModel.cpp
+    views/ServerListTableModel.cpp \
+    core/serverWizard/ServerWizard.cpp \
+    core/serverWizard/OverviewPage.cpp \
+    core/serverWizard/ServerTypePage.cpp \
+    core/serverWizard/ServerInfoPage.cpp \
+    core/serverWizard/ServerSummaryPage.cpp
 
 
 HEADERS  += \
@@ -127,7 +133,12 @@ HEADERS  += \
     core/MUSEGUIApplication.h \
     views/View.h \
     views/ServerListView.h \
-    views/ServerListTableModel.h
+    views/ServerListTableModel.h \
+    core/serverWizard/ServerWizard.h \
+    core/serverWizard/OverviewPage.h \
+    core/serverWizard/ServerTypePage.h \
+    core/serverWizard/ServerInfoPage.h \
+    core/serverWizard/ServerSummaryPage.h
 
 
 OTHER_FILES += \

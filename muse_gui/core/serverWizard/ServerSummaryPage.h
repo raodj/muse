@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_VIEW_H
-#define SERVER_LIST_VIEW_H
+#ifndef SERVERSUMMARYPAGE_H
+#define SERVERSUMMARYPAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,46 +36,19 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
-#include <QTableView>
+#include <QWizardPage>
+#include <QTextEdit>
+#include <QLineEdit>
 
+class ServerSummaryPage : public QWizardPage {
 
-/**
- * @brief The ServerListView class Provides a visual, tabular listing of
- * servers that the user has connected to in the past.
- */
-class ServerListView : public View {
-    Q_OBJECT
 public:
-    ServerListView(QWidget* parent = 0);
-
-    /**
-     * @brief ViewName A constant string to consistently refer to the name
-     * of this view. This string is set to "ServerListView".
-     */
-    static const QString ViewName;
-
-protected slots:
-    /**
-     * @brief showServerWizard Shows the ServerWizard when the user selects
-     * to add a server connection.
-     */
-    void showServerWizard();
+    ServerSummaryPage(QWidget *parent = 0);
 
 private:
-    QTableView serverTable;
-    QAction* addServerButton;
-    QAction* connectToServerButton;
-    QAction* myJobsButton;
-    QAction* serverInfoButton;
-    QAction* deleteServerButton;
-
-    /**
-     * @brief initializeToolBarButtons Initializes and adds the the buttons
-     * to the toolbar for the server list view.
-     */
-    void initializeToolBarButtons();
-
+    QTextEdit summaryText;
+    QLineEdit serverName;
+    QLineEdit installDirectory;
 };
 
-#endif
+#endif // SERVERSUMMARYPAGE_H
