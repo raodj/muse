@@ -45,6 +45,13 @@ ServerListTableModel::ServerListTableModel() {
     setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
     setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
     setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
+
+    Workspace* workspace = Workspace::get();
+    ServerList& list = workspace->getServerList();
+
+    for (int i = 0; i < list.size(); i ++) {
+        serverEntries.append(list.get(i));
+    }
 }
 
 QVariant
@@ -62,9 +69,28 @@ ServerListTableModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant
 ServerListTableModel::data(const QModelIndex &index, int role) const {
-//To be implemented later.
 
-    return QVariant();
+    if ((index.row() < 0)    || (index.row() >= serverEntries.size()) ||
+        (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
+        // A request that cannot be handled.
+        return QVariant();
+    }
+
+    //Rest of method only executed if role is the display role.
+    if (role != Qt::DisplayRole) {
+        return QVariant();
+    }
+
+    //Get the desired row of the server list
+    const Server &server = serverEntries.at(index.row());
+
+    //Return the value corresponding to the column.
+    switch (index.column()) {
+    case 0: return server.getName();
+    case 1: return server.getStatus();
+    default:
+    case 2: return server.getID();
+    }
 }
 
 #endif

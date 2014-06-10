@@ -56,7 +56,11 @@ ServerListView::ServerListView(QWidget *parent) :
     //This is probably not the way we actually want to implement this.
     serverTable.setModel(new ServerListTableModel());
     // Just a test action to see the toolbar
-    addAction(new QAction(QIcon(":/images/16x16/DontSaveLog.png"), "Action", 0));
+    addAction(new QAction(QIcon(":/images/16x16/ServerAdd.png"), "Action", 0));
+    addAction(new QAction(QIcon(":/images/16x16/ServerConnect.png"), "Action", 0));
+    addAction(new QAction(QIcon(":/images/16x16/ServerMyJobs.png"), "Action", 0));
+    addAction(new QAction(QIcon(":/images/16x16/ServerInfo.png"), "Action", 0));
+    addAction(new QAction(QIcon(":/images/16x16/ServerDelete.png"), "Action", 0));
     // Organize components in this view for dsiplay
     createDefaultLayout(true, &serverTable);
 }

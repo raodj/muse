@@ -67,8 +67,6 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
-    // Create a view that lists all servers in this workspace.
-    showServerListView();
 }
 
 MainWindow::~MainWindow() {
@@ -117,6 +115,8 @@ MainWindow::createLoadDefaultWorkspace() {
         userLog(Logger::LOG_ERROR) << "Error creating/using workspace in "
                                    << homeDir << " - " << errMsg;
     }
+    // Create a view that lists all servers in this workspace.
+    showServerListView();
 }
 
 void
@@ -127,7 +127,7 @@ MainWindow::showServerListView() {
         // Create the widget and set its minimum width.
         desktop->createSplitPane(new ServerListView(), "Servers",
                                  DnDTabBar::LEFT,
-                                 QIcon(":/images/32x32/user_logs.png"));
+                                 QIcon(":/images/16x16/Server.png"));
     }
 }
 

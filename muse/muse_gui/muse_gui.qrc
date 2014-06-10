@@ -21,6 +21,12 @@
         <file alias="ViewList.png">images/16x16/ViewList.png</file>
         <file alias="Box.png">images/16x16/Box.png</file>
         <file alias="CheckedBox.png">images/16x16/CheckedBox.png</file>
+        <file alias="Server.png">images/16x16/Server.png</file>
+        <file alias="ServerAdd.png">images/16x16/ServerAdd.png</file>
+        <file alias="ServerConnect.png">images/16x16/ServerConnect.png</file>
+        <file alias="ServerDelete.png">images/16x16/ServerDelete.png</file>
+        <file alias="ServerInfo.png">images/16x16/ServerInfo.png</file>
+        <file alias="ServerMyJobs.png">images/16x16/ServerMyJobs.png</file>
     </qresource>
     <qresource prefix="/resources">
         <file alias="muse_gui.xsd">resources/muse_gui.xsd</file>

@@ -37,6 +37,8 @@
 //---------------------------------------------------------------------
 
 #include <QAbstractTableModel>
+#include "ServerList.h"
+#include "Workspace.h"
 #include "Server.h"
 #define MAX_COLUMNS 3
 
@@ -46,9 +48,11 @@
  */
 class ServerListTableModel : public QAbstractTableModel {
 
+    friend class ServerList;
+    friend class Workspace;
 public:
     ServerListTableModel();
-    int rowCount(const QModelIndex & = QModelIndex()) const { return servers.size(); }
+    int rowCount(const QModelIndex & = QModelIndex()) const { return serverEntries.size(); }
     int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -56,7 +60,7 @@ public:
                                   int role) const;
 
 private:
-    QList<Server> servers;
+    QList<Server> serverEntries;
 
 };
 
