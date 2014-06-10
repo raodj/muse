@@ -196,6 +196,13 @@ public:
      */
     QString getName() const { return name; }
 
+    /**
+     * @brief getStatus Returns the server's status set for this server entry.
+     *
+     * @return The server's status
+     */
+    QString getStatus() const { return status; }
+
 protected:
     // Currently this class does not have any protected members.
 
