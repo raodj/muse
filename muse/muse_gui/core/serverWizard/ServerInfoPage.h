@@ -1,5 +1,5 @@
-#ifndef SERVERINFOPAGE_H
-#define SERVERINFOPAGE_H
+#ifndef SERVER_INFO_PAGE_H
+#define SERVER_INFO_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -48,11 +48,8 @@
  * directory, and polling delay.
  */
 class ServerInfoPage : public QWizardPage {
-
     Q_OBJECT
-
 public:
-
     /**
      * @brief ServerInfoPage The default constructor for the ServerInfoPage.
      * The constructor creates the layout for the page and places the
@@ -71,7 +68,6 @@ public:
     void initializePage();
 
 public slots:
-
     /**
      * @brief validatePage The overridden method of QWizardPage. This method
      * spawns a thread that will validate the install directory entered

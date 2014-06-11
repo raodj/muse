@@ -38,13 +38,11 @@
 
 #include "ServerWizard.h"
 
-
 ServerWizard::ServerWizard(QWidget *parent) : MUSEWizard(parent) {
-
-    addPage(&overviewPage, "Overview");
-    addPage(&serverTypePage, "Server Type");
-    addPage(&serverInfoPage, "Server Information");
-    addPage(&serverSummaryPage, "Summary");
+    addPage(&overviewPage,      "Overview");
+    addPage(&serverTypePage,    "Server Type");
+    addPage(&serverInfoPage,    "Server Information");
+    addPage(&serverSummaryPage, "Summary", true);
 }
 
 #endif

@@ -1,5 +1,5 @@
-#ifndef SERVERWIZARD_H
-#define SERVERWIZARD_H
+#ifndef SERVER_WIZARD_H
+#define SERVER_WIZARD_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -44,13 +44,13 @@
 
 /**
  * @brief The ServerWizard class This class serves as the top-level class
- * for adding a new server entry to the work space. This top-level class
- * merely creates the various pages and adds them to the wizard. Each
- * page performs a specific task required to create a complete
- * Server.
+ * for adding a new server entry to the work space.
+ *
+ * This top-level class merely creates the various pages and adds them to
+ * the wizard. Each page performs a specific task required to create a
+ * complete Server entry to be added to the workspace.
  */
 class ServerWizard : public MUSEWizard {
-
 public:
     ServerWizard(QWidget* parent = 0);
 
@@ -63,4 +63,4 @@ private:
 
 };
 
-#endif // SERVERWIZARD_H
+#endif

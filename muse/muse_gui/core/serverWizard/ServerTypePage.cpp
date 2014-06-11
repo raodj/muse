@@ -70,7 +70,6 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     registerField("server", &serverName);
     registerField("userId", &userId);
     registerField("serverType", serverTypeSelector);
-
 }
 
 
@@ -82,8 +81,8 @@ ServerTypePage::buildRemoteServerWidget() {
     // Add the title
     remoteServerLayout->addWidget(new QLabel("Remote Server Data"));
     // Create the horizontal layout for server info
-   createServerInfoLayout();
-   // Create the layout for the credentials
+    createServerInfoLayout();
+    // Create the layout for the credentials
     createCredentialsLayout();
     remoteServerWidget->setLayout(remoteServerLayout);
 }

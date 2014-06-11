@@ -1,5 +1,5 @@
-#ifndef SERVERSUMMARYPAGE_H
-#define SERVERSUMMARYPAGE_H
+#ifndef SERVER_SUMMARY_PAGE_H
+#define SERVER_SUMMARY_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -47,7 +47,6 @@
  * begins to execute.
  */
 class ServerSummaryPage : public QWizardPage {
-
 public:
     /**
      * @brief ServerSummaryPage The default constructor for the
