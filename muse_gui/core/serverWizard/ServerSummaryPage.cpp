@@ -37,8 +37,45 @@
 //---------------------------------------------------------------------
 
 #include "ServerSummaryPage.h"
+#include <QFile>
+#include <QLabel>
+#include <QTextStream>
+#include <QVBoxLayout>
 
 ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
+
+    // Set up the layout
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    // User can't edit the text in this view port.
+    summaryText.setReadOnly(true);
+
+    // load the text from the html file
+    QFile page(":/resources/serverSummary.html");
+    if(page.open(QFile::ReadOnly)){
+        QTextStream input(&page);
+
+        summaryText.setHtml(input.readAll());
+        page.close();
+    }
+    // Add the text to the layout
+    mainLayout->addWidget(&summaryText);
+    // Add label for server name
+    mainLayout->addWidget(new QLabel("Server's host name:"));
+    // Place the QLineEdit containing the server name
+    mainLayout->addWidget(&serverName);
+    // Add label for install directory
+    mainLayout->addWidget(new QLabel("Install directory:"));
+    // Place QLineEdit contianing install directory
+    mainLayout->addWidget(&installDirectory);
+    // Set mainLayout as default layout
+    setLayout(mainLayout);
+
+}
+
+void
+ServerSummaryPage::initializePage() {
+    serverName.setText(field("server").toString());
+    installDirectory.setText(field("installPath").toString());
 }
 
 #endif

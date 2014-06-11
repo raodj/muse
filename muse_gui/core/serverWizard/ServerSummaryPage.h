@@ -40,10 +40,30 @@
 #include <QTextEdit>
 #include <QLineEdit>
 
+/**
+ * @brief The ServerSummaryPage class The summary page for the ServerWizard
+ * class. This page presents the user with summary information about the
+ * server they are attempting to add to the workspace before the installation
+ * begins to execute.
+ */
 class ServerSummaryPage : public QWizardPage {
 
 public:
+    /**
+     * @brief ServerSummaryPage The default constructor for the
+     * ServerSummaryPage. Creates the layout for the summary page and reads
+     * in the html document (serverSummary.html) containing the formatted
+     * text to display to the user.
+     * @param parent
+     */
     ServerSummaryPage(QWidget *parent = 0);
+
+    /**
+     * @brief initializePage Overridden method of QWizardPage. Initializes
+     * the QLineEdits on this page with the server name and the install
+     * directory entered by the user on the previous pages.
+     */
+    void initializePage();
 
 private:
     QTextEdit summaryText;

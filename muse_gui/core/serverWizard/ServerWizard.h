@@ -57,9 +57,9 @@ public:
 private:
     OverviewPage overviewPage;
     ServerTypePage serverTypePage;
-    //ServerInfoPage serverInfoPage;
+    ServerInfoPage serverInfoPage;
 //    ComponentsPage componentsPage;
-    //ServerSummaryPage serverSummaryPage;
+    ServerSummaryPage serverSummaryPage;
 
 };
 
