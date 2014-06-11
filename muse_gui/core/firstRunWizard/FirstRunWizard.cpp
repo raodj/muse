@@ -38,7 +38,6 @@
 
 #include "FirstRunWizard.h"
 #include "MUSEGUIApplication.h"
-#include <QPalette>
 #include <QDir>
 #include <QFile>
 

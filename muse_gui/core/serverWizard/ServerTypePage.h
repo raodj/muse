@@ -47,15 +47,23 @@ public:
     ServerTypePage(QWidget *parent = 0);
 
 
-public slots:
+private slots:
+    /**
+     * @brief serverTypeChanged Enables or disables the fields on this page
+     * that pertain only to a remote server.
+     */
+    void serverTypeChanged();
 
 
 private:
-    QComboBox serverTypeSelector;
+    QComboBox* serverTypeSelector;
     QLineEdit serverName;
     QLineEdit userId;
     QLineEdit password;
     QSpinBox portNumber;
+    QWidget* remoteServerWidget;
+
+    void buildRemoteServerWidget();
 };
 
 #endif

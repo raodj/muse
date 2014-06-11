@@ -42,6 +42,7 @@
 ServerWizard::ServerWizard(QWidget *parent) : MUSEWizard(parent) {
 
     addPage(&overviewPage, "Overview");
+    addPage(&serverTypePage, "Server Type");
 }
 
 #endif
