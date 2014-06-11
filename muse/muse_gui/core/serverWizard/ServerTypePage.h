@@ -40,19 +40,36 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLineEdit>
+#include <QVBoxLayout>
 
+/**
+ * @brief The ServerTypePage class The ServerTypePage presents the user
+ * with fields to select the type of server and input information about the
+ * server if it is a remote server.
+ */
 class ServerTypePage : public QWizardPage {
     Q_OBJECT
 public:
     ServerTypePage(QWidget *parent = 0);
+
+    /**
+     * @brief validatePage The overridden method of QWizardPage. This method
+     * spawns a thread that will validate the login credentials and the
+     * existence of the remote server entered in this ServerWizardPage.
+     * @return Whether or not the ServerWizard can proceed to the next page
+     * when the user has clicked the "next" button.
+     */
+    bool validatePage();
 
 
 private slots:
     /**
      * @brief serverTypeChanged Enables or disables the fields on this page
      * that pertain only to a remote server.
+     * @param index The index of the currently selected item in
+     * serverTypeSelector
      */
-    void serverTypeChanged();
+    void serverTypeChanged(const int index);
 
 
 private:
@@ -62,8 +79,33 @@ private:
     QLineEdit password;
     QSpinBox portNumber;
     QWidget* remoteServerWidget;
+    QVBoxLayout* remoteServerLayout;
 
+    /**
+     * @brief buildRemoteServerWidget Calls helper methods to assist in the
+     * construction of the remoteServerWidget, which is a section of this page
+     * that only deals with the remote server.
+     */
     void buildRemoteServerWidget();
+
+    /**
+     * @brief createServerInfoLayout Creates the server name and port number
+     * fields and labels for the remoteServerWidget.
+     */
+    void createServerInfoLayout();
+
+    /**
+     * @brief createCredentialsLayout Creates the user name and password fields
+     * and labels for the remoteServerWidget.
+     */
+    void createCredentialsLayout();
+
+    /**
+     * @brief getUserName Gets the user name for the user logged on to the local
+     * computer
+     * @return The user name.
+     */
+    QString getUserName();
 };
 
 #endif

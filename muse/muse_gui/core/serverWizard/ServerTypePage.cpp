@@ -36,14 +36,17 @@
 //
 //---------------------------------------------------------------------
 
-#include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
 #include "ServerTypePage.h"
+#include <QMessageBox>
+
+#define REMOTE_SERVER_INDEX 1
 
 ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout* mainLayout = new QVBoxLayout();
 
+    // Create the combo box to select the type of server
     serverTypeSelector = new QComboBox();
     serverTypeSelector->addItem("Local Server (localhost)");
     serverTypeSelector->addItem("Remote Server (access via SSH)");
@@ -52,20 +55,41 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     mainLayout->addWidget(serverTypeSelector, 0);
 
     buildRemoteServerWidget();
-    mainLayout->addWidget(remoteServerWidget, 1);
+    remoteServerWidget->setEnabled(false);
+    mainLayout->addWidget(remoteServerWidget, 0);
 
     setLayout(mainLayout);
 
+    // Connect the combo box to the remote server widget so that
+    // it enables or disables based on the type of server selected
+    connect(serverTypeSelector, SIGNAL(currentIndexChanged(int)),
+            this, SLOT(serverTypeChanged(int)));
+
+    // Register the serverName QLineEdit as a field so that its data
+    // can be accessed later in the wizard.
+    registerField("server", &serverName);
+    registerField("userId", &userId);
+    registerField("serverType", serverTypeSelector);
 
 }
+
+
 
 void
 ServerTypePage::buildRemoteServerWidget() {
     remoteServerWidget = new QWidget();
-    QVBoxLayout* remoteServerLayout = new QVBoxLayout();
+    remoteServerLayout = new QVBoxLayout();
     // Add the title
     remoteServerLayout->addWidget(new QLabel("Remote Server Data"));
     // Create the horizontal layout for server info
+   createServerInfoLayout();
+   // Create the layout for the credentials
+    createCredentialsLayout();
+    remoteServerWidget->setLayout(remoteServerLayout);
+}
+
+void
+ServerTypePage::createServerInfoLayout() {
     QHBoxLayout* serverInfoLayout = new QHBoxLayout();
     // Create the vertical layout for the server name
     QVBoxLayout* serverNameLayout = new QVBoxLayout();
@@ -75,7 +99,7 @@ ServerTypePage::buildRemoteServerWidget() {
     serverName.setText("localhost");
     serverNameLayout->addWidget(&serverName);
     // Add serverName layout to its horizontal row
-    serverInfoLayout->addLayout(serverNameLayout, 0);
+    serverInfoLayout->addLayout(serverNameLayout);
     // Vertical layout for port number
     QVBoxLayout* portLayout = new QVBoxLayout();
     // Add Port label
@@ -87,15 +111,56 @@ ServerTypePage::buildRemoteServerWidget() {
     serverInfoLayout->addLayout(portLayout);
     // Add server info layout to widget layout
     remoteServerLayout->addLayout(serverInfoLayout);
-
-
-
-    remoteServerWidget->setLayout(remoteServerLayout);
 }
 
 void
-ServerTypePage::serverTypeChanged() {
+ServerTypePage::createCredentialsLayout() {
+    // Create the credentials section
+    QHBoxLayout* credentialsRow = new QHBoxLayout();
+    // Username section
+    QVBoxLayout* usernameLayout = new QVBoxLayout();
+    usernameLayout->addWidget(new QLabel("Login (user) ID:"));
+    userId.setText(getUserName());
+    // Add the text field to its layout
+    usernameLayout->addWidget(&userId);
+    // Add the user id section to the credentials layout
+    credentialsRow->addLayout(usernameLayout);
+    // Password section
+    QVBoxLayout* passwordLayout = new QVBoxLayout();
+    // Add the password label
+    passwordLayout->addWidget(new QLabel("Password:"));
+    // Set the password field to use password characters
+    password.setEchoMode(QLineEdit::Password);
+    // Add the field to the layout
+    passwordLayout->addWidget(&password);
+    // Add the password layout to the credentials section
+    credentialsRow->addLayout(passwordLayout);
+    // Add the credentials section to the widget layout
+    remoteServerLayout->addLayout(credentialsRow);
+}
 
+void
+ServerTypePage::serverTypeChanged(const int index) {
+
+    remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
+    userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());
+    serverName.setText( (index == REMOTE_SERVER_INDEX) ? "" : "localhost");
+
+}
+
+QString
+ServerTypePage::getUserName() {
+    // Gets the username on the system. "USER" for linux/Mac,
+    // "USERNAME" for Windows
+    QString userName = qgetenv("USER");
+
+    return (!userName.isEmpty()) ? userName : qgetenv("USERNAME");
+}
+
+bool
+ServerTypePage::validatePage() {
+    //Verify the server credentials. For now, return true.
+    return true;
 }
 
 #endif

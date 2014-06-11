@@ -40,19 +40,51 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include <QSpinBox>
-#include <QAction>
+#include <QPushButton>
 
+/**
+ * @brief The ServerInfoPage class The ServerInfoPage presents the user
+ * with prompts for their description of the server, the install
+ * directory, and polling delay.
+ */
 class ServerInfoPage : public QWizardPage {
 
     Q_OBJECT
 
 public:
+
+    /**
+     * @brief ServerInfoPage The default constructor for the ServerInfoPage.
+     * The constructor creates the layout for the page and places the
+     * components of the page into the layouts accordingly.
+     * @param parent
+     */
     ServerInfoPage(QWidget* parent = 0);
+
+    /**
+     * @brief initializePage Overridden method of QWizardPage to verify
+     * whether or not the browse button should be enabled by checking
+     * if the user selected to create a local or remote host, and to
+     * auto-populate the QLineEdit that displays the default install
+     * directory for the server.
+     */
+    void initializePage();
+
+public slots:
+
+    /**
+     * @brief validatePage The overridden method of QWizardPage. This method
+     * spawns a thread that will validate the install directory entered
+     * by the user.
+     * @return Whether or not the ServerWizard can proceed to the next page
+     * when the user has clicked the "next" button.
+     */
+    bool validatePage();
 
 private:
     QTextEdit serverDescription;
     QLineEdit installDirectoryDisplay;
-    QAction* browse;
+    QPushButton browse;
     QSpinBox pollingDelay;
 };
 

@@ -39,9 +39,21 @@
 #include <QWizardPage>
 #include <QTextEdit>
 
+/**
+ * @brief The OverviewPage class The opening page for the server wizard.
+ * This page informs the user of the necessary information they need to know
+ * before adding a server to their workspace directory.
+ */
 class OverviewPage : public QWizardPage {
 
 public:
+
+    /**
+     * @brief OverviewPage The default constructor for this QWizardPage.
+     * The constructor simply loads the text into the QTextEdit to display
+     * the information to the user.
+     * @param parent The parent widget this page belongs to.
+     */
     OverviewPage(QWidget *parent = 0);
 
 private:
