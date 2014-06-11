@@ -36,9 +36,65 @@
 //
 //---------------------------------------------------------------------
 
+#include <QVBoxLayout>
+#include <QHBoxLayout>
+#include <QLabel>
 #include "ServerTypePage.h"
 
 ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+
+    serverTypeSelector = new QComboBox();
+    serverTypeSelector->addItem("Local Server (localhost)");
+    serverTypeSelector->addItem("Remote Server (access via SSH)");
+
+    mainLayout->addWidget(new QLabel("Select a type of server to add:"));
+    mainLayout->addWidget(serverTypeSelector, 0);
+
+    buildRemoteServerWidget();
+    mainLayout->addWidget(remoteServerWidget, 1);
+
+    setLayout(mainLayout);
+
+
+}
+
+void
+ServerTypePage::buildRemoteServerWidget() {
+    remoteServerWidget = new QWidget();
+    QVBoxLayout* remoteServerLayout = new QVBoxLayout();
+    // Add the title
+    remoteServerLayout->addWidget(new QLabel("Remote Server Data"));
+    // Create the horizontal layout for server info
+    QHBoxLayout* serverInfoLayout = new QHBoxLayout();
+    // Create the vertical layout for the server name
+    QVBoxLayout* serverNameLayout = new QVBoxLayout();
+    // Create label for server name field
+    serverNameLayout->addWidget(new QLabel("Enter name or IP Address of server:"));
+    // Set up server name field with default value
+    serverName.setText("localhost");
+    serverNameLayout->addWidget(&serverName);
+    // Add serverName layout to its horizontal row
+    serverInfoLayout->addLayout(serverNameLayout, 0);
+    // Vertical layout for port number
+    QVBoxLayout* portLayout = new QVBoxLayout();
+    // Add Port label
+    portLayout->addWidget(new QLabel("Port:"));
+    // Set up port number
+    portNumber.setValue(22);
+    portLayout->addWidget(&portNumber);
+    // Add port layout to its row
+    serverInfoLayout->addLayout(portLayout);
+    // Add server info layout to widget layout
+    remoteServerLayout->addLayout(serverInfoLayout);
+
+
+
+    remoteServerWidget->setLayout(remoteServerLayout);
+}
+
+void
+ServerTypePage::serverTypeChanged() {
 
 }
 
