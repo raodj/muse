@@ -47,7 +47,7 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Set up the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout();
     // Add label for server description
-    mainLayout->addWidget(new QLabel("Description for server (for your reference):"));
+    mainLayout->addWidget(new QLabel("Description of server (for your reference):"));
     // Set the QTextEdit to be editable
     serverDescription.setReadOnly(false);
     // Add the QTextEdit to the layout
@@ -69,13 +69,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Add the label for the polling delay
     mainLayout->addWidget(new QLabel("Enter polling delay (seconds):"));
     mainLayout->addWidget(&pollingDelay);
-
-
-
     // Register the install directory as a field
     registerField("installPath", &installDirectoryDisplay);
-
-
     setLayout(mainLayout);
 }
 

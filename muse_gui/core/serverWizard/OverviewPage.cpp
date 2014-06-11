@@ -4,9 +4,6 @@
 #include <QVBoxLayout>
 
 OverviewPage::OverviewPage(QWidget* parent) : QWizardPage(parent) {
-
-    //overviewText = new QTextEdit();
-
     //User can't edit the text in this view port.
     overviewText.setReadOnly(true);
 
@@ -25,5 +22,4 @@ OverviewPage::OverviewPage(QWidget* parent) : QWizardPage(parent) {
     //Fixing for Mac display currently.
     setTitle("Overview");
     setSubTitle("Overview of tasks in this wizard");
-
 }

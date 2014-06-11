@@ -1,5 +1,5 @@
-#ifndef WELCOMEPAGE_H
-#define WELCOMEPAGE_H
+#ifndef OVERVIEW_PAGE_H
+#define OVERVIEW_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -45,9 +45,7 @@
  * before adding a server to their workspace directory.
  */
 class OverviewPage : public QWizardPage {
-
 public:
-
     /**
      * @brief OverviewPage The default constructor for this QWizardPage.
      * The constructor simply loads the text into the QTextEdit to display
@@ -57,9 +55,7 @@ public:
     OverviewPage(QWidget *parent = 0);
 
 private:
-
     QTextEdit overviewText;
-
 };
 
-#endif // WELCOMEPAGE_H
+#endif
