@@ -79,7 +79,8 @@ SOURCES +=\
     core/serverWizard/ServerTypePage.cpp \
     core/serverWizard/ServerInfoPage.cpp \
     core/serverWizard/ServerSummaryPage.cpp \
-    core/OverviewPage.cpp
+    core/OverviewPage.cpp \
+    infra/ServerConnectionTester.cpp
 
 
 HEADERS  += \
@@ -138,7 +139,8 @@ HEADERS  += \
     core/serverWizard/ServerTypePage.h \
     core/serverWizard/ServerInfoPage.h \
     core/serverWizard/ServerSummaryPage.h \
-    core/OverviewPage.h
+    core/OverviewPage.h \
+    infra/ServerConnectionTester.h
 
 
 OTHER_FILES += \

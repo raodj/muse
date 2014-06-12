@@ -39,7 +39,9 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include "ServerTypePage.h"
+
 #include <QMessageBox>
+#include <QProgressBar>
 
 #define REMOTE_SERVER_INDEX 1
 
@@ -158,7 +160,30 @@ ServerTypePage::getUserName() {
 
 bool
 ServerTypePage::validatePage() {
-    //Verify the server credentials. For now, return true.
+
+    if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX){
+//        QProgressBar prgBar;
+//        prgBar.setMinimum(0);
+//        prgBar.setMaximum(0);
+//        this->layout()->addWidget(&prgBar);
+
+        //Verify the server credentials.
+        tester = new ServerConnectionTester(userId.text(), password.text(),
+                                      serverName.text(), portNumber.value());
+        tester->start();
+
+        //wait(500000);
+
+        //while (tester->isRunning()){}
+
+        //bool result = tester->getResult();
+        //delete tester;
+
+        // Stay on the page for now until I can see that the testing works
+        // Once it does, actually handle the return appropriately.
+        return false;
+    }
+
     return true;
 }
 
