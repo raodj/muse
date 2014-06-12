@@ -93,7 +93,8 @@ ServerListView::initializeToolBarButtons() {
 
 void
 ServerListView::showServerWizard() {
-    ServerWizard sw;
+    QFile file(":/resources/serverOverview.html");
+    ServerWizard sw(file);
     sw.exec();
 }
 

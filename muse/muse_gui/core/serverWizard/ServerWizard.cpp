@@ -39,8 +39,10 @@
 #include "ServerWizard.h"
 #include <QFile>
 
-ServerWizard::ServerWizard(QWidget *parent) : overviewPage(QFile(":/resources/serverOverview.html")), MUSEWizard(parent) {
+ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) : MUSEWizard(parent),
+    overviewPage(welcomeFile){
 
+    //overviewPage = new OverviewPage(QFile(":/resources/serverOverview.html"));
     addPage(&overviewPage,      "Overview");
     addPage(&serverTypePage,    "Server Type");
     addPage(&serverInfoPage,    "Server Information");

@@ -46,10 +46,10 @@ OverviewPage::OverviewPage(QFile &file, QWidget* parent) : QWizardPage(parent) {
 
     //load the text from the html file
     if(file.open(QFile::ReadOnly)){
-        QTextStream input(&page);
+        QTextStream input(&file);
 
         overviewText.setHtml(input.readAll());
-        page.close();
+        file.close();
     }
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addWidget(&overviewText);

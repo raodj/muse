@@ -52,7 +52,7 @@
  */
 class ServerWizard : public MUSEWizard {
 public:
-    ServerWizard(QWidget* parent = 0);
+    ServerWizard(QFile& welcomeFile, QWidget* parent = 0);
 
 private:
     OverviewPage overviewPage;
