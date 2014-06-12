@@ -76,10 +76,10 @@ SOURCES +=\
     views/ServerListView.cpp \
     views/ServerListTableModel.cpp \
     core/serverWizard/ServerWizard.cpp \
-    core/serverWizard/OverviewPage.cpp \
     core/serverWizard/ServerTypePage.cpp \
     core/serverWizard/ServerInfoPage.cpp \
-    core/serverWizard/ServerSummaryPage.cpp
+    core/serverWizard/ServerSummaryPage.cpp \
+    core/OverviewPage.cpp
 
 
 HEADERS  += \
@@ -135,10 +135,10 @@ HEADERS  += \
     views/ServerListView.h \
     views/ServerListTableModel.h \
     core/serverWizard/ServerWizard.h \
-    core/serverWizard/OverviewPage.h \
     core/serverWizard/ServerTypePage.h \
     core/serverWizard/ServerInfoPage.h \
-    core/serverWizard/ServerSummaryPage.h
+    core/serverWizard/ServerSummaryPage.h \
+    core/OverviewPage.h
 
 
 OTHER_FILES += \
