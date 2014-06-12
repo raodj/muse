@@ -77,7 +77,8 @@ MUSEGUIApplication::exec() {
     if (!workspaceDir.exists()) {
         // It is assumed this is the first time the user is running
         // MUSE GUI! Run the FirstRunWizard dialog.
-        FirstRunWizard frw(*this);
+        QFile welcomeText(":/resources/welcome.html");
+        FirstRunWizard frw(*this, welcomeText);
         if (frw.exec() == QDialog::Rejected) {
             // The user rejected or canceled the start. Exit right away
             return 1;

@@ -38,7 +38,7 @@
 
 #include "Core.h"
 #include "MUSEWizard.h"
-#include "WelcomePage.h"
+
 #include "LicensePage.h"
 #include "AppDirPage.h"
 #include "MUSEGUIApplication.h"
@@ -55,7 +55,7 @@
  */
 class FirstRunWizard : public MUSEWizard {
 public:
-    FirstRunWizard(MUSEGUIApplication& app, QWidget* parent = 0);
+    FirstRunWizard(MUSEGUIApplication& app, QFile& file, QWidget* parent = 0);
 
     /**
      * @brief accept The MUSE-specific implementation of the accept()
@@ -76,9 +76,6 @@ private:
      * necessary files the first time MUSE-GUI is run by an user.
      */
     MUSEGUIApplication& app;
-
-
-    WelcomePage welcomePage;
     LicensePage licensePage;
     AppDirPage  appDirPage;
 };

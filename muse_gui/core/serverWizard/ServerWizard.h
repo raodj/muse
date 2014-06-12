@@ -37,7 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "MUSEWizard.h"
-#include "OverviewPage.h"
+//#include "OverviewPage.h"
 #include "ServerTypePage.h"
 #include "ServerInfoPage.h"
 #include "ServerSummaryPage.h"
@@ -53,9 +53,10 @@
 class ServerWizard : public MUSEWizard {
 public:
     ServerWizard(QFile& welcomeFile, QWidget* parent = 0);
+    ServerWizard(QString& welcomeText, QWidget* parent = 0);
 
 private:
-    OverviewPage overviewPage;
+    //OverviewPage overviewPage;
     ServerTypePage serverTypePage;
     ServerInfoPage serverInfoPage;
 //    ComponentsPage componentsPage;

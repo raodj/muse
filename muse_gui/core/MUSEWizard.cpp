@@ -38,7 +38,8 @@
 #include "MUSEWizard.h"
 #include <QHBoxLayout>
 
-MUSEWizard::MUSEWizard(QWidget *parent) : QWizard(parent) {
+MUSEWizard::MUSEWizard(QFile &file, QWidget *parent) : QWizard(parent),
+    overviewPage(file) {
     setPixmap(QWizard::BannerPixmap,
               QPixmap(":/images/logo/bannerImg.png"));
     setPixmap(QWizard::BackgroundPixmap,
@@ -47,6 +48,26 @@ MUSEWizard::MUSEWizard(QWidget *parent) : QWizard(parent) {
     mainLayout = new QVBoxLayout();
     sideBar.setLayout(mainLayout);
     setSideWidget(&sideBar);
+
+    addPage(&overviewPage, "Overview");
+
+#ifndef Q_OS_MAC
+    setWizardStyle(QWizard::ModernStyle);
+#endif
+}
+
+MUSEWizard::MUSEWizard(QString& text, QWidget* parent) : QWizard(parent),
+    overviewPage(text) {
+    setPixmap(QWizard::BannerPixmap,
+              QPixmap(":/images/logo/bannerImg.png"));
+    setPixmap(QWizard::BackgroundPixmap,
+              QPixmap(":/images/logo/columnImg.png"));
+
+    mainLayout = new QVBoxLayout();
+    sideBar.setLayout(mainLayout);
+    setSideWidget(&sideBar);
+
+    addPage(&overviewPage, "Overview");
 
 #ifndef Q_OS_MAC
     setWizardStyle(QWizard::ModernStyle);

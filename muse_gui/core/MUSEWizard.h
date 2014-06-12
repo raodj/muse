@@ -39,6 +39,7 @@
 #include <QWizard>
 #include <QLabel>
 #include <QVBoxLayout>
+#include "OverviewPage.h"
 
 /**
  * @brief The MUSEWizard class The base class for all MUSE Wizard
@@ -46,7 +47,9 @@
  */
 class MUSEWizard : public QWizard {
 public:
-    MUSEWizard(QWidget* parent = 0);
+    MUSEWizard(QFile& file, QWidget* parent = 0);
+
+    MUSEWizard(QString& text, QWidget* parent = 0);
 
     /**
      * @brief addPage Adds a page to the MUSEWizard.
@@ -107,6 +110,7 @@ private:
     void applyCheckMarks(const int pageId);
     QVBoxLayout* mainLayout;
     QWidget sideBar;
+    OverviewPage overviewPage;
 };
 
 #endif // MUSE_WIZARD_H

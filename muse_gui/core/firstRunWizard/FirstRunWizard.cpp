@@ -41,11 +41,10 @@
 #include <QDir>
 #include <QFile>
 
-FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
-    MUSEWizard(parent), app(app) {
+FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QFile &file, QWidget *parent) :
+    MUSEWizard(file, parent), app(app) {
     setWindowTitle("First time setup");
 
-    addPage(&welcomePage, "Welcome");
     addPage(&licensePage, "Review License");
     addPage(&appDirPage,  "Finish setup", true);
 }
