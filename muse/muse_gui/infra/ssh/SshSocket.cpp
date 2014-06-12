@@ -155,9 +155,9 @@ SshSocket::getCredentials(SshSocket &ssh, const libssh2_knownhost *hostInfo,
     lcd.setUsername(userID);
     // Load other IDs that the user has used in the past here. For now
     // let's add some dummy values for testing.
-    QStringList otherIDs;
-    otherIDs << "superman" << "batman" << "007";
-    lcd.setUsernamesList(otherIDs);
+//    QStringList otherIDs;
+//    otherIDs << "superman" << "batman" << "007";
+//    lcd.setUsernamesList(otherIDs);
     lcd.setPassword(password);
     if (lcd.exec() != QDialog::Accepted) {
         // User canceled operation.

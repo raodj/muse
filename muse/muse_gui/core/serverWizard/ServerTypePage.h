@@ -41,6 +41,7 @@
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QVBoxLayout>
+#include "ServerConnectionTester.h"
 
 /**
  * @brief The ServerTypePage class The ServerTypePage presents the user
@@ -80,6 +81,7 @@ private:
     QSpinBox portNumber;
     QWidget* remoteServerWidget;
     QVBoxLayout* remoteServerLayout;
+    ServerConnectionTester* tester;
 
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the
