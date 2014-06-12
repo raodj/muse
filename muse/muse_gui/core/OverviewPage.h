@@ -38,6 +38,7 @@
 
 #include <QWizardPage>
 #include <QTextEdit>
+#include <QFile>
 
 /**
  * @brief The OverviewPage class The opening page for the server wizard.
@@ -47,12 +48,23 @@
 class OverviewPage : public QWizardPage {
 public:
     /**
-     * @brief OverviewPage The default constructor for this QWizardPage.
+     * @brief OverviewPage One of two constructors for this QWizardPage.
      * The constructor simply loads the text into the QTextEdit to display
      * the information to the user.
+     * @param file The QFile that points to the html file that is the source of the
+     * text to be displayed on this OverviewPage.     *
      * @param parent The parent widget this page belongs to.
      */
-    OverviewPage(QWidget *parent = 0);
+    OverviewPage(QFile& file, QWidget *parent = 0);
+
+    /**
+     * @brief OverviewPage One of two constructors for this QWizardPage.
+     * This constructor takes the text given and places it in the QTextEdit
+     * to display the information to the user.
+     * @param text The text to be displayed in this page's QTextEdit.
+     * @param parent The parent widget this page belongs to
+     */
+    OverviewPage(const QString& text, QWidget *parent = 0);
 
 private:
     QTextEdit overviewText;

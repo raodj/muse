@@ -1,5 +1,5 @@
-#ifndef SERVER_WIZARD_CPP
-#define SERVER_WIZARD_CPP
+#ifndef OVERVIEW_PAGE_CPP
+#define OVERVIEW_PAGE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,15 +36,43 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerWizard.h"
-#include <QFile>
+#include "OverviewPage.h"
+#include <QTextStream>
+#include <QVBoxLayout>
 
-ServerWizard::ServerWizard(QWidget *parent) : overviewPage(QFile(":/resources/serverOverview.html")), MUSEWizard(parent) {
+OverviewPage::OverviewPage(QFile &file, QWidget* parent) : QWizardPage(parent) {
+    //User can't edit the text in this view port.
+    overviewText.setReadOnly(true);
 
-    addPage(&overviewPage,      "Overview");
-    addPage(&serverTypePage,    "Server Type");
-    addPage(&serverInfoPage,    "Server Information");
-    addPage(&serverSummaryPage, "Summary", true);
+    //load the text from the html file
+    if(file.open(QFile::ReadOnly)){
+        QTextStream input(&page);
+
+        overviewText.setHtml(input.readAll());
+        page.close();
+    }
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(&overviewText);
+    setLayout(mainLayout);
+
+    //Fixing for Mac display currently.
+    setTitle("Overview");
+    setSubTitle("Overview of tasks in this wizard");
+}
+
+OverviewPage::OverviewPage(const QString& text, QWidget *parent) {
+    //User can't edit the text in this view port.
+    overviewText.setReadOnly(true);
+
+    overviewText.setText(text);
+
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(&overviewText);
+    setLayout(mainLayout);
+
+    //Fixing for Mac display currently.
+    setTitle("Overview");
+    setSubTitle("Overview of tasks in this wizard");
 }
 
 #endif
