@@ -39,14 +39,23 @@
 #include "ServerWizard.h"
 #include <QFile>
 
-ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) : MUSEWizard(parent),
-    overviewPage(welcomeFile){
+ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) :
+    MUSEWizard(welcomeFile, parent) {
 
-    //overviewPage = new OverviewPage(QFile(":/resources/serverOverview.html"));
-    addPage(&overviewPage,      "Overview");
+
     addPage(&serverTypePage,    "Server Type");
     addPage(&serverInfoPage,    "Server Information");
     addPage(&serverSummaryPage, "Summary", true);
+}
+
+ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
+    MUSEWizard(welcomeText, parent) {
+
+
+    addPage(&serverTypePage,    "Server Type");
+    addPage(&serverInfoPage,    "Server Information");
+    addPage(&serverSummaryPage, "Summary", true);
+
 }
 
 #endif
