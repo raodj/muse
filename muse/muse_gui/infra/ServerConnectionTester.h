@@ -25,7 +25,7 @@ public:
      */
     ServerConnectionTester(QString userName,
                            QString password, QString hostName,
-                           const int portNumber = 22, QObject* parent = 0);
+                           const int portNumber = 22, QWidget *mainThread = 0, QObject *parent = 0);
     /**
      * @brief run The overriden run method that is required for threaded classes.
      * This class tries to connect to the server with the given credentials that
@@ -39,6 +39,8 @@ public:
      * @return The result of the test.
      */
     bool getResult();
+
+    QWidget* getParentWidget();
 
 signals:
     /**
@@ -75,6 +77,7 @@ private:
     SshSocket* connection;
     QString userName, password, hostName;
     int portNumber;
+    QWidget* ptrToMainThread;
 };
 
 #endif // SERVERCONNECTIONTESTER_H

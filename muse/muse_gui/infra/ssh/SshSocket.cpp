@@ -38,7 +38,6 @@ SshSocket::SshSocket(const QString& reason, QWidget *parent,
                 connType);
     }
 }
-
 SshSocket::~SshSocket() throw () {
     if (sshSession != NULL) {
         libssh2_session_disconnect(sshSession, reason.toStdString().c_str());

@@ -90,6 +90,7 @@ MUSEGUIApplication::exec() {
         return 2;
     }
 
+
     // Everything went well so far. Create one main window and show it.
     mainWindowList.append(new MainWindow());
     mainWindowList[0]->show();

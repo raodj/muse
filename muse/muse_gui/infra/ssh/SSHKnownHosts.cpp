@@ -198,7 +198,8 @@ SSHKnownHosts::checkUpdateKnownHosts(SshSocket &ssh,
     const QString message = format(msgFormat, values);
     const QString details = format(ConnectDetailsMessage, values);
     // Create a message box and display information to the user.
-    QMessageBox msgBox(ssh.getOwner());
+    //QMessageBox msgBox(ssh.getOwner());
+    QMessageBox msgBox;
     msgBox.setWindowTitle("Continue connecting with host?");
     msgBox.setIcon(QMessageBox::Warning);
     msgBox.setText(message);

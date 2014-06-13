@@ -39,11 +39,14 @@
 #include "ServerConnectionTester.h"
 #include "MUSEGUIApplication.h"
 #include <QProgressDialog>
+#include "SSHKnownHosts.h"
 
 ServerConnectionTester::ServerConnectionTester(QString userName,
                                                QString password,
                                                QString hostName,
-                                               const int portNumber, QObject *parent) :
+                                               const int portNumber,
+                                               QWidget* mainThread,
+                                               QObject *parent) :
     QThread(parent) {
     // Default success status
     success = false;
@@ -51,8 +54,21 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
     this->password = password;
     this->hostName = hostName;
     this->portNumber = portNumber;
+    ptrToMainThread = mainThread;
 
-    connection = new SshSocket("Testing connection", 0,
+
+}
+
+QWidget*
+ServerConnectionTester::getParentWidget() {
+    return ptrToMainThread;
+}
+
+void
+ServerConnectionTester::run() {
+
+    SSHKnownHosts sshkh(MUSEGUIApplication::getKnownHostsPath());
+    connection = new SshSocket("Testing connection", ptrToMainThread,
                                MUSEGUIApplication::getKnownHostsPath());
 
     // Disconnect the signal for credentials to avoid the popup dialog.
@@ -76,27 +92,25 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
             connection, SLOT(getCredentials(SshSocket&,
                                             const libssh2_knownhost*,
                                             QString&,QString&,bool&)));
-}
-
-void
-ServerConnectionTester::run() {
 
 
     // Okay, time to test the connection
-    QProgressDialog* prgBar = new QProgressDialog();
+    //QProgressDialog* prgBar = new QProgressDialog();
     //prgBar->show();
 
-    success = connection->connectToHost(hostName, NULL, portNumber);
+    success = connection->connectToHost(hostName);
     //exec();
-    delete prgBar;
+
     delete connection;
 }
 
 void
 ServerConnectionTester::interceptRequestForCredentials(SshSocket &ssh, const libssh2_knownhost *hostInfo,
                                                        QString &userID, QString &password, bool &cancel) {
+    userID = userName;
+    password = this->password;
 
-    emit passUserCredentials(ssh, hostInfo, this->userName, this->password, cancel);
+    emit passUserCredentials(ssh, hostInfo, userID, password, cancel);
 
 }
 
