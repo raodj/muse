@@ -2,6 +2,8 @@
 #define SERVER_CONNECTION_TESTER_H
 
 #include <QThread>
+#include <QWaitCondition>
+#include <QMutex>
 #include "SshSocket.h"
 
 /**
@@ -25,7 +27,7 @@ public:
      */
     ServerConnectionTester(QString userName,
                            QString password, QString hostName,
-                           const int portNumber = 22, QWidget *mainThread = 0, QObject *parent = 0);
+                           const int portNumber = 22, QObject *parent = 0);
     /**
      * @brief run The overriden run method that is required for threaded classes.
      * This class tries to connect to the server with the given credentials that
@@ -40,44 +42,44 @@ public:
      */
     bool getResult();
 
-    QWidget* getParentWidget();
+
+    // For controlling the threads
+    static QWaitCondition userHasResponded, passUserData;
+    static QMutex mutex, userDataMutex;
 
 signals:
-    /**
-     * @brief passUserCredentials Passes the server information to the SshSocket
-     * instance variable's getCredentials() slot so that the tester
-     * can connect to the server.
-     * @param ssh The ssh socket trying to make a connection
-     * @param hostInfo The known host info
-     * @param userID The username given by the user
-     * @param password The password given by the user
-     * @param cancel
-     */
-    void passUserCredentials(SshSocket& ssh, const libssh2_knownhost* hostInfo,
-                             QString& userID, QString& password, bool& cancel);
+
 
 private slots:
     /**
      * @brief interceptRequestForCredentials Intercepts the the SshSocket's
      * request for credentials to prevent the LoginCredentials dialog from
-     * appearing on the screen. This method emits passUserCredentials()
-     * and this signal will be captured by the SshSocket's getCredentials()
-     * slot.
-     * @param ssh The SshSocket attempting to make a connection.
-     * @param hostInfo The known host info.
-     * @param userID The user name given by the user
-     * @param password The password given by the user
-     * @param cancel
+     * appearing on the screen.
+     * @param username The pointer to the SshSocket's username.
+     * @param passWord The pointer to the SshSocket's password.
      */
-    void interceptRequestForCredentials(SshSocket &ssh, const libssh2_knownhost *hostInfo,
-                                        QString &userID, QString &password, bool &cancel);
+    void interceptRequestForCredentials(QString *username, QString *passWord);
+
+    /**
+     * @brief promptUser Displays user prompts from the threaded SSH connection
+     * to allow the SSH class to perform its connection correctly.
+     * @param windowTitle The window title of the QMessageBox.
+     * @param text The primary text of the QMessageBox.
+     * @param informativeText The informative text for the QMessageBox.
+     * @param detailedText The detailed text for the QMessageBox.
+     * @param userChoice The button pressed to close the QMessageBox.
+     */
+    void promptUser(const QString &windowTitle, const QString& text,
+                    const QString &informativeText,
+                    const QString &detailedText, int* userChoice);
+
 
 private:
     bool success;
     SshSocket* connection;
     QString userName, password, hostName;
     int portNumber;
-    QWidget* ptrToMainThread;
+
 };
 
 #endif // SERVERCONNECTIONTESTER_H
