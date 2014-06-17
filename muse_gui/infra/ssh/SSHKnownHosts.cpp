@@ -5,6 +5,7 @@
 #include "SshSocket.h"
 #include <QHostAddress>
 #include <QMessageBox>
+#include "ServerConnectionTester.h"
 
 const QString SSHKnownHosts::KnownHostLoadErrorMessage =
         "Unable to load list of known hosts from the known hosts "  \
@@ -51,9 +52,10 @@ const QString SSHKnownHosts::ConnectQuestionMessage =
         "proceed connecting this with this host?";
 
 SSHKnownHosts::SSHKnownHosts(const QString &knownHostsFile,
-                             bool handleSignals, Qt::ConnectionType conType) :
+                             bool handleSignals, bool runInSeparateThread, Qt::ConnectionType conType) :
     knownHostsFileName(knownHostsFile) {
     knownHostsList = NULL;
+    this->runInSeparateThread = runInSeparateThread;
     if (handleSignals) {
         // Connect signal about new or changed host signal to the default
         // slot that checks with the user about connecting to the host.
@@ -197,18 +199,36 @@ SSHKnownHosts::checkUpdateKnownHosts(SshSocket &ssh,
     // Obtain the formatted message for display purposes
     const QString message = format(msgFormat, values);
     const QString details = format(ConnectDetailsMessage, values);
-    // Create a message box and display information to the user.
-    //QMessageBox msgBox(ssh.getOwner());
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("Continue connecting with host?");
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(message);
-    msgBox.setInformativeText(ConnectQuestionMessage);
-    msgBox.setDetailedText(details);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::No);
+
+    // Lock userChoice for thread protection
+    ServerConnectionTester::mutex.lock();
+    // The result of the user's selection in the QMessageBox
+    int userChoice = -1;
+    // Run the message through this class if running on the main thread
+    if (!runInSeparateThread) {
+        // Create a message box and display information to the user.
+        QMessageBox msgBox(ssh.getOwner());
+        msgBox.setWindowTitle("Continue connecting with host?");
+        msgBox.setIcon(QMessageBox::Warning);
+        msgBox.setText(message);
+        msgBox.setInformativeText(ConnectQuestionMessage);
+        msgBox.setDetailedText(details);
+        msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+        msgBox.setDefaultButton(QMessageBox::No);
+        userChoice = msgBox.exec();
+    }
+    else {
+        // Otherwise, emit the signal to the main thread that a prompt needs to be displayed.
+        emit displayMessageBox("Continue connecting with host?",
+                               message, ConnectQuestionMessage,
+                               details, &userChoice);
+        // Wait until the user has responded to the MessageBox
+        ServerConnectionTester::userHasResponded.wait(&(ServerConnectionTester::mutex));
+        // Release the lock on the data.
+        ServerConnectionTester::mutex.unlock();
+    }
     // Show the message box and based on user's choice perform suitable action
-    if (msgBox.exec() == QMessageBox::Yes) {
+    if (userChoice == QMessageBox::Yes) {
         // Add/update the new host info to the list.
         return addKnownHost(ssh, sshSession, hostInfo);
     }

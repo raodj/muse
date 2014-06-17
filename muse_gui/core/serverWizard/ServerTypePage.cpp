@@ -169,10 +169,10 @@ ServerTypePage::validatePage() {
 
         //Verify the server credentials.
         tester = new ServerConnectionTester(userId.text(), password.text(),
-                                      serverName.text(), portNumber.value(),
-                                            this->parentWidget());
+                                      serverName.text(), portNumber.value());
         tester->start();
-
+        //bool result = tester->sameThread();
+        //delete tester;
         //wait(500000);
 
         //while (tester->isRunning()){}

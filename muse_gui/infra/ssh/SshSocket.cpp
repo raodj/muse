@@ -5,6 +5,7 @@
 #include <QProgressDialog>
 #include <QHostAddress>
 #include <QMessageBox>
+#include "ServerConnectionTester.h"
 
 // A commonly used title for GUI display purposes
 const QString SshSocket::Title(tr("SSH Library"));
@@ -26,9 +27,12 @@ const QString SshSocket::GenericErrorMessage =
 
 SshSocket::SshSocket(const QString& reason, QWidget *parent,
                      const QString& knownHostsFile, bool handleSignals,
+                     bool runInSeparateThread,
                      Qt::ConnectionType connType) throw () :
-    QTcpSocket(NULL), knownHosts(knownHostsFile, handleSignals, connType),
+    QTcpSocket(NULL), knownHosts(knownHostsFile, handleSignals,
+                                 runInSeparateThread, connType),
     owner(parent), reason(reason) {
+    this->runInSeparateThread = runInSeparateThread;
     sshSession = NULL;
     if (handleSignals) {
         connect(this, SIGNAL(needCredentials(SshSocket&,
@@ -46,6 +50,7 @@ SshSocket::~SshSocket() throw () {
         sshSession = NULL;
     }
 }
+
 
 QString
 SshSocket::getErrorMessage(const QString &prefix) const throw() {
@@ -121,11 +126,33 @@ SshSocket::connectToHost(const QString &hostName,
 bool
 SshSocket::authenticate(LIBSSH2_SESSION *sshSession)
 throw (const SshException &){
+
+    // Put a lock on the data if we are using this Socket
+    // via a thread.
+    if (runInSeparateThread) {
+        ServerConnectionTester::userDataMutex.lock();
+    }
+    // Give the user name a default name
+    username = "testing";
     // Maybe we should check for different forms of authentication?
     // Now get login credentials from the user.
-    QString username = "dmadhava", password;
+    //QString username = "dmadhava", password;
     bool cancel = false;
-    emit needCredentials(*this, NULL, username, password, cancel);
+    // Perform the standard method of retreiving the credentials
+    // if we are running int the Qt main thread.
+    if(!runInSeparateThread){
+        emit needCredentials(*this, NULL, username, password, cancel);
+    }
+    // Otherwise, we are running in a different thread, and therefore
+    // must get the credentials in a "thread-safe" way.
+    else {
+        // Ask for the credentials
+        emit needCredentials(&username, &password);
+        // Wait until the main thread has set the credentials
+        ServerConnectionTester::passUserData.wait(&ServerConnectionTester::userDataMutex);
+        // Release the lock on the data
+        ServerConnectionTester::userDataMutex.unlock();
+    }
     qDebug() << "username: " << username << ", password: *"
              << "cancel: "   << cancel;
     if (cancel) {

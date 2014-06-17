@@ -39,13 +39,18 @@
 #include "ServerConnectionTester.h"
 #include "MUSEGUIApplication.h"
 #include <QProgressDialog>
-#include "SSHKnownHosts.h"
+#include <QMessageBox>
+
+QMutex ServerConnectionTester::mutex;
+QMutex ServerConnectionTester::userDataMutex;
+
+QWaitCondition ServerConnectionTester::userHasResponded;
+QWaitCondition ServerConnectionTester::passUserData;
 
 ServerConnectionTester::ServerConnectionTester(QString userName,
                                                QString password,
                                                QString hostName,
                                                const int portNumber,
-                                               QWidget* mainThread,
                                                QObject *parent) :
     QThread(parent) {
     // Default success status
@@ -54,24 +59,18 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
     this->password = password;
     this->hostName = hostName;
     this->portNumber = portNumber;
-    ptrToMainThread = mainThread;
-
 
 }
 
-QWidget*
-ServerConnectionTester::getParentWidget() {
-    return ptrToMainThread;
-}
+
 
 void
 ServerConnectionTester::run() {
 
-    SSHKnownHosts sshkh(MUSEGUIApplication::getKnownHostsPath());
-    connection = new SshSocket("Testing connection", ptrToMainThread,
-                               MUSEGUIApplication::getKnownHostsPath());
+    connection = new SshSocket("Testing connection", NULL,
+                               MUSEGUIApplication::getKnownHostsPath(), true, true);
 
-    // Disconnect the signal for credentials to avoid the popup dialog.
+    // Disconnect the signal for credentials to avoid the popup dialog. May not need to do this
     connection->disconnect(connection, SIGNAL(needCredentials(SshSocket&,
                                                         const libssh2_knownhost*, QString&, QString&, bool&)),
                                                   connection, SLOT(getCredentials(SshSocket&,
@@ -79,45 +78,65 @@ ServerConnectionTester::run() {
 
     // Now, intercept the signal to provide the SshSocket with the
     // user's credentials
-    connect(connection, SIGNAL(needCredentials(SshSocket&,
-                                                           const libssh2_knownhost*,
-                                                           QString&,QString&,bool&)), this,
-                        SLOT(interceptRequestForCredentials(SshSocket&,
-                                                            const libssh2_knownhost*,
-                                                            QString&,QString&,bool&)));
-    // Pass along the user's credentials
-    connect(this, SIGNAL(passUserCredentials(SshSocket&,
-                                             const libssh2_knownhost*,
-                                             QString&,QString&,bool&)),
-            connection, SLOT(getCredentials(SshSocket&,
-                                            const libssh2_knownhost*,
-                                            QString&,QString&,bool&)));
+    connect(connection, SIGNAL(needCredentials(QString*, QString*)),
+            this, SLOT(interceptRequestForCredentials(QString*, QString*)));
 
 
-    // Okay, time to test the connection
+    // Allow prompts for an unknown host to display
+    connect(connection->getKnownHosts(), SIGNAL(displayMessageBox(const QString&, const QString&, const QString&, const QString&, int*)),
+            this, SLOT(promptUser(const QString&, const QString&, const QString&, const QString&, int*)));
+
+
+
+
     //QProgressDialog* prgBar = new QProgressDialog();
     //prgBar->show();
 
+    // Okay, time to test the connection
     success = connection->connectToHost(hostName);
-    //exec();
 
     delete connection;
 }
 
 void
-ServerConnectionTester::interceptRequestForCredentials(SshSocket &ssh, const libssh2_knownhost *hostInfo,
-                                                       QString &userID, QString &password, bool &cancel) {
-    userID = userName;
-    password = this->password;
-
-    emit passUserCredentials(ssh, hostInfo, userID, password, cancel);
-
+ServerConnectionTester::interceptRequestForCredentials(QString* username, QString* passWord) {
+    // Prevent other threads from accessing this data.
+    userDataMutex.lock();
+    // Change the username credential to the username input in the wizard
+    *username = userName;
+    // Change the password credential to the password input in the wizard
+    *passWord = password;
+    // Let the background thread continue
+    passUserData.wakeAll();
+    // Release the lock on the data
+    userDataMutex.unlock();
 }
 
 
 bool
 ServerConnectionTester::getResult() {
     return success;
+}
+
+void
+ServerConnectionTester::promptUser(const QString& windowTitle,
+                                   const QString& text,
+                                   const QString& informativeText,
+                                   const QString& detailedText,
+                                   int *userChoice) {
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(windowTitle);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(text);
+    msgBox.setInformativeText(informativeText);
+    msgBox.setDetailedText(detailedText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    mutex.lock();
+    *userChoice = msgBox.exec();
+    userHasResponded.wakeAll();
+    mutex.unlock();
 }
 
 #endif
