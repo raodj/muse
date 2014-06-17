@@ -26,7 +26,6 @@ SshException::SshException(SshSocket& ssh, const QString& msg,
     fileName(fileName), lineNumber(lineNumber), methodName(methodName) {
     // Nothing else to be done for now.
 }
-
 void
 SshException::show(const SshException &exp, QWidget* parent) {
     if (parent == NULL) {
@@ -46,3 +45,5 @@ SshException::show(const SshException &exp, QWidget* parent) {
     msgBox.setDefaultButton(QMessageBox::Ok);
     msgBox.exec();
 }
+
+

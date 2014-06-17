@@ -86,7 +86,6 @@ private:
     static const QString ConnectErrorMessage;
     static const QString GenericErrorMessage;
     bool runInSeparateThread;
-    QString username, password;
 };
 
 #endif // SSH_H

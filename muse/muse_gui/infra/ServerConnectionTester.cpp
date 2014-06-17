@@ -53,6 +53,7 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
                                                const int portNumber,
                                                QObject *parent) :
     QThread(parent) {
+
     // Default success status
     success = false;
     this->userName = userName;
@@ -62,10 +63,8 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
 
 }
 
-
-
 void
-ServerConnectionTester::run() {
+ServerConnectionTester::run() throw (const SshException &) {
 
     connection = new SshSocket("Testing connection", NULL,
                                MUSEGUIApplication::getKnownHostsPath(), true, true);
@@ -86,15 +85,18 @@ ServerConnectionTester::run() {
     connect(connection->getKnownHosts(), SIGNAL(displayMessageBox(const QString&, const QString&, const QString&, const QString&, int*)),
             this, SLOT(promptUser(const QString&, const QString&, const QString&, const QString&, int*)));
 
-
-
-
-    //QProgressDialog* prgBar = new QProgressDialog();
-    //prgBar->show();
-
     // Okay, time to test the connection
-    success = connection->connectToHost(hostName);
-
+    try {
+        success = connection->connectToHost(hostName);
+    }
+    catch (const SshException &e) {
+        const QString exceptionDetails =
+                e.getErrorDetails().arg(e.getFileName(), QString::number(e.getLineNumber()),
+                                 e.getMethodName(), QString::number(e.getSshErrorCode()),
+                                 QString::number(e.getNetworkErrorCode()));
+        emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
+                             exceptionDetails);
+    }
     delete connection;
 }
 

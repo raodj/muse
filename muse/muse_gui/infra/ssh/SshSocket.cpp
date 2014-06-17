@@ -125,18 +125,16 @@ SshSocket::connectToHost(const QString &hostName,
 
 bool
 SshSocket::authenticate(LIBSSH2_SESSION *sshSession)
-throw (const SshException &){
+throw (const SshException &) {
 
     // Put a lock on the data if we are using this Socket
     // via a thread.
     if (runInSeparateThread) {
         ServerConnectionTester::userDataMutex.lock();
     }
-    // Give the user name a default name
-    username = "testing";
     // Maybe we should check for different forms of authentication?
     // Now get login credentials from the user.
-    //QString username = "dmadhava", password;
+    QString username = "dmadhava", password;
     bool cancel = false;
     // Perform the standard method of retreiving the credentials
     // if we are running int the Qt main thread.
