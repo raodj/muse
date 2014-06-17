@@ -23,6 +23,7 @@ public:
                  const QString& fileName, const int lineNumber,
                  const QString& methodName) throw ();
     ~SshException() throw () {}
+    //SshException(const SshException& e);
 
     SshSocket& getSocket() { return ssh; }
     const QString& getMessage() const throw () { return msg; }
@@ -35,6 +36,8 @@ public:
     const QString& getMethodName() const { return methodName; }
 
     static void show(const SshException &exp, QWidget *parent = NULL);
+    QString getErrorDetails() const { return ErrorDetails; }
+    QString getGenericErrorMessage() const  { return GenericErrorMessage; }
 
 protected:
     static const QString GenericErrorMessage;

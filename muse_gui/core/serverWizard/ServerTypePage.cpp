@@ -39,9 +39,9 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include "ServerTypePage.h"
-
 #include <QMessageBox>
 #include <QProgressBar>
+
 
 #define REMOTE_SERVER_INDEX 1
 
@@ -72,6 +72,8 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     registerField("server", &serverName);
     registerField("userId", &userId);
     registerField("serverType", serverTypeSelector);
+    // Set default value
+    remoteConnectionVerified = false;
 }
 
 
@@ -138,6 +140,12 @@ ServerTypePage::createCredentialsLayout() {
     credentialsRow->addLayout(passwordLayout);
     // Add the credentials section to the widget layout
     remoteServerLayout->addLayout(credentialsRow);
+    // Set up the indicator for the remote connection tester.
+    prgDialog.setLabelText("Please wait while we check the connection.");
+    prgDialog.setCancelButton(0);
+    prgDialog.setRange(0, 0);
+    remoteServerLayout->addWidget(&prgDialog);
+    prgDialog.setVisible(false);
 }
 
 void
@@ -161,31 +169,62 @@ ServerTypePage::getUserName() {
 bool
 ServerTypePage::validatePage() {
 
-    if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX){
-//        QProgressBar prgBar;
-//        prgBar.setMinimum(0);
-//        prgBar.setMaximum(0);
-//        this->layout()->addWidget(&prgBar);
-
+    if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX &&
+            ! remoteConnectionVerified){
+        prgDialog.setVisible(true);
         //Verify the server credentials.
         tester = new ServerConnectionTester(userId.text(), password.text(),
-                                      serverName.text(), portNumber.value());
+                                            serverName.text(), portNumber.value());
+        // Allow us to know when tester has completed
+        connect(tester, SIGNAL(finished()),
+                this, SLOT(checkConnectionTesterResult()));
+
+        //qRegisterMetaType<SshException>("SshException");
+        // Allow us to show exception dialogs
+        connect(tester, SIGNAL(exceptionThrown(QString,QString,QString)),
+                this, SLOT(showException(QString,QString,QString)));
+        // Test the remote connection
         tester->start();
-        //bool result = tester->sameThread();
-        //delete tester;
-        //wait(500000);
 
-        //while (tester->isRunning()){}
-
-        //bool result = tester->getResult();
-        //delete tester;
-
-        // Stay on the page for now until I can see that the testing works
-        // Once it does, actually handle the return appropriately.
+        // Stay on the page for now while the test runs.
         return false;
     }
-
+    // Hide the progress dialog
+    prgDialog.setVisible(false);
+    // If we tested a remote connection, delete the instance of it and
+    // set it to false.
+    if(remoteConnectionVerified) {
+        delete tester;
+        remoteConnectionVerified = false;
+    }
     return true;
+}
+
+void
+ServerTypePage::cleanupPage() {
+    prgDialog.setVisible(false);
+}
+
+void
+ServerTypePage::checkConnectionTesterResult() {
+    remoteConnectionVerified = tester->getResult();
+
+    remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
+}
+
+void
+ServerTypePage::showException(const QString &message,
+                              const QString &genErrorMessage,
+                              const QString &exceptionDetails) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("SSH connectivity error");
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText(message);
+    msgBox.setInformativeText(genErrorMessage);
+    msgBox.setDetailedText(exceptionDetails);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.exec();
 }
 
 #endif

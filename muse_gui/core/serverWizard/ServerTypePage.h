@@ -41,6 +41,7 @@
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QVBoxLayout>
+#include <QProgressDialog>
 #include "ServerConnectionTester.h"
 
 /**
@@ -62,6 +63,13 @@ public:
      */
     bool validatePage();
 
+    /**
+     * @brief cleanupPage The overridden method of QWizardPage. This method
+     * merely ensures that the QProgressDialog is removed from the view if
+     * the user selects the "Back" button on this QWizardPage.
+     */
+    void cleanupPage();
+
 
 private slots:
     /**
@@ -71,6 +79,23 @@ private slots:
      * serverTypeSelector
      */
     void serverTypeChanged(const int index);
+
+    /**
+     * @brief checkConnectionTesterResult Checks the ServerConnectionTester
+     * to see if it was successfully able to connect to the server. If so,
+     * the wizard should advance to the next page.
+     */
+    void checkConnectionTesterResult();
+
+    /**
+     * @brief showException Shows a dialog explaining the exception thrown
+     * by the SshSocket.
+     * @param message The primary message to display.
+     * @param genErrorMessage The descriptive message to display.
+     * @param exceptionDetails The exact details of the error.
+     */
+    void showException(const QString& message, const QString& genErrorMessage,
+                       const QString& exceptionDetails);
 
 
 private:
@@ -82,6 +107,8 @@ private:
     QWidget* remoteServerWidget;
     QVBoxLayout* remoteServerLayout;
     ServerConnectionTester* tester;
+    QProgressDialog prgDialog;
+    bool remoteConnectionVerified;
 
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the

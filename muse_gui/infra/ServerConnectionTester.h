@@ -33,7 +33,7 @@ public:
      * This class tries to connect to the server with the given credentials that
      * are stored as instance variables of this ServerConnectionTester.
      */
-    void run();
+    void run() throw (const SshException &);
 
     /**
      * @brief getResult Returns the result of the attempt to connect with the
@@ -49,6 +49,14 @@ public:
 
 signals:
 
+    /**
+     * @brief exceptionThrown Alerts the main Qt gui thread that an
+     * exception was thrown and that the program needs to display a
+     * warning to the user explaining what happened.
+     * @param e The exception thrown.
+     */
+    void exceptionThrown(const QString& message, const QString& genErrorMessage,
+                         const QString& exceptionDetails);
 
 private slots:
     /**
