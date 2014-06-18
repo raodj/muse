@@ -80,7 +80,8 @@ SOURCES +=\
     core/serverWizard/ServerInfoPage.cpp \
     core/serverWizard/ServerSummaryPage.cpp \
     core/OverviewPage.cpp \
-    infra/ServerConnectionTester.cpp
+    infra/ServerConnectionTester.cpp \
+    infra/ThreadedConnectionGUI.cpp
 
 
 HEADERS  += \
@@ -140,7 +141,8 @@ HEADERS  += \
     core/serverWizard/ServerInfoPage.h \
     core/serverWizard/ServerSummaryPage.h \
     core/OverviewPage.h \
-    infra/ServerConnectionTester.h
+    infra/ServerConnectionTester.h \
+    infra/ThreadedConnectionGUI.h
 
 
 OTHER_FILES += \

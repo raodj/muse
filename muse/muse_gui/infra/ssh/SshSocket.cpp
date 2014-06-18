@@ -5,7 +5,7 @@
 #include <QProgressDialog>
 #include <QHostAddress>
 #include <QMessageBox>
-#include "ServerConnectionTester.h"
+#include "ThreadedConnectionGUI.h"
 
 // A commonly used title for GUI display purposes
 const QString SshSocket::Title(tr("SSH Library"));
@@ -130,7 +130,7 @@ throw (const SshException &) {
     // Put a lock on the data if we are using this Socket
     // via a thread.
     if (runInSeparateThread) {
-        ServerConnectionTester::userDataMutex.lock();
+        ThreadedConnectionGUI::userDataMutex.lock();
     }
     // Maybe we should check for different forms of authentication?
     // Now get login credentials from the user.
@@ -147,9 +147,9 @@ throw (const SshException &) {
         // Ask for the credentials
         emit needCredentials(&username, &password);
         // Wait until the main thread has set the credentials
-        ServerConnectionTester::passUserData.wait(&ServerConnectionTester::userDataMutex);
+        ThreadedConnectionGUI::passUserData.wait(&ThreadedConnectionGUI::userDataMutex);
         // Release the lock on the data
-        ServerConnectionTester::userDataMutex.unlock();
+        ThreadedConnectionGUI::userDataMutex.unlock();
     }
     qDebug() << "username: " << username << ", password: *"
              << "cancel: "   << cancel;

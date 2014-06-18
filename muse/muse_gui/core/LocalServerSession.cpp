@@ -2,7 +2,8 @@
 #include "LocalServerSession.h"
 #include <libssh2.h>
 
-LocalServerSession::LocalServerSession(Server &server, QWidget *parent) : ServerSession(server, parent) {
+LocalServerSession::LocalServerSession(Server &server, QWidget *parent, QString purpose) :
+    ServerSession(server, parent), purpose(purpose) {
     Q_UNUSED(server);
     Q_UNUSED(parent);
 }
@@ -72,7 +73,7 @@ void LocalServerSession::setPurpose(const QString &text) {
     Q_UNUSED(text);
 }
 
-void LocalServerSession::setPerms(File &file, const char &permDigit, const bool owner){
+void LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owner){
 
     Q_UNUSED(file);
     Q_UNUSED(permDigit);

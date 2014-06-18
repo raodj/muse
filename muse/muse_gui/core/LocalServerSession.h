@@ -33,12 +33,13 @@
 //
 //---------------------------------------------------------------------
 
-#ifndef LOCALSERVERSESSION_H
-#define LOCALSERVERSESSION_H
+#ifndef LOCAL_SERVER_SESSION_H
+#define LOCAL_SERVER_SESSION_H
 
 #include "ServerSession.h"
 #include <stdio.h>
-class File;
+#include <QFile>
+
 /**
  * @brief A local server session to run jobs on the local host.
  * <p>This class provides an implementation of the ServerSession API.
@@ -175,7 +176,7 @@ public:
      * @return The purpose of this server session. If a purpose has not been set, then
      * null is returned.
      */
-    QString* getPurpose();
+    QString& getPurpose();
 
 
 protected:
@@ -188,10 +189,10 @@ protected:
      * create GUI elements that may be needed for any interactive
      * operations.
      */
-    LocalServerSession(Server &server, QWidget *parent);
+    LocalServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
 
 private:
-    QString *purpose;
+    QString& purpose;
 
     /**
      * @brief Set the permissions for a given file. This method uses
@@ -205,10 +206,10 @@ private:
      * @param owner Flag to to indicate if the status is for the owner (true) or
      * for others (false).
      */
-    void setPerms(File &file, const char &permDigit, const bool owner);
+    void setPerms(QFile &file, const char &permDigit, const bool owner);
 
     //Not sure on this yet....
 //    Process startProcess(QString *command);
 };
 
-#endif // LOCALSERVERSESSION_H
+#endif

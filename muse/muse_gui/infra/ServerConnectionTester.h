@@ -5,6 +5,7 @@
 #include <QWaitCondition>
 #include <QMutex>
 #include "SshSocket.h"
+#include "ThreadedConnectionGUI.h"
 
 /**
  * @brief The ServerConnectionTester class is used to verify that the
@@ -33,7 +34,7 @@ public:
      * This class tries to connect to the server with the given credentials that
      * are stored as instance variables of this ServerConnectionTester.
      */
-    void run() throw (const SshException &);
+    void run();
 
     /**
      * @brief getResult Returns the result of the attempt to connect with the
@@ -43,9 +44,7 @@ public:
     bool getResult();
 
 
-    // For controlling the threads
-    static QWaitCondition userHasResponded, passUserData;
-    static QMutex mutex, userDataMutex;
+
 
 signals:
 
@@ -62,31 +61,24 @@ private slots:
     /**
      * @brief interceptRequestForCredentials Intercepts the the SshSocket's
      * request for credentials to prevent the LoginCredentials dialog from
-     * appearing on the screen.
+     * appearing on the screen.<br/>
+     *
+     * Normally, this would be handled by the ThreadedConnectionGUI,
+     * but since we don't want to create a Server variable yet (if this fails),
+     * we will handle the credentials request here, since we have access
+     * to the password.
+     *
      * @param username The pointer to the SshSocket's username.
      * @param passWord The pointer to the SshSocket's password.
      */
-    void interceptRequestForCredentials(QString *username, QString *passWord);
-
-    /**
-     * @brief promptUser Displays user prompts from the threaded SSH connection
-     * to allow the SSH class to perform its connection correctly.
-     * @param windowTitle The window title of the QMessageBox.
-     * @param text The primary text of the QMessageBox.
-     * @param informativeText The informative text for the QMessageBox.
-     * @param detailedText The detailed text for the QMessageBox.
-     * @param userChoice The button pressed to close the QMessageBox.
-     */
-    void promptUser(const QString &windowTitle, const QString& text,
-                    const QString &informativeText,
-                    const QString &detailedText, int* userChoice);
-
+    void interceptRequestForCredentials(QString* username, QString* passWord);
 
 private:
     bool success;
     SshSocket* connection;
     QString userName, password, hostName;
     int portNumber;
+    ThreadedConnectionGUI tcg;
 
 };
 
