@@ -37,15 +37,10 @@
 //---------------------------------------------------------------------
 
 #include "ServerConnectionTester.h"
+#include "ThreadedConnectionGUI.h"
 #include "MUSEGUIApplication.h"
 #include <QProgressDialog>
 #include <QMessageBox>
-
-QMutex ServerConnectionTester::mutex;
-QMutex ServerConnectionTester::userDataMutex;
-
-QWaitCondition ServerConnectionTester::userHasResponded;
-QWaitCondition ServerConnectionTester::passUserData;
 
 ServerConnectionTester::ServerConnectionTester(QString userName,
                                                QString password,
@@ -64,7 +59,7 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
 }
 
 void
-ServerConnectionTester::run() throw (const SshException &) {
+ServerConnectionTester::run() {
 
     connection = new SshSocket("Testing connection", NULL,
                                MUSEGUIApplication::getKnownHostsPath(), true, true);
@@ -82,9 +77,14 @@ ServerConnectionTester::run() throw (const SshException &) {
 
 
     // Allow prompts for an unknown host to display
-    connect(connection->getKnownHosts(), SIGNAL(displayMessageBox(const QString&, const QString&, const QString&, const QString&, int*)),
-            this, SLOT(promptUser(const QString&, const QString&, const QString&, const QString&, int*)));
-
+    connect(connection->getKnownHosts(), SIGNAL(displayMessageBox(const QString&,
+                                                const QString&, const QString&,
+                                                const QString&, int*)),
+            &tcg, SLOT(promptUser(const QString&, const QString&,
+                                  const QString&, const QString&, int*)));
+    // Allow us to show exception dialog
+    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
+            &tcg, SLOT(showException(QString,QString,QString)));
     // Okay, time to test the connection
     try {
         success = connection->connectToHost(hostName);
@@ -102,16 +102,17 @@ ServerConnectionTester::run() throw (const SshException &) {
 
 void
 ServerConnectionTester::interceptRequestForCredentials(QString* username, QString* passWord) {
+
     // Prevent other threads from accessing this data.
-    userDataMutex.lock();
+    ThreadedConnectionGUI::userDataMutex.lock();
     // Change the username credential to the username input in the wizard
     *username = userName;
     // Change the password credential to the password input in the wizard
     *passWord = password;
     // Let the background thread continue
-    passUserData.wakeAll();
+    ThreadedConnectionGUI::passUserData.wakeAll();
     // Release the lock on the data
-    userDataMutex.unlock();
+    ThreadedConnectionGUI::userDataMutex.unlock();
 }
 
 
@@ -120,25 +121,6 @@ ServerConnectionTester::getResult() {
     return success;
 }
 
-void
-ServerConnectionTester::promptUser(const QString& windowTitle,
-                                   const QString& text,
-                                   const QString& informativeText,
-                                   const QString& detailedText,
-                                   int *userChoice) {
 
-    QMessageBox msgBox;
-    msgBox.setWindowTitle(windowTitle);
-    msgBox.setIcon(QMessageBox::Warning);
-    msgBox.setText(text);
-    msgBox.setInformativeText(informativeText);
-    msgBox.setDetailedText(detailedText);
-    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
-    msgBox.setDefaultButton(QMessageBox::No);
-    mutex.lock();
-    *userChoice = msgBox.exec();
-    userHasResponded.wakeAll();
-    mutex.unlock();
-}
 
 #endif

@@ -5,7 +5,7 @@
 #include "SshSocket.h"
 #include <QHostAddress>
 #include <QMessageBox>
-#include "ServerConnectionTester.h"
+#include "ThreadedConnectionGUI.h"
 
 const QString SSHKnownHosts::KnownHostLoadErrorMessage =
         "Unable to load list of known hosts from the known hosts "  \
@@ -201,7 +201,7 @@ SSHKnownHosts::checkUpdateKnownHosts(SshSocket &ssh,
     const QString details = format(ConnectDetailsMessage, values);
 
     // Lock userChoice for thread protection
-    ServerConnectionTester::mutex.lock();
+    ThreadedConnectionGUI::mutex.lock();
     // The result of the user's selection in the QMessageBox
     int userChoice = -1;
     // Run the message through this class if running on the main thread
@@ -223,9 +223,9 @@ SSHKnownHosts::checkUpdateKnownHosts(SshSocket &ssh,
                                message, ConnectQuestionMessage,
                                details, &userChoice);
         // Wait until the user has responded to the MessageBox
-        ServerConnectionTester::userHasResponded.wait(&(ServerConnectionTester::mutex));
+        ThreadedConnectionGUI::userHasResponded.wait(&(ThreadedConnectionGUI::mutex));
         // Release the lock on the data.
-        ServerConnectionTester::mutex.unlock();
+        ThreadedConnectionGUI::mutex.unlock();
     }
     // Show the message box and based on user's choice perform suitable action
     if (userChoice == QMessageBox::Yes) {

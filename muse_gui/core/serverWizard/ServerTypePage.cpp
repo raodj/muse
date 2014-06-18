@@ -180,9 +180,7 @@ ServerTypePage::validatePage() {
                 this, SLOT(checkConnectionTesterResult()));
 
         //qRegisterMetaType<SshException>("SshException");
-        // Allow us to show exception dialogs
-        connect(tester, SIGNAL(exceptionThrown(QString,QString,QString)),
-                this, SLOT(showException(QString,QString,QString)));
+
         // Test the remote connection
         tester->start();
 
@@ -210,21 +208,6 @@ ServerTypePage::checkConnectionTesterResult() {
     remoteConnectionVerified = tester->getResult();
 
     remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
-}
-
-void
-ServerTypePage::showException(const QString &message,
-                              const QString &genErrorMessage,
-                              const QString &exceptionDetails) {
-    QMessageBox msgBox;
-    msgBox.setWindowTitle("SSH connectivity error");
-    msgBox.setIcon(QMessageBox::Critical);
-    msgBox.setText(message);
-    msgBox.setInformativeText(genErrorMessage);
-    msgBox.setDetailedText(exceptionDetails);
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.setDefaultButton(QMessageBox::Ok);
-    msgBox.exec();
 }
 
 #endif

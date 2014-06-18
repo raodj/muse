@@ -1,3 +1,6 @@
+#ifndef SERVER_SESSION_H
+#define SERVER_SESSION_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -33,19 +36,18 @@
 //
 //---------------------------------------------------------------------
 
-#ifndef SERVERSESSION_H
-#define SERVERSESSION_H
+
 #include <iostream>
 #include <ostream>
 #include <QWidget>
+#include <QString>
 #include <QTextDocument>
+#include "Server.h"
 
-#include <QtGlobal>//until implementation of this class is made
 
-//class QString;
 //class QTextDocument;
-class Server;
-//class QWidget;
+
+
 class FileInfo;
 
 /**
@@ -73,7 +75,7 @@ public:
       * create GUI elements that may be needed for any interactive
       * operations.
       */
-    ServerSession(Server &server, QWidget *parent);
+    ServerSession(Server &server, QWidget *parent = NULL, QString osType = "");
 
     /**
      * @brief connect Method that establishes a connection to a server.
@@ -208,9 +210,10 @@ public:
 
 
 protected:
-    const Server *server;
-    const QWidget *parent;
+    const Server& server;
+    const QWidget* parent;
+    QString& osType;
 
 };
 
-#endif // SERVERSESSION_H
+#endif

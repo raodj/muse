@@ -1,0 +1,123 @@
+#ifndef THREADED_CONNECTION_GUI_CPP
+#define THREADED_CONNECTION_GUI_CPP
+
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
+
+#include <QMessageBox>
+#include "ThreadedConnectionGUI.h"
+#include "LoginCredentialsDialog.h"
+
+QMutex ThreadedConnectionGUI::mutex;
+QMutex ThreadedConnectionGUI::userDataMutex;
+
+QWaitCondition ThreadedConnectionGUI::userHasResponded;
+QWaitCondition ThreadedConnectionGUI::passUserData;
+
+ThreadedConnectionGUI::ThreadedConnectionGUI() {
+// Nothing to do.
+}
+
+ThreadedConnectionGUI::ThreadedConnectionGUI(Server &server) : QObject() {
+    this->server = server;
+}
+ThreadedConnectionGUI::~ThreadedConnectionGUI() {
+
+}
+
+ThreadedConnectionGUI::ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg) {
+    server = tcg.server;
+}
+
+Server&
+ThreadedConnectionGUI::getServer() {
+    return server;
+}
+
+void
+ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString* passWord) {
+    LoginCredentialsDialog lcd;
+    lcd.setUsername(*username);
+    lcd.exec();
+    // Prevent other threads from accessing this data.
+    userDataMutex.lock();
+    // Change the username credential to the username input in the wizard
+    *username = server.getUserID();
+    // Change the password credential to the password input in the wizard
+    *passWord = lcd.getPassword();
+    // Let the background thread continue
+    passUserData.wakeAll();
+    // Release the lock on the data
+    userDataMutex.unlock();
+}
+
+void
+ThreadedConnectionGUI::promptUser(const QString& windowTitle,
+                                   const QString& text,
+                                   const QString& informativeText,
+                                   const QString& detailedText,
+                                   int *userChoice) {
+
+    QMessageBox msgBox;
+    msgBox.setWindowTitle(windowTitle);
+    msgBox.setIcon(QMessageBox::Warning);
+    msgBox.setText(text);
+    msgBox.setInformativeText(informativeText);
+    msgBox.setDetailedText(detailedText);
+    msgBox.setStandardButtons(QMessageBox::Yes | QMessageBox::No);
+    msgBox.setDefaultButton(QMessageBox::No);
+    mutex.lock();
+    *userChoice = msgBox.exec();
+    userHasResponded.wakeAll();
+    mutex.unlock();
+}
+
+void
+ThreadedConnectionGUI::showException(const QString &message,
+                              const QString &genErrorMessage,
+                              const QString &exceptionDetails) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("SSH connectivity error");
+    msgBox.setIcon(QMessageBox::Critical);
+    msgBox.setText(message);
+    msgBox.setInformativeText(genErrorMessage);
+    msgBox.setDetailedText(exceptionDetails);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.setDefaultButton(QMessageBox::Ok);
+    msgBox.exec();
+}
+
+
+#endif

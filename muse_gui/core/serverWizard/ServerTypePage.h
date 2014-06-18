@@ -87,15 +87,7 @@ private slots:
      */
     void checkConnectionTesterResult();
 
-    /**
-     * @brief showException Shows a dialog explaining the exception thrown
-     * by the SshSocket.
-     * @param message The primary message to display.
-     * @param genErrorMessage The descriptive message to display.
-     * @param exceptionDetails The exact details of the error.
-     */
-    void showException(const QString& message, const QString& genErrorMessage,
-                       const QString& exceptionDetails);
+
 
 
 private:

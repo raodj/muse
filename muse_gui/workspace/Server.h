@@ -203,6 +203,12 @@ public:
      */
     QString getStatus() const { return status; }
 
+    /**
+     * @brief getUserID Returns the userID set for this server entry.
+     * @return  The userID credential.
+     */
+    QString getUserID() const { return userID; }
+
 protected:
     // Currently this class does not have any protected members.
 

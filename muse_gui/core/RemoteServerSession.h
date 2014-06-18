@@ -1,3 +1,6 @@
+#ifndef REMOTE_SERVER_SESSION_H
+#define REMOTE_SERVER_SESSION_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -32,8 +35,7 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#ifndef REMOTESERVERSESSION_H
-#define REMOTESERVERSESSION_H
+
 
 #include "ServerSession.h"
 /**
@@ -205,7 +207,7 @@ public:
      * @return The purpose of this server session. If a purpose has not been set, then
      * null is returned.
      */
-    QString* getPurpose();
+    QString& getPurpose();
 
 
 protected:
@@ -218,7 +220,7 @@ protected:
      * create GUI elements that may be needed for any interactive
      * operations.
      */
-    RemoteServerSession(Server &server, QWidget *parent);
+    RemoteServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
 
 private:
     /**
@@ -260,8 +262,8 @@ private:
     static Object knownHostsLock;
     static KnownHosts knownHosts;
     */
-    QString *purpose;
-    const QString *KNOWN_HOST_PATH;
+
+    QString& purpose;
 
 };
 
