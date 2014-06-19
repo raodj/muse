@@ -209,6 +209,8 @@ public:
      */
     QString getUserID() const { return userID; }
 
+    int getPort() const { return port; }
+
 protected:
     // Currently this class does not have any protected members.
 

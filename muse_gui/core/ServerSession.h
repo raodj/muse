@@ -62,7 +62,7 @@ class FileInfo;
  * @see RemoteServerSession
  */
 
-class ServerSession{
+class ServerSession : public QObject {
 public:
 
     /**
@@ -84,7 +84,7 @@ public:
      * performing any tasks. Being a virtual method, this method has no implementation
      * in the ServerSession class and is overridden in the derived classes.
      */
-    virtual void connect() = 0;
+    virtual void connectToServer() = 0;
 
     /**
      * @brief disconnect Method that closes the connection to a server.
@@ -93,7 +93,7 @@ public:
      * Being a virtual method, this method has no implementation
      * in the ServerSession class and is overridden in the derived classes.
      */
-    virtual void disconnect() = 0;
+    virtual void disconnectFromServer() = 0;
 
     /**
      * @brief exec Method to run a <b>brief</b> command that produces succint output.
@@ -192,7 +192,7 @@ public:
      * @param path The path (absolute or relative to home directory) of the file whose meta data is to be retrieved.
      * @return A FileInfo object containing the information about the path.
      */
-    virtual FileInfo fstat(const QString &path) = 0;
+    //virtual FileInfo fstat(const QString &path) = 0;
 
     /*Server class not yet translated to C++, so this method header may change
     once the Server class exists and the enumerations are transferred. Maybe it should

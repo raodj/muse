@@ -40,18 +40,19 @@
 #include <libssh2.h>
 #include "RemoteServerSession.h"
 #include "MUSEGUIApplication.h"
+#include <QObject>
+
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
-    ServerSession(server, parent), purpose(purpose) {
-
-
-}
-
-void RemoteServerSession::connect() {
+    ServerSession(server, parent), purpose(purpose), connectionThread(server){
 
 }
 
-void RemoteServerSession::disconnect() {
+void RemoteServerSession::connectToServer() {
+    connectionThread.start();
+}
+
+void RemoteServerSession::disconnectFromServer() {
 
 }
 

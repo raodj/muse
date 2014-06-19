@@ -40,6 +40,8 @@
 #include <QWaitCondition>
 #include <QMutex>
 #include "Server.h"
+#include "SshSocket.h"
+
 
 class ThreadedConnectionGUI : public QObject {
 Q_OBJECT
@@ -110,7 +112,6 @@ signals:
 
 private:
      Server server;
-
 };
 
 #endif

@@ -172,14 +172,12 @@ ServerTypePage::validatePage() {
     if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX &&
             ! remoteConnectionVerified){
         prgDialog.setVisible(true);
-        //Verify the server credentials.
+        // Verify the server credentials.
         tester = new ServerConnectionTester(userId.text(), password.text(),
                                             serverName.text(), portNumber.value());
         // Allow us to know when tester has completed
         connect(tester, SIGNAL(finished()),
                 this, SLOT(checkConnectionTesterResult()));
-
-        //qRegisterMetaType<SshException>("SshException");
 
         // Test the remote connection
         tester->start();

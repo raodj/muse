@@ -1,5 +1,5 @@
-#ifndef SERVER_CONNECTION_TESTER_CPP
-#define SERVER_CONNECTION_TESTER_CPP
+#ifndef CONNECTION_THREAD_CPP
+#define CONNECTION_THREAD_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,84 +36,52 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerConnectionTester.h"
-#include "ThreadedConnectionGUI.h"
 #include "MUSEGUIApplication.h"
-#include <QProgressDialog>
-#include <QMessageBox>
+#include "ConnectionThread.h"
 
-ServerConnectionTester::ServerConnectionTester(QString userName,
-                                               QString password,
-                                               QString hostName,
-                                               const int portNumber,
-                                               QObject *parent) :
-    QThread(parent) {
+ConnectionThread::ConnectionThread(Server &server, QObject *parent) : QThread(parent),
+    threadGUI(server) {
+    this->server = server;
+}
 
-    // Default success status
-    success = false;
-    this->userName = userName;
-    this->password = password;
-    this->hostName = hostName;
-    this->portNumber = portNumber;
-
+ConnectionThread::~ConnectionThread() {
+    delete connection;
 }
 
 void
-ServerConnectionTester::run() {
-    connection = new SshSocket("Testing connection", NULL,
-                               MUSEGUIApplication::getKnownHostsPath(), true, true);
+ConnectionThread::run() {
 
+    connection = new SshSocket("Remote Server Operations", NULL,
+                               MUSEGUIApplication::getKnownHostsPath(),true, true);
+    // Make connections to handle signals
     // Now, intercept the signal to provide the SshSocket with the
     // user's credentials
     connect(connection, SIGNAL(needCredentials(QString*, QString*)),
-            this, SLOT(interceptRequestForCredentials(QString*, QString*)));
-
+            &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
 
     // Allow prompts for an unknown host to display
     connect(connection->getKnownHosts(), SIGNAL(displayMessageBox(const QString&,
                                                 const QString&, const QString&,
                                                 const QString&, int*)),
-            &tcg, SLOT(promptUser(const QString&, const QString&,
+            &threadGUI, SLOT(promptUser(const QString&, const QString&,
                                   const QString&, const QString&, int*)));
     // Allow us to show exception dialog
     connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
-            &tcg, SLOT(showException(QString,QString,QString)));
-    // Okay, time to test the connection
+            &threadGUI, SLOT(showException(QString,QString,QString)));
+
     try {
-        success = connection->connectToHost(hostName);
+       connection->connectToHost(server.getName(), NULL, server.getPort());
     }
     catch (const SshException &e) {
+        // Format the details
         const QString exceptionDetails =
                 e.getErrorDetails().arg(e.getFileName(), QString::number(e.getLineNumber()),
                                  e.getMethodName(), QString::number(e.getSshErrorCode()),
                                  QString::number(e.getNetworkErrorCode()));
+        // pass the exception to the threaded connection gui.
         emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
                              exceptionDetails);
     }
-    delete connection;
 }
-
-void
-ServerConnectionTester::interceptRequestForCredentials(QString* username, QString* passWord) {
-
-    // Prevent other threads from accessing this data.
-    ThreadedConnectionGUI::userDataMutex.lock();
-    // Change the username credential to the username input in the wizard
-    *username = userName;
-    // Change the password credential to the password input in the wizard
-    *passWord = password;
-    // Let the background thread continue
-    ThreadedConnectionGUI::passUserData.wakeAll();
-    // Release the lock on the data
-    ThreadedConnectionGUI::userDataMutex.unlock();
-}
-
-
-bool
-ServerConnectionTester::getResult() {
-    return success;
-}
-
-
 
 #endif

@@ -1,3 +1,6 @@
+#ifndef LOCAL_SERVER_SESSION_H
+#define LOCAL_SERVER_SESSION_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -33,8 +36,7 @@
 //
 //---------------------------------------------------------------------
 
-#ifndef LOCAL_SERVER_SESSION_H
-#define LOCAL_SERVER_SESSION_H
+
 
 #include "ServerSession.h"
 #include <stdio.h>
@@ -55,14 +57,14 @@ public:
      * This method is only useful for connections to non-local servers,
      * so the implementation here is empty.
      */
-    void connect();
+    void connectToServer();
 
     /**
      * @brief Method to disconnect from a remote server. Since the connect
      * method has an empty implementation, this method has an empty
      * implementation as well.
      */
-    void disconnect();
+    void disconnectFromServer();
 
     /**
      * @brief Executes to run a <b>brief</b> command that produces succint output.
