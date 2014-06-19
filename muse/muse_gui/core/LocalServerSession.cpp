@@ -9,12 +9,12 @@ LocalServerSession::LocalServerSession(Server &server, QWidget *parent, QString 
 }
 
 
-void LocalServerSession::connect() {
+void LocalServerSession::connectToServer() {
 
 }
 
 
-void LocalServerSession::disconnect() {
+void LocalServerSession::disconnectFromServer() {
 
 }
 

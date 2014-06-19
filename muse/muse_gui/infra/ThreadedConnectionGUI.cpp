@@ -52,6 +52,8 @@ ThreadedConnectionGUI::ThreadedConnectionGUI() {
 
 ThreadedConnectionGUI::ThreadedConnectionGUI(Server &server) : QObject() {
     this->server = server;
+
+
 }
 ThreadedConnectionGUI::~ThreadedConnectionGUI() {
 
@@ -69,12 +71,12 @@ ThreadedConnectionGUI::getServer() {
 void
 ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString* passWord) {
     LoginCredentialsDialog lcd;
-    lcd.setUsername(*username);
+    lcd.setUsername(server.getUserID());
     lcd.exec();
     // Prevent other threads from accessing this data.
     userDataMutex.lock();
     // Change the username credential to the username input in the wizard
-    *username = server.getUserID();
+    *username = lcd.getUserName();
     // Change the password credential to the password input in the wizard
     *passWord = lcd.getPassword();
     // Let the background thread continue

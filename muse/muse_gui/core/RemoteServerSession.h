@@ -36,8 +36,10 @@
 //
 //---------------------------------------------------------------------
 
-
 #include "ServerSession.h"
+#include "ThreadedConnectionGUI.h"
+#include "ConnectionThread.h"
+
 /**
  * @brief A remote server session based on the secure shell (SSH) protocol.
  *
@@ -58,15 +60,28 @@
  * license file as per Ganymede licensing requirements.</p>
  *
  */
-class RemoteServerSession : public ServerSession{
+class RemoteServerSession : public ServerSession {
+    Q_OBJECT
 public:
+
+    /**
+     * @brief Creates a RemoteServerSession by passing the parameters to the
+     * super class, which initializes the variables.
+     *
+     * @param server The necessary information to connect to the server.
+     * @param parent The parent GUI componenet that should be used to
+     * create GUI elements that may be needed for any interactive
+     * operations.
+     */
+    RemoteServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+
     /**
      * @brief Connect to the server in order to perfrom various operations.
      *
      * This method must be used to establish a connection to a server before
      * performing any tasks. This method is overridden from the base class.
      */
-    void connect();
+    void connectToServer();
 
     /**
      * @brief Disconnect from a remote server.
@@ -74,7 +89,7 @@ public:
      * This method disconnects from the remoter server if it is connected.
      * All current sessions will be terminated.
      */
-    void disconnect();
+    void disconnectFromServer();
 
     /**
      * @brief Executes to run a <b>brief</b> command that produces succint output.
@@ -209,18 +224,10 @@ public:
      */
     QString& getPurpose();
 
+signals:
+    void makeConnection(const QString& hostName, QProgressDialog* progDiag, quint16 port);
 
 protected:
-    /**
-     * @brief Creates a RemoteServerSession by passing the parameters to the
-     * super class, which initializes the variables.
-     *
-     * @param server The necessary information to connect to the server.
-     * @param parent The parent GUI componenet that should be used to
-     * create GUI elements that may be needed for any interactive
-     * operations.
-     */
-    RemoteServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
 
 private:
     /**
@@ -263,7 +270,10 @@ private:
     static KnownHosts knownHosts;
     */
 
+    ConnectionThread connectionThread;
+
     QString& purpose;
+
 
 };
 
