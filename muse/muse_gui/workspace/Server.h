@@ -220,7 +220,7 @@ public:
      * @brief setPassword Sets the password for this Server entry.
      * @param credential The password.
      */
-    void setPassword(const QString &credential);
+    void setPassword(const QString& credential);
 
     /**
      * @brief getPassword Gets the password for this Server entry.
