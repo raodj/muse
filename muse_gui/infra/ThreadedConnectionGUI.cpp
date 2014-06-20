@@ -53,7 +53,6 @@ ThreadedConnectionGUI::ThreadedConnectionGUI() {
 ThreadedConnectionGUI::ThreadedConnectionGUI(Server &server) : QObject() {
     this->server = server;
 
-
 }
 ThreadedConnectionGUI::~ThreadedConnectionGUI() {
 
@@ -72,7 +71,14 @@ void
 ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString* passWord) {
     LoginCredentialsDialog lcd;
     lcd.setUsername(server.getUserID());
-    lcd.exec();
+    // If there is no password (most cases), this will be blank
+    lcd.setPassword(server.getPassword());
+    // Only show the dialog if the password is not - ie,
+    // The ServerWizard is not running - we know the password already
+    if (lcd.getPassword().isEmpty()) {
+        // We don't know the password, so get it from the user.
+        lcd.exec();
+    }
     // Prevent other threads from accessing this data.
     userDataMutex.lock();
     // Change the username credential to the username input in the wizard

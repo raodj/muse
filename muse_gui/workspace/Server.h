@@ -209,7 +209,47 @@ public:
      */
     QString getUserID() const { return userID; }
 
+    /**
+     * @brief getPort Returns the port number used to communicate with
+     * this Server.
+     * @return The port number.
+     */
     int getPort() const { return port; }
+
+    /**
+     * @brief setPassword Sets the password for this Server entry.
+     * @param credential The password.
+     */
+    void setPassword(const QString &credential);
+
+    /**
+     * @brief getPassword Gets the password for this Server entry.
+     * In most cases, there will not be a password stored in this
+     * Server entry, so the common return will be an empty QString.
+     * @return
+     */
+    QString getPassword() const { return password; }
+
+    /**
+     * @brief setDescription Sets the description for this Server entry.
+     * @param description The description to be set.
+     */
+    void setDescription(const QString& description);
+
+    /**
+     * @brief getDescription Gets the description for this Server entry.
+     * @return The description for this Server entry.
+     */
+    QString getDescription() const { return description; }
+
+    /**
+     * @brief isRemote Returns whether or not the Server referred to
+     * by this Server entry is a remote server.
+     * @return True if this Server is a remote server, false otherwise.
+     */
+    bool isRemote() const { return remote; }
+
+
 
 protected:
     // Currently this class does not have any protected members.

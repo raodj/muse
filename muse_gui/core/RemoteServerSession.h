@@ -188,7 +188,7 @@ public:
      *
      * @param directory The full path to the directory that is to be created.
      */
-    void mkdir (const QString &directory);
+    void mkdir(const QString &directory);
 
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
@@ -224,8 +224,10 @@ public:
      */
     QString& getPurpose();
 
+    ConnectionThread* getConnectionThread();
+
 signals:
-    void makeConnection(const QString& hostName, QProgressDialog* progDiag, quint16 port);
+
 
 protected:
 

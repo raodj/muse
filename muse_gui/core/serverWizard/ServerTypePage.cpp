@@ -173,24 +173,38 @@ ServerTypePage::validatePage() {
             ! remoteConnectionVerified){
         prgDialog.setVisible(true);
         // Verify the server credentials.
-        tester = new ServerConnectionTester(userId.text(), password.text(),
-                                            serverName.text(), portNumber.value());
-        // Allow us to know when tester has completed
-        connect(tester, SIGNAL(finished()),
-                this, SLOT(checkConnectionTesterResult()));
+//        tester = new ServerConnectionTester(userId.text(), password.text(),
+//                                            serverName.text(), portNumber.value());
+//        // Allow us to know when tester has completed
+//        connect(tester, SIGNAL(finished()),
+//                this, SLOT(checkConnectionTesterResult()));
 
-        // Test the remote connection
-        tester->start();
+//        // Test the remote connection
+//        tester->start();
 
+        // Make the server variable
+        Server server("", true, serverName.text(), portNumber.value(), "", userId.text());
+        // Set the password, since we have it
+        server.setPassword(password.text());
+        // Make a session with the server
+        remoteServerSession = new RemoteServerSession(server);
+        // Let the other pages know we have made a remote server sesion
+        emit serverSessionCreated(remoteServerSession);
+        // Connect signal to find out the result of the connection.
+        connect(remoteServerSession->getConnectionThread(), SIGNAL(connectionResult(const bool)),
+                this, SLOT(checkConnectionTesterResult(const bool)));
+        // Connect to the server.
+        remoteServerSession->connectToServer();
         // Stay on the page for now while the test runs.
         return false;
     }
     // Hide the progress dialog
     prgDialog.setVisible(false);
-    // If we tested a remote connection, delete the instance of it and
-    // set it to false.
+    // If we tested a remote connection, erase the fact that we
+    // connected to it.
     if(remoteConnectionVerified) {
-        delete tester;
+        //delete tester;
+        remoteServerSession = NULL;
         remoteConnectionVerified = false;
     }
     return true;
@@ -202,10 +216,11 @@ ServerTypePage::cleanupPage() {
 }
 
 void
-ServerTypePage::checkConnectionTesterResult() {
-    remoteConnectionVerified = tester->getResult();
+ServerTypePage::checkConnectionTesterResult(const bool result) {
+    remoteConnectionVerified = result;
 
     remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
 }
+
 
 #endif

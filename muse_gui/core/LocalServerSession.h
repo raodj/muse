@@ -180,6 +180,22 @@ public:
      */
     QString& getPurpose();
 
+signals:
+    /**
+     * @brief directoryCreated Anounces whether or not a directory was
+     * created by mkdir().
+     * @param result True if the directory was sucessfully created, false
+     * otherwise.
+     */
+    void directoryCreated(const bool result);
+
+    /**
+     * @brief directoryRemoved Announces whether or not a directory was
+     * removed by rmdir().
+     * @param result True if the directory was sucessfully removed, false
+     * otherwise.
+     */
+    void directoryRemoved(const bool result);
 
 protected:
     /**
