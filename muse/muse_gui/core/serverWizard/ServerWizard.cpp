@@ -41,11 +41,12 @@
 
 ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) :
     MUSEWizard(welcomeFile, parent) {
-
-
     addPage(&serverTypePage,    "Server Type");
     addPage(&serverInfoPage,    "Server Information");
     addPage(&serverSummaryPage, "Summary", true);
+
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(RemoteServerSession*)),
+            &serverInfoPage, SLOT(setServerSessionPointer(RemoteServerSession*)));
 }
 
 ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
@@ -57,5 +58,6 @@ ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
     addPage(&serverSummaryPage, "Summary", true);
 
 }
+
 
 #endif

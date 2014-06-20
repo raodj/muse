@@ -53,7 +53,7 @@ ConnectionThread::run() {
 
     connection = new SshSocket("Remote Server Operations", NULL,
                                MUSEGUIApplication::getKnownHostsPath(),true, true);
-    // Make connections to handle signals
+
     // Now, intercept the signal to provide the SshSocket with the
     // user's credentials
     connect(connection, SIGNAL(needCredentials(QString*, QString*)),
@@ -68,9 +68,10 @@ ConnectionThread::run() {
     // Allow us to show exception dialog
     connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
             &threadGUI, SLOT(showException(QString,QString,QString)));
-
+    // Save the result of the attempt to connect
+    bool result = false;
     try {
-       connection->connectToHost(server.getName(), NULL, server.getPort());
+       result = connection->connectToHost(server.getName(), NULL, server.getPort());
     }
     catch (const SshException &e) {
         // Format the details
@@ -82,6 +83,13 @@ ConnectionThread::run() {
         emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
                              exceptionDetails);
     }
+    emit connectionResult(result);
 }
+
+SshSocket*
+ConnectionThread::getSocket() {
+    return connection;
+}
+
 
 #endif

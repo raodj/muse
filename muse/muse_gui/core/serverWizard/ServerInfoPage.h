@@ -41,6 +41,8 @@
 #include <QLineEdit>
 #include <QSpinBox>
 #include <QPushButton>
+#include <QProgressDialog>
+#include "RemoteServerSession.h"
 
 /**
  * @brief The ServerInfoPage class The ServerInfoPage presents the user
@@ -67,6 +69,8 @@ public:
      */
     void initializePage();
 
+
+
 public slots:
     /**
      * @brief validatePage The overridden method of QWizardPage. This method
@@ -77,11 +81,38 @@ public slots:
      */
     bool validatePage();
 
+    /**
+     * @brief setServerSessionPointer Sets the wizard-wide ServerSession
+     * variable so that this page and the ServerInfoPage can operate on the
+     * server.
+     * @param rss The pointer to the RemoteServerSession
+     */
+    void setServerSessionPointer(RemoteServerSession* rss);
+
+    /**
+     * @brief getRmdirResult Gets the result of calling rmdir on the
+     * RemoteServerSession to verify the install directory. This method
+     * sets installDirectoryVerified = result && mkdirSucceded.
+     * @param result The success of rmdir.
+     */
+    void getRmdirResult(const bool result);
+
+    /**
+     * @brief getMkdirResult Gets the result of calling mkdir on the
+     * RemoteServerSession to verify the install directory. This method
+     * sets mkdirSucceeded = result.
+     * @param result The success of mkdir.
+     */
+    void getMkdirResult(const bool result);
+
 private:
     QTextEdit serverDescription;
     QLineEdit installDirectoryDisplay;
     QPushButton browse;
     QSpinBox pollingDelay;
+    QProgressDialog prgDialog;
+    bool installDirectoryVerified, mkdirSucceeded;
+    RemoteServerSession* remoteServerSession;
 };
 
-#endif // SERVERINFOPAGE_H
+#endif

@@ -38,10 +38,13 @@
 
 #include "Core.h"
 #include <libssh2.h>
+#include <libssh2_sftp.h>
 #include "RemoteServerSession.h"
 #include "MUSEGUIApplication.h"
 #include <QObject>
+#include <QMessageBox>
 
+#define SUCCESS_CODE 0
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose), connectionThread(server){
@@ -123,19 +126,67 @@ void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirecto
 
 //}
 
-void RemoteServerSession::mkdir(const QString &directory) {
-    Q_UNUSED(directory);
+void
+RemoteServerSession::mkdir(const QString &directory) {
+    // Create an sftp variable
+    LIBSSH2_SFTP* sftpSession = NULL;
+    // Attempt to set it up
+    sftpSession = libssh2_sftp_init(connectionThread.getSocket()->getSession());
+    // Check for success
+    if (sftpSession != NULL) {
+        int returnCode = libssh2_sftp_mkdir(sftpSession, directory.toStdString().c_str(), 0700);
+        QMessageBox msgBox;
+        if (libssh2_sftp_shutdown(sftpSession) != SUCCESS_CODE ||
+                returnCode != SUCCESS_CODE) {
+            msgBox.setText("There was an issue creating the install directory.<br/>"\
+                           "This likely means that the directory currently exists," \
+                           " which is not good. Please change the install directory.");
+            msgBox.exec();
+        }
+        // Announce the result of mkdir
+        emit directoryCreated(returnCode == SUCCESS_CODE);
+    }
+    else {
+        QMessageBox msgBox;
+        msgBox.setText("Failed to connect.");
+        msgBox.exec();
+        emit directoryCreated(false);
+    }
 
 }
 
 void RemoteServerSession::rmdir(const QString &directory) {
-    Q_UNUSED(directory);
-
+    // Create an sftp variable
+    LIBSSH2_SFTP* sftpSession = NULL;
+    // Attempt to set it up
+    sftpSession = libssh2_sftp_init(connectionThread.getSocket()->getSession());
+    // Check for success
+    if (sftpSession != NULL) {
+        int returnCode = libssh2_sftp_rmdir(sftpSession, directory.toStdString().c_str());
+        QMessageBox msgBox;
+        if (libssh2_sftp_shutdown(sftpSession) != SUCCESS_CODE ||
+                returnCode != SUCCESS_CODE) {
+            msgBox.setText("Couldn't close sftp");
+            msgBox.exec();
+        }
+        // Anounce the result of rmdir
+        emit directoryRemoved(returnCode == SUCCESS_CODE);
+    }
+    else {
+        QMessageBox msgBox;
+        msgBox.setText("Failed to connect.");
+        msgBox.exec();
+    }
 }
 
 void RemoteServerSession::setPurpose(const QString &text) {
     Q_UNUSED(text);
 
+}
+
+ConnectionThread*
+RemoteServerSession::getConnectionThread() {
+    return &connectionThread;
 }
 
 #endif

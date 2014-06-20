@@ -37,7 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "MUSEWizard.h"
-//#include "OverviewPage.h"
+
 #include "ServerTypePage.h"
 #include "ServerInfoPage.h"
 #include "ServerSummaryPage.h"
@@ -56,11 +56,19 @@ public:
     ServerWizard(QString& welcomeText, QWidget* parent = 0);
 
 private:
-    //OverviewPage overviewPage;
+
     ServerTypePage serverTypePage;
     ServerInfoPage serverInfoPage;
 //    ComponentsPage componentsPage;
     ServerSummaryPage serverSummaryPage;
+
+    /**
+     * @brief passSessionToPages Sets the RemoteServerSession
+     * instance variable pointer to the ServerTypePage and
+     * ServerInfoPage so that they can use the same session to set up the
+     * Server to be included in the workspace.
+     */
+    void passSessionToPages();
 
 };
 

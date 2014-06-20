@@ -86,5 +86,15 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
     addElement(XMLElementInfo("OSType",      &osType));
 }
 
+void
+Server::setPassword(const QString& credential) {
+    password = credential;
+}
+
+void
+Server::setDescription(const QString& description) {
+    this->description = description;
+}
+
 
 #endif

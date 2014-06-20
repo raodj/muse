@@ -69,9 +69,17 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Add the label for the polling delay
     mainLayout->addWidget(new QLabel("Enter polling delay (seconds):"));
     mainLayout->addWidget(&pollingDelay);
+    // Set up the indicator for the remote connection tester.
+    prgDialog.setLabelText("Please wait while we verify the install directory...");
+    prgDialog.setCancelButton(0);
+    prgDialog.setRange(0, 0);
+    prgDialog.setVisible(false);
+    mainLayout->addWidget(&prgDialog);
     // Register the install directory as a field
     registerField("installPath", &installDirectoryDisplay);
     setLayout(mainLayout);
+    // Default value
+    installDirectoryVerified = mkdirSucceeded = false;
 }
 
 void
@@ -80,12 +88,59 @@ ServerInfoPage::initializePage() {
     browse.setEnabled((field("serverType") == LOCAL_SERVER));
     // Set the default text for the install directory
     installDirectoryDisplay.setText("/home/" + field("userId").toString() + "/MUSE");
+
 }
 
 bool
 ServerInfoPage::validatePage() {
-    //Verify the install path. For now, return true
-    return true;
+    prgDialog.setVisible(true);
+    if( (field("serverType")) != LOCAL_SERVER){
+
+        // Connect signal to know success of mkdir
+        connect(remoteServerSession, SIGNAL(directoryCreated(bool)),
+                this, SLOT(getMkdirResult(bool)));
+        // Connect signal to know success of rmdir
+        connect(remoteServerSession, SIGNAL(directoryRemoved(bool)),
+                this, SLOT(getRmdirResult(bool)));
+        // Verify the install path by making the directory (if it doesn't exist)
+        remoteServerSession->mkdir(installDirectoryDisplay.text());
+        // If the directory did not exist...
+        if (mkdirSucceeded){
+            // ...Delete it
+            remoteServerSession->rmdir(installDirectoryDisplay.text());
+        }
+
+    }
+    else {
+        // Nothing for now until LocalSS is implemented
+
+    }
+    prgDialog.setVisible(false);
+    if (installDirectoryVerified) {
+        // Returns to this page must verify again
+        installDirectoryVerified = false;
+        mkdirSucceeded = false;
+        return true;
+    }
+    // installDirectoryVerified was false...
+    mkdirSucceeded = false;
+
+    return false;
+}
+
+void
+ServerInfoPage::setServerSessionPointer(RemoteServerSession *rss) {
+    remoteServerSession = rss;
+}
+
+void
+ServerInfoPage::getRmdirResult(const bool result) {
+    installDirectoryVerified = result && mkdirSucceeded;
+}
+
+void
+ServerInfoPage::getMkdirResult(const bool result) {
+    mkdirSucceeded = result;
 }
 
 #endif

@@ -68,6 +68,13 @@ public:
      */
     void run();
 
+    /**
+     * @brief getSocket Returns a pointer to the SshSocket being used for this
+     * RemoteServerSession.
+     * @return The SshSocket being used for this RemoteServerSession.
+     */
+    SshSocket* getSocket();
+
 signals:
     /**
      * @brief exceptionThrown Alerts the main Qt gui thread that an
@@ -77,6 +84,14 @@ signals:
      */
     void exceptionThrown(const QString& message, const QString& genErrorMessage,
                          const QString& exceptionDetails);
+
+    /**
+     * @brief connectionResult Announces the result of the attempt to connect to
+     * the remote server
+     * @param result The result of the attempted connection.
+     */
+    void connectionResult(const bool result);
+
 public slots:
 
 private:

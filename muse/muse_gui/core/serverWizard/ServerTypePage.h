@@ -43,6 +43,7 @@
 #include <QVBoxLayout>
 #include <QProgressDialog>
 #include "ServerConnectionTester.h"
+#include "RemoteServerSession.h"
 
 /**
  * @brief The ServerTypePage class The ServerTypePage presents the user
@@ -70,6 +71,14 @@ public:
      */
     void cleanupPage();
 
+    /**
+     * @brief setServerSessionPointer Sets the wizard-wide ServerSession
+     * variable so that this page and the ServerInfoPage can operate on the
+     * server.
+     * @param rss The pointer to the RemoteServerSession
+     */
+    void setServerSessionPointer(RemoteServerSession* rss);
+
 
 private slots:
     /**
@@ -85,10 +94,11 @@ private slots:
      * to see if it was successfully able to connect to the server. If so,
      * the wizard should advance to the next page.
      */
-    void checkConnectionTesterResult();
+    void checkConnectionTesterResult(const bool result);
 
 
-
+signals:
+    void serverSessionCreated(RemoteServerSession* rss);
 
 private:
     QComboBox* serverTypeSelector;
@@ -101,6 +111,9 @@ private:
     ServerConnectionTester* tester;
     QProgressDialog prgDialog;
     bool remoteConnectionVerified;
+
+    RemoteServerSession* remoteServerSession;
+    //Server* server;
 
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the

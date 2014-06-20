@@ -63,6 +63,7 @@ class FileInfo;
  */
 
 class ServerSession : public QObject {
+    Q_OBJECT
 public:
 
     /**
@@ -208,6 +209,22 @@ public:
      */
     virtual void setPurpose(const QString &text) = 0;
 
+signals:
+    /**
+     * @brief directoryCreated Anounces whether or not a directory was
+     * created by mkdir().
+     * @param result True if the directory was sucessfully created, false
+     * otherwise.
+     */
+    void directoryCreated(const bool result);
+
+    /**
+     * @brief directoryRemoved Announces whether or not a directory was
+     * removed by rmdir().
+     * @param result True if the directory was sucessfully removed, false
+     * otherwise.
+     */
+    void directoryRemoved(const bool result);
 
 protected:
     const Server& server;
