@@ -276,6 +276,9 @@ private:
 
     QString& purpose;
 
+private slots:
+    void promptUserIfMkdirFailed(const bool result);
+    void promptUserIfRmdirFailed(const bool result);
 
 };
 
