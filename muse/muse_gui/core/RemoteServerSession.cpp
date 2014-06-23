@@ -43,6 +43,8 @@
 #include "MUSEGUIApplication.h"
 #include <QObject>
 #include <QMessageBox>
+#include "DirectoryASyncHelper.h"
+#include <QThreadPool>
 
 #define SUCCESS_CODE 0
 
@@ -65,9 +67,24 @@ void RemoteServerSession::getPassword() {
 
 int RemoteServerSession::exec(const QString &command, QString &stdoutput,
                               QString &stderrmsgs) {
-    Q_UNUSED(command);
     Q_UNUSED(stdoutput);
     Q_UNUSED(stderrmsgs);
+    // Create the communication channel
+    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(connectionThread.getSocket()->getSession());
+    if (channel != NULL) {
+        // Read the streams if the command was executed successfully.
+        if (SUCCESS_CODE == libssh2_channel_exec(
+                    channel, command.toStdString().c_str()) ) {
+            char stdBuffer[0x4000];
+            //int stdOutSize = libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+            libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+            stdoutput = stdBuffer;
+        }
+
+
+
+    }
+
 
 }
 
@@ -128,8 +145,9 @@ void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirecto
 
 void
 RemoteServerSession::mkdir(const QString &directory) {
+    /*
     // Create an sftp variable
-    LIBSSH2_SFTP* sftpSession = NULL;
+    LIBSSH2_SFTP* sftpSession = NULL;    
     // Attempt to set it up
     sftpSession = libssh2_sftp_init(connectionThread.getSocket()->getSession());
     // Check for success
@@ -152,10 +170,15 @@ RemoteServerSession::mkdir(const QString &directory) {
         msgBox.exec();
         emit directoryCreated(false);
     }
-
+    */
+    DirectoryASyncHelper* helper = new DirectoryASyncHelper("mkdir", directory, connectionThread.getSocket());
+    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfMkdirFailed(bool)));
+    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryCreated(bool)));
+    QThreadPool::globalInstance()->start(helper);
 }
 
 void RemoteServerSession::rmdir(const QString &directory) {
+ /*
     // Create an sftp variable
     LIBSSH2_SFTP* sftpSession = NULL;
     // Attempt to set it up
@@ -177,6 +200,11 @@ void RemoteServerSession::rmdir(const QString &directory) {
         msgBox.setText("Failed to connect.");
         msgBox.exec();
     }
+    */
+    DirectoryASyncHelper* helper = new DirectoryASyncHelper("rmdir", directory, connectionThread.getSocket());
+    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfRmdirFailed(bool)));
+    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryRemoved(bool)));
+    QThreadPool::globalInstance()->start(helper);
 }
 
 void RemoteServerSession::setPurpose(const QString &text) {
@@ -187,6 +215,26 @@ void RemoteServerSession::setPurpose(const QString &text) {
 ConnectionThread*
 RemoteServerSession::getConnectionThread() {
     return &connectionThread;
+}
+
+void
+RemoteServerSession::promptUserIfMkdirFailed(const bool result) {
+    if (!result) {
+        QMessageBox msgBox;
+        msgBox.setText("There was an issue creating the install directory.<br/>"\
+                       "This likely means that the directory currently exists," \
+                       " which is not good. Please change the install directory.");
+        msgBox.exec();
+    }
+}
+
+void
+RemoteServerSession::promptUserIfRmdirFailed(const bool result) {
+    if (!result) {
+        QMessageBox msgBox;
+        msgBox.setText("Couldn't remove the directory.");
+        msgBox.exec();
+    }
 }
 
 #endif

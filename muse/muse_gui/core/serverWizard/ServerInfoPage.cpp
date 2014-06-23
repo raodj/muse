@@ -93,9 +93,9 @@ ServerInfoPage::initializePage() {
 
 bool
 ServerInfoPage::validatePage() {
-    prgDialog.setVisible(true);
-    if( (field("serverType")) != LOCAL_SERVER){
 
+    if( (field("serverType")) != LOCAL_SERVER && !installDirectoryVerified){
+        prgDialog.setVisible(true);
         // Connect signal to know success of mkdir
         connect(remoteServerSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
@@ -104,12 +104,8 @@ ServerInfoPage::validatePage() {
                 this, SLOT(getRmdirResult(bool)));
         // Verify the install path by making the directory (if it doesn't exist)
         remoteServerSession->mkdir(installDirectoryDisplay.text());
-        // If the directory did not exist...
-        if (mkdirSucceeded){
-            // ...Delete it
-            remoteServerSession->rmdir(installDirectoryDisplay.text());
-        }
-
+        // Stay on this page
+        return false;
     }
     else {
         // Nothing for now until LocalSS is implemented
@@ -136,11 +132,26 @@ ServerInfoPage::setServerSessionPointer(RemoteServerSession *rss) {
 void
 ServerInfoPage::getRmdirResult(const bool result) {
     installDirectoryVerified = result && mkdirSucceeded;
+   // If everything is good, move on.
+    if (installDirectoryVerified) {
+        wizard()->next();
+    }
+    else {
+        // Couldn't remove the directory, return to initial state
+        mkdirSucceeded = false;
+    }
 }
 
 void
 ServerInfoPage::getMkdirResult(const bool result) {
     mkdirSucceeded = result;
+    if (!result) {
+        prgDialog.setVisible(false);
+    }
+    else {
+        // We passed the first step, now remove it.
+        remoteServerSession->rmdir(installDirectoryDisplay.text());
+    }
 }
 
 #endif

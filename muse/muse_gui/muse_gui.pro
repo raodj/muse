@@ -82,7 +82,8 @@ SOURCES +=\
     core/OverviewPage.cpp \
     infra/ServerConnectionTester.cpp \
     infra/ThreadedConnectionGUI.cpp \
-    core/ConnectionThread.cpp
+    core/ConnectionThread.cpp \
+    core/DirectoryASyncHelper.cpp
 
 
 HEADERS  += \
@@ -144,7 +145,8 @@ HEADERS  += \
     core/OverviewPage.h \
     infra/ServerConnectionTester.h \
     infra/ThreadedConnectionGUI.h \
-    core/ConnectionThread.h
+    core/ConnectionThread.h \
+    core/DirectoryASyncHelper.h
 
 
 OTHER_FILES += \
