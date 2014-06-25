@@ -9,7 +9,7 @@ QT       += core gui xmlpatterns
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
-
+CONFIG += c++11
 
 TARGET = muse_gui
 TEMPLATE = app
@@ -146,14 +146,17 @@ HEADERS  += \
     infra/ServerConnectionTester.h \
     infra/ThreadedConnectionGUI.h \
     core/ConnectionThread.h \
-    core/DirectoryASyncHelper.h
+    core/DirectoryASyncHelper.h \
+    core/RSSAsyncHelper.h \
+    core/RSSAsyncHelper.ipp
 
 
 OTHER_FILES += \
     GPL.txt
 
 RESOURCES += \
-    muse_gui.qrc
+    muse_gui.qrc \
+
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../../../usr/local/lib/release/ -lssh2
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../../../usr/local/lib/debug/ -lssh2

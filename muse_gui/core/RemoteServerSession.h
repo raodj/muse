@@ -38,7 +38,6 @@
 
 #include "ServerSession.h"
 #include "ThreadedConnectionGUI.h"
-#include "ConnectionThread.h"
 
 /**
  * @brief A remote server session based on the secure shell (SSH) protocol.
@@ -224,7 +223,7 @@ public:
      */
     QString& getPurpose();
 
-    ConnectionThread* getConnectionThread();
+    //ConnectionThread* getConnectionThread();
 
 signals:
 
@@ -272,9 +271,10 @@ private:
     static KnownHosts knownHosts;
     */
 
-    ConnectionThread connectionThread;
-
+    //ConnectionThread connectionThread;
+    SshSocket* socket;
     QString& purpose;
+    ThreadedConnectionGUI threadGUI;
 
 private slots:
     void promptUserIfMkdirFailed(const bool result);

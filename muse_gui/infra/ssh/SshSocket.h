@@ -49,6 +49,13 @@ public:
      */
     SSHKnownHosts* getKnownHosts() { return &knownHosts; }
 
+    /**
+     * @brief changeToThread Moves this SshSocket and it's member variables
+     * to QThread thread.
+     * @param thread The thread to move this SshSocket to.
+     */
+    void changeToThread(QThread* thread);
+
 public slots:
     void getCredentials(SshSocket& ssh, const libssh2_knownhost* hostInfo,
                         QString& userID, QString& password, bool& cancel);
