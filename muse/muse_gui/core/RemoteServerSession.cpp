@@ -43,18 +43,39 @@
 #include "MUSEGUIApplication.h"
 #include <QObject>
 #include <QMessageBox>
-#include "DirectoryASyncHelper.h"
+//#include "DirectoryASyncHelper.h"
+#include "RSSAsyncHelper.h"
 #include <QThreadPool>
 
 #define SUCCESS_CODE 0
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
-    ServerSession(server, parent), purpose(purpose), connectionThread(server){
+    ServerSession(server, parent), purpose(purpose), threadGUI(server) {
 
 }
 
 void RemoteServerSession::connectToServer() {
-    connectionThread.start();
+    socket = new SshSocket("Remote Server Operations", NULL, MUSEGUIApplication::getKnownHostsPath(),
+                           true, true);
+
+    // Now, intercept the signal to provide the SshSocket with the
+    // user's credentials
+    connect(socket, SIGNAL(needCredentials(QString*, QString*)),
+            &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
+
+    // Allow prompts for an unknown host to display
+    connect(socket->getKnownHosts(), SIGNAL(displayMessageBox(const QString&,
+                                                const QString&, const QString&,
+                                                const QString&, int*)),
+            &threadGUI, SLOT(promptUser(const QString&, const QString&,
+                                  const QString&, const QString&, int*)));
+    // Allow us to show exception dialog
+//    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
+//            &threadGUI, SLOT(showException(QString,QString,QString)));
+
+    RSSAsyncHelper<bool> test(std::bind(&SshSocket::connectToHost, socket,
+                                       server.getName(), NULL, server.getPort(), (QAbstractSocket::ReadWrite) ));
+
 }
 
 void RemoteServerSession::disconnectFromServer() {
@@ -69,21 +90,21 @@ int RemoteServerSession::exec(const QString &command, QString &stdoutput,
                               QString &stderrmsgs) {
     Q_UNUSED(stdoutput);
     Q_UNUSED(stderrmsgs);
-    // Create the communication channel
-    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(connectionThread.getSocket()->getSession());
-    if (channel != NULL) {
-        // Read the streams if the command was executed successfully.
-        if (SUCCESS_CODE == libssh2_channel_exec(
-                    channel, command.toStdString().c_str()) ) {
-            char stdBuffer[0x4000];
-            //int stdOutSize = libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-            libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-            stdoutput = stdBuffer;
-        }
+//    // Create the communication channel
+//    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(connectionThread.getSocket()->getSession());
+//    if (channel != NULL) {
+//        // Read the streams if the command was executed successfully.
+//        if (SUCCESS_CODE == libssh2_channel_exec(
+//                    channel, command.toStdString().c_str()) ) {
+//            char stdBuffer[0x4000];
+//            //int stdOutSize = libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+//            libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+//            stdoutput = stdBuffer;
+//        }
 
 
 
-    }
+    //}
 
 
 }
@@ -171,10 +192,10 @@ RemoteServerSession::mkdir(const QString &directory) {
         emit directoryCreated(false);
     }
     */
-    DirectoryASyncHelper* helper = new DirectoryASyncHelper("mkdir", directory, connectionThread.getSocket());
-    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfMkdirFailed(bool)));
-    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryCreated(bool)));
-    QThreadPool::globalInstance()->start(helper);
+//    DirectoryASyncHelper* helper = new DirectoryASyncHelper("mkdir", directory, connectionThread.getSocket());
+//    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfMkdirFailed(bool)));
+//    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryCreated(bool)));
+//    QThreadPool::globalInstance()->start(helper);
 }
 
 void RemoteServerSession::rmdir(const QString &directory) {
@@ -201,10 +222,10 @@ void RemoteServerSession::rmdir(const QString &directory) {
         msgBox.exec();
     }
     */
-    DirectoryASyncHelper* helper = new DirectoryASyncHelper("rmdir", directory, connectionThread.getSocket());
-    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfRmdirFailed(bool)));
-    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryRemoved(bool)));
-    QThreadPool::globalInstance()->start(helper);
+//    DirectoryASyncHelper* helper = new DirectoryASyncHelper("rmdir", directory, connectionThread.getSocket());
+//    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfRmdirFailed(bool)));
+//    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryRemoved(bool)));
+//    QThreadPool::globalInstance()->start(helper);
 }
 
 void RemoteServerSession::setPurpose(const QString &text) {
@@ -212,10 +233,6 @@ void RemoteServerSession::setPurpose(const QString &text) {
 
 }
 
-ConnectionThread*
-RemoteServerSession::getConnectionThread() {
-    return &connectionThread;
-}
 
 void
 RemoteServerSession::promptUserIfMkdirFailed(const bool result) {

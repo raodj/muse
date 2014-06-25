@@ -194,3 +194,9 @@ SshSocket::getCredentials(SshSocket &ssh, const libssh2_knownhost *hostInfo,
     }
 }
 
+void
+SshSocket::changeToThread(QThread *thread) {
+    knownHosts.moveToThread(thread);
+    moveToThread(thread);
+}
+
