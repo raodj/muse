@@ -73,8 +73,12 @@ void RemoteServerSession::connectToServer() {
 //    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
 //            &threadGUI, SLOT(showException(QString,QString,QString)));
 
+
     RSSAsyncHelper<bool> test(std::bind(&SshSocket::connectToHost, socket,
-                                       server.getName(), NULL, server.getPort(), (QAbstractSocket::ReadWrite) ));
+                                        server.getName(),
+                                        (QProgressDialog *) NULL,
+                                        server.getPort(),
+                                        QAbstractSocket::ReadWrite));
 
 }
 
