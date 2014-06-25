@@ -73,12 +73,18 @@ void RemoteServerSession::connectToServer() {
 //    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
 //            &threadGUI, SLOT(showException(QString,QString,QString)));
 
-
-    RSSAsyncHelper<bool> test(std::bind(&SshSocket::connectToHost, socket,
+/*
+ * This code is currently experiencing fatal problems, DO NOT RUN THIS CODE.
+    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(std::bind(&SshSocket::connectToHost, socket,
                                         server.getName(),
                                         (QProgressDialog *) NULL,
                                         server.getPort(),
                                         QAbstractSocket::ReadWrite));
+    socket->changeToThread(test);
+
+    test->start();
+    connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
+    */
 
 }
 
