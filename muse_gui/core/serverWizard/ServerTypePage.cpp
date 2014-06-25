@@ -191,8 +191,8 @@ ServerTypePage::validatePage() {
         // Let the other pages know we have made a remote server sesion
         emit serverSessionCreated(remoteServerSession);
         // Connect signal to find out the result of the connection.
-        connect(remoteServerSession->getConnectionThread(), SIGNAL(connectionResult(const bool)),
-                this, SLOT(checkConnectionTesterResult(const bool)));
+//        connect(remoteServerSession->getConnectionThread(), SIGNAL(connectionResult(const bool)),
+//                this, SLOT(checkConnectionTesterResult(const bool)));
         // Connect to the server.
         remoteServerSession->connectToServer();
         // Stay on the page for now while the test runs.
