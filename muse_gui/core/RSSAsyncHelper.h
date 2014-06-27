@@ -62,6 +62,9 @@ public:
      * being called in run().
      * @param method The method to call, passed to the constructor through
      * the use of std::bind.
+     * @param channel The SFtpChannel to be used as part of the method
+     * being called in run, which, depending on the method, may not be required,
+     * hence the default value for it is null.
      */
     RSSAsyncHelper(RetVal* val, SshSocket* socket, MethodCall method, SFtpChannel* channel = NULL);
 
@@ -78,8 +81,9 @@ private:
     SFtpChannel* sftpChannel;
 
     /**
-     * @brief returnSocketToMainThread Returns thread ownership of
-     * the SshSocket back to the Qt Application Thread.
+     * @brief returnLibSsh2ToMainThread Returns thread ownership of
+     * the SshSocket and SFtpChannel (if applicable) back to the
+     * Qt Application Thread.
      */
     void returnLibSsh2ToMainThread();
 

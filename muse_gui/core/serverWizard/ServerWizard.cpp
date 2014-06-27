@@ -47,6 +47,8 @@ ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) :
 
     connect(&serverTypePage, SIGNAL(serverSessionCreated(RemoteServerSession*)),
             &serverInfoPage, SLOT(setServerSessionPointer(RemoteServerSession*)));
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(RemoteServerSession*)),
+            &serverSummaryPage, SLOT(setServerSessionPointer(RemoteServerSession*)));
 }
 
 ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
@@ -56,6 +58,10 @@ ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
     addPage(&serverTypePage,    "Server Type");
     addPage(&serverInfoPage,    "Server Information");
     addPage(&serverSummaryPage, "Summary", true);
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(RemoteServerSession*)),
+            &serverInfoPage, SLOT(setServerSessionPointer(RemoteServerSession*)));
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(RemoteServerSession*)),
+            &serverSummaryPage, SLOT(setServerSessionPointer(RemoteServerSession*)));
 
 }
 

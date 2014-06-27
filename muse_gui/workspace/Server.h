@@ -249,7 +249,18 @@ public:
      */
     bool isRemote() const { return remote; }
 
+    /**
+     * @brief setOS Sets the operating system for this Server.
+     * @param os The operating system this Server is running.
+     */
+    void setOS(const QString& os);
 
+    /**
+     * @brief setInstallPath Sets the dirctory path containing the MUSE
+     * system and its runtime components.
+     * @param path The path to the directory where MUSE is installed.
+     */
+    void setInstallPath(const QString& path);
 
 protected:
     // Currently this class does not have any protected members.

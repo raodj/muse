@@ -227,7 +227,7 @@ signals:
     void directoryRemoved(const bool result);
 
 protected:
-    const Server& server;
+    Server& server;
     const QWidget* parent;
     QString& osType;
 

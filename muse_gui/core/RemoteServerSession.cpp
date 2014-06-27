@@ -46,7 +46,7 @@
 #include "SFtpChannel.h"
 #include "RSSAsyncHelper.h"
 
-
+#define SUCCESS_CODE 0
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
@@ -102,22 +102,21 @@ int RemoteServerSession::exec(const QString &command, QString &stdoutput,
                               QString &stderrmsgs) {
     Q_UNUSED(stdoutput);
     Q_UNUSED(stderrmsgs);
-//    // Create the communication channel
-//    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(connectionThread.getSocket()->getSession());
-//    if (channel != NULL) {
-//        // Read the streams if the command was executed successfully.
-//        if (SUCCESS_CODE == libssh2_channel_exec(
-//                    channel, command.toStdString().c_str()) ) {
-//            char stdBuffer[0x4000];
-//            //int stdOutSize = libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-//            libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-//            stdoutput = stdBuffer;
-//        }
-
-
-
-    //}
-
+    // Create the communication channel
+    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
+    if (channel != NULL) {
+        int returnCode = -100;
+        // Read the streams if the command was executed successfully.
+        returnCode = libssh2_channel_exec(
+                    channel, command.toStdString().c_str());
+        char stdBuffer[0x4000];
+        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+        stdoutput = stdBuffer;
+        char errBuffer[0x4000];
+        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
+        stderrmsgs = errBuffer;
+        return returnCode;
+    }
 
 }
 

@@ -224,6 +224,12 @@ public:
      */
     QString& getPurpose();
 
+    /**
+     * @brief getServer Gets a pointer to the server this RemoteServerSession refers to.
+     * @return A pointer to the server.
+     */
+    Server* getServer() const { return &server; }
+
 
 signals:
     /**

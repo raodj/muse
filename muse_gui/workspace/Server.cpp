@@ -96,5 +96,14 @@ Server::setDescription(const QString& description) {
     this->description = description;
 }
 
+void
+Server::setOS(const QString& os) {
+    osType = os;
+}
+
+void
+Server::setInstallPath(const QString &path) {
+    installPath = path;
+}
 
 #endif

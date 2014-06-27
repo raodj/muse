@@ -43,6 +43,10 @@
 #include <QLabel>
 #include <QMessageBox>
 
+const QString ServerInfoPage::InstallDirectoryMessage =
+        "The install directory does not exist (this is good), and"\
+        " will be created when MUSE runtime is installed.";
+
 ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
 
     // Set up the main layout
@@ -110,7 +114,7 @@ ServerInfoPage::validatePage() {
 
     }
     prgDialog.setVisible(false);
-    if (installDirectoryVerified) {
+    if (installDirectoryVerified && (field("serverType")) != LOCAL_SERVER) {
         // Returns to this page must verify again
         installDirectoryVerified = false;
         mkdirSucceeded = false;
@@ -118,8 +122,11 @@ ServerInfoPage::validatePage() {
         if( (field("serverType")) != LOCAL_SERVER) {
             disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
                        this, SLOT(getRmdirResult(bool)));
+
+            // POSSIBLY ADD POLLING DELAY.------------------------------------------
         }
-        return true;
+
+            return true;
     }
     // installDirectoryVerified was false...
     mkdirSucceeded = false;
@@ -137,6 +144,18 @@ ServerInfoPage::getRmdirResult(bool result) {
     installDirectoryVerified = result && mkdirSucceeded;
    // If everything is good, move on.
     if (installDirectoryVerified) {
+        QMessageBox msgBox;
+        msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
+        msgBox.setDetailedText("More info to come later...");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+        // Apply the description of the server to the workspace.
+        remoteServerSession->getServer()->
+                setDescription(serverDescription.toPlainText());
+        // Apply the install path of the server to the workspace.
+        remoteServerSession->getServer()->
+                setInstallPath(installDirectoryDisplay.text());
+
         wizard()->next();
     }
     else {
@@ -164,7 +183,6 @@ ServerInfoPage::getMkdirResult(bool result) {
         prgDialog.setVisible(false);
     }
     else {
-
         // We successfully made the directory, so now, we want to
         // connect the signal to the getRmdDirResult slot, so
         // let's disconnect the getMkDirResult.
