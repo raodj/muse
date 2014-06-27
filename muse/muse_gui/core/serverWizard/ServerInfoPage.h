@@ -113,6 +113,7 @@ private:
     QProgressDialog prgDialog;
     bool installDirectoryVerified, mkdirSucceeded;
     RemoteServerSession* remoteServerSession;
+    static const QString InstallDirectoryMessage;
 };
 
 #endif

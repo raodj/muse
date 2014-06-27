@@ -63,7 +63,7 @@ public:
      *
      * This class does not explicitly use any dynamic memory and consequenlty
      * the destructor does not have any specific functionality. It is present
-     * as a plase holder (for any future extensions) and to adhere to coding
+     * as a place holder (for any future extensions) and to adhere to coding
      * conventions.
      *
      * \note The base class frees the copies of server entries managed

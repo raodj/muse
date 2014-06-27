@@ -39,6 +39,7 @@
 #include <QWizardPage>
 #include <QTextEdit>
 #include <QLineEdit>
+#include "RemoteServerSession.h"
 
 /**
  * @brief The ServerSummaryPage class The summary page for the ServerWizard
@@ -47,6 +48,7 @@
  * begins to execute.
  */
 class ServerSummaryPage : public QWizardPage {
+    Q_OBJECT
 public:
     /**
      * @brief ServerSummaryPage The default constructor for the
@@ -64,10 +66,21 @@ public:
      */
     void initializePage();
 
+    /**
+     * @brief validatePage Adds the server to the workspace and begins
+     * the process of installing MUSE runtime on the server.
+     * @return True if the wizard can advance to the next page.
+     */
+    bool validatePage();
+
+public slots:
+    void setServerSessionPointer(RemoteServerSession* rss);
+
 private:
     QTextEdit summaryText;
     QLineEdit serverName;
     QLineEdit installDirectory;
+    RemoteServerSession* remoteServerSession;
 };
 
 #endif // SERVERSUMMARYPAGE_H

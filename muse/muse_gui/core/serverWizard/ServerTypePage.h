@@ -111,6 +111,7 @@ private:
     ServerConnectionTester* tester;
     QProgressDialog prgDialog;
     bool remoteConnectionVerified;
+    static const QString SuccessMessage, FailureMessage;
 
     RemoteServerSession* remoteServerSession;
     //Server* server;
@@ -140,6 +141,13 @@ private:
      * @return The user name.
      */
     QString getUserName();
+
+    /**
+     * @brief verifyRemoteOS Executes "uname -a" on the remote server
+     * to verify that it is a Linux or UNIX operating system.
+     * @return True if the OS is Linux or UNIX, false otherwise.
+     */
+    bool verifyRemoteOS();
 };
 
 #endif

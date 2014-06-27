@@ -89,9 +89,9 @@ throw (const SshException &) {
     }
     // Iniitalize the known hosts list
     knownHostsList = libssh2_knownhost_init(sshSession);
-    const char* hostsFileName = knownHostsFileName.toStdString().c_str();
+    //const char* hostsFileName = knownHostsFileName.toStdString().c_str();
     if ((knownHostsList == NULL) ||
-        (libssh2_knownhost_readfile(knownHostsList, hostsFileName,
+        (libssh2_knownhost_readfile(knownHostsList, knownHostsFileName.toStdString().c_str(),
                                     LIBSSH2_KNOWNHOST_FILE_OPENSSH) < 0)) {
         // Error initializing or loading known hosts. Bail out.
         throw SSH_EXP2(ssh, KnownHostLoadErrorMessage.arg(knownHostsFileName));

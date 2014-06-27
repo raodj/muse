@@ -41,8 +41,12 @@
 #include <QDebug>
 
 ServerList::ServerList() : XMLElement("ServerList") {
-    // Register elements in the order in which they shlould occurr.
+    // Register elements in the order in which they shlould occur.
     addElement(XMLElementInfo("Server", &servers));
+}
+
+void
+ServerList::addServer(const Server &entry) {
 }
 
 #endif

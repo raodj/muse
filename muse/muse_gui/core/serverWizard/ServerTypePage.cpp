@@ -44,6 +44,17 @@
 
 
 #define REMOTE_SERVER_INDEX 1
+#define SUCCESS_CODE 0
+
+const QString ServerTypePage::SuccessMessage =
+        "Successfully connected to the server using the "\
+        "supplied information:";
+
+const QString ServerTypePage::FailureMessage =
+        "This server does not support Linux or UNIX commands,"\
+        " and it therefore not compatible with MUSE."\
+        " If you require this server to be supported," \
+        " please file a feature request.";
 
 ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     QVBoxLayout* mainLayout = new QVBoxLayout();
@@ -172,16 +183,6 @@ ServerTypePage::validatePage() {
     if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX &&
             ! remoteConnectionVerified){
         prgDialog.setVisible(true);
-        // Verify the server credentials.
-//        tester = new ServerConnectionTester(userId.text(), password.text(),
-//                                            serverName.text(), portNumber.value());
-//        // Allow us to know when tester has completed
-//        connect(tester, SIGNAL(finished()),
-//                this, SLOT(checkConnectionTesterResult()));
-
-//        // Test the remote connection
-//        tester->start();
-
         // Make the server variable
         Server server("", true, serverName.text(), portNumber.value(), "", userId.text());
         // Set the password, since we have it
@@ -198,14 +199,14 @@ ServerTypePage::validatePage() {
         // Stay on the page for now while the test runs.
         return false;
     }
-    // Hide the progress dialog
-    prgDialog.setVisible(false);
+
     // If we tested a remote connection, erase the fact that we
     // connected to it.
     if(remoteConnectionVerified) {
-        //delete tester;
-        remoteServerSession = NULL;
-        remoteConnectionVerified = false;
+        // Hide the progress dialog
+        prgDialog.setVisible(false);
+        // Advance if we support the server's OS.
+        return verifyRemoteOS();
     }
     return true;
 }
@@ -224,9 +225,29 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
                this, SLOT(checkConnectionTesterResult(bool)));
 
     remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
-
-
 }
 
+bool
+ServerTypePage::verifyRemoteOS() {
+    QString out, err;
+    // Verify the Operating System of the server
+    int returnCode = remoteServerSession->exec("uname -a", out, err) ;
+    remoteConnectionVerified = false;
+    QMessageBox msgBox;
+    msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
+                                                  FailureMessage );
+    msgBox.setDetailedText( (returnCode == SUCCESS_CODE) ? out : err);
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
+
+    if(returnCode == SUCCESS_CODE) {
+        // Set the osType of the server
+        remoteServerSession->getServer()->
+                setOS( out.contains("Linux", Qt::CaseInsensitive) ?
+                           Server::Linux : Server::Unix);
+    }
+
+    return returnCode == SUCCESS_CODE;
+}
 
 #endif

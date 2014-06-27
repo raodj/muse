@@ -41,6 +41,8 @@
 #include <QLabel>
 #include <QTextStream>
 #include <QVBoxLayout>
+#include "Workspace.h"
+#include "ServerList.h"
 
 ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
 
@@ -76,6 +78,16 @@ void
 ServerSummaryPage::initializePage() {
     serverName.setText(field("server").toString());
     installDirectory.setText(field("installPath").toString());
+}
+
+bool
+ServerSummaryPage::validatePage() {
+    return true;
+}
+
+void
+ServerSummaryPage::setServerSessionPointer(RemoteServerSession *rss) {
+    remoteServerSession = rss;
 }
 
 #endif
