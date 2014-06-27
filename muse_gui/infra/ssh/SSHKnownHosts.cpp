@@ -248,13 +248,13 @@ SSHKnownHosts::addKnownHost(SshSocket& ssh, LIBSSH2_SESSION* sshSession,
     int hostKeyType     = -1;
     const char *hostKey = libssh2_session_hostkey(sshSession, &hostKeyLen,
                                                   &hostKeyType);
-    // Get the host name as C-string to pass to libSSH2
-    const char *hostName = ssh.peerName().toStdString().c_str();
+    // Get the host name
+    QString hostName = ssh.peerName();
     const int keyTypeMask = LIBSSH2_KNOWNHOST_TYPE_PLAIN |
             ((hostKeyType == LIBSSH2_HOSTKEY_TYPE_RSA) ?
                  LIBSSH2_KNOWNHOST_KEY_SSHRSA : LIBSSH2_KNOWNHOST_KEY_SSHDSS);
     // Add the entry and check for successful completion of operation
-    if (libssh2_knownhost_addc(knownHostsList, hostName, NULL, hostKey,
+    if (libssh2_knownhost_addc(knownHostsList, hostName.toStdString().c_str(), NULL, hostKey,
                                hostKeyLen, NULL, 0, keyTypeMask, NULL) != 0) {
         // Error adding data to in-memory list. This is not normal.
         char *errmsg; int msgLen;
@@ -265,8 +265,7 @@ SSHKnownHosts::addKnownHost(SshSocket& ssh, LIBSSH2_SESSION* sshSession,
         return false;
     }
     // Save the newly added known host back to data file.
-    const char* hostsFileName = knownHostsFileName.toStdString().c_str();
-    if (libssh2_knownhost_writefile(knownHostsList, hostsFileName,
+    if (libssh2_knownhost_writefile(knownHostsList, knownHostsFileName.toStdString().c_str(),
                                     LIBSSH2_KNOWNHOST_FILE_OPENSSH) != 0) {
         // Error writing known hosts data to file. This is not normal.
         QMessageBox::critical(ssh.getOwner(), SshSocket::Title,

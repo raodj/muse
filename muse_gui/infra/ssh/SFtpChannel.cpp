@@ -40,6 +40,7 @@
 #include "SshSocket.h"
 
 #define MAX_PATH_LEN 1024
+#define SUCCESS_CODE 0
 
 SFtpChannel::SFtpChannel(SshSocket& ssh) throw (const SshException &) :
     ssh(ssh) {
@@ -53,6 +54,13 @@ SFtpChannel::~SFtpChannel() {
     if (sftpChannel != NULL) {
         libssh2_sftp_shutdown(sftpChannel);
         sftpChannel = NULL;
+    }
+}
+
+SFtpChannel::SFtpChannel(const SFtpChannel &channel) : ssh(channel.getSocket()) {
+    sftpChannel = libssh2_sftp_init(ssh.getSession());
+    if (sftpChannel == NULL) {
+        throw SSH_EXP(ssh, getErrorMessage(), ssh.getErrorCode(), ssh.error());
     }
 }
 
@@ -81,6 +89,56 @@ SFtpChannel::getPwd() throw (const SshException &) {
 SFtpDir
 SFtpChannel::getDir(const QString &dir) throw (const SshException &) {
     return SFtpDir(*this, dir);
+}
+
+bool
+SFtpChannel::mkdir(const QString& dir) {
+    // Create an sftp variable
+    LIBSSH2_SFTP* sftpSession = NULL;
+    // Attempt to set it up
+    sftpSession = libssh2_sftp_init(ssh.getSession());
+    // Check for success
+    if (sftpSession != NULL) {
+        int returnCode = libssh2_sftp_mkdir(sftpSession, dir.toStdString().c_str(), 0700);
+        // If the directory couldn't be created, we have a problem,
+        // so alert the user and bail out.
+        if (returnCode != SUCCESS_CODE) {
+            emit alertUser("There was an issue creating the specified directory.<br/>"\
+                           "This likely means that the directory currently exists," \
+                           " which is not good. Please change the name of the directory.");
+            return false;
+        }
+        // Success! We made the directory!
+        return true;
+    }
+    // We couldn't connect over the socket, that's not good.
+    emit alertUser("Failed to connect. You may have lost the connection to the server");
+    return false;
+}
+
+bool
+SFtpChannel::rmdir(const QString &dir) {
+    // Create an sftp variable
+    LIBSSH2_SFTP* sftpSession = NULL;
+    // Attempt to set it up
+    sftpSession = libssh2_sftp_init(ssh.getSession());
+    // Check for success
+    if (sftpSession != NULL) {
+        int returnCode = libssh2_sftp_rmdir(sftpSession, dir.toStdString().c_str());
+        // If the directory couldn't be removed, we have a problem,
+        // so alert the user and bail out.
+        if (returnCode != SUCCESS_CODE) {
+            emit alertUser("There was an issue deleting the specified directory.<br/>"\
+                           "Please verify that the directory exists. If it does," \
+                           " verify your connection to the server.");
+            return false;
+        }
+        // Success! We made the directory!
+        return true;
+    }
+    // We couldn't connect over the socket, that's not good.
+    emit alertUser("Failed to connect. You may have lost the connection to the server");
+    return false;
 }
 
 #endif

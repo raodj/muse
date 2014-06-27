@@ -94,7 +94,7 @@ private slots:
      * to see if it was successfully able to connect to the server. If so,
      * the wizard should advance to the next page.
      */
-    void checkConnectionTesterResult(const bool result);
+    void checkConnectionTesterResult(bool result);
 
 
 signals:

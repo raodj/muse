@@ -107,6 +107,13 @@ public slots:
      void showException(const QString& message, const QString& genErrorMessage,
                        const QString& exceptionDetails);
 
+     /**
+      * @brief showMessage Shows a simple message to the user that only contains
+      * the primary text option of QMessageBox.
+      * @param message The message to display.
+      */
+     void showMessage(const QString& message);
+
 signals:
 
 

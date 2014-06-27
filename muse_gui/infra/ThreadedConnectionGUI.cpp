@@ -127,5 +127,13 @@ ThreadedConnectionGUI::showException(const QString &message,
     msgBox.exec();
 }
 
+void
+ThreadedConnectionGUI::showMessage(const QString &message) {
+    QMessageBox msgBox;
+    msgBox.setWindowTitle("Message");
+    msgBox.setText(message);
+    msgBox.exec();
+}
+
 
 #endif

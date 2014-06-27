@@ -191,8 +191,8 @@ ServerTypePage::validatePage() {
         // Let the other pages know we have made a remote server sesion
         emit serverSessionCreated(remoteServerSession);
         // Connect signal to find out the result of the connection.
-//        connect(remoteServerSession->getConnectionThread(), SIGNAL(connectionResult(const bool)),
-//                this, SLOT(checkConnectionTesterResult(const bool)));
+        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
+                this, SLOT(checkConnectionTesterResult(bool)));
         // Connect to the server.
         remoteServerSession->connectToServer();
         // Stay on the page for now while the test runs.
@@ -216,10 +216,16 @@ ServerTypePage::cleanupPage() {
 }
 
 void
-ServerTypePage::checkConnectionTesterResult(const bool result) {
+ServerTypePage::checkConnectionTesterResult(bool result) {
     remoteConnectionVerified = result;
 
+    // Disconnect from the boolean result signal.
+    disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
+               this, SLOT(checkConnectionTesterResult(bool)));
+
     remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
+
+
 }
 
 

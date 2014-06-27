@@ -43,11 +43,10 @@
 #include "MUSEGUIApplication.h"
 #include <QObject>
 #include <QMessageBox>
-//#include "DirectoryASyncHelper.h"
+#include "SFtpChannel.h"
 #include "RSSAsyncHelper.h"
-#include <QThreadPool>
 
-#define SUCCESS_CODE 0
+
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
@@ -73,9 +72,8 @@ void RemoteServerSession::connectToServer() {
 //    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
 //            &threadGUI, SLOT(showException(QString,QString,QString)));
 
-/*
- * This code is currently experiencing fatal problems, DO NOT RUN THIS CODE.
-    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(std::bind(&SshSocket::connectToHost, socket,
+
+    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket, std::bind(&SshSocket::connectToHost, socket,
                                         server.getName(),
                                         (QProgressDialog *) NULL,
                                         server.getPort(),
@@ -83,8 +81,11 @@ void RemoteServerSession::connectToServer() {
     socket->changeToThread(test);
 
     test->start();
+    // When the thread has completed, let the caller know the result.
+    connect(test, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+    // Delete the thread from memory once all of its tasks are complete.
     connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
-    */
+
 
 }
 
@@ -176,66 +177,38 @@ void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirecto
 
 void
 RemoteServerSession::mkdir(const QString &directory) {
-    /*
-    // Create an sftp variable
-    LIBSSH2_SFTP* sftpSession = NULL;    
-    // Attempt to set it up
-    sftpSession = libssh2_sftp_init(connectionThread.getSocket()->getSession());
-    // Check for success
-    if (sftpSession != NULL) {
-        int returnCode = libssh2_sftp_mkdir(sftpSession, directory.toStdString().c_str(), 0700);
-        QMessageBox msgBox;
-        if (libssh2_sftp_shutdown(sftpSession) != SUCCESS_CODE ||
-                returnCode != SUCCESS_CODE) {
-            msgBox.setText("There was an issue creating the install directory.<br/>"\
-                           "This likely means that the directory currently exists," \
-                           " which is not good. Please change the install directory.");
-            msgBox.exec();
-        }
-        // Announce the result of mkdir
-        emit directoryCreated(returnCode == SUCCESS_CODE);
-    }
-    else {
-        QMessageBox msgBox;
-        msgBox.setText("Failed to connect.");
-        msgBox.exec();
-        emit directoryCreated(false);
-    }
-    */
-//    DirectoryASyncHelper* helper = new DirectoryASyncHelper("mkdir", directory, connectionThread.getSocket());
-//    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfMkdirFailed(bool)));
-//    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryCreated(bool)));
-//    QThreadPool::globalInstance()->start(helper);
+    // We need an SftpChannel to run mkdir
+    SFtpChannel mkdirChannel(*socket);
+    // Make an AsyncHelper
+    RSSAsyncHelper<bool>* mkdirHelper = new RSSAsyncHelper<bool>
+            (&threadedResult, socket, std::bind(&SFtpChannel::mkdir,
+                                        mkdirChannel, directory));
+    // Move the socket and SftpChannel to the helper thread.
+    socket->moveToThread(mkdirHelper);
+    mkdirChannel.moveToThread(mkdirHelper);
+    // Connect signal so that we can act appropriately based on result
+    // of the command's execution.
+    connect(mkdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+    // Delete the helper once the event loop of the thread has ended.
+    connect(mkdirHelper, SIGNAL(finished()), mkdirHelper, SLOT(deleteLater()));
+    mkdirHelper->start();
+
 }
 
 void RemoteServerSession::rmdir(const QString &directory) {
- /*
-    // Create an sftp variable
-    LIBSSH2_SFTP* sftpSession = NULL;
-    // Attempt to set it up
-    sftpSession = libssh2_sftp_init(connectionThread.getSocket()->getSession());
-    // Check for success
-    if (sftpSession != NULL) {
-        int returnCode = libssh2_sftp_rmdir(sftpSession, directory.toStdString().c_str());
-        QMessageBox msgBox;
-        if (libssh2_sftp_shutdown(sftpSession) != SUCCESS_CODE ||
-                returnCode != SUCCESS_CODE) {
-            msgBox.setText("Couldn't close sftp");
-            msgBox.exec();
-        }
-        // Anounce the result of rmdir
-        emit directoryRemoved(returnCode == SUCCESS_CODE);
-    }
-    else {
-        QMessageBox msgBox;
-        msgBox.setText("Failed to connect.");
-        msgBox.exec();
-    }
-    */
-//    DirectoryASyncHelper* helper = new DirectoryASyncHelper("rmdir", directory, connectionThread.getSocket());
-//    connect(helper, SIGNAL(result(bool)), this, SLOT(promptUserIfRmdirFailed(bool)));
-//    connect(helper, SIGNAL(result(bool)), this, SIGNAL(directoryRemoved(bool)));
-//    QThreadPool::globalInstance()->start(helper);
+
+    SFtpChannel rmdirChannel(*socket);
+    // Make an AsyncHelper
+    RSSAsyncHelper<bool>* rmdirHelper = new RSSAsyncHelper<bool>
+            (&threadedResult, socket, std::bind(&SFtpChannel::rmdir,
+                                        rmdirChannel, directory));
+
+    // Connect signal so that we can act appropriately based on result
+    // of the command's execution.
+    connect(rmdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+    // Delete the helper once the event loop of the thread has ended.
+    connect(rmdirHelper, SIGNAL(finished()), rmdirHelper, SLOT(deleteLater()));
+    rmdirHelper->start();
 }
 
 void RemoteServerSession::setPurpose(const QString &text) {
@@ -243,25 +216,32 @@ void RemoteServerSession::setPurpose(const QString &text) {
 
 }
 
+void
+RemoteServerSession::announceBooleanResult() {
+    emit booleanResult(threadedResult);
+}
 
+//  MAY NOT NEED THESE TWO METHODS...............
 void
 RemoteServerSession::promptUserIfMkdirFailed(const bool result) {
-    if (!result) {
-        QMessageBox msgBox;
-        msgBox.setText("There was an issue creating the install directory.<br/>"\
-                       "This likely means that the directory currently exists," \
-                       " which is not good. Please change the install directory.");
-        msgBox.exec();
-    }
+//    if (!result) {
+//        QMessageBox msgBox;
+//        msgBox.setText("There was an issue creating the install directory.<br/>"\
+//                       "This likely means that the directory currently exists," \
+//                       " which is not good. Please change the install directory.");
+//        msgBox.exec();
+//    }
 }
 
 void
 RemoteServerSession::promptUserIfRmdirFailed(const bool result) {
-    if (!result) {
-        QMessageBox msgBox;
-        msgBox.setText("Couldn't remove the directory.");
-        msgBox.exec();
-    }
+//    if (!result) {
+//        QMessageBox msgBox;
+//        msgBox.setText("Couldn't remove the directory.");
+//        msgBox.exec();
+//    }
 }
+
+
 
 #endif

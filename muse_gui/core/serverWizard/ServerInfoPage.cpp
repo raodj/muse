@@ -41,6 +41,7 @@
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
+#include <QMessageBox>
 
 ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
 
@@ -97,11 +98,8 @@ ServerInfoPage::validatePage() {
     if( (field("serverType")) != LOCAL_SERVER && !installDirectoryVerified){
         prgDialog.setVisible(true);
         // Connect signal to know success of mkdir
-        connect(remoteServerSession, SIGNAL(directoryCreated(bool)),
+        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
                 this, SLOT(getMkdirResult(bool)));
-        // Connect signal to know success of rmdir
-        connect(remoteServerSession, SIGNAL(directoryRemoved(bool)),
-                this, SLOT(getRmdirResult(bool)));
         // Verify the install path by making the directory (if it doesn't exist)
         remoteServerSession->mkdir(installDirectoryDisplay.text());
         // Stay on this page
@@ -130,25 +128,46 @@ ServerInfoPage::setServerSessionPointer(RemoteServerSession *rss) {
 }
 
 void
-ServerInfoPage::getRmdirResult(const bool result) {
+ServerInfoPage::getRmdirResult(bool result) {
     installDirectoryVerified = result && mkdirSucceeded;
    // If everything is good, move on.
     if (installDirectoryVerified) {
         wizard()->next();
     }
     else {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("There was an issue deleting the install directory.<br/>"\
+                       "This is an unusual occurrence, and likely means that the," \
+                       " connection to the server was dropped.");
+        msgBox.exec();
         // Couldn't remove the directory, return to initial state
         mkdirSucceeded = false;
     }
 }
 
 void
-ServerInfoPage::getMkdirResult(const bool result) {
+ServerInfoPage::getMkdirResult(bool result) {
     mkdirSucceeded = result;
     if (!result) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("There was an issue creating the install directory.<br/>"\
+                       "This likely means that the directory currently exists," \
+                       " which is not good. Please change the install directory.");
+        msgBox.exec();
         prgDialog.setVisible(false);
     }
     else {
+
+        // We successfully made the directory, so now, we want to
+        // connect the signal to the getRmdDirResult slot, so
+        // let's disconnect the getMkDirResult.
+        disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
+                   this, SLOT(getMkdirResult(bool)));
+        // Connect the signal to getRmdirResult
+        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
+                this, SLOT(getRmdirResult(bool)));
         // We passed the first step, now remove it.
         remoteServerSession->rmdir(installDirectoryDisplay.text());
     }
