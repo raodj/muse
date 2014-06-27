@@ -50,7 +50,8 @@
 
 RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
-
+    socket = NULL;
+    sftpChannel = NULL;
 }
 
 void RemoteServerSession::connectToServer() {
@@ -177,15 +178,17 @@ void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirecto
 
 void
 RemoteServerSession::mkdir(const QString &directory) {
-    // We need an SftpChannel to run mkdir
-    SFtpChannel mkdirChannel(*socket);
+    // We need an SftpChannel
+    if (sftpChannel == NULL) {
+        sftpChannel = new SFtpChannel(*socket);
+    }
     // Make an AsyncHelper
     RSSAsyncHelper<bool>* mkdirHelper = new RSSAsyncHelper<bool>
             (&threadedResult, socket, std::bind(&SFtpChannel::mkdir,
-                                        mkdirChannel, directory));
+                                        sftpChannel, directory), sftpChannel);
     // Move the socket and SftpChannel to the helper thread.
     socket->moveToThread(mkdirHelper);
-    mkdirChannel.moveToThread(mkdirHelper);
+    sftpChannel->moveToThread(mkdirHelper);
     // Connect signal so that we can act appropriately based on result
     // of the command's execution.
     connect(mkdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
@@ -196,13 +199,16 @@ RemoteServerSession::mkdir(const QString &directory) {
 }
 
 void RemoteServerSession::rmdir(const QString &directory) {
-
-    SFtpChannel rmdirChannel(*socket);
+    // We need an SftpChannel
+    if (sftpChannel == NULL) {
+        sftpChannel = new SFtpChannel(*socket);
+    }
     // Make an AsyncHelper
     RSSAsyncHelper<bool>* rmdirHelper = new RSSAsyncHelper<bool>
             (&threadedResult, socket, std::bind(&SFtpChannel::rmdir,
-                                        rmdirChannel, directory));
-
+                                        sftpChannel, directory), sftpChannel);
+    socket->moveToThread(rmdirHelper);
+    sftpChannel->moveToThread(rmdirHelper);
     // Connect signal so that we can act appropriately based on result
     // of the command's execution.
     connect(rmdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));

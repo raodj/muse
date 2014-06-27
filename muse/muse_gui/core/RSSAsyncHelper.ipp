@@ -41,9 +41,11 @@ RSSAsyncHelper<RetVal>::RSSAsyncHelper() {
 
 template<typename RetVal>
 RSSAsyncHelper<RetVal>::RSSAsyncHelper(RetVal* val, SshSocket* socket,
-                                       MethodCall method) : method(method) {
+                                       MethodCall method,
+                                       SFtpChannel* channel) : method(method) {
     result = val;
     this->socket = socket;
+    sftpChannel = channel;
 }
 
 template<typename RetVal>
@@ -52,14 +54,19 @@ RSSAsyncHelper<RetVal>::run() {
 //TODO: EXCEPTION HANDLING
    *result = method();
    result = NULL;
-   returnSocketToMainThread();
+   returnLibSsh2ToMainThread();
 }
 
 template<typename RetVal>
 void
-RSSAsyncHelper<RetVal>::returnSocketToMainThread() {
+RSSAsyncHelper<RetVal>::returnLibSsh2ToMainThread() {
     socket->changeToThread(QApplication::instance()->thread());
     socket = NULL;
     delete socket;
+    if (sftpChannel != NULL) {
+        sftpChannel->moveToThread(QApplication::instance()->thread());
+        sftpChannel = NULL;
+    }
+    delete sftpChannel;
 }
 

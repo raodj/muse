@@ -38,6 +38,7 @@
 
 #include "ServerSession.h"
 #include "ThreadedConnectionGUI.h"
+#include "SFtpChannel.h"
 
 /**
  * @brief A remote server session based on the secure shell (SSH) protocol.
@@ -275,6 +276,7 @@ private:
     static KnownHosts knownHosts;
     */
 
+    SFtpChannel* sftpChannel;
     SshSocket* socket;
     QString& purpose;
     ThreadedConnectionGUI threadGUI;
