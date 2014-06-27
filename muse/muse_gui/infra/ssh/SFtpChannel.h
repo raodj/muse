@@ -59,6 +59,14 @@ public:
     ~SFtpChannel();
 
     /**
+     * @brief SFtpChannel Default copy constructor. This is required so
+     * that this class can be used with RSSAsyncHelper, and QObject's
+     * copy constructor is marked as deleted by the compiler
+     * @param channel The SFtpChannel to copy.
+     */
+    SFtpChannel(const SFtpChannel& channel);
+
+    /**
      * @brief getPwd Gets the path to the current working directory on this
      * SFtpChannel.
      * @return A QString representation of the path to the current working
@@ -77,7 +85,7 @@ public:
      * @brief getSocket Returns the SshSocket being used for this SFtopChannel.
      * @return The SshSocket
      */
-    SshSocket& getSocket() { return ssh; }
+    SshSocket& getSocket() const { return ssh; }
 
     /**
      * @brief getChannel Return the LIBSSH2_SFTP channel that is being used for
@@ -92,6 +100,35 @@ public:
      * @return A reference to the SFtpDir created.
      */
     SFtpDir getDir(const QString& dir) throw (const SshException &);
+
+    /**
+     * @brief mkdir Creates a directory on the target machine.
+     * This method must be used to create a directory entry on the server.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method before calling this method.</p>
+     *
+     * @param directory The full path to the directory that is to be created.
+     * @return True if the directory was successfully created, false otherwise.
+     */
+    bool mkdir(const QString& dir);
+
+    /**
+     * @brief rmdir Removes an <i>empty</i> directory from the target machine.
+     * This method will only succeed if the directory is empty.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method.</p>
+     * @param directory The full path to the empty directory to be removed from the target machine.
+     * @return True if the directory was successfully deleted, false otherwise.
+     */
+    bool rmdir(const QString& dir);
+
+signals:
+    /**
+     * @brief alertUser Alerts the program that a message needs to be displayed
+     * to the user.
+     * @param message The message to display.
+     */
+    void alertUser(const QString& message);
 
 protected:
 

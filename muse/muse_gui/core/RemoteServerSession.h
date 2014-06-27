@@ -223,10 +223,14 @@ public:
      */
     QString& getPurpose();
 
-    //ConnectionThread* getConnectionThread();
 
 signals:
-
+    /**
+     * @brief booleanResult Announces the result of an operation
+     * that returns a boolean from the use of an RSSAsyncHelper object.
+     * @param result The result of the operation.
+     */
+    void booleanResult(bool result);
 
 protected:
 
@@ -271,14 +275,21 @@ private:
     static KnownHosts knownHosts;
     */
 
-    //ConnectionThread connectionThread;
     SshSocket* socket;
     QString& purpose;
     ThreadedConnectionGUI threadGUI;
+    bool threadedResult;
+    int numericThreadedResult;
 
 private slots:
     void promptUserIfMkdirFailed(const bool result);
     void promptUserIfRmdirFailed(const bool result);
+
+    /**
+     * @brief announceBooleanResult Emits booleanResult() once a threaded
+     * job has compeleted.
+     */
+    void announceBooleanResult();
 
 };
 

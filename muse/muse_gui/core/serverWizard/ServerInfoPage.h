@@ -95,7 +95,7 @@ public slots:
      * sets installDirectoryVerified = result && mkdirSucceded.
      * @param result The success of rmdir.
      */
-    void getRmdirResult(const bool result);
+    void getRmdirResult(bool result);
 
     /**
      * @brief getMkdirResult Gets the result of calling mkdir on the
@@ -103,7 +103,7 @@ public slots:
      * sets mkdirSucceeded = result.
      * @param result The success of mkdir.
      */
-    void getMkdirResult(const bool result);
+    void getMkdirResult(bool result);
 
 private:
     QTextEdit serverDescription;

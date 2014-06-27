@@ -3,6 +3,8 @@
 
 #include <QTcpSocket>
 #include <QWidget>
+#include <QMutex>
+#include <QMutexLocker>
 #include <libssh2.h>
 
 #include "SSHKnownHosts.h"
