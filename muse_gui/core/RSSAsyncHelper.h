@@ -63,7 +63,7 @@ public:
      * @param method The method to call, passed to the constructor through
      * the use of std::bind.
      */
-    RSSAsyncHelper(RetVal* val, SshSocket* socket, MethodCall method);
+    RSSAsyncHelper(RetVal* val, SshSocket* socket, MethodCall method, SFtpChannel* channel = NULL);
 
     /**
      * @brief run Calls the method passed to this RSSAsyncHelper in the
@@ -75,12 +75,13 @@ private:
     RetVal* result;
     MethodCall method;
     SshSocket* socket;
+    SFtpChannel* sftpChannel;
 
     /**
      * @brief returnSocketToMainThread Returns thread ownership of
      * the SshSocket back to the Qt Application Thread.
      */
-    void returnSocketToMainThread();
+    void returnLibSsh2ToMainThread();
 
 };
 

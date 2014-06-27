@@ -114,6 +114,11 @@ ServerInfoPage::validatePage() {
         // Returns to this page must verify again
         installDirectoryVerified = false;
         mkdirSucceeded = false;
+        // if server is remote, disconnect the signal to getRmdirResult
+        if( (field("serverType")) != LOCAL_SERVER) {
+            disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
+                       this, SLOT(getRmdirResult(bool)));
+        }
         return true;
     }
     // installDirectoryVerified was false...

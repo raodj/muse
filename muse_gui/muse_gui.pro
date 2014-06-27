@@ -81,9 +81,7 @@ SOURCES +=\
     core/serverWizard/ServerSummaryPage.cpp \
     core/OverviewPage.cpp \
     infra/ServerConnectionTester.cpp \
-    infra/ThreadedConnectionGUI.cpp \
-    core/ConnectionThread.cpp \
-    core/DirectoryASyncHelper.cpp
+    infra/ThreadedConnectionGUI.cpp
 
 
 HEADERS  += \
@@ -145,8 +143,6 @@ HEADERS  += \
     core/OverviewPage.h \
     infra/ServerConnectionTester.h \
     infra/ThreadedConnectionGUI.h \
-    core/ConnectionThread.h \
-    core/DirectoryASyncHelper.h \
     core/RSSAsyncHelper.h \
     core/RSSAsyncHelper.ipp
 
