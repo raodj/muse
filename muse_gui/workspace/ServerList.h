@@ -82,7 +82,7 @@ public:
      *
      * @param entry The server entry to be added.
      */
-    void addServer(const Server& entry);
+    void addServer(Server& entry);
 
     /**
      * @brief size Returns the number of server entries in this list.

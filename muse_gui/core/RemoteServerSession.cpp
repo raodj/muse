@@ -54,6 +54,12 @@ RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QStrin
     sftpChannel = NULL;
 }
 
+RemoteServerSession::~RemoteServerSession() {
+    delete sftpChannel;
+    delete socket;
+
+}
+
 void RemoteServerSession::connectToServer() {
     socket = new SshSocket("Remote Server Operations", NULL, MUSEGUIApplication::getKnownHostsPath(),
                            true, true);

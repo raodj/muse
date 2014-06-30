@@ -46,7 +46,8 @@ ServerList::ServerList() : XMLElement("ServerList") {
 }
 
 void
-ServerList::addServer(const Server &entry) {
+ServerList::addServer(Server &entry) {
+   servers.append(reinterpret_cast<XMLElement*> (&entry));
 }
 
 #endif

@@ -74,6 +74,7 @@ public:
      * operations.
      */
     RemoteServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+    ~RemoteServerSession();
 
     /**
      * @brief Connect to the server in order to perfrom various operations.

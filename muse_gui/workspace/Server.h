@@ -185,6 +185,13 @@ public:
     QString getID() const { return ID; }
 
     /**
+     * @brief setID Sets the unique id of this Server to id, which is obtained
+     * from Workspace::reserveID().
+     * @param id The id for this Server.
+     */
+    void setID(const QString& id);
+
+    /**
      * @brief getName Returns the server's domain name (or IP address) set
      * for this server entry.
      *

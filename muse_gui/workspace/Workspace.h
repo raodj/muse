@@ -151,7 +151,16 @@ public:
      * successfully saved. On various errors this method returns a
      * non-empty string with suitable error message.
      */
-    QString saveWorkspace() const;
+    QString saveWorkspace();
+
+    /**
+     * @brief reserveID Assigns a unique ID to an object in this
+     * workspace.
+     * @param itemType The type of item in the workspace that is
+     * going to receive a unique ID.
+     * @return The unique ID that itemType is assigned.
+     */
+    QString reserveID(const QString& itemType);
 
 protected:
     /**
