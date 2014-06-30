@@ -184,11 +184,12 @@ ServerTypePage::validatePage() {
             ! remoteConnectionVerified){
         prgDialog.setVisible(true);
         // Make the server variable
-        Server server("", true, serverName.text(), portNumber.value(), "", userId.text());
+        Server* server = new Server("", true, serverName.text(),
+                                    portNumber.value(), "", userId.text());
         // Set the password, since we have it
-        server.setPassword(password.text());
+        server->setPassword(password.text());
         // Make a session with the server
-        remoteServerSession = new RemoteServerSession(server);
+        remoteServerSession = new RemoteServerSession(*server);
         // Let the other pages know we have made a remote server sesion
         emit serverSessionCreated(remoteServerSession);
         // Connect signal to find out the result of the connection.
@@ -242,7 +243,7 @@ ServerTypePage::verifyRemoteOS() {
 
     if(returnCode == SUCCESS_CODE) {
         // Set the osType of the server
-        remoteServerSession->getServer()->
+        remoteServerSession->getServer().
                 setOS( out.contains("Linux", Qt::CaseInsensitive) ?
                            Server::Linux : Server::Unix);
     }

@@ -122,7 +122,17 @@ ServerInfoPage::validatePage() {
         if( (field("serverType")) != LOCAL_SERVER) {
             disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
                        this, SLOT(getRmdirResult(bool)));
-
+            QMessageBox msgBox;
+            msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
+            msgBox.setDetailedText("More info to come later...");
+            msgBox.setStandardButtons(QMessageBox::Ok);
+            msgBox.exec();
+            // Apply the description of the server to the workspace.
+            remoteServerSession->getServer().
+                    setDescription(serverDescription.toPlainText());
+            // Apply the install path of the server to the workspace.
+            remoteServerSession->getServer().
+                    setInstallPath(installDirectoryDisplay.text());
             // POSSIBLY ADD POLLING DELAY.------------------------------------------
         }
 
@@ -144,18 +154,6 @@ ServerInfoPage::getRmdirResult(bool result) {
     installDirectoryVerified = result && mkdirSucceeded;
    // If everything is good, move on.
     if (installDirectoryVerified) {
-        QMessageBox msgBox;
-        msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
-        msgBox.setDetailedText("More info to come later...");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.exec();
-        // Apply the description of the server to the workspace.
-        remoteServerSession->getServer()->
-                setDescription(serverDescription.toPlainText());
-        // Apply the install path of the server to the workspace.
-        remoteServerSession->getServer()->
-                setInstallPath(installDirectoryDisplay.text());
-
         wizard()->next();
     }
     else {
