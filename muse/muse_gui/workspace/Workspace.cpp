@@ -150,4 +150,16 @@ Workspace::useWorkspace(const QString &directory) {
     return "";
 }
 
+QString
+Workspace::saveWorkspace() {
+    const QString filePath = directory + WorkspaceFileName;
+    XMLParser saver;
+    return saver.saveXML(filePath, *workspace);
+}
+
+QString
+Workspace::reserveID(const QString& itemType) {
+    return itemType + QString::number(seqCounter++, 10);
+}
+
 #endif

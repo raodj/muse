@@ -106,4 +106,9 @@ Server::setInstallPath(const QString &path) {
     installPath = path;
 }
 
+void
+Server::setID(const QString &id) {
+    this->ID = id;
+}
+
 #endif

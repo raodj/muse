@@ -129,7 +129,8 @@ ServerInfoPage::validatePage() {
             msgBox.exec();
             // Apply the description of the server to the workspace.
             remoteServerSession->getServer().
-                    setDescription(serverDescription.toPlainText());
+                    setDescription( (serverDescription.toPlainText().isEmpty()) ?
+                                        "None provided." : serverDescription.toPlainText());
             // Apply the install path of the server to the workspace.
             remoteServerSession->getServer().
                     setInstallPath(installDirectoryDisplay.text());
