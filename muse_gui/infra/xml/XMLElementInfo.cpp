@@ -217,7 +217,7 @@ XMLElementInfo::toBool(const QString &value) {
 
 QString
 XMLElementInfo::fromBool(const bool value) {
-    return (value ? "true" : "true");
+    return (value ? "true" : "false");
 }
 
 void

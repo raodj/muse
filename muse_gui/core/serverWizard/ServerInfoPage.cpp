@@ -42,6 +42,8 @@
 #include <QHBoxLayout>
 #include <QLabel>
 #include <QMessageBox>
+#include <QFileDialog>
+#include <QStandardPaths>
 
 const QString ServerInfoPage::InstallDirectoryMessage =
         "The install directory does not exist (this is good), and"\
@@ -67,6 +69,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     browse.setText("Browse");
     // Add the button to the directory layout
     directoryLayout->addWidget(&browse);
+    // Allow the button to trigger the QFileDialog
+    connect(&browse, SIGNAL(clicked()), this, SLOT(browseFileSystem()));
     // Add the directory layout to the overall layout
     mainLayout->addLayout(directoryLayout);
     // Set the spinbox to a default first value
@@ -81,10 +85,11 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     prgDialog.setVisible(false);
     mainLayout->addWidget(&prgDialog);
     // Register the install directory as a field
-    registerField("installPath", &installDirectoryDisplay);
+    registerField("installPath*", &installDirectoryDisplay);
     setLayout(mainLayout);
     // Default value
     installDirectoryVerified = mkdirSucceeded = false;
+    serverSession = NULL;
 }
 
 void
@@ -92,72 +97,90 @@ ServerInfoPage::initializePage() {
     // Only enable the button if the user is creating a local server.
     browse.setEnabled((field("serverType") == LOCAL_SERVER));
     // Set the default text for the install directory
-    installDirectoryDisplay.setText("/home/" + field("userId").toString() + "/MUSE");
+    installDirectoryDisplay.setText( (field("serverType") == LOCAL_SERVER) ? "" :
+                                  "/home/" + field("userId").toString() + "/MUSE");
 
 }
 
 bool
 ServerInfoPage::validatePage() {
-
-    if( (field("serverType")) != LOCAL_SERVER && !installDirectoryVerified){
-        prgDialog.setVisible(true);
-        // Connect signal to know success of mkdir
-        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
+    prgDialog.setVisible(true);
+    // Step 1: mkdir
+    if (!mkdirSucceeded) {
+        // connect the signal to learn of the result.
+        connect(serverSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
-        // Verify the install path by making the directory (if it doesn't exist)
-        remoteServerSession->mkdir(installDirectoryDisplay.text());
-        // Stay on this page
+        // Attempt to make the directory
+        serverSession->mkdir(installDirectoryDisplay.text());
+        // Stay on the page
         return false;
     }
+    // Step 2: rmdir
+   else if (mkdirSucceeded && !installDirectoryVerified) {
+        // connect the signal to learn of the result
+        connect(serverSession, SIGNAL(directoryRemoved(bool)),
+                this, SLOT(getRmdirResult(bool)));
+        // Attempt to remove the directory
+        serverSession->rmdir(installDirectoryDisplay.text());
+        // Stay on the page.
+        return false;
+    }
+    // Step 3: Advance to next page
     else {
-        // Nothing for now until LocalSS is implemented
-
-    }
-    prgDialog.setVisible(false);
-    if (installDirectoryVerified && (field("serverType")) != LOCAL_SERVER) {
-        // Returns to this page must verify again
-        installDirectoryVerified = false;
+        // Disconnect the signals
+        disconnect(serverSession, SIGNAL(directoryCreated(bool)),
+                   this, SLOT(getMkdirResult(bool)));
+        disconnect(serverSession, SIGNAL(directoryRemoved(bool)),
+                   this, SLOT(getRmdirResult(bool)));
+        // Ensure that a return to this page reverifies everything
         mkdirSucceeded = false;
-        // if server is remote, disconnect the signal to getRmdirResult
-        if( (field("serverType")) != LOCAL_SERVER) {
-            disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
-                       this, SLOT(getRmdirResult(bool)));
-            QMessageBox msgBox;
-            msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
-            msgBox.setDetailedText("More info to come later...");
-            msgBox.setStandardButtons(QMessageBox::Ok);
-            msgBox.exec();
-            // Apply the description of the server to the workspace.
-            remoteServerSession->getServer().
-                    setDescription( (serverDescription.toPlainText().isEmpty()) ?
-                                        "None provided." : serverDescription.toPlainText());
-            // Apply the install path of the server to the workspace.
-            remoteServerSession->getServer().
-                    setInstallPath(installDirectoryDisplay.text());
-            // POSSIBLY ADD POLLING DELAY.------------------------------------------
-        }
-
-            return true;
+        installDirectoryVerified = false;
+        Server& server = serverSession->getServer();
+        // Add the server description.
+        server.setDescription((serverDescription.toPlainText().isEmpty()) ?
+                                  "None provided." : serverDescription.toPlainText());
+        // Add the install directory
+        server.setInstallPath(installDirectoryDisplay.text());
+        // Inform the user of the success.
+        QMessageBox msgBox;
+        msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
+        msgBox.setDetailedText("More info to come later...");
+        msgBox.setStandardButtons(QMessageBox::Ok);
+        msgBox.exec();
+        // Finally, we can advance to the next page;
+        return true;
     }
-    // installDirectoryVerified was false...
-    mkdirSucceeded = false;
-
-    return false;
 }
 
 void
-ServerInfoPage::setServerSessionPointer(RemoteServerSession *rss) {
-    remoteServerSession = rss;
+ServerInfoPage::setServerSessionPointer(ServerSession *ss) {
+    //remoteServerSession = rss;
+    serverSession = ss;
+}
+
+void
+ServerInfoPage::getMkdirResult(bool result) {
+    mkdirSucceeded = result;
+    if (!mkdirSucceeded) {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error");
+        msgBox.setText("There was an issue creating the install directory.<br/>"\
+                       "This likely means that the directory currently exists," \
+                       " which is not good. Please change the install directory.");
+        msgBox.exec();
+        // Hide the dialog since we are stopping the process.
+        prgDialog.setVisible(false);
+    }
+    else {
+        // mkdirSucceeded is true, we can move on to the next step
+        wizard()->next();
+    }
 }
 
 void
 ServerInfoPage::getRmdirResult(bool result) {
-    installDirectoryVerified = result && mkdirSucceeded;
-   // If everything is good, move on.
-    if (installDirectoryVerified) {
-        wizard()->next();
-    }
-    else {
+    installDirectoryVerified = result;
+    if (!installDirectoryVerified) {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Error");
         msgBox.setText("There was an issue deleting the install directory.<br/>"\
@@ -166,33 +189,29 @@ ServerInfoPage::getRmdirResult(bool result) {
         msgBox.exec();
         // Couldn't remove the directory, return to initial state
         mkdirSucceeded = false;
+        prgDialog.setVisible(false);
+    }
+    else {
+        // We removed the directory, we can move on.
+        wizard()->next();
     }
 }
 
 void
-ServerInfoPage::getMkdirResult(bool result) {
-    mkdirSucceeded = result;
-    if (!result) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Error");
-        msgBox.setText("There was an issue creating the install directory.<br/>"\
-                       "This likely means that the directory currently exists," \
-                       " which is not good. Please change the install directory.");
-        msgBox.exec();
-        prgDialog.setVisible(false);
+ServerInfoPage::browseFileSystem() {
+    QFileDialog fileDiag;
+    QString dirPath = fileDiag.getExistingDirectory(NULL,
+                                                    "TYPE the name of the directory to CREATE",
+                                  QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+
+    if (!dirPath.isEmpty()) {
+        installDirectoryDisplay.setText(dirPath);
+        QDir dir;
+        // The user thinks they created the directory.
+        // It's irrelevant if rmdir fails or not.
+        dir.rmdir(dirPath);
     }
-    else {
-        // We successfully made the directory, so now, we want to
-        // connect the signal to the getRmdDirResult slot, so
-        // let's disconnect the getMkDirResult.
-        disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
-                   this, SLOT(getMkdirResult(bool)));
-        // Connect the signal to getRmdirResult
-        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
-                this, SLOT(getRmdirResult(bool)));
-        // We passed the first step, now remove it.
-        remoteServerSession->rmdir(installDirectoryDisplay.text());
-    }
+
 }
 
 #endif

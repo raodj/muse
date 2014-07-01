@@ -72,7 +72,7 @@ ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
     mainLayout->addWidget(&installDirectory);
     // Set mainLayout as default layout
     setLayout(mainLayout);
-
+    serverSession = NULL;
 }
 
 void
@@ -84,13 +84,15 @@ ServerSummaryPage::initializePage() {
 bool
 ServerSummaryPage::validatePage() {
     Workspace* ws = Workspace::get();
+    // Get the server.
+    Server& server = serverSession->getServer();
     // Assign a unique id unless the server has one already.
     // This normally would return true.
-    if (remoteServerSession->getServer().getID().isEmpty()) {
-        remoteServerSession->getServer().setID(ws->reserveID("server"));
+    if (server.getID().isEmpty()) {
+        server.setID(ws->reserveID("server"));
     }
     // Add the server to the workspace
-    ws->getServerList().addServer(remoteServerSession->getServer());
+    ws->getServerList().addServer(server);
     QString err;
     err = ws->saveWorkspace();
     // If err has text, we had a problem.
@@ -100,17 +102,17 @@ ServerSummaryPage::validatePage() {
         msgBox.setText(err);
         return false;
     }
-    // For now, delete the session to avoid memory leak.
+    // For now, delete the session to avoid memory leaks.
     // When installation gets implemented, this line should be
     // removed.
-    delete remoteServerSession;
+    delete serverSession;
     // Saved successfully, close the wizard.
     return true;
 }
 
 void
-ServerSummaryPage::setServerSessionPointer(RemoteServerSession *rss) {
-    remoteServerSession = rss;
+ServerSummaryPage::setServerSessionPointer(ServerSession *ss) {
+    serverSession = ss;
 }
 
 #endif

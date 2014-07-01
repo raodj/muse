@@ -53,6 +53,17 @@
 class LocalServerSession : public ServerSession{
 public:
     /**
+     * @brief Creates a LocalServerSession by passing the parameters to the
+     * super class, which initializes the variables.
+     *
+     * @param server The necessary information to connect to the server.
+     * @param parent The parent GUI componenet that should be used to
+     * create GUI elements that may be needed for any interactive
+     * operations.
+     */
+    LocalServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+
+    /**
      * @brief Connect to the server to perform various operations.
      * This method is only useful for connections to non-local servers,
      * so the implementation here is empty.
@@ -69,8 +80,6 @@ public:
     /**
      * @brief Executes to run a <b>brief</b> command that produces succint output.
      * The two possible outputs (standard output and error output) will be stored separately as Strings.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before calling this method.</p>
      *
      * @param command The command to be executed on the target machine.
      * The command must be compatible with the target machine's OS,
@@ -93,8 +102,6 @@ public:
      * with appropriate styling given to the output returned from the command.
      * In other words, the standard output will appear differently than the
      * error stream and any other type of output.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before this method is called.</p>
      *
      * @param command The command to be executed on the target machine.
      * The command must be compatible with the target machine's OS,
@@ -109,8 +116,6 @@ public:
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method.</p>
      * @param srcData The source stream that provides the data to be copied.
      *
      * @param destDirectory The destination directory to which the data is to be copied.
@@ -127,8 +132,6 @@ public:
     //Java version of below method also had a progress bar as a last parameter.....
     /**
      * @brief copy Copy file from a remote machine to a given output stream.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before calling this method.</p>
      * @param destData The destination stream to which the data is to be written.
      * @param srcDirectory The source directory from where the file is to be copied.
      * @param srcFileName The name of the source file from where the data is to be copied.
@@ -139,26 +142,23 @@ public:
     /**
      * @brief mkdir Creates a directory on the target machine.
      * This method must be used to create a directory entry on the server.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before calling this method.</p>
-     *
+     * This method emits directoryCreated(bool) to announce whether or
+     * not the directory was created.
      * @param directory The full path to the directory that is to be created.
      */
     void mkdir (const QString &directory);
 
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
-     * This method will only succeed if the directory is empty.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method.</p>
+     * This method will only succeed if the directory is empty. This method
+     * emits directoryRemoved(bool) to announce whether or not the
+     * directory was removed.
      * @param directory The full path to the empty directory to be removed from the target machine.
      */
     void rmdir(const QString &directory);
 
     /**
      * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method.</p>
      * @param path The path (absolute or relative to home directory) of the file whose meta data is to be retrieved.
      * @return A FileInfo object containing the information about the path.
      */
@@ -180,34 +180,9 @@ public:
      */
     QString& getPurpose();
 
-signals:
-    /**
-     * @brief directoryCreated Anounces whether or not a directory was
-     * created by mkdir().
-     * @param result True if the directory was sucessfully created, false
-     * otherwise.
-     */
-    void directoryCreated(const bool result);
-
-    /**
-     * @brief directoryRemoved Announces whether or not a directory was
-     * removed by rmdir().
-     * @param result True if the directory was sucessfully removed, false
-     * otherwise.
-     */
-    void directoryRemoved(const bool result);
 
 protected:
-    /**
-     * @brief Creates a LocalServerSession by passing the parameters to the
-     * super class, which initializes the variables.
-     *
-     * @param server The necessary information to connect to the server.
-     * @param parent The parent GUI componenet that should be used to
-     * create GUI elements that may be needed for any interactive
-     * operations.
-     */
-    LocalServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+
 
 private:
     QString& purpose;

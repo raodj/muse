@@ -106,8 +106,6 @@ void RemoteServerSession::getPassword() {
 
 int RemoteServerSession::exec(const QString &command, QString &stdoutput,
                               QString &stderrmsgs) {
-    Q_UNUSED(stdoutput);
-    Q_UNUSED(stderrmsgs);
     // Create the communication channel
     LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
     if (channel != NULL) {
@@ -196,7 +194,7 @@ RemoteServerSession::mkdir(const QString &directory) {
     sftpChannel->moveToThread(mkdirHelper);
     // Connect signal so that we can act appropriately based on result
     // of the command's execution.
-    connect(mkdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+    connect(mkdirHelper, SIGNAL(finished()), this, SLOT(announceMkdirResult()));
     // Delete the helper once the event loop of the thread has ended.
     connect(mkdirHelper, SIGNAL(finished()), mkdirHelper, SLOT(deleteLater()));
     mkdirHelper->start();
@@ -216,7 +214,7 @@ void RemoteServerSession::rmdir(const QString &directory) {
     sftpChannel->moveToThread(rmdirHelper);
     // Connect signal so that we can act appropriately based on result
     // of the command's execution.
-    connect(rmdirHelper, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+    connect(rmdirHelper, SIGNAL(finished()), this, SLOT(announceRmdirResult()));
     // Delete the helper once the event loop of the thread has ended.
     connect(rmdirHelper, SIGNAL(finished()), rmdirHelper, SLOT(deleteLater()));
     rmdirHelper->start();
@@ -230,6 +228,16 @@ void RemoteServerSession::setPurpose(const QString &text) {
 void
 RemoteServerSession::announceBooleanResult() {
     emit booleanResult(threadedResult);
+}
+
+void
+RemoteServerSession::announceMkdirResult() {
+    emit directoryCreated(threadedResult);
+}
+
+void
+RemoteServerSession::announceRmdirResult() {
+    emit directoryRemoved(threadedResult);
 }
 
 //  MAY NOT NEED THESE TWO METHODS...............

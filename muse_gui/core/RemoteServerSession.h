@@ -225,11 +225,7 @@ public:
      */
     QString& getPurpose();
 
-    /**
-     * @brief getServer Gets a pointer to the server this RemoteServerSession refers to.
-     * @return A pointer to the server.
-     */
-    Server& getServer() const { return server; }
+
 
 
 signals:
@@ -299,6 +295,18 @@ private slots:
      * job has compeleted.
      */
     void announceBooleanResult();
+
+    /**
+     * @brief announceMkdirResult Emits directoryCreated(bool)
+     * to inform the caller of mkdir if the directory was created or not.
+     */
+    void announceMkdirResult();
+
+    /**
+     * @brief announceRmdirResult Emits directoryRemoved(bool)
+     * to inform the call of rmdir if the directory was removed or not.
+     */
+    void announceRmdirResult();
 
 };
 

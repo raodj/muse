@@ -43,6 +43,7 @@
 #include <QPushButton>
 #include <QProgressDialog>
 #include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 /**
  * @brief The ServerInfoPage class The ServerInfoPage presents the user
@@ -83,27 +84,27 @@ public slots:
 
     /**
      * @brief setServerSessionPointer Sets the wizard-wide ServerSession
-     * variable so that this page and the ServerInfoPage can operate on the
+     * variable so that this page and the ServerSummaryPage can operate on the
      * server.
      * @param rss The pointer to the RemoteServerSession
      */
-    void setServerSessionPointer(RemoteServerSession* rss);
+    void setServerSessionPointer(ServerSession* ss);
 
     /**
-     * @brief getRmdirResult Gets the result of calling rmdir on the
-     * RemoteServerSession to verify the install directory. This method
-     * sets installDirectoryVerified = result && mkdirSucceded.
-     * @param result The success of rmdir.
-     */
-    void getRmdirResult(bool result);
-
-    /**
-     * @brief getMkdirResult Gets the result of calling mkdir on the
-     * RemoteServerSession to verify the install directory. This method
-     * sets mkdirSucceeded = result.
-     * @param result The success of mkdir.
+     * @brief getMkdirResult Gets the result of calling mkdir
+     * on the ServerSession to verify the install directory.
+     * This methods sets mkdirSucceeded = result.
+     * @param result
      */
     void getMkdirResult(bool result);
+
+    /**
+     * @brief getRmdirResult Gets the result of calling rmdir
+     * on the LocalServerSession to verify the install directory.
+     * This methods sets installDirectoryVerified = result.
+     * @param result
+     */
+    void getRmdirResult(bool result);
 
 private:
     QTextEdit serverDescription;
@@ -112,8 +113,15 @@ private:
     QSpinBox pollingDelay;
     QProgressDialog prgDialog;
     bool installDirectoryVerified, mkdirSucceeded;
-    RemoteServerSession* remoteServerSession;
+    ServerSession* serverSession;
     static const QString InstallDirectoryMessage;
+
+private slots:
+    /**
+     * @brief browseFileSystem Spawns a QFileDialog for the user
+     * to select the install directory for MUSE.
+     */
+    void browseFileSystem();
 };
 
 #endif

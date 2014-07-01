@@ -55,6 +55,9 @@ public:
      */
     static const QString ViewName;
 
+public slots:
+    void updateView();
+
 protected slots:
     /**
      * @brief showServerWizard Shows the ServerWizard when the user selects

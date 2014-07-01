@@ -44,6 +44,7 @@
 #include <QProgressDialog>
 #include "ServerConnectionTester.h"
 #include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 /**
  * @brief The ServerTypePage class The ServerTypePage presents the user
@@ -98,7 +99,7 @@ private slots:
 
 
 signals:
-    void serverSessionCreated(RemoteServerSession* rss);
+    void serverSessionCreated(ServerSession* ss);
 
 private:
     QComboBox* serverTypeSelector;
@@ -112,10 +113,8 @@ private:
     QProgressDialog prgDialog;
     bool remoteConnectionVerified;
     static const QString SuccessMessage, FailureMessage;
-
-    RemoteServerSession* remoteServerSession;
-    //Server* server;
-
+    ServerSession* serverSession;
+    
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the
      * construction of the remoteServerWidget, which is a section of this page
@@ -147,7 +146,7 @@ private:
      * to verify that it is a Linux or UNIX operating system.
      * @return True if the OS is Linux or UNIX, false otherwise.
      */
-    bool verifyRemoteOS();
+    bool verifyOS();
 };
 
 #endif
