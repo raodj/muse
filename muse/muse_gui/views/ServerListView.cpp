@@ -98,4 +98,9 @@ ServerListView::showServerWizard() {
     sw.exec();
 }
 
+void
+ServerListView::updateView() {
+
+}
+
 #endif

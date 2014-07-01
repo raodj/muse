@@ -85,6 +85,7 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     registerField("serverType", serverTypeSelector);
     // Set default value
     remoteConnectionVerified = false;
+    serverSession = NULL;
 }
 
 
@@ -161,11 +162,15 @@ ServerTypePage::createCredentialsLayout() {
 
 void
 ServerTypePage::serverTypeChanged(const int index) {
-
+    password.setText("");
     remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
     userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());
     serverName.setText( (index == REMOTE_SERVER_INDEX) ? "" : "localhost");
-
+    // delete the pointer
+    delete serverSession;
+    serverSession = NULL;
+    // Share the update with the rest of the wizard.
+    emit serverSessionCreated(serverSession);
 }
 
 QString
@@ -180,36 +185,42 @@ ServerTypePage::getUserName() {
 bool
 ServerTypePage::validatePage() {
 
-    if(serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX &&
-            ! remoteConnectionVerified){
+    if (! remoteConnectionVerified) {
         prgDialog.setVisible(true);
         // Make the server variable
-        Server* server = new Server("", true, serverName.text(),
-                                    portNumber.value(), "", userId.text());
-        // Set the password, since we have it
-        server->setPassword(password.text());
-        // Make a session with the server
-        remoteServerSession = new RemoteServerSession(*server);
-        // Let the other pages know we have made a remote server sesion
-        emit serverSessionCreated(remoteServerSession);
-        // Connect signal to find out the result of the connection.
-        connect(remoteServerSession, SIGNAL(booleanResult(bool)),
-                this, SLOT(checkConnectionTesterResult(bool)));
-        // Connect to the server.
-        remoteServerSession->connectToServer();
-        // Stay on the page for now while the test runs.
-        return false;
-    }
+        Server* server = new Server("", ((serverTypeSelector->currentIndex()) == REMOTE_SERVER_INDEX),
+                                    serverName.text(), portNumber.value(), "", userId.text());
+        // Specific operations for remote server.
+        if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
+            // Set the password, since we have it
+            server->setPassword(password.text());
+            // Make a session with the server
+            serverSession = new RemoteServerSession(*server);
+            //serverSession = rss;
+            // Connect signal to find out the result of the connection.
+            connect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
+                    this, SLOT(checkConnectionTesterResult(bool)));
+        }
+        else {
+            serverSession = new LocalServerSession(*server);
+        }
+        // Let the other pages know we have made a server sesion
+        emit serverSessionCreated(serverSession);
 
-    // If we tested a remote connection, erase the fact that we
-    // connected to it.
-    if(remoteConnectionVerified) {
+        // Specific to remote server
+        if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
+            // Connect to the server.
+            serverSession->connectToServer();
+            // Stay on the page for now.
+            return false;
+        }
+    }
         // Hide the progress dialog
         prgDialog.setVisible(false);
+        // If anyone returns to this page, they must verify everything again.
+        remoteConnectionVerified = false;
         // Advance if we support the server's OS.
-        return verifyRemoteOS();
-    }
-    return true;
+        return verifyOS();
 }
 
 void
@@ -222,18 +233,18 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
     remoteConnectionVerified = result;
 
     // Disconnect from the boolean result signal.
-    disconnect(remoteServerSession, SIGNAL(booleanResult(bool)),
+    disconnect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
                this, SLOT(checkConnectionTesterResult(bool)));
 
     remoteConnectionVerified ? wizard()->next() : prgDialog.setVisible(false);
 }
 
 bool
-ServerTypePage::verifyRemoteOS() {
+ServerTypePage::verifyOS() {
     QString out, err;
     // Verify the Operating System of the server
-    int returnCode = remoteServerSession->exec("uname -a", out, err) ;
-    remoteConnectionVerified = false;
+    int returnCode = serverSession->exec("uname -a", out, err) ;
+    // Inform the user of the result.
     QMessageBox msgBox;
     msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
                                                   FailureMessage );
@@ -243,7 +254,7 @@ ServerTypePage::verifyRemoteOS() {
 
     if(returnCode == SUCCESS_CODE) {
         // Set the osType of the server
-        remoteServerSession->getServer().
+        serverSession->getServer().
                 setOS( out.contains("Linux", Qt::CaseInsensitive) ?
                            Server::Linux : Server::Unix);
     }

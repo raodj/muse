@@ -58,6 +58,7 @@ public:
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
     QVariant headerData(int section, Qt::Orientation orientation,
                                   int role) const;
+    static ServerListTableModel& model;
 
 private:
     QList<Server> serverEntries;

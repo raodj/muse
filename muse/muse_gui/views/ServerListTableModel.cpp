@@ -52,6 +52,7 @@ ServerListTableModel::ServerListTableModel() {
     for (int i = 0; i < list.size(); i ++) {
         serverEntries.append(list.get(i));
     }
+   // model = this;
 }
 
 QVariant

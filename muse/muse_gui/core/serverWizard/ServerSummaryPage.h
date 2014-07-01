@@ -40,6 +40,7 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 /**
  * @brief The ServerSummaryPage class The summary page for the ServerWizard
@@ -74,13 +75,19 @@ public:
     bool validatePage();
 
 public slots:
-    void setServerSessionPointer(RemoteServerSession* rss);
+    /**
+     * @brief setServerSessionPointer Sets the wizard-wide ServerSession
+     * variable so that this page and the ServerInfoPage can operate on the
+     * server.
+     * @param rss The pointer to the RemoteServerSession
+     */
+    void setServerSessionPointer(ServerSession* ss);
 
 private:
     QTextEdit summaryText;
     QLineEdit serverName;
     QLineEdit installDirectory;
-    RemoteServerSession* remoteServerSession;
+    ServerSession* serverSession;
 };
 
 #endif // SERVERSUMMARYPAGE_H

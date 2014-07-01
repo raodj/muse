@@ -209,6 +209,12 @@ public:
      */
     virtual void setPurpose(const QString &text) = 0;
 
+    /**
+     * @brief getServer Gets a pointer to the server this RemoteServerSession refers to.
+     * @return A pointer to the server.
+     */
+    Server& getServer() const { return server; }
+
 signals:
     /**
      * @brief directoryCreated Anounces whether or not a directory was
@@ -216,7 +222,7 @@ signals:
      * @param result True if the directory was sucessfully created, false
      * otherwise.
      */
-    void directoryCreated(const bool result);
+    void directoryCreated(bool result);
 
     /**
      * @brief directoryRemoved Announces whether or not a directory was
@@ -224,7 +230,7 @@ signals:
      * @param result True if the directory was sucessfully removed, false
      * otherwise.
      */
-    void directoryRemoved(const bool result);
+    void directoryRemoved(bool result);
 
 protected:
     Server& server;
