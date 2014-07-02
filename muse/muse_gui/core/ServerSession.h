@@ -41,12 +41,8 @@
 #include <ostream>
 #include <QWidget>
 #include <QString>
-#include <QTextDocument>
+#include <QTextEdit>
 #include "Server.h"
-
-
-//class QTextDocument;
-
 
 class FileInfo;
 
@@ -129,12 +125,12 @@ public:
      * The command must be compatible with the target machine's OS,
      * otherwise an exception will be generated.
      *
-     * @param output The QTextDocument that the output will be directed to and deposited in.
+     * @param output The QTextEdit that the output will be directed to and deposited in.
      *  This parameter cannot be null.
      *
      * @return The exit code from the command that was run on the target machine.
      */
-    virtual int exec(const QString &command, QTextDocument &output) = 0;
+    virtual int exec(const QString &command, QTextEdit &output) = 0;
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.

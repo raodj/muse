@@ -34,7 +34,7 @@ LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &s
 }
 
 int
-LocalServerSession::exec(const QString &command, QTextDocument &output) {
+LocalServerSession::exec(const QString &command, QTextEdit& output) {
 
     Q_UNUSED(command);
     Q_UNUSED(output);

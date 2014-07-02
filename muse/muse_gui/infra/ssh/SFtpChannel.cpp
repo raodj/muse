@@ -117,7 +117,7 @@ SFtpChannel::rmdir(const QString &dir) {
                            " verify your connection to the server.");
             return false;
         }
-        // Success! We made the directory!
+        // Success! We removed the directory!
         return true;
 }
 
