@@ -146,6 +146,8 @@ Workspace::useWorkspace(const QString &directory) {
     workspace->isGood = true; // Set the workspace is in good condition.
     // Write the loaded data to programmer logs for cross reference.
     workspace->dumpWorkspace();
+    // Add the list of servers to the table model
+    workspace->addInitialServersToModel();
     // Return success (no error message).
     return "";
 }
@@ -160,6 +162,24 @@ Workspace::saveWorkspace() {
 QString
 Workspace::reserveID(const QString& itemType) {
     return itemType + QString::number(seqCounter++, 10);
+}
+
+void
+Workspace::addInitialServersToModel() {
+    for (int i = 0; i < serverList.size(); i++) {
+        serverModel.appendServerEntry(serverList.get(i));
+    }
+}
+
+ServerListTableModel &
+Workspace::getTableModel() {
+    return serverModel;
+}
+
+void
+Workspace::addServerToWorkSpace(Server &server) {
+    serverList.addServer(server);
+    serverModel.appendServerEntry(server);
 }
 
 #endif

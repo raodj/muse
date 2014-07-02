@@ -40,6 +40,7 @@
 #include "ServerListView.h"
 #include "ServerListTableModel.h"
 #include "ServerWizard.h"
+#include "Workspace.h"
 #include <QHeaderView>
 
 // The constant string that identifies the name of this view
@@ -55,13 +56,16 @@ ServerListView::ServerListView(QWidget *parent) :
     // Set the full row to be selected by default
     serverTable.setSelectionBehavior(QAbstractItemView::SelectRows);
     //This is probably not the way we actually want to implement this.
-    serverTable.setModel(new ServerListTableModel());
+    serverTable.setModel(&Workspace::get()->getTableModel());
     // Initialize the toolbar buttons
     initializeToolBarButtons();
     // Organize components in this view for dsiplay
     createDefaultLayout(true, &serverTable);
-
+    // Allow the server wizard to spawn when the button is clicked.
     connect(addServerButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
+    // Connect the signal to allow the view to update the list.
+    connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
+            this, SLOT(updateView()));
 }
 
 void
@@ -100,7 +104,9 @@ ServerListView::showServerWizard() {
 
 void
 ServerListView::updateView() {
-
+    const int lastRow = serverTable.model()->rowCount() -1;
+    QModelIndex modelIndex = serverTable.model()->index(lastRow, 0);
+    serverTable.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
 }
 
 #endif

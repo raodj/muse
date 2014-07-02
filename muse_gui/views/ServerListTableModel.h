@@ -37,8 +37,6 @@
 //---------------------------------------------------------------------
 
 #include <QAbstractTableModel>
-#include "ServerList.h"
-#include "Workspace.h"
 #include "Server.h"
 #define MAX_COLUMNS 3
 
@@ -47,9 +45,7 @@
  * listing of servers in MUSE GUI.
  */
 class ServerListTableModel : public QAbstractTableModel {
-
-    friend class ServerList;
-    friend class Workspace;
+    Q_OBJECT
 public:
     ServerListTableModel();
     int rowCount(const QModelIndex & = QModelIndex()) const { return serverEntries.size(); }
@@ -59,6 +55,21 @@ public:
     QVariant headerData(int section, Qt::Orientation orientation,
                                   int role) const;
     static ServerListTableModel& model;
+
+public slots:
+    /**
+     * @brief appendServerEntry Adds a server to this ServerListTableModel.
+     * @param server The server to add
+     */
+    void appendServerEntry(Server& server);
+
+signals:
+    /**
+     * @brief serverAdded Alerts any views using this ServerListTableModel
+     * that a server has been added to the table and that the views should
+     * be updated.
+     */
+    void serverAdded();
 
 private:
     QList<Server> serverEntries;

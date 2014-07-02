@@ -92,7 +92,7 @@ ServerSummaryPage::validatePage() {
         server.setID(ws->reserveID("server"));
     }
     // Add the server to the workspace
-    ws->getServerList().addServer(server);
+    ws->addServerToWorkSpace(server);
     QString err;
     err = ws->saveWorkspace();
     // If err has text, we had a problem.

@@ -39,6 +39,8 @@
 #include "XMLRootElement.h"
 #include "ServerList.h"
 #include <QDateTime>
+#include "ServerListTableModel.h"
+#include "Server.h"
 
 /**
  * @brief The Workspace class that stores and manages all the data associated
@@ -162,6 +164,20 @@ public:
      */
     QString reserveID(const QString& itemType);
 
+    /**
+     * @brief getTableModel Returns the table model representation of this
+     * workspace.
+     * @return  The ServerListTableModel of this workspace.
+     */
+    ServerListTableModel& getTableModel();
+
+    /**
+     * @brief addServerToWorkSpace Adds server to the serverList and to the
+     * ServerListTableModel.
+     * @param server The server to be added.
+     */
+    void addServerToWorkSpace(Server& server);
+
 protected:
     /**
      * @brief Workspace The constructor creates a dummy workspace object.
@@ -245,6 +261,15 @@ private:
      * to determine the actual workspace XML file.
      */
     static const QString WorkspaceFileName;
+
+    ServerListTableModel serverModel;
+
+    /**
+     * @brief addInitialServersToModel Iterates through serverList and adds
+     * the servers to the table model for any views that use the
+     * ServerListTableModel.
+     */
+    void addInitialServersToModel();
 };
 
 #endif // WORKSPACE_H
