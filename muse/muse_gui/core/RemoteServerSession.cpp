@@ -48,7 +48,8 @@
 
 #define SUCCESS_CODE 0
 
-RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent, QString purpose) :
+RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent,
+                                         QString purpose) :
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
     socket = NULL;
     sftpChannel = NULL;
@@ -61,7 +62,8 @@ RemoteServerSession::~RemoteServerSession() {
 }
 
 void RemoteServerSession::connectToServer() {
-    socket = new SshSocket("Remote Server Operations", NULL, MUSEGUIApplication::getKnownHostsPath(),
+    socket = new SshSocket("Remote Server Operations", NULL,
+                           MUSEGUIApplication::getKnownHostsPath(),
                            true, true);
 
     // Now, intercept the signal to provide the SshSocket with the
@@ -75,10 +77,6 @@ void RemoteServerSession::connectToServer() {
                                                 const QString&, int*)),
             &threadGUI, SLOT(promptUser(const QString&, const QString&,
                                   const QString&, const QString&, int*)));
-    // Allow us to show exception dialog
-//    connect(this, SIGNAL(exceptionThrown(QString,QString,QString)),
-//            &threadGUI, SLOT(showException(QString,QString,QString)));
-
 
     RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket, std::bind(&SshSocket::connectToHost, socket,
                                         server.getName(),
@@ -87,6 +85,9 @@ void RemoteServerSession::connectToServer() {
                                         QAbstractSocket::ReadWrite));
     socket->changeToThread(test);
 
+    // Allow us to show exception dialog
+    connect(test, SIGNAL(exceptionThrown(QString,QString,QString)),
+            &threadGUI, SLOT(showException(QString,QString,QString)));
     test->start();
     // When the thread has completed, let the caller know the result.
     connect(test, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
