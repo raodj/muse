@@ -110,7 +110,7 @@ public:
      *
      *  @return The exit code from the command that was run on the target machine.
      */
-    int exec(const QString &command, QString &stdoutput, QString &stderrmsgs);
+    int exec(const QString &command, QString &stdoutput, QString &stderrmsgs) throw();
 
     /**
      * @brief exec Method to be run with a long running command that may
@@ -125,32 +125,13 @@ public:
      * The command must be compatible with the target machine's OS,
      * otherwise an exception will be generated.
      *
-     * @param output The QTextDocument that the output will be directed to and deposited in.
+     * @param output The QTextEdit that the output will be directed to and deposited in.
      *  This parameter cannot be null.
      *
      * @return The exit code from the command that was run on the target machine.
      */
-    int exec(const QString &command, QTextDocument &output);
+    int exec(const QString &command, QTextEdit& output) throw();
 
-    /**
-     * @brief An interactive verify for use with Ganymede SSH callback.
-     *
-     * This method is alled by the Ganymede SSH layer once it has
-     * established initial communication with the remote server. This
-     * method is invoked to verify if the SSH client should proceed
-     * with the connection, given the server's credentials.
-     *
-     * @param hostName The host name to be added to the list.
-     * @param port The port associated with the remote connection.
-     * @param serverHostKeyAlgorithm The string name for the certificate encryption
-     * alorithm
-     *
-     * @param serverHostKey The host key (actual digest/fingerprint)
-     * @return A boolean to indicate wheter or not the connection should proceed further.
-     */
-    bool verifyServerHostKey(const QString &hostName, const int port,
-                             const QString &serverHostKeyAlgorithm,
-                             const char &serverHostKey);
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
@@ -167,7 +148,7 @@ public:
      * as the mode for the target file.
      */
     void copy(std::istream &srcData, const QString &destDirectory,
-              const QString &destFileName, const QString &mode);
+              const QString &destFileName, const QString &mode) throw ();
 
 
     //Java version of below method also had a progress bar as a last parameter.....
@@ -179,7 +160,8 @@ public:
      * @param srcDirectory The source directory from where the file is to be copied.
      * @param srcFileName The name of the source file from where the data is to be copied.
      */
-    void copy(std::ostream &destData, const QString &srcDirectory, const QString &srcFileName);
+    void copy(std::ostream &destData, const QString &srcDirectory,
+              const QString &srcFileName) throw ();
 
     /**
      * @brief mkdir Creates a directory on the target machine.
@@ -239,46 +221,6 @@ signals:
 protected:
 
 private:
-    /**
-     * @brief Checks and gets the password from the user.
-     */
-    void getPassword();
-
-    /**
-     * @brief Method to add a new host entry to the list of known hosts.
-     * This method adds a new entry to both the in-memory knownHosts list
-     * and to the persisten file containing the list of known hosts.
-     *
-     * @param hostName The host name to be added to the list.
-     * @param port The port associated with the remote connection
-     * @param serverHostKeyAlgorithm The string name for the certificate encryption
-     * algorithm (such as ssh-rsa2)
-     * @param serverHostKey The host key (actual digest/fingerprint)
-     */
-    void addKnownHost(const QString &hostName, const int port,
-                      const QString &serverHostKeyAlgorithm,
-                      const char &serverHostKey);
-
-    /**
-     * @brief A helper method that is invoked just before a remote session
-     * establishes a connection with a server. It attempts to load the
-     * list of known servers from the "KnownHosts" file, which will be stored
-     * in the main MUSE folder in the user's home directory.
-     *
-     * <p>
-     * <b>Note:</b> This method loads the known hosts file only once, the first
-     * time it is called in the GUI process. Subsequent calls to this method
-     * simply return. Therefore calling this method frequently is OK.
-     * </p>
-     */
-    void loadKnownHosts();
-    /*Set of variables yet to be implemented...
-    Connection connection;
-    Server.OSType osType;
-    static Object knownHostsLock;
-    static KnownHosts knownHosts;
-    */
-
     SFtpChannel* sftpChannel;
     SshSocket* socket;
     QString& purpose;
@@ -287,9 +229,6 @@ private:
     int numericThreadedResult;
 
 private slots:
-    void promptUserIfMkdirFailed(const bool result);
-    void promptUserIfRmdirFailed(const bool result);
-
     /**
      * @brief announceBooleanResult Emits booleanResult() once a threaded
      * job has compeleted.

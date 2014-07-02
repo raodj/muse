@@ -98,15 +98,16 @@ void RemoteServerSession::connectToServer() {
 }
 
 void RemoteServerSession::disconnectFromServer() {
-
-}
-
-void RemoteServerSession::getPassword() {
-
+    delete sftpChannel;
+    delete socket;
 }
 
 int RemoteServerSession::exec(const QString &command, QString &stdoutput,
-                              QString &stderrmsgs) {
+                              QString &stderrmsgs) throw() {
+    // Don't try this code if we aren't connected.
+    if (socket == NULL) {
+        throw (std::string) "Not connected to remote server.";
+    }
     // Create the communication channel
     LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
     if (channel != NULL) {
@@ -125,38 +126,36 @@ int RemoteServerSession::exec(const QString &command, QString &stdoutput,
 
 }
 
-int RemoteServerSession::exec(const QString &command, QTextDocument &output) {
-
-    Q_UNUSED(command);
-    Q_UNUSED(output);
-}
-
-bool RemoteServerSession::verifyServerHostKey(const QString &hostName, const int port,
-                                              const QString &serverHostKeyAlgorithm,
-                                              const char &serverHostKey) {
-    Q_UNUSED(hostName);
-    Q_UNUSED(port);
-    Q_UNUSED(serverHostKey);
-    Q_UNUSED(serverHostKeyAlgorithm);
-
-}
-
-void RemoteServerSession::addKnownHost(const QString &hostName, const int port,
-                                       const QString &serverHostKeyAlgorithm,
-                                       const char &serverHostKey) {
-    Q_UNUSED(hostName);
-    Q_UNUSED(port);
-    Q_UNUSED(serverHostKeyAlgorithm);
-    Q_UNUSED(serverHostKey);
-
-}
-
-void RemoteServerSession::loadKnownHosts() {
-
+int RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
+    // Don't try this code if we aren't connected.
+    if (socket == NULL) {
+        throw (std::string) "Not connected to remote server.";
+    }
+    // Create the communication channel
+    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
+    if (channel != NULL) {
+        int returnCode = -100;
+        // Read the streams if the command was executed successfully.
+        returnCode = libssh2_channel_exec(
+                    channel, command.toStdString().c_str());
+        char stdBuffer[0x4000];
+        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+        // Add the text to the QTextEdit
+        output.append(stdBuffer);
+        char errBuffer[0x4000];
+        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
+        // Add the error text to the QTextEdit
+        output.append(errBuffer);
+        return returnCode;
+    }
 }
 
 void RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
-                               const QString &destFileName, const QString &mode) {
+                               const QString &destFileName, const QString &mode) throw() {
+    // Don't try this code if we aren't connected.
+    if (socket == NULL) {
+        throw (std::string) "Not connected to remote server.";
+    }
     Q_UNUSED(srcData);
     Q_UNUSED(destDirectory);
     Q_UNUSED(destFileName);
@@ -240,28 +239,5 @@ void
 RemoteServerSession::announceRmdirResult() {
     emit directoryRemoved(threadedResult);
 }
-
-//  MAY NOT NEED THESE TWO METHODS...............
-void
-RemoteServerSession::promptUserIfMkdirFailed(const bool result) {
-//    if (!result) {
-//        QMessageBox msgBox;
-//        msgBox.setText("There was an issue creating the install directory.<br/>"\
-//                       "This likely means that the directory currently exists," \
-//                       " which is not good. Please change the install directory.");
-//        msgBox.exec();
-//    }
-}
-
-void
-RemoteServerSession::promptUserIfRmdirFailed(const bool result) {
-//    if (!result) {
-//        QMessageBox msgBox;
-//        msgBox.setText("Couldn't remove the directory.");
-//        msgBox.exec();
-//    }
-}
-
-
 
 #endif

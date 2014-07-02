@@ -82,7 +82,8 @@ SOURCES +=\
     core/OverviewPage.cpp \
     infra/ServerConnectionTester.cpp \
     infra/ThreadedConnectionGUI.cpp \
-    core/MUSEThread.cpp
+    core/MUSEThread.cpp \
+    infra/ssh/SshChannel.cpp
 
 
 HEADERS  += \
@@ -146,7 +147,8 @@ HEADERS  += \
     infra/ThreadedConnectionGUI.h \
     core/RSSAsyncHelper.h \
     core/RSSAsyncHelper.ipp \
-    core/MUSEThread.h
+    core/MUSEThread.h \
+    infra/ssh/SshChannel.h
 
 
 OTHER_FILES += \
