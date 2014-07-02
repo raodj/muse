@@ -39,6 +39,7 @@
 #include <QThread>
 #include "SshSocket.h"
 #include <functional>
+#include "MUSEThread.h"
 
 template<typename RetVal>
 /**
@@ -46,7 +47,7 @@ template<typename RetVal>
  * operations that would be possibly time consuming or operations
  * that could otherwise lock the user interface.
  */
-class RSSAsyncHelper : public QThread {
+class RSSAsyncHelper : public MUSEThread {
 typedef std::function<RetVal(void)> MethodCall;
 public:
 

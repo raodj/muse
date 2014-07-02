@@ -34,6 +34,8 @@
 //---------------------------------------------------------------------
 
 #include <QApplication>
+#include "SshException.h"
+#include <exception>
 
 template<typename RetVal>
 RSSAsyncHelper<RetVal>::RSSAsyncHelper() {
@@ -51,10 +53,23 @@ RSSAsyncHelper<RetVal>::RSSAsyncHelper(RetVal* val, SshSocket* socket,
 template<typename RetVal>
 void
 RSSAsyncHelper<RetVal>::run() {
-//TODO: EXCEPTION HANDLING
-   *result = method();
-   result = NULL;
-   returnLibSsh2ToMainThread();
+    try {
+        *result = method();
+    }
+    catch (const SshException &e) {
+        const QString exceptionDetails =
+                e.getErrorDetails().arg(e.getFileName(), QString::number(e.getLineNumber()),
+                                 e.getMethodName(), QString::number(e.getSshErrorCode()),
+                                 QString::number(e.getNetworkErrorCode()));
+        emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
+                             exceptionDetails);
+    }
+    catch (const std::exception& e ) {
+        emit exceptionThrown(e.what());
+    }
+
+    result = NULL;
+    returnLibSsh2ToMainThread();
 }
 
 template<typename RetVal>
