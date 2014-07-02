@@ -145,6 +145,7 @@ ServerInfoPage::validatePage() {
         QMessageBox msgBox;
         msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
         msgBox.setDetailedText("More info to come later...");
+        msgBox.setWindowTitle("Install Validation Success");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.exec();
         // Finally, we can advance to the next page;
