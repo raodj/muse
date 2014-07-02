@@ -249,6 +249,8 @@ ServerTypePage::verifyOS() {
     msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
                                                   FailureMessage );
     msgBox.setDetailedText( (returnCode == SUCCESS_CODE) ? out : err);
+    msgBox.setWindowTitle( (returnCode == SUCCESS_CODE) ? "Connection Success"
+                                                        : "Connection Failure");
     msgBox.setStandardButtons(QMessageBox::Ok);
     msgBox.exec();
 
