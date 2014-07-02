@@ -46,12 +46,6 @@ ServerListTableModel::ServerListTableModel() {
     setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
     setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
 
-    Workspace* workspace = Workspace::get();
-    ServerList& list = workspace->getServerList();
-
-    for (int i = 0; i < list.size(); i ++) {
-        serverEntries.append(list.get(i));
-    }
    // model = this;
 }
 
@@ -92,6 +86,18 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     default:
     case 2: return server.getID();
     }
+}
+
+void
+ServerListTableModel::appendServerEntry(Server& server) {
+    // Let base class know a row is being added
+    beginInsertRows(QModelIndex(), serverEntries.size(),
+                    serverEntries.size() + 1);
+    // Add the server to the list
+    serverEntries.append(server);
+    // We are done inserting rows
+    endInsertRows();
+    emit serverAdded();
 }
 
 #endif
