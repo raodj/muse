@@ -38,8 +38,83 @@
 
 #include "SshChannel.h"
 
-SshChannel::SshChannel(SshSocket& socket) : socket(socket) {
+SshChannel::SshChannel(SshSocket& socket) {
+    session = socket.getSession();
+    channel = NULL;
+}
 
+SshChannel::~SshChannel() {
+    libssh2_channel_close(channel);
+}
+
+void
+SshChannel::copy(std::istream &srcData, const QString &destDirectory,
+                 const QString &destFileName, const QString &mode) {
+
+    Q_UNUSED(srcData);
+    Q_UNUSED(destDirectory);
+    Q_UNUSED(destFileName);
+    Q_UNUSED(mode);
+}
+
+void
+SshChannel::copy(std::ostream &destData, const QString &srcDirectory,
+                 const QString &srcFileName) {
+    Q_UNUSED(destData);
+    Q_UNUSED(srcDirectory);
+    Q_UNUSED(srcFileName);
+
+}
+
+int
+SshChannel::exec(const QString &command, QString &stdoutput,
+                 QString &stderrmsgs) {
+    // If the channel hasn't been opened...
+    if (channel == NULL) {
+        // Create the communication channel
+        channel = libssh2_channel_open_session(session);
+    }
+    // This can't be an else because the attempt to open the channel
+    // could fail.
+    if (channel != NULL) {
+        int returnCode = -100;
+        // Read the streams if the command was executed successfully.
+        returnCode = libssh2_channel_exec(
+                    channel, command.toStdString().c_str());
+        char stdBuffer[0x4000];
+        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+        stdoutput = stdBuffer;
+        char errBuffer[0x4000];
+        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
+        stderrmsgs = errBuffer;
+        return returnCode;
+    }
+}
+
+int
+SshChannel::exec(const QString &command, QTextEdit &output) {
+    // If the channel hasn't been opened...
+    if (channel == NULL) {
+        // Create the communication channel
+        channel = libssh2_channel_open_session(session);
+    }
+    // This can't be an else because the attempt to open the channel
+    // could fail.
+    if (channel != NULL) {
+        int returnCode = -100;
+        // Read the streams if the command was executed successfully.
+        returnCode = libssh2_channel_exec(
+                    channel, command.toStdString().c_str());
+        char stdBuffer[0x4000];
+        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
+        // Add the text to the QTextEdit
+        output.append(stdBuffer);
+        char errBuffer[0x4000];
+        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
+        // Add the error text to the QTextEdit
+        output.append(errBuffer);
+        return returnCode;
+    }
 }
 
 #endif
