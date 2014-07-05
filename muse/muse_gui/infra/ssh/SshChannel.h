@@ -39,14 +39,99 @@
 #include <QObject>
 #include "SshSocket.h"
 #include <libssh2.h>
+#include <QTextEdit>
 
+/**
+ * @brief The SshChannel class A class that makes the use of libssh2 seamless
+ * by providing an API that uses one method to call on the needed libssh2
+ * methods to achieve the desired result. This class is primarily used as a
+ * helper class to RemoteServerSession to keep its code clean. As a result,
+ * this class can also be used with the RSSAsyncHelper.
+ */
 class SshChannel : public QObject {
     Q_OBJECT
 public:
+    /**
+     * @brief SshChannel Creates an SshChannel with socket's Libssh2_session
+     * being used as this SshChannel's session instance variable. Needless to
+     * say, the socket must not be NULL when this class is instantiated.
+     * @param socket The SshSocket whose LIBSSH2_SESSION will be used with
+     * this SshChannel.
+     */
     SshChannel(SshSocket& socket);
+    ~SshChannel();
+
+    /**
+     * @brief Executes to run a <b>brief</b> command that produces succint output.
+     * The two possible outputs (standard output and error output) will be stored separately as Strings.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method before calling this method.</p>
+     *
+     * @param command The command to be executed on the target machine.
+     * The command must be compatible with the target machine's OS,
+     * otherwise an exception will be generated.
+     *
+     * @param stdoutput The output that comes from the standard output
+     * stream as a result of running the command.
+     *
+     *  @param stderrmsgs The output that comes from the standard error
+     * stream as a result of running the command.
+     *
+     *  @return The exit code from the command that was run on the target machine.
+     */
+    int exec(const QString &command, QString &stdoutput,
+             QString &stderrmsgs);
+
+    /**
+     * @brief exec Method to be run with a long running command that may
+     * produce verbose output. The output is deposited in a QTextDocument
+     * with appropriate styling given to the output returned from the command.
+     * In other words, the standard output will appear differently than the
+     * error stream and any other type of output.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method before this method is called.</p>
+     *
+     * @param command The command to be executed on the target machine.
+     * The command must be compatible with the target machine's OS,
+     * otherwise an exception will be generated.
+     *
+     * @param output The QTextEdit that the output will be directed to and deposited in.
+     *  This parameter cannot be null.
+     *
+     * @return The exit code from the command that was run on the target machine.
+     */
+    int exec(const QString& command, QTextEdit& output);
+
+    /**
+     * @brief copy A method to copy given data from an input stream to a given file on the server.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method.</p>
+     * @param srcData The source stream that provides the data to be copied.
+     *
+     * @param destDirectory The destination directory to which the data is to be copied.
+     * This method will assume the directory has already been created.
+     *
+     * @param destFileName The name of the destination file to which the data will be copied to.
+     *
+     * @param mode The POSIX compliant mode string (such as: "0600" or "0700") to be used
+     * as the mode for the target file.
+     */
+    void copy (std::istream &srcData, const QString &destDirectory,
+               const QString &destFileName, const QString &mode);
+
+    /**
+     * @brief copy Copy file from a remote machine to a given output stream.
+     * <p><b>Note:</b>  The connection to the remote server must have
+     * been established successfully via a call to connect method before calling this method.</p>
+     * @param destData The destination stream to which the data is to be written.
+     * @param srcDirectory The source directory from where the file is to be copied.
+     * @param srcFileName The name of the source file from where the data is to be copied.
+     */
+    void copy (std::ostream &destData, const QString &srcDirectory,
+               const QString &srcFileName);
 
 private:
-    SshSocket& socket;
+    LIBSSH2_SESSION* session;
     LIBSSH2_CHANNEL* channel;
 };
 

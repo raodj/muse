@@ -53,15 +53,18 @@ RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent,
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
     socket = NULL;
     sftpChannel = NULL;
+    sshChannel = NULL;
 }
 
 RemoteServerSession::~RemoteServerSession() {
     delete sftpChannel;
+    delete sshChannel;
     delete socket;
 
 }
 
-void RemoteServerSession::connectToServer() {
+void
+RemoteServerSession::connectToServer() {
     socket = new SshSocket("Remote Server Operations", NULL,
                            MUSEGUIApplication::getKnownHostsPath(),
                            true, true);
@@ -97,64 +100,52 @@ void RemoteServerSession::connectToServer() {
 
 }
 
-void RemoteServerSession::disconnectFromServer() {
+void
+RemoteServerSession::disconnectFromServer() {
     delete sftpChannel;
     delete socket;
 }
 
-int RemoteServerSession::exec(const QString &command, QString &stdoutput,
+int
+RemoteServerSession::exec(const QString &command, QString &stdoutput,
                               QString &stderrmsgs) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
     }
-    // Create the communication channel
-    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
-    if (channel != NULL) {
-        int returnCode = -100;
-        // Read the streams if the command was executed successfully.
-        returnCode = libssh2_channel_exec(
-                    channel, command.toStdString().c_str());
-        char stdBuffer[0x4000];
-        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-        stdoutput = stdBuffer;
-        char errBuffer[0x4000];
-        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
-        stderrmsgs = errBuffer;
-        return returnCode;
+    // Check if the channel has been created, if not, create it.
+    if (sshChannel == NULL) {
+        // Might need to try/catch this.
+        sshChannel = new SshChannel(*socket);
     }
 
+    return sshChannel->exec(command, stdoutput, stderrmsgs);
 }
 
-int RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
+int
+RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
     }
-    // Create the communication channel
-    LIBSSH2_CHANNEL* channel = libssh2_channel_open_session(socket->getSession());
-    if (channel != NULL) {
-        int returnCode = -100;
-        // Read the streams if the command was executed successfully.
-        returnCode = libssh2_channel_exec(
-                    channel, command.toStdString().c_str());
-        char stdBuffer[0x4000];
-        libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
-        // Add the text to the QTextEdit
-        output.append(stdBuffer);
-        char errBuffer[0x4000];
-        libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
-        // Add the error text to the QTextEdit
-        output.append(errBuffer);
-        return returnCode;
+    // Check if the channel has been created, if not, create it.
+    if (sshChannel == NULL) {
+        // Might need to try/catch this.
+        sshChannel = new SshChannel(*socket);
     }
 }
 
-void RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
+void
+RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
                                const QString &destFileName, const QString &mode) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
+    }
+    // Check if the channel has been created, if not, create it.
+    if (sshChannel == NULL) {
+        // Might need to try/catch this.
+        sshChannel = new SshChannel(*socket);
     }
     Q_UNUSED(srcData);
     Q_UNUSED(destDirectory);
@@ -163,8 +154,18 @@ void RemoteServerSession::copy(std::istream &srcData, const QString &destDirecto
 
 }
 
-void RemoteServerSession::copy(std::ostream &destData, const QString &srcDirectory,
+void
+RemoteServerSession::copy(std::ostream &destData, const QString &srcDirectory,
                                const QString &srcFileName) {
+    // Don't try this code if we aren't connected.
+    if (socket == NULL) {
+        throw (std::string) "Not connected to remote server.";
+    }
+    // Check if the channel has been created, if not, create it.
+    if (sshChannel == NULL) {
+        // Might need to try/catch this.
+        sshChannel = new SshChannel(*socket);
+    }
     Q_UNUSED(destData);
     Q_UNUSED(srcDirectory);
     Q_UNUSED(srcFileName);
@@ -201,7 +202,8 @@ RemoteServerSession::mkdir(const QString &directory) {
 
 }
 
-void RemoteServerSession::rmdir(const QString &directory) {
+void
+RemoteServerSession::rmdir(const QString &directory) {
     // We need an SftpChannel
     if (sftpChannel == NULL) {
         sftpChannel = new SFtpChannel(*socket);
@@ -220,7 +222,8 @@ void RemoteServerSession::rmdir(const QString &directory) {
     rmdirHelper->start();
 }
 
-void RemoteServerSession::setPurpose(const QString &text) {
+void
+RemoteServerSession::setPurpose(const QString &text) {
     Q_UNUSED(text);
 
 }

@@ -39,6 +39,7 @@
 #include "ServerSession.h"
 #include "ThreadedConnectionGUI.h"
 #include "SFtpChannel.h"
+#include "SshChannel.h"
 
 /**
  * @brief A remote server session based on the secure shell (SSH) protocol.
@@ -132,7 +133,6 @@ public:
      */
     int exec(const QString &command, QTextEdit& output) throw();
 
-
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
      * <p><b>Note:</b>  The connection to the remote server must have
@@ -222,6 +222,7 @@ protected:
 
 private:
     SFtpChannel* sftpChannel;
+    SshChannel* sshChannel;
     SshSocket* socket;
     QString& purpose;
     ThreadedConnectionGUI threadGUI;
