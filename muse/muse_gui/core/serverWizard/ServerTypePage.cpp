@@ -242,8 +242,6 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
 
 bool
 ServerTypePage::verifyOS() {
-    serverSession->copy(MUSEGUIApplication::getAppDirPath() + "/alice.txt",
-                        "/home/blasedd", "", "0777");
     QString out, err;
     // Verify the Operating System of the server
     int returnCode = serverSession->exec("uname -a", out, err) ;
