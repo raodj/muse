@@ -44,7 +44,7 @@ LocalServerSession::exec(const QString &command, QTextEdit& output) {
 //LocalServerSession::startProcess(){}
 
 void
-LocalServerSession::copy(std::istream &srcData, const QString &destDirectory,
+LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
                               const QString &destFileName, const QString &mode) {
 
     Q_UNUSED(srcData);

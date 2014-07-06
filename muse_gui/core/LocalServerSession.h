@@ -126,7 +126,7 @@ public:
      * @param mode The POSIX compliant mode string (such as: "0600" or "0700") to be used
      * as the mode for the target file.
      */
-    void copy(std::istream &srcData, const QString &destDirectory,
+    void copy(const QString &srcData, const QString &destDirectory,
               const QString &destFileName, const QString &mode);
 
     //Java version of below method also had a progress bar as a last parameter.....
