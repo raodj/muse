@@ -64,8 +64,6 @@ public:
     /**
      * @brief Executes to run a <b>brief</b> command that produces succint output.
      * The two possible outputs (standard output and error output) will be stored separately as Strings.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before calling this method.</p>
      *
      * @param command The command to be executed on the target machine.
      * The command must be compatible with the target machine's OS,
@@ -88,8 +86,6 @@ public:
      * with appropriate styling given to the output returned from the command.
      * In other words, the standard output will appear differently than the
      * error stream and any other type of output.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before this method is called.</p>
      *
      * @param command The command to be executed on the target machine.
      * The command must be compatible with the target machine's OS,
@@ -104,8 +100,6 @@ public:
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method.</p>
      * @param srcData The source stream that provides the data to be copied.
      *
      * @param destDirectory The destination directory to which the data is to be copied.
@@ -116,13 +110,11 @@ public:
      * @param mode The POSIX compliant mode string (such as: "0600" or "0700") to be used
      * as the mode for the target file.
      */
-    void copy (std::istream &srcData, const QString &destDirectory,
+    void copy (const QString& srcDir, const QString &destDirectory,
                const QString &destFileName, const QString &mode);
 
     /**
      * @brief copy Copy file from a remote machine to a given output stream.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method before calling this method.</p>
      * @param destData The destination stream to which the data is to be written.
      * @param srcDirectory The source directory from where the file is to be copied.
      * @param srcFileName The name of the source file from where the data is to be copied.

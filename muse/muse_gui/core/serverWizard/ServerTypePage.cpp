@@ -42,6 +42,7 @@
 #include <QMessageBox>
 #include <QProgressBar>
 
+#include "MUSEGUIApplication.h"
 
 #define REMOTE_SERVER_INDEX 1
 #define SUCCESS_CODE 0
@@ -241,6 +242,8 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
 
 bool
 ServerTypePage::verifyOS() {
+    serverSession->copy(MUSEGUIApplication::getAppDirPath() + "/alice.txt",
+                        "/home/blasedd", "", "0777");
     QString out, err;
     // Verify the Operating System of the server
     int returnCode = serverSession->exec("uname -a", out, err) ;

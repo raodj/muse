@@ -133,10 +133,11 @@ RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
+    return sshChannel->exec(command, output);
 }
 
 void
-RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
+RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
                                const QString &destFileName, const QString &mode) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
@@ -147,6 +148,7 @@ RemoteServerSession::copy(std::istream &srcData, const QString &destDirectory,
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
+    sshChannel->copy(srcData, destDirectory, destFileName, mode);
     Q_UNUSED(srcData);
     Q_UNUSED(destDirectory);
     Q_UNUSED(destFileName);

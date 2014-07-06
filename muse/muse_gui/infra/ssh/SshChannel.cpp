@@ -37,6 +37,10 @@
 //---------------------------------------------------------------------
 
 #include "SshChannel.h"
+#include <QFile>
+#include <QFileInfo>
+#include <stdio.h>
+#include <QMessageBox>
 
 SshChannel::SshChannel(SshSocket& socket) {
     session = socket.getSession();
@@ -48,13 +52,64 @@ SshChannel::~SshChannel() {
 }
 
 void
-SshChannel::copy(std::istream &srcData, const QString &destDirectory,
+SshChannel::copy(const QString &srcDir, const QString &destDirectory,
                  const QString &destFileName, const QString &mode) {
-
-    Q_UNUSED(srcData);
-    Q_UNUSED(destDirectory);
+    QMessageBox msg;
     Q_UNUSED(destFileName);
-    Q_UNUSED(mode);
+    QFileInfo fileInfo(srcDir);
+    // Open the file in a read only state.
+    FILE* srcFile = fopen(srcDir.toStdString().c_str(), "r");
+    size_t readToBuffer;
+    unsigned long notRead = fileInfo.size();
+    /* Send a file via scp. The mode parameter must only have permissions! */
+        channel = libssh2_scp_send(session, destDirectory.toStdString().c_str(), 0777,
+                                  (unsigned long)notRead);
+
+        if (!channel) {
+//            char *errmsg;
+//            int errlen;
+//            int err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
+
+//            fprintf(stderr, "Unable to open a session: (%d) %s\n", err, errmsg);
+            msg.setText("Channel problem");
+            msg.exec();
+
+        }
+        char buffer[1024];
+        char* ptr;
+        size_t bytesWritten;
+        while (notRead > 0) {
+            readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
+            ptr = buffer;
+
+            while (readToBuffer != 0){
+                //write the same data over and over, until error or completion
+                bytesWritten = libssh2_channel_write(channel, ptr, readToBuffer);
+
+                if (bytesWritten < 0) {
+                    msg.setText("byteswritten <0");
+                    msg.exec();
+                    // ERROR ALERT..........
+                    //fprintf(stderr, "ERROR %d\n", rc);
+                    break;
+                }
+                else {
+
+                    ptr += bytesWritten;
+                    readToBuffer -= bytesWritten;
+                    notRead -= bytesWritten;
+                }
+            }
+
+        }
+        // Alert the socket that we reached the end of the file.
+        libssh2_channel_send_eof(channel);
+        // Wait for acknowledgment of the EOF signal
+        libssh2_channel_wait_eof(channel);
+        fclose(srcFile);
+        //delete [] ptr;
+        msg.setText("success");
+        msg.exec();
 }
 
 void
@@ -89,6 +144,8 @@ SshChannel::exec(const QString &command, QString &stdoutput,
         stderrmsgs = errBuffer;
         return returnCode;
     }
+    // Arbitrary value for fail code.
+    return -1000;
 }
 
 int
