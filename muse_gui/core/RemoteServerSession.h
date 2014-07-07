@@ -148,7 +148,7 @@ public:
      * as the mode for the target file.
      */
     void copy(const QString &srcData, const QString &destDirectory,
-              const QString &destFileName, const QString &mode) throw ();
+              const QString &destFileName, const int &mode) throw ();
 
 
     //Java version of below method also had a progress bar as a last parameter.....

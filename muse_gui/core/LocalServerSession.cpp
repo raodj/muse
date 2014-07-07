@@ -5,8 +5,6 @@
 
 LocalServerSession::LocalServerSession(Server &server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose) {
-    Q_UNUSED(server);
-    Q_UNUSED(parent);
 }
 
 
@@ -36,30 +34,31 @@ LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &s
 int
 LocalServerSession::exec(const QString &command, QTextEdit& output) {
 
-    Q_UNUSED(command);
-    Q_UNUSED(output);
-}
+    QProcess process; //= new QProcess();
+    process.start(command);
+    process.waitForFinished();
+    output.append(process.readAllStandardOutput());
+    output.append(process.readAllStandardError());
 
-//Once libssh2 implementation is figured out....
-//LocalServerSession::startProcess(){}
+    return process.exitCode();
+}
 
 void
 LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
-                              const QString &destFileName, const QString &mode) {
-
-    Q_UNUSED(srcData);
-    Q_UNUSED(destDirectory);
-    Q_UNUSED(destFileName);
+                              const QString &destFileName, const int &mode) {
+    QString newFilePath = destDirectory +
+            (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
+    QFile::copy(srcData, newFilePath);
     Q_UNUSED(mode);
 }
 
 void
 LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
-                              const QString &srcFileName) {
+                              const QString& srcFileName) {
 
-    Q_UNUSED(destData);
-    Q_UNUSED(srcDirectory);
-    Q_UNUSED(srcFileName);
+    QString curFilePath = srcDirectory +
+            (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
+    QFile::copy(curFilePath, destData);
 }
 
 void
@@ -83,14 +82,16 @@ LocalServerSession::rmdir(const QString &directory) {
 
 void
 LocalServerSession::setPurpose(const QString &text) {
-
-    Q_UNUSED(text);
+    purpose = text;
 }
 
 void
-LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owner){
+LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owner) {
+    QString perm = &permDigit;
+    uint permNum = perm.toUInt(0, 16);
+    file.setPermissions(file.symLinkTarget(), QFile::Permissions((permNum & 0x4)
+                                                                 | (permNum & 0x2) |
+                                                                 (permNum & 0x1)));
 
-    Q_UNUSED(file);
-    Q_UNUSED(permDigit);
     Q_UNUSED(owner);
 }
