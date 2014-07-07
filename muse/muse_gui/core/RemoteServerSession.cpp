@@ -138,7 +138,7 @@ RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
 
 void
 RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
-                               const QString &destFileName, const QString &mode) throw() {
+                               const QString &destFileName, const int& mode) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -149,11 +149,6 @@ RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
         sshChannel = new SshChannel(*socket);
     }
     sshChannel->copy(srcData, destDirectory, destFileName, mode);
-    Q_UNUSED(srcData);
-    Q_UNUSED(destDirectory);
-    Q_UNUSED(destFileName);
-    Q_UNUSED(mode);
-
 }
 
 void
@@ -176,7 +171,7 @@ RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
 //To be reincluded into the class definition when the FileInfo class
 //gets redefined
 
-//FileInfo LocalServerSession::fStat(QString *path){
+//FileInfo RemoteServerSession::fStat(QString *path){
 
 //}
 
@@ -224,8 +219,7 @@ RemoteServerSession::rmdir(const QString &directory) {
 
 void
 RemoteServerSession::setPurpose(const QString &text) {
-    Q_UNUSED(text);
-
+    purpose = text;
 }
 
 void

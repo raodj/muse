@@ -53,7 +53,7 @@ SshChannel::~SshChannel() {
 
 void
 SshChannel::copy(const QString &srcDir, const QString &destDirectory,
-                 const QString &destFileName, const QString &mode) {
+                 const QString &destFileName, const int& mode) {
     QMessageBox msg;
     QFileInfo fileInfo(srcDir);
     // Open the file in a read only state.
@@ -63,18 +63,12 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
     unsigned long notRead = fileInfo.size();
     // Send a file via scp. The mode parameter must only have permissions!
-        channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode.toInt(),
+        channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode,
                                   (unsigned long)notRead);
-
+        // If the channel isn't open.
         if (!channel) {
-//            char *errmsg;
-//            int errlen;
-//            int err = libssh2_session_last_error(session, &errmsg, &errlen, 0);
-
-//            fprintf(stderr, "Unable to open a session: (%d) %s\n", err, errmsg);
             msg.setText("Channel problem");
             msg.exec();
-
         }
         char buffer[1024];
         char* ptr;
@@ -82,7 +76,6 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
         while (notRead > 0) {
             readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
             ptr = buffer;
-
             while (readToBuffer != 0){
                 //write the same data over and over, until error or completion
                 bytesWritten = libssh2_channel_write(channel, ptr, readToBuffer);
@@ -95,7 +88,6 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
                     break;
                 }
                 else {
-
                     ptr += bytesWritten;
                     readToBuffer -= bytesWritten;
                     notRead -= bytesWritten;
@@ -108,9 +100,6 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
         // Wait for acknowledgment of the EOF signal
         libssh2_channel_wait_eof(channel);
         fclose(srcFile);
-        //delete [] ptr;
-        msg.setText("success");
-        msg.exec();
 }
 
 void
@@ -140,6 +129,9 @@ SshChannel::copy(const QString &destData, const QString &srcDirectory,
 
     if (!channel) {
         msgBox.setText("Channel issue");
+        msgBox.exec();
+        // Problem, bail out
+        return;
     }
 
     while(dataReceived < fileInfo.st_size) {
@@ -217,6 +209,8 @@ SshChannel::exec(const QString &command, QTextEdit &output) {
         output.append(errBuffer);
         return returnCode;
     }
+    // Arbitrary value for fail code.
+    return -1000;
 }
 
 #endif

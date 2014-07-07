@@ -111,7 +111,7 @@ public:
      * as the mode for the target file.
      */
     void copy (const QString& srcDir, const QString &destDirectory,
-               const QString &destFileName, const QString &mode);
+               const QString &destFileName, const int& mode);
 
     /**
      * @brief copy Copy file from a remote machine to a given output stream.
