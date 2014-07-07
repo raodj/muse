@@ -212,7 +212,7 @@ XMLElementInfo::setValue(const QString &value) {
 
 bool
 XMLElementInfo::toBool(const QString &value) {
-    return QString::compare("true", value, Qt::CaseInsensitive);
+    return QString::compare("false", value, Qt::CaseInsensitive);
 }
 
 QString

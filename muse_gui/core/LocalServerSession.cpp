@@ -54,7 +54,7 @@ LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
 }
 
 void
-LocalServerSession::copy(std::ostream &destData, const QString &srcDirectory,
+LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
                               const QString &srcFileName) {
 
     Q_UNUSED(destData);

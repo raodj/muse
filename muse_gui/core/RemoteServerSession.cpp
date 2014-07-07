@@ -157,7 +157,7 @@ RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
 }
 
 void
-RemoteServerSession::copy(std::ostream &destData, const QString &srcDirectory,
+RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
                                const QString &srcFileName) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
@@ -168,9 +168,7 @@ RemoteServerSession::copy(std::ostream &destData, const QString &srcDirectory,
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
-    Q_UNUSED(destData);
-    Q_UNUSED(srcDirectory);
-    Q_UNUSED(srcFileName);
+    sshChannel->copy(destData, srcDirectory, srcFileName);
 
 
 }
