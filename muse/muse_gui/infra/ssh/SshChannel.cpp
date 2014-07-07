@@ -55,14 +55,15 @@ void
 SshChannel::copy(const QString &srcDir, const QString &destDirectory,
                  const QString &destFileName, const QString &mode) {
     QMessageBox msg;
-    Q_UNUSED(destFileName);
     QFileInfo fileInfo(srcDir);
     // Open the file in a read only state.
     FILE* srcFile = fopen(srcDir.toStdString().c_str(), "r");
     size_t readToBuffer;
+    QString remoteFilePath = destDirectory +
+            (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
     unsigned long notRead = fileInfo.size();
-    /* Send a file via scp. The mode parameter must only have permissions! */
-        channel = libssh2_scp_send(session, destDirectory.toStdString().c_str(), 0777,
+    // Send a file via scp. The mode parameter must only have permissions!
+        channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode.toInt(),
                                   (unsigned long)notRead);
 
         if (!channel) {
@@ -113,12 +114,56 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
 }
 
 void
-SshChannel::copy(std::ostream &destData, const QString &srcDirectory,
+SshChannel::copy(const QString &destData, const QString &srcDirectory,
                  const QString &srcFileName) {
-    Q_UNUSED(destData);
-    Q_UNUSED(srcDirectory);
-    Q_UNUSED(srcFileName);
+    // Creating c-data types for libssh2
+    struct stat fileInfo;
+    off_t dataReceived = 0;
+    // Create a message box to display errors. Will need to be removed
+    // if we go with a threaded approach here.
+    QMessageBox msgBox;
+    // Create the path to the file.
+    QString remoteFilePath = srcDirectory +
+            (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
+    // Create a file variable and open the file for writing.
+    QFile file(destData);
+    if (!file.open(QIODevice::WriteOnly)) {
+        msgBox.setText("Couldn't create or open the file on the local system.");
+        msgBox.exec();
+        // We can't put the file here, bail out.
+        return;
+    }
+    // Tell the remote server we wish to receive a file from it.
+    channel = libssh2_scp_recv(session, remoteFilePath.toStdString().c_str(), &fileInfo);
+    // Prepare the datastream.
+    QDataStream stream(&file);
 
+    if (!channel) {
+        msgBox.setText("Channel issue");
+    }
+
+    while(dataReceived < fileInfo.st_size) {
+        // A buffer to hold the data received
+        char mem[1024];
+        int rc;
+        // the amount to receive
+        int amount = sizeof(mem);
+        if ((fileInfo.st_size - dataReceived) < amount) {
+            // if there is more space in the buffer than there
+            // is left to read, set that number to amount
+            amount = fileInfo.st_size - dataReceived;
+        }
+        // Read "amount" data from the channel
+        rc = libssh2_channel_read(channel, mem, amount);
+        // If we received data, write it to the file and update
+        // the dataReceived count.
+        if (rc > 0) {
+            stream.writeBytes(mem, rc);
+            dataReceived += rc;
+        }
+    }
+    // Close the file.
+    file.close();
 }
 
 int

@@ -261,7 +261,6 @@ ServerTypePage::verifyOS() {
                 setOS( out.contains("Linux", Qt::CaseInsensitive) ?
                            Server::Linux : Server::Unix);
     }
-
     return returnCode == SUCCESS_CODE;
 }
 

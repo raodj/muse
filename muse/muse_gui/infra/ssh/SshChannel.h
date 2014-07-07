@@ -119,7 +119,7 @@ public:
      * @param srcDirectory The source directory from where the file is to be copied.
      * @param srcFileName The name of the source file from where the data is to be copied.
      */
-    void copy (std::ostream &destData, const QString &srcDirectory,
+    void copy (const QString& destData, const QString &srcDirectory,
                const QString &srcFileName);
 
 private:
