@@ -22,6 +22,7 @@ INCLUDEPATH += core
 INCLUDEPATH += core/filediag
 INCLUDEPATH += core/firstRunWizard
 INCLUDEPATH += core/serverWizard
+INCLUDEPATH += core/projectWizard
 INCLUDEPATH += views
 INCLUDEPATH += /usr/local/include
 
@@ -83,7 +84,9 @@ SOURCES +=\
     infra/ServerConnectionTester.cpp \
     infra/ThreadedConnectionGUI.cpp \
     core/MUSEThread.cpp \
-    infra/ssh/SshChannel.cpp
+    infra/ssh/SshChannel.cpp \
+    core/projectWizard/ProjectWizard.cpp \
+    core/projectWizard/ProjectDataPage.cpp
 
 
 HEADERS  += \
@@ -148,7 +151,9 @@ HEADERS  += \
     core/RSSAsyncHelper.h \
     core/RSSAsyncHelper.ipp \
     core/MUSEThread.h \
-    infra/ssh/SshChannel.h
+    infra/ssh/SshChannel.h \
+    core/projectWizard/ProjectWizard.h \
+    core/projectWizard/ProjectDataPage.h
 
 
 OTHER_FILES += \

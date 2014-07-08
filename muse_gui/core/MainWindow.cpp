@@ -49,9 +49,9 @@
 #include <QTimer>
 #include <QShowEvent>
 #include "MUSEGUIApplication.h"
-
-//Testing
+#include "ProjectWizard.h"
 #include "ServerListView.h"
+#include <QMenuBar>
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -67,6 +67,9 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
+
+    createActions();
+    createMenus();
 }
 
 MainWindow::~MainWindow() {
@@ -129,6 +132,28 @@ MainWindow::showServerListView() {
                                  DnDTabBar::LEFT,
                                  QIcon(":/images/16x16/Server.png"));
     }
+}
+
+void
+MainWindow::showProjectWizard() {
+    QFile file (":/resources/projectOverview.html");
+    ProjectWizard prgWiz(file);
+    prgWiz.exec();
+}
+
+void
+MainWindow::createActions() {
+    newProject = new QAction("Create New Project", this);
+    connect(newProject, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+}
+
+void
+MainWindow::createMenus() {
+    fileMenu.setTitle("File");
+    fileMenu.addAction(newProject);
+
+
+    menuBar()->addMenu(&fileMenu);
 }
 
 #endif
