@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef PROJECT_WIZARD_CPP
+#define PROJECT_WIZARD_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,63 +36,13 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include "ProjectWizard.h"
+#include "Core.h"
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
+    MUSEWizard(welcomeFile, parent) {
 
-protected:
-    void showEvent(QShowEvent * event);
+    addPage(&projectPage, "Project Information");
+}
 
-protected slots:
-    void createLoadDefaultWorkspace();
-    /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
-     */
-    void showServerListView();
-
-    /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
-     */
-    void showProjectWizard();
-
-private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction* newProject;
-
-    /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
-     */
-    void createMenus();
-
-    /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
-     */
-    void createActions();
-
-};
-
-#endif // MAIN_WINDOW_H
+#endif
