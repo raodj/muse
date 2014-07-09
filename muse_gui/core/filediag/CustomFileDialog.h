@@ -44,6 +44,7 @@
 #include <QToolBar>
 #include <QLineEdit>
 #include <QButtonGroup>
+#include "RemoteServerSession.h"
 
 /**
  * @brief The CustomFileDialog class is an extension of the QFileDialog
@@ -56,13 +57,15 @@ public:
     /**
      * @brief CustomFileDialog Constructor for the MUSE file dialog,
      * creates a file dialog view essentially from scratch.
+     * @param session The RemoteServerSession that will be used if the
+     * user wishes to browse the file system on a remote machine.
      * @param parent The parent widget this CustomFileDialog belongs
      * to.
      * @param dirPath The starting directory for the dialog to display
      * upon launching.
      */
-    explicit CustomFileDialog(QWidget *parent = 0,
-                              const QString& dirPath = QString::null);
+    explicit CustomFileDialog(RemoteServerSession* session = NULL, QWidget *parent = 0,
+                              const QString& dirPath = QString::null );
 
     /**
      * @brief setFileFilters Adds the desired file filters to the
@@ -94,6 +97,13 @@ public:
      * the directory was loaded.
      */
     bool loadSetCurrentDir(const QString& dirPath);
+
+    /**
+     * @brief getOpenFileName Gets the path to the file that
+     * is selected in this CustomFileDialog.
+     * @return File path of selected item.
+     */
+    QString getOpenFileName();
 
 protected:
     /**
@@ -296,12 +306,26 @@ protected slots:
     void updating(const QModelIndex& parent, bool doneLoading,
                   bool busyFlag);
 
+    /**
+     * @brief connectedToRemoteServer Due to the asynchronous manner
+     * in which MUSE_GUI interacts with remote servers, this method
+     * is needed in the event that the RemoteServerSession has not
+     * connected to the server when the user selects to view remote files.
+     * The RemoteServerSession notifies the caller via SIGNAL if the connection
+     * succeeded or not. With this knowledge, this slot calls selectRemoteFS()
+     * again if the connection succeeded.
+     * @param connected boolean indication if the session connected to
+     * the server.
+     */
+    void connectedToRemoteServer(bool connected);
+
 private:
     QTreeView treeView;
     QTableView tableView;
     FileSystemModel fsm;
     DirFilterProxyModel dirFilter;
     DirFilterProxyModel fileFilter;
+    RemoteServerSession* remoteServer;
 
     // Widgets in tool bar at top of dialog
     QAction *refreshButton;

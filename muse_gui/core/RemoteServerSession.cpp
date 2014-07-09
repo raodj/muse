@@ -222,6 +222,22 @@ RemoteServerSession::setPurpose(const QString &text) {
     purpose = text;
 }
 
+SshSocket*
+RemoteServerSession::getSocket() {
+    return socket;
+}
+
+void RemoteServerSession::openSftpChannel() {
+    if (sftpChannel == NULL) {
+        sftpChannel = new SFtpChannel(*socket);
+    }
+}
+
+SFtpChannel*
+RemoteServerSession::getSftpChannel() {
+    return sftpChannel;
+}
+
 void
 RemoteServerSession::announceBooleanResult() {
     emit booleanResult(threadedResult);

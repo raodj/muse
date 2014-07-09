@@ -37,6 +37,7 @@
 
 #include "FSHelperCommon.h"
 #include "SFtpChannel.h"
+#include "RemoteServerSession.h"
 
 /**
  * @brief The RemoteFSHelper class A class that helps with file
@@ -55,7 +56,7 @@ public:
      * @param deleteSocket Whether or not the socket should be
      * deleted when this class is deleted.
      */
-    RemoteFSHelper(SshSocket *ssh, const bool deleteSocket = false);
+    RemoteFSHelper(RemoteServerSession* session, const bool deleteSocket = false);
     ~RemoteFSHelper();
 
     /**
@@ -142,6 +143,7 @@ signals:
 
 private:
     SshSocket* const ssh;
+    SFtpChannel* sftp;
     const bool deleteSocket;
     const FSEntry root;
 };

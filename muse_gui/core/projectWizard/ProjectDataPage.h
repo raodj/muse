@@ -40,6 +40,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
+#include "RemoteServerSession.h"
 
 /**
  * @brief The ProjectDataPage class A wizard page that prompts the user
@@ -55,7 +56,13 @@ public:
      */
     ProjectDataPage();
 
-
+public slots:
+    /**
+     * @brief receiveServerSelection Applies the session given by the
+     * signal this slot is connected to this Wizard page.
+     * @param session The RemoteServerSession to be used for this page.
+     */
+    void receiveServerSelection(RemoteServerSession* session);
 
 private slots:
     /**
@@ -114,6 +121,7 @@ private:
     QPushButton codeFileBrowse, makeFileBrowse, executableBrowse,
     outputDirBrowse;
     QLineEdit codeFilePath, makeFilePath, executabelPath, outputDirPath;
+    RemoteServerSession* session;
 };
 
 #endif

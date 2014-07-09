@@ -1,5 +1,6 @@
 #ifndef REMOTEFSHELPER_CPP
 #define REMOTEFSHELPER_CPP
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -40,12 +41,17 @@
 
 #include <QThread>
 
-RemoteFSHelper::RemoteFSHelper(SshSocket *ssh, const bool deleteSocket) :
-    ssh(ssh), deleteSocket(deleteSocket),
-    root(ssh->peerName(), -1, -1, FSEntry::COMPUTER_FLAG) {
+RemoteFSHelper::RemoteFSHelper(RemoteServerSession* session, const bool deleteSocket) :
+    ssh(session->getSocket()), deleteSocket(deleteSocket),
+    root(session->getSocket()->peerName(), -1, -1, FSEntry::COMPUTER_FLAG) {
     connect(this, SIGNAL(needSocket(QThread*,SshSocket*)),
             this, SLOT(moveToThread(QThread*,SshSocket*)),
             Qt::BlockingQueuedConnection);
+    if (session->getSftpChannel() == NULL) {
+        session->openSftpChannel();
+    }
+
+    sftp = session->getSftpChannel();
 }
 
 RemoteFSHelper::~RemoteFSHelper() {
@@ -76,8 +82,7 @@ RemoteFSHelper::getHomePath() const {
     try {
         // Create a Sftp channel to obtain home path.
         Q_ASSERT(ssh != NULL);
-        SFtpChannel sftp(*ssh);
-        home = sftp.getPwd();
+        home = sftp->getPwd();
     } catch (const SshException & se) {
         // How to log-it?
     }
@@ -116,9 +121,9 @@ RemoteFSHelper::populateCache(const FSEntry &parentDir) const {
         if (ssh->thread() != QThread::currentThread()) {
             emit const_cast<RemoteFSHelper*>(this)->needSocket(QThread::currentThread(), ssh);
         }
-        SFtpChannel sftp(*ssh);
+
         // Get the convenience class to obtain entries in the directory
-        SFtpDir dir = sftp.getDir(path);
+        SFtpDir dir = sftp->getDir(path);
         // Depending on parent add the root directory or entries in the directory
         parentDir.isComputer() ? addDir(parentDir, dir, cacheEntries) :
                                  addEntries(parentDir, dir, cacheEntries);

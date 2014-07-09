@@ -38,6 +38,7 @@
 
 #include "MUSEWizard.h"
 #include "ProjectDataPage.h"
+#include "ServerSelectionPage.h"
 
 /**
  * @brief The ProjectWizard class A wizard to assist the user in the
@@ -55,6 +56,7 @@ public:
 
 private:
     ProjectDataPage projectPage;
+    ServerSelectionPage serverPage;
 };
 
 #endif

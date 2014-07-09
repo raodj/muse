@@ -40,7 +40,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QFileDialog>
-
+#include "CustomFileDialog.h"
 
 ProjectDataPage::ProjectDataPage() {
     codeFileBrowse.setText("Browse");
@@ -72,6 +72,11 @@ ProjectDataPage::ProjectDataPage() {
     connectButtons();
 
 
+}
+
+void
+ProjectDataPage::receiveServerSelection(RemoteServerSession* session) {
+    this->session = session;
 }
 
 void
@@ -118,26 +123,28 @@ ProjectDataPage::addLineEditAndButtonToPage(QString label,
 
 void
 ProjectDataPage::browseForSrcFiles() {
-    codeFilePath.setText(QFileDialog::getExistingDirectory(
-                             NULL, "Select Directory of source files"));
+//    codeFilePath.setText(QFileDialog::getOpenFileNames(
+//                             NULL, "Select Directory of source files"));
 }
 
 void
 ProjectDataPage::browseForMakeFile() {
-    makeFilePath.setText(QFileDialog::getOpenFileName(
-                             NULL, "Select MAKE File"));
+//    makeFilePath.setText(QFileDialog::getOpenFileName(
+//                             NULL, "Select MAKE File"));
 }
 
 void
 ProjectDataPage::browseForExecutable() {
-    executabelPath.setText(QFileDialog::getOpenFileName(
-                               NULL, "Select Executable file"));
+//    executabelPath.setText(QFileDialog::getOpenFileName(
+//                               NULL, "Select Executable file"));
+    CustomFileDialog cfd(session);
+    executabelPath.setText(cfd.getOpenFileName());
 }
 
 void
 ProjectDataPage::browseForOutputDir() {
-    outputDirPath.setText(QFileDialog::getExistingDirectory(
-                              NULL, "Select Directory for Output"));
+//    outputDirPath.setText(QFileDialog::getExistingDirectory(
+//                              NULL, "Select Directory for Output"));
 }
 
 #endif

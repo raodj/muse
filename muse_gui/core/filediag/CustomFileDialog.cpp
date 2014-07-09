@@ -39,7 +39,6 @@
 
 #include "CustomFileDialog.h"
 #include "LineEditDelegate.h"
-#include "SshSocket.h"
 #include "LocalFSHelper.h"
 #include "RemoteFSHelper.h"
 #include "MUSEGUIApplication.h"
@@ -55,7 +54,8 @@
 #include <QPushButton>
 #include <QProgressDialog>
 
-CustomFileDialog::CustomFileDialog(QWidget *parent, const QString &dirPath)
+
+CustomFileDialog::CustomFileDialog(RemoteServerSession* session, QWidget *parent, const QString &dirPath)
     : QDialog(parent), treeView(this), tableView(this),
       fsm(this, new LocalFSHelper()), fileFilter(this, true), dirToLoad(dirPath)  {
     // Note: Order of methods called here is important
@@ -89,6 +89,7 @@ CustomFileDialog::CustomFileDialog(QWidget *parent, const QString &dirPath)
     layout->addLayout(configureBottomPanel(), 0);
     this->setLayout(layout);
     this->resize(640, 480);
+    remoteServer = session;
 }
 
 void
@@ -172,25 +173,20 @@ CustomFileDialog::selectLocalFS() {
 
 void
 CustomFileDialog::selectRemoteFS() {
-    // Do some ssh testing here for convenience
-    QProgressDialog progDiag("Establishing SSH connectivity...",
-                             "Cancel", 0, 6, this);
-    progDiag.setWindowModality(Qt::WindowModal);
-    SshSocket *ssh = NULL;
-    try {
-        ssh = new SshSocket("Testing SSH connectivity", this, MUSEGUIApplication::getKnownHostsPath());
-        if (ssh->connectToHost("redhawk.hpc.miamioh.edu", &progDiag)) {
-            fsm.setHelper(new RemoteFSHelper(ssh, true));
-            treeView.setCurrentIndex(dirFilter.index(0, 0));
-        } else {
-            // ssh connection failed.
-            qDebug() << "SSH connection to remote host could not be created.";
-        }
-    } catch (const SshException &exp) {
-        SshException::show(exp, this);
-        delete ssh;
+    // If we aren't connected to the server, connect to it.
+    if (remoteServer->getSocket() == NULL) {
+        connect(remoteServer, SIGNAL(booleanResult(bool)),
+                this, SLOT(connectedToRemoteServer(bool)));
+        remoteServer->connectToServer();
     }
-    progDiag.close();
+    // We are connected...start reading files.
+    else {
+        fsm.setHelper(new RemoteFSHelper(remoteServer, false));
+        treeView.setCurrentIndex(dirFilter.index(0, 0));
+        // Start viewing from the home directory.
+        toHomeDir();
+    }
+
 }
 
 void
@@ -207,6 +203,12 @@ CustomFileDialog::updating(const QModelIndex &parent, bool doneLoading,
     const QModelIndex dirIndex = fileFilter.mapFromSource(parent);
     if (doneLoading && (tableView.rootIndex()== dirIndex)) {
         updatePathComboBoxEntries(dirIndex);
+    }
+}
+
+void CustomFileDialog::connectedToRemoteServer(bool connected) {
+    if (connected) {
+        selectRemoteFS();
     }
 }
 
@@ -252,7 +254,8 @@ CustomFileDialog::configureTableView() {
     tableView.setEditTriggers(QTableView::EditKeyPressed |
                               QTableView::SelectedClicked);
     connect(tableView.selectionModel(),
-            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)), this, SLOT(tableEntrySelected(const QItemSelection&, const QItemSelection&)));
+            SIGNAL(selectionChanged(const QItemSelection&, const QItemSelection&)),
+            this, SLOT(tableEntrySelected(const QItemSelection&, const QItemSelection&)));
     connect(&tableView, SIGNAL(doubleClicked(const QModelIndex &)),
             this, SLOT(tableEntryDoubleClicked(const QModelIndex &)));
     // Configure visual stretching behavior to use all horizontal space
@@ -432,11 +435,15 @@ CustomFileDialog::configureBottomPanel() {
     // Add buttons to the last column.
     QPushButton *openBtn =
             new QPushButton(QIcon(":/images/16x16/CheckMark.png"), "Open");
-    QPushButton *canelBtn =
+    QPushButton *cancelBtn =
             new QPushButton(QIcon(":/images/16x16/CrossMark.png"), "Cancel");
     // Add buttons to the last column.
     layout->addWidget(openBtn,  0, 2);
-    layout->addWidget(canelBtn, 1, 2);
+    layout->addWidget(cancelBtn, 1, 2);
+    // Open button accepts the user selection
+    connect(openBtn, SIGNAL(clicked()), this, SLOT(accept()));
+    // Cancel button cancels the user selection
+    connect(cancelBtn, SIGNAL(clicked()), this, SLOT(reject()));
     return layout;
 }
 
@@ -503,6 +510,21 @@ CustomFileDialog::fileFilterSelected(int index) {
         // Disable filtering.
         fileFilter.enableChain(false);
         fileFilter.setFilterRegExp(".");
+    }
+}
+
+QString
+CustomFileDialog::getOpenFileName() {
+    // Did the user click the open button?
+    if (this->exec() == QDialog::Accepted) {
+        // Get the file path...this currently only gets the name
+         QModelIndex index = tableView.currentIndex();
+         QString     name  = index.data().toString();
+        return name;
+    }
+    else {
+        // User canceled, return empty string.
+        return "";
     }
 }
 

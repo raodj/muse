@@ -1,5 +1,5 @@
-#ifndef PROJECT_WIZARD_CPP
-#define PROJECT_WIZARD_CPP
+#ifndef SERVER_SELECTION_PAGE_H
+#define SERVER_SELECTION_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,16 +36,52 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectWizard.h"
-#include "Core.h"
+#include <QWizardPage>
+#include "RemoteServerSession.h"
+#include <QComboBox>
 
-ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
-    MUSEWizard(welcomeFile, parent) {
-    addPage(&serverPage, "Select Server");
-    addPage(&projectPage, "Project Information");
+/**
+ * @brief The ServerSelectionPage class A QWizardPage
+ * that prompts the user for the Server that the Project
+ * will belong to.
+ */
+class ServerSelectionPage : public QWizardPage {
+    Q_OBJECT
+public:
+    /**
+     * @brief ServerSelectionPage A simple constructor that creates
+     * the QComboBox listing of the servers.
+     */
+    ServerSelectionPage();
 
-    connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
-            &projectPage, SLOT(receiveServerSelection(RemoteServerSession*)));
-}
+public slots:
+    /**
+     * @brief validatePage Calls checkServerChosen() before advancing
+     * to the next page.
+     * @return true, always.
+     */
+    bool validatePage();
 
-#endif
+signals:
+    /**
+     * @brief remoteServerSelected Signals to the rest of the ProjectWizard
+     * that a remote server was chosen by the user.
+     * @param session The session chosen.
+     */
+    void remoteServerSelected(RemoteServerSession* session);
+
+private slots:
+    /**
+     * @brief checkServerChosen Checks what type of server was chosen
+     * by the user and emits the remoteServerSelected() with a parameter
+     * of the session, or NULL if a local server was chosen.
+     * @param index The index of the QComboBox that the user has selected.
+     */
+    void checkServerChosen(int index);
+
+private:
+    QComboBox serverList;
+    RemoteServerSession* session;
+};
+
+#endif // SERVERSELECTIONPAGE_H
