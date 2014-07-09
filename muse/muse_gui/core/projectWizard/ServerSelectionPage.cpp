@@ -1,5 +1,5 @@
-#ifndef PROJECT_WIZARD_CPP
-#define PROJECT_WIZARD_CPP
+#ifndef SERVER_SELECTION_PAGE_CPP
+#define SERVER_SELECTION_PAGE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,16 +36,42 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectWizard.h"
+#include "ServerSelectionPage.h"
 #include "Core.h"
+#include "Workspace.h"
+#include <QVBoxLayout>
+#include <QLabel>
 
-ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
-    MUSEWizard(welcomeFile, parent) {
-    addPage(&serverPage, "Select Server");
-    addPage(&projectPage, "Project Information");
+ServerSelectionPage::ServerSelectionPage() {
+    ServerList& list = Workspace::get()->getServerList();
+    for (int i = 0; i < list.size(); i++) {
+        serverList.addItem(list.get(i).getName());
+    }
+    QVBoxLayout* layout = new QVBoxLayout();
+    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
+    layout->addWidget(&serverList);
 
-    connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
-            &projectPage, SLOT(receiveServerSelection(RemoteServerSession*)));
+    setLayout(layout);
+}
+
+bool
+ServerSelectionPage::validatePage() {
+    checkServerChosen(serverList.currentIndex());
+    return true;
+}
+
+void
+ServerSelectionPage::checkServerChosen(int index) {
+    ServerList& list = Workspace::get()->getServerList();
+    if (list.get(index).isRemote()) {
+        delete session;
+        session = new RemoteServerSession(list.get(index), NULL, "Creating Project");
+    }
+    else {
+        delete session;
+        session = NULL;
+    }
+    emit remoteServerSelected(session);
 }
 
 #endif

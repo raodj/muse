@@ -207,8 +207,24 @@ public:
      */
     QString& getPurpose();
 
+    /**
+     * @brief getSocket Returns a pointer to the SshSocket being used
+     * for this session.
+     * @return A pointer to the socket.
+     */
+    SshSocket* getSocket();
 
+    /**
+     * @brief openSftpChannel Opens the SFtpChannel for this server session.
+     */
+    void openSftpChannel();
 
+    /**
+     * @brief getSftpChannel Returns a pointer to the SFtpChannel
+     * being used for this server session.
+     * @return A pointer to the SFtpChannel.
+     */
+    SFtpChannel* getSftpChannel();
 
 signals:
     /**
