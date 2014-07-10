@@ -87,6 +87,9 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     // Set default value
     remoteConnectionVerified = false;
     serverSession = NULL;
+
+    setTitle("Server Data");
+    setSubTitle("Server Type and Credentials");
 }
 
 
@@ -167,8 +170,10 @@ ServerTypePage::serverTypeChanged(const int index) {
     remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
     userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());
     serverName.setText( (index == REMOTE_SERVER_INDEX) ? "" : "localhost");
-    // delete the pointer
-    delete serverSession;
+    if (serverSession != NULL) {
+        // delete the pointer
+        delete serverSession;
+    }
     serverSession = NULL;
     // Share the update with the rest of the wizard.
     emit serverSessionCreated(serverSession);

@@ -104,6 +104,9 @@ void
 RemoteServerSession::disconnectFromServer() {
     delete sftpChannel;
     delete socket;
+
+    sftpChannel = NULL;
+    socket = NULL;
 }
 
 int

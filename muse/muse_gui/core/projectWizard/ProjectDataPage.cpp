@@ -42,7 +42,8 @@
 #include <QFileDialog>
 #include "CustomFileDialog.h"
 
-ProjectDataPage::ProjectDataPage() {
+ProjectDataPage::ProjectDataPage(QWidget* parent) :
+    QWizardPage(parent) {
     codeFileBrowse.setText("Browse");
     makeFileBrowse.setText("Browse");
     executableBrowse.setText("Browse");
@@ -95,8 +96,8 @@ void
 ProjectDataPage::registerFields() {
     // The fields are all set to be required, so you can't accidentally
     // skip this page without selecting the files/folders
-    registerField("codeFile*", &codeFilePath);
-    registerField("makefile*", &makeFilePath);
+    //registerField("codeFile*", &codeFilePath);
+    //registerField("makefile*", &makeFilePath);
     registerField("executable*", &executabelPath);
     registerField("outputDirectory*", &outputDirPath);
 }
@@ -142,6 +143,7 @@ ProjectDataPage::browseForExecutable() {
     if (!path.isEmpty()) {
         executabelPath.setText(path);
     }
+    session->disconnectFromServer();
 }
 
 void
@@ -153,6 +155,7 @@ ProjectDataPage::browseForOutputDir() {
     if (!path.isEmpty()) {
         outputDirPath.setText(path);
     }
+    session->disconnectFromServer();
 }
 
 #endif

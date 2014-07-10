@@ -87,7 +87,8 @@ SOURCES +=\
     infra/ssh/SshChannel.cpp \
     core/projectWizard/ProjectWizard.cpp \
     core/projectWizard/ProjectDataPage.cpp \
-    core/projectWizard/ServerSelectionPage.cpp
+    core/projectWizard/ServerSelectionPage.cpp \
+    core/projectWizard/ProjectSummaryPage.cpp
 
 
 HEADERS  += \
@@ -155,7 +156,8 @@ HEADERS  += \
     infra/ssh/SshChannel.h \
     core/projectWizard/ProjectWizard.h \
     core/projectWizard/ProjectDataPage.h \
-    core/projectWizard/ServerSelectionPage.h
+    core/projectWizard/ServerSelectionPage.h \
+    core/projectWizard/ProjectSummaryPage.h
 
 
 OTHER_FILES += \

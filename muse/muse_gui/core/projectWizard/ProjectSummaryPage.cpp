@@ -1,5 +1,5 @@
-#ifndef PROJECT_WIZARD_H
-#define PROJECT_WIZARD_H
+#ifndef PROJECT_SUMMARY_PAGE_CPP
+#define PROJECT_SUMMARY_PAGE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,29 +36,38 @@
 //
 //---------------------------------------------------------------------
 
-#include "MUSEWizard.h"
-#include "ProjectDataPage.h"
-#include "ServerSelectionPage.h"
 #include "ProjectSummaryPage.h"
+#include <QVBoxLayout>
+#include <QLabel>
 
-/**
- * @brief The ProjectWizard class A wizard to assist the user in the
- * creation of a project to run on their MUSE server.
- */
-class ProjectWizard : public MUSEWizard {
-public:
-    /**
-     * @brief ProjectWizard Constructs the wizard by adding the pages
-     * to the wizard.
-     * @param welcomeFile The file to display on the welcome/overview page.
-     * @param parent
-     */
-    ProjectWizard(QFile &welcomeFile, QWidget* parent = 0);
+ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
+    QWizardPage (parent){
+    QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(new QLabel("Source Files:"));
+    sourceFiles.append("SOURCE FILES HERE");
+    mainLayout->addWidget(&sourceFiles);
+    sourceFiles.setReadOnly(true);
+    mainLayout->addWidget(new QLabel("Make File:"));
 
-private:
-    ProjectDataPage projectPage;
-    ServerSelectionPage serverPage;
-    ProjectSummaryPage summaryPage;
-};
+    mainLayout->addWidget(&makeFileDir);
+    makeFileDir.setReadOnly(true);
+    mainLayout->addWidget(new QLabel("Executable File:"));
+    mainLayout->addWidget(&executableDir);
+    executableDir.setReadOnly(true);
+
+    mainLayout->addWidget(new QLabel("Output Directory:"));
+    mainLayout->addWidget(&outputDir);
+
+    outputDir.setReadOnly(true);
+
+    setLayout(mainLayout);
+}
+
+void
+ProjectSummaryPage::initializePage() {
+    outputDir.setText(field("outputDirectory*").toString());
+    executableDir.setText(field("executable*").toString());
+    //makeFileDir.setText(field("codeFile").toString());
+}
 
 #endif

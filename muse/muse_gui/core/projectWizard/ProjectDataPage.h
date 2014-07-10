@@ -54,7 +54,7 @@ public:
      * private methods to register the fields, add the buttons, and create
      * the connections.
      */
-    ProjectDataPage();
+    ProjectDataPage(QWidget* parent = 0);
 
 public slots:
     /**

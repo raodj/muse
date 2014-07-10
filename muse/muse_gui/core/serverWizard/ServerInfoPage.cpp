@@ -90,6 +90,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Default value
     installDirectoryVerified = mkdirSucceeded = false;
     serverSession = NULL;
+    setTitle("Server Data");
+    setSubTitle("Additional Information");
 }
 
 void
