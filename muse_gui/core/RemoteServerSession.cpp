@@ -153,7 +153,7 @@ RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
 
 void
 RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
-                               const QString &srcFileName) {
+                               const QString &srcFileName) throw() {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
