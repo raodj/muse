@@ -52,6 +52,7 @@ ServerSelectionPage::ServerSelectionPage() {
     layout->addWidget(&serverList);
 
     setLayout(layout);
+    session = NULL;
 }
 
 bool
@@ -63,12 +64,13 @@ ServerSelectionPage::validatePage() {
 void
 ServerSelectionPage::checkServerChosen(int index) {
     ServerList& list = Workspace::get()->getServerList();
-    if (list.get(index).isRemote()) {
+    if (session != NULL) {
         delete session;
+    }
+    if (list.get(index).isRemote()) {
         session = new RemoteServerSession(list.get(index), NULL, "Creating Project");
     }
     else {
-        delete session;
         session = NULL;
     }
     emit remoteServerSelected(session);
