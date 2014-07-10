@@ -138,13 +138,21 @@ ProjectDataPage::browseForExecutable() {
 //    executabelPath.setText(QFileDialog::getOpenFileName(
 //                               NULL, "Select Executable file"));
     CustomFileDialog cfd(session);
-    executabelPath.setText(cfd.getOpenFileName());
+    QString path = cfd.getOpenFileName();
+    if (!path.isEmpty()) {
+        executabelPath.setText(path);
+    }
 }
 
 void
 ProjectDataPage::browseForOutputDir() {
 //    outputDirPath.setText(QFileDialog::getExistingDirectory(
 //                              NULL, "Select Directory for Output"));
+    CustomFileDialog cfd(session);
+    QString path = cfd.getOpenFileName();
+    if (!path.isEmpty()) {
+        outputDirPath.setText(path);
+    }
 }
 
 #endif

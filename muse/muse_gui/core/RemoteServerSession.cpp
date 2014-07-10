@@ -233,6 +233,11 @@ void RemoteServerSession::openSftpChannel() {
     }
 }
 
+void RemoteServerSession::closeSftpChannel() {
+    delete sftpChannel;
+    sftpChannel = NULL;
+}
+
 SFtpChannel*
 RemoteServerSession::getSftpChannel() {
     return sftpChannel;

@@ -220,6 +220,12 @@ public:
     void openSftpChannel();
 
     /**
+     * @brief closeSftpChannel Closes the SFtpChannel for this server
+     * session.
+     */
+    void closeSftpChannel();
+
+    /**
      * @brief getSftpChannel Returns a pointer to the SFtpChannel
      * being used for this server session.
      * @return A pointer to the SFtpChannel.
