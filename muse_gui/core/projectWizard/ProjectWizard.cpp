@@ -43,6 +43,7 @@ ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
     MUSEWizard(welcomeFile, parent) {
     addPage(&serverPage, "Select Server");
     addPage(&projectPage, "Project Information");
+    addPage(&summaryPage, "Summary", true);
 
     connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
             &projectPage, SLOT(receiveServerSelection(RemoteServerSession*)));

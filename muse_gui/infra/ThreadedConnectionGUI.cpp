@@ -85,6 +85,9 @@ ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString
     *username = lcd.getUserName();
     // Change the password credential to the password input in the wizard
     *passWord = lcd.getPassword();
+    // Save the password so we don't need to prompt again during the
+    // life of the ServerSession
+    server.setPassword(lcd.getPassword());
     // Let the background thread continue
     passUserData.wakeAll();
     // Release the lock on the data

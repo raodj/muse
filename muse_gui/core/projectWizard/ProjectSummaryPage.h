@@ -1,5 +1,5 @@
-#ifndef PROJECT_WIZARD_H
-#define PROJECT_WIZARD_H
+#ifndef PROJECT_SUMMARY_PAGE_H
+#define PROJECT_SUMMARY_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,29 +36,21 @@
 //
 //---------------------------------------------------------------------
 
-#include "MUSEWizard.h"
-#include "ProjectDataPage.h"
-#include "ServerSelectionPage.h"
-#include "ProjectSummaryPage.h"
+#include <QWizardPage>
+#include <QTextEdit>
+#include <QLineEdit>
 
-/**
- * @brief The ProjectWizard class A wizard to assist the user in the
- * creation of a project to run on their MUSE server.
- */
-class ProjectWizard : public MUSEWizard {
+class ProjectSummaryPage : public QWizardPage {
+    Q_OBJECT
 public:
-    /**
-     * @brief ProjectWizard Constructs the wizard by adding the pages
-     * to the wizard.
-     * @param welcomeFile The file to display on the welcome/overview page.
-     * @param parent
-     */
-    ProjectWizard(QFile &welcomeFile, QWidget* parent = 0);
+    ProjectSummaryPage(QWidget* parent = 0);
+
+    void initializePage();
 
 private:
-    ProjectDataPage projectPage;
-    ServerSelectionPage serverPage;
-    ProjectSummaryPage summaryPage;
+    QTextEdit sourceFiles;
+    QLineEdit makeFileDir, outputDir, executableDir;
+
 };
 
-#endif
+#endif // SUMMARYPAGE_H
