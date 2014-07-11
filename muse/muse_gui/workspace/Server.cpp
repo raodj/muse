@@ -84,6 +84,7 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
     addElement(XMLElementInfo("InstallPath", &installPath));
     addElement(XMLElementInfo("Status",      &status));
     addElement(XMLElementInfo("OSType",      &osType));
+    addElement(XMLElementInfo("ProjectList", &projects));
 }
 
 void
