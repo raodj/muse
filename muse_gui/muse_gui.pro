@@ -88,7 +88,9 @@ SOURCES +=\
     core/projectWizard/ProjectWizard.cpp \
     core/projectWizard/ProjectDataPage.cpp \
     core/projectWizard/ServerSelectionPage.cpp \
-    core/projectWizard/ProjectSummaryPage.cpp
+    core/projectWizard/ProjectSummaryPage.cpp \
+    workspace/Project.cpp \
+    workspace/ProjectList.cpp
 
 
 HEADERS  += \
@@ -157,7 +159,9 @@ HEADERS  += \
     core/projectWizard/ProjectWizard.h \
     core/projectWizard/ProjectDataPage.h \
     core/projectWizard/ServerSelectionPage.h \
-    core/projectWizard/ProjectSummaryPage.h
+    core/projectWizard/ProjectSummaryPage.h \
+    workspace/Project.h \
+    workspace/ProjectList.h
 
 
 OTHER_FILES += \

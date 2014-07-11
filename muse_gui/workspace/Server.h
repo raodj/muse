@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "XMLElement.h"
+#include "ProjectList.h"
 
 /**
  * @brief The Server class that encapsulates information regarding a Server entry
@@ -361,6 +362,8 @@ private:
      * is run) when an attempt is made to access the server.
      */
     QString password;
+
+    ProjectList projects;
 };
 
 #endif // SERVER_H
