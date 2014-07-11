@@ -40,12 +40,38 @@
 #include <QTextEdit>
 #include <QLineEdit>
 
+/**
+ * @brief The ProjectSummaryPage class The final page of the
+ * ProjectWizard that summarizes the file selections the user
+ * made on the ProjectDataPage. Upon closing the wizard, this
+ * page will add the Project to the workspace.
+ */
 class ProjectSummaryPage : public QWizardPage {
     Q_OBJECT
 public:
+    /**
+     * @brief ProjectSummaryPage Simple constructor that creates the
+     * layout for the page.
+     * @param parent The widget this page belongs to.
+     */
     ProjectSummaryPage(QWidget* parent = 0);
 
+    /**
+     * @brief initializePage An override of the QWizardPage method,
+     * this method populates the four fields with the data from the
+     * ProjectDataPage so that the user can review the information
+     * and verify that it is correct before finishing the wizard.
+     */
     void initializePage();
+
+    /**
+     * @brief validatePage An override of the QWizardPage method,
+     * this method adds the project to the workspace before closing
+     * the wizard.
+     * @return For now, this only returns true, but depending on where
+     * file verification is performed, this could change.
+     */
+    bool validatePage();
 
 private:
     QTextEdit sourceFiles;
@@ -53,4 +79,4 @@ private:
 
 };
 
-#endif // SUMMARYPAGE_H
+#endif

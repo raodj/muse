@@ -65,9 +65,16 @@ ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
 
 void
 ProjectSummaryPage::initializePage() {
-    outputDir.setText(field("outputDirectory*").toString());
-    executableDir.setText(field("executable*").toString());
+    outputDir.setText(field("outputDirectory").toString());
+    executableDir.setText(field("executable").toString());
     //makeFileDir.setText(field("codeFile").toString());
+}
+
+bool
+ProjectSummaryPage::validatePage() {
+    // Add Project to workspace eventually.
+    // For now, return true.
+    return true;
 }
 
 #endif

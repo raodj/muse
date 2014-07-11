@@ -120,7 +120,7 @@ private:
 
     QPushButton codeFileBrowse, makeFileBrowse, executableBrowse,
     outputDirBrowse;
-    QLineEdit codeFilePath, makeFilePath, executabelPath, outputDirPath;
+    QLineEdit codeFilePath, makeFilePath, executablePath, outputDirPath;
     RemoteServerSession* session;
 };
 

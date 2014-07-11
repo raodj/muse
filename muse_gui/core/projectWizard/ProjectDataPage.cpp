@@ -55,7 +55,7 @@ ProjectDataPage::ProjectDataPage(QWidget* parent) :
                                &codeFileBrowse, mainLayout);
     addLineEditAndButtonToPage("Make File:", &makeFilePath,
                                &makeFileBrowse, mainLayout);
-    addLineEditAndButtonToPage("Executable:", &executabelPath,
+    addLineEditAndButtonToPage("Executable:", &executablePath,
                                &executableBrowse, mainLayout);
     addLineEditAndButtonToPage("Output Directory:", &outputDirPath,
                                &outputDirBrowse, mainLayout);
@@ -64,7 +64,7 @@ ProjectDataPage::ProjectDataPage(QWidget* parent) :
     // Set the line edits to be read only
     codeFilePath.setReadOnly(true);
     makeFilePath.setReadOnly(true);
-    executabelPath.setReadOnly(true);
+    executablePath.setReadOnly(true);
     outputDirPath.setReadOnly(true);
 
     setTitle("Project Information");
@@ -98,7 +98,7 @@ ProjectDataPage::registerFields() {
     // skip this page without selecting the files/folders
     //registerField("codeFile*", &codeFilePath);
     //registerField("makefile*", &makeFilePath);
-    registerField("executable*", &executabelPath);
+    registerField("executable*", &executablePath);
     registerField("outputDirectory*", &outputDirPath);
 }
 
@@ -141,7 +141,7 @@ ProjectDataPage::browseForExecutable() {
     CustomFileDialog cfd(session);
     QString path = cfd.getOpenFileName();
     if (!path.isEmpty()) {
-        executabelPath.setText(path);
+        executablePath.setText(path);
     }
     session->disconnectFromServer();
 }
