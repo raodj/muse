@@ -63,7 +63,7 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
             &rows, ArgParser::INTEGER },
         { "--delay", "The Delay time for the receive time, this will be max range for a random from [0,1]",
             &delay, ArgParser::INTEGER },
-        { "--eventsPerAgent", "The number of bugs you want in the simulation.",
+        { "--eventsPerAgent", "The number of events per agent in the simulation.",
             &events, ArgParser::INTEGER },
         { "--computeNodes", "The max numbers of nodes used for this simulation.",
             &max_nodes, ArgParser::INTEGER },
@@ -117,7 +117,6 @@ PHOLDSimulation::simulate() {
     kernel->setStartTime(0);
     kernel->setStopTime(end_time);
     kernel->setGVTDelayRate(4000);
-    std::cout << "Calling kernel start." << std::endl;
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
