@@ -108,6 +108,11 @@ Server::setInstallPath(const QString &path) {
 }
 
 void
+Server::addProject(Project& project) {
+    projects.addProject(project);
+}
+
+void
 Server::setID(const QString &id) {
     this->ID = id;
 }

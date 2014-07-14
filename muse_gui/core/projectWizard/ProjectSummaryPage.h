@@ -39,6 +39,7 @@
 #include <QWizardPage>
 #include <QTextEdit>
 #include <QLineEdit>
+#include "RemoteServerSession.h"
 
 /**
  * @brief The ProjectSummaryPage class The final page of the
@@ -73,9 +74,13 @@ public:
      */
     bool validatePage();
 
+public slots:
+    void receiveServerSession(RemoteServerSession* rss);
+
 private:
     QTextEdit sourceFiles;
     QLineEdit makeFileDir, outputDir, executableDir;
+    RemoteServerSession* serverSession;
 
 };
 

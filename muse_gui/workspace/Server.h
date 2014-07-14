@@ -270,6 +270,8 @@ public:
      */
     void setInstallPath(const QString& path);
 
+    void addProject(Project& project);
+
 protected:
     // Currently this class does not have any protected members.
 
