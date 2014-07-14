@@ -270,6 +270,10 @@ public:
      */
     void setInstallPath(const QString& path);
 
+    /**
+     * @brief addProject Adds the given project to the project list.
+     * @param project The project to be added.
+     */
     void addProject(Project& project);
 
 protected:

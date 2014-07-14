@@ -41,6 +41,7 @@
 #include <QPushButton>
 #include <QVBoxLayout>
 #include "RemoteServerSession.h"
+#include <QStringList>
 
 /**
  * @brief The ProjectDataPage class A wizard page that prompts the user
@@ -55,6 +56,14 @@ public:
      * the connections.
      */
     ProjectDataPage(QWidget* parent = 0);
+
+signals:
+    /**
+     * @brief sourceListUpdate Alerts the server that the user has
+     * chosen a new set of source files for the project.
+     * @param list The list of QString filepaths.
+     */
+    void sourceListUpdate(QStringList list);
 
 public slots:
     /**
@@ -122,6 +131,7 @@ private:
     outputDirBrowse;
     QLineEdit codeFilePath, makeFilePath, executablePath, outputDirPath;
     RemoteServerSession* session;
+    QStringList sourceFiles;
 };
 
 #endif

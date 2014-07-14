@@ -105,6 +105,13 @@ public:
      */
     QString getOpenFileName();
 
+    /**
+     * @brief getOpenFileNames Returns a list of filepaths as selected
+     * by the user.
+     * @return A QStringList of the selected file paths.
+     */
+    QStringList getOpenFileNames();
+
 protected:
     /**
      * @brief createToolBar Creates the toolbar for the top of the file

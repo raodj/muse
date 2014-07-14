@@ -49,6 +49,8 @@ ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
             &projectPage, SLOT(receiveServerSelection(RemoteServerSession*)));
     connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
             &summaryPage, SLOT(receiveServerSession(RemoteServerSession*)));
+    connect(&projectPage, SIGNAL(sourceListUpdate(QStringList)),
+            &summaryPage, SLOT(receiveSourceList(QStringList)));
 }
 
 #endif
