@@ -113,6 +113,7 @@
 	    <xsd:enumeration value="connect_failed" />
 	</xsd:restriction>
     </xsd:simpleType>
+    
 
     <!-- This element represents a server entry and defines all the
 	 information that is needed to access a server and run jobs is
@@ -122,7 +123,7 @@
 	<xsd:complexType>
 	    <xsd:sequence>
 		<xsd:element name="ID"          type="xsd:token" />
-                <xsd:element name="Remote"      type="xsd:boolean" />
+        <xsd:element name="Remote"      type="xsd:boolean" />
 		<xsd:element name="Name"        type="xsd:token" />
 		<xsd:element name="Port"        type="xsd:positiveInteger"/>
 		<xsd:element name="Description" type="xsd:string" />
@@ -130,7 +131,7 @@
 		<xsd:element name="InstallPath" type="xsd:string" />
 		<xsd:element name="Status"      type="ServerStatusType"/>
         <xsd:element name="OSType"      type="ServerOSType"/>
-        <xsd:element ref="ProjectList"/>
+        <xsd:element ref="ProjectList" />
             </xsd:sequence>
 	</xsd:complexType>
     </xsd:element>

@@ -46,7 +46,6 @@ ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
     QWizardPage (parent){
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addWidget(new QLabel("Source Files:"));
-    sourceFiles.append("SOURCE FILES HERE");
     mainLayout->addWidget(&sourceFiles);
     sourceFiles.setReadOnly(true);
     mainLayout->addWidget(new QLabel("Make File:"));
@@ -69,13 +68,17 @@ void
 ProjectSummaryPage::initializePage() {
     outputDir.setText(field("outputDirectory").toString());
     executableDir.setText(field("executable").toString());
-    //makeFileDir.setText(field("codeFile").toString());
+    makeFileDir.setText(field("makeFile").toString());
+    sourceFiles.clear();
+    for (int i = 0; i < sourceFileList.size(); i++) {
+        sourceFiles.append(sourceFileList.at(i));
+    }
 }
 
 bool
 ProjectSummaryPage::validatePage() {
     // Add Project to workspace eventually.
-    Project pro(QStringList(sourceFiles.toPlainText()), "Test","MFile",
+    Project pro(QStringList(sourceFileList), "Test", makeFileDir.text(),
                      executableDir.text(), outputDir.text());
     Server& server = serverSession->getServer();
     server.addProject(pro);
@@ -101,6 +104,11 @@ ProjectSummaryPage::validatePage() {
 void
 ProjectSummaryPage::receiveServerSession(RemoteServerSession* rss) {
     serverSession = rss;
+}
+
+void
+ProjectSummaryPage::receiveSourceList(QStringList list) {
+    sourceFileList = list;
 }
 
 #endif

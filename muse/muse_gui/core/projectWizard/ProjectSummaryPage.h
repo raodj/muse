@@ -40,6 +40,7 @@
 #include <QTextEdit>
 #include <QLineEdit>
 #include "RemoteServerSession.h"
+#include <QStringList>
 
 /**
  * @brief The ProjectSummaryPage class The final page of the
@@ -75,12 +76,26 @@ public:
     bool validatePage();
 
 public slots:
+    /**
+     * @brief receiveServerSession Applies the server session
+     * received via signal to this page's server session instance
+     * variable.
+     * @param rss The server session.
+     */
     void receiveServerSession(RemoteServerSession* rss);
+
+    /**
+     * @brief receiveSourceList Receives a copy of the list of source
+     * files that are a part of the project.
+     * @param list The list of file paths.
+     */
+    void receiveSourceList(QStringList list);
 
 private:
     QTextEdit sourceFiles;
     QLineEdit makeFileDir, outputDir, executableDir;
     RemoteServerSession* serverSession;
+    QStringList sourceFileList;
 
 };
 

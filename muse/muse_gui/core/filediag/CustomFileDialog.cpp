@@ -520,7 +520,7 @@ QString
 CustomFileDialog::getOpenFileName() {
     // Did the user click the open button?
     if (this->exec() == QDialog::Accepted) {
-        // Get the file path...this currently only gets the name
+        // Get the file path
          QModelIndex index = tableView.currentIndex();
          QString     name  = index.data().toString();
          remoteServer->closeSftpChannel();
@@ -530,6 +530,26 @@ CustomFileDialog::getOpenFileName() {
         remoteServer->closeSftpChannel();
         // User canceled, return empty string.
         return "";
+    }
+}
+
+QStringList
+CustomFileDialog::getOpenFileNames() {
+    // Did the user click the open button?
+    if (this->exec() == QDialog::Accepted) {
+        // Get the file paths
+         QModelIndexList indexes = tableView.selectionModel()->selectedRows();
+         QStringList names;
+         for (int i = 0; i < indexes.size(); i++) {
+             names.append(dirSelector.currentText() + "/" + indexes.at(i).data().toString());
+         }
+         remoteServer->closeSftpChannel();
+        return names;
+    }
+    else {
+        remoteServer->closeSftpChannel();
+        // User canceled, return empty string.
+        return QStringList("");
     }
 }
 

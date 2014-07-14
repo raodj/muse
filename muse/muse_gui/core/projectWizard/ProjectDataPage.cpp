@@ -96,8 +96,8 @@ void
 ProjectDataPage::registerFields() {
     // The fields are all set to be required, so you can't accidentally
     // skip this page without selecting the files/folders
-    //registerField("codeFile*", &codeFilePath);
-    //registerField("makefile*", &makeFilePath);
+    registerField("codeFile*", &codeFilePath);
+    registerField("makeFile*", &makeFilePath);
     registerField("executable*", &executablePath);
     registerField("outputDirectory*", &outputDirPath);
 }
@@ -126,12 +126,24 @@ void
 ProjectDataPage::browseForSrcFiles() {
 //    codeFilePath.setText(QFileDialog::getOpenFileNames(
 //                             NULL, "Select Directory of source files"));
+    CustomFileDialog cfd(session);
+    QStringList temp = cfd.getOpenFileNames();
+    if (!temp.at(0).isEmpty()) {
+        sourceFiles = temp;
+        codeFilePath.setText(temp.at(0));
+        emit sourceListUpdate(sourceFiles);
+    }
+    session->disconnectFromServer();
 }
 
 void
 ProjectDataPage::browseForMakeFile() {
-//    makeFilePath.setText(QFileDialog::getOpenFileName(
-//                             NULL, "Select MAKE File"));
+    CustomFileDialog cfd(session);
+    QString path = cfd.getOpenFileName();
+    if (!path.isEmpty()) {
+        makeFilePath.setText(path);
+    }
+    session->disconnectFromServer();
 }
 
 void
