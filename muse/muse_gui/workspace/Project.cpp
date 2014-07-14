@@ -44,10 +44,10 @@ Project::Project(QStringList pSrcFileList, QString pName,  QString pMakeFilePath
     outputDirPath(pOutputDirPath), XMLElement("Project") {
 
     addElement(XMLElementInfo("Name", &name));
-    addElement(XMLElementInfo("Source Files", &sourceFileList));
-    addElement(XMLElementInfo("Make File", &makeFilePath));
-    addElement(XMLElementInfo("Executable Path", &executablePath));
-    addElement(XMLElementInfo("Output Directory", &outputDirPath));
+    addElement(XMLElementInfo("SourceFiles", &sourceFileList));
+    addElement(XMLElementInfo("MakeFile", &makeFilePath));
+    addElement(XMLElementInfo("ExecutablePath", &executablePath));
+    addElement(XMLElementInfo("OutputDirectory", &outputDirPath));
 }
 
 void

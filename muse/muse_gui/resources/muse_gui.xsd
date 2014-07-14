@@ -114,7 +114,7 @@
 	</xsd:restriction>
     </xsd:simpleType>
 
-    <!-- This element represnets a server entry and defines all the
+    <!-- This element represents a server entry and defines all the
 	 information that is needed to access a server and run jobs is
 	 defined here.
       -->
@@ -129,9 +129,30 @@
 		<xsd:element name="UserID"      type="xsd:token" />
 		<xsd:element name="InstallPath" type="xsd:string" />
 		<xsd:element name="Status"      type="ServerStatusType"/>
-                <xsd:element name="OSType"      type="ServerOSType"/>
+        <xsd:element name="OSType"      type="ServerOSType"/>
+        <xsd:element ref="ProjectList"/>
             </xsd:sequence>
 	</xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="ProjectList">
+    	<xsd:complexType>
+    		<xsd:sequence>
+    			<xsd:element ref="Project" minOccurs="0" maxOccurs="unbounded" />
+    		</xsd:sequence>
+    	</xsd:complexType>
+    </xsd:element>
+    
+    <xsd:element name="Project">
+    	<xsd:complexType>
+    		<xsd:sequence>
+    			<xsd:element name="Name"		type="xsd:string" />
+    			<xsd:element name="SourceFiles" type="xsd:string" minOccurs="0" maxOccurs="unbounded" />
+    			<xsd:element name="MakeFile"	type="xsd:string" />
+    			<xsd:element name="ExecutablePath"	type="xsd:string" />
+    			<xsd:element name="OutputDirectory"	type="xsd:string" />
+    		</xsd:sequence>
+    	</xsd:complexType>
     </xsd:element>
 
 </xsd:schema>

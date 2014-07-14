@@ -39,6 +39,8 @@
 #include "ProjectSummaryPage.h"
 #include <QVBoxLayout>
 #include <QLabel>
+#include "Workspace.h"
+#include <QMessageBox>
 
 ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
     QWizardPage (parent){
@@ -73,8 +75,32 @@ ProjectSummaryPage::initializePage() {
 bool
 ProjectSummaryPage::validatePage() {
     // Add Project to workspace eventually.
-    // For now, return true.
+    Project pro(QStringList(sourceFiles.toPlainText()), "Test","MFile",
+                     executableDir.text(), outputDir.text());
+    Server& server = serverSession->getServer();
+    server.addProject(pro);
+
+    Workspace* ws = Workspace::get();
+    QString err;
+    err = ws->saveWorkspace();
+    // If err has text, we had a problem.
+    if (err != "") {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error saving server to workspace.");
+        msgBox.setText(err);
+        return false;
+    }
+    // For now, delete the session to avoid memory leaks.
+    // When installation gets implemented, this line should be
+    // removed.
+    delete serverSession;
+
     return true;
+}
+
+void
+ProjectSummaryPage::receiveServerSession(RemoteServerSession* rss) {
+    serverSession = rss;
 }
 
 #endif

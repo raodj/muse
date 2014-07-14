@@ -90,7 +90,7 @@ CustomFileDialog::CustomFileDialog(RemoteServerSession* session, QWidget *parent
     this->setLayout(layout);
     this->resize(640, 480);
     remoteServer = session;
-    if (remoteServer != NULL) {
+    if (remoteServer != NULL && remoteServer->getServer().isRemote()) {
         selectRemoteFS();
     }
 }
