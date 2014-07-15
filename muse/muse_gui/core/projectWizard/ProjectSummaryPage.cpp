@@ -41,10 +41,14 @@
 #include <QLabel>
 #include "Workspace.h"
 #include <QMessageBox>
+#include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
     QWizardPage (parent){
     QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(new QLabel("Project Name:"));
+    mainLayout->addWidget(&projectName);
     mainLayout->addWidget(new QLabel("Source Files:"));
     mainLayout->addWidget(&sourceFiles);
     sourceFiles.setReadOnly(true);
@@ -66,6 +70,7 @@ ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
 
 void
 ProjectSummaryPage::initializePage() {
+    projectName.setText(field("projectName").toString());
     outputDir.setText(field("outputDirectory").toString());
     executableDir.setText(field("executable").toString());
     makeFileDir.setText(field("makeFile").toString());
@@ -77,11 +82,11 @@ ProjectSummaryPage::initializePage() {
 
 bool
 ProjectSummaryPage::validatePage() {
-    // Add Project to workspace eventually.
-    Project pro(QStringList(sourceFileList), "Test", makeFileDir.text(),
+    Project* pro = new Project(projectName.text(), makeFileDir.text(),
                      executableDir.text(), outputDir.text());
+    pro->setSourceFileList(sourceFileList);
     Server& server = serverSession->getServer();
-    server.addProject(pro);
+    server.addProject(*pro);
 
     Workspace* ws = Workspace::get();
     QString err;
@@ -102,8 +107,8 @@ ProjectSummaryPage::validatePage() {
 }
 
 void
-ProjectSummaryPage::receiveServerSession(RemoteServerSession* rss) {
-    serverSession = rss;
+ProjectSummaryPage::receiveServerSession(ServerSession* ss) {
+    serverSession = ss;
 }
 
 void

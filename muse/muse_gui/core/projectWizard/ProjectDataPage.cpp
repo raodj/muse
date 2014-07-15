@@ -41,6 +41,8 @@
 #include <QHBoxLayout>
 #include <QFileDialog>
 #include "CustomFileDialog.h"
+#include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 ProjectDataPage::ProjectDataPage(QWidget* parent) :
     QWizardPage(parent) {
@@ -50,6 +52,10 @@ ProjectDataPage::ProjectDataPage(QWidget* parent) :
     outputDirBrowse.setText("Browse");
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
+    // Add the Name label
+    mainLayout->addWidget(new QLabel("Project Name:"));
+    // Add the Name line edit
+    mainLayout->addWidget(&projectName);
     // Add the labels and rows to the form layout
     addLineEditAndButtonToPage("Source Files:", &codeFilePath,
                                &codeFileBrowse, mainLayout);
@@ -76,7 +82,7 @@ ProjectDataPage::ProjectDataPage(QWidget* parent) :
 }
 
 void
-ProjectDataPage::receiveServerSelection(RemoteServerSession* session) {
+ProjectDataPage::serverSelection(ServerSession* session) {
     this->session = session;
 }
 
@@ -96,6 +102,7 @@ void
 ProjectDataPage::registerFields() {
     // The fields are all set to be required, so you can't accidentally
     // skip this page without selecting the files/folders
+    registerField("projectName*", &projectName);
     registerField("codeFile*", &codeFilePath);
     registerField("makeFile*", &makeFilePath);
     registerField("executable*", &executablePath);
@@ -124,8 +131,6 @@ ProjectDataPage::addLineEditAndButtonToPage(QString label,
 
 void
 ProjectDataPage::browseForSrcFiles() {
-//    codeFilePath.setText(QFileDialog::getOpenFileNames(
-//                             NULL, "Select Directory of source files"));
     CustomFileDialog cfd(session);
     QStringList temp = cfd.getOpenFileNames();
     if (!temp.at(0).isEmpty()) {
@@ -148,8 +153,6 @@ ProjectDataPage::browseForMakeFile() {
 
 void
 ProjectDataPage::browseForExecutable() {
-//    executabelPath.setText(QFileDialog::getOpenFileName(
-//                               NULL, "Select Executable file"));
     CustomFileDialog cfd(session);
     QString path = cfd.getOpenFileName();
     if (!path.isEmpty()) {
@@ -160,8 +163,6 @@ ProjectDataPage::browseForExecutable() {
 
 void
 ProjectDataPage::browseForOutputDir() {
-//    outputDirPath.setText(QFileDialog::getExistingDirectory(
-//                              NULL, "Select Directory for Output"));
     CustomFileDialog cfd(session);
     QString path = cfd.getOpenFileName();
     if (!path.isEmpty()) {

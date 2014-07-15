@@ -38,8 +38,8 @@
 
 #include "Project.h"
 
-Project::Project(QStringList pSrcFileList, QString pName,  QString pMakeFilePath,
-                 QString pExecutablePath    , QString pOutputDirPath) : name(pName), sourceFileList(pSrcFileList),
+Project::Project(QString pName,  QString pMakeFilePath,
+                 QString pExecutablePath    , QString pOutputDirPath) : name(pName),
     makeFilePath(pMakeFilePath), executablePath(pExecutablePath),
     outputDirPath(pOutputDirPath), XMLElement("Project") {
 

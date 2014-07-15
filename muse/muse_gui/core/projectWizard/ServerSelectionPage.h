@@ -37,7 +37,7 @@
 //---------------------------------------------------------------------
 
 #include <QWizardPage>
-#include "RemoteServerSession.h"
+#include "ServerSession.h"
 #include <QComboBox>
 
 /**
@@ -65,10 +65,10 @@ public slots:
 signals:
     /**
      * @brief remoteServerSelected Signals to the rest of the ProjectWizard
-     * that a remote server was chosen by the user.
+     * that a server was chosen by the user.
      * @param session The session chosen.
      */
-    void remoteServerSelected(RemoteServerSession* session);
+    void serverSelected(ServerSession* session);
 
 private slots:
     /**
@@ -81,7 +81,7 @@ private slots:
 
 private:
     QComboBox serverList;
-    RemoteServerSession* session;
+    ServerSession* session;
 };
 
 #endif // SERVERSELECTIONPAGE_H

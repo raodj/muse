@@ -41,6 +41,8 @@
 #include "Workspace.h"
 #include <QVBoxLayout>
 #include <QLabel>
+#include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 
 ServerSelectionPage::ServerSelectionPage() {
     ServerList& list = Workspace::get()->getServerList();
@@ -71,9 +73,9 @@ ServerSelectionPage::checkServerChosen(int index) {
         session = new RemoteServerSession(list.get(index), NULL, "Creating Project");
     }
     else {
-        session = NULL;
+        session = new LocalServerSession(list.get(index), NULL, "Creating Project");
     }
-    emit remoteServerSelected(session);
+    emit serverSelected(session);
 }
 
 #endif
