@@ -57,14 +57,16 @@ public:
     /**
      * @brief CustomFileDialog Constructor for the MUSE file dialog,
      * creates a file dialog view essentially from scratch.
-     * @param session The RemoteServerSession that will be used if the
-     * user wishes to browse the file system on a remote machine.
+     * @param session The ServerSession that will be used. This
+     * is primarily important if we need to browse a remote file system.
+     * If this is a LocalServerSession, it's importance to this dialog
+     * is trivial.
      * @param parent The parent widget this CustomFileDialog belongs
      * to.
      * @param dirPath The starting directory for the dialog to display
      * upon launching.
      */
-    explicit CustomFileDialog(RemoteServerSession* session = NULL, QWidget *parent = 0,
+    explicit CustomFileDialog(ServerSession* session, QWidget *parent = 0,
                               const QString& dirPath = QString::null );
 
     /**
@@ -332,7 +334,7 @@ private:
     FileSystemModel fsm;
     DirFilterProxyModel dirFilter;
     DirFilterProxyModel fileFilter;
-    RemoteServerSession* remoteServer;
+    ServerSession* serverSession;
 
     // Widgets in tool bar at top of dialog
     QAction *refreshButton;

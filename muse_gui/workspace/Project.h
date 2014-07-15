@@ -49,14 +49,13 @@ public:
      * @brief Project The constructor initializes all the instance variables
      * using the supplied parameters.
      * @param pName The name of the project.
-     * @param pSrcFileList The list of source files for the project.
      * @param pMakeFilePath The path to the make file for the project. This
      * path is on the Server this Project is associated with.
      * @param pExecutablePath The path to the executable for this Project. This
      * path is on the Server this Project is associated with.
      * @param pOutputDirPath The path to the output directory for this Project.
      */
-    Project(QStringList pSrcFileList, QString pName = "",  QString pMakeFilePath = "",
+    Project(QString pName = "",  QString pMakeFilePath = "",
             QString pExecutablePath = "", QString pOutputDirPath = "");
 
     /**

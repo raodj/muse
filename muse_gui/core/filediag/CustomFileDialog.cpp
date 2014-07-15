@@ -55,9 +55,10 @@
 #include <QProgressDialog>
 
 
-CustomFileDialog::CustomFileDialog(RemoteServerSession* session, QWidget *parent, const QString &dirPath)
+CustomFileDialog::CustomFileDialog(ServerSession* session, QWidget *parent, const QString &dirPath)
     : QDialog(parent), treeView(this), tableView(this),
       fsm(this, new LocalFSHelper()), fileFilter(this, true), dirToLoad(dirPath)  {
+    serverSession = session;
     // Note: Order of methods called here is important
     // First create toolbar at the top.
     QToolBar* const topBar = createToolBar();
@@ -89,8 +90,7 @@ CustomFileDialog::CustomFileDialog(RemoteServerSession* session, QWidget *parent
     layout->addLayout(configureBottomPanel(), 0);
     this->setLayout(layout);
     this->resize(640, 480);
-    remoteServer = session;
-    if (remoteServer != NULL && remoteServer->getServer().isRemote()) {
+    if (serverSession->getServer().isRemote()) {
         selectRemoteFS();
     }
 }
@@ -146,6 +146,9 @@ CustomFileDialog::createToolBar() {
             addToolButton(topBar, "ViewGrid", SLOT(selectRemoteFS()),
                           "Toggle to a simple view of files");
     viewGrid->setCheckable(true);
+    if (!serverSession->getServer().isRemote()) {
+        viewGrid->setEnabled(false);
+    }
     QPushButton* const viewList =
             addToolButton(topBar, "ViewList", SLOT(selectLocalFS()),
                           "Toggle to a detailed list of files");
@@ -176,18 +179,22 @@ CustomFileDialog::selectLocalFS() {
 
 void
 CustomFileDialog::selectRemoteFS() {
-    // If we aren't connected to the server, connect to it.
-    if (remoteServer->getSocket() == NULL) {
-        connect(remoteServer, SIGNAL(booleanResult(bool)),
-                this, SLOT(connectedToRemoteServer(bool)));
-        remoteServer->connectToServer();
-    }
-    // We are connected...start reading files.
-    else {
-        fsm.setHelper(new RemoteFSHelper(remoteServer, false));
-        treeView.setCurrentIndex(dirFilter.index(0, 0));
-        // Start viewing from the home directory.
-        toHomeDir();
+    if (serverSession->getServer().isRemote()) {
+        RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
+        // If we aren't connected to the server, connect to it.
+        if (rss->getSocket() == NULL) {
+            connect(rss, SIGNAL(booleanResult(bool)),
+                    this, SLOT(connectedToRemoteServer(bool)));
+            serverSession->connectToServer();
+        }
+        // We are connected...start reading files.
+        else {
+            fsm.setHelper(new RemoteFSHelper(rss, false));
+            treeView.setCurrentIndex(dirFilter.index(0, 0));
+            // Start viewing from the home directory.
+            toHomeDir();
+        }
+
     }
 
 }
@@ -523,11 +530,9 @@ CustomFileDialog::getOpenFileName() {
         // Get the file path
          QModelIndex index = tableView.currentIndex();
          QString     name  = index.data().toString();
-         remoteServer->closeSftpChannel();
         return dirSelector.currentText() +"/"+ name;
     }
     else {
-        remoteServer->closeSftpChannel();
         // User canceled, return empty string.
         return "";
     }
@@ -543,11 +548,9 @@ CustomFileDialog::getOpenFileNames() {
          for (int i = 0; i < indexes.size(); i++) {
              names.append(dirSelector.currentText() + "/" + indexes.at(i).data().toString());
          }
-         remoteServer->closeSftpChannel();
         return names;
     }
     else {
-        remoteServer->closeSftpChannel();
         // User canceled, return empty string.
         return QStringList("");
     }

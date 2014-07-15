@@ -39,7 +39,7 @@
 #include <QWizardPage>
 #include <QTextEdit>
 #include <QLineEdit>
-#include "RemoteServerSession.h"
+#include "ServerSession.h"
 #include <QStringList>
 
 /**
@@ -80,9 +80,9 @@ public slots:
      * @brief receiveServerSession Applies the server session
      * received via signal to this page's server session instance
      * variable.
-     * @param rss The server session.
+     * @param ss The server session.
      */
-    void receiveServerSession(RemoteServerSession* rss);
+    void receiveServerSession(ServerSession* ss);
 
     /**
      * @brief receiveSourceList Receives a copy of the list of source
@@ -93,8 +93,8 @@ public slots:
 
 private:
     QTextEdit sourceFiles;
-    QLineEdit makeFileDir, outputDir, executableDir;
-    RemoteServerSession* serverSession;
+    QLineEdit makeFileDir, outputDir, executableDir, projectName;
+    ServerSession* serverSession;
     QStringList sourceFileList;
 
 };

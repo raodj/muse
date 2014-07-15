@@ -123,7 +123,7 @@
 	<xsd:complexType>
 	    <xsd:sequence>
 		<xsd:element name="ID"          type="xsd:token" />
-        <xsd:element name="Remote"      type="xsd:boolean" />
+       		<xsd:element name="Remote"      type="xsd:boolean" />
 		<xsd:element name="Name"        type="xsd:token" />
 		<xsd:element name="Port"        type="xsd:positiveInteger"/>
 		<xsd:element name="Description" type="xsd:string" />

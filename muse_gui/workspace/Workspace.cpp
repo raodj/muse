@@ -75,6 +75,8 @@ Workspace::registerClasses() {
     // Register all the underlying sub-elements for unmarshalling
     qRegisterMetaType<ServerList>("ServerList");
     qRegisterMetaType<Server>("Server");
+    qRegisterMetaType<ProjectList>("ProjectList");
+    qRegisterMetaType<Project>("Project");
 }
 
 void

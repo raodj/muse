@@ -206,7 +206,7 @@ public:
     virtual void setPurpose(const QString &text) = 0;
 
     /**
-     * @brief getServer Gets a pointer to the server this RemoteServerSession refers to.
+     * @brief getServer Gets a pointer to the server this ServerSession refers to.
      * @return A pointer to the server.
      */
     Server& getServer() const { return server; }

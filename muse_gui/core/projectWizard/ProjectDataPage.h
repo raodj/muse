@@ -40,7 +40,7 @@
 #include <QLineEdit>
 #include <QPushButton>
 #include <QVBoxLayout>
-#include "RemoteServerSession.h"
+#include "ServerSession.h"
 #include <QStringList>
 
 /**
@@ -67,11 +67,11 @@ signals:
 
 public slots:
     /**
-     * @brief receiveServerSelection Applies the session given by the
+     * @brief serverSelection Applies the session given by the
      * signal this slot is connected to this Wizard page.
-     * @param session The RemoteServerSession to be used for this page.
+     * @param session The ServerSession to be used for this page.
      */
-    void receiveServerSelection(RemoteServerSession* session);
+    void serverSelection(ServerSession* session);
 
 private slots:
     /**
@@ -129,8 +129,9 @@ private:
 
     QPushButton codeFileBrowse, makeFileBrowse, executableBrowse,
     outputDirBrowse;
-    QLineEdit codeFilePath, makeFilePath, executablePath, outputDirPath;
-    RemoteServerSession* session;
+    QLineEdit codeFilePath, makeFilePath, executablePath, outputDirPath,
+    projectName;
+    ServerSession* session;
     QStringList sourceFiles;
 };
 

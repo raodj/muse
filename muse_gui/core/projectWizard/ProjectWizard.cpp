@@ -45,10 +45,10 @@ ProjectWizard::ProjectWizard(QFile& welcomeFile, QWidget* parent) :
     addPage(&projectPage, "Project Information");
     addPage(&summaryPage, "Summary", true);
 
-    connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
-            &projectPage, SLOT(receiveServerSelection(RemoteServerSession*)));
-    connect(&serverPage, SIGNAL(remoteServerSelected(RemoteServerSession*)),
-            &summaryPage, SLOT(receiveServerSession(RemoteServerSession*)));
+    connect(&serverPage, SIGNAL(serverSelected(ServerSession*)),
+            &projectPage, SLOT(serverSelection(ServerSession*)));
+    connect(&serverPage, SIGNAL(serverSelected(ServerSession*)),
+            &summaryPage, SLOT(receiveServerSession(ServerSession*)));
     connect(&projectPage, SIGNAL(sourceListUpdate(QStringList)),
             &summaryPage, SLOT(receiveSourceList(QStringList)));
 }
