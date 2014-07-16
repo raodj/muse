@@ -253,6 +253,14 @@ public:
     */
     void setGVTEstimate(const Time& gvtEstimate);
 
+    /** \brief Convenience method to obtain the minimum of GVT
+        estimate and tMin to determine the actual GVT value.
+
+        \return Returns min(gvtEstimate, tMin) which indicates the
+        actual safe GVT estimate value.
+    */
+    inline Time getMin() const { return std::min<Time>(gvtEstimate, tMin); }
+    
     /** \brief Utility method to determine if all counter values are
         zeros.
 

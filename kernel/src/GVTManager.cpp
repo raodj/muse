@@ -110,6 +110,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // as well
     if (activeColor != white) {
         tMin = std::min<Time>(tMin, event->getReceiveTime());
+        DEBUG(std::cout << "GVTManager tMin = " << tMin << std::endl);
     }
     // Everything went well.
     return true;
@@ -117,7 +118,8 @@ GVTManager::sendRemoteEvent(Event *event) {
 
 void
 GVTManager::inspectRemoteEvent(Event *event) {
-    ASSERT(event != NULL); //false assertion doesn't work
+    ASSERT(event != NULL); // false assertion doesn't work
+    DEBUG(std::cout << "GVTManager inspected " << *event << std::endl);
     // Update vector counters associated with this process.
     vecCounters[(int) event->getColor()][rank]--;
     // Any waiting control message must be forwarded only after this
@@ -143,9 +145,12 @@ GVTManager::checkWaitingCtrlMsg() {
     // When control drops here that means the wait has expired and the
     // pending GVT control message must be updated and forwarded to
     // the next process in the loop if necessary.
+    DEBUG(std::cout << "Checking waiting ctrlMsg: " << *ctrlMsg
+                    << ", tMin = " << tMin << std::endl);
     if ((rank == ROOT_KERNEL) && (ctrlMsg->areCountersZero(numProcesses))) {
+        ASSERT (tMin >= ctrlMsg->getMin());
         // A phase of GVT computation is done.
-        setGVT(std::min<Time>(ctrlMsg->getGVTEstimate(), ctrlMsg->getTmin()));
+        setGVT(ctrlMsg->getMin());
         // Get rid of the control message as we no longer need it.
         GVTMessage::destroy(ctrlMsg);
         ctrlMsg = NULL;
