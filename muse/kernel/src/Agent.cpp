@@ -32,7 +32,6 @@
 #include <iostream>
 #include <cstdlib>
 
-using namespace std;
 using namespace muse;
 
 Agent::Agent(AgentID id, State* agentState)
@@ -73,6 +72,10 @@ Agent::saveState() {
     for (size_t i = 0; (i < allSimStreams.size()); i++) {
         allSimStreams[i]->saveState(getLVT());
     }
+    DEBUG(std::cout << "Agent " << getAgentID() << " saved state at "
+                    << getLVT() << ". Next event time: "
+                    << (!eventPQ->empty() ? eventPQ->top()->getReceiveTime() :
+                        TIME_INFINITY) << std::endl);
 }
 
 bool
@@ -100,7 +103,7 @@ Agent::processNextEvents() {
 
     // Save the state now that events have been processed.
     saveState();
-    
+
     return true;
 }
 
@@ -113,19 +116,19 @@ Agent::getNextEvents(EventContainer& container) {
         Event* event = eventPQ->top();
         // We should never process an anti-message.
         if (event->isAntiMessage()) { 
-            cerr << "Anti-message Processing: " << *event << endl;
-            cerr << "Trying to process an anti-message event, "
-                 << "please notify MUSE developers of this issue" << endl;
+            std::cerr << "Anti-message Processing: " << *event << std::endl;
+            std::cerr << "Trying to process an anti-message event, "
+                      << "please notify MUSE developers of this issue" << std::endl;
             abort();
         }
     
         // Ensure that the top event is greater than LVT
         if (event->getReceiveTime() <= getLVT()) {
-            cerr << "Agent is being scheduled to process an event ("
-                 << *event << ") that is at or below it LVT (LVT="
-                 << getLVT() << ", GVT=" << getTime(GVT)
-                 << "). This is a serious error. Aborting.\n";
-            cerr << *this << endl;
+            std::cerr << "Agent is being scheduled to process an event ("
+                      << *event << ") that is at or below it LVT (LVT="
+                      << getLVT() << ", GVT=" << getTime(GVT)
+                      << "). This is a serious error. Aborting.\n";
+            std::cerr << *this << std::endl;
             abort();
         }
 
@@ -174,6 +177,7 @@ Agent::scheduleEvent(Event* e) {
     // Fill in the sent time and sender agent id info.
     e->sentTime      = getLVT();
     e->senderAgentID = getAgentID();
+    ASSERT(e->sentTime >= getTime(GVT));
     
     // Check to make sure we don't schedule past the simulation end time.
     if (e->getReceiveTime() >= Simulation::getSimulator()->getStopTime()) {
@@ -184,15 +188,12 @@ Agent::scheduleEvent(Event* e) {
     // Make sure we don't schedule an event with a receive time that is
     // less than or equal to our LVT
     if (e->getReceiveTime() <= getLVT()) {
-        cerr << "You are trying to schedule an event with a smaller or equal "
-             << "timestamp to your LVT, this is impossible as it violates  "
-             << "causality constraints." << endl;
+        std::cerr << "Attemp to schedule an event with a smaller or equal "
+                  << "timestamp as LVT, this is impossible as it violates"
+                  << "causality constraints." << std::endl;
         e->decreaseReference();
         abort();
     }
-    
-    ASSERT(e->getReceiveTime() >= getTime(GVT));
-    
     // Check and short-circuit scheduling to ourselves.
     if (e->getReceiverAgentID() == getAgentID()) {
         Time old_top_time = getTopTime();
@@ -232,15 +233,14 @@ Agent::scheduleEvent(Event* e) {
 
 void
 Agent::doRollbackRecovery(const Event* stragglerEvent) {
-    //std::cerr << "Rolling back due to: " << *stragglerEvent << std::endl;
-    //cout << "Rollback recovery started"<< endl;
+    DEBUG(std::cout << "Rolling back due to: " << *stragglerEvent << std::endl);
     doRestorationPhase(stragglerEvent->getReceiveTime());
     // After state is restored, that means out current time is the restored time
     Time restoredTime = getTime(LVT);
     
-    //std::cerr << "*** Agent(" << myID << "): restored time to "
-    //          << restoredTime << ", while GVT = " << getTime(GVT)
-    //          << std::endl;
+    DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
+                    << restoredTime << ", while GVT = " << getTime(GVT)
+          << std::endl);
    
     doCancellationPhaseInputQueue(restoredTime, stragglerEvent);
     doCancellationPhaseOutputQueue(restoredTime);
@@ -280,6 +280,7 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 
     // We set our LVT to INFINITY here in case we don't find a state to
     // restore to -- we can revert to the initial state after the loop.
+    ASSERT( stragglerTime > getTime(GVT) );
     setLVT(TIME_INFINITY);
     // Now go and look for a state to restore to.
     ASSERT(!stateQueue.empty());
@@ -300,9 +301,8 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
             
             // cout << "Deleting CurrentState @ timestamp: "
             //      << currentState->getTimeStamp() << endl;
-           
-            delete currentState;
             stateQueue.pop_back();
+            delete currentState;
         }
     }
     
@@ -390,7 +390,7 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
         
         if ((currentEvent->getSenderAgentID() == myID) &&
             (currentEvent->getSentTime() > restoredTime)) {
-            // We sent this event in the future - it gets deleted
+            // We sent this event to ourselves in the future - it gets deleted
             currentEvent->decreaseReference();
             inputQueue.erase(del_it);
             continue;
@@ -398,24 +398,20 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
         
         // If control comes here, the event needs to be rescheduled if
         // it is not from the sender of the straggler AND the
-        // straggler is NOT an antimessage
-        if (straggler->getSenderAgentID() != currentEvent->getSenderAgentID()) {
+        // straggler is NOT an antimessage.  The following
+        // if-statement is a NOT of the one case to be ignored.  It is
+        // left as a NOT in the hopes that the code is more readable.
+        // This code was modified on Jul 16 2014 by Rao as a part of
+        // addressing a missing/unhandled-case.  The code is a
+        // simplification of a series of if-else statements that were
+        // here prior to this revision.
+        if (!((straggler->getSenderAgentID() == currentEvent->getSenderAgentID()) &&
+              (currentEvent->getSentTime() >= straggler->getSentTime()) &&
+              (straggler->isAntiMessage()))) {
             eventPQ->push(currentEvent);
-            currentEvent->decreaseReference();
-            inputQueue.erase(del_it);
-        } else if (currentEvent->getSentTime() >= straggler->getSentTime()) {
-            if (straggler->isAntiMessage()) {
-                // This is one needs to be nuked.
-                currentEvent->decreaseReference();
-                inputQueue.erase(del_it);
-            } else {
-                // Nope, this event is still safe. Even though it's
-                // from the sender of the straggler.
-                eventPQ->push(currentEvent);
-                currentEvent->decreaseReference();
-                inputQueue.erase(del_it);
-            }
         }
+        currentEvent->decreaseReference();
+        inputQueue.erase(del_it);            
     }
 }
 
@@ -451,47 +447,47 @@ Agent::cleanOutputQueue() {
 
 void
 Agent::garbageCollect(const Time gvt) {
-
+    // First find a state in state queue that is below GVT so we will
+    // always have a state to rollback to.
     list<State*>::iterator safe_point_it = stateQueue.begin();
-    Time oneBelowGVT = gvt;
-
-    oneBelowGVT = 0;
-    while (safe_point_it != stateQueue.end() && (*safe_point_it)->getTimeStamp() < gvt) {
+    Time oneBelowGVT = 0;
+    ASSERT(!stateQueue.empty());    
+    while ((safe_point_it != stateQueue.end()) &&
+           ((*safe_point_it)->getTimeStamp() < gvt)) {
         oneBelowGVT = (*safe_point_it)->getTimeStamp();
         safe_point_it++;
     }
     
-    //cerr << "Collecting Garbage now.....oneBelowGVT: " <<
-    //oneBelowGVT <<" real GVT: "<<getTime(GVT) << "\n"; cerr <<
-    //"States being collected for agent ("<<getAgentID()<<") are:
-    //\n";
+    DEBUG(std::cout << "Garbage collecting for agent " << getAgentID()
+                    << ", oneBelowGVT: " << oneBelowGVT << ", real GVT: "
+                    << getTime(GVT) << std::endl);
     
     //now we start looking
     while (stateQueue.front()->getTimeStamp() < oneBelowGVT) {
         State *currentState = stateQueue.front();
         //cerr << "State @ time: " << currentState->getTimeStamp()<<"\n";
+        stateQueue.pop_front();        
         delete currentState;
-        stateQueue.pop_front();
     }
     //cerr << *this << endl;
 
     // The first state should be less than gvt
+    ASSERT(!stateQueue.empty());
     ASSERT(stateQueue.front()->getTimeStamp() < gvt);
     
     //second we collect from the inputQueue
     while (!inputQueue.empty() &&
-          inputQueue.front()->getReceiveTime() < oneBelowGVT) {
+           (inputQueue.front()->getReceiveTime() < oneBelowGVT)) {
         Event *currentEvent = inputQueue.front();
         currentEvent->decreaseReference();
         inputQueue.pop_front();
-        
         //keep track number of processed events
         numCommittedEvents++;
     }
     
     //last we collect from the outputQueue
     while (!outputQueue.empty() &&
-          outputQueue.front()->getSentTime() < oneBelowGVT) {
+           (outputQueue.front()->getSentTime() < oneBelowGVT)) {
         Event *currentEvent = outputQueue.front();
         currentEvent->decreaseReference();
         outputQueue.pop_front();
