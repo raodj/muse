@@ -1,5 +1,6 @@
 #ifndef MUSEWIZARD_CPP
 #define MUSEWIZARD_CPP
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>

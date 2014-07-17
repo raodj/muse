@@ -84,6 +84,8 @@ bool
 ProjectSummaryPage::validatePage() {
     Project* pro = new Project(projectName.text(), makeFileDir.text(),
                      executableDir.text(), outputDir.text());
+    // Since the list isn't a part of the constructor, we must set it
+    // directly
     pro->setSourceFileList(sourceFileList);
     Server& server = serverSession->getServer();
     server.addProject(*pro);

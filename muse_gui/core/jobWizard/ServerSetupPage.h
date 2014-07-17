@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef SERVERSETUPPAGE_H
+#define SERVERSETUPPAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,69 +36,48 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include <QWizardPage>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QSpinBox>
+#include <QPushButton>
+#include <QVBoxLayout>
 
-class MainWindow : public QMainWindow {
+/**
+ * @brief The ServerSetupPage class Allows the user to set the server
+ * parameters for the Job, such as the numer of nodes to use, the
+ * number of processors per node to use, and other options.
+ */
+class ServerSetupPage : public QWizardPage {
     Q_OBJECT
-    
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
     /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
+     * @brief ServerSetupPage creates the page layout and registers
+     * fields so that data can be accessed in later Wizard pages.
      */
-    void showServerListView();
-
-    /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
-     */
-    void showProjectWizard();
-
-    /**
-     * @brief showJobWizard Creates and executes the JobWizard when the
-     * newJob QAction is triggered.
-     */
-    void showJobWizard();
+    ServerSetupPage();
 
 private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction* newProject, *newJob;
+    QLineEdit executableFilePath;
+    QPushButton browseButton;
+    QSpinBox computerNodes, cpuPerNode, memPerNode, runTime;
 
     /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
+     * @brief makeServerWidget A simple helper method that makes the
+     * constructor fewer lines of code be delegating part of the task
+     * to this method. The method creates a GroupBox where the user
+     * will set Server settings.
+     * @param layout The layout for this wizard page that the widget
+     * will be added to.
      */
-    void createMenus();
+    void makeServerWidget(QVBoxLayout* layout);
 
+private slots:
     /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
+     * @brief browseForFile Launches a QFileDialog to look for
+     * the executable file that will be used for this Job.
      */
-    void createActions();
-
+    void browseForFile();
 };
 
-#endif // MAIN_WINDOW_H
+#endif // SERVERSETUPPAGE_H

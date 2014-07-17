@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef JOB_WIZARD_CPP
+#define JOB_WIZARD_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,69 +36,53 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include "Core.h"
+#include "JobWizard.h"
+#include "Workspace.h"
+#include <QMessageBox>
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
+JobWizard::JobWizard(QFile& file) : MUSEWizard(file) {
+    addPage(&jobInformationPage, "Job Information");
+    addPage(&serverSetupPage, "Server Setup");
+}
 
-protected:
-    void showEvent(QShowEvent * event);
+int
+JobWizard::exec() {
+    Workspace* ws = Workspace::get();
+    ServerList servers = ws->getServerList();
+    // Check that a server exists
+    if (servers.size() == 0) {
+        QMessageBox msg;
+        msg.setIcon(QMessageBox::Critical);
+        msg.setText("No servers were found in the workspace. A server" \
+                    " is required to create a job. Please create a server " \
+                     "(and then a project) using the appropriate wizards."\
+                    " Then run this wizard again.");
+        msg.exec();
+        return 0;
+    }
+    // If a server exists, check for a Project
+    else {
+        bool projectFound = false;
+        for (int i = 0; i < servers.size() && !projectFound; i ++) {
+            if (servers.get(i).getProjectList().size() > 0) {
+                projectFound = true;
+            }
+        }
+        if (!projectFound) {
+            QMessageBox msg;
+            msg.setIcon(QMessageBox::Critical);
+            msg.setText("No projects were found in the workspace. A project" \
+                        " is required to create a job. Please create a project " \
+                         "using the project wizard." \
+                        " Then run this wizard again.");
+            msg.exec();
+            return 0;
+        }
 
-protected slots:
-    void createLoadDefaultWorkspace();
-    /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
-     */
-    void showServerListView();
+    }
+    // Everything checks out, run the wizard.
+    return QWizard::exec();
+}
 
-    /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
-     */
-    void showProjectWizard();
-
-    /**
-     * @brief showJobWizard Creates and executes the JobWizard when the
-     * newJob QAction is triggered.
-     */
-    void showJobWizard();
-
-private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction* newProject, *newJob;
-
-    /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
-     */
-    void createMenus();
-
-    /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
-     */
-    void createActions();
-
-};
-
-#endif // MAIN_WINDOW_H
+#endif
