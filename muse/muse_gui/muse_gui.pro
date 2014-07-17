@@ -21,6 +21,7 @@ INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
 INCLUDEPATH += core/firstRunWizard
+INCLUDEPATH += core/jobWizard
 INCLUDEPATH += core/serverWizard
 INCLUDEPATH += core/projectWizard
 INCLUDEPATH += views
@@ -90,7 +91,10 @@ SOURCES +=\
     core/projectWizard/ServerSelectionPage.cpp \
     core/projectWizard/ProjectSummaryPage.cpp \
     workspace/Project.cpp \
-    workspace/ProjectList.cpp
+    workspace/ProjectList.cpp \
+    core/jobWizard/JobWizard.cpp \
+    core/jobWizard/JobInformationPage.cpp \
+    core/jobWizard/ServerSetupPage.cpp
 
 
 HEADERS  += \
@@ -161,7 +165,10 @@ HEADERS  += \
     core/projectWizard/ServerSelectionPage.h \
     core/projectWizard/ProjectSummaryPage.h \
     workspace/Project.h \
-    workspace/ProjectList.h
+    workspace/ProjectList.h \
+    core/jobWizard/JobWizard.h \
+    core/jobWizard/JobInformationPage.h \
+    core/jobWizard/ServerSetupPage.h
 
 
 OTHER_FILES += \

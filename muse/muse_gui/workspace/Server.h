@@ -276,6 +276,12 @@ public:
      */
     void addProject(Project& project);
 
+    /**
+     * @brief getProjectList Gets the list of projects for this Server.
+     * @return The list of Projects.
+     */
+    ProjectList& getProjectList() { return projects; }
+
 protected:
     // Currently this class does not have any protected members.
 

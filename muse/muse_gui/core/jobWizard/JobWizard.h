@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef JOB_WIZARD_H
+#define JOB_WIZARD_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,69 +36,44 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include "MUSEWizard.h"
+#include "JobInformationPage.h"
+#include "ServerSetupPage.h"
 
-class MainWindow : public QMainWindow {
+/**
+ * @brief The JobWizard class A wizard to submit a job to a Server running
+ * MUSE. This class will first verify that the user has a project and server
+ * in the workspace before presenting itself. Then it will create the wizard
+ * by adding the necessary pages, and then connect any signals between pages
+ * as needed.
+ */
+class JobWizard : public MUSEWizard {
     Q_OBJECT
-    
 public:
-    MainWindow(QWidget *parent = 0);
-    ~MainWindow();
-
-protected:
-    void showEvent(QShowEvent * event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
     /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
+     * @brief JobWizard First checks the workspace for a Server and Project
+     * to ensure that the user has the necessary information to complete
+     * this wizard. If it doesn't, a warning message will display and
+     * the wizard will not appear. If the workspace has the information
+     * required, then the pages will get added to the server.
+     * @param file The file pointing the text for the overview page.
      */
-    void showServerListView();
+    JobWizard(QFile& file);
 
+public slots:
     /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
+     * @brief exec First checks whether or not a project exists and that a
+     * server is in the workspace. If either of these items is missing,
+     * the wizard will fail to appear, instead displaying a warning message.
+     * If everything checks out, the parent class exec() is called to run
+     * the wizard.
+     * @return The exit code.
      */
-    void showProjectWizard();
-
-    /**
-     * @brief showJobWizard Creates and executes the JobWizard when the
-     * newJob QAction is triggered.
-     */
-    void showJobWizard();
+    int exec();
 
 private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction* newProject, *newJob;
-
-    /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
-     */
-    void createMenus();
-
-    /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
-     */
-    void createActions();
-
+    JobInformationPage jobInformationPage;
+    ServerSetupPage serverSetupPage;
 };
 
-#endif // MAIN_WINDOW_H
+#endif // JOBWIZARD_H

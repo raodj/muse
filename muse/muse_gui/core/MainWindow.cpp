@@ -50,6 +50,7 @@
 #include <QShowEvent>
 #include "MUSEGUIApplication.h"
 #include "ProjectWizard.h"
+#include "JobWizard.h"
 #include "ServerListView.h"
 #include <QMenuBar>
 
@@ -142,16 +143,25 @@ MainWindow::showProjectWizard() {
 }
 
 void
+MainWindow::showJobWizard() {
+    QFile file(":/resources/jobOverview.html");
+    JobWizard jobWiz(file);
+    jobWiz.exec();
+}
+
+void
 MainWindow::createActions() {
     newProject = new QAction("Create New Project", this);
     connect(newProject, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+    newJob = new QAction("Create New Job", this);
+    connect(newJob, SIGNAL(triggered()), this, SLOT(showJobWizard()));
 }
 
 void
 MainWindow::createMenus() {
     fileMenu.setTitle("File");
     fileMenu.addAction(newProject);
-
+    fileMenu.addAction(newJob);
 
     menuBar()->addMenu(&fileMenu);
 }

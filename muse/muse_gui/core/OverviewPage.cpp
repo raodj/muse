@@ -70,7 +70,6 @@ OverviewPage::OverviewPage(const QString& text, QWidget *parent) {
     mainLayout->addWidget(&overviewText);
     setLayout(mainLayout);
 
-    //Fixing for Mac display currently.
     setTitle("Overview");
     setSubTitle("Overview of tasks in this wizard");
 }
