@@ -72,8 +72,13 @@ RemoteFSHelper::getSeparator() const {
 
 void
 RemoteFSHelper::moveToThread(QThread *thread, SshSocket *ssh) {
-    ssh->moveToThread(thread);
+    ssh->changeToThread(thread);
     qDebug() << "Moved socket to thread.";
+}
+
+void
+RemoteFSHelper::moveToThread(QThread* thread) {
+    moveToThread(thread, ssh);
 }
 
 QString

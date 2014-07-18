@@ -61,6 +61,11 @@ LocalFSHelper::getSeparator() const {
     return "/";
 }
 
+void
+LocalFSHelper::moveToThread(QThread* thread) {
+    Q_UNUSED(thread);
+}
+
 QString
 LocalFSHelper::getHomePath() const {
     return QDir::homePath();

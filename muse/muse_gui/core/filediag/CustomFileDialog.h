@@ -1,5 +1,6 @@
 #ifndef CUSTOM_FILE_DIALOG_H
 #define CUSTOM_FILE_DIALOG_H
+
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,6 +35,7 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+
 #include "FileSystemModel.h"
 #include "DirFilterProxyModel.h"
 
@@ -327,6 +329,12 @@ protected slots:
      * the server.
      */
     void connectedToRemoteServer(bool connected);
+
+    /**
+     * @brief createNewDirectory Calls serverSession->mkdir() to
+     * create a directory.
+     */
+    void createNewDirectory();
 
 private:
     QTreeView treeView;

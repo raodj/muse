@@ -37,6 +37,8 @@
 
 #include "FSEntry.h"
 #include <QList>
+#include "SshSocket.h"
+#include <QThread>
 
 typedef QList<FSEntry> FSEntryList;
 typedef QMap<FSEntry, FSEntryList> FSListMap;
@@ -145,6 +147,15 @@ public:
                                         const FSEntry& child,
                                         const bool inCacheOnly = true) = 0;
     virtual ~FSHelper() {}
+
+public slots:
+    /**
+     * @brief moveToThread Moves this FSHelper to the specified thread.
+     * This method is declared here for OOP purposes only. The only
+     * real implementation for this method is in RemoteFSHelper.
+     * @param thread The thread this helper should be moved to.
+     */
+    virtual void moveToThread(QThread *thread) = 0;
 
 protected:
     FSHelper() {}

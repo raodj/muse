@@ -93,6 +93,16 @@ public:
      */
     int      getColumns()   const { return 3; }
 
+public slots:
+    /**
+     * @brief moveToThread This method is not relevant to this class,
+     * and so this method has no implementation. It is needed, though
+     * for OOP uses throught MUSE.
+     * @param thread
+     * @param ssh
+     */
+    void moveToThread(QThread *thread);
+
 private:
     /**
      * @brief populateCache Populates the cache if it does not already

@@ -1,5 +1,5 @@
-#ifndef JOB_INFORMATION_PAGE_CPP
-#define JOB_INFORMATION_PAGE_CPP
+#ifndef DIRECTORY_NAME_DIALOG_H
+#define DIRECTORY_NAME_DIALOG_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,31 @@
 //
 //---------------------------------------------------------------------
 
-#include "JobInformationPage.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QPushButton>
+#include <QDialog>
+#include <QLineEdit>
 
-JobInformationPage::JobInformationPage() {
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("Select Project"));
-    mainLayout->addWidget(&projectSelector);
-    mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
-    mainLayout->addWidget(&descriptionField);
-    setLayout(mainLayout);
+/**
+ * @brief The DirectoryNameDialog class A simple Dialog
+ * that prompts the user for the name for a new directory to be created
+ * through the CustomFileDialog.
+ */
+class DirectoryNameDialog : public QDialog {
+    Q_OBJECT
+public:
+    /**
+     * @brief DirectoryNameDialog Simply creates the dialog and
+     * lays out the elements of the dialog.
+     */
+    DirectoryNameDialog();
 
-    registerField("project", &projectSelector);
-    registerField("jobDescription", &descriptionField, "plainText");
+    /**
+     * @brief getDirName Gets the directory name entered by the user.
+     * @return The name for hte new directory
+     */
+    QString getDirName() const { return fileName.text(); }
 
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
-
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size(); j++) {
-            projectSelector.addItem(projList.get(j).getName());
-        }
-    }
-    setTitle("Job Information");
-}
+private:
+    QLineEdit fileName;
+};
 
 #endif

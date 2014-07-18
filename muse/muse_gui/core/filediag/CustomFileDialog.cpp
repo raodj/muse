@@ -42,6 +42,7 @@
 #include "LocalFSHelper.h"
 #include "RemoteFSHelper.h"
 #include "MUSEGUIApplication.h"
+#include "DirectoryNameDialog.h"
 
 #include <QVBoxLayout>
 #include <QHeaderView>
@@ -138,7 +139,7 @@ CustomFileDialog::createToolBar() {
                           "Navigate to the parent folder of current folder");
     addToolButton(topBar, "HomeDirectory", SLOT(toHomeDir()),
                   "Navigate to the home directory");
-    addToolButton(topBar, "NewDirectory", SLOT(toParentDir()),
+    addToolButton(topBar, "NewDirectory", SLOT(createNewDirectory()),
                   "Create a new subdirectory in current directory");
     // Add buttons to change the current view
     topBar->addSeparator();
@@ -219,6 +220,17 @@ CustomFileDialog::updating(const QModelIndex &parent, bool doneLoading,
 void CustomFileDialog::connectedToRemoteServer(bool connected) {
     if (connected) {
         selectRemoteFS();
+    }
+}
+
+void
+CustomFileDialog::createNewDirectory() {
+    QString dirName;
+    DirectoryNameDialog dnDialog;
+    if (dnDialog.exec() == QDialog::Accepted) {
+        dirName = dirSelector.currentText() + "/" + dnDialog.getDirName();
+        serverSession->mkdir(dirName);
+        connect(serverSession, SIGNAL(directoryCreated(bool)), this, SLOT(refresh()));
     }
 }
 

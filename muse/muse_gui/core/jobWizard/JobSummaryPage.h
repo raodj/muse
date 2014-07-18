@@ -1,5 +1,5 @@
-#ifndef JOB_INFORMATION_PAGE_CPP
-#define JOB_INFORMATION_PAGE_CPP
+#ifndef JOB_SUMMARY_PAGE_H
+#define JOB_SUMMARY_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,33 +36,35 @@
 //
 //---------------------------------------------------------------------
 
-#include "JobInformationPage.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include <QPushButton>
 
-JobInformationPage::JobInformationPage() {
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("Select Project"));
-    mainLayout->addWidget(&projectSelector);
-    mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
-    mainLayout->addWidget(&descriptionField);
-    setLayout(mainLayout);
+#include <QWizardPage>
+#include <QTextEdit>
+#include <QMessageBox>
 
-    registerField("project", &projectSelector);
-    registerField("jobDescription", &descriptionField, "plainText");
+/**
+ * @brief The JobSummaryPage class Presents the information entered by the user
+ * so that they can review it before submitting the job to the server.
+ */
+class JobSummaryPage : public QWizardPage {
+public:
+    /**
+     * @brief JobSummaryPage Creates the layout of the page. Does not
+     * populate the text edit with information for the job.
+     */
+    JobSummaryPage();
 
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
+    /**
+     * @brief initializePage Populates the QTextEdit with information
+     * entered in the many fields throughout this wizard so that the
+     * user may review the data. This method will likely be broken
+     * into several helper methods as the JobWizard develops.
+     */
+    void initializePage();
 
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size(); j++) {
-            projectSelector.addItem(projList.get(j).getName());
-        }
-    }
-    setTitle("Job Information");
-}
+private:
+    QTextEdit summaryDisplay;
+    QMessageBox warningMessage;
+
+};
 
 #endif
