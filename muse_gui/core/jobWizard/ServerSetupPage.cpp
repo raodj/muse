@@ -41,6 +41,7 @@
 #include <QLabel>
 #include <QGroupBox>
 #include <QFileDialog>
+#include "Workspace.h"
 
 ServerSetupPage::ServerSetupPage() {
     browseButton.setText("Browse");
@@ -54,6 +55,7 @@ ServerSetupPage::ServerSetupPage() {
     mainLayout->addLayout(executableLayout);
     makeServerWidget(mainLayout);
     // Register fields so data can be accessed later.
+    registerField("server", &serverSelector);
     registerField("executablePath*", &executableFilePath);
     registerField("nodes", &computerNodes);
     registerField("cpusPerNode", &cpuPerNode);
@@ -69,6 +71,9 @@ void
 ServerSetupPage::makeServerWidget(QVBoxLayout *layout) {
     QGroupBox* borderedWidget = new QGroupBox("Server Info");
     QVBoxLayout* serverWidgetLayout = new QVBoxLayout();
+    // The first item in this widget is the server selection.
+    serverWidgetLayout->addWidget(new QLabel("Select Server:"));
+    serverWidgetLayout->addWidget(&serverSelector);
     QHBoxLayout* horizontalLayout = new QHBoxLayout();
     // Add labels
     horizontalLayout->addWidget(new QLabel("Computer Nodes"));
@@ -96,6 +101,15 @@ ServerSetupPage::makeServerWidget(QVBoxLayout *layout) {
     borderedWidget->setLayout(serverWidgetLayout);
     // Add the widget to the main page.
     layout->addWidget(borderedWidget);
+    populateServerList();
+}
+
+void
+ServerSetupPage::populateServerList() {
+    ServerList& serverList = Workspace::get()->getServerList();
+    for (int i = 0; i < serverList.size(); i++) {
+        serverSelector.addItem(serverList.get(i).getName());
+    }
 }
 
 void

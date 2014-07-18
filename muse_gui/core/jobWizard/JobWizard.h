@@ -39,6 +39,7 @@
 #include "MUSEWizard.h"
 #include "JobInformationPage.h"
 #include "ServerSetupPage.h"
+#include "JobSummaryPage.h"
 
 /**
  * @brief The JobWizard class A wizard to submit a job to a Server running
@@ -74,6 +75,7 @@ public slots:
 private:
     JobInformationPage jobInformationPage;
     ServerSetupPage serverSetupPage;
+    JobSummaryPage summaryPage;
 };
 
 #endif // JOBWIZARD_H

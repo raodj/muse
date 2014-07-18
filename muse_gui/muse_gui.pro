@@ -94,7 +94,9 @@ SOURCES +=\
     workspace/ProjectList.cpp \
     core/jobWizard/JobWizard.cpp \
     core/jobWizard/JobInformationPage.cpp \
-    core/jobWizard/ServerSetupPage.cpp
+    core/jobWizard/ServerSetupPage.cpp \
+    core/jobWizard/JobSummaryPage.cpp \
+    core/filediag/DirectoryNameDialog.cpp
 
 
 HEADERS  += \
@@ -168,7 +170,9 @@ HEADERS  += \
     workspace/ProjectList.h \
     core/jobWizard/JobWizard.h \
     core/jobWizard/JobInformationPage.h \
-    core/jobWizard/ServerSetupPage.h
+    core/jobWizard/ServerSetupPage.h \
+    core/jobWizard/JobSummaryPage.h \
+    core/filediag/DirectoryNameDialog.h
 
 
 OTHER_FILES += \

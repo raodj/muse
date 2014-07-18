@@ -1,6 +1,3 @@
-#ifndef JOB_INFORMATION_PAGE_CPP
-#define JOB_INFORMATION_PAGE_CPP
-
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -36,33 +33,30 @@
 //
 //---------------------------------------------------------------------
 
-#include "JobInformationPage.h"
-#include "Workspace.h"
+#include "DirectoryNameDialog.h"
+#include <QDialogButtonBox>
 #include <QVBoxLayout>
 #include <QLabel>
-#include <QPushButton>
 
-JobInformationPage::JobInformationPage() {
+DirectoryNameDialog::DirectoryNameDialog() {
+    // ensure that the user can type the file name.
+    fileName.setReadOnly(false);
+    // Start building the layout
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("Select Project"));
-    mainLayout->addWidget(&projectSelector);
-    mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
-    mainLayout->addWidget(&descriptionField);
+    // Add a label describing what the LineEdit is for
+    mainLayout->addWidget(new QLabel("Enter directory name:"));
+    // Add the LineEdit
+    mainLayout->addWidget(&fileName);
+    // Set up the buttons
+    QDialogButtonBox* btnBox = new QDialogButtonBox(QDialogButtonBox::Ok |
+                                                    QDialogButtonBox::Cancel);
+    mainLayout->addWidget(btnBox);
+    // Make the buttons perform their appropriate actions
+    connect(btnBox, SIGNAL(accepted()),
+            this, SLOT(accept()));
+    connect(btnBox, SIGNAL(rejected()),
+            this, SLOT(reject()));
+
     setLayout(mainLayout);
 
-    registerField("project", &projectSelector);
-    registerField("jobDescription", &descriptionField, "plainText");
-
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
-
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size(); j++) {
-            projectSelector.addItem(projList.get(j).getName());
-        }
-    }
-    setTitle("Job Information");
 }
-
-#endif

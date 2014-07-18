@@ -129,6 +129,16 @@ protected:
      */
     int  convert(const int sftpFlags) const;
 
+public slots:
+    /**
+     * @brief moveToThread Moves the given ssh socket to a given
+     * QThread. This method will call moveToThread(QThread, SshSocket).
+     * This slot is needed from an object oriented perspective with
+     * the FSMAsyncHelper.
+     * @param thread The thread that the SshSocket will be moved to.
+     */
+    void moveToThread(QThread* thread);
+
 protected slots:
     /**
      * @brief moveToThread Moves the given ssh socket to a given
@@ -137,6 +147,7 @@ protected slots:
      * @param ssh The SshSocket to be moved to a different thread.
      */
     void moveToThread(QThread* thread, SshSocket *ssh);
+
 
 signals:
     void needSocket(QThread *thread, SshSocket *ssh);

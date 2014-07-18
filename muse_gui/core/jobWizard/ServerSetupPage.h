@@ -61,6 +61,7 @@ private:
     QLineEdit executableFilePath;
     QPushButton browseButton;
     QSpinBox computerNodes, cpuPerNode, memPerNode, runTime;
+    QComboBox serverSelector;
 
     /**
      * @brief makeServerWidget A simple helper method that makes the
@@ -71,6 +72,12 @@ private:
      * will be added to.
      */
     void makeServerWidget(QVBoxLayout* layout);
+
+    /**
+     * @brief populateServerList Populates the QComboBox with the names
+     * of every server in the Workspace of MUSE.
+     */
+    void populateServerList();
 
 private slots:
     /**

@@ -37,6 +37,7 @@
 
 #include "FSMAsyncHelper.h"
 #include "FSHelper.h"
+#include <QApplication>
 
 FSMAsyncHelper::FSMAsyncHelper(const QModelIndex &parent,
                                FSHelper *helper, const FSEntry &dir) :
@@ -49,6 +50,9 @@ void
 FSMAsyncHelper::run() {
     fsHelper->getEntries(dir);
     emit entriesLoaded(modelIndex);
+    // Return the helper to the main thread
+    // (mainly intended for RemoteFSHelper)
+    fsHelper->moveToThread(QApplication::instance()->thread());
 }
 
 #endif
