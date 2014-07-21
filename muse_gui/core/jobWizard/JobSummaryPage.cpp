@@ -59,6 +59,8 @@ JobSummaryPage::JobSummaryPage() {
 
 void
 JobSummaryPage::initializePage() {
+    // Clear old information, if it exists.
+    summaryDisplay.clear();
     summaryDisplay.append("SUMMARY OF JOB");
     summaryDisplay.append("Job Information:");
     // For convenience and readability.
@@ -80,6 +82,8 @@ JobSummaryPage::initializePage() {
             }
         }
     }
+    summaryDisplay.append(indent + "Arguments: " +
+                          field("arguments").toString());
     summaryDisplay.append(indent + "Job Description: "+
                           field("jobDescription").toString());
     summaryDisplay.append("Server Information:");
@@ -92,8 +96,6 @@ JobSummaryPage::initializePage() {
                           QString::number(field("memoryPerNode").toInt()));
     summaryDisplay.append(indent + "Est. Run Time (Hrs): " +
                           QString::number(field("estimatedRunTime").toInt()));
-    summaryDisplay.append("Executable File Path: " + field("executablePath")
-                          .toString());
 }
 
 #endif

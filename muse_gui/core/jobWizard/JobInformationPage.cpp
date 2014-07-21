@@ -46,12 +46,15 @@ JobInformationPage::JobInformationPage() {
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addWidget(new QLabel("Select Project"));
     mainLayout->addWidget(&projectSelector);
+    mainLayout->addWidget(new QLabel("Command line arguments for this job"));
+    mainLayout->addWidget(&argumentsField);
     mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
     mainLayout->addWidget(&descriptionField);
     setLayout(mainLayout);
 
     registerField("project", &projectSelector);
     registerField("jobDescription", &descriptionField, "plainText");
+    registerField("arguments", &argumentsField, "plainText");
 
     Workspace* ws = Workspace::get();
     ServerList& serverList = ws->getServerList();

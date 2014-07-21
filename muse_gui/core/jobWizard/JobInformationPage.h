@@ -55,7 +55,7 @@ public:
 
 private:
     QComboBox projectSelector;
-    QTextEdit descriptionField;
+    QTextEdit descriptionField, argumentsField;
 };
 
 #endif // JOBINFORMATIONPAGE_H
