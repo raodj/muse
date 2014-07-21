@@ -44,27 +44,17 @@
 #include "Workspace.h"
 
 ServerSetupPage::ServerSetupPage() {
-    browseButton.setText("Browse");
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("Executable on local file system:"));
-    // Add line edit and browse button on horizontal layout
-    QHBoxLayout* executableLayout = new QHBoxLayout();
-    executableLayout->addWidget(&executableFilePath);
-    executableLayout->addWidget(&browseButton);
     // add the executable layout to the page's main layout
-    mainLayout->addLayout(executableLayout);
     makeServerWidget(mainLayout);
     // Register fields so data can be accessed later.
     registerField("server", &serverSelector);
-    registerField("executablePath*", &executableFilePath);
     registerField("nodes", &computerNodes);
     registerField("cpusPerNode", &cpuPerNode);
     registerField("memoryPerNode", &memPerNode);
     registerField("estimatedRunTime", &runTime);
     setLayout(mainLayout);
     setTitle("Server Setup");
-    // Allow the browse button to trigger a QFileDialog.
-    connect(&browseButton, SIGNAL(clicked()), this, SLOT(browseForFile()));
 }
 
 void
@@ -112,12 +102,5 @@ ServerSetupPage::populateServerList() {
     }
 }
 
-void
-ServerSetupPage::browseForFile() {
-    QString path = QFileDialog::getOpenFileName();
-    if (!path.isEmpty()) {
-        executableFilePath.setText(path);
-    }
-}
 
 #endif

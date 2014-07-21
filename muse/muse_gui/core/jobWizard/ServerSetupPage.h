@@ -37,10 +37,8 @@
 //---------------------------------------------------------------------
 
 #include <QWizardPage>
-#include <QLineEdit>
 #include <QComboBox>
 #include <QSpinBox>
-#include <QPushButton>
 #include <QVBoxLayout>
 
 /**
@@ -58,8 +56,6 @@ public:
     ServerSetupPage();
 
 private:
-    QLineEdit executableFilePath;
-    QPushButton browseButton;
     QSpinBox computerNodes, cpuPerNode, memPerNode, runTime;
     QComboBox serverSelector;
 
@@ -79,12 +75,6 @@ private:
      */
     void populateServerList();
 
-private slots:
-    /**
-     * @brief browseForFile Launches a QFileDialog to look for
-     * the executable file that will be used for this Job.
-     */
-    void browseForFile();
 };
 
 #endif // SERVERSETUPPAGE_H
