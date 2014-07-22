@@ -40,6 +40,7 @@
 #include "JobInformationPage.h"
 #include "ServerSetupPage.h"
 #include "JobSummaryPage.h"
+#include "SubmitPage.h"
 
 /**
  * @brief The JobWizard class A wizard to submit a job to a Server running
@@ -76,6 +77,7 @@ private:
     JobInformationPage jobInformationPage;
     ServerSetupPage serverSetupPage;
     JobSummaryPage summaryPage;
+    SubmitPage submitPage;
 };
 
 #endif // JOBWIZARD_H

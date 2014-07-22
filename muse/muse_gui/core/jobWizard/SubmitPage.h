@@ -1,5 +1,5 @@
-#ifndef JOB_SUMMARY_PAGE_H
-#define JOB_SUMMARY_PAGE_H
+#ifndef SUBMIT_PAGE_H
+#define SUBMIT_PAGE_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,38 +36,58 @@
 //
 //---------------------------------------------------------------------
 
-
 #include <QWizardPage>
-#include <QTextEdit>
-#include <QMessageBox>
-
+#include <QProgressDialog>
+#include "Project.h"
+#include "Server.h"
+#include "ServerSession.h"
 
 /**
- * @brief The JobSummaryPage class Presents the information entered by the user
- * so that they can review it before submitting the job to the server.
+ * @brief The SubmitPage class Submits the job created throughout the
+ * JobWizard to the designated server. This is the last page of the
+ * JobWizard. The process cannot be stopped, and the user cannot backtrack
+ * from this page.
  */
-class JobSummaryPage : public QWizardPage {
+class SubmitPage : public QWizardPage {
 public:
     /**
-     * @brief JobSummaryPage Creates the layout of the page. Does not
-     * populate the text edit with information for the job.
+     * @brief SubmitPage Creates the layout of this page, which is only
+     * a QProgresDialog without a cancel button at this time.
      */
-    JobSummaryPage();
+    SubmitPage();
 
     /**
-     * @brief initializePage Populates the QTextEdit with information
-     * entered in the many fields throughout this wizard so that the
-     * user may review the data. This method will likely be broken
-     * into several helper methods as the JobWizard develops.
+     * @brief initializePage Sets the server and project variables
+     * to the values as chosen by the user in earlier pages of the
+     * JobWizard so that the needed information from these two entities
+     * is easily accessible.
      */
     void initializePage();
 
+    /**
+     * @brief validatePage Runs the process of submitting the job to
+     * the server. This description will be updated later once this method
+     * has been fully implemented.
+     * @return true if the page should advance, false otherwise.
+     */
+    bool validatePage();
 
+private slots:
+    /**
+     * @brief connectedToServer Detects a signal from a RemoteServerSession
+     * informing the program that the server has been connected to.
+     * @param result True if the connection has been made, false otherwise.
+     */
+    void connectedToServer(bool result);
 
 private:
-    QTextEdit summaryDisplay;
-    QMessageBox warningMessage;
+    QProgressDialog prgDialog;
+    QString projectName;
+    Project* proj;
+    int submitStep;
 
+    ServerSession* serverSession;
+    Server* server;
 };
 
-#endif
+#endif // SUBMITPAGE_H

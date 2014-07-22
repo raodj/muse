@@ -96,7 +96,9 @@ SOURCES +=\
     core/jobWizard/JobInformationPage.cpp \
     core/jobWizard/ServerSetupPage.cpp \
     core/jobWizard/JobSummaryPage.cpp \
-    core/filediag/DirectoryNameDialog.cpp
+    core/filediag/DirectoryNameDialog.cpp \
+    core/jobWizard/PBSJobFileCreator.cpp \
+    core/jobWizard/SubmitPage.cpp
 
 
 HEADERS  += \
@@ -172,7 +174,9 @@ HEADERS  += \
     core/jobWizard/JobInformationPage.h \
     core/jobWizard/ServerSetupPage.h \
     core/jobWizard/JobSummaryPage.h \
-    core/filediag/DirectoryNameDialog.h
+    core/filediag/DirectoryNameDialog.h \
+    core/jobWizard/PBSJobFileCreator.h \
+    core/jobWizard/SubmitPage.h
 
 
 OTHER_FILES += \

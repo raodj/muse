@@ -44,7 +44,7 @@ MUSEWizard::MUSEWizard(QFile &file, QWidget *parent) : QWizard(parent),
     setPixmap(QWizard::BannerPixmap,
               QPixmap(":/images/logo/bannerImg.png"));
     setPixmap(QWizard::BackgroundPixmap,
-              QPixmap(":/images/logo/columnImg.png"));
+              QPixmap(":/images/logo/columnBright.png"));
 
     mainLayout = new QVBoxLayout();
     sideBar.setLayout(mainLayout);

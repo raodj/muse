@@ -41,5 +41,6 @@
         <file alias="MuseLogo.jpg">images/logo/muse_small_header.jpg</file>
         <file alias="columnImg.png">images/logo/peace_wizard_column.png</file>
         <file alias="bannerImg.png">images/logo/peace_wizard_header.png</file>
+        <file alias="columnBright.png">images/logo/peace_wizard_column_brightened.png</file>
     </qresource>
 </RCC>
