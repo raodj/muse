@@ -55,6 +55,8 @@ ServerSetupPage::ServerSetupPage() {
     registerField("estimatedRunTime", &runTime);
     setLayout(mainLayout);
     setTitle("Server Setup");
+    // Allow spin box to go up to 1 trillion
+    memPerNode.setMaximum(99999999);
 }
 
 void

@@ -1,5 +1,5 @@
-#ifndef JOB_SUMMARY_PAGE_H
-#define JOB_SUMMARY_PAGE_H
+#ifndef PBS_JOB_FILE_CREATOR_CPP
+#define PBS_JOB_FILE_CREATOR_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,38 +36,49 @@
 //
 //---------------------------------------------------------------------
 
+#include "PBSJobFileCreator.h"
+#include <QFile>
+#include <QTextStream>
 
-#include <QWizardPage>
-#include <QTextEdit>
-#include <QMessageBox>
+PBSJobFileCreator::PBSJobFileCreator(QString pJobName, int hoursRunTime,
+                                     int mem, int nodes, int ppn,
+                                     QString pArgs, QString execFilePath,
+                                     QString execName, bool wantEmail) {
+    userWantsEmail = wantEmail;
+    cmdLineLanguage = "#!/bin/bash\n\n";
+    jobName = "#PBS -N " + pJobName;
+    runTime = "#PBS -l walltime=" + QString::number(hoursRunTime) + ":00:00";
+    memory =  "#PBS -l mem=" + QString::number(mem) + "MB";
+    nodesAndPpn = "#PBS -l nodes=" + QString::number(nodes) + ":ppn=" +
+            QString::number(ppn);
+    args = "args=\"" + pArgs + "\"";
+    startJob = "time mpiexec ./" + execName + " $args";
+    echoStartOfJob = "echo -e \"" + startJob + "\"";
+    echoLineDivider = "\necho -e \"###############################\"";
+    if (userWantsEmail) {
+        email = "#PBS -m abe";
+    }
+}
 
+bool
+PBSJobFileCreator::saveToFile(QString fileName) {
+    QFile file(fileName);
+    if (file.open(QFile::WriteOnly)) {
+        QTextStream out(&file);
+        QString newLine = "\n";
 
-/**
- * @brief The JobSummaryPage class Presents the information entered by the user
- * so that they can review it before submitting the job to the server.
- */
-class JobSummaryPage : public QWizardPage {
-public:
-    /**
-     * @brief JobSummaryPage Creates the layout of the page. Does not
-     * populate the text edit with information for the job.
-     */
-    JobSummaryPage();
+        out << cmdLineLanguage << jobName << newLine << runTime << newLine
+               << memory << newLine << nodesAndPpn << newLine;
 
-    /**
-     * @brief initializePage Populates the QTextEdit with information
-     * entered in the many fields throughout this wizard so that the
-     * user may review the data. This method will likely be broken
-     * into several helper methods as the JobWizard develops.
-     */
-    void initializePage();
-
-
-
-private:
-    QTextEdit summaryDisplay;
-    QMessageBox warningMessage;
-
-};
+        if (userWantsEmail) {
+            out << email << newLine;
+        }
+        out << cd << newLine << args << newLine << echoStartOfJob << newLine <<
+               echoLineDivider << newLine << startJob;
+        file.close();
+        return true;
+    }
+    return false;
+}
 
 #endif

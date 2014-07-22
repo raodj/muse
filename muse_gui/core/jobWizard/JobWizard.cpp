@@ -45,6 +45,7 @@ JobWizard::JobWizard(QFile& file) : MUSEWizard(file) {
     addPage(&jobInformationPage, "Job Information");
     addPage(&serverSetupPage, "Server Setup");
     addPage(&summaryPage, "Summary Page");
+    addPage(&submitPage, "Job Submission", true);
 }
 
 int

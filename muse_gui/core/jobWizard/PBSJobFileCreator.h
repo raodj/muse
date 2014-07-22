@@ -1,5 +1,5 @@
-#ifndef JOB_SUMMARY_PAGE_H
-#define JOB_SUMMARY_PAGE_H
+#ifndef PBS_JOB_FILE_CREATOR_H
+#define PBS_JOB_FILE_CREATOR_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,38 +36,46 @@
 //
 //---------------------------------------------------------------------
 
-
-#include <QWizardPage>
-#include <QTextEdit>
-#include <QMessageBox>
-
+#include <QString>
 
 /**
- * @brief The JobSummaryPage class Presents the information entered by the user
- * so that they can review it before submitting the job to the server.
+ * @brief The PBSJobFileCreator class Class that creates a PBS job
+ * script file for the user. These script files are usable by a computer
+ * that supports the PBS task scheduling system.
  */
-class JobSummaryPage : public QWizardPage {
+class PBSJobFileCreator {
 public:
     /**
-     * @brief JobSummaryPage Creates the layout of the page. Does not
-     * populate the text edit with information for the job.
+     * @brief PBSJobFileCreator Creates all of the commands that will go
+     * into the script when save() is called.
+     * @param pJobName The name of the job.
+     * @param hoursRunTime The maximum amount of time this job is allowed
+     * to run.
+     * @param mem The amount of memory the program can use per processor.
+     * @param nodes The number of nodes to be used.
+     * @param ppn The number of processors per node to be used.
+     * @param pArgs The command line arguments needed to run the program.
+     * @param execFilePath The file path to the executable file.
+     * @param execName The name of the executable file
+     * @param wantEmail If the user wants email notifications (true) sent
+     * to them when the program starts and ends, or not (false).
      */
-    JobSummaryPage();
+    PBSJobFileCreator(QString pJobName, int hoursRunTime, int mem, int nodes,
+                      int ppn, QString pArgs, QString execFilePath,
+                      QString execName, bool wantEmail);
 
     /**
-     * @brief initializePage Populates the QTextEdit with information
-     * entered in the many fields throughout this wizard so that the
-     * user may review the data. This method will likely be broken
-     * into several helper methods as the JobWizard develops.
+     * @brief saveToFile Saves this job file to a text file.
+     * @param fileName The name and path of the location to save this file.
+     * @return True if the file was saved successfully, false otherwise.
      */
-    void initializePage();
-
-
+    bool saveToFile(QString fileName);
 
 private:
-    QTextEdit summaryDisplay;
-    QMessageBox warningMessage;
-
+    QString cmdLineLanguage;
+    QString jobName, runTime, memory, nodesAndPpn, cmdLangForProgram,
+    cd, args, echoStartOfJob, echoLineDivider, startJob, email;
+    bool userWantsEmail;
 };
 
 #endif

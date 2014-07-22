@@ -1,5 +1,5 @@
-#ifndef JOB_SUMMARY_PAGE_CPP
-#define JOB_SUMMARY_PAGE_CPP
+#ifndef SUBMIT_PAGE_CPP
+#define SUBMIT_PAGE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,41 +36,42 @@
 //
 //---------------------------------------------------------------------
 
-#include "JobSummaryPage.h"
+#include "SubmitPage.h"
+#include "PBSJobFileCreator.h"
+#include "RemoteServerSession.h"
 #include "Core.h"
+#include "MUSEGUIApplication.h"
+#include <QFile>
+#include "Workspace.h"
 #include <QVBoxLayout>
 #include <QLabel>
-#include "Workspace.h"
+#include <QTimer>
 
+#define MAKE_JOB_FILE 0
+#define SAVE_JOB_FILE 1
+#define CONNECT_TO_SERVER 2
+#define SEND_JOB_FILE 3
+#define DELETE_LOCAL_JOB_FILE 4
+#define ADD_JOB_TO_QUEUE 5
 
-
-JobSummaryPage::JobSummaryPage() {
+SubmitPage::SubmitPage() {
     QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("You have provided the following information "\
-                                     "regarding the job to be scheduled.\nPlease "\
-                                     "verify the information before submitting the job."));
-    mainLayout->addWidget(&summaryDisplay);
-    summaryDisplay.setReadOnly(true);
-    warningMessage.setIcon(QMessageBox::Warning);
-    warningMessage.setText("Once you click the 'Next' button, you cannot backtrack to this page.");
-    warningMessage.setStandardButtons(0);
-    mainLayout->addWidget(&warningMessage);
-    setTitle("Job Summary");
-    setCommitPage(true);
+    prgDialog.setMinimum(0);
+    prgDialog.setMaximum(5);
+    prgDialog.setLabel(new QLabel("Submitting job"));
+    mainLayout->addWidget(&prgDialog);
+    setLayout(mainLayout);
+    submitStep = 0;
+    prgDialog.setCancelButton(0);
+
     setLayout(mainLayout);
 }
 
 void
-JobSummaryPage::initializePage() {
-    // Clear old information, if it exists.
-    summaryDisplay.clear();
-    summaryDisplay.append("SUMMARY OF JOB");
-    summaryDisplay.append("Job Information:");
-    // For convenience and readability.
-    QString indent = "\t\t";
+SubmitPage::initializePage() {
     Workspace* ws = Workspace::get();
     ServerList& serverList = ws->getServerList();
-    Server& server = serverList.get(field("server").toInt());
+    server = &serverList.get(field("server").toInt());
     // Used to compare the number of projects found and the index
     // of the project selected in the QComboBox on a previous page.
     int projectCount = 0;
@@ -81,25 +82,48 @@ JobSummaryPage::initializePage() {
             // Once we hit project n that matches the index of the project
             // field, print its info to the text edit.
             if (projectCount == field("project").toInt()) {
-                summaryDisplay.append(indent +"Project: "
-                                      + projList.get(j).getName());
+                proj = &projList.get(j);
             }
         }
     }
-    summaryDisplay.append(indent + "Arguments: " +
-                          field("arguments").toString());
-    summaryDisplay.append(indent + "Job Description: "+
-                          field("jobDescription").toString());
-    summaryDisplay.append("Server Information:");
-    summaryDisplay.append(indent + server.getName());
-    summaryDisplay.append(indent + "Nodes: " + QString::number(
-                              field("nodes").toInt()));
-    summaryDisplay.append(indent + "CPUs per Node: " + QString::number(
-                              field("cpusPerNode").toInt()));
-    summaryDisplay.append(indent + "Memory per Node (MB): " +
-                          QString::number(field("memoryPerNode").toInt()));
-    summaryDisplay.append(indent + "Est. Run Time (Hrs): " +
-                          QString::number(field("estimatedRunTime").toInt()));
+    QTimer::singleShot(500, this->wizard(), SLOT(next()));
+
+}
+
+bool
+SubmitPage::validatePage() {
+
+    if (submitStep == MAKE_JOB_FILE) {
+        PBSJobFileCreator jobFile(proj->getName(), field("estimatedRunTime").toInt(),
+                                  field("memoryPerNode").toInt(),
+                                  field("nodes").toInt(), field("cpusPerNode").toInt(),
+                                  field("arguments").toString(), proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/")),
+                                  proj->getExecutablePath().mid(proj->getExecutablePath().lastIndexOf("/") +1),
+                                  true);
+        submitStep++;
+        prgDialog.setValue(submitStep);
+        jobFile.saveToFile(MUSEGUIApplication::getAppDirPath() + "/MUSEjob.job");
+        submitStep++;
+        prgDialog.setValue(submitStep);
+//        if (server->isRemote()) {
+        serverSession = new RemoteServerSession(*server, NULL, "Adding a Job");
+//        }
+//        else {
+//            serverSession = new LocalServerSession(*server, NULL, "Adding a Job");
+//            submitStep++;
+//        }
+        serverSession->connectToServer();
+        return false;
+    }
+
+    return false;
+}
+
+void
+SubmitPage::connectedToServer(bool result) {
+    if (result) {
+        prgDialog.setValue(++submitStep);
+    }
 }
 
 #endif
