@@ -103,8 +103,10 @@ RemoteServerSession::connectToServer() {
 void
 RemoteServerSession::disconnectFromServer() {
     delete sftpChannel;
+    delete sshChannel;
     delete socket;
 
+    sshChannel = NULL;
     sftpChannel = NULL;
     socket = NULL;
 }
@@ -122,7 +124,9 @@ RemoteServerSession::exec(const QString &command, QString &stdoutput,
         sshChannel = new SshChannel(*socket);
     }
 
-    return sshChannel->exec(command, stdoutput, stderrmsgs);
+    int retCode = sshChannel->exec(command, stdoutput, stderrmsgs);
+    closeSshChannel();
+    return retCode;
 }
 
 int
@@ -136,10 +140,12 @@ RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
-    return sshChannel->exec(command, output);
+    int retCode = sshChannel->exec(command, output);
+    closeSshChannel();
+    return retCode;
 }
 
-void
+bool
 RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
                                const QString &destFileName, const int& mode) throw() {
     // Don't try this code if we aren't connected.
@@ -151,10 +157,12 @@ RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
-    sshChannel->copy(srcData, destDirectory, destFileName, mode);
+    bool success = sshChannel->copy(srcData, destDirectory, destFileName, mode);
+    closeSshChannel();
+    return success;
 }
 
-void
+bool
 RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
                                const QString &srcFileName) throw() {
     // Don't try this code if we aren't connected.
@@ -166,7 +174,9 @@ RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
         // Might need to try/catch this.
         sshChannel = new SshChannel(*socket);
     }
-    sshChannel->copy(destData, srcDirectory, srcFileName);
+    bool success = sshChannel->copy(destData, srcDirectory, srcFileName);
+    closeSshChannel();
+    return success;
 
 
 }
@@ -230,15 +240,23 @@ RemoteServerSession::getSocket() {
     return socket;
 }
 
-void RemoteServerSession::openSftpChannel() {
+void
+RemoteServerSession::openSftpChannel() {
     if (sftpChannel == NULL) {
         sftpChannel = new SFtpChannel(*socket);
     }
 }
 
-void RemoteServerSession::closeSftpChannel() {
+void
+RemoteServerSession::closeSftpChannel() {
     delete sftpChannel;
     sftpChannel = NULL;
+}
+
+void
+RemoteServerSession::closeSshChannel() {
+    delete sshChannel;
+    sshChannel = NULL;
 }
 
 SFtpChannel*

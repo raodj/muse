@@ -43,22 +43,22 @@ LocalServerSession::exec(const QString &command, QTextEdit& output) {
     return process.exitCode();
 }
 
-void
+bool
 LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
                               const QString &destFileName, const int &mode) {
     QString newFilePath = destDirectory +
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
-    QFile::copy(srcData, newFilePath);
+    return QFile::copy(srcData, newFilePath);
     Q_UNUSED(mode);
 }
 
-void
+bool
 LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
                               const QString& srcFileName) {
 
     QString curFilePath = srcDirectory +
             (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
-    QFile::copy(curFilePath, destData);
+   return QFile::copy(curFilePath, destData);
 }
 
 void

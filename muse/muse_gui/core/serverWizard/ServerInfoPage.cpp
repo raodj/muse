@@ -150,7 +150,7 @@ ServerInfoPage::validatePage() {
         msgBox.setWindowTitle("Install Validation Success");
         msgBox.setStandardButtons(QMessageBox::Ok);
         msgBox.exec();
-        // Finally, we can advance to the next page;
+        // Finally, we can advance to the next page.
         return true;
     }
 }

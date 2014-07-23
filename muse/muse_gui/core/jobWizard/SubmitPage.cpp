@@ -39,6 +39,7 @@
 #include "SubmitPage.h"
 #include "PBSJobFileCreator.h"
 #include "RemoteServerSession.h"
+#include "LocalServerSession.h"
 #include "Core.h"
 #include "MUSEGUIApplication.h"
 #include <QFile>
@@ -46,24 +47,27 @@
 #include <QVBoxLayout>
 #include <QLabel>
 #include <QTimer>
+#include <QMessageBox>
 
+#define SUCCESS_CODE 0
 #define MAKE_JOB_FILE 0
 #define SAVE_JOB_FILE 1
 #define CONNECT_TO_SERVER 2
 #define SEND_JOB_FILE 3
 #define DELETE_LOCAL_JOB_FILE 4
 #define ADD_JOB_TO_QUEUE 5
+#define ADD_JOB_TO_WORKSPACE 6
 
 SubmitPage::SubmitPage() {
     QVBoxLayout* mainLayout = new QVBoxLayout();
     prgDialog.setMinimum(0);
-    prgDialog.setMaximum(5);
+    prgDialog.setMaximum(6);
     prgDialog.setLabel(new QLabel("Submitting job"));
     mainLayout->addWidget(&prgDialog);
     setLayout(mainLayout);
     submitStep = 0;
     prgDialog.setCancelButton(0);
-
+    safeToClose = false;
     setLayout(mainLayout);
 }
 
@@ -86,44 +90,117 @@ SubmitPage::initializePage() {
             }
         }
     }
-    QTimer::singleShot(500, this->wizard(), SLOT(next()));
+    QTimer::singleShot(500, this, SLOT(submitToServer()));
 
 }
 
 bool
 SubmitPage::validatePage() {
-
-    if (submitStep == MAKE_JOB_FILE) {
-        PBSJobFileCreator jobFile(proj->getName(), field("estimatedRunTime").toInt(),
-                                  field("memoryPerNode").toInt(),
-                                  field("nodes").toInt(), field("cpusPerNode").toInt(),
-                                  field("arguments").toString(), proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/")),
-                                  proj->getExecutablePath().mid(proj->getExecutablePath().lastIndexOf("/") +1),
-                                  true);
-        submitStep++;
-        prgDialog.setValue(submitStep);
-        jobFile.saveToFile(MUSEGUIApplication::getAppDirPath() + "/MUSEjob.job");
-        submitStep++;
-        prgDialog.setValue(submitStep);
-//        if (server->isRemote()) {
-        serverSession = new RemoteServerSession(*server, NULL, "Adding a Job");
-//        }
-//        else {
-//            serverSession = new LocalServerSession(*server, NULL, "Adding a Job");
-//            submitStep++;
-//        }
-        serverSession->connectToServer();
-        return false;
-    }
-
-    return false;
+    return safeToClose;
 }
 
 void
 SubmitPage::connectedToServer(bool result) {
     if (result) {
         prgDialog.setValue(++submitStep);
+        submitToServer();
     }
+    else {
+        prgDialog.setLabelText("Close the wizard and try again.");
+        safeToClose = true;
+    }
+}
+
+void
+SubmitPage::submitToServer() {
+    QString execDir = proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/"));
+    if (submitStep == MAKE_JOB_FILE) {
+        PBSJobFileCreator jobFile(proj->getName(), field("estimatedRunTime").toInt(),
+                                  field("memoryPerNode").toInt(), field("memoryUnits").toString(),
+                                  field("nodes").toInt(), field("cpusPerNode").toInt(),
+                                  field("arguments").toString(), execDir,
+                                  proj->getExecutablePath().mid(proj->getExecutablePath().lastIndexOf("/") +1),
+                                  field("wantsEmail").toBool());
+        submitStep++;
+        prgDialog.setValue(submitStep);
+        // Save the file to the local machine before sending to server.
+        jobFile.saveToFile(MUSEGUIApplication::getAppDirPath() + "/MUSEjob.job");
+        submitStep++;
+        prgDialog.setValue(submitStep);
+        if (server->isRemote()) {
+            serverSession = new RemoteServerSession(*server, NULL, "Adding a Job");
+            RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
+            rss->connectToServer();
+            // Connect the signal to determine whether or not to proceed.
+            connect(rss, SIGNAL(booleanResult(bool)),
+                    this, SLOT(connectedToServer(bool)));
+        }
+        else {
+            // This is a local server, proceed slightly differently.
+            serverSession = new LocalServerSession(*server, NULL, "Adding a Job");
+            submitStep++;
+            prgDialog.setValue(submitStep);
+            // Not exactly recursion since everything is excluded with else's.
+            submitToServer();
+        }
+    }
+    else if (submitStep == SEND_JOB_FILE) {
+        // Send the job script to the server. This method should
+        // change so that the filename isn't static.
+        bool fileCopied = serverSession->copy(MUSEGUIApplication::getAppDirPath()
+                                              + "/MUSEjob.job", execDir,
+                                              "test.job", 0666);
+        if (fileCopied) {
+            prgDialog.setValue(++submitStep);
+            // We don't need the script file on the local computer...so delete it.
+            QFile::remove(MUSEGUIApplication::getAppDirPath()
+                          + "/MUSEjob.job");
+            QString jobId, errMsg;
+            // Did we succeed?
+            if (serverSession->exec("qsub " + execDir + "/test.job", jobId, errMsg)
+                    == SUCCESS_CODE) {
+                prgDialog.setValue(++submitStep);
+                // Make the job workspace entry
+                Job* job = new Job(proj->getName(), server->getID(),
+                                   jobId.left(jobId.indexOf(".")).toLong(),
+                                   QDateTime::currentDateTime(), Job::Queued);
+                Workspace* ws = Workspace::get();
+                // Add the entry to the workspace.
+                ws->getJobList().addJob(*job);
+                // Save the workspace
+                ws->saveWorkspace();
+                prgDialog.setValue(++submitStep);
+                delete serverSession;
+                prgDialog.setLabelText("Submission Complete!");
+                QMessageBox msg;
+                msg.setText("Congratulations! The job was added successfully "\
+                            "to the queue. It has been saved to the workspace. "\
+                            "You may close this wizard.");
+                msg.setDetailedText("The job id is: " + jobId);
+                msg.setStandardButtons(QMessageBox::Ok);
+                msg.exec();
+                safeToClose = true;
+            }
+            else {
+                // Exec failed.
+                QMessageBox msg;
+                msg.setText("Could not submit the job. Close the wizard and try again.");
+                msg.setDetailedText(errMsg.trimmed());
+                msg.setStandardButtons(QMessageBox::Ok);
+                msg.exec();
+                safeToClose = true;
+            }
+        }
+        else {
+            // Couldn't copy the script.
+            QMessageBox msg;
+            msg.setText("Could not send the script to the server. Please try running the wizard again.");
+            msg.setStandardButtons(QMessageBox::Ok);
+            msg.exec();
+            safeToClose = true;
+        }
+    }
+
 }
 
 #endif

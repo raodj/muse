@@ -73,6 +73,7 @@
 		<xsd:element name="Timestamp"  type="xsd:dateTime" />
 		<xsd:element name="SeqCounter" type="xsd:long"/>
 		<xsd:element ref="ServerList"/>
+		<xsd:element ref="JobList"/>
 	    </xsd:sequence>
 	    <xsd:attribute name="Version" type="VersionID" use="required" />
 	</xsd:complexType>
@@ -155,6 +156,39 @@
     		</xsd:sequence>
     	</xsd:complexType>
     </xsd:element>
+
+    <xsd:element name="JobList">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element ref="Job" minOccurs="0" maxOccurs="unbounded" />
+		</xsd:sequence>
+	</xsd:complexType>
+    </xsd:element>
+
+    <!--  enumerations defining different status values for jobs.
+          Note that the strings must match the string constants used in the
+          C++ source files (see workspace/Job.cpp) -->
+    <xsd:simpleType name="JobStatusType">
+	<xsd:restriction base="xsd:string">
+	    <xsd:enumeration value="queued" />
+	    <xsd:enumeration value="running" />
+	    <xsd:enumeration value="exiting" />
+	    <xsd:enumeration value="complete" />
+	</xsd:restriction>
+    </xsd:simpleType>
+
+   <xsd:element name="Job">
+	<xsd:complexType>
+		<xsd:sequence>
+			<xsd:element name="ID" type="xsd:long"/>
+			<xsd:element name="ServerUsed" type="xsd:string"/>
+			<xsd:element name="ProjectName" type="xsd:string"/>
+			<xsd:element name="DateSubmitted" type="xsd:dateTime"/>
+			<xsd:element name="Status" type="JobStatusType"/>
+		</xsd:sequence>
+	</xsd:complexType>
+   </xsd:element>
+
 
 </xsd:schema>
 

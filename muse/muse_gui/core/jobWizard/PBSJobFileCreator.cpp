@@ -41,23 +41,25 @@
 #include <QTextStream>
 
 PBSJobFileCreator::PBSJobFileCreator(QString pJobName, int hoursRunTime,
-                                     int mem, int nodes, int ppn,
+                                     int mem, QString memMod, int nodes, int ppn,
                                      QString pArgs, QString execFilePath,
                                      QString execName, bool wantEmail) {
     userWantsEmail = wantEmail;
     cmdLineLanguage = "#!/bin/bash\n\n";
     jobName = "#PBS -N " + pJobName;
     runTime = "#PBS -l walltime=" + QString::number(hoursRunTime) + ":00:00";
-    memory =  "#PBS -l mem=" + QString::number(mem) + "MB";
+    memory =  "#PBS -l mem=" + QString::number(mem) + memMod;
     nodesAndPpn = "#PBS -l nodes=" + QString::number(nodes) + ":ppn=" +
             QString::number(ppn);
     args = "args=\"" + pArgs + "\"";
     startJob = "time mpiexec ./" + execName + " $args";
     echoStartOfJob = "echo -e \"" + startJob + "\"";
-    echoLineDivider = "\necho -e \"###############################\"";
+    echoLineDivider = "echo -e \"###############################\"";
     if (userWantsEmail) {
         email = "#PBS -m abe";
     }
+    cd = "cd " + execFilePath;
+    pbsBash = "#PBS -S /bin/bash";
 }
 
 bool
@@ -68,7 +70,8 @@ PBSJobFileCreator::saveToFile(QString fileName) {
         QString newLine = "\n";
 
         out << cmdLineLanguage << jobName << newLine << runTime << newLine
-               << memory << newLine << nodesAndPpn << newLine;
+               << memory << newLine << nodesAndPpn << newLine << pbsBash
+               << newLine;
 
         if (userWantsEmail) {
             out << email << newLine;

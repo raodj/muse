@@ -1,5 +1,5 @@
-#ifndef SUBMIT_PAGE_H
-#define SUBMIT_PAGE_H
+#ifndef JOB_CPP
+#define JOB_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,65 +36,55 @@
 //
 //---------------------------------------------------------------------
 
-#include <QWizardPage>
-#include <QProgressDialog>
-#include "Project.h"
-#include "Server.h"
-#include "ServerSession.h"
+#include "Job.h"
 
-/**
- * @brief The SubmitPage class Submits the job created throughout the
- * JobWizard to the designated server. This is the last page of the
- * JobWizard. The process cannot be stopped, and the user cannot backtrack
- * from this page.
- */
-class SubmitPage : public QWizardPage {
-    Q_OBJECT
-public:
-    /**
-     * @brief SubmitPage Creates the layout of this page, which is only
-     * a QProgresDialog without a cancel button at this time.
-     */
-    SubmitPage();
+const QString Job::Queued = "queued";
 
-    /**
-     * @brief initializePage Sets the server and project variables
-     * to the values as chosen by the user in earlier pages of the
-     * JobWizard so that the needed information from these two entities
-     * is easily accessible.
-     */
-    void initializePage();
+const QString Job::Running = "running";
 
-    /**
-     * @brief validatePage Runs the process of submitting the job to
-     * the server. This description will be updated later once this method
-     * has been fully implemented.
-     * @return true if the page should advance, false otherwise.
-     */
-    bool validatePage();
+const QString Job::Exiting = "exiting";
 
-private slots:
-    /**
-     * @brief connectedToServer Detects a signal from a RemoteServerSession
-     * informing the program that the server has been connected to.
-     * @param result True if the connection has been made, false otherwise.
-     */
-    void connectedToServer(bool result);
+const QString Job::Complete = "complete";
 
-    /**
-     * @brief submitToServer Submits the job to the server.
-     */
-    void submitToServer();
+Job::Job(QString pProject, QString pServer, long pJobId,
+         QDateTime pDateSubmitted, QString pStatus) : XMLElement("Job"),
+    project(pProject), server(pServer), jobId(pJobId),
+    dateSubmitted(pDateSubmitted), status(pStatus) {
+    // Add the set of instance variables that must be serialized/deserialized
+    addElement(XMLElementInfo("ID", &jobId));
+    addElement(XMLElementInfo("ServerUsed", &server));
+    addElement(XMLElementInfo("ProjectName", &project));
+    addElement(XMLElementInfo("DateSubmitted", &dateSubmitted));
+    addElement(XMLElementInfo("Status", &status));
 
-private:
-    QProgressDialog prgDialog;
-    QString projectName;
-    Project* proj;
-    int submitStep;
-    bool safeToClose;
+}
 
-    ServerSession* serverSession;
-    Server* server;
-};
+void
+Job::setProject(const QString& projectName) {
+    project = projectName;
+}
 
-#endif // SUBMITPAGE_H
+
+void
+Job::setServer(const QString& serverId) {
+    server = serverId;
+}
+
+
+void
+Job::setStatus(const QString& currStatus) {
+    status = currStatus;
+}
+
+
+void
+Job::setJobId(long id) {
+    jobId = id;
+}
+
+void
+Job::setDateSubmitted(const QDateTime& date) {
+    dateSubmitted = date;
+}
+
+#endif

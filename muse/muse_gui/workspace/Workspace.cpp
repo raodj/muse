@@ -68,6 +68,7 @@ Workspace::Workspace(const QString& dir, bool isValid) :
     addElement(XMLElementInfo("Timestamp",  &timestamp));
     addElement(XMLElementInfo("SeqCounter", &seqCounter));
     addElement(XMLElementInfo("ServerList", &serverList));
+    addElement(XMLElementInfo("JobList", &jobList));
 }
 
 void
@@ -77,6 +78,8 @@ Workspace::registerClasses() {
     qRegisterMetaType<Server>("Server");
     qRegisterMetaType<ProjectList>("ProjectList");
     qRegisterMetaType<Project>("Project");
+    qRegisterMetaType<JobList>("JobList");
+    qRegisterMetaType<Job>("Job");
 }
 
 void
