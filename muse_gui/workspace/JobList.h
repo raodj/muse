@@ -1,5 +1,5 @@
-#ifndef SUBMIT_PAGE_H
-#define SUBMIT_PAGE_H
+#ifndef JOB_LIST_H
+#define JOB_LIST_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,65 +36,62 @@
 //
 //---------------------------------------------------------------------
 
-#include <QWizardPage>
-#include <QProgressDialog>
-#include "Project.h"
-#include "Server.h"
-#include "ServerSession.h"
+#include "XMLElement.h"
+#include "Job.h"
 
 /**
- * @brief The SubmitPage class Submits the job created throughout the
- * JobWizard to the designated server. This is the last page of the
- * JobWizard. The process cannot be stopped, and the user cannot backtrack
- * from this page.
+ * @brief The JobList class A class to encapsulate information about a list
+ * of Jobs that have already been configured in this workspace. This class is
+ * instantiated from the Workspace class. It facilitates the marshalling and
+ * unmarshalling of Job data via the XMLElement base class.
  */
-class SubmitPage : public QWizardPage {
-    Q_OBJECT
+class JobList : public XMLElement {
 public:
-    /**
-     * @brief SubmitPage Creates the layout of this page, which is only
-     * a QProgresDialog without a cancel button at this time.
-     */
-    SubmitPage();
+    JobList();
 
     /**
-     * @brief initializePage Sets the server and project variables
-     * to the values as chosen by the user in earlier pages of the
-     * JobWizard so that the needed information from these two entities
-     * is easily accessible.
+     * @brief addJob Add a new job entry to the job list.
+     *
+     * This method does not perform any validation on the job entry
+     * being added. Consequently, it is up to the caller to ensure that
+     * the entry being added is valid (if needed).
+     *
+     * \note This method creates a copy of the job entry.
+     *
+     * @param entry The job entry to be added.
      */
-    void initializePage();
+    void addJob(Job& job);
 
     /**
-     * @brief validatePage Runs the process of submitting the job to
-     * the server. This description will be updated later once this method
-     * has been fully implemented.
-     * @return true if the page should advance, false otherwise.
+     * @brief size Returns the number of job entries in this list.
+     * @return The number of job entries. Zero is returned if empty.
      */
-    bool validatePage();
-
-private slots:
-    /**
-     * @brief connectedToServer Detects a signal from a RemoteServerSession
-     * informing the program that the server has been connected to.
-     * @param result True if the connection has been made, false otherwise.
-     */
-    void connectedToServer(bool result);
+    int size() const { return jobs.size(); }
 
     /**
-     * @brief submitToServer Submits the job to the server.
+     * @brief get Obtain the Job entry at a given index location.
+     * @param i The index position of the Job entry to be returned.
+     * @return  A reference to the job entry at the given location.
+     *
+     * \note This method does not perform any sanity checks on the
+     * index passed to the parameter. It is the caller's responsibility
+     * to ensure a valid index is given
      */
-    void submitToServer();
+    Job& get(const int i) { return *dynamic_cast<Job*>(jobs[i]); }
 
-private:
-    QProgressDialog prgDialog;
-    QString projectName;
-    Project* proj;
-    int submitStep;
-    bool safeToClose;
+    /**
+     * @brief get Obtain the Job entry at a given index location.
+     * @param i The index position of the Job entry to be returned.
+     * @return  A reference to the job entry at the given location.
+     *
+     * \note This method does not perform any sanity checks on the
+     * index passed to the parameter. It is the caller's responsibility
+     * to ensure a valid index is given
+     */
+    const Job& get(const int i) const { return *dynamic_cast<const Job*>(jobs[i]); }
 
-    ServerSession* serverSession;
-    Server* server;
+protected:
+    QList<XMLElement*>jobs;
 };
 
-#endif // SUBMITPAGE_H
+#endif // JOBLIST_H

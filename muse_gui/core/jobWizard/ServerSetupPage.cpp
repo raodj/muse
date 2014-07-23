@@ -45,6 +45,9 @@
 
 ServerSetupPage::ServerSetupPage() {
     QVBoxLayout* mainLayout = new QVBoxLayout();
+    // Add the modifiers to the QComboBox
+    memoryModifier.addItem("MB");
+    memoryModifier.addItem("GB");
     // add the executable layout to the page's main layout
     makeServerWidget(mainLayout);
     // Register fields so data can be accessed later.
@@ -53,6 +56,10 @@ ServerSetupPage::ServerSetupPage() {
     registerField("cpusPerNode", &cpuPerNode);
     registerField("memoryPerNode", &memPerNode);
     registerField("estimatedRunTime", &runTime);
+    registerField("memoryUnits", &memoryModifier, "currentText", "currentTextChanged()");
+    registerField("wantsEmail", &receiveEmails);
+    receiveEmails.setText("Receive email notifications");
+    mainLayout->addWidget(&receiveEmails);
     setLayout(mainLayout);
     setTitle("Server Setup");
     // Allow spin box to go up to 1 trillion
@@ -80,13 +87,15 @@ ServerSetupPage::makeServerWidget(QVBoxLayout *layout) {
     // Reset the layout
     horizontalLayout = new QHBoxLayout();
     // Two more labels
-    horizontalLayout->addWidget(new QLabel("Memory per Node (MB)"));
+    horizontalLayout->addWidget(new QLabel("Memory per Node"));
+    horizontalLayout->addWidget(new QLabel("Data Size"));
     horizontalLayout->addWidget(new QLabel("Est. Run Time (Hrs)"));
     serverWidgetLayout->addLayout(horizontalLayout);
     // Reset the layout
     horizontalLayout = new QHBoxLayout();
     // Last two spin boxes
     horizontalLayout->addWidget(&memPerNode);
+    horizontalLayout->addWidget(&memoryModifier);
     horizontalLayout->addWidget(&runTime);
     serverWidgetLayout->addLayout(horizontalLayout);
     // Apply SWL to be the main layout of the subwidget

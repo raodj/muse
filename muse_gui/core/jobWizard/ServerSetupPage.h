@@ -40,6 +40,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QVBoxLayout>
+#include <QCheckBox>
 
 /**
  * @brief The ServerSetupPage class Allows the user to set the server
@@ -57,7 +58,8 @@ public:
 
 private:
     QSpinBox computerNodes, cpuPerNode, memPerNode, runTime;
-    QComboBox serverSelector;
+    QComboBox serverSelector, memoryModifier;
+    QCheckBox receiveEmails;
 
     /**
      * @brief makeServerWidget A simple helper method that makes the

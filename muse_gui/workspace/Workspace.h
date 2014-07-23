@@ -41,6 +41,7 @@
 #include <QDateTime>
 #include "ServerListTableModel.h"
 #include "Server.h"
+#include "JobList.h"
 
 /**
  * @brief The Workspace class that stores and manages all the data associated
@@ -113,6 +114,13 @@ public:
      * workspace.
      */
     ServerList& getServerList() { return serverList; }
+
+    /**
+     * @brief getJobList Obtain the list of jobs in this workspace
+     * @return This method returns the list of jobs associated with this
+     * workspace.
+     */
+    JobList& getJobList() { return jobList; }
 
     /**
      * @brief createWorkspace Create a default workspace file in the
@@ -270,6 +278,8 @@ private:
      * ServerListTableModel.
      */
     void addInitialServersToModel();
+
+    JobList jobList;
 };
 
 #endif // WORKSPACE_H

@@ -1,5 +1,5 @@
-#ifndef SUBMIT_PAGE_H
-#define SUBMIT_PAGE_H
+#ifndef JOB_LIST_CPP
+#define JOB_LIST_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,65 +36,15 @@
 //
 //---------------------------------------------------------------------
 
-#include <QWizardPage>
-#include <QProgressDialog>
-#include "Project.h"
-#include "Server.h"
-#include "ServerSession.h"
+#include "JobList.h"
 
-/**
- * @brief The SubmitPage class Submits the job created throughout the
- * JobWizard to the designated server. This is the last page of the
- * JobWizard. The process cannot be stopped, and the user cannot backtrack
- * from this page.
- */
-class SubmitPage : public QWizardPage {
-    Q_OBJECT
-public:
-    /**
-     * @brief SubmitPage Creates the layout of this page, which is only
-     * a QProgresDialog without a cancel button at this time.
-     */
-    SubmitPage();
+JobList::JobList() : XMLElement("JobList") {
+    addElement(XMLElementInfo("Job", &jobs));
+}
 
-    /**
-     * @brief initializePage Sets the server and project variables
-     * to the values as chosen by the user in earlier pages of the
-     * JobWizard so that the needed information from these two entities
-     * is easily accessible.
-     */
-    void initializePage();
+void
+JobList::addJob(Job &job) {
+    jobs.append(reinterpret_cast<XMLElement*> (&job));
+}
 
-    /**
-     * @brief validatePage Runs the process of submitting the job to
-     * the server. This description will be updated later once this method
-     * has been fully implemented.
-     * @return true if the page should advance, false otherwise.
-     */
-    bool validatePage();
-
-private slots:
-    /**
-     * @brief connectedToServer Detects a signal from a RemoteServerSession
-     * informing the program that the server has been connected to.
-     * @param result True if the connection has been made, false otherwise.
-     */
-    void connectedToServer(bool result);
-
-    /**
-     * @brief submitToServer Submits the job to the server.
-     */
-    void submitToServer();
-
-private:
-    QProgressDialog prgDialog;
-    QString projectName;
-    Project* proj;
-    int submitStep;
-    bool safeToClose;
-
-    ServerSession* serverSession;
-    Server* server;
-};
-
-#endif // SUBMITPAGE_H
+#endif

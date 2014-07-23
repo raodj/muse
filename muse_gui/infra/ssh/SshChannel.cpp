@@ -51,7 +51,7 @@ SshChannel::~SshChannel() {
     libssh2_channel_close(channel);
 }
 
-void
+bool
 SshChannel::copy(const QString &srcDir, const QString &destDirectory,
                  const QString &destFileName, const int& mode) {
     QMessageBox msg;
@@ -69,6 +69,7 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
         if (!channel) {
             msg.setText("Channel problem");
             msg.exec();
+            return false;
         }
         char buffer[1024];
         char* ptr;
@@ -83,9 +84,8 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
                 if (bytesWritten < 0) {
                     msg.setText("byteswritten <0");
                     msg.exec();
-                    // ERROR ALERT..........
-                    //fprintf(stderr, "ERROR %d\n", rc);
-                    break;
+                    return false;
+                    //break;
                 }
                 else {
                     ptr += bytesWritten;
@@ -100,9 +100,10 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
         // Wait for acknowledgment of the EOF signal
         libssh2_channel_wait_eof(channel);
         fclose(srcFile);
+        return true;
 }
 
-void
+bool
 SshChannel::copy(const QString &destData, const QString &srcDirectory,
                  const QString &srcFileName) {
     // Creating c-data types for libssh2
@@ -120,7 +121,7 @@ SshChannel::copy(const QString &destData, const QString &srcDirectory,
         msgBox.setText("Couldn't create or open the file on the local system.");
         msgBox.exec();
         // We can't put the file here, bail out.
-        return;
+        return false;
     }
     // Tell the remote server we wish to receive a file from it.
     channel = libssh2_scp_recv(session, remoteFilePath.toStdString().c_str(), &fileInfo);
@@ -131,7 +132,7 @@ SshChannel::copy(const QString &destData, const QString &srcDirectory,
         msgBox.setText("Channel issue");
         msgBox.exec();
         // Problem, bail out
-        return;
+        return false;
     }
 
     while(dataReceived < fileInfo.st_size) {
@@ -156,6 +157,7 @@ SshChannel::copy(const QString &destData, const QString &srcDirectory,
     }
     // Close the file.
     file.close();
+    return true;
 }
 
 int
@@ -174,9 +176,15 @@ SshChannel::exec(const QString &command, QString &stdoutput,
         returnCode = libssh2_channel_exec(
                     channel, command.toStdString().c_str());
         char stdBuffer[0x4000];
+        for (int i = 0x0; i < sizeof(stdBuffer); i++) {
+            stdBuffer[i] = (char)32; //space character...
+        }
         libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
         stdoutput = stdBuffer;
         char errBuffer[0x4000];
+        for (int i = 0x0; i < sizeof(errBuffer); i++) {
+            errBuffer[i] = (char)32; //space character...
+        }
         libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
         stderrmsgs = errBuffer;
         return returnCode;
@@ -200,10 +208,16 @@ SshChannel::exec(const QString &command, QTextEdit &output) {
         returnCode = libssh2_channel_exec(
                     channel, command.toStdString().c_str());
         char stdBuffer[0x4000];
+        for (int i = 0x0; i < sizeof(stdBuffer); i++) {
+            stdBuffer[i] = (char)32; //space character...
+        }
         libssh2_channel_read_ex(channel, 0, stdBuffer, sizeof(stdBuffer));
         // Add the text to the QTextEdit
         output.append(stdBuffer);
         char errBuffer[0x4000];
+        for (int i = 0x0; i < sizeof(errBuffer); i++) {
+            errBuffer[i] = (char)32; //space character...
+        }
         libssh2_channel_read_stderr(channel, errBuffer, sizeof(errBuffer));
         // Add the error text to the QTextEdit
         output.append(errBuffer);

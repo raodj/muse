@@ -52,6 +52,7 @@ public:
      * @param hoursRunTime The maximum amount of time this job is allowed
      * to run.
      * @param mem The amount of memory the program can use per processor.
+     * @param memMod The data size of mem. Either MB or GB.
      * @param nodes The number of nodes to be used.
      * @param ppn The number of processors per node to be used.
      * @param pArgs The command line arguments needed to run the program.
@@ -60,7 +61,7 @@ public:
      * @param wantEmail If the user wants email notifications (true) sent
      * to them when the program starts and ends, or not (false).
      */
-    PBSJobFileCreator(QString pJobName, int hoursRunTime, int mem, int nodes,
+    PBSJobFileCreator(QString pJobName, int hoursRunTime, int mem, QString memMod, int nodes,
                       int ppn, QString pArgs, QString execFilePath,
                       QString execName, bool wantEmail);
 
@@ -74,7 +75,7 @@ public:
 private:
     QString cmdLineLanguage;
     QString jobName, runTime, memory, nodesAndPpn, cmdLangForProgram,
-    cd, args, echoStartOfJob, echoLineDivider, startJob, email;
+    cd, args, echoStartOfJob, echoLineDivider, startJob, email, pbsBash;
     bool userWantsEmail;
 };
 

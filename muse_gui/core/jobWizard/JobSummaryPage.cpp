@@ -42,8 +42,6 @@
 #include <QLabel>
 #include "Workspace.h"
 
-
-
 JobSummaryPage::JobSummaryPage() {
     QVBoxLayout* mainLayout = new QVBoxLayout();
     mainLayout->addWidget(new QLabel("You have provided the following information "\
@@ -96,8 +94,9 @@ JobSummaryPage::initializePage() {
                               field("nodes").toInt()));
     summaryDisplay.append(indent + "CPUs per Node: " + QString::number(
                               field("cpusPerNode").toInt()));
-    summaryDisplay.append(indent + "Memory per Node (MB): " +
-                          QString::number(field("memoryPerNode").toInt()));
+    summaryDisplay.append(indent + "Memory per Node: " +
+                          QString::number(field("memoryPerNode").toInt()) +
+                          field("memoryUnits").toString());
     summaryDisplay.append(indent + "Est. Run Time (Hrs): " +
                           QString::number(field("estimatedRunTime").toInt()));
 }
