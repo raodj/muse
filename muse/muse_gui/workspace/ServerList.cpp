@@ -47,7 +47,10 @@ ServerList::ServerList() : XMLElement("ServerList") {
 
 void
 ServerList::addServer(Server &entry) {
-   servers.append(reinterpret_cast<XMLElement*> (&entry));
+   Server* server = new Server(entry.getID(), entry.isRemote(), entry.getName(), entry.getPort(),
+                               entry.getDescription(), entry.getUserID(), entry.getInstallPath(),
+                               entry.getOS(), entry.getStatus());
+   servers.append(server);
 }
 
 #endif

@@ -56,7 +56,10 @@ public:
      * @param pOutputDirPath The path to the output directory for this Project.
      */
     Project(QString pName = "",  QString pMakeFilePath = "",
-            QString pExecutablePath = "", QString pOutputDirPath = "");
+            QString pExecutablePath = "", QString pOutputDirPath = "",
+            long pJobCount = 0);
+
+    ~Project() {}
 
     /**
      * @brief getSourceFileList Returns the QStringList of source files for this
@@ -122,9 +125,20 @@ public:
      */
     void setName(const QString& name);
 
+    /**
+     * @brief reserveJobId Returns a numeric identifier to be used
+     * to be added to a Job's name in the workspace.
+     * @return The jobId for the next job to be used for this Project.
+     */
+    QString reserveJobId();
+
+    long getJobCount() const { return jobCount; }
+
 private:
     QStringList sourceFileList;
     QString executablePath, outputDirPath, makeFilePath, name;
+
+    long jobCount;
 };
 
 #endif // PROJECT_H

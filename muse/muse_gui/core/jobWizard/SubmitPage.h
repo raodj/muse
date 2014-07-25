@@ -41,6 +41,7 @@
 #include "Project.h"
 #include "Server.h"
 #include "ServerSession.h"
+#include "Job.h"
 
 /**
  * @brief The SubmitPage class Submits the job created throughout the
@@ -56,6 +57,7 @@ public:
      * a QProgresDialog without a cancel button at this time.
      */
     SubmitPage();
+    ~SubmitPage();
 
     /**
      * @brief initializePage Sets the server and project variables
@@ -95,6 +97,7 @@ private:
 
     ServerSession* serverSession;
     Server* server;
+    Job* job;
 };
 
 #endif // SUBMITPAGE_H

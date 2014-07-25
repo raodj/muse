@@ -263,12 +263,20 @@ public:
      */
     void setOS(const QString& os);
 
+    QString getOS() const { return osType; }
+
     /**
      * @brief setInstallPath Sets the dirctory path containing the MUSE
      * system and its runtime components.
      * @param path The path to the directory where MUSE is installed.
      */
     void setInstallPath(const QString& path);
+
+    /**
+     * @brief getInstallPath Gets the install path for this Server entry.
+     * @return The install path.
+     */
+    QString getInstallPath() const { return installPath; }
 
     /**
      * @brief addProject Adds the given project to the project list.

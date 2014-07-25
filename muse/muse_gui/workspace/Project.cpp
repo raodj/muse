@@ -39,15 +39,17 @@
 #include "Project.h"
 
 Project::Project(QString pName,  QString pMakeFilePath,
-                 QString pExecutablePath    , QString pOutputDirPath) : name(pName),
+                 QString pExecutablePath    , QString pOutputDirPath, long pJobCount) : name(pName),
     makeFilePath(pMakeFilePath), executablePath(pExecutablePath),
-    outputDirPath(pOutputDirPath), XMLElement("Project") {
+    outputDirPath(pOutputDirPath), jobCount(pJobCount), XMLElement("Project") {
 
     addElement(XMLElementInfo("Name", &name));
     addElement(XMLElementInfo("SourceFiles", &sourceFileList));
     addElement(XMLElementInfo("MakeFile", &makeFilePath));
     addElement(XMLElementInfo("ExecutablePath", &executablePath));
     addElement(XMLElementInfo("OutputDirectory", &outputDirPath));
+    addElement(XMLElementInfo("JobCounter", &jobCount));
+
 }
 
 void
@@ -78,5 +80,10 @@ void
 Project::setName(const QString& name) {
     this->name = name;
 }
+
+QString Project::reserveJobId() {
+    return name + "_" + QString::number(jobCount++);
+}
+
 
 #endif

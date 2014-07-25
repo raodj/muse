@@ -55,7 +55,7 @@ ThreadedConnectionGUI::ThreadedConnectionGUI(Server &server) : QObject() {
 
 }
 ThreadedConnectionGUI::~ThreadedConnectionGUI() {
-
+   // server = *(new Server());
 }
 
 ThreadedConnectionGUI::ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg) {

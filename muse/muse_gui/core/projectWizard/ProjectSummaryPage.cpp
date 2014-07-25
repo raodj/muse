@@ -43,6 +43,7 @@
 #include <QMessageBox>
 #include "RemoteServerSession.h"
 #include "LocalServerSession.h"
+#include "MUSEGUIApplication.h"
 
 ProjectSummaryPage::ProjectSummaryPage(QWidget* parent) :
     QWizardPage (parent){
@@ -104,6 +105,7 @@ ProjectSummaryPage::validatePage() {
     // When installation gets implemented, this line should be
     // removed.
     delete serverSession;
+    delete pro;
 
     return true;
 }

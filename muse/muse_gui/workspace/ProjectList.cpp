@@ -9,7 +9,10 @@ ProjectList::ProjectList() : XMLElement("ProjectList") {
 
 void
 ProjectList::addProject(Project &entry) {
-    projectList.append(reinterpret_cast<XMLElement*> (&entry));
+    Project* project = new Project(entry.getName(), entry.getMakeFilePath(),
+                                   entry.getExecutablePath(),
+                                   entry.getOutputDirPath(), entry.getJobCount());
+    projectList.append(project);
 }
 
 #endif

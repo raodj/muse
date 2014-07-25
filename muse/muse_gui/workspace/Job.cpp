@@ -46,22 +46,23 @@ const QString Job::Exiting = "exiting";
 
 const QString Job::Complete = "complete";
 
-Job::Job(QString pProject, QString pServer, long pJobId,
-         QDateTime pDateSubmitted, QString pStatus) : XMLElement("Job"),
-    project(pProject), server(pServer), jobId(pJobId),
-    dateSubmitted(pDateSubmitted), status(pStatus) {
+Job::Job(QString pName, QString pServer, long pJobId,
+         QDateTime pDateSubmitted, QString pStatus, QString pDescription) :
+    XMLElement("Job"), name(pName), server(pServer), jobId(pJobId),
+    dateSubmitted(pDateSubmitted), status(pStatus), description(pDescription) {
     // Add the set of instance variables that must be serialized/deserialized
+    addElement(XMLElementInfo("JobName", &name));
     addElement(XMLElementInfo("ID", &jobId));
-    addElement(XMLElementInfo("ServerUsed", &server));
-    addElement(XMLElementInfo("ProjectName", &project));
-    addElement(XMLElementInfo("DateSubmitted", &dateSubmitted));
     addElement(XMLElementInfo("Status", &status));
+    addElement(XMLElementInfo("Description", &description));
+    addElement(XMLElementInfo("ServerUsed", &server));
+    addElement(XMLElementInfo("DateSubmitted", &dateSubmitted));
 
 }
 
 void
-Job::setProject(const QString& projectName) {
-    project = projectName;
+Job::setName(const QString& newName) {
+    name = newName;
 }
 
 
@@ -86,5 +87,11 @@ void
 Job::setDateSubmitted(const QDateTime& date) {
     dateSubmitted = date;
 }
+
+void
+Job::setDescription(const QString& desc) {
+    description = desc;
+}
+
 
 #endif

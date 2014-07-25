@@ -71,6 +71,10 @@ SubmitPage::SubmitPage() {
     setLayout(mainLayout);
 }
 
+SubmitPage::~SubmitPage() {
+
+}
+
 void
 SubmitPage::initializePage() {
     Workspace* ws = Workspace::get();
@@ -80,7 +84,7 @@ SubmitPage::initializePage() {
     // of the project selected in the QComboBox on a previous page.
     int projectCount = 0;
     for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
+        ProjectList& projList = serverList.get(i).getProjectList();
         for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
              j++, projectCount++) {
             // Once we hit project n that matches the index of the project
@@ -96,6 +100,16 @@ SubmitPage::initializePage() {
 
 bool
 SubmitPage::validatePage() {
+    if (safeToClose) {
+        // Temporary work around to prevent project from being
+        // deleted from in-memory Workspace. This is only necessary
+        // if a Project had been created prior to creating a Job
+        // with the JobWizard.
+        serverSession->disconnectFromServer();
+        proj = NULL;
+        server = NULL;
+        delete job;
+    }
     return safeToClose;
 }
 
@@ -115,7 +129,12 @@ void
 SubmitPage::submitToServer() {
     QString execDir = proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/"));
     if (submitStep == MAKE_JOB_FILE) {
-        PBSJobFileCreator jobFile(proj->getName(), field("estimatedRunTime").toInt(),
+        QString jobDescription = field("jobDescription").toString().isEmpty() ?
+                    "None provided" : field("jobDescription").toString();
+        job = new Job(proj->reserveJobId(), server->getID(),
+                           -1, QDateTime::currentDateTime(), Job::Queued,
+                      jobDescription);
+        PBSJobFileCreator jobFile(job->getName(), field("estimatedRunTime").toInt(),
                                   field("memoryPerNode").toInt(), field("memoryUnits").toString(),
                                   field("nodes").toInt(), field("cpusPerNode").toInt(),
                                   field("arguments").toString(), execDir,
@@ -149,7 +168,7 @@ SubmitPage::submitToServer() {
         // change so that the filename isn't static.
         bool fileCopied = serverSession->copy(MUSEGUIApplication::getAppDirPath()
                                               + "/MUSEjob.job", execDir,
-                                              "test.job", 0666);
+                                              job->getName() + ".job", 0666);
         if (fileCopied) {
             prgDialog.setValue(++submitStep);
             // We don't need the script file on the local computer...so delete it.
@@ -157,20 +176,19 @@ SubmitPage::submitToServer() {
                           + "/MUSEjob.job");
             QString jobId, errMsg;
             // Did we succeed?
-            if (serverSession->exec("qsub " + execDir + "/test.job", jobId, errMsg)
-                    == SUCCESS_CODE) {
+            if (serverSession->exec("qsub " + execDir + "/" + job->getName() + ".job -o"
+                                    + proj->getOutputDirPath() + " -e " +
+                                    proj->getOutputDirPath(),
+                                    jobId, errMsg)  == SUCCESS_CODE) {
+                job->setJobId(jobId.left(jobId.indexOf(".")).toLong());
                 prgDialog.setValue(++submitStep);
                 // Make the job workspace entry
-                Job* job = new Job(proj->getName(), server->getID(),
-                                   jobId.left(jobId.indexOf(".")).toLong(),
-                                   QDateTime::currentDateTime(), Job::Queued);
                 Workspace* ws = Workspace::get();
                 // Add the entry to the workspace.
                 ws->getJobList().addJob(*job);
                 // Save the workspace
                 ws->saveWorkspace();
                 prgDialog.setValue(++submitStep);
-                delete serverSession;
                 prgDialog.setLabelText("Submission Complete!");
                 QMessageBox msg;
                 msg.setText("Congratulations! The job was added successfully "\

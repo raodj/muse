@@ -50,8 +50,17 @@ JobWizard::JobWizard(QFile& file) : MUSEWizard(file) {
 
 int
 JobWizard::exec() {
-    Workspace* ws = Workspace::get();
-    ServerList servers = ws->getServerList();
+    if (!checkRequirements()) {
+        // Something missing, bail out.
+        return 0;
+    }
+    // Everything checks out, run the wizard.
+    return QWizard::exec();
+}
+
+bool
+JobWizard::checkRequirements() {
+    ServerList servers = Workspace::get()->getServerList();
     // Check that a server exists
     if (servers.size() == 0) {
         QMessageBox msg;
@@ -61,7 +70,7 @@ JobWizard::exec() {
                      "(and then a project) using the appropriate wizards."\
                     " Then run this wizard again.");
         msg.exec();
-        return 0;
+        return false;
     }
     // If a server exists, check for a Project
     else {
@@ -79,12 +88,11 @@ JobWizard::exec() {
                          "using the project wizard." \
                         " Then run this wizard again.");
             msg.exec();
-            return 0;
+            return false;
         }
 
     }
-    // Everything checks out, run the wizard.
-    return QWizard::exec();
+    return true;
 }
 
 #endif

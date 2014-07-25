@@ -48,7 +48,7 @@
 class JobList : public XMLElement {
 public:
     JobList();
-
+    virtual ~JobList() {}
     /**
      * @brief addJob Add a new job entry to the job list.
      *
@@ -60,7 +60,7 @@ public:
      *
      * @param entry The job entry to be added.
      */
-    void addJob(Job& job);
+    void addJob(Job& entry);
 
     /**
      * @brief size Returns the number of job entries in this list.
