@@ -53,6 +53,7 @@ public:
      * the data to XML.
      */
     ProjectList();
+    virtual ~ProjectList() {}
 
     /**
      * @brief addProject Adds a project entry to the Server this

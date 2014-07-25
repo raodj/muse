@@ -78,6 +78,14 @@ private:
     ServerSetupPage serverSetupPage;
     JobSummaryPage summaryPage;
     SubmitPage submitPage;
+
+    /**
+     * @brief checkRequirements Checks whether or not a server exists and
+     * that a project exists. This is a helper method for exec().
+     * @return True if a job can be submitted, false if a component needed
+     * for a job is missing from the workspace.
+     */
+    bool checkRequirements();
 };
 
 #endif // JOBWIZARD_H

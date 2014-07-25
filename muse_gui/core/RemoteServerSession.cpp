@@ -60,7 +60,6 @@ RemoteServerSession::~RemoteServerSession() {
     delete sftpChannel;
     delete sshChannel;
     delete socket;
-
 }
 
 void

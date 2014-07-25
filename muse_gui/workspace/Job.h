@@ -84,13 +84,15 @@ public:
      * @param pDateSubmitted The date and time this Job was submitted to the
      * server.
      * @param pStatus The status of the Job.
+     * @param pDescription The user-provided description of the job.
      */
-    Job(QString pProject = "", QString pServer = "", long pJobId = 0,
+    Job(QString pName = "", QString pServer = "", long pJobId = 0,
         QDateTime pDateSubmitted = QDateTime::currentDateTime(),
-        QString pStatus = Job::Queued);
+        QString pStatus = Job::Queued, QString pDescription = "None provided");
+    ~Job() {}
 
-    QString getProject() const { return project; }
-    void setProject(const QString& projectName);
+    QString getName() const { return name; }
+    void setName(const QString& newName);
 
     QString getServer() const { return server; }
     void setServer(const QString& serverId);
@@ -104,8 +106,11 @@ public:
     QDateTime getDateSubmitted() const { return dateSubmitted; }
     void setDateSubmitted(const QDateTime& date);
 
+    QString getDescription() const { return description; }
+    void setDescription(const QString& desc);
+
 private:
-    QString project, server, status;
+    QString name, server, status, description;
     long jobId;
     QDateTime dateSubmitted;
 };

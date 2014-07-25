@@ -73,14 +73,16 @@ JobSummaryPage::initializePage() {
     // of the project selected in the QComboBox on a previous page.
     int projectCount = 0;
     for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
+        ProjectList& projList = serverList.get(i).getProjectList();
         for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
              j++, projectCount++) {
             // Once we hit project n that matches the index of the project
             // field, print its info to the text edit.
             if (projectCount == field("project").toInt()) {
+             Project& proj = projList.get(i);
                 summaryDisplay.append(indent +"Project: "
-                                      + projList.get(j).getName());
+                                      + projList.get(j).getName() +
+                                      + "_" + QString::number(proj.getJobCount() - 1));
             }
         }
     }

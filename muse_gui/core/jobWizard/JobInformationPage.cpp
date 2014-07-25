@@ -60,7 +60,7 @@ JobInformationPage::JobInformationPage() {
     ServerList& serverList = ws->getServerList();
 
     for (int i = 0; i < serverList.size(); i++) {
-        ProjectList projList = serverList.get(i).getProjectList();
+        ProjectList& projList = serverList.get(i).getProjectList();
         for (int j = 0; j < projList.size(); j++) {
             projectSelector.addItem(projList.get(j).getName());
         }

@@ -43,8 +43,11 @@ JobList::JobList() : XMLElement("JobList") {
 }
 
 void
-JobList::addJob(Job &job) {
-    jobs.append(reinterpret_cast<XMLElement*> (&job));
+JobList::addJob(Job &entry) {
+    Job* job = new Job(entry.getName(), entry.getServer(), entry.getJobId(),
+                       entry.getDateSubmitted(), entry.getStatus(),
+                       entry.getDescription());
+    jobs.append(job);
 }
 
 #endif
