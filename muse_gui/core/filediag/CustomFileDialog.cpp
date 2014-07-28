@@ -91,9 +91,9 @@ CustomFileDialog::CustomFileDialog(ServerSession* session, QWidget *parent, cons
     layout->addLayout(configureBottomPanel(), 0);
     this->setLayout(layout);
     this->resize(640, 480);
-    if (serverSession->getServer().isRemote()) {
-        selectRemoteFS();
-    }
+    serverSession->getServer()->isRemote() ? selectRemoteFS() :
+                                             selectLocalFS();
+
 }
 
 void
@@ -147,7 +147,7 @@ CustomFileDialog::createToolBar() {
             addToolButton(topBar, "ViewGrid", SLOT(selectRemoteFS()),
                           "Toggle to a simple view of files");
     viewGrid->setCheckable(true);
-    if (!serverSession->getServer().isRemote()) {
+    if (!serverSession->getServer()->isRemote()) {
         viewGrid->setEnabled(false);
     }
     QPushButton* const viewList =
@@ -180,7 +180,7 @@ CustomFileDialog::selectLocalFS() {
 
 void
 CustomFileDialog::selectRemoteFS() {
-    if (serverSession->getServer().isRemote()) {
+    if (serverSession->getServer()->isRemote()) {
         RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
         // If we aren't connected to the server, connect to it.
         if (rss->getSocket() == NULL) {

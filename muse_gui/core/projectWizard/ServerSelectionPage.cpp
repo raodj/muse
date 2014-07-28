@@ -70,10 +70,10 @@ ServerSelectionPage::checkServerChosen(int index) {
         delete session;
     }
     if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(list.get(index), NULL, "Creating Project");
+        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
     }
     else {
-        session = new LocalServerSession(list.get(index), NULL, "Creating Project");
+        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
     }
     emit serverSelected(session);
 }

@@ -101,13 +101,14 @@ SubmitPage::initializePage() {
 bool
 SubmitPage::validatePage() {
     if (safeToClose) {
-        // Temporary work around to prevent project from being
-        // deleted from in-memory Workspace. This is only necessary
-        // if a Project had been created prior to creating a Job
-        // with the JobWizard.
-        serverSession->disconnectFromServer();
+        // Delete the server session from memory
+        delete serverSession;
+        // This came from the Workspace, so we don't want to delete it.
         proj = NULL;
+        // This came from the Workspace, so we don't want to delete it.
         server = NULL;
+        // A copy of the Job was added to the workspace, delete
+        // this version.
         delete job;
     }
     return safeToClose;
@@ -147,7 +148,7 @@ SubmitPage::submitToServer() {
         submitStep++;
         prgDialog.setValue(submitStep);
         if (server->isRemote()) {
-            serverSession = new RemoteServerSession(*server, NULL, "Adding a Job");
+            serverSession = new RemoteServerSession(server, NULL, "Adding a Job");
             RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
             rss->connectToServer();
             // Connect the signal to determine whether or not to proceed.
@@ -156,7 +157,7 @@ SubmitPage::submitToServer() {
         }
         else {
             // This is a local server, proceed slightly differently.
-            serverSession = new LocalServerSession(*server, NULL, "Adding a Job");
+            serverSession = new LocalServerSession(server, NULL, "Adding a Job");
             submitStep++;
             prgDialog.setValue(submitStep);
             // Not exactly recursion since everything is excluded with else's.

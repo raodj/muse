@@ -3,7 +3,7 @@
 #include <QDir>
 #include <QProcess>
 
-LocalServerSession::LocalServerSession(Server &server, QWidget *parent, QString purpose) :
+LocalServerSession::LocalServerSession(Server* server, QWidget *parent, QString purpose) :
     ServerSession(server, parent), purpose(purpose) {
 }
 

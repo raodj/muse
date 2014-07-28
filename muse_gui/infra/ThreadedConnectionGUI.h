@@ -64,7 +64,7 @@ public:
      * remote server.
      * @param server The server being connected to.
      */
-    ThreadedConnectionGUI(Server& server);
+    ThreadedConnectionGUI(Server* server);
     ~ThreadedConnectionGUI();
     ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg);
 
@@ -72,7 +72,7 @@ public:
     static QWaitCondition userHasResponded, passUserData;
     static QMutex mutex, userDataMutex;
 
-    Server& getServer();
+    Server* getServer();
 
 public slots:
     /**
@@ -118,7 +118,7 @@ signals:
 
 
 private:
-     Server server;
+     Server* server;
 };
 
 #endif

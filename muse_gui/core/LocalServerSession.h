@@ -61,7 +61,7 @@ public:
      * create GUI elements that may be needed for any interactive
      * operations.
      */
-    LocalServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+    LocalServerSession(Server *server, QWidget *parent = NULL, QString purpose = "");
 
     /**
      * @brief Connect to the server to perform various operations.

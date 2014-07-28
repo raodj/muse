@@ -72,7 +72,7 @@ public:
       * create GUI elements that may be needed for any interactive
       * operations.
       */
-    ServerSession(Server &server, QWidget *parent = NULL, QString osType = "");
+    ServerSession(Server *server, QWidget *parent = NULL, QString osType = "");
 
     /**
      * @brief connect Method that establishes a connection to a server.
@@ -209,7 +209,7 @@ public:
      * @brief getServer Gets a pointer to the server this ServerSession refers to.
      * @return A pointer to the server.
      */
-    Server& getServer() const { return server; }
+    Server* getServer() const { return server; }
 
 signals:
     /**
@@ -229,7 +229,7 @@ signals:
     void directoryRemoved(bool result);
 
 protected:
-    Server& server;
+    Server* server;
     const QWidget* parent;
     QString& osType;
 

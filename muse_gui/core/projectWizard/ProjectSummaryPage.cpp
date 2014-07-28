@@ -88,8 +88,8 @@ ProjectSummaryPage::validatePage() {
     // Since the list isn't a part of the constructor, we must set it
     // directly
     pro->setSourceFileList(sourceFileList);
-    Server& server = serverSession->getServer();
-    server.addProject(*pro);
+    Server* server = serverSession->getServer();
+    server->addProject(*pro);
 
     Workspace* ws = Workspace::get();
     QString err;
