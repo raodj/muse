@@ -201,14 +201,14 @@ ServerTypePage::validatePage() {
             // Set the password, since we have it
             server->setPassword(password.text());
             // Make a session with the server
-            serverSession = new RemoteServerSession(*server);
+            serverSession = new RemoteServerSession(server);
             //serverSession = rss;
             // Connect signal to find out the result of the connection.
             connect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
                     this, SLOT(checkConnectionTesterResult(bool)));
         }
         else {
-            serverSession = new LocalServerSession(*server);
+            serverSession = new LocalServerSession(server);
         }
         // Let the other pages know we have made a server sesion
         emit serverSessionCreated(serverSession);
@@ -262,7 +262,7 @@ ServerTypePage::verifyOS() {
 
     if(returnCode == SUCCESS_CODE) {
         // Set the osType of the server
-        serverSession->getServer().
+        serverSession->getServer()->
                 setOS( out.contains("Linux", Qt::CaseInsensitive) ?
                            Server::Linux : Server::Unix);
     }

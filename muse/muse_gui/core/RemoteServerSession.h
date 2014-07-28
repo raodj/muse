@@ -74,7 +74,7 @@ public:
      * create GUI elements that may be needed for any interactive
      * operations.
      */
-    RemoteServerSession(Server &server, QWidget *parent = NULL, QString purpose = "");
+    RemoteServerSession(Server *server, QWidget *parent = NULL, QString purpose = "");
     ~RemoteServerSession();
 
     /**

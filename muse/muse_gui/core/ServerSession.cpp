@@ -38,7 +38,7 @@
 
 #include "Core.h"
 #include "ServerSession.h"
-ServerSession::ServerSession(Server &server, QWidget *parent, QString osType) :
+ServerSession::ServerSession(Server* server, QWidget *parent, QString osType) :
     server(server) , parent(parent), osType(osType) {
 //Nothing to do.
 }

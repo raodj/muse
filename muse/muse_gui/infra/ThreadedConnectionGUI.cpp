@@ -50,7 +50,7 @@ ThreadedConnectionGUI::ThreadedConnectionGUI() {
 // Nothing to do.
 }
 
-ThreadedConnectionGUI::ThreadedConnectionGUI(Server &server) : QObject() {
+ThreadedConnectionGUI::ThreadedConnectionGUI(Server* server) : QObject() {
     this->server = server;
 
 }
@@ -62,7 +62,7 @@ ThreadedConnectionGUI::ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg) {
     server = tcg.server;
 }
 
-Server&
+Server*
 ThreadedConnectionGUI::getServer() {
     return server;
 }
@@ -70,9 +70,9 @@ ThreadedConnectionGUI::getServer() {
 void
 ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString* passWord) {
     LoginCredentialsDialog lcd;
-    lcd.setUsername(server.getUserID());
+    lcd.setUsername(server->getUserID());
     // If there is no password (most cases), this will be blank
-    lcd.setPassword(server.getPassword());
+    lcd.setPassword(server->getPassword());
     // Only show the dialog if the password is not - ie,
     // The ServerWizard is not running - we know the password already
     if (lcd.getPassword().isEmpty()) {
@@ -87,7 +87,7 @@ ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString
     *passWord = lcd.getPassword();
     // Save the password so we don't need to prompt again during the
     // life of the ServerSession
-    server.setPassword(lcd.getPassword());
+    server->setPassword(lcd.getPassword());
     // Let the background thread continue
     passUserData.wakeAll();
     // Release the lock on the data

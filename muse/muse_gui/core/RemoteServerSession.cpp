@@ -48,7 +48,7 @@
 
 #define SUCCESS_CODE 0
 
-RemoteServerSession::RemoteServerSession(Server &server, QWidget *parent,
+RemoteServerSession::RemoteServerSession(Server* server, QWidget *parent,
                                          QString purpose) :
     ServerSession(server, parent), purpose(purpose), threadGUI(server) {
     socket = NULL;
@@ -81,9 +81,9 @@ RemoteServerSession::connectToServer() {
                                   const QString&, const QString&, int*)));
 
     RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket, std::bind(&SshSocket::connectToHost, socket,
-                                        server.getName(),
+                                        server->getName(),
                                         (QProgressDialog *) NULL,
-                                        server.getPort(),
+                                        server->getPort(),
                                         QAbstractSocket::ReadWrite));
     socket->changeToThread(test);
 

@@ -85,14 +85,14 @@ bool
 ServerSummaryPage::validatePage() {
     Workspace* ws = Workspace::get();
     // Get the server.
-    Server& server = serverSession->getServer();
+    Server* server = serverSession->getServer();
     // Assign a unique id unless the server has one already.
     // This normally would return true.
-    if (server.getID().isEmpty()) {
-        server.setID(ws->reserveID("server"));
+    if (server->getID().isEmpty()) {
+        server->setID(ws->reserveID("server"));
     }
     // Add the server to the workspace
-    ws->addServerToWorkSpace(server);
+    ws->addServerToWorkSpace(*server);
     QString err;
     err = ws->saveWorkspace();
     // If err has text, we had a problem.
