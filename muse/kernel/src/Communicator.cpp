@@ -75,7 +75,7 @@ Communicator::registerAgents(AgentContainer& allAgents) {
             unsigned int agentList[agentListSize];
             // Perform the actual receive operation
             MPI::COMM_WORLD.Recv(&agentList, agentListSize,
-                                 MPI::UNSIGNED, MPI_ANY_SOURCE,
+                                 MPI::UNSIGNED, status.Get_source(),
                                  AGENT_LIST, status);
             // Add the contents of this list to master AgentMap
             for(int i = 0; (i < agentListSize); i++) {
