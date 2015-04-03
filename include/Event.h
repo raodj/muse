@@ -66,6 +66,11 @@ class Event {
     friend class GVTManager;
     friend class Communicator;
     friend class BinaryHeapWrapper;
+    friend class ListBucket;
+    friend class VectorBucket;
+    friend class LadderQueue;
+    friend class HeapBottom;
+    friend class HeapEventQueue;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.

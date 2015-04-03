@@ -85,7 +85,9 @@
    
    \see BEGIN_NAMESPACE
 */
+#ifndef END_NAMESPACE
 #define END_NAMESPACE(x) }
+#endif
 
 /**\def BEGIN_NAMESPACE(x)
 
@@ -110,7 +112,9 @@
 
    \see END_NAMESPACE
 */
+#ifndef BEGIN_NAMESPACE
 #define BEGIN_NAMESPACE(x) namespace x {
+#endif
 
 /** \def getTimeStamp
     
@@ -187,6 +191,5 @@ char* getSystemTime(char *buffer, const time_t *codedTime = NULL);
    \endcode
 */
 #define UNUSED_PARAM(x) (void) x
-
 
 #endif

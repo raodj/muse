@@ -24,9 +24,10 @@
 //
 //---------------------------------------------------------------------------
 
-
-#include "BinaryHeapWrapper.h"
 #include <algorithm>
+#include "EventQueue.h"
+#include "BinaryHeapWrapper.h"
+
 
 using namespace muse;
 using std::make_heap;
@@ -53,15 +54,42 @@ BinaryHeapWrapper::pop() {
 }
 
 void
-BinaryHeapWrapper::push(Event * event){
+BinaryHeapWrapper::push(Event * event) {
     event->increaseReference();
     heapContainer->push_back(event);
     push_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
 
+void
+BinaryHeapWrapper::push(EventContainer& events) {
+    // Due to bulk adding, ensure that the heap container has enough
+    // capacity.
+    heapContainer->reserve(heapContainer->size() + events.size() + 1);
+    // Add all the events to the conainer.
+    for(EventContainer::iterator curr = events.begin(); (curr != events.end());
+        curr++) {
+        muse::Event* event = *curr;
+        heapContainer->push_back(event);
+    }
+    make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
+    // Clear out events in the container as per API expectations
+    events.clear();
+}
+
 bool
-BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
-    bool foundAtLeastOne = false;
+BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg) {
+    const int numRemoved = removeFutureEvents(antiMsg->getSenderAgentID(),
+                                              antiMsg->getSentTime());
+    return (numRemoved > 0);
+}
+
+// #define REBUILD_HEAP
+
+#ifdef REBUILD_HEAP
+int
+BinaryHeapWrapper::removeFutureEvents(const muse::AgentID sender,
+                                      const muse::Time sentTime) {
+    int numRemoved = 0;
     EventContainer* temp = new EventContainer;
     
     while (!heapContainer->empty()) {
@@ -72,11 +100,11 @@ BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
         heapContainer->pop_back();
         // An event is deleted only if the *sent* time is greater than
         // the antiMessage's and if the event is from same sender
-        if ((lastEvent->getSenderAgentID() == antiMsg->getSenderAgentID()) &&
-            (lastEvent->getSentTime() >= antiMsg->getSentTime())) {
+        if ((lastEvent->getSenderAgentID() == sender) &&
+            (lastEvent->getSentTime() >= sentTime)) {
             // This event needs to be cancelled
             lastEvent->decreaseReference();
-            foundAtLeastOne = true;
+            numRemoved++;
         } else {
             // This event is still valid, and needs to be processed
             temp->push_back(lastEvent);
@@ -84,15 +112,64 @@ BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg){
     }
 
     ASSERT (heapContainer->empty());
-
     // Replace the container with the new one we just created
     delete heapContainer;
     heapContainer = temp;
     
-    // Fix up the heap
-    make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
-    
-    return foundAtLeastOne;
+    // Fix up the heap (if it is not empty)
+    if (!heapContainer->empty()) {
+        make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
+    }
+    return numRemoved;
+}
+#else
+int
+BinaryHeapWrapper::removeFutureEvents(const muse::AgentID sender,
+                                      const muse::Time sentTime) {
+    EventComp comparator;   // Event comparator used further below.
+    int  numRemoved = 0;
+    long currIdx    = heapContainer->size() - 1;
+
+    // NOTE: Here the heap is sorted based on receive time for
+    // scheduling.  However, we are canceling based on sentTime.
+    // Consequently, doing any clever optimizations to minimize
+    // iterations will backfire!
+    while (!heapContainer->empty() && (currIdx >= 0)) {
+        ASSERT(currIdx < (long) heapContainer->size());
+        Event* const evt = (*heapContainer)[currIdx];
+        ASSERT(evt != NULL);
+        // An event is deleted only if the *sent* time is greater than
+        // the antiMessage's and if the event is from same sender
+        if ((evt->getSenderAgentID() == sender) &&
+            (evt->getSentTime() >= sentTime)) {
+            // This event needs to be cancelled.
+            evt->decreaseReference();
+            numRemoved++;
+            // Now it is time to patchup the hole and fix up the heap.
+            // To patch-up we move event from the bottom up to this
+            // slot and then fix-up the heap.
+            (*heapContainer)[currIdx] = heapContainer->back();
+            heapContainer->pop_back();
+            EventQueue::fixHeap(*heapContainer, currIdx, comparator);
+            // Update the current index so that it is within bounds.
+            currIdx = std::min<long>(currIdx, heapContainer->size() - 1);
+        } else {
+            // Check the previous element in the vector to see if that
+            // is a candidate for cancellation.
+            currIdx--;
+        }
+    }
+    // Return number of events canceled to track statistics. 
+    return numRemoved;
+}
+#endif
+
+void
+BinaryHeapWrapper::print(std::ostream& os) const {
+    for(EventContainer::const_iterator curr = heapContainer->cbegin();
+        (curr != heapContainer->end()); curr++) {
+        os << **curr << std::endl;
+    }
 }
 
 #endif

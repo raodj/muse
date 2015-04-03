@@ -32,6 +32,7 @@ pp_sim_LDADD = $(STDCPP) -lmuse
 
 pp_sim_SOURCES = \
 	PingPongSimulation.cpp\
-	PingPongAgent.cpp
+	PingPongAgent.cpp \
+	PingPongAgent.h
 
 # end of Makefile.am

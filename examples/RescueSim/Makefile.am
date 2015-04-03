@@ -31,16 +31,29 @@ RescueSim_LDFLAGS = -L../../kernel
 RescueSim_LDADD = $(STDCPP) -lmuse
 
 RescueSim_SOURCES = \
+	agents/include/RescueArea.h\
+	agents/include/Victim.h\
+	agents/include/Volunteer.h\
 	agents/src/RescueArea.cpp\
 	agents/src/Victim.cpp\
 	agents/src/Volunteer.cpp\
+	events/include/RescueEvent.h\
+	events/include/UpdateNearbyEvent.h\
+	events/include/UpdatePositionEvent.h\
+	events/include/VolunteerEvent.h\
 	events/src/UpdateNearbyEvent.cpp\
 	events/src/UpdatePositionEvent.cpp\
 	events/src/VolunteerEvent.cpp\
 	events/src/RescueEvent.cpp\
+	states/include/RescueAreaState.h\
+	states/include/VictimState.h\
+	states/include/VolunteerState.h\
 	states/src/RescueAreaState.cpp\
 	states/src/VictimState.cpp\
 	states/src/VolunteerState.cpp\
-	RescueSim_main.cpp	
+	tools/VolunteerDataTypes.h\
+	RescueSim_main.cpp\
+	RescueSim_main.h\
+	RescueSimPbs.sh
 
 # end of Makefile.am

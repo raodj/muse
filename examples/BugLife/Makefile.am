@@ -56,6 +56,8 @@ bugsim_SOURCES = \
 	src/SpaceState.cpp\
 	src/SpaceState.h\
 	src/BugDataTypes.h\
-	BugLifeSimulation.cpp	
+	BugLifeSimulation.cpp\
+	BugLifeSimulation.h\
+	BugSimPbs.sh
 
 # end of Makefile.am

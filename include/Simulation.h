@@ -79,11 +79,19 @@ public:
         initialized.  Notably, this includes initializing
         MPI. Afterwards, important instance variables such as the
         SimulatorID are set.
-	
-	\param argc the number of arguments
-	\param argv the arguments to pass into MPI
+
+        \note This method may throw an exception if errors are
+        encountered during initialization.
+        
+	\param argc[in,out] The number of command line arguments.
+	This is the value passed-in to main() method.  This value is
+	modifed if command-line arguments are consumed.
+        
+	\param argv[in,out] The actual command line arguments.  This
+	list is modifed if command-line arguments are consumed by the
+	kernel.
     */
-    void initialize(int argc, char* argv[]);
+    void initialize(int& argc, char* argv[]) throw (std::exception);
 
     /** \brief Finalize the Simulation
 
@@ -277,7 +285,7 @@ protected:
         \see Scheduler#updateKey
        
      */
-    void updateKey(void* pointer, Time uTime);
+    // void updateKey(void* pointer, Time uTime);
     
     /** \brief Clean up old States and Events
 
@@ -291,6 +299,40 @@ protected:
         \see Time
      */
     void garbageCollect();
+
+    /** Refactored utility method to parse command-line arguments
+        pertinent to the kernel.
+
+        This method is called just once from the initialize method to
+        parse out the command-line arguments associated with the
+        kernel.
+
+	\param argc[in,out] The number of command line arguments.
+	This is the value passed-in to main() method.  This value is
+	modifed if command-line arguments are consumed.
+        
+	\param argv[in,out] The actual command line arguments.  This
+	list is modifed if command-line arguments are consumed by the
+	kernel.        
+    */
+    void parseCommandLineArgs(int &argc, char* argv[]);
+
+    /** Refactored utility method to report aggregate statistics at
+        the end of simulation.
+
+        This method was introduced to streamline the process of
+        reporting to statistics while ensuring that the statistics do
+        not get garbled during parallel simulation.  This method is
+        invoked on all processes. On non-root (i.e., MPI rank > 0) the
+        stats are generated in a string buffer and sent to the root
+        kernel for reporting.  The root kernel obtains statistics from
+        each kerel and reports in rank order on the given output
+        stream.
+
+        \param[out] os The output stream to which statistics are to be
+        written. By default statistics are reported to std::cout.
+    */
+    void reportStatistics(std::ostream& os = std::cout);
     
 private:
     // Constructors and Destructor -- Private to enforce Singleton
@@ -308,6 +350,15 @@ private:
 
     Time LGVT, startTime, endTime;
 
+    /** The name associated with the scheduler.
+
+        This instance variable serves as a command-line argument value
+        that is used to determine the actual scheduler to be used.
+        The valid options are "default" and "hrm".  This value can be
+        set via the implicit \c --scheduler command-line argument.
+    */
+    std::string schedulerName;
+    
     /** Instance variable to hold a pointer to the Scheduler.  
 	This instance variable holds pointer to an Scheduler object
 	that is used to the next agent to process its next set of events.
@@ -331,7 +382,27 @@ private:
     */
     GVTManager* gvtManager;
 
-    /// Used to control the rate at which garbage is collected
+    /** Flag to indicate if all agents must save state at the end of
+        each event processing cycle.
+
+        This flag is set to false if only one MPI process is being
+        used for simulation.  A user may force state saving using the
+        --must-save-state command-line parameter.  If number of
+        process is more than one then this flag is always true and
+        cannot be overridden.
+    */
+    bool mustSaveState;
+    
+    /**  Used to control the rate at which GVT estimation is performed.
+
+         This instance variable serves as a command-line argument
+         place holder to determine the rate at wich GVT estimation is
+         triggered.  This value indicates the number of event cycles
+         (each cycle involves processing concurrent events by an
+         agent) to be processed before a GVT estimation is triggered.
+         This value can be set via the \c --gvt-delay command-line
+         argument.
+    */
     int gvtDelayRate;
 
     /// Number of Processes collaborating in the Simulation
@@ -370,7 +441,6 @@ private:
 
     /// Keep track of if stats should be dumped this cycle
     bool doDumpStats;
-    
 };
 
 END_NAMESPACE(muse);

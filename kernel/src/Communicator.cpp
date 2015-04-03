@@ -72,14 +72,18 @@ Communicator::registerAgents(AgentContainer& allAgents) {
             // Figure out the agent list size
             int agentListSize = status.Get_count(MPI::UNSIGNED);
             // Make a large enough array
-            unsigned int agentList[agentListSize];
+            std::vector<unsigned int> agentList(agentListSize);
             // Perform the actual receive operation
-            MPI::COMM_WORLD.Recv(&agentList, agentListSize,
+            MPI::COMM_WORLD.Recv(&agentList[0], agentListSize,
                                  MPI::UNSIGNED, status.Get_source(),
                                  AGENT_LIST, status);
             // Add the contents of this list to master AgentMap
             for(int i = 0; (i < agentListSize); i++) {
-                ASSERT(agentMap.find(agentList[i]) == agentMap.end());
+                if (agentMap.find(agentList[i]) != agentMap.end()) {
+                    std::cerr << "Duplicate agent with ID: "
+                              << agentList[i] << " encountered. Aborting!\n";
+                    ASSERT( false );
+                }
                 agentMap[agentList[i]] = status.Get_source();
             }
         }
@@ -160,6 +164,52 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
     }
+}
+
+void
+Communicator::sendMessage(const std::string& str, const int destRank, int tag) {
+    try {
+        MPI::COMM_WORLD.Send(str.c_str(), str.size() + 1, MPI::CHAR,
+                             destRank, tag);
+    } catch (MPI::Exception e) {
+        std::cerr << "MPI ERROR (sendMessage): ";
+        std::cerr << e.Get_error_string() << std::endl;
+    }
+}
+
+std::string
+Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
+                             bool blocking) {
+    recvRank = -1;  // Initialize to invalid value
+    MPI::Status status;
+
+    try {
+        if (!blocking && !MPI::COMM_WORLD.Iprobe(srcRank, tag, status)) {
+            // No pending message.
+            return "";
+        } else if (blocking) {
+            // Wait until we get a valid message to read.
+            MPI::COMM_WORLD.Probe(srcRank, tag, status);
+        }
+    } catch (MPI::Exception e) {
+        std::cerr << "MPI ERROR (receiveEvent): ";
+        std::cerr << e.Get_error_string() << std::endl;
+        return NULL;
+    }
+    // Figure out the size of the string we need.
+    const int strSize = status.Get_count(MPI::CHAR);
+    std::string msg(strSize, 0);
+    // Read the actual string data.
+    try {
+        MPI::COMM_WORLD.Recv(&msg[0], strSize, MPI::CHAR,
+                             status.Get_source(), status.Get_tag(), status);
+        recvRank = status.Get_source();
+    } catch (MPI::Exception& e) {
+        std::cerr << "MPI ERROR (receiveEvent): ";
+        std::cerr << e.Get_error_string() << std::endl;
+        return "";
+    }
+    return msg;
 }
 
 Event*

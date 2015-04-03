@@ -36,15 +36,16 @@ class Scheduler {
 public:
     /** \brief Default Constructor
 
-        Does nothing.
+        Does not have a specific task to perform and is merely present
+        as a place holder for future extensions.
     */
     Scheduler();
 
     /** \brief Destructor
 
-        Does nothing, as the constructor does nothing
+        Does nothing, as the constructor does nothing.
     */
-    ~Scheduler();
+    virtual ~Scheduler();
 
     /** \brief Schedule the given event
         
@@ -59,7 +60,7 @@ public:
 
         \return True if the Event was scheduled successfully
     */
-    bool scheduleEvent(Event *e);
+    virtual bool scheduleEvent(Event *e);
 
     /** \brief Instruct the current 'top' Agent to process its Events
 
@@ -72,7 +73,7 @@ public:
         
         \return True if the chosen agent had events to process.
     */
-    bool processNextAgentEvents();
+    virtual bool processNextAgentEvents();
 
     /** \brief Add the specified Agent to the Scheduler
 
@@ -84,7 +85,7 @@ public:
         
         \return True if the agent was added to the scheduler.
     */
-    bool addAgentToScheduler(Agent *agent);
+    virtual bool addAgentToScheduler(Agent *agent);
 
     /** \brief Determine the timestamp of the next top-most event in
         the scheduler.
@@ -96,7 +97,7 @@ public:
 
         \return The timestamp of the next event to be executed.
     */
-    Time getNextEventTime();	
+    virtual Time getNextEventTime();	
 
     /** \brief Update the specified Agent's key to the specified time
 
@@ -110,9 +111,58 @@ public:
         \param[in] uTime The time to update the specified Agent's key
         to
     */
-    void updateKey(void* pointer, Time uTime);
+    virtual void updateKey(void* pointer, Time uTime);
 
-private:
+    /** The collectGarbage method.
+        
+        This method is called when it is safe to garbage collect for a
+	given Global Virtual Time (GVT).  Currently, the base class
+	method does not have any specific operation to perform.  It is
+	merely present to provide a consistent API to the various
+	subsystems constituting MUSE.
+
+        \param gvt, this is the GVT time that is calculated by GVTManager.
+    */
+    virtual void garbageCollect(const Time& gvt) { UNUSED_PARAM(gvt); }
+
+    /** Method invoked just before the core simulation starts to run.
+
+        This method is invoked after initialization and all the agents
+        have been registered and they are about to be initialized
+        (from Simulation::start() method).  The base class method does
+        not perform any specific task and is merely present a place
+        holder.
+
+        \parma[in] startTime The logical starting time of the
+        simulation.
+    */
+    virtual void start(const Time& startTime) { UNUSED_PARAM(startTime); }
+
+    /** Method invoked just after the core simulation is complete.
+
+        This method is invoked after all the agents have been
+        finalized and the simulation has successfully completed.  The
+        base class method does not perform any specific task and is
+        merely present a place holder.
+    */
+    virtual void stop() {}
+
+    /** Method to report aggregate statistics.
+
+        This method is invoked at the end of simulation after all
+        agents on this rank have been finalized.  This method can
+        report any aggregate statistics from the scheduler. The
+        statistics must be written to the supplied output stream.
+
+        \note The base class method simply calls reportStats on the
+        schedule queue.
+        
+        \param[out] os The output stream to which the statistics are
+        to be written.
+    */
+    virtual void reportStats(std::ostream& os);
+    
+protected:
     /** \brief Handle a rollback, if necessary
         
         This method checks if the specified event occurs before the
@@ -124,7 +174,7 @@ private:
 
         \return True if a rollback occured
     */
-    bool checkAndHandleRollback(const Event* e, Agent* agent);
+    virtual bool checkAndHandleRollback(const Event* e, Agent* agent);
 
     /** \brief Perform processing of future anti-messages
 
@@ -137,9 +187,72 @@ private:
         
         \param[in,out] agent The agent whose event queue needs to be cleaned
     */
-    void handleFutureAntiMessage(const Event* e, Agent* agent);
-  
-protected: 
+    virtual void handleFutureAntiMessage(const Event* e, Agent* agent);
+
+    /** \brief Complete initialization of the Scheduler.
+
+        Once the scheduler instance is created by
+        Simulation::initialize() method, it must be full initialized.
+        This includes processing any command-line arguments to further
+        configure the scheduler.  The base class method currently does
+        not perform any operation.
+
+        \note This method may throw an exeption if errors occur.
+        
+        \param[in] rank The MPI rank of the process associated with
+        this scheduler.
+
+        \parma[in] numProcesses The total number of parallel processes
+        in the simulation.
+        
+	\param argc[in,out] The number of command line arguments.
+	This is the value passed-in to main() method.  This value is
+	modifed if command-line arguments are consumed.
+        
+	\param argv[in,out] The actual command line arguments.  This
+	list is modifed if command-line arguments are consumed by the
+	kernel.
+    */
+    virtual void initialize(int rank, int numProcesses, int& argc, char* argv[])
+        throw (std::exception);
+
+    /** Check if an event is within the stipulated time window.
+
+        This method is a convenience method that is used to determine
+        if one of a set of concurrent events falls within acceptable
+        time window.  Time windows are used to avoid over-optimism in
+        some simulations.
+
+        \note The event is one of a set of events that will be
+        processed if this method returns true.  All of the concurrent
+        events are destined for the agent indicated by
+        event->getReceiverAgentID() method.
+
+        \param[in] agent The agent to which the set of concurrent
+        events are to be scheduled.
+        
+        \param[in] event One of a set of concurrent events passed-in
+        to check if the event's receive time falls within acceptable
+        time window (if any).
+
+        \return If this method returns true, then the events are
+        processed.  Otherwise the scheduler performs no futher
+        operations.
+    */
+    bool withinTimeWindow(muse::Agent* agent,
+                          const muse::Event* const event) const;
+
+    /** Obtain the time window (if any) that has been set.
+
+        This method returns the time window that has been set for this
+        scheduler.
+
+        \return If this method returns 0, then a time window <u>has
+        not been set</u>.  Valid time windows are greater than zero.
+    */
+    inline Time getTimeWindow() const { return timeWindow; }
+    
+private:
     /** The agentMap is used to quickly match AgentID to agent
         pointers in the scheduler.
     */
@@ -148,7 +261,15 @@ protected:
     /** The agentPQ is a fibonacci heap data structure, and used for
         scheduling the agents.
     */
-    AgentPQ agentPQ;
+    EventQueue *agentPQ;
+
+    /** The time window set for controlling over-optimism.
+
+        The default value is 0 to indicate no time window has been set
+        (zero width time windows are invalid).  The time window can be
+        set via --time-window command-line argument.
+    */
+    muse::Time timeWindow;
 };
 
 END_NAMESPACE(muse);
