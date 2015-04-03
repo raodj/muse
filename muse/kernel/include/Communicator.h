@@ -26,12 +26,14 @@
 
 #include "DataTypes.h"
 #include "HashMap.h"
+#include <mpi.h>
 
 //these are the tag types
 #define AGENT_LIST        0
 #define EVENT             1
 #define GVT_MESSAGE       2
 #define GVT_ESTIMATE_TIME 3
+#define STRING_MESSAGE    4
 
 //these are the source types
 #define ROOT_KERNEL       0
@@ -85,7 +87,63 @@ public:
         which the event is to be dispatched.
     */
     void sendMessage(const GVTMessage *msg, const int destRank);
-	
+
+    /** \brief Send out a string as a message with a given tag.
+
+        This method muse be used to dispatch a generic string as a
+        message from this process to another process.  This method is
+        typically invoked only from the Simulator class.
+
+        \param[in] string The string to be dispatched to a remote
+        process. The string can be an empty string.
+
+        \param[in] destRank The rank of the destination process to
+        which the event is to be dispatched.
+
+        \param[in] tag An optional tag with which the messages must be
+        tagged for dispatch.  This is a convenience feature that can
+        be used to send different types of messages.
+    */
+    void sendMessage(const std::string& str, const int destRank,
+                     int tag = STRING_MESSAGE);
+    
+    /** \brief Retrieve a string from a message.
+
+        This method muse be used to read a generic string from a
+        message send from another process.  This method assumes that
+        the message being read was sent via a call to the
+        sendMessage() method in this class.  This method is typically
+        invoked only from the Simulator class.
+
+        \param[out] recvRank The actual rank from where the message
+        was received.  If the receive was non-blocking (i.e., blocking
+        flag was set to false) and a string message was not pending,
+        then this method sets recvRank to -1.
+
+        \param[in] blocking If this flag is true, then blocking MPI
+        operations are used.  Otherwise non-blocking operations are
+        used to receive a message.
+        
+        \param[in] srcRank The rank of the process from where the
+        event is to be read.  The rank can be MPI::ANY_SOURCE to read
+        message from any process. 
+
+        \param[in] tag An optional tag for the messages from where the
+        string is to be read.  This is a convenience feature that can
+        be used to read a specific type of message.
+
+        \note Pay attention to the use of recvRank to distinguish
+        between an empty string versus no string case when using
+        non-blocking MPI.
+        
+        \return If a string was successfully read, then this method
+        returns it and sets srcRank.  Otherwise srcRank is set to -1
+        and this method returns an empty string.
+    */
+    std::string receiveMessage(int& recvRank,
+                               const int srcRank = MPI_ANY_SOURCE,
+                               int tag = STRING_MESSAGE, bool blocking = true);
+    
     /** The recvEvent method.
 	
         \note This method will return a NULL if there is no Event to

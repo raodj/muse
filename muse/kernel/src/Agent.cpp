@@ -31,21 +31,30 @@
 
 #include <iostream>
 #include <cstdlib>
+#include "EventQueue.h"
 
 using namespace muse;
 
 Agent::Agent(AgentID id, State* agentState)
-    : myID(id), lvt(0), myState(agentState), numRollbacks(0),
-      numScheduledEvents(0), numProcessedEvents(0), numMPIMessages(0),
-      numCommittedEvents(0) {
+    : myID(id), lvt(0), myState(agentState), mustSaveState(true),
+      numRollbacks(0), numScheduledEvents(0), numProcessedEvents(0),
+      numMPIMessages(0), numCommittedEvents(0), numSchedules(0) {
     // Make an Event Priority Queue
     eventPQ = new BinaryHeapWrapper();
+    // Initialize fibonacci heap cross references
+    fibHeapPtr = NULL;
+    oldTopTime = TIME_INFINITY;
 }
 
 Agent::~Agent() {
     // Let's make sure we dont have any left over events because
     // finalize() method should have properly cleaned up the Priority
     // Queue
+    DEBUG({
+            if (!eventPQ->empty()) {
+                eventPQ->print(std::cout);
+            }
+    });
     ASSERT(eventPQ->empty());
     ASSERT(inputQueue.empty());
     ASSERT(outputQueue.empty());
@@ -57,17 +66,24 @@ Agent::~Agent() {
 
 void
 Agent::saveState() {
-    // Clone the current state so it can be saved
-    State* state = cloneState(getState());
-    state->timestamp = getLVT();
-    
-    // The states should be monotomically increasing in timestamp
-    ASSERT(stateQueue.empty() ||
-           (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
-    // Save current state
-    stateQueue.push_back(state);
-    
-    // Save the states of all of the SimStreams
+    if (mustSaveState || stateQueue.empty()) {
+        // We need at least one entry in the state queue to streamline
+        // operations.  Clone the current state so it can be saved
+        State* state = cloneState(getState());
+        state->timestamp = getLVT();
+        
+        // The states should be monotomically increasing in timestamp
+        ASSERT(stateQueue.empty() ||
+               (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
+        // Save current state
+        stateQueue.push_back(state);
+    } else if (!mustSaveState) {
+        ASSERT(stateQueue.size() == 1);
+        stateQueue.front()->timestamp = getLVT();
+    }
+    // Save the states of all of the SimStreams.  This is needed to
+    // handle optimisitic I/O correctly, immaterial of whether state
+    // saving is enabled/disabled.
     oss.saveState(getLVT());
     for (size_t i = 0; (i < allSimStreams.size()); i++) {
         allSimStreams[i]->saveState(getLVT());
@@ -78,33 +94,30 @@ Agent::saveState() {
                         TIME_INFINITY) << std::endl);
 }
 
-bool
-Agent::processNextEvents() {
-    // The event Queue cannot be empty
-    ASSERT(!eventPQ->empty());
-    const Time gvt = getTime(GVT);
-    if (getLVT() - gvt > 604800000) {
-        return false;
+void
+Agent::processNextEvents(muse::EventContainer& events) {
+    // The events cannot be empty
+    ASSERT(!events.empty());
+    // Add the events to our input queue
+    for (EventContainer::iterator curr = events.begin(); (curr != events.end());
+         curr++) {
+        // Avoiding the following 2 redundant operations:
+        // (*curr)->increaseReference();  // Add to inputQueue
+        // (*curr)->decreaseReference();  // remove from events container
+        inputQueue.push_back(*curr);
     }
-    // Create the event container. This will be passed on to the
-    // agent's executeTask method.
-    EventContainer nextEvents;
-    getNextEvents(nextEvents);
-    // There *has* to be a next event
-    ASSERT(!nextEvents.empty());
-    
+    ASSERT(events.front()->getReceiveTime() > getState()->timestamp);
     // Set the LVT and timestamp
-    setLVT(nextEvents.front()->getReceiveTime());
+    setLVT(events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
-    executeTask(&nextEvents);
+    executeTask(&events);
     
-    // Increment the numProcessedEvents counter
-    numProcessedEvents += nextEvents.size();
-
-    // Save the state now that events have been processed.
+    // Increment the numProcessedEvents and numScheduled counters
+    numProcessedEvents += events.size();
+    numSchedules++;
+    
+    // Save the state (if needed) now that events have been processed.
     saveState();
-
-    return true;
 }
 
 void
@@ -135,15 +148,13 @@ Agent::getNextEvents(EventContainer& container) {
         ASSERT(event->getReferenceCount() < 3);
         
         // We add the top event we popped to the event container
+        event->increaseReference(); 
         container.push_back(event);
 
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
         
-        // Increase reference count, so we can add it to the agent's
-        // input queue
-        event->increaseReference(); 
-        inputQueue.push_back(event);
-
+        // inputQueue.push_back(event);
+        
         // Finally it is safe to remove this event from the eventPQ as
         // it has been added to the inputQueue
         eventPQ->pop();
@@ -194,37 +205,18 @@ Agent::scheduleEvent(Event* e) {
         e->decreaseReference();
         abort();
     }
-    // Check and short-circuit scheduling to ourselves.
-    if (e->getReceiverAgentID() == getAgentID()) {
-        Time old_top_time = getTopTime();
-        
-        // Add directly to the event queue - there is no need to go
-        // through the Scheduler.
-        eventPQ->push(e);
-        
-        // Make sure the heap is still valid.
-        Simulation::getSimulator()->updateKey(fibHeapPtr, old_top_time);
-         
-        // Add the event to the to output queue
+    if (Simulation::getSimulator()->scheduleEvent(e)) {
+        DEBUG(std::cout << "Scheduled: " << *e << std::endl);
+        // Add event to our output queue
         outputQueue.push_back(e);
-
         // Keep track of event being scheduled.
         numScheduledEvents++;
-        
-        return true;
-    } else if (Simulation::getSimulator()->scheduleEvent(e)) {
-        outputQueue.push_back(e);
-       
-        // Keep track of event being scheduled.
-        numScheduledEvents++;
-
         // this is to keep track of how many MPI message we use
         if (!Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
             numMPIMessages++;
         }
         return true;
     }
-
     // If control drops here, the event was rejected from
     // scheduling. Clean up.
     e->decreaseReference();
@@ -232,7 +224,8 @@ Agent::scheduleEvent(Event* e) {
 }
 
 void
-Agent::doRollbackRecovery(const Event* stragglerEvent) {
+Agent::doRollbackRecovery(const Event* stragglerEvent,
+                          muse::EventQueue& reschedule) {
     DEBUG(std::cout << "Rolling back due to: " << *stragglerEvent << std::endl);
     doRestorationPhase(stragglerEvent->getReceiveTime());
     // After state is restored, that means out current time is the restored time
@@ -240,12 +233,22 @@ Agent::doRollbackRecovery(const Event* stragglerEvent) {
     
     DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
                     << restoredTime << ", while GVT = " << getTime(GVT)
-          << std::endl);
-   
-    doCancellationPhaseInputQueue(restoredTime, stragglerEvent);
+                    << std::endl);
+    
+    // First reschedule events.  This must happen before output queue
+    // processing to handle cyclic rollback chains of the form: A1 ->
+    // A2 -> A3 -> A1.  The Scheduler::handleFutureAntiMessages() also
+    // counts on input queue clean-up to happen first.
+    muse::EventContainer eventsToReschedule;
+    doCancellationPhaseInputQueue(restoredTime, stragglerEvent,
+                                  eventsToReschedule);
+    reschedule.enqueue(this, eventsToReschedule);
+    
+    // Next clean-up output queue. This will cause future clean-up of
+    // input queue if there are cyclic dependencies.
     doCancellationPhaseOutputQueue(restoredTime);
     
-    //we need to rollback all SimStreams here.
+    // We need to rollback all SimStreams here.
     oss.rollback(restoredTime);
     for (size_t i = 0; (i < allSimStreams.size()); i++) {
         allSimStreams[i]->rollback(restoredTime);
@@ -280,7 +283,7 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 
     // We set our LVT to INFINITY here in case we don't find a state to
     // restore to -- we can revert to the initial state after the loop.
-    ASSERT( stragglerTime > getTime(GVT) );
+    ASSERT( stragglerTime >= getTime(GVT) );
     setLVT(TIME_INFINITY);
     // Now go and look for a state to restore to.
     ASSERT(!stateQueue.empty());
@@ -330,8 +333,7 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 }
 
 void
-Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
-  
+Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {  
     AgentIDBoolMap bitMap;
     list<Event*>::iterator outQ_it = outputQueue.begin();
     while (outQ_it != outputQueue.end()) {
@@ -371,10 +373,9 @@ Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
 
 void
 Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
-                                     const Event* straggler) {
-
+                                     const Event* straggler,
+                                     muse::EventContainer& reschedule) {
     ASSERT(straggler != NULL);
-
     list<Event*>::iterator inQ_it = inputQueue.begin();
     while (inQ_it != inputQueue.end()) {
         list<Event*>::iterator del_it = inQ_it;
@@ -408,10 +409,13 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
         if (!((straggler->getSenderAgentID() == currentEvent->getSenderAgentID()) &&
               (currentEvent->getSentTime() >= straggler->getSentTime()) &&
               (straggler->isAntiMessage()))) {
-            eventPQ->push(currentEvent);
+            reschedule.push_back(currentEvent);
+            DEBUG(std::cout << "*Rescheduling: " << *currentEvent << std::endl);
+        } else {
+            // Current event is discarded as it is not rescheduled.
+            currentEvent->decreaseReference();
         }
-        currentEvent->decreaseReference();
-        inputQueue.erase(del_it);            
+        inputQueue.erase(del_it);
     }
 }
 
@@ -462,7 +466,7 @@ Agent::garbageCollect(const Time gvt) {
                     << ", oneBelowGVT: " << oneBelowGVT << ", real GVT: "
                     << getTime(GVT) << std::endl);
     
-    //now we start looking
+    // now we start looking
     while (stateQueue.front()->getTimeStamp() < oneBelowGVT) {
         State *currentState = stateQueue.front();
         //cerr << "State @ time: " << currentState->getTimeStamp()<<"\n";
@@ -473,7 +477,7 @@ Agent::garbageCollect(const Time gvt) {
 
     // The first state should be less than gvt
     ASSERT(!stateQueue.empty());
-    ASSERT(stateQueue.front()->getTimeStamp() < gvt);
+    ASSERT(!mustSaveState || (stateQueue.front()->getTimeStamp() < gvt));
     
     //second we collect from the inputQueue
     while (!inputQueue.empty() &&
@@ -579,4 +583,3 @@ Agent::dumpStats(std::ostream& os, const bool printHeader) const {
 }
 
 #endif
- 

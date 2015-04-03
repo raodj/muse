@@ -32,6 +32,7 @@ lonelyTest_LDADD = $(STDCPP) -lmuse
 
 lonelyTest_SOURCES = \
 	LonelySimulation.cpp\
-	LonelyAgent.cpp
+	LonelyAgent.cpp \
+	LonelyAgent.h
 
 # end of Makefile.am

@@ -43,70 +43,99 @@
 #include "ArgParser.h"
 
 PHOLDSimulation::PHOLDSimulation() {
-    rows      = 3;
-    cols      = 3;
-    events    = 3;
-    delay     = 1;
-    max_nodes = 5;
-    end_time  = 100;
+    rows       = 3;
+    cols       = 3;
+    events     = 3;
+    delay      = 0;
+    lookAhead  = 1;
+    imbalance  = 0.0;
+    selfEvents = 0.0;
+    end_time   = 100;
+    granularity= 0;
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
 
-void
+bool
 PHOLDSimulation::processArgs(int argc, char** argv) {
     // Make the arg_record
     ArgParser::ArgRecord arg_list[] = {
-        { "--cols", "The Number of columns in the space.", &cols,
-            ArgParser::INTEGER },
-        { "--rows", "The Number of rows in the space.",
-            &rows, ArgParser::INTEGER },
-        { "--delay", "The Delay time for the receive time, this will be max range for a random from [0,1]",
-            &delay, ArgParser::INTEGER },
-        { "--eventsPerAgent", "The number of events per agent in the simulation.",
-            &events, ArgParser::INTEGER },
-        { "--computeNodes", "The max numbers of nodes used for this simulation.",
-            &max_nodes, ArgParser::INTEGER },
-        { "--simEndTime", "The end time for the simulation.", &end_time,
-            ArgParser::INTEGER },
+        {"--cols", "The Number of columns in the space.", &cols,
+         ArgParser::INTEGER },
+        {"--rows", "The Number of rows in the space.",
+         &rows, ArgParser::INTEGER },
+        {"--lookahead", "Minimum delay time for events", &lookAhead,
+         ArgParser::INTEGER},
+        {"--delay", "The maximum random time added to look ahead [0, 100]",
+         &delay, ArgParser::INTEGER },
+        {"--eventsPerAgent", "Initial number of events per agent",
+         &events, ArgParser::INTEGER },
+        {"--selfEvents", "Fraction of events agents send to themselves [0, 1]",
+         &selfEvents, ArgParser::DOUBLE},
+        {"--simEndTime", "The end time for the simulation.", &end_time,
+         ArgParser::INTEGER },
+        {"--imbalance", "Desired imbalance in partitioning [0, 0.99]",
+         &imbalance, ArgParser::DOUBLE},
+        {"--granularity", "Granularity (no units) per events", &granularity,
+         ArgParser::LONG},
         {"", "", NULL, ArgParser::INVALID}
     };
-
-    // Use the MUSE argument parser to parse command-line arguments
-    // and update instance variables
-    ArgParser ap(arg_list);
-    ap.parseArguments(argc, argv ,true);
 
     // Let the kernel initialize using any additional command-line
     // arguments.
     muse::Simulation* const kernel = muse::Simulation::getSimulator();
-    kernel->initialize(argc, argv);
-
-    max_agents = rows * cols;
-    agentsPerNode = max_agents/max_nodes;
-    rank = kernel->getSimulatorID();
-
-    ASSERT(max_agents >= max_nodes);
-
-    // ensure agents fit into nodes.
-    //  - if uneven, then last node carries extra agents.
-    if ( rank == (max_nodes-1) && (max_agents % max_nodes) > 0 ){
-        agentsPerNode = (max_agents/max_nodes) + (max_agents % max_nodes);
+    try {
+        kernel->initialize(argc, argv);
+    } catch (std::exception& exp) {
+        std::cerr << "Exiting simulation due to initialization error: "
+                  << exp.what() << std::endl;
+        return false;
     }
+
+    // Use the MUSE argument parser to parse command-line arguments
+    // and update instance variables
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv, true);
+    
+    rank = kernel->getSimulatorID();
+    // Check to ensure we have at least as many agents as compute-nodes
+    if (rows * cols < (int) kernel->getNumberOfProcesses()) {
+        std::cerr << "The number of agents (i.e., rows * cols) must be "
+                  << "greater than number of MPI processes.\n";
+        return false;
+    }
+    // Everything went well.
+    return true;
+}
+
+int
+PHOLDSimulation::cumlSum(const int val, const double scale) const {
+    return (scale * val * (val - 1) / 2);
 }
 
 void
 PHOLDSimulation::createAgents() {
-    muse::AgentID id = -1u;
-    muse::Simulation* const kernel = muse::Simulation::getSimulator();
-    for (muse::AgentID i= 0;i < agentsPerNode; i++){
-        PholdState * phold_state = new PholdState();
-        id =  (max_agents/max_nodes)*rank + i;
-        PHOLDAgent *phold_agent = new PHOLDAgent(id, phold_state, rows,
-                                                 cols, events, delay);
-        kernel->registerAgent(phold_agent);
-        //std::cout << kernel << std::endl;
+    muse::Simulation* kernel = muse::Simulation::getSimulator();    
+    const int max_agents     = rows * cols;
+    const int max_nodes      = kernel->getNumberOfProcesses();
+    const int skewAgents     = (max_nodes > 1) ? (max_agents * imbalance) : 0;
+    const double factor      = (skewAgents > 0) ?
+        (skewAgents / (double) cumlSum(max_nodes)) : 0;
+    const int agentsPerNode  = (max_agents - skewAgents) / max_nodes;
+    ASSERT( agentsPerNode > 0 );
+    const int agentStartID   = (agentsPerNode * rank) + cumlSum(rank, factor);
+    const int agentEndID     = (rank == max_nodes - 1) ? max_agents :
+        ((agentsPerNode * (rank + 1)) + cumlSum(rank + 1, factor));
+    
+    for (int i = agentStartID; (i < agentEndID); i++) {
+        PholdState* state = new PholdState();
+        PHOLDAgent* agent = new PHOLDAgent(i, state, rows, cols, events, delay,
+                                           lookAhead, selfEvents, granularity);
+        kernel->registerAgent(agent);
     }
+    std::cout << "Rank " << rank << ": Registered agents from "
+              << agentStartID    << " to "
+              << agentEndID      << " agents.\n";
 }
 
 void
@@ -116,7 +145,6 @@ PHOLDSimulation::simulate() {
     // Setup start and end time of the simulation
     kernel->setStartTime(0);
     kernel->setStopTime(end_time);
-    kernel->setGVTDelayRate(4000);
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
@@ -131,13 +159,12 @@ PHOLDSimulation::run(int argc, char** argv) {
 
     // Create simulation, populate variables
     PHOLDSimulation sim;
-    sim.processArgs(argc, argv);
-
-    // Create Agents
-    sim.createAgents();
-
-    // Run simulation
-    sim.simulate();
+    if (sim.processArgs(argc, argv)) {
+        // Create Agents
+        sim.createAgents();
+        // Run simulation
+        sim.simulate();
+    }
 }
 
 /*

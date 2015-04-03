@@ -31,9 +31,10 @@ roundRobinSim_LDFLAGS = -L../../kernel
 roundRobinSim_LDADD = $(STDCPP) -lmuse
 
 roundRobinSim_SOURCES = \
-	RoundRobinSimulation.h\
-	RoundRobinSimulation.cpp\
-	RoundRobinAgent.h\
-	RoundRobinAgent.cpp
+	RoundRobinSimulation.h \
+	RoundRobinSimulation.cpp \
+	RoundRobinAgent.h \
+	RoundRobinAgent.cpp \
+	README.txt
 
 # end of Makefile.am

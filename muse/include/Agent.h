@@ -26,11 +26,11 @@
 #include <iostream>
 #include <exception>
 #include <list>
+#include <cmath>
 #include "DataTypes.h"
 #include "Event.h"
 #include "State.h"
 #include "oSimStream.h"
-#include <cmath>
 
 /** Use this macro to compare to Time values safely
  */
@@ -38,7 +38,6 @@
 
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(ostream&, const muse::Agent&);
-
 
 BEGIN_NAMESPACE(muse);
 
@@ -60,12 +59,14 @@ BEGIN_NAMESPACE(muse);
 
 //forward declare here
 class BinaryHeapWrapper;
+class EventQueue;
 
 class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
     friend class Scheduler;
     friend class AgentPQ;
+    friend class TwoTierHeapEventQueue;
 public:
     
     /** enum for return Time.
@@ -246,8 +247,8 @@ public:
 protected:
     /** The oSimStream type oss.
         
-		This is the default provided by MUSE and when its safe will
-		push all data to std::cout.
+        This is the default provided by MUSE and when its safe will
+        push all data to std::cout.
     */
     oSimStream oss;
 
@@ -261,7 +262,7 @@ protected:
         method can be overrided for advanced purposes, but it is
         highly recommended to avoid doing so.
 
-     */
+    */
     virtual void saveState();
 
     /** Utility method to dump running stats about this agent to an
@@ -289,19 +290,19 @@ protected:
 private:
     /** The getTopTime method.
         
-		Simply returns the receive Time of the top event in the
-		eventPQ. If eventPQ is empty then TIME_INIFINITY is
-		returned. This is used heavily in AgentPQ class.
+        Simply returns the receive Time of the top event in the
+        eventPQ. If eventPQ is empty then TIME_INIFINITY is
+        returned. This is used heavily in AgentPQ class.
 		
-		\return Time, the top event recv time or TIME_INFINITY if
-		eventPQ empty.
+        \return Time, the top event recv time or TIME_INFINITY if
+        eventPQ empty.
     */
     Time getTopTime() const;
     
     /** The getNextEvents method.
         
-		This method is a helper that will grab the next
-		set of events to be processed by this agent.
+        This method is a helper that will grab the next
+        set of events to be processed by this agent.
 		
         \param[out] container The reference of the container into
         which events should be added.        
@@ -327,11 +328,14 @@ private:
         Only for use by the Scheduler. This is used to get the next
 	set of events to be processed by this agent. The Scheduler
 	will call this method, when it is time for processing.
-     
+
+        \param[in] events The set of events to be processed by this
+        agent.
+        
         \return bool, true if there were events to process at the time
         of the method call
     */
-    bool processNextEvents();
+    void processNextEvents(muse::EventContainer& events);
 
     /** The cleanStateQueue method
         
@@ -367,17 +371,23 @@ private:
         \see Time
     */
     void garbageCollect(const Time gvt);
-
     
     /** The doRollbackRecovery method.  This method is called by the
         scheduler class, when a rollback is detected.
 
         \note Only should be called by the Scheduler class.
         
-	\param stragglerEvent pointer to the event that caused the
-	rollback aka straggler event
+	\param[int] stragglerEvent pointer to the event that caused
+	the rollback (aka straggler event).  This pointer should not
+	be NULL.
+
+        \param[out] reschedule The queue to be used to reschedule
+        events to be reprocessed due to the rollback.  These events
+        are added back to the event queue associated with the
+        scheduler.
     */
-    void doRollbackRecovery(const Event* stragglerEvent);
+    void doRollbackRecovery(const Event* stragglerEvent,
+                            muse::EventQueue& reschedule);
 
     /** The doRestorationPhase method.  This is the first step of the
         rollback recovery process.  In this method we first search the
@@ -412,16 +422,24 @@ private:
 	
         \note Only should be called by the doRollbackRecovery method.
 	
-        \param restoredTime, this is the time restored from the state
-	\param straggler_sender_agent_id, this is the agent that sent the straggler event
+        \param[in] restoredTime, this is the time restored from the state
+        
+	\param[in] straggler_sender_agent_id, this is the agent that sent
+	the straggler event
 
+        \param[out] reschedule The list of events to be rescheduled
+        for reprocessing due to a rollback.  The list of events to be
+        rescheduled is passed to the scheduler that appropriately
+        handles it.
+        
 	\see doRestorationPhase
 	\see Time
 	\see AgentID
 	
     */
     void doCancellationPhaseInputQueue(const Time& restoredTime,
-                                       const Event* straggler);
+                                       const Event* straggler,
+                                       muse::EventContainer& reschedule);
 
     /** The agentComp class.
         
@@ -430,8 +448,7 @@ private:
     */
     class agentComp{
     public:
-        agentComp(){}
-        bool operator()(const Agent *lhs, const Agent *rhs) const;
+        inline bool operator()(const Agent *lhs, const Agent *rhs) const;
     };
 
     /** The AgentID type myID.
@@ -452,29 +469,37 @@ private:
     */
     Time lvt;
 
-    /** The double linked lise stateQueue.
+    /** The double linked list State Queue.
         
-        Houses a sorted list of state pointers. Needed incase of
-        rollbacks
+        Houses a sorted list of state object-pointers. The list is
+        used to restore the state of the agent as part of rollback
+        recovery process.  Since events are scheduled in receive
+        timestamp order, and state saving is governed by event
+        processing or LVT of an agent, the entries in this list are
+        automatically sorted based on LVT of the agent.  The list is
+        periodically garbage collected based on GVT.
 
         \see State()
     */
     list<State*> stateQueue;
 
-    
-    /** The double linked lise outputQueue.
+    /** The double linked list Output Queue.
         
-        Houses a sorted list of event pointers. Needed incase of
-        rollbacks
+        Houses a sorted list of events. These events were generated by
+        this Agent.  The list is used to sent anti-messages as part of
+        rollback recovery process.  The list is periodically garbage
+        collected based on GVT.
 
         \see Event()
     */
     list<Event*> outputQueue;
 
-    /** The double linked lise inputQueue.
+    /** The double linked list Input Queue.
         
-        Houses a sorted list of event pointers. Needed incase of
-        rollbacks
+        Houses a sorted list of events that has been scheduled for
+        this agent.  This list is used to cancel/reprocess events as
+        part of rollback recovery processing.  The list is
+        periodically garbage collected based on GVT.
 
         \see Event()
     */
@@ -482,18 +507,21 @@ private:
 
     /** The State type myState.
         
-        This is a auto pointer to the current state of the Agent.
-	Using smart pointer allows worry free use of the state class and
-	doesn't leak memory.
+        This is a pointer to the current state of the Agent.  Each
+        time a set of concurrent events have been processed by this
+        agent, a copy of this state object is made an added to the
+        state queue.
+
         \see State()
     */
     State* myState;
 
-
     /** The BinaryHeapWrapper type eventPQ.
         
         This is access to the custom binary heap data structure that
-        houses events to process.
+        houses events to process.  This pointer is used only when
+        Fibonacci heap is being used for scheduling.  Otherwise this
+        list pointer is unused.
         
         \see BinaryHeapWrapper()
     */
@@ -502,9 +530,20 @@ private:
     /** The pointer type.
         
         Pointer to the location of the agent in the fibonacci heap.
+        This pointer is used only when Fibonacci heap is being used
+        for scheduling.  Otherwise this list pointer is unused. 
     */
     void* fibHeapPtr;
 
+    /** The lowest time stamp event at the end of fibonacci heap
+        operations.
+
+        This time stamp is needed to manage the position of this agent
+        on the fibonacci heap.  It is updated by the fibonacci heap at
+        the end of various event queue management operations.
+    */
+    Time oldTopTime;
+    
     /** The SimStreamContainer type allSimStreams.
         
 	This is used to store registered SimStream, typically are user
@@ -512,15 +551,28 @@ private:
     */
     SimStreamContainer allSimStreams;
 
+    /** Flag to indicate if this agent must save state at the end of
+        each event processing cycle.
+
+        This flag by default is set to true to indicate that the agent
+        must save state at the end of each event processing cycle.
+        This flag is overridden by Simluation::registerAgent() class.
+        It is set to false if only one MPI process is being used for
+        simulation.  A user may force state saving using the
+        --must-save-state command-line parameter.
+    */
+    bool mustSaveState;
+    
     ////////////////////////////////////////////////////////
     
-    /** The next two variables are used for benchmarking and statistics
-     */
+    /** The next few variables are used for benchmarking and reporting
+        simulation statistics associated with this agent.
+    */
     int numRollbacks;
     int numScheduledEvents;
     int numProcessedEvents;
     int numMPIMessages;
-    
+
     /**
        Instance variable to track the number of events there were
        actually processed and not rolled-back. This instance variable
@@ -529,6 +581,15 @@ private:
        rolled-back).
     */
     int numCommittedEvents;
+
+    /**
+       Number of times this agent was scheduled for processing events.
+       This instance variable essentially tracks the raw number of
+       times the executeTask() method was invoked by the Scheduler
+       (consequently with rollbacks this value will be higher than the
+       count in a 1 process simulation).
+    */
+    int numSchedules;
 };
 
 END_NAMESPACE(muse);

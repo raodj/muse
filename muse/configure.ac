@@ -341,15 +341,13 @@ AC_SUBST(PIPE)
 AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
 AC_SUBST(FAST)
 
-# For now we are intentionally not using new C++ standards. Hopefully
-# we will starting using them very soon.
-
+# Check and start using new C++11 standards
 # AC_CHECK_ARGS([-std=c++14], [CPP14="-std=c++14"], [CPP14=""], [])
 # AC_SUBST(CPP14)
-# AC_CHECK_ARGS([-std=c++11], [CPP11="-std=c++11"], [CPP11=""], [$CPP14])
-# AC_SUBST(CPP11)
-# AC_CHECK_ARGS([-std=c++0x], [CPP0X="-std=c++0x"], [CPP0X=""], [$CPP11])
-# AC_SUBST(CPP0X)
+AC_CHECK_ARGS([-std=c++11], [CPP11="-std=c++11"], [CPP11=""], [$CPP14])
+AC_SUBST(CPP11)
+AC_CHECK_ARGS([-std=c++0x], [CPP0X="-std=c++0x"], [CPP0X=""], [$CPP11])
+AC_SUBST(CPP0X)
 
 # Put object files in corresponding directories even if make is not
 # running directly in the source directory.

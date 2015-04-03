@@ -31,7 +31,10 @@ rollbackSim_LDFLAGS = -L../../kernel
 rollbackSim_LDADD = $(STDCPP) -lmuse
 
 rollbackSim_SOURCES = \
-	RollbackAgent.cpp\
-	RollbackSimulation.cpp 
+	RollbackAgent.cpp \
+	RollbackSimulation.cpp \
+	RollbackAgent.h \
+	README.txt \
+	rollbackTest.sh
 
 # end of Makefile.am

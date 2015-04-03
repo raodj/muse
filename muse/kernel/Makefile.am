@@ -24,6 +24,7 @@
 include $(top_srcdir)/Makefile.global.am
 
 AM_CXXFLAGS += -Iinclude -Isrc
+# AM_CXXFLAGS += -DDEBUG_OUTPUT
 
 noinst_LIBRARIES = libmuse.a
 
@@ -31,23 +32,42 @@ noinst_LIBRARIES = libmuse.a
 libmuse_a_LIBADD = $(STDCPP)
 
 libmuse_a_SOURCES = \
-	src/Utilities.cpp\
-	src/Agent.cpp\
-	src/Event.cpp\
-	src/Simulation.cpp\
-	src/Communicator.cpp\
-	src/Scheduler.cpp\
+	include/EventQueue.h \
+	include/AgentPQ.h \
+	include/BinaryHeapWrapper.h \
+	include/Communicator.h \
+	include/Compatibility.h \
+	include/GVTManager.h \
+	include/GVTMessage.h \
+	include/HashMap.h \
+	include/LinuxHashMap.h \
+	include/Scheduler.h \
+	include/WindowsHashMap.h \
+	src/Utilities.cpp \
+	src/Agent.cpp \
+	src/Event.cpp \
+	src/Simulation.cpp \
+	src/Communicator.cpp \
+	src/Scheduler.cpp \
 	src/State.cpp \
-	src/Compatibility.cpp\
-	include/GVTMessage.h\
-	src/GVTMessage.cpp\
-	include/GVTManager.h\
-	src/GVTManager.cpp\
-	src/oSimStream.cpp\
-	src/SimStream.cpp\
-	src/MTRandom.cpp\
-	src/BinaryHeapWrapper.cpp\
+	src/Compatibility.cpp \
+	src/GVTMessage.cpp \
+	src/GVTManager.cpp \
+	src/oSimStream.cpp \
+	src/SimStream.cpp \
+	src/MTRandom.cpp \
+	src/BinaryHeapWrapper.cpp \
 	src/AgentPQ.cpp \
-	src/ArgParser.cpp
+	src/ArgParser.cpp \
+	src/HRMScheduler.cpp \
+	include/HRMScheduler.h \
+	include/ResChannel.h \
+	src/ResChannel.cpp \
+	include/LadderQueue.h \
+	src/LadderQueue.cpp \
+	include/HeapEventQueue.h \
+	src/HeapEventQueue.cpp \
+	include/TwoTierHeapEventQueue.h \
+	src/TwoTierHeapEventQueue.cpp
 
 # end of Makefile.am

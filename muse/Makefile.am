@@ -21,4 +21,17 @@
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = kernel
+nobase_include_HEADERS = \
+	include/Agent.h \
+	include/ArgParser.h \
+	include/DataTypes.h \
+	include/Event.h \
+	include/MTRandom.h \
+	include/oSimStream.h \
+	include/SimStream.h \
+	include/Simulation.h \
+	include/SimulationListener.h \
+	include/State.h \
+	include/Utilities.h
+
+SUBDIRS = kernel examples

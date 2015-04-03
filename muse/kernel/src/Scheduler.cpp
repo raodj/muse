@@ -24,20 +24,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include "Scheduler.h"
 #include <cstdlib>
+#include "Scheduler.h"
 #include "Simulation.h"
-#include "BinaryHeapWrapper.h"
+#include "LadderQueue.h"
+#include "HeapEventQueue.h"
+#include "TwoTierHeapEventQueue.h"
+#include "ArgParser.h"
 
 using namespace muse;
 
-Scheduler::Scheduler() {}
+Scheduler::Scheduler() : agentPQ(NULL), timeWindow(0) {}
 
 bool
 Scheduler::addAgentToScheduler(Agent* agent) {
+    ASSERT(agent != NULL);
     if (agentMap[agent->getAgentID()] == NULL) {
         agentMap[agent->getAgentID()] = agent;
-        agent->fibHeapPtr = reinterpret_cast<void *>(agentPQ.push(agent));
+        agent->fibHeapPtr = agentPQ->addAgent(agent);
         return true;
     }
     return false;
@@ -45,30 +49,53 @@ Scheduler::addAgentToScheduler(Agent* agent) {
 
 void
 Scheduler::updateKey(void* pointer, Time uTime) {
-    AgentPQ::pointer ptr = reinterpret_cast<AgentPQ::pointer>(pointer);
-    agentPQ.update(ptr, uTime);
+    UNUSED_PARAM(pointer);
+    UNUSED_PARAM(uTime);
+    ASSERT("Not implemented" == NULL);    
+}
+
+bool
+Scheduler::withinTimeWindow(muse::Agent* agent,
+                            const muse::Event* const event) const {
+    ASSERT(event != NULL);
+    UNUSED_PARAM(event);
+    const Time gvt = Simulation::getSimulator()->getGVT();
+    // return ((agent->getLVT() - gvt) > 604800000);
+    return ((agent->getLVT() - gvt) <= timeWindow);
 }
 
 bool
 Scheduler::processNextAgentEvents() {
-    if (agentPQ.top()->eventPQ->empty()) {
+    // If the event queue is empty, do no further operations.
+    if (agentPQ->empty()) {
         return false;
     }
-    
-    Agent* agent = agentPQ.top();
-    Time oldTopTime = agent->getTopTime();
-    bool result = agent->processNextEvents();
-    updateKey(agent->fibHeapPtr, oldTopTime);
-    
-    return result;
+    // Get the first of next batch of events to be scheduled.
+    const muse::Event* const front = agentPQ->front();
+    ASSERT(front != NULL);
+    // Figure out the agent to receive this event.
+    Agent* const agent = agentMap[front->getReceiverAgentID()];
+    ASSERT(agent != NULL);    
+    // Check if the next lowest time-stamp event falls within time
+    // window with respect to GVT.  If not, do not process events.
+    if ((timeWindow > muse::Time(0)) && !withinTimeWindow(agent, front)) {
+        return false;
+    }
+    // Have the next agent (with lowest receive timestamp events) to
+    // process its batch of events.
+    muse::EventContainer events;
+    agentPQ->dequeueNextAgentEvents(events);
+    agent->processNextEvents(events);
+    // Processed some events
+    return true;
 }
 
 bool
 Scheduler::scheduleEvent(Event* e) {
     // Make sure the recevier agent has an entry
-    AgentID agent_id = e->getReceiverAgentID();
+    const AgentID agent_id = e->getReceiverAgentID();
     AgentIDAgentPointerMap::iterator entry = agentMap.find(agent_id);
-    Agent* agent = (entry != agentMap.end()) ? entry->second : NULL ;
+    Agent* const agent = (entry != agentMap.end()) ? entry->second : NULL;
     
     if (agent == NULL) {
         std::cerr << "Trying to schedule (" << *e <<") to unknown agent\n";
@@ -82,25 +109,21 @@ Scheduler::scheduleEvent(Event* e) {
         abort();
     }
 
-    // Will use this to figure out if we need to change our key in
-    // scheduler
-    const Time oldTopTime = agent->getTopTime();
-    
-    // Process rollbacks if needed
+    // Process rollbacks (only if necessary)
     checkAndHandleRollback(e, agent);
     // If the event is an anti-message then all pending future events
     // from the sender should also be deleted.
     if (e->isAntiMessage()) {
+        // Clean-up any pending future events (from the sender of the
+        // anti-message) in the scheduler's queue.
         handleFutureAntiMessage(e, agent);
-        updateKey(agent->fibHeapPtr, oldTopTime);
-        return false;
+        return false;  // Event not enqueued.
     }
     
     ASSERT(e->isAntiMessage() == false);
-    // Actually add the event (push increments reference count)
-    agent->eventPQ->push(e);
-    updateKey(agent->fibHeapPtr, oldTopTime);
-    
+    // Actually add the event (enqueue indirectly increments reference count)
+    agentPQ->enqueue(agent, e);
+    // Event has been enqueued.
     return true;
 }
 
@@ -109,7 +132,11 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
-        agent->doRollbackRecovery(e);
+        // Have the agent to do inputQ, and outputQ clean-up and
+        // return list of events to reschedule.
+        muse::EventContainer reschedule;
+        agent->doRollbackRecovery(e, *agentPQ);
+        // Basic sanity check on correct rollback behavior
         if (e->getReceiveTime() <= agent->getLVT()) {
             // Error condition.
             std::cerr << "Rollback logic did not restore state correctly?\n";
@@ -126,7 +153,8 @@ Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
     // This event is an anti-message we must remove it and
     // future events from this agent.
-    agent->eventPQ->removeFutureEvents(e);
+    agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
+    // agent->eventPQ->removeFutureEvents(e);
     // There are cases when we may not have a future anti-message as
     // partial cleanup of input-queues done by
     // Agent::doCancellationPhaseInputQueue method may have already
@@ -135,16 +163,57 @@ Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     // report fast-anti messages.
 }
 
-Scheduler::~Scheduler() {}
+Scheduler::~Scheduler() {
+    if (agentPQ != NULL) {
+        delete agentPQ;
+    }
+}
 
 Time
 Scheduler::getNextEventTime() {
     // If the queue is empty, return infinity
-    if (agentPQ.empty()) {
+    if (agentPQ->empty()) {
         return TIME_INFINITY;
     }
     // Otherwise, return the time of the top agent
-    return agentPQ.top()->getTopTime();
+    return agentPQ->front()->getReceiveTime();
+}
+
+void
+Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
+    throw (std::exception) {
+    UNUSED_PARAM(rank);
+    UNUSED_PARAM(numProcesses);
+    // Setup local variables for processing command-line arguments
+    std::string queueName = "fibHeap";
+    // Make the arg_record
+    ArgParser::ArgRecord arg_list[] = {
+        {"--scheduler-queue",
+         "Queue (heap or fibHeap or ladderQ) to be used by scheduler",
+         &queueName, ArgParser::STRING},
+        {"--time-window", "Time window for scheduler to control optimism",
+         &timeWindow, ArgParser::DOUBLE},
+        {"", "", NULL, ArgParser::INVALID}
+    };
+    // Use the argument parser to parse command-line arguments and
+    // update local variables
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv, false);
+    // Create a queue based on the name specified.
+    if (queueName == "heap") {
+        agentPQ = new HeapEventQueue();
+    } else if (queueName == "ladderQ") {
+        agentPQ = new LadderQueue();
+    } else if (queueName == "2tHeap") {
+        agentPQ = new TwoTierHeapEventQueue();
+    } else {
+        agentPQ = new AgentPQ();
+    }
+}
+
+void
+Scheduler::reportStats(std::ostream& os) {
+    agentPQ->reportStats(os);
 }
 
 #endif

@@ -39,7 +39,7 @@ BEGIN_NAMESPACE(muse);
 
     Currently, the heap is MUSE-specific: it contains Event* only.
     
- */
+*/
 class BinaryHeapWrapper {
 public:
     /** \brief Default constructor.
@@ -87,6 +87,22 @@ public:
     */
     void push(Event* event);
 
+    /** \brief Push an set of events onto the heap.
+
+        This method will add all events in the given event container
+        onto to the heap.
+
+        \note Using this method to add a whole bunch of events is more
+        efficient that adding one event at a time.
+
+        \note This class will call increaseReference() on each event
+        in the given event container (preventing it from being
+        deleted/garbage collected).
+
+        \param[in] events The set of events to be added to the heap
+    */
+    void push(EventContainer& events);
+    
     /** \brief Remove all events that occur after the specified Event
 
         This method will compare the timestamps of all events in the
@@ -101,6 +117,29 @@ public:
     */
     bool removeFutureEvents(const Event* antiMsg);
 
+    /** \brief Remove all events from a given sender that have been
+        sent after a specified time.
+
+        This method will compare the timestamps of all events in the
+        heap with that of the specified event. Any Event (from the
+        same sender) that was sent at a time greater than or equal to
+        that of the specified event will be deleted.
+
+        \param[in] sender The ID of the agent whose events have to be
+        removed.  This agent must be a valid agent that has been
+        registered/added to this event queue.  The pointer cannot be
+        NULL.
+
+        \param[in] sentTime The time from which the events are to be
+        removed.  All events (including those sent at this time) sent
+        by the sender agent are removed from this event queue.
+
+        \return This method returns the number of events actually
+        removed.        
+    */
+    int removeFutureEvents(const muse::AgentID sender,
+                           const muse::Time sentTime);
+    
     /** \brief Get the current size of the heap
 
         \return The current size of the heap        
@@ -114,6 +153,20 @@ public:
         \return True if the heap is empty
      */
     inline bool empty() const { return heapContainer->empty(); }
+
+    /** Print events in this heap to a given output stream.
+
+        This method prints all the events currently in the heap to a
+        given output stream.  This is primarily used for debugging
+        purposes.
+
+        \param[out] os The output stream to which the events are to be
+        written.
+    */
+    void print(std::ostream& os) const;
+
+protected:
+    // Currently, this class does not have any protected members
 
 private:
     /// The vector backing the heap
@@ -130,7 +183,8 @@ private:
     class EventComp {
     public:
         inline EventComp() {}
-        inline bool operator()(const muse::Event* const lhs, const muse::Event* const rhs) const {
+        inline bool operator()(const muse::Event* const lhs,
+                               const muse::Event* const rhs) const {
             const Time lhs_time = lhs->getReceiveTime();
             return (lhs_time > rhs->getReceiveTime());
         }

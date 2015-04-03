@@ -25,11 +25,12 @@
 //---------------------------------------------------------------------------
 
 #include "AgentPQ.h"
+#include "BinaryHeapWrapper.h"
 
 using namespace muse;
 
 //ctor
-AgentPQ::AgentPQ() : m_size(0) {}
+AgentPQ::AgentPQ() : EventQueue("FibonacciHeap"), m_size(0) {}
 
 //dtor
 AgentPQ::~AgentPQ()            {
@@ -204,14 +205,15 @@ AgentPQ::decrease(pointer n, Agent* data) {
 
 //fibonacci heap basic interface
 Agent*
-AgentPQ::top()                       {
-    if (m_min == 0)
+AgentPQ::top() {
+    if (m_min == 0) {
 	find_min();
+    }
     return m_min->data();
 }
 
 //void
-//FibonacciHeap::pop()                       {
+//FibonacciHeap::pop() {
 //  if (m_min == 0){
 //    find_min();
 //  }
@@ -230,14 +232,69 @@ AgentPQ::top()                       {
 //  m_min = 0;
 //}
 
-AgentPQ::pointer
-AgentPQ::push(Agent* data)            {
+void*
+AgentPQ::addAgent(Agent* data) {
     node* n = new node(data);
     ++m_size;
     add_root(n);
 
     m_min = 0;
     return n;
+}
+
+muse::Event*
+AgentPQ::front() {
+    muse::Event* retVal = NULL;
+    if (!empty()) {
+        retVal = top()->eventPQ->top();
+    }
+    return retVal;
+}
+
+void
+AgentPQ::dequeueNextAgentEvents(muse::EventContainer& events) {
+    if (!empty()) {
+        muse::Agent *agent = top();
+        agent->getNextEvents(events);
+        ASSERT(!events.empty());
+        pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
+        update(ptr, agent->oldTopTime);
+        agent->oldTopTime = agent->getTopTime();
+    }
+}
+
+void
+AgentPQ::enqueue(muse::Agent* agent, muse::Event* event) {
+    agent->eventPQ->push(event);
+    pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
+    update(ptr, agent->oldTopTime);
+    agent->oldTopTime = agent->getTopTime();
+}
+
+void
+AgentPQ::enqueue(muse::Agent* agent, muse::EventContainer& events) {
+    const Time oldTopTime = agent->oldTopTime;
+    agent->eventPQ->push(events);
+    pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
+    update(ptr, oldTopTime);
+    agent->oldTopTime = agent->getTopTime();
+}
+
+int
+AgentPQ::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
+                    const muse::Time sentTime) {
+    const Time oldTopTime = dest->oldTopTime;    
+    int numRemoved = dest->eventPQ->removeFutureEvents(sender, sentTime);
+    pointer ptr = reinterpret_cast<pointer>(dest->fibHeapPtr);
+    update(ptr, oldTopTime);
+    dest->oldTopTime = dest->getTopTime();
+    return numRemoved;
+}
+
+void
+AgentPQ::reportStats(std::ostream& os) {
+    UNUSED_PARAM(os);
+    // No statistics are currently reported.
 }
 
 #endif
