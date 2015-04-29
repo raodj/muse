@@ -14,7 +14,6 @@
 #include "VolunteerState.h"
 #include "Victim.h"
 #include "VictimState.h"
-#include <mpi.h>
 
 class RescueSim_main {
 public:

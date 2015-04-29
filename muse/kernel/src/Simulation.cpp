@@ -38,7 +38,7 @@ using namespace muse;
 
 Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
                            gvtDelayRate(10), numberOfProcesses(-1u) {
-    commManager   = new Communicator();
+    commManager   = NULL;
     scheduler     = NULL;
     myID          = -1u;
     listener      = NULL;
@@ -47,8 +47,10 @@ Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
 }
 
 void
-Simulation::initialize(int& argc, char* argv[]) throw (std::exception) {
-    myID = commManager->initialize(argc, argv);
+Simulation::initialize(int& argc, char* argv[], bool initMPI)
+    throw (std::exception) {
+    commManager = new Communicator();
+    myID = commManager->initialize(argc, argv, initMPI);
     commManager->getProcessInfo(myID, numberOfProcesses);
     
     // If debugging is enabled, hijack cout and redirect it to a
@@ -101,9 +103,8 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
 
 
 Simulation::~Simulation() {
-    delete scheduler;
-    delete commManager;
-    DEBUG(delete logFile);
+    // Necessary clean-up is done in the finalize() method to enable
+    // running multiple simulations.
 }
 
 bool
@@ -163,13 +164,13 @@ Simulation::start() {
     unsigned int rank = -1u;
     commManager->getProcessInfo(rank, numberOfProcesses);
     
-    //loop for the initialization
+    // Loop for the initialization
     AgentContainer::iterator it;
     for (it = allAgents.begin(); (it != allAgents.end()); it++) {
+        (*it)->setLVT(startTime);  // Setup initial LVT
         (*it)->initialize();
         // time to archive the agent's init state
         (*it)->saveState();
-        
     }
     
     LGVT         = startTime;
@@ -241,7 +242,7 @@ Simulation::start() {
 }
 
 void
-Simulation::finalize() {
+Simulation::finalize(bool stopMPI) {
     // Inform the scheduler that the simulation is complete
     scheduler->stop();
     // Finalize all the agents on this MPI process while accumulating stats
@@ -263,7 +264,7 @@ Simulation::finalize() {
         Agent* const agent = *it;
         agent->cleanOutputQueue();
         // Bye byte agent!
-        delete agent;  
+        delete agent;
     }
 
     // Now delete GVT manager as we no longer need it.
@@ -272,13 +273,23 @@ Simulation::finalize() {
     gvtManager = NULL;
     
     // Finalize the communicator
-    commManager->finalize();
+    commManager->finalize(stopMPI);
+    delete commManager;
+    commManager = NULL;
 
     // Invalidate the  kernel ID
     myID = -1u;
     
     // Un-hijack cout
     DEBUG(std::cout.rdbuf(oldstream));
+    // Get rid of the log file.
+    DEBUG(delete logFile);
+    DEBUG(logFile = NULL);
+    // Get rid of scheduler as we no longer need it
+    delete scheduler;
+    scheduler = NULL;
+    // Clear out the list of agents in this simulation
+    allAgents.clear();
 }
 
 void
@@ -313,12 +324,6 @@ Time
 Simulation::getGVT() const {
     return gvtManager->getGVT();
 }
-
-/*void
-Simulation::updateKey(void* pointer, Time uTime) {
-    scheduler->updateKey(pointer, uTime);
-}
-*/
 
 void
 Simulation::setListener(SimulationListener *callback) {
