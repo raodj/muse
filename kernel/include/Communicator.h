@@ -25,8 +25,8 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
+#include "MPIHelper.h"
 #include "HashMap.h"
-#include <mpi.h>
 
 //these are the tag types
 #define AGENT_LIST        0
@@ -158,14 +158,20 @@ public:
 
     /** \brief Sync all communicators and get the agentMap populated.
 
-	\param argc the number of arguments to pass to MPI::Init
-	\param argv the list of arguments to pass to MPI:Init
+	\param[in,out] argc the number of arguments to pass to MPI::Init
+        
+	\param[in,out] argv the list of arguments to pass to MPI:Init
 
+        \param initMPI[in] Flag to indicate if MPI needs to be
+        reinitialized.  This flag is set to false if the simulation is
+        simply being repeated and initialization of MPI is not
+        necessary.
+        
 	\return SimulatorID (MPI rank of the process)
 
 	\see SimulatorID
     */
-    SimulatorID initialize(int argc, char* argv[]);
+    SimulatorID initialize(int argc, char* argv[], bool );
 
     /** \brief Synchronize AgentMapping between Kernel and
         Communicator
@@ -248,10 +254,13 @@ public:
     void setGVTManager(GVTManager* gvtMgr);
     
     /** \brief Clean up after yourself
-	
-	MPI calls the MPI:Finalize
+
+        \param[in] stopMPI If this flag is true, then MPI is finalized
+        via call to MPI calls the MPI:Finalize.  Otherwise MPI is not
+        finalized permitting another simulation run using current
+        setup.
     */
-    void finalize();
+    void finalize(bool stopMPI = true);
 
 private:
 

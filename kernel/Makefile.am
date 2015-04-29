@@ -43,6 +43,7 @@ libmuse_a_SOURCES = \
 	include/LinuxHashMap.h \
 	include/Scheduler.h \
 	include/WindowsHashMap.h \
+	include/MPIHelper.h \
 	src/Utilities.cpp \
 	src/Agent.cpp \
 	src/Event.cpp \
@@ -60,6 +61,7 @@ libmuse_a_SOURCES = \
 	src/AgentPQ.cpp \
 	src/ArgParser.cpp \
 	src/HRMScheduler.cpp \
+	src/MPIHelper.cpp \
 	include/HRMScheduler.h \
 	include/ResChannel.h \
 	src/ResChannel.cpp \

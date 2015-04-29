@@ -27,10 +27,9 @@
 #include "Communicator.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
+#include "DataTypes.h"
 #include "Event.h"
 #include "Agent.h"
-#include <mpi.h>
-#include "DataTypes.h"
 
 using namespace muse;
 
@@ -39,15 +38,18 @@ Communicator::Communicator() {
 }
 
 SimulatorID
-Communicator::initialize(int argc, char* argv[]) {
-    MPI::Init(argc, argv); 
-    return MPI::COMM_WORLD.Get_rank();
+Communicator::initialize(int argc, char* argv[], bool initMPI) {
+    if (initMPI) {
+        // Initialize MPI.
+        MPI_INIT(argc, argv);
+    }
+    return MPI_GET_RANK();
 }
 
 void
 Communicator::registerAgents(AgentContainer& allAgents) {
-    const int procCount = MPI::COMM_WORLD.Get_size();
-    const int rank      = MPI::COMM_WORLD.Get_rank();
+    const int procCount = MPI_GET_SIZE();
+    const int rank      = MPI_GET_RANK();
     
     // Add all of the local agents to the map
     AgentContainer::iterator ac_it;
@@ -64,19 +66,18 @@ Communicator::registerAgents(AgentContainer& allAgents) {
     if (rank == ROOT_KERNEL) {
         // The Root Kernel (rank 0) needs to accept registrations from
         // other processes.
-        MPI::Status status;
+        MPI_STATUS status;
         // We start at 1 because we have already self-registered
         for (int p = 1; (p < procCount); p++) {
             // Probe for a message from another simulation kernel.
-            MPI::COMM_WORLD.Probe(MPI_ANY_SOURCE, AGENT_LIST, status);
+            MPI_PROBE(MPI_ANY_SOURCE, AGENT_LIST, status);
             // Figure out the agent list size
-            int agentListSize = status.Get_count(MPI::UNSIGNED);
+            int agentListSize = status.Get_count(MPI_TYPE_UNSIGNED);
             // Make a large enough array
             std::vector<unsigned int> agentList(agentListSize);
             // Perform the actual receive operation
-            MPI::COMM_WORLD.Recv(&agentList[0], agentListSize,
-                                 MPI::UNSIGNED, status.Get_source(),
-                                 AGENT_LIST, status);
+            MPI_RECV(&agentList[0], agentListSize, MPI_TYPE_UNSIGNED,
+                     status.Get_source(), AGENT_LIST, status);
             // Add the contents of this list to master AgentMap
             for(int i = 0; (i < agentListSize); i++) {
                 if (agentMap.find(agentList[i]) != agentMap.end()) {
@@ -102,10 +103,10 @@ Communicator::registerAgents(AgentContainer& allAgents) {
             counter += 2;
         }
         // Broadcast the size of the flat agent map
-        MPI::COMM_WORLD.Bcast(&flatAgentMapSize, 1, MPI::INT, ROOT_KERNEL);
+        MPI_BCAST(&flatAgentMapSize, 1, MPI_TYPE_INT, ROOT_KERNEL);
         // Broadcast the actual flat agent map
-        MPI::COMM_WORLD.Bcast(flatAgentMap, flatAgentMapSize, MPI::UNSIGNED,
-                              ROOT_KERNEL);
+        MPI_BCAST(flatAgentMap, flatAgentMapSize, MPI_TYPE_UNSIGNED,
+                  ROOT_KERNEL);
         std::cout << "Agent Registration: complete!" << std::endl;
         delete[] flatAgentMap;
     } else {
@@ -116,23 +117,19 @@ Communicator::registerAgents(AgentContainer& allAgents) {
             agentList[i] = allAgents[i]->getAgentID();
         }
         // Send the flat list across with MPI
-        MPI::COMM_WORLD.Send(agentList, allAgents.size(), MPI::UNSIGNED,
-                             ROOT_KERNEL, AGENT_LIST);
+        MPI_SEND(agentList, allAgents.size(), MPI_TYPE_UNSIGNED,
+                 ROOT_KERNEL, AGENT_LIST);
         //get the size of incoming agentMap list
         int agentMapLength = 0;
-        MPI::COMM_WORLD.Bcast(&agentMapLength, 1, MPI::INT, ROOT_KERNEL);
-        
+        MPI_BCAST(&agentMapLength, 1, MPI_TYPE_INT, ROOT_KERNEL);        
         // Receive a completed agentMap from the Root Kernel (rank 0)
         AgentID* flatAgentMap = new AgentID[agentMapLength];
-        MPI::COMM_WORLD.Bcast(flatAgentMap, agentMapLength, MPI::UNSIGNED,
-                              ROOT_KERNEL);
-
+        MPI_BCAST(flatAgentMap, agentMapLength, MPI_TYPE_UNSIGNED, ROOT_KERNEL);
         // Populate the real agentMap using the flatAgentMap
         ASSERT(agentMapLength % 2 == 0);
         for (int i = 0; (i < agentMapLength); i += 2){
             agentMap[flatAgentMap[i]] = flatAgentMap[i + 1];
         }
-
         delete[] flatAgentMap;
     }
 }
@@ -142,12 +139,12 @@ Communicator::sendEvent(Event* e, const int eventSize){
     try {
         // Send event as raw (char) data
         char* serialEvent = reinterpret_cast<char*>(e);
-        MPI::COMM_WORLD.Send(serialEvent, eventSize, MPI::CHAR,
-                             agentMap[e->getReceiverAgentID()], EVENT);
+        MPI_SEND(serialEvent, eventSize, MPI_TYPE_CHAR,
+                 agentMap[e->getReceiverAgentID()], EVENT);
         //cout << "SENT an Event of size: " << eventSize << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
         //e->decreaseReference();
-    } catch (MPI::Exception e) {
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendEvent): "
                   << e.Get_error_string() << std::endl;
     }
@@ -158,9 +155,8 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
     try {
         // GVT messages are already serialized.
         const char *data = reinterpret_cast<const char*>(msg);
-        MPI::COMM_WORLD.Send(data, msg->getSize(), MPI::CHAR,
-                             destRank, GVT_MESSAGE);
-    } catch (MPI::Exception e) {
+        MPI_SEND(data, msg->getSize(), MPI_TYPE_CHAR, destRank, GVT_MESSAGE);
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
     }
@@ -169,9 +165,8 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
 void
 Communicator::sendMessage(const std::string& str, const int destRank, int tag) {
     try {
-        MPI::COMM_WORLD.Send(str.c_str(), str.size() + 1, MPI::CHAR,
-                             destRank, tag);
-    } catch (MPI::Exception e) {
+        MPI_SEND(str.c_str(), str.size() + 1, MPI_TYPE_CHAR, destRank, tag);
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
     }
@@ -181,30 +176,29 @@ std::string
 Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
                              bool blocking) {
     recvRank = -1;  // Initialize to invalid value
-    MPI::Status status;
-
+    MPI_STATUS status;
     try {
-        if (!blocking && !MPI::COMM_WORLD.Iprobe(srcRank, tag, status)) {
+        if (!blocking && !MPI_IPROBE(srcRank, tag, status)) {
             // No pending message.
             return "";
         } else if (blocking) {
             // Wait until we get a valid message to read.
-            MPI::COMM_WORLD.Probe(srcRank, tag, status);
+            MPI_PROBE(srcRank, tag, status);
         }
-    } catch (MPI::Exception e) {
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
     }
     // Figure out the size of the string we need.
-    const int strSize = status.Get_count(MPI::CHAR);
+    const int strSize = status.Get_count(MPI_TYPE_CHAR);
     std::string msg(strSize, 0);
     // Read the actual string data.
     try {
-        MPI::COMM_WORLD.Recv(&msg[0], strSize, MPI::CHAR,
-                             status.Get_source(), status.Get_tag(), status);
+        MPI_RECV(&msg[0], strSize, MPI::CHAR,
+                 status.Get_source(), status.Get_tag(), status);
         recvRank = status.Get_source();
-    } catch (MPI::Exception& e) {
+    } catch (MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return "";
@@ -214,25 +208,25 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
 
 Event*
 Communicator::receiveEvent(){
-    MPI::Status status;
+    MPI_STATUS status;
     try {
-        if (!MPI::COMM_WORLD.Iprobe(MPI_ANY_SOURCE, MPI_ANY_TAG, status)) {
+        if (!MPI_IPROBE(MPI_ANY_SOURCE, MPI_ANY_TAG, status)) {
             // No pending event.
             return NULL;
         }
-    } catch (MPI::Exception e) {
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
     }
     // Figure out the agent list size
-    int eventSize = status.Get_count(MPI::CHAR);
+    int eventSize = status.Get_count(MPI_TYPE_CHAR);
     char *incoming_event = new char[eventSize];
     // Read the actual data.
     try {
-        MPI::COMM_WORLD.Recv(incoming_event, eventSize, MPI::CHAR,
-                             status.Get_source(), status.Get_tag(), status);
-    } catch (MPI::Exception& e) {
+        MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
+                 status.Get_source(), status.Get_tag(), status);
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         delete[] incoming_event;
@@ -266,17 +260,17 @@ bool
 Communicator::isAgentLocal(const AgentID id) {
     //cout << "Check if Local Agent: " << id <<endl;
     //ASSERT(id >= 0 && id <= 4);
-    SimulatorID my_id = MPI::COMM_WORLD.Get_rank();
+    SimulatorID my_id = MPI_GET_RANK();
     return (agentMap[id] == my_id);
 }
 
 void
-Communicator::finalize() {
+Communicator::finalize(bool stopMPI) {
     try {
-        // cout << "[COMMUNICATOR] - before MPI::finalize()" << endl;
-        MPI::Finalize();
-        // cout << "[COMMUNICATOR] - MPI in CommManager has been finalized." << endl;
-    } catch (MPI::Exception e) {
+        if (stopMPI) {
+            MPI_FINALIZE();
+        }
+    } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (finalize): "
                   << e.Get_error_string() << std::endl;
     }
@@ -301,8 +295,8 @@ Communicator::getOwnerRank(const AgentID& id) const {
 
 void
 Communicator::getProcessInfo(unsigned int& rank, unsigned int& numProcesses) {
-    rank         = MPI::COMM_WORLD.Get_rank();
-    numProcesses = MPI::COMM_WORLD.Get_size();
+    rank         = MPI_GET_RANK();
+    numProcesses = MPI_GET_SIZE();
 }
 
 Communicator::~Communicator() {}

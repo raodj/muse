@@ -90,8 +90,14 @@ public:
 	\param argv[in,out] The actual command line arguments.  This
 	list is modifed if command-line arguments are consumed by the
 	kernel.
+
+        \param initMPI[in] Flag to indicate if MPI needs to be
+        reinitialized.  This flag is set to false if the simulation is
+        simply being repeated and initialization of MPI is not
+        necessary.
     */
-    void initialize(int& argc, char* argv[]) throw (std::exception);
+    void initialize(int& argc, char* argv[], bool initMPI = true)
+        throw (std::exception);
 
     /** \brief Finalize the Simulation
 
@@ -100,8 +106,12 @@ public:
         communicator.
 
         This method will also print statistics about the simulation.
+
+        \param[in] stopMPI If this flag is true, then MPI is
+        finalized.  Otherwise MPI is not finalized permitting another
+        simulation run using current setup.
     */
-    void finalize();
+    void finalize(bool stopMPI = true);
         
     /** \brief Get the Simulator ID
      
