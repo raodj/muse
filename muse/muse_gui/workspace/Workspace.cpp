@@ -153,6 +153,8 @@ Workspace::useWorkspace(const QString &directory) {
     workspace->dumpWorkspace();
     // Add the list of servers to the table model
     workspace->addInitialServersToModel();
+    workspace->addInitialProjectsToModel();
+    workspace->addInitialJobsToModel();
     // Return success (no error message).
     return "";
 }
@@ -176,15 +178,53 @@ Workspace::addInitialServersToModel() {
     }
 }
 
+void
+Workspace::addInitialProjectsToModel() {
+    for (int i = 0; i < serverList.size(); i++) {
+        Server& server = serverList.get(i);
+
+        for (int k = 0; k < server.getProjectList().size(); k++) {
+            projectsModel.appendProjectEntry(server.getProjectList().get(k), server);
+        }
+    }
+}
+
+void
+Workspace::addInitialJobsToModel() {
+    for (int i = 0; i < jobList.size(); i++) {
+        jobModel.appendJobEntry(jobList.get(i));
+    }
+}
+
 ServerListTableModel &
 Workspace::getTableModel() {
     return serverModel;
+}
+
+ProjectsListTableModel &
+Workspace::getProjectsListTableModel() {
+    return projectsModel;
+}
+
+JobListTableModel &
+Workspace::getJobListTableModel() {
+    return jobModel;
 }
 
 void
 Workspace::addServerToWorkSpace(Server &server) {
     serverList.addServer(server);
     serverModel.appendServerEntry(server);
+}
+
+void
+Workspace::addProjectToWorkSpace(Project &project, Server *server) {
+    projectsModel.appendProjectEntry(project, *server);
+}
+
+void
+Workspace::addJobToWorkSpace(Job &job) {
+    jobModel.appendJobEntry(job);
 }
 
 #endif

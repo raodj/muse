@@ -46,13 +46,15 @@ class MainWindow : public QMainWindow {
     
 public:
     MainWindow(QWidget *parent = 0);
+
     ~MainWindow();
 
 protected:
-    void showEvent(QShowEvent * event);
+    void showEvent(QShowEvent *event);
 
 protected slots:
     void createLoadDefaultWorkspace();
+
     /**
      * @brief showServerWidget Displays a server list view in the main frame
      * if a view is not already present.
@@ -64,6 +66,8 @@ protected slots:
      * invoked via the top-level application's "View" menu option.
      */
     void showServerListView();
+
+    void showProjectsJobsListView();
 
     /**
      * @brief showProjectWizard Creates and executes the ProjectWizard
@@ -85,7 +89,8 @@ private:
      */
     DnDTabWidget *desktop;
     QMenu fileMenu;
-    QAction* newProject, *newJob;
+    QAction *newProject;
+    QAction *newJob;
 
     /**
      * @brief createMenus Creates the menu bar that is used throughout

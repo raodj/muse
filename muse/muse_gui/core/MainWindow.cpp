@@ -36,6 +36,13 @@
 //
 //---------------------------------------------------------------------
 
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QDir>
+#include <QTimer>
+#include <QShowEvent>
+#include <QMenuBar>
+
 #include "Core.h"
 #include "MainWindow.h"
 #include "ProgrammerLogView.h"
@@ -43,28 +50,28 @@
 #include "Workspace.h"
 #include "Logger.h"
 #include "Version.h"
-#include <QLabel>
-#include <QVBoxLayout>
-#include <QDir>
-#include <QTimer>
-#include <QShowEvent>
 #include "MUSEGUIApplication.h"
 #include "ProjectWizard.h"
 #include "JobWizard.h"
 #include "ServerListView.h"
-#include <QMenuBar>
+#include "ProjectsListView.hpp"
+#include "JobListView.hpp"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
+
     // Create the main desktop pane
     desktop = new DnDTabWidget(parent, "Desktop", true);
+
     // Set the desktop as the central widget
     this->setCentralWidget(desktop);
+
     // Create default user and programmer log views
     DnDTabWidget* const bottomTab =
             desktop->createSplitPane(new UserLogView(), "User Log",
                                      DnDTabBar::BOTTOM,
                                      QIcon(":/images/32x32/user_logs.png"));
+
     bottomTab->createSplitPane(new ProgrammerLogView(),
                                "Programmer Log", DnDTabBar::CENTER,
                                QIcon(":/images/32x32/programmer_logs.png"));
@@ -81,9 +88,11 @@ void
 MainWindow::showEvent(QShowEvent *event) {
     // Let base class do the necessary operations
     QMainWindow::showEvent(event);
+
     if (event->spontaneous()) {
         return;
     }
+
     // Cut some initial programmer logs with disclaimers.
     progLog() << endl << QString(80, '-') << endl
               << FULL_TITLE << endl << MUSE_GUI_VERSION
@@ -93,6 +102,7 @@ MainWindow::showEvent(QShowEvent *event) {
     // Cut some initial user logs.
     userLog() << FULL_TITLE << endl << MUSE_GUI_VERSION;
     userLog() << MUSE_GUI_RELEASE_DATE << endl << MUSE_GUI_COPYRIGHT;
+
     // Setup signal to create/load workspace. This should eventually become
     // a dialog that permits the user to choose a workspace even before
     // the main window is launched.
@@ -104,23 +114,29 @@ MainWindow::createLoadDefaultWorkspace() {
     // Try and load the default workspace first.
     const QString homeDir = MUSEGUIApplication::getAppDirPath();
     QString errMsg = Workspace::useWorkspace(homeDir);
+
     if (errMsg != "") {
         userLog(Logger::LOG_WARNING)
                 << "Default workspace file was not found in " << homeDir << " [" << errMsg << "]";
         userLog(Logger::LOG_WARNING)
                 << "Attempting to create default workspace in " << homeDir;
+
         if ((errMsg = Workspace::createWorkspace(homeDir)) == "") {
             userLog() << "Successfully created workspace in " << homeDir;
         }
     }
+
     if (errMsg == "") {
         userLog() << "Using workspace in directory " << homeDir;
     } else {
         userLog(Logger::LOG_ERROR) << "Error creating/using workspace in "
                                    << homeDir << " - " << errMsg;
     }
-    // Create a view that lists all servers in this workspace.
+
+    // Create a view that lists all servers, one that list all the projects
+    // and one that lists the jobs in the workspace.
     showServerListView();
+    showProjectsJobsListView();
 }
 
 void
@@ -134,6 +150,27 @@ MainWindow::showServerListView() {
                                  QIcon(":/images/16x16/Server.png"));
     }
 }
+
+void
+MainWindow::showProjectsJobsListView() {
+    // Check to see if a projects list view already exists in this main window.
+    // If so do not perfrom any futher operations.
+    if (findChild<ProjectsListView*>(ProjectsListView::ViewName) == NULL) {
+        // Create the widget and set its minimum width.
+        desktop->createSplitPane(new ProjectsListView(), "Projects",
+                                 DnDTabBar::CENTER,
+                                 QIcon(":/images/16x16/Server.png"));
+    }
+
+    // will be used to show jobs view when it is created
+    if (findChild<JobListView*>(JobListView::ViewName) == NULL) {
+        // Create the widget and set its minimum width.
+        desktop->createSplitPane(new JobListView(), "Jobs",
+                                 DnDTabBar::CENTER,
+                                 QIcon(":/images/16x16/Server.png"));
+    }
+}
+
 
 void
 MainWindow::showProjectWizard() {
@@ -153,6 +190,7 @@ void
 MainWindow::createActions() {
     newProject = new QAction("Create New Project", this);
     connect(newProject, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+
     newJob = new QAction("Create New Job", this);
     connect(newJob, SIGNAL(triggered()), this, SLOT(showJobWizard()));
 }

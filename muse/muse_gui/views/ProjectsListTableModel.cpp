@@ -1,5 +1,5 @@
-#ifndef USER_LOG_CPP
-#define USER_LOG_CPP
+#ifndef PROJECTS_LIST_TABLE_CPP
+#define PROJECTS_LIST_TABLE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,64 +36,70 @@
 //
 //---------------------------------------------------------------------
 
-#include "UserLog.h"
-#include <QFile>
+#include "ProjectsListTableModel.hpp"
 
-// The global singleton instance of programmer log
-UserLog UserLog::globalUserLog;
+#include <algorithm>
 
-UserLog::UserLog() : logData(NULL) {
+ProjectsListTableModel::ProjectsListTableModel() {
+    //Set the column headers
+    setHeaderData(0, Qt::Horizontal, "Project", Qt::DisplayRole);
+    setHeaderData(1, Qt::Horizontal, "Server Name", Qt::DisplayRole);
+    //setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
 }
 
-UserLog::~UserLog() {
-    // Empty constructor implies empty destructor
-}
-
-Logger::LogLevel
-UserLog::getLevel(const int row) const {
-    if ((row < 0) || (row >= logData.logEntries.size())) {
-        return Logger::LOG_ERROR;
+QVariant
+ProjectsListTableModel::headerData(int section, Qt::Orientation orientation,
+                                   int role) const {
+    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
+        // Ignore this type of request
+        return QVariant();
     }
-    return logData.logEntries[row].level;
+
+    // Return strings for column headers
+    static const QString ColumnTitles[MAX_COLUMNS] =
+    {"Project", "Server Name"};
+
+    return  ColumnTitles[section];
 }
 
+QVariant
+ProjectsListTableModel::data(const QModelIndex &index, int role) const {
+
+    if ((index.row() < 0)    || (index.row() >= projectEntries.size()) ||
+        (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
+        // A request that cannot be handled.
+        return QVariant();
+    }
+
+    //Rest of method only executed if role is the display role.
+    if (role != Qt::DisplayRole) {
+        return QVariant();
+    }
+
+    //Get the desired row of the server list
+    const ProjectListItem &projectItem = projectEntries.at(index.row());
+
+    //Return the value corresponding to the column.
+    switch (index.column()) {
+    case 0: return projectItem.project.getName();
+    default:
+    case 1: return projectItem.server.getName();
+    }
+}
 
 void
-UserLog::writeAllEntries(const int lowestLevelToShow) {
-    for(int i = 0; ((logStream.status() == QTextStream::Ok) &&
-                    (i < logData.logEntries.size())); i++) {
-        if(getLevel(i) >= lowestLevelToShow)
-            logStream << logData.logEntries[i] << endl;
-    }
-    checkLogStream();
-}
+ProjectsListTableModel::appendProjectEntry(Project& project, Server& server) {
+    // Let base class know a row is being added
+    beginInsertRows(QModelIndex(), projectEntries.size(),
+                    projectEntries.size() + 1);
 
-void
-UserLog::appendLogEntry(const Logger::LogLevel level,
-                        const QMessageLogContext &context, const QString &msg) {
-    // Save data in our logs
-    logData.appendLogEntry(level, context, msg);
-    // Let views (if any) know the model/data has changed
-    emit logChanged();
-    // Stream the log entry to the log file (if it has been setup).
-    //const int lastRow = logData.logEntries.size() - 1;
-    if (isLogStreamGood()) {
-        emit saveNewestEntry();
-    }
-}
+    // Add the server to the list
+    projectEntries.append(ProjectListItem(project, server));
 
-void
-UserLog::writeLastEntry(const int lowestLevelToShow) {
-    //Under normal use, this would have been checked in
-    //UserLog::appendLogEntry(), but in case this method
-    //is called from a different source, we still need to
-    //check.
-    if(isLogStreamGood()) {
-        const int lastRow = logData.logEntries.size() - 1;
-        if(getLevel(lastRow) >= lowestLevelToShow)
-            logStream << logData.logEntries[lastRow] << endl;
-        checkLogStream();
-    }
+    // We are done inserting rows
+    endInsertRows();
+
+    emit projectAdded();
 }
 
 #endif

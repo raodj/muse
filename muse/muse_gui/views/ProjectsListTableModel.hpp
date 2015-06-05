@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef PROJECTSLISTTABLEMODEL_HPP
+#define PROJECTSLISTTABLEMODEL_HPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,51 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include <QAbstractTableModel>
+#include "Project.h"
+#include "Server.h"
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+#define MAX_COLUMNS 2
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+class ProjectListItem {
+public:
+    ProjectListItem(Project ip, Server is)
+        : project(ip), server(is) {}
 
-    setLayout(layout);
-    session = NULL;
-}
+    Project project;
+    Server server;
+};
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+class ProjectsListTableModel : public QAbstractTableModel {
+    Q_OBJECT
+public:
+    ProjectsListTableModel();
+    int rowCount(const QModelIndex & = QModelIndex()) const { return projectEntries.size(); }
+    int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    checkServerChosen(index);
+    static ProjectsListTableModel& model;
 
-    return true;
-}
+public slots:
+    /**
+     * @brief appendProjectEntry Adds a project to this ProjectsListTableModel.
+     * @param project The project to add
+     */
+    void appendProjectEntry(Project& project, Server& server);
 
-void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+signals:
+    /**
+     * @brief serverAdded Alerts any views using this ServerListTableModel
+     * that a server has been added to the table and that the views should
+     * be updated.
+     */
+    void selectedServerChanged();
+    void projectAdded();
 
-    if (session != NULL) {
-        delete session;
-    }
+private:
+    QList<ProjectListItem> projectEntries;
+};
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
-
-    emit serverSelected(session);
-}
-
-#endif
+#endif // PROJECTSLISTTABLEMODEL_HPP

@@ -137,12 +137,12 @@ ServerInfoPage::validatePage() {
         // Ensure that a return to this page reverifies everything
         mkdirSucceeded = false;
         installDirectoryVerified = false;
-        Server& server = serverSession->getServer();
+        Server *server = serverSession->getServer();
         // Add the server description.
-        server.setDescription((serverDescription.toPlainText().isEmpty()) ?
+        server->setDescription((serverDescription.toPlainText().isEmpty()) ?
                                   "None provided." : serverDescription.toPlainText());
         // Add the install directory
-        server.setInstallPath(installDirectoryDisplay.text());
+        server->setInstallPath(installDirectoryDisplay.text());
         // Inform the user of the success.
         QMessageBox msgBox;
         msgBox.setText(ServerInfoPage::InstallDirectoryMessage);

@@ -79,7 +79,7 @@ JobSummaryPage::initializePage() {
             // Once we hit project n that matches the index of the project
             // field, print its info to the text edit.
             if (projectCount == field("project").toInt()) {
-             Project& proj = projList.get(i);
+             Project& proj = projList.get(j);
                 summaryDisplay.append(indent +"Project: "
                                       + projList.get(j).getName() +
                                       + "_" + QString::number(proj.getJobCount() - 1));

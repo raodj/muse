@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef JOB_LIST_TABLE_CPP
+#define JOB_LIST_TABLE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,66 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include "JobListTableModel.hpp"
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
+JobListTableModel::JobListTableModel() {
+    //Set the column headers
+    for (int i = 0; i < columnTitles.size(); i++) {
+        setHeaderData(i, Qt::Horizontal, columnTitles[i], Qt::DisplayRole);
     }
-
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
-
-    setLayout(layout);
-    session = NULL;
 }
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
-
-    if (index == -1) {
-        // no server was selected
-        return false;
+QVariant
+JobListTableModel::headerData(int section, Qt::Orientation orientation,
+                              int role) const {
+    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
+        // Ignore this type of request
+        return QVariant();
     }
 
-    checkServerChosen(index);
+    return  columnTitles[section];
+}
 
-    return true;
+QVariant
+JobListTableModel::data(const QModelIndex &index, int role) const {
+    if ((index.row() < 0)    || (index.row() >= jobEntries.size()) ||
+        (index.column() < 0) || (index.column() >= columnTitles.size())) {
+        // A request that cannot be handled.
+        return QVariant();
+    }
+
+    //Rest of method only executed if role is the display role.
+    if (role != Qt::DisplayRole) {
+        return QVariant();
+    }
+
+    //Get the desired row of the server list
+    const Job &job = jobEntries.at(index.row());
+
+    //Return the value corresponding to the column.
+    switch (index.column()) {
+    case 0: return job.getName();
+    case 1: return job.getServer();
+    case 2: return job.getStatus();
+    case 3: return (long long int) job.getJobId(); // long int cant be used in QVariant
+    default:
+    case 4: return job.getDateSubmitted();
+    }
 }
 
 void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+JobListTableModel::appendJobEntry(Job& job) {
+    // Let base class know a row is being added
+    beginInsertRows(QModelIndex(), jobEntries.size(),
+                    jobEntries.size() + 1);
 
-    if (session != NULL) {
-        delete session;
-    }
+    // Add the server to the list
+    jobEntries.append(job);
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
+    // We are done inserting rows
+    endInsertRows();
 
-    emit serverSelected(session);
+    emit jobAdded();
 }
 
 #endif

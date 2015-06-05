@@ -42,6 +42,7 @@
 #include "LocalServerSession.h"
 #include "Core.h"
 #include "MUSEGUIApplication.h"
+#include "Workspace.h"
 #include <QFile>
 #include "Workspace.h"
 #include <QVBoxLayout>
@@ -187,6 +188,7 @@ SubmitPage::submitToServer() {
                 Workspace* ws = Workspace::get();
                 // Add the entry to the workspace.
                 ws->getJobList().addJob(*job);
+                ws->addJobToWorkSpace(*job);
                 // Save the workspace
                 ws->saveWorkspace();
                 prgDialog.setValue(++submitStep);
@@ -219,7 +221,6 @@ SubmitPage::submitToServer() {
             safeToClose = true;
         }
     }
-
 }
 
 #endif

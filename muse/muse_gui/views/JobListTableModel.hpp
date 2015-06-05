@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef JOB_LIST_TABLE_MODEL_HPP
+#define JOB_LIST_TABLE_MODEL_HPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,36 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include <QAbstractTableModel>
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+#include "Job.h"
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+//#ifndef MAX_COLUMNS
+//#define MAX_COLUMNS 3
+//#endif
 
-    setLayout(layout);
-    session = NULL;
-}
+class JobListTableModel : public QAbstractTableModel {
+    Q_OBJECT
+public:
+    JobListTableModel();
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+    int rowCount(const QModelIndex & = QModelIndex()) const { return jobEntries.size(); }
+    int columnCount(const QModelIndex & = QModelIndex()) const { return columnTitles.size(); }
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    checkServerChosen(index);
+    static JobListTableModel& model;
 
-    return true;
-}
+public slots:
+    void appendJobEntry(Job& job);
 
-void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+signals:
+    void jobAdded();
 
-    if (session != NULL) {
-        delete session;
-    }
+private:
+    QList<QString> columnTitles = { "Name", "Server", "Status", "ID", "Date Submitted" };
+    QList<Job> jobEntries;
+};
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
-
-    emit serverSelected(session);
-}
-
-#endif
+#endif // JOB_LIST_TABLE_MODEL_HPP

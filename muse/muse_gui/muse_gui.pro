@@ -100,7 +100,11 @@ SOURCES +=\
     core/jobWizard/PBSJobFileCreator.cpp \
     core/jobWizard/SubmitPage.cpp \
     workspace/Job.cpp \
-    workspace/JobList.cpp
+    workspace/JobList.cpp \
+    views/ProjectsListView.cpp \
+    views/ProjectsListTableModel.cpp \
+    views/JobListTableModel.cpp \
+    views/JobListView.cpp
 
 
 HEADERS  += \
@@ -142,7 +146,7 @@ HEADERS  += \
     core/filediag/FSHelperCommon.h \
     core/filediag/FSHelper.h \
     core/filediag/FSEntry.h \
-    core/filediag/FileSystemModel.h.bak \
+    #core/filediag/FileSystemModel.h.bak \
     core/filediag/FileSystemModel.h \
     core/filediag/CustomFileDialog.h \
     core/filediag/DirFilterProxyModel.h \
@@ -180,7 +184,11 @@ HEADERS  += \
     core/jobWizard/PBSJobFileCreator.h \
     core/jobWizard/SubmitPage.h \
     workspace/Job.h \
-    workspace/JobList.h
+    workspace/JobList.h \
+    views/ProjectsListView.hpp \
+    views/ProjectsListTableModel.hpp \
+    views/JobListTableModel.hpp \
+    views/JobListView.hpp
 
 
 OTHER_FILES += \

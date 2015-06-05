@@ -38,7 +38,10 @@
 
 #include <QAbstractTableModel>
 #include "Server.h"
+
+//#ifndef MAX_COLUMNS
 #define MAX_COLUMNS 3
+//#endif
 
 /**
  * @brief The ServerListTableModel class The table model for showing a
