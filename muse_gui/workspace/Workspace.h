@@ -40,6 +40,8 @@
 #include "ServerList.h"
 #include <QDateTime>
 #include "ServerListTableModel.h"
+#include "ProjectsListTableModel.hpp"
+#include "JobListTableModel.hpp"
 #include "Server.h"
 #include "JobList.h"
 
@@ -179,12 +181,18 @@ public:
      */
     ServerListTableModel& getTableModel();
 
+    ProjectsListTableModel& getProjectsListTableModel();
+
+    JobListTableModel& getJobListTableModel();
+
     /**
      * @brief addServerToWorkSpace Adds server to the serverList and to the
      * ServerListTableModel.
      * @param server The server to be added.
      */
     void addServerToWorkSpace(Server& server);
+    void addProjectToWorkSpace(Project& project, Server *server);
+    void addJobToWorkSpace(Job& job);
 
 protected:
     /**
@@ -271,6 +279,8 @@ private:
     static const QString WorkspaceFileName;
 
     ServerListTableModel serverModel;
+    ProjectsListTableModel projectsModel;
+    JobListTableModel jobModel;
 
     /**
      * @brief addInitialServersToModel Iterates through serverList and adds
@@ -278,6 +288,8 @@ private:
      * ServerListTableModel.
      */
     void addInitialServersToModel();
+    void addInitialProjectsToModel();
+    void addInitialJobsToModel();
 
     JobList jobList;
 };

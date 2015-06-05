@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef PROJECTS_LIST_VIEW_CPP
+#define PROJECTS_LIST_VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,60 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
+#include "ProjectsListView.hpp"
 #include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include "ProjectWizard.h"
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+#include <QHeaderView>
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+const QString ProjectsListView::ViewName = "ProjectsListView";
 
-    setLayout(layout);
-    session = NULL;
-}
+ProjectsListView::ProjectsListView(QWidget *parent) :
+    View(ViewName, parent), projectsTable(this) {
+    //Show a dotted line grid in the view
+    projectsTable.setShowGrid(true);
+    projectsTable.setGridStyle(Qt::DotLine);
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+    //Stretch the last section across the rest of the view.
+    projectsTable.horizontalHeader()->setStretchLastSection(true);
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+    // Set the full row to be selected by default
+    projectsTable.setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    checkServerChosen(index);
+    //This is probably not the way we actually want to implement this.
+    projectsTable.setModel(&Workspace::get()->getProjectsListTableModel());
 
-    return true;
+    // Initialize the toolbar buttons
+    initializeToolBarButtons();
+
+    // Organize components in this view for dsiplay
+    createDefaultLayout(true, &projectsTable);
+
+    // Allow the project wizard to spawn when the button is clicked.
+    connect(addProjectButton, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+
+    // Connect the signal to allow the view to update the list.
+    //connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
+            //this, SLOT(updateView()));
 }
 
 void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+ProjectsListView::initializeToolBarButtons() {
+    addProjectButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+                                  "Create a new project", 0);
+    addAction(addProjectButton);
+}
 
-    if (session != NULL) {
-        delete session;
-    }
+void
+ProjectsListView::showProjectWizard() {
+    QFile file(":/resources/projectOverview.html");
+    ProjectWizard pw(file);
+    pw.exec();
+}
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
+void
+ProjectsListView::updateView() {
 
-    emit serverSelected(session);
 }
 
 #endif

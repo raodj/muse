@@ -104,7 +104,7 @@ ServerListView::showServerWizard() {
 
 void
 ServerListView::updateView() {
-    const int lastRow = serverTable.model()->rowCount() -1;
+    const int lastRow = serverTable.model()->rowCount() - 1;
     QModelIndex modelIndex = serverTable.model()->index(lastRow, 0);
     serverTable.scrollTo(modelIndex, QAbstractItemView::PositionAtBottom);
 }

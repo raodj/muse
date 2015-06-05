@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef PROJECTS_VIEW_HPP
+#define PROJECTS_VIEW_HPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,35 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include "View.h"
+#include <QTableView>
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+class ProjectsListView : public View {
+    Q_OBJECT
+public:
+    ProjectsListView(QWidget* parent = 0);
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+    static const QString ViewName;
 
-    setLayout(layout);
-    session = NULL;
-}
+public slots:
+    void updateView();
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+protected slots:
+    /**
+     * @brief showProjectWizard Shows the ProjectWizard when the user selects
+     * to add a project to the specific server
+     */
+    void showProjectWizard();
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+private:
+    QTableView projectsTable;
+    QAction* addProjectButton;
 
-    checkServerChosen(index);
+    /**
+     * @brief initializeToolBarButtons Initializes and adds the the buttons
+     * to the toolbar for the server list view.
+     */
+    void initializeToolBarButtons();
+};
 
-    return true;
-}
-
-void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
-
-    if (session != NULL) {
-        delete session;
-    }
-
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
-
-    emit serverSelected(session);
-}
-
-#endif
+#endif // projectsVIEW_HPP

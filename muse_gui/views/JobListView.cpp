@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef JOB_LIST_VIEW_CPP
+#define JOB_LIST_VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,63 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
+#include <QHeaderView>
+
 #include "Core.h"
+#include "JobListView.hpp"
+#include "JobListTableModel.hpp"
+#include "JobWizard.h"
 #include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+// The constant string that identifies the name of this view
+const QString JobListView::ViewName = "JobListView";
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+JobListView::JobListView(QWidget *parent)
+    : View(ViewName, parent), jobTable(this) {
+    //Show a dotted line grid in the view
+    jobTable.setShowGrid(true);
+    jobTable.setGridStyle(Qt::DotLine);
 
-    setLayout(layout);
-    session = NULL;
-}
+    //Stretch the last section across the rest of the view.
+    jobTable.horizontalHeader()->setStretchLastSection(true);
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+    // Set the full row to be selected by default
+    jobTable.setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+    //This is probably not the way we actually want to implement this.
+    jobTable.setModel(&Workspace::get()->getJobListTableModel());
 
-    checkServerChosen(index);
+    // Initialize the toolbar buttons
+    initializeToolBarButtons();
 
-    return true;
+    // Organize components in this view for dsiplay
+    createDefaultLayout(true, &jobTable);
+
+    // Allow the server wizard to spawn when the button is clicked.
+    connect(addJobButton, SIGNAL(triggered()), this, SLOT(showJobWizard()));
+
+    // Connect the signal to allow the view to update the list.
+    //connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
+    //        this, SLOT(updateView()));
 }
 
 void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+JobListView::initializeToolBarButtons() {
+    addJobButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+                               "Add a job", 0);
+    addAction(addJobButton);
+}
 
-    if (session != NULL) {
-        delete session;
-    }
+void
+JobListView::showJobWizard() {
+    QFile file(":/resources/jobOverview.html");
+    JobWizard jw(file);
+    jw.exec();
+}
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
+void
+JobListView::updateView() {
 
-    emit serverSelected(session);
 }
 
 #endif

@@ -84,6 +84,7 @@ MUSEGUIApplication::exec() {
             return 1;
         }
     }
+
     // Ensure other files look all right at this point in time.
     if (!checkCreateAppDirectory()) {
         // Error when setting up necessary files. Bail out.
@@ -94,6 +95,7 @@ MUSEGUIApplication::exec() {
     // Everything went well so far. Create one main window and show it.
     mainWindowList.append(new MainWindow());
     mainWindowList[0]->show();
+
     // Let the base class do rest of the work.
     return QGuiApplication::exec();
 }

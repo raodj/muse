@@ -1,5 +1,5 @@
-#ifndef SERVER_SELECTION_PAGE_CPP
-#define SERVER_SELECTION_PAGE_CPP
+#ifndef JOB_LIST_VIEW_HPP
+#define JOB_LIST_VIEW_HPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,57 +36,40 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerSelectionPage.h"
-#include "Core.h"
-#include "Workspace.h"
-#include <QVBoxLayout>
-#include <QLabel>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+#include <QTableView>
 
-ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+#include "View.h"
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+class JobListView : public View {
+    Q_OBJECT
+public:
+    JobListView(QWidget* parent = 0);
 
-    setLayout(layout);
-    session = NULL;
-}
+    /**
+     * @brief ViewName A constant string to consistently refer to the name
+     * of this view. This string is set to "JobListView".
+     */
+    static const QString ViewName;
 
-bool
-ServerSelectionPage::validatePage() {
-    int index = serverList.currentIndex();
+public slots:
+    void updateView();
 
-    if (index == -1) {
-        // no server was selected
-        return false;
-    }
+protected slots:
+    /**
+     * @brief showJobWizard Shows the JobWizard when the user selects
+     * to add a new job.
+     */
+    void showJobWizard();
 
-    checkServerChosen(index);
+private:
+    QTableView jobTable;
+    QAction* addJobButton;
 
-    return true;
-}
+    /**
+     * @brief initializeToolBarButtons Initializes and adds the the buttons
+     * to the toolbar.
+     */
+    void initializeToolBarButtons();
+};
 
-void
-ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
-
-    if (session != NULL) {
-        delete session;
-    }
-
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
-
-    emit serverSelected(session);
-}
-
-#endif
+#endif // JOB_LIST_VIEW_HPP

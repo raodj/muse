@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "Server.h"
+#include "Workspace.h"
 
 // Predefined constants consistent with XML schema values for the server status.
 const QString Server::Installing = "installing";
@@ -110,6 +111,7 @@ Server::setInstallPath(const QString &path) {
 void
 Server::addProject(Project& project) {
     projects.addProject(project);
+    Workspace::get()->addProjectToWorkSpace(project, this);
 }
 
 void
