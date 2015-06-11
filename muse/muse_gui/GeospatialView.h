@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef GEOSPATIALVIEW_H
+#define GEOSPATIALVIEW_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,76 +36,33 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include "View.h"
+#include <QTableView>
 
-class MainWindow : public QMainWindow {
+/**
+ * @brief The GeospatialView class Provides a visual for data received
+ * from the redhawk.
+ */
+class GeospatialView : public View {
     Q_OBJECT
-    
 public:
-    MainWindow(QWidget *parent = 0);
+    GeospatialView(QWidget* parent = 0);
 
-    ~MainWindow();
-
-protected:
-    void showEvent(QShowEvent *event);
-
-protected slots:
-    void createLoadDefaultWorkspace();
-
-    /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
-     */
-    void showServerListView();
-
-    void showGeospatialView();
-
-    void showProjectsJobsListView();
-
-    /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
-     */
-    void showProjectWizard();
-
-    /**
-     * @brief showJobWizard Creates and executes the JobWizard when the
-     * newJob QAction is triggered.
-     */
-    void showJobWizard();
-
-private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction *newProject;
-    QAction *newJob;
-
-    /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
-     */
-    void createMenus();
-
-    /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
-     */
-    void createActions();
+    static const QString ViewName;
 
 };
 
-#endif // MAIN_WINDOW_H
+/**
+ * @brief The GeospatialWidget class draws an image using GPainter.
+ */
+
+class GeospatialWidget : public QWidget {
+    Q_OBJECT
+
+public:
+    GeospatialWidget(QWidget *parent);
+    void paint(QPainter *painter);
+
+};
+
+#endif // GEOSPATIALVIEW_H

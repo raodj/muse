@@ -45,9 +45,9 @@
  * Each subsystem performs a specific set of functionality associated
  * with MUSE-GUI.
  *
- * This header file must be included in each of the .cpp files that
+ * This header file must be included in each of the .cpp files that       <Redundant?
  * constitute the "core" subsystem of MUSE-GUI. The
- * infrastructure subsystem provides a core features, including:
+ * infrastructure subsystem provides a core features, including:          <"a core features"
  *
  *   - The main method that triggers all operations
  *   - The main window that houses all the GUI components

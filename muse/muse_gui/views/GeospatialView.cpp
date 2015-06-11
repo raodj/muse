@@ -1,5 +1,5 @@
-#ifndef MAIN_WINDOW_H
-#define MAIN_WINDOW_H
+#ifndef GEOSPATIAL_VIEW_CPP
+#define GEOSPATIAL_VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,76 +36,32 @@
 //
 //---------------------------------------------------------------------
 
-#include <QMainWindow>
-#include <QDockWidget>
-#include "DnDTabWidget.h"
-#include <QMenu>
+#include "View.h"
 
-class MainWindow : public QMainWindow {
-    Q_OBJECT
-    
-public:
-    MainWindow(QWidget *parent = 0);
+#include "Core.h"
+#include "GeospatialView.h"
+#include "Workspace.h"
+#include <QHeaderView>
 
-    ~MainWindow();
+// The constant string that identifies the name of this view
+const QString GeospatialView::ViewName = "GeospatialView";
 
-protected:
-    void showEvent(QShowEvent *event);
+GeospatialView::GeospatialView(QWidget *parent) :
+    View("GeospatialView", parent) {
+    GeospatialWidget *pieceofshit = new GeospatialWidget(this);
+}
 
-protected slots:
-    void createLoadDefaultWorkspace();
+GeospatialWidget::GeospatialWidget(QWidget *parent)
+    : QWidget(parent) {
+    setFixedSize(200, 200);
+    setAutoFillBackground(true);
+    QPainter painter;
+    paint(&painter);
 
-    /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
-     */
-    void showServerListView();
+}
 
-    void showGeospatialView();
+void GeospatialWidget::paint(QPainter *painter) {
+    painter->drawCirle(1);
+}
 
-    void showProjectsJobsListView();
-
-    /**
-     * @brief showProjectWizard Creates and executes the ProjectWizard
-     * when the newProject QAction is triggered.
-     */
-    void showProjectWizard();
-
-    /**
-     * @brief showJobWizard Creates and executes the JobWizard when the
-     * newJob QAction is triggered.
-     */
-    void showJobWizard();
-
-private:
-    /**
-     * @brief desktop The permanent desktop area for displaying core
-     * information about a MUSE model/simulation. This desktop area
-     * essentially holds tabs that can be opened/closed as needed.
-     */
-    DnDTabWidget *desktop;
-    QMenu fileMenu;
-    QAction *newProject;
-    QAction *newJob;
-
-    /**
-     * @brief createMenus Creates the menu bar that is used throughout
-     * MUSE_GUI.
-     */
-    void createMenus();
-
-    /**
-     * @brief createActions Creates the actions that are used in
-     * MUSE_GUI's menu bar.
-     */
-    void createActions();
-
-};
-
-#endif // MAIN_WINDOW_H
+#endif

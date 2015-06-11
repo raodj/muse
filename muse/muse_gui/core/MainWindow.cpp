@@ -56,6 +56,7 @@
 #include "ServerListView.h"
 #include "ProjectsListView.hpp"
 #include "JobListView.hpp"
+#include "GeospatialView.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -137,6 +138,7 @@ MainWindow::createLoadDefaultWorkspace() {
     // and one that lists the jobs in the workspace.
     showServerListView();
     showProjectsJobsListView();
+    showGeospatialView();
 }
 
 void
@@ -146,6 +148,18 @@ MainWindow::showServerListView() {
     if (findChild<ServerListView*>(ServerListView::ViewName) == NULL) {
         // Create the widget and set its minimum width.
         desktop->createSplitPane(new ServerListView(), "Servers",
+                                 DnDTabBar::LEFT,
+                                 QIcon(":/images/16x16/Server.png"));
+    }
+}
+
+void
+MainWindow::showGeospatialView() {
+    // Check to see if a geospatial view already exists in this main window.
+    // If so do not perfrom any futher operations.
+    if (findChild<GeospatialView*>(GeospatialView::ViewName) == NULL) {
+        // Create the widget and set its minimum width.
+        desktop->createSplitPane(new GeospatialView(), "Geospatial",
                                  DnDTabBar::LEFT,
                                  QIcon(":/images/16x16/Server.png"));
     }
