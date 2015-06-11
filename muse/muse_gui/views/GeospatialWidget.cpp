@@ -1,5 +1,5 @@
-#ifndef GEOSPATIAL_VIEW_CPP
-#define GEOSPATIAL_VIEW_CPP
+#ifndef GEOSPATIAL_WIDGET_CPP
+#define GEOSPATIAL_WIDGET_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,19 +36,19 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
+#include "GeospatialWidget.h"
 
-#include "Core.h"
-#include "GeospatialView.h"
-#include "Workspace.h"
-#include <QHeaderView>
+GeospatialWidget::GeospatialWidget(QWidget *parent)
+    : QWidget(parent) {
+    setFixedSize(200, 200);
+    setAutoFillBackground(true);
+    QPainter painter;
+    paint(&painter);
 
-// The constant string that identifies the name of this view
-const QString GeospatialView::ViewName = "GeospatialView";
+}
 
-GeospatialView::GeospatialView(QWidget *parent) :
-    View("GeospatialView", parent), QOpenGL(this) {{
-    GeospatialWidget *form = new GeospatialWidget(this);
+void GeospatialWidget::paint(QPainter *painter) {
+    painter->drawCirle(1);
 }
 
 #endif

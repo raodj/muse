@@ -105,7 +105,8 @@ SOURCES +=\
     views/ProjectsListTableModel.cpp \
     views/JobListTableModel.cpp \
     views/JobListView.cpp \
-    views/GeospatialView.cpp
+    views/GeospatialView.cpp \
+    views/GeospatialWidget.cpp
 
 
 HEADERS  += \
@@ -190,7 +191,8 @@ HEADERS  += \
     views/JobListView.hpp \
     views/GeospatialView.h \
     views/ProjectsListTableModel.hpp \
-    views/JobListTableModel.hpp
+    views/JobListTableModel.hpp \
+    views/GeospatialWidget.h
 
 
 OTHER_FILES += \

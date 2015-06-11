@@ -52,17 +52,4 @@ public:
 
 };
 
-/**
- * @brief The GeospatialWidget class draws an image using GPainter.
- */
-
-class GeospatialWidget : public QWidget {
-    Q_OBJECT
-
-public:
-    GeospatialWidget(QWidget *parent);
-    void paint(QPainter *painter);
-
-};
-
 #endif // GEOSPATIALVIEW_H
