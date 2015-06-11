@@ -48,7 +48,7 @@ const QString GeospatialView::ViewName = "GeospatialView";
 
 GeospatialView::GeospatialView(QWidget *parent) :
     View("GeospatialView", parent) {
-    GeospatialWidget *pieceofshit = new GeospatialWidget(this);
+    GeospatialWidget *place = new GeospatialWidget(this);
 }
 
 GeospatialWidget::GeospatialWidget(QWidget *parent)
