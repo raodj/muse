@@ -1,5 +1,5 @@
-#ifndef GEOSPATIAL_VIEW_CPP
-#define GEOSPATIAL_VIEW_CPP
+#ifndef GEOSPATIALWIDGET_H
+#define GEOSPATIALWIDGET_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,19 +36,21 @@
 //
 //---------------------------------------------------------------------
 
-#include "View.h"
+/**
+ * @brief The GeospatialWidget class draws an image using GPainter.
+ */
 
-#include "Core.h"
-#include "GeospatialView.h"
-#include "Workspace.h"
-#include <QHeaderView>
+class GeospatialWidget : public QWidget {
+    Q_OBJECT
 
-// The constant string that identifies the name of this view
-const QString GeospatialView::ViewName = "GeospatialView";
+public:
+    GeospatialWidget(QWidget *parent);
+    void paint(QPainter *painter);
 
-GeospatialView::GeospatialView(QWidget *parent) :
-    View("GeospatialView", parent), QOpenGL(this) {{
-    GeospatialWidget *form = new GeospatialWidget(this);
-}
+};
 
-#endif
+
+
+
+
+#endif // GEOSPATIALWIDGET_H
