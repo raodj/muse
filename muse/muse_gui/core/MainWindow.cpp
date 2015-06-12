@@ -54,8 +54,8 @@
 #include "ProjectWizard.h"
 #include "JobWizard.h"
 #include "ServerListView.h"
-#include "ProjectsListView.hpp"
-#include "JobListView.hpp"
+#include "ProjectsListView.h"
+#include "JobListView.h"
 #include "GeospatialView.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
