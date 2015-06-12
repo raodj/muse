@@ -39,8 +39,8 @@
 #include <QHeaderView>
 
 #include "Core.h"
-#include "JobListView.hpp"
-#include "JobListTableModel.hpp"
+#include "JobListView.h"
+#include "JobListTableModel.h"
 #include "JobWizard.h"
 #include "Workspace.h"
 

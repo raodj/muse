@@ -36,7 +36,7 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectsListView.hpp"
+#include "ProjectsListView.h"
 #include "Workspace.h"
 #include "ProjectWizard.h"
 

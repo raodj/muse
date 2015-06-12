@@ -36,7 +36,7 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectsListTableModel.hpp"
+#include "ProjectsListTableModel.h"
 
 #include <algorithm>
 

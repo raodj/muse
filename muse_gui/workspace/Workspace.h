@@ -40,8 +40,8 @@
 #include "ServerList.h"
 #include <QDateTime>
 #include "ServerListTableModel.h"
-#include "ProjectsListTableModel.hpp"
-#include "JobListTableModel.hpp"
+#include "ProjectsListTableModel.h"
+#include "JobListTableModel.h"
 #include "Server.h"
 #include "JobList.h"
 

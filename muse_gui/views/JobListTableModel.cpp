@@ -36,7 +36,7 @@
 //
 //---------------------------------------------------------------------
 
-#include "JobListTableModel.hpp"
+#include "JobListTableModel.h"
 
 JobListTableModel::JobListTableModel() {
     //Set the column headers

@@ -106,7 +106,8 @@ SOURCES +=\
     views/JobListTableModel.cpp \
     views/JobListView.cpp \
     views/GeospatialView.cpp \
-    views/GeospatialWidget.cpp
+    views/GeospatialWidget.cpp \
+    views/serverListTableModel.cpp
 
 
 HEADERS  += \
@@ -187,16 +188,18 @@ HEADERS  += \
     core/jobWizard/SubmitPage.h \
     workspace/Job.h \
     workspace/JobList.h \
-    views/ProjectsListView.hpp \
-    views/JobListView.hpp \
+    views/ProjectsListView.h \
+    views/JobListView.h \
     views/GeospatialView.h \
-    views/ProjectsListTableModel.hpp \
-    views/JobListTableModel.hpp \
+    views/ProjectsListTableModel.h \
+    views/JobListTableModel.h \
     views/GeospatialWidget.h
 
 
 OTHER_FILES += \
-    GPL.txt
+    GPL.txt \
+    views/ServerListTableModel \
+    views/ServerListTableModel.txt
 
 RESOURCES += \
     muse_gui.qrc \
