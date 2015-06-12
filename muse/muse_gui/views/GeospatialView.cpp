@@ -40,15 +40,18 @@
 
 #include "Core.h"
 #include "GeospatialView.h"
+#include "GeospatialWidget.h"
 #include "Workspace.h"
+//#include <QOpenGL>
 #include <QHeaderView>
 
 // The constant string that identifies the name of this view
 const QString GeospatialView::ViewName = "GeospatialView";
 
 GeospatialView::GeospatialView(QWidget *parent) :
-    View("GeospatialView", parent), QOpenGL(this) {{
-    GeospatialWidget *form = new GeospatialWidget(this);
+    View("GeospatialView", parent)/*, QOpenGL(this)*/ {
+    GeospatialWidget *map = new GeospatialWidget(this);
+
 }
 
 #endif
