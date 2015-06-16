@@ -100,6 +100,8 @@ private:
      std::unique_ptr<MainWindow> window;
 
      static const QString errorMessage;
+
+     int testFirstRun();
 };
 
 #endif
