@@ -45,6 +45,7 @@
 #include <QMessageBox>
 #include "SFtpChannel.h"
 #include "RSSAsyncHelper.h"
+#include "Workspace.h"
 
 #define SUCCESS_CODE 0
 
@@ -65,7 +66,7 @@ RemoteServerSession::~RemoteServerSession() {
 void
 RemoteServerSession::connectToServer() {
     socket = new SshSocket("Remote Server Operations", NULL,
-                           MUSEGUIApplication::getKnownHostsPath(),
+                           muse::workspace::knownHostsFilePath(),
                            true, true);
 
     // Now, intercept the signal to provide the SshSocket with the

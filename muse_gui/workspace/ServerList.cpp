@@ -50,7 +50,7 @@ ServerList::addServer(Server &entry) {
    Server* server = new Server(entry.getID(), entry.isRemote(), entry.getName(), entry.getPort(),
                                entry.getDescription(), entry.getUserID(), entry.getInstallPath(),
                                entry.getOS(), entry.getStatus());
-   servers.append(server);
+   //servers.append(server);
 }
 
 #endif

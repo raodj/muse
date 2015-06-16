@@ -78,24 +78,24 @@ SubmitPage::~SubmitPage() {
 
 void
 SubmitPage::initializePage() {
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
-    server = &serverList.get(field("server").toInt());
-    // Used to compare the number of projects found and the index
-    // of the project selected in the QComboBox on a previous page.
-    int projectCount = 0;
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList& projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
-             j++, projectCount++) {
-            // Once we hit project n that matches the index of the project
-            // field, print its info to the text edit.
-            if (projectCount == field("project").toInt()) {
-                proj = &projList.get(j);
-            }
-        }
-    }
-    QTimer::singleShot(500, this, SLOT(submitToServer()));
+//    Workspace* ws = Workspace::get();
+//    ServerList& serverList = ws->getServerList();
+//    server = &serverList.get(field("server").toInt());
+//    // Used to compare the number of projects found and the index
+//    // of the project selected in the QComboBox on a previous page.
+//    int projectCount = 0;
+//    for (int i = 0; i < serverList.size(); i++) {
+//        ProjectList& projList = serverList.get(i).getProjectList();
+//        for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
+//             j++, projectCount++) {
+//            // Once we hit project n that matches the index of the project
+//            // field, print its info to the text edit.
+//            if (projectCount == field("project").toInt()) {
+//                proj = &projList.get(j);
+//            }
+//        }
+//    }
+//    QTimer::singleShot(500, this, SLOT(submitToServer()));
 
 }
 
@@ -129,98 +129,98 @@ SubmitPage::connectedToServer(bool result) {
 
 void
 SubmitPage::submitToServer() {
-    QString execDir = proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/"));
-    if (submitStep == MAKE_JOB_FILE) {
-        QString jobDescription = field("jobDescription").toString().isEmpty() ?
-                    "None provided" : field("jobDescription").toString();
-        job = new Job(proj->reserveJobId(), server->getID(),
-                           -1, QDateTime::currentDateTime(), Job::Queued,
-                      jobDescription);
-        PBSJobFileCreator jobFile(job->getName(), field("estimatedRunTime").toInt(),
-                                  field("memoryPerNode").toInt(), field("memoryUnits").toString(),
-                                  field("nodes").toInt(), field("cpusPerNode").toInt(),
-                                  field("arguments").toString(), execDir,
-                                  proj->getExecutablePath().mid(proj->getExecutablePath().lastIndexOf("/") +1),
-                                  field("wantsEmail").toBool());
-        submitStep++;
-        prgDialog.setValue(submitStep);
-        // Save the file to the local machine before sending to server.
-        jobFile.saveToFile(MUSEGUIApplication::getAppDirPath() + "/MUSEjob.job");
-        submitStep++;
-        prgDialog.setValue(submitStep);
-        if (server->isRemote()) {
-            serverSession = new RemoteServerSession(server, NULL, "Adding a Job");
-            RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
-            rss->connectToServer();
-            // Connect the signal to determine whether or not to proceed.
-            connect(rss, SIGNAL(booleanResult(bool)),
-                    this, SLOT(connectedToServer(bool)));
-        }
-        else {
-            // This is a local server, proceed slightly differently.
-            serverSession = new LocalServerSession(server, NULL, "Adding a Job");
-            submitStep++;
-            prgDialog.setValue(submitStep);
-            // Not exactly recursion since everything is excluded with else's.
-            submitToServer();
-        }
-    }
-    else if (submitStep == SEND_JOB_FILE) {
-        // Send the job script to the server. This method should
-        // change so that the filename isn't static.
-        bool fileCopied = serverSession->copy(MUSEGUIApplication::getAppDirPath()
-                                              + "/MUSEjob.job", execDir,
-                                              job->getName() + ".job", 0666);
-        if (fileCopied) {
-            prgDialog.setValue(++submitStep);
-            // We don't need the script file on the local computer...so delete it.
-            QFile::remove(MUSEGUIApplication::getAppDirPath()
-                          + "/MUSEjob.job");
-            QString jobId, errMsg;
-            // Did we succeed?
-            if (serverSession->exec("qsub " + execDir + "/" + job->getName() + ".job -o"
-                                    + proj->getOutputDirPath() + " -e " +
-                                    proj->getOutputDirPath(),
-                                    jobId, errMsg)  == SUCCESS_CODE) {
-                job->setJobId(jobId.left(jobId.indexOf(".")).toLong());
-                prgDialog.setValue(++submitStep);
-                // Make the job workspace entry
-                Workspace* ws = Workspace::get();
-                // Add the entry to the workspace.
-                ws->getJobList().addJob(*job);
-                ws->addJobToWorkSpace(*job);
-                // Save the workspace
-                ws->saveWorkspace();
-                prgDialog.setValue(++submitStep);
-                prgDialog.setLabelText("Submission Complete!");
-                QMessageBox msg;
-                msg.setText("Congratulations! The job was added successfully "\
-                            "to the queue. It has been saved to the workspace. "\
-                            "You may close this wizard.");
-                msg.setDetailedText("The job id is: " + jobId);
-                msg.setStandardButtons(QMessageBox::Ok);
-                msg.exec();
-                safeToClose = true;
-            }
-            else {
-                // Exec failed.
-                QMessageBox msg;
-                msg.setText("Could not submit the job. Close the wizard and try again.");
-                msg.setDetailedText(errMsg.trimmed());
-                msg.setStandardButtons(QMessageBox::Ok);
-                msg.exec();
-                safeToClose = true;
-            }
-        }
-        else {
-            // Couldn't copy the script.
-            QMessageBox msg;
-            msg.setText("Could not send the script to the server. Please try running the wizard again.");
-            msg.setStandardButtons(QMessageBox::Ok);
-            msg.exec();
-            safeToClose = true;
-        }
-    }
+//    QString execDir = proj->getExecutablePath().left(proj->getExecutablePath().lastIndexOf("/"));
+//    if (submitStep == MAKE_JOB_FILE) {
+//        QString jobDescription = field("jobDescription").toString().isEmpty() ?
+//                    "None provided" : field("jobDescription").toString();
+//        job = new Job(proj->reserveJobId(), server->getID(),
+//                           -1, QDateTime::currentDateTime(), Job::Queued,
+//                      jobDescription);
+//        PBSJobFileCreator jobFile(job->getName(), field("estimatedRunTime").toInt(),
+//                                  field("memoryPerNode").toInt(), field("memoryUnits").toString(),
+//                                  field("nodes").toInt(), field("cpusPerNode").toInt(),
+//                                  field("arguments").toString(), execDir,
+//                                  proj->getExecutablePath().mid(proj->getExecutablePath().lastIndexOf("/") +1),
+//                                  field("wantsEmail").toBool());
+//        submitStep++;
+//        prgDialog.setValue(submitStep);
+//        // Save the file to the local machine before sending to server.
+//        jobFile.saveToFile(muse::workspace::appDir() + "/MUSEjob.job");
+//        submitStep++;
+//        prgDialog.setValue(submitStep);
+//        if (server->isRemote()) {
+//            serverSession = new RemoteServerSession(server, NULL, "Adding a Job");
+//            RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
+//            rss->connectToServer();
+//            // Connect the signal to determine whether or not to proceed.
+//            connect(rss, SIGNAL(booleanResult(bool)),
+//                    this, SLOT(connectedToServer(bool)));
+//        }
+//        else {
+//            // This is a local server, proceed slightly differently.
+//            serverSession = new LocalServerSession(server, NULL, "Adding a Job");
+//            submitStep++;
+//            prgDialog.setValue(submitStep);
+//            // Not exactly recursion since everything is excluded with else's.
+//            submitToServer();
+//        }
+//    }
+//    else if (submitStep == SEND_JOB_FILE) {
+//        // Send the job script to the server. This method should
+//        // change so that the filename isn't static.
+//        bool fileCopied = serverSession->copy(muse::workspace::appDir()
+//                                              + "/MUSEjob.job", execDir,
+//                                              job->getName() + ".job", 0666);
+//        if (fileCopied) {
+//            prgDialog.setValue(++submitStep);
+//            // We don't need the script file on the local computer...so delete it.
+//            QFile::remove(muse::workspace::appDir()
+//                          + "/MUSEjob.job");
+//            QString jobId, errMsg;
+//            // Did we succeed?
+//            if (serverSession->exec("qsub " + execDir + "/" + job->getName() + ".job -o"
+//                                    + proj->getOutputDirPath() + " -e " +
+//                                    proj->getOutputDirPath(),
+//                                    jobId, errMsg)  == SUCCESS_CODE) {
+//                job->setJobId(jobId.left(jobId.indexOf(".")).toLong());
+//                prgDialog.setValue(++submitStep);
+//                // Make the job workspace entry
+//                Workspace* ws = Workspace::get();
+//                // Add the entry to the workspace.
+//                ws->getJobList().addJob(*job);
+//                ws->addJobToWorkSpace(*job);
+//                // Save the workspace
+//                ws->saveWorkspace();
+//                prgDialog.setValue(++submitStep);
+//                prgDialog.setLabelText("Submission Complete!");
+//                QMessageBox msg;
+//                msg.setText("Congratulations! The job was added successfully "\
+//                            "to the queue. It has been saved to the workspace. "\
+//                            "You may close this wizard.");
+//                msg.setDetailedText("The job id is: " + jobId);
+//                msg.setStandardButtons(QMessageBox::Ok);
+//                msg.exec();
+//                safeToClose = true;
+//            }
+//            else {
+//                // Exec failed.
+//                QMessageBox msg;
+//                msg.setText("Could not submit the job. Close the wizard and try again.");
+//                msg.setDetailedText(errMsg.trimmed());
+//                msg.setStandardButtons(QMessageBox::Ok);
+//                msg.exec();
+//                safeToClose = true;
+//            }
+//        }
+//        else {
+//            // Couldn't copy the script.
+//            QMessageBox msg;
+//            msg.setText("Could not send the script to the server. Please try running the wizard again.");
+//            msg.setStandardButtons(QMessageBox::Ok);
+//            msg.exec();
+//            safeToClose = true;
+//        }
+//    }
 }
 
 #endif

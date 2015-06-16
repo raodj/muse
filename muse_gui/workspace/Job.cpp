@@ -65,18 +65,15 @@ Job::setName(const QString& newName) {
     name = newName;
 }
 
-
 void
 Job::setServer(const QString& serverId) {
     server = serverId;
 }
 
-
 void
 Job::setStatus(const QString& currStatus) {
     status = currStatus;
 }
-
 
 void
 Job::setJobId(long id) {

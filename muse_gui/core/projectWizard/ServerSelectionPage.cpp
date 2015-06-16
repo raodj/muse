@@ -45,17 +45,17 @@
 #include "LocalServerSession.h"
 
 ServerSelectionPage::ServerSelectionPage() {
-    ServerList& list = Workspace::get()->getServerList();
-    for (int i = 0; i < list.size(); i++) {
-        serverList.addItem(list.get(i).getName());
-    }
+//    ServerList& list = Workspace::get()->getServerList();
+//    for (int i = 0; i < list.size(); i++) {
+//        serverList.addItem(list.get(i).getName());
+//    }
 
-    QVBoxLayout* layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
-    layout->addWidget(&serverList);
+//    QVBoxLayout* layout = new QVBoxLayout();
+//    layout->addWidget(new QLabel("Select the Server this project belongs to:"));
+//    layout->addWidget(&serverList);
 
-    setLayout(layout);
-    session = NULL;
+//    setLayout(layout);
+//    session = NULL;
 }
 
 bool
@@ -74,19 +74,19 @@ ServerSelectionPage::validatePage() {
 
 void
 ServerSelectionPage::checkServerChosen(int index) {
-    ServerList& list = Workspace::get()->getServerList();
+//    ServerList& list = Workspace::get()->getServerList();
 
-    if (session != NULL) {
-        delete session;
-    }
+//    if (session != NULL) {
+//        delete session;
+//    }
 
-    if (list.get(index).isRemote()) {
-        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
-    } else {
-        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
-    }
+//    if (list.get(index).isRemote()) {
+//        session = new RemoteServerSession(&list.get(index), NULL, "Creating Project");
+//    } else {
+//        session = new LocalServerSession(&list.get(index), NULL, "Creating Project");
+//    }
 
-    emit serverSelected(session);
+//    emit serverSelected(session);
 }
 
 #endif

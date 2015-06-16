@@ -53,11 +53,10 @@ ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) :
 
 ServerWizard::ServerWizard(QString& welcomeText, QWidget* parent) :
     MUSEWizard(welcomeText, parent) {
-
-
     addPage(&serverTypePage,    "Server Type");
     addPage(&serverInfoPage,    "Server Information");
     addPage(&serverSummaryPage, "Summary", true);
+
     connect(&serverTypePage, SIGNAL(serverSessionCreated(ServerSession*)),
             &serverInfoPage, SLOT(setServerSessionPointer(ServerSession*)));
     connect(&serverTypePage, SIGNAL(serverSessionCreated(ServerSession*)),

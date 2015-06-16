@@ -107,10 +107,10 @@ ServerSetupPage::makeServerWidget(QVBoxLayout *layout) {
 
 void
 ServerSetupPage::populateServerList() {
-    ServerList& serverList = Workspace::get()->getServerList();
-    for (int i = 0; i < serverList.size(); i++) {
-        serverSelector.addItem(serverList.get(i).getName());
-    }
+//    ServerList& serverList = Workspace::get()->getServerList();
+//    for (int i = 0; i < serverList.size(); i++) {
+//        serverSelector.addItem(serverList.get(i).getName());
+//    }
 }
 
 

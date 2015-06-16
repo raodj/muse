@@ -36,8 +36,10 @@
 //
 //---------------------------------------------------------------------
 
-#include "XMLElement.h"
-#include "ProjectList.h"
+#include "Project.h"
+#include "Job.h"
+
+#include <jsoncpp/json/json.h>
 
 /**
  * @brief The Server class that encapsulates information regarding a Server entry
@@ -49,7 +51,7 @@
  * In addition, it also provides the necessary infrastructure for marshaling and
  * unmarshaling data for persisting the information in a XML configuration file.
  */
-class Server : public XMLElement {
+class Server { //: public XMLElement {
 public:
     // Predefined constants consistent with XML schema values for the server status.
     /**
@@ -164,6 +166,10 @@ public:
            QString description = "", QString userID = "", QString installPath = "",
            QString osType = UnknownOS, QString status = Installing);
 
+    Server(Json::Value value);
+
+    bool operator==(const Server other);
+
     /**
      * @brief ~Server The destructor.
      *
@@ -203,6 +209,9 @@ public:
      * @return The server's domain name (or IP address).
      */
     QString getName() const { return name; }
+
+    void setName(const QString &name);
+    void setName(const std::string &name);
 
     /**
      * @brief getStatus Returns the server's status set for this server entry.
@@ -283,12 +292,18 @@ public:
      * @param project The project to be added.
      */
     void addProject(Project& project);
+    void addJob(Job& job);
+    void update();
 
     /**
      * @brief getProjectList Gets the list of projects for this Server.
      * @return The list of Projects.
      */
-    ProjectList& getProjectList() { return projects; }
+    //ProjectList& getProjectList() { return projects; }
+    std::vector<Project> getProjects();
+    std::vector<Job> getJobs();
+
+    Json::Value save();
 
 protected:
     // Currently this class does not have any protected members.
@@ -383,7 +398,10 @@ private:
      */
     QString password;
 
-    ProjectList projects;
+    //ProjectList projects;
+
+    std::vector<Project> projects;
+    std::vector<Job> jobs;
 };
 
 #endif // SERVER_H

@@ -36,10 +36,12 @@
 //
 //---------------------------------------------------------------------
 
+#include "MainWindow.h"
+
 #include <QString>
 #include <QApplication>
-#include "MainWindow.h"
-#include <QList>
+
+#include <memory>
 
 /**
  * @brief The MUSEGUIApplication class The main class for the MUSE GUI.
@@ -71,21 +73,6 @@ public:
     virtual ~MUSEGUIApplication();
 
     /**
-     * @brief getWorkSpacePath Gets the file path to the application
-     * directory.
-     * @return A QString representing the file path to the application
-     * directory.
-     */
-    static QString getAppDirPath();
-
-    /**
-     * @brief getKnownHostsPath Gets the file path to the known_hosts
-     * file within the application directory.
-     * @return A QString representing the file path to the known_hosts file.
-     */
-     static QString getKnownHostsPath();
-
-    /**
      * @brief exec The top-level method that kick starts various operations
      * in the GUI.
      *
@@ -98,42 +85,6 @@ public:
      */
      int exec();
 
-    /**
-     * @brief checkCreateApplicationDirectory Convenience method to check
-     * and create top-level, user-specific application directory.
-     *
-     * \note Calling this method checks and creates files only as needed.
-     * Consequently, it is always safe to call this method and if files
-     * exist, this method returns true without any other side effects.
-     *
-     * This method is used to check and create the top-level application
-     * directory along with some of the default files that are used
-     * by MUSE GUI. Note that there is exactly only one application
-     * directory for each user.  Do not confuse the application directory
-     * with the workspace directory (a user can have many workspace
-     * direcotires). This method checks and creates the following
-     * directories:
-     *
-     * <ol>
-     *
-     * <li>The top-level application directory returned by
-     * MUSEGUIApplication::getAppDirPath</li>
-     *
-     * <li>The \c known_hosts file (used by SSH connection) in the
-     * top-level directory</li>
-     *
-     * </ol>
-     *
-     * @param parent An optional parent window to be used for reporting
-     * error messages, if any errors occurr.
-     *
-     * @return This method returns true if the application structure looks
-     * good and the basic set of files are present. If the files could not
-     * be created then this method returns false. See earlier note about
-     * safety of this method.
-     */
-     bool checkCreateAppDirectory(QWidget *parent = 0);
-
 private:
      /**
      * @brief mainWindow The top-level windows that are used to display
@@ -145,21 +96,10 @@ private:
      * \note With Qt's object hierarchy (in which MainWindow is not
      * copyable), we are sadly forced to use pointers rather than objects.
      */
-     QList<MainWindow*> mainWindowList;
+     //MainWindow *mainWindow;
+     std::unique_ptr<MainWindow> window;
 
-     /**
-      * @brief AppDirCreateErrMsg Error message formatted and displayed
-      * to the user when the top-level aplication directory could not be
-      * created.
-      */
-     static const QString AppDirCreateErrMsg;
-
-     /**
-      * @brief KnownHostsCreateErrMsg Error message formatted and displayed
-      * to the user when the known hosts file could not be
-      * created.
-      */
-     static const QString KnownHostsCreateErrMsg;
+     static const QString errorMessage;
 };
 
 #endif

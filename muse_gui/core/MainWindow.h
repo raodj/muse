@@ -36,10 +36,13 @@
 //
 //---------------------------------------------------------------------
 
+#include "DnDTabWidget.h"
+
 #include <QMainWindow>
 #include <QDockWidget>
-#include "DnDTabWidget.h"
 #include <QMenu>
+
+#include <memory>
 
 class MainWindow : public QMainWindow {
     Q_OBJECT
@@ -53,19 +56,8 @@ protected:
     void showEvent(QShowEvent *event);
 
 protected slots:
-    void createLoadDefaultWorkspace();
+//    void createLoadDefaultWorkspace();
 
-    /**
-     * @brief showServerWidget Displays a server list view in the main frame
-     * if a view is not already present.
-     *
-     * This is a convenience method to display the server list view in this
-     * main frame. This method performs the necessary action only if a
-     * server view is not already present.  If a server view is already present
-     * then this method does not perform any operations.  This method may be
-     * invoked via the top-level application's "View" menu option.
-     */
-    void showServerListView();
 
     void showGeospatialView();
 
@@ -89,10 +81,32 @@ private:
      * information about a MUSE model/simulation. This desktop area
      * essentially holds tabs that can be opened/closed as needed.
      */
+    //std::unique_ptr<DnDTabWidget> desktop;
+    //std::unique_ptr<DnDTabWidget> bottomTab;
+    //std::unique_ptr<QAction> newProject;
+    //std::unique_ptr<QAction> newJob;
+
+    //QMenu fileMenu;
+
+
     DnDTabWidget *desktop;
     QMenu fileMenu;
     QAction *newProject;
     QAction *newJob;
+
+    /**
+     * @brief showServerWidget Displays a server list view in the main frame
+     * if a view is not already present.
+     *
+     * This is a convenience method to display the server list view in this
+     * main frame. This method performs the necessary action only if a
+     * server view is not already present.  If a server view is already present
+     * then this method does not perform any operations.  This method may be
+     * invoked via the top-level application's "View" menu option.
+     */
+    void showServerListView();
+    void showProjectListView();
+    void showJobListView();
 
     /**
      * @brief createMenus Creates the menu bar that is used throughout
