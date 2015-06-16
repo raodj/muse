@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_TABLE_CPP
-#define SERVER_LIST_TABLE_CPP
+#ifndef PROJECT_VIEW_H
+#define PROJECT_VIEW_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,61 +36,35 @@
 //
 //---------------------------------------------------------------------
 
-#include "Core.h"
-#include "ServerListTableModel.h"
-#include "Workspace.h"
+#include "View.h"
+#include <QTableView>
 
-ServerListTableModel::ServerListTableModel() {
-    //Set the column headers
-    setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
-    setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
-    setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
-}
+class ProjectListView : public View {
+    Q_OBJECT
+public:
+    ProjectListView(QWidget* parent = 0);
 
-QVariant
-ServerListTableModel::headerData(int section, Qt::Orientation orientation,
-                                 int role) const {
-    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
-        // Ignore this type of request
-        return QVariant();
-    }
+    static const QString ViewName;
 
-    // Return strings for column headers
-    static const QString ColumnTitles[MAX_COLUMNS] = {"Server", "Status", "ID"};
+public slots:
+    void updateView();
 
-    return  ColumnTitles[section];
-}
+protected slots:
+    /**
+     * @brief showProjectWizard Shows the ProjectWizard when the user selects
+     * to add a project to the specific server
+     */
+    void showProjectWizard();
 
-QVariant
-ServerListTableModel::data(const QModelIndex &index, int role) const {
-    if ((index.row() < 0)    || (index.row() >= muse::workspace::serverCount()) ||
-        (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
-        // A request that cannot be handled.
-        return QVariant();
-    }
+private:
+    QTableView projectsTable;
+    QAction* addProjectButton;
 
-    //Rest of method only executed if role is the display role.
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
+    /**
+     * @brief initializeToolBarButtons Initializes and adds the the buttons
+     * to the toolbar for the server list view.
+     */
+    void initializeToolBarButtons();
+};
 
-    //Get the desired row of the server list
-    const Server server = muse::workspace::getServer(index.row());
-
-    //Return the value corresponding to the column.
-    switch (index.column()) {
-    case 0: return server.getName();
-    case 1: return server.getStatus();
-    default:
-    case 2: return server.getID();
-    }
-}
-
-void
-ServerListTableModel::appendServerEntry(Server& server) {
-    muse::workspace::addServer(server);
-
-    emit serverAdded();
-}
-
-#endif
+#endif // projectsVIEW_HPP

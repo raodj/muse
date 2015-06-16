@@ -60,7 +60,7 @@ JobListView::JobListView(QWidget *parent)
     jobTable.setSelectionBehavior(QAbstractItemView::SelectRows);
 
     //This is probably not the way we actually want to implement this.
-    jobTable.setModel(&Workspace::get()->getJobListTableModel());
+    //jobTable.setModel(&Workspace::get()->getJobListTableModel());
 
     // Initialize the toolbar buttons
     initializeToolBarButtons();

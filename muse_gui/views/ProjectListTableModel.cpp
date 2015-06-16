@@ -1,5 +1,5 @@
-#ifndef PROJECTS_LIST_TABLE_CPP
-#define PROJECTS_LIST_TABLE_CPP
+#ifndef PROJECT_LIST_TABLE_CPP
+#define PROJECT_LIST_TABLE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,11 +36,11 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectsListTableModel.h"
+#include "ProjectListTableModel.h"
 
 #include <algorithm>
 
-ProjectsListTableModel::ProjectsListTableModel() {
+ProjectListTableModel::ProjectListTableModel() {
     //Set the column headers
     setHeaderData(0, Qt::Horizontal, "Project", Qt::DisplayRole);
     setHeaderData(1, Qt::Horizontal, "Server Name", Qt::DisplayRole);
@@ -48,7 +48,7 @@ ProjectsListTableModel::ProjectsListTableModel() {
 }
 
 QVariant
-ProjectsListTableModel::headerData(int section, Qt::Orientation orientation,
+ProjectListTableModel::headerData(int section, Qt::Orientation orientation,
                                    int role) const {
     if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
         // Ignore this type of request
@@ -63,7 +63,7 @@ ProjectsListTableModel::headerData(int section, Qt::Orientation orientation,
 }
 
 QVariant
-ProjectsListTableModel::data(const QModelIndex &index, int role) const {
+ProjectListTableModel::data(const QModelIndex &index, int role) const {
 
     if ((index.row() < 0)    || (index.row() >= projectEntries.size()) ||
         (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
@@ -88,7 +88,7 @@ ProjectsListTableModel::data(const QModelIndex &index, int role) const {
 }
 
 void
-ProjectsListTableModel::appendProjectEntry(Project& project, Server& server) {
+ProjectListTableModel::appendProjectEntry(Project& project, Server& server) {
     // Let base class know a row is being added
     beginInsertRows(QModelIndex(), projectEntries.size(),
                     projectEntries.size() + 1);
