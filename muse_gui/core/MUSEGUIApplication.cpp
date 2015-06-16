@@ -40,12 +40,15 @@
 #include "FirstRunWizard.h"
 #include "Workspace.h"
 #include "Logger.h"
+#include "MUSEApplicationData.h"
 
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
 #include <QDialog>
 #include <QMessageBox>
+
+#include <vector>
 
 //// Error message reported to user
 //const QString MUSEGUIApplication::AppDirCreateErrMsg =
@@ -78,15 +81,15 @@ MUSEGUIApplication::~MUSEGUIApplication() {
 
 int
 MUSEGUIApplication::exec() {
-    if (muse::workspace::firstRun()) {
-        QFile file(":/resources/welcome.html");
-        FirstRunWizard frw(*this, file);
-
-        if (frw.exec() == QDialog::Rejected) {
-            // The user rejected or canceled the start. Exit right away
-            return 1;
-        }
+    if (testFirstRun() == QDialog::Rejected) {
+        return 1;
     }
+
+    muse::appdata::init();
+
+    // implement selection of known workspaces
+    std::vector<QString> workspaces = muse::appdata::workspaces();
+
 
     try {
         muse::workspace::init();
@@ -101,6 +104,18 @@ MUSEGUIApplication::exec() {
 
     // Let the base class do rest of the work.
     return QGuiApplication::exec();
+}
+
+int
+MUSEGUIApplication::testFirstRun() {
+    if (muse::appdata::firstRun()) {
+        QFile file(":/resources/welcome.html");
+        FirstRunWizard frw(*this, file);
+
+        return frw.exec();
+    }
+
+    return QDialog::Accepted;
 }
 
 #endif

@@ -109,7 +109,8 @@ SOURCES +=\
     views/JobListView.cpp \
     views/GeospatialView.cpp \
     views/GeospatialWidget.cpp \
-    views/serverListTableModel.cpp
+    views/serverListTableModel.cpp \
+    core/MUSEApplicationData.cpp
 
 
 HEADERS  += \
@@ -194,7 +195,8 @@ HEADERS  += \
     views/GeospatialView.h \
     views/ProjectListTableModel.h \
     views/JobListTableModel.h \
-    views/GeospatialWidget.h
+    views/GeospatialWidget.h \
+    core/MUSEApplicationData.h
 
 
 OTHER_FILES += \
