@@ -1,5 +1,5 @@
-#ifndef PROJECTS_LIST_VIEW_CPP
-#define PROJECTS_LIST_VIEW_CPP
+#ifndef PROJECT_LIST_TABLE_MODEL_H
+#define PROJECT_LIST_TABLE_MODEL_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,60 +36,52 @@
 //
 //---------------------------------------------------------------------
 
-#include "ProjectsListView.h"
-#include "Workspace.h"
-#include "ProjectWizard.h"
+#include <QAbstractTableModel>
+#include "Project.h"
+#include "Server.h"
 
-#include <QHeaderView>
+//#define MAX_COLUMNS 2
+static const int MAX_COLUMNS = 2;
 
-const QString ProjectsListView::ViewName = "ProjectsListView";
+class ProjectListItem {
+public:
+    ProjectListItem(Project ip, Server is)
+        : project(ip), server(is) {}
 
-ProjectsListView::ProjectsListView(QWidget *parent) :
-    View(ViewName, parent), projectsTable(this) {
-    //Show a dotted line grid in the view
-    projectsTable.setShowGrid(true);
-    projectsTable.setGridStyle(Qt::DotLine);
+    Project project;
+    Server server;
+};
 
-    //Stretch the last section across the rest of the view.
-    projectsTable.horizontalHeader()->setStretchLastSection(true);
+class ProjectListTableModel : public QAbstractTableModel {
+    Q_OBJECT
+public:
+    ProjectListTableModel();
+    int rowCount(const QModelIndex & = QModelIndex()) const { return projectEntries.size(); }
+    int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
-    // Set the full row to be selected by default
-    projectsTable.setSelectionBehavior(QAbstractItemView::SelectRows);
+    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+    QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    //This is probably not the way we actually want to implement this.
-    projectsTable.setModel(&Workspace::get()->getProjectsListTableModel());
+    static ProjectListTableModel& model;
 
-    // Initialize the toolbar buttons
-    initializeToolBarButtons();
+public slots:
+    /**
+     * @brief appendProjectEntry Adds a project to this ProjectListTableModel.
+     * @param project The project to add
+     */
+    void appendProjectEntry(Project& project, Server& server);
 
-    // Organize components in this view for dsiplay
-    createDefaultLayout(true, &projectsTable);
+signals:
+    /**
+     * @brief serverAdded Alerts any views using this ServerListTableModel
+     * that a server has been added to the table and that the views should
+     * be updated.
+     */
+    void selectedServerChanged();
+    void projectAdded();
 
-    // Allow the project wizard to spawn when the button is clicked.
-    connect(addProjectButton, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+private:
+    QList<ProjectListItem> projectEntries;
+};
 
-    // Connect the signal to allow the view to update the list.
-    //connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
-            //this, SLOT(updateView()));
-}
-
-void
-ProjectsListView::initializeToolBarButtons() {
-    addProjectButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
-                                  "Create a new project", 0);
-    addAction(addProjectButton);
-}
-
-void
-ProjectsListView::showProjectWizard() {
-    QFile file(":/resources/projectOverview.html");
-    ProjectWizard pw(file);
-    pw.exec();
-}
-
-void
-ProjectsListView::updateView() {
-
-}
-
-#endif
+#endif // ProjectListTableModel_HPP

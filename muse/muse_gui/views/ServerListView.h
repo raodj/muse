@@ -37,8 +37,11 @@
 //---------------------------------------------------------------------
 
 #include "View.h"
+#include "ServerListTableModel.h"
+
 #include <QTableView>
 
+#include <memory>
 
 /**
  * @brief The ServerListView class Provides a visual, tabular listing of
@@ -72,6 +75,8 @@ private:
     QAction* myJobsButton;
     QAction* serverInfoButton;
     QAction* deleteServerButton;
+
+    std::unique_ptr<ServerListTableModel> tableModel;
 
     /**
      * @brief initializeToolBarButtons Initializes and adds the the buttons

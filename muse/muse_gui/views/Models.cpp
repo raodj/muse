@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_TABLE_CPP
-#define SERVER_LIST_TABLE_CPP
+#ifndef MODELS_CPP
+#define MODELS_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,61 +36,55 @@
 //
 //---------------------------------------------------------------------
 
-#include "Core.h"
-#include "ServerListTableModel.h"
+#include "Models.h"
 #include "Workspace.h"
 
-ServerListTableModel::ServerListTableModel() {
-    //Set the column headers
-    setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
-    setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
-    setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
-}
+namespace muse {
+namespace model {
 
-QVariant
-ServerListTableModel::headerData(int section, Qt::Orientation orientation,
-                                 int role) const {
-    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
-        // Ignore this type of request
-        return QVariant();
-    }
+namespace {
 
-    // Return strings for column headers
-    static const QString ColumnTitles[MAX_COLUMNS] = {"Server", "Status", "ID"};
+ServerListTableModel serverModel;
+ProjectListTableModel projectModel;
+JobListTableModel jobModel;
 
-    return  ColumnTitles[section];
-}
-
-QVariant
-ServerListTableModel::data(const QModelIndex &index, int role) const {
-    if ((index.row() < 0)    || (index.row() >= muse::workspace::serverCount()) ||
-        (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
-        // A request that cannot be handled.
-        return QVariant();
-    }
-
-    //Rest of method only executed if role is the display role.
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
-
-    //Get the desired row of the server list
-    const Server server = muse::workspace::getServer(index.row());
-
-    //Return the value corresponding to the column.
-    switch (index.column()) {
-    case 0: return server.getName();
-    case 1: return server.getStatus();
-    default:
-    case 2: return server.getID();
+void addInitialServersToModel() {
+    for (auto& s : muse::workspace::getServers()) {
+        serverModel.appendServerEntry(s);
     }
 }
 
-void
-ServerListTableModel::appendServerEntry(Server& server) {
-    muse::workspace::addServer(server);
+}
 
-    emit serverAdded();
+ServerListTableModel& getServerListTableModel() {
+    return serverModel;
+}
+
+ProjectListTableModel& getProjectListTableModel() {
+    return projectModel;
+}
+
+JobListTableModel& getJobListTableModel() {
+    return jobModel;
+}
+
+void init() {
+    addInitialServersToModel();
+}
+
+void addServer(Server &server) {
+    serverModel.appendServerEntry(server);
+}
+
+void addProject(Project &project) {
+    //projectModel.appendProjectEntry(project);
+}
+
+void addJob(Job &job) {
+    //jobModel.appendJobEntry(job);
+}
+
+}
 }
 
 #endif

@@ -51,21 +51,30 @@ ServerListView::ServerListView(QWidget *parent) :
     //Show a dotted line grid in the view
     serverTable.setShowGrid(true);
     serverTable.setGridStyle(Qt::DotLine);
+
     //Stretch the last section across the rest of the view.
     serverTable.horizontalHeader()->setStretchLastSection(true);
+
     // Set the full row to be selected by default
     serverTable.setSelectionBehavior(QAbstractItemView::SelectRows);
+
+    tableModel = std::make_unique<ServerListTableModel>();
+
     //This is probably not the way we actually want to implement this.
-    serverTable.setModel(&Workspace::get()->getTableModel());
+    //serverTable.setModel(&Workspace::get()->getTableModel());
+    serverTable.setModel(tableModel.get());
+
     // Initialize the toolbar buttons
     initializeToolBarButtons();
+
     // Organize components in this view for dsiplay
     createDefaultLayout(true, &serverTable);
+
     // Allow the server wizard to spawn when the button is clicked.
     connect(addServerButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
+
     // Connect the signal to allow the view to update the list.
-    connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
-            this, SLOT(updateView()));
+    connect(tableModel.get(), SIGNAL(serverAdded()), this, SLOT(updateView()));
 }
 
 void

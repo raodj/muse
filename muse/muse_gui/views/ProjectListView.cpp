@@ -1,5 +1,5 @@
-#ifndef SERVER_LIST_TABLE_CPP
-#define SERVER_LIST_TABLE_CPP
+#ifndef PROJECTS_LIST_VIEW_CPP
+#define PROJECTS_LIST_VIEW_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,61 +36,60 @@
 //
 //---------------------------------------------------------------------
 
-#include "Core.h"
-#include "ServerListTableModel.h"
+#include "ProjectListView.h"
 #include "Workspace.h"
+#include "ProjectWizard.h"
 
-ServerListTableModel::ServerListTableModel() {
-    //Set the column headers
-    setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
-    setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
-    setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
-}
+#include <QHeaderView>
 
-QVariant
-ServerListTableModel::headerData(int section, Qt::Orientation orientation,
-                                 int role) const {
-    if ((role != Qt::DisplayRole) || (orientation != Qt::Horizontal)) {
-        // Ignore this type of request
-        return QVariant();
-    }
+const QString ProjectListView::ViewName = "ProjectListView";
 
-    // Return strings for column headers
-    static const QString ColumnTitles[MAX_COLUMNS] = {"Server", "Status", "ID"};
+ProjectListView::ProjectListView(QWidget *parent) :
+    View(ViewName, parent), projectsTable(this) {
+    //Show a dotted line grid in the view
+    projectsTable.setShowGrid(true);
+    projectsTable.setGridStyle(Qt::DotLine);
 
-    return  ColumnTitles[section];
-}
+    //Stretch the last section across the rest of the view.
+    projectsTable.horizontalHeader()->setStretchLastSection(true);
 
-QVariant
-ServerListTableModel::data(const QModelIndex &index, int role) const {
-    if ((index.row() < 0)    || (index.row() >= muse::workspace::serverCount()) ||
-        (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
-        // A request that cannot be handled.
-        return QVariant();
-    }
+    // Set the full row to be selected by default
+    projectsTable.setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    //Rest of method only executed if role is the display role.
-    if (role != Qt::DisplayRole) {
-        return QVariant();
-    }
+    //This is probably not the way we actually want to implement this.
+    //projectsTable.setModel(&Workspace::get()->getProjectsListTableModel());
 
-    //Get the desired row of the server list
-    const Server server = muse::workspace::getServer(index.row());
+    // Initialize the toolbar buttons
+    initializeToolBarButtons();
 
-    //Return the value corresponding to the column.
-    switch (index.column()) {
-    case 0: return server.getName();
-    case 1: return server.getStatus();
-    default:
-    case 2: return server.getID();
-    }
+    // Organize components in this view for dsiplay
+    createDefaultLayout(true, &projectsTable);
+
+    // Allow the project wizard to spawn when the button is clicked.
+    connect(addProjectButton, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
+
+    // Connect the signal to allow the view to update the list.
+    //connect(&Workspace::get()->getTableModel(), SIGNAL(serverAdded()),
+            //this, SLOT(updateView()));
 }
 
 void
-ServerListTableModel::appendServerEntry(Server& server) {
-    muse::workspace::addServer(server);
+ProjectListView::initializeToolBarButtons() {
+    addProjectButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+                                  "Create a new project", 0);
+    addAction(addProjectButton);
+}
 
-    emit serverAdded();
+void
+ProjectListView::showProjectWizard() {
+    QFile file(":/resources/projectOverview.html");
+    ProjectWizard pw(file);
+    pw.exec();
+}
+
+void
+ProjectListView::updateView() {
+
 }
 
 #endif
