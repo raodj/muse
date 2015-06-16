@@ -8,8 +8,9 @@ QT       += core gui xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
-CONFIG += c++11
+LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2 -ljsoncpp
+CONFIG += c++1y
+QMAKE_CXXFLAGS += -std=c++1y
 
 TARGET = muse_gui
 TEMPLATE = app
@@ -17,6 +18,7 @@ TEMPLATE = app
 INCLUDEPATH += infra
 INCLUDEPATH += infra/xml
 INCLUDEPATH += infra/ssh
+INCLUDEPATH += infra/json
 INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
@@ -101,8 +103,8 @@ SOURCES +=\
     core/jobWizard/SubmitPage.cpp \
     workspace/Job.cpp \
     workspace/JobList.cpp \
-    views/ProjectsListView.cpp \
-    views/ProjectsListTableModel.cpp \
+    views/ProjectListTableModel.cpp \
+    views/ProjectListView.cpp \
     views/JobListTableModel.cpp \
     views/JobListView.cpp \
     views/GeospatialView.cpp \
@@ -149,7 +151,6 @@ HEADERS  += \
     core/filediag/FSHelperCommon.h \
     core/filediag/FSHelper.h \
     core/filediag/FSEntry.h \
-    #core/filediag/FileSystemModel.h.bak \
     core/filediag/FileSystemModel.h \
     core/filediag/CustomFileDialog.h \
     core/filediag/DirFilterProxyModel.h \
@@ -188,10 +189,10 @@ HEADERS  += \
     core/jobWizard/SubmitPage.h \
     workspace/Job.h \
     workspace/JobList.h \
-    views/ProjectsListView.h \
+    views/ProjectListView.h \
     views/JobListView.h \
     views/GeospatialView.h \
-    views/ProjectsListTableModel.h \
+    views/ProjectListTableModel.h \
     views/JobListTableModel.h \
     views/GeospatialWidget.h
 

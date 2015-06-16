@@ -1,5 +1,5 @@
-#ifndef FIRST_RUN_WIZARD_CPP
-#define FIRST_RUN_WIZARD_CPP
+#ifndef SERVER_WATCHER_CPP
+#define SERVER_WATCHER_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,26 +36,70 @@
 //
 //---------------------------------------------------------------------
 
-#include "FirstRunWizard.h"
-#include "MUSEGUIApplication.h"
+
+#include "ServerWatcher.h"
 #include "Workspace.h"
+#include "JobList.h"
+#include "Job.h"
 
-#include <QDir>
-#include <QFile>
+#include <iostream>
+#include <chrono>
 
-FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QFile &file, QWidget *parent) :
-    MUSEWizard(file, parent), app(app) {
-    setWindowTitle("First time setup");
+static void exec();
 
-    addPage(&licensePage, "Review License");
-    addPage(&appDirPage,  "Finish setup", true);
+static void checkJob(Job &job);
+
+static void printJobDesc(Job &job);
+
+ServerWatcher::ServerWatcher() {
+
+}
+
+ServerWatcher::~ServerWatcher() {
+    stop();
 }
 
 void
-FirstRunWizard::accept() {
-    //if (app.checkCreateAppDirectory(this)) {
-        QDialog::accept();
-    //}
+ServerWatcher::start() {
+    thread = std::thread(exec);
 }
 
-#endif
+void
+ServerWatcher::stop() {
+    if (thread.joinable()) {
+        thread.join();
+    }
+}
+
+static void exec() {
+    while (true) {
+        Workspace *ws = Workspace::get();
+        JobList jl = ws->getJobList();
+
+        std::cout << "----------------------" << std::endl;
+        std::cout << "------ JOB LIST ------" << std::endl;
+        std::cout << "----------------------" << std::endl;
+
+        for (int i = 0; i < jl.size(); i++) {
+            checkJob(jl.get(i));
+        }
+
+        std::this_thread::sleep_for(std::chrono::seconds(10));
+    }
+}
+
+static void checkJob(Job &job) {
+    printJobDesc(job);
+}
+
+static void printJobDesc(Job &job) {
+    std::cout << "***** JOB *****" << std::endl;
+    std::cout << "** Job Name: " << job.getName().toStdString() << std::endl;
+    std::cout << "** Job ID: " << job.getJobId() << std::endl;
+    std::cout << "** Server: " << job.getServer().toStdString() << std::endl;
+    std::cout << "** Status: " << job.getStatus().toStdString() << std::endl;
+    std::cout << "** Date: " << job.getDateSubmitted().toString().toStdString() << std::endl;
+    std::cout << "** Desc: " << job.getDescription().toStdString() << std::endl;
+}
+
+#endif // SERVER_WATCHER_CPP

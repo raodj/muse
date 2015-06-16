@@ -43,29 +43,29 @@
 #include <QPushButton>
 
 JobInformationPage::JobInformationPage() {
-    QVBoxLayout* mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(new QLabel("Select Project"));
-    mainLayout->addWidget(&projectSelector);
-    mainLayout->addWidget(new QLabel("Command line arguments for this job"));
-    mainLayout->addWidget(&argumentsField);
-    mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
-    mainLayout->addWidget(&descriptionField);
-    setLayout(mainLayout);
+//    QVBoxLayout* mainLayout = new QVBoxLayout();
+//    mainLayout->addWidget(new QLabel("Select Project"));
+//    mainLayout->addWidget(&projectSelector);
+//    mainLayout->addWidget(new QLabel("Command line arguments for this job"));
+//    mainLayout->addWidget(&argumentsField);
+//    mainLayout->addWidget(new QLabel("Description for this job: (for your reference)"));
+//    mainLayout->addWidget(&descriptionField);
+//    setLayout(mainLayout);
 
-    registerField("project", &projectSelector);
-    registerField("jobDescription", &descriptionField, "plainText");
-    registerField("arguments", &argumentsField, "plainText");
+//    registerField("project", &projectSelector);
+//    registerField("jobDescription", &descriptionField, "plainText");
+//    registerField("arguments", &argumentsField, "plainText");
 
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
+//    Workspace* ws = Workspace::get();
+//    ServerList& serverList = ws->getServerList();
 
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList& projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size(); j++) {
-            projectSelector.addItem(projList.get(j).getName());
-        }
-    }
-    setTitle("Job Information");
+//    for (int i = 0; i < serverList.size(); i++) {
+//        ProjectList& projList = serverList.get(i).getProjectList();
+//        for (int j = 0; j < projList.size(); j++) {
+//            projectSelector.addItem(projList.get(j).getName());
+//        }
+//    }
+//    setTitle("Job Information");
 }
 
 #endif

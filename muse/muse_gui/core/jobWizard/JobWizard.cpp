@@ -60,38 +60,38 @@ JobWizard::exec() {
 
 bool
 JobWizard::checkRequirements() {
-    ServerList servers = Workspace::get()->getServerList();
-    // Check that a server exists
-    if (servers.size() == 0) {
-        QMessageBox msg;
-        msg.setIcon(QMessageBox::Critical);
-        msg.setText("No servers were found in the workspace. A server" \
-                    " is required to create a job. Please create a server " \
-                     "(and then a project) using the appropriate wizards."\
-                    " Then run this wizard again.");
-        msg.exec();
-        return false;
-    }
-    // If a server exists, check for a Project
-    else {
-        bool projectFound = false;
-        for (int i = 0; i < servers.size() && !projectFound; i ++) {
-            if (servers.get(i).getProjectList().size() > 0) {
-                projectFound = true;
-            }
-        }
-        if (!projectFound) {
-            QMessageBox msg;
-            msg.setIcon(QMessageBox::Critical);
-            msg.setText("No projects were found in the workspace. A project" \
-                        " is required to create a job. Please create a project " \
-                         "using the project wizard." \
-                        " Then run this wizard again.");
-            msg.exec();
-            return false;
-        }
+//    ServerList servers = Workspace::get()->getServerList();
+//    // Check that a server exists
+//    if (servers.size() == 0) {
+//        QMessageBox msg;
+//        msg.setIcon(QMessageBox::Critical);
+//        msg.setText("No servers were found in the workspace. A server" \
+//                    " is required to create a job. Please create a server " \
+//                     "(and then a project) using the appropriate wizards."\
+//                    " Then run this wizard again.");
+//        msg.exec();
+//        return false;
+//    }
+//    // If a server exists, check for a Project
+//    else {
+//        bool projectFound = false;
+//        for (int i = 0; i < servers.size() && !projectFound; i ++) {
+//            if (servers.get(i).getProjectList().size() > 0) {
+//                projectFound = true;
+//            }
+//        }
+//        if (!projectFound) {
+//            QMessageBox msg;
+//            msg.setIcon(QMessageBox::Critical);
+//            msg.setText("No projects were found in the workspace. A project" \
+//                        " is required to create a job. Please create a project " \
+//                         "using the project wizard." \
+//                        " Then run this wizard again.");
+//            msg.exec();
+//            return false;
+//        }
 
-    }
+//    }
     return true;
 }
 

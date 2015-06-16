@@ -1,5 +1,5 @@
-#ifndef FIRST_RUN_WIZARD_CPP
-#define FIRST_RUN_WIZARD_CPP
+#ifndef JOB_WATCHER_HPP
+#define JOB_WATCHER_HPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,26 +36,19 @@
 //
 //---------------------------------------------------------------------
 
-#include "FirstRunWizard.h"
-#include "MUSEGUIApplication.h"
-#include "Workspace.h"
+#include <thread>
 
-#include <QDir>
-#include <QFile>
+class ServerWatcher {
+public:
+    ServerWatcher();
+    ~ServerWatcher();
 
-FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QFile &file, QWidget *parent) :
-    MUSEWizard(file, parent), app(app) {
-    setWindowTitle("First time setup");
+    void start();
+    void stop();
 
-    addPage(&licensePage, "Review License");
-    addPage(&appDirPage,  "Finish setup", true);
-}
+private:
 
-void
-FirstRunWizard::accept() {
-    //if (app.checkCreateAppDirectory(this)) {
-        QDialog::accept();
-    //}
-}
+    std::thread thread;
+};
 
-#endif
+#endif // JOB_WATCHER_HPP

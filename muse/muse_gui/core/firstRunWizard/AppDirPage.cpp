@@ -38,6 +38,7 @@
 
 #include "AppDirPage.h"
 #include "MUSEGUIApplication.h"
+#include "Workspace.h"
 
 AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
     setTitle("Welcome");
@@ -48,7 +49,7 @@ AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
     workspaceMessage = new QLabel();
     workspaceMessage->setText("Once you click to end this wizard, "
                               "the application directory will be created "
-                              "here: " + MUSEGUIApplication::getAppDirPath()
+                              "here: " + muse::workspace::appDir()
                               + "<br/>Click the button to proceed.");
 
     workspaceMessage->setWordWrap(true);

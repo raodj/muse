@@ -60,47 +60,47 @@ JobSummaryPage::JobSummaryPage() {
 
 void
 JobSummaryPage::initializePage() {
-    // Clear old information, if it exists.
-    summaryDisplay.clear();
-    summaryDisplay.append("SUMMARY OF JOB");
-    summaryDisplay.append("Job Information:");
-    // For convenience and readability.
-    QString indent = "\t\t";
-    Workspace* ws = Workspace::get();
-    ServerList& serverList = ws->getServerList();
-    Server& server = serverList.get(field("server").toInt());
-    // Used to compare the number of projects found and the index
-    // of the project selected in the QComboBox on a previous page.
-    int projectCount = 0;
-    for (int i = 0; i < serverList.size(); i++) {
-        ProjectList& projList = serverList.get(i).getProjectList();
-        for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
-             j++, projectCount++) {
-            // Once we hit project n that matches the index of the project
-            // field, print its info to the text edit.
-            if (projectCount == field("project").toInt()) {
-             Project& proj = projList.get(j);
-                summaryDisplay.append(indent +"Project: "
-                                      + projList.get(j).getName() +
-                                      + "_" + QString::number(proj.getJobCount() - 1));
-            }
-        }
-    }
-    summaryDisplay.append(indent + "Arguments: " +
-                          field("arguments").toString());
-    summaryDisplay.append(indent + "Job Description: "+
-                          field("jobDescription").toString());
-    summaryDisplay.append("Server Information:");
-    summaryDisplay.append(indent + server.getName());
-    summaryDisplay.append(indent + "Nodes: " + QString::number(
-                              field("nodes").toInt()));
-    summaryDisplay.append(indent + "CPUs per Node: " + QString::number(
-                              field("cpusPerNode").toInt()));
-    summaryDisplay.append(indent + "Memory per Node: " +
-                          QString::number(field("memoryPerNode").toInt()) +
-                          field("memoryUnits").toString());
-    summaryDisplay.append(indent + "Est. Run Time (Hrs): " +
-                          QString::number(field("estimatedRunTime").toInt()));
+//    // Clear old information, if it exists.
+//    summaryDisplay.clear();
+//    summaryDisplay.append("SUMMARY OF JOB");
+//    summaryDisplay.append("Job Information:");
+//    // For convenience and readability.
+//    QString indent = "\t\t";
+//    Workspace* ws = Workspace::get();
+//    ServerList& serverList = ws->getServerList();
+//    Server& server = serverList.get(field("server").toInt());
+//    // Used to compare the number of projects found and the index
+//    // of the project selected in the QComboBox on a previous page.
+//    int projectCount = 0;
+//    for (int i = 0; i < serverList.size(); i++) {
+//        ProjectList& projList = serverList.get(i).getProjectList();
+//        for (int j = 0; j < projList.size() && projectCount <= field("project").toInt();
+//             j++, projectCount++) {
+//            // Once we hit project n that matches the index of the project
+//            // field, print its info to the text edit.
+//            if (projectCount == field("project").toInt()) {
+//             Project& proj = projList.get(j);
+//                summaryDisplay.append(indent +"Project: "
+//                                      + projList.get(j).getName() +
+//                                      + "_" + QString::number(proj.getJobCount() - 1));
+//            }
+//        }
+//    }
+//    summaryDisplay.append(indent + "Arguments: " +
+//                          field("arguments").toString());
+//    summaryDisplay.append(indent + "Job Description: "+
+//                          field("jobDescription").toString());
+//    summaryDisplay.append("Server Information:");
+//    summaryDisplay.append(indent + server.getName());
+//    summaryDisplay.append(indent + "Nodes: " + QString::number(
+//                              field("nodes").toInt()));
+//    summaryDisplay.append(indent + "CPUs per Node: " + QString::number(
+//                              field("cpusPerNode").toInt()));
+//    summaryDisplay.append(indent + "Memory per Node: " +
+//                          QString::number(field("memoryPerNode").toInt()) +
+//                          field("memoryUnits").toString());
+//    summaryDisplay.append(indent + "Est. Run Time (Hrs): " +
+//                          QString::number(field("estimatedRunTime").toInt()));
 }
 
 #endif

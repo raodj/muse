@@ -39,6 +39,8 @@
 #include "ServerConnectionTester.h"
 #include "ThreadedConnectionGUI.h"
 #include "MUSEGUIApplication.h"
+#include "Workspace.h"
+
 #include <QProgressDialog>
 #include <QMessageBox>
 
@@ -61,7 +63,7 @@ ServerConnectionTester::ServerConnectionTester(QString userName,
 void
 ServerConnectionTester::run() {
     connection = new SshSocket("Testing connection", NULL,
-                               MUSEGUIApplication::getKnownHostsPath(), true, true);
+                               muse::workspace::knownHostsFilePath(), true, true);
 
     // Now, intercept the signal to provide the SshSocket with the
     // user's credentials

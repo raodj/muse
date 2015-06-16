@@ -83,29 +83,29 @@ ProjectSummaryPage::initializePage() {
 
 bool
 ProjectSummaryPage::validatePage() {
-    Project* pro = new Project(projectName.text(), makeFileDir.text(),
-                     executableDir.text(), outputDir.text());
-    // Since the list isn't a part of the constructor, we must set it
-    // directly
-    pro->setSourceFileList(sourceFileList);
-    Server* server = serverSession->getServer();
-    server->addProject(*pro);
+//    Project* pro = new Project(projectName.text(), makeFileDir.text(),
+//                     executableDir.text(), outputDir.text());
+//    // Since the list isn't a part of the constructor, we must set it
+//    // directly
+//    pro->setSourceFileList(sourceFileList);
+//    Server* server = serverSession->getServer();
+//    server->addProject(*pro);
 
-    Workspace* ws = Workspace::get();
-    QString err;
-    err = ws->saveWorkspace();
-    // If err has text, we had a problem.
-    if (err != "") {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Error saving server to workspace.");
-        msgBox.setText(err);
-        return false;
-    }
-    // For now, delete the session to avoid memory leaks.
-    // When installation gets implemented, this line should be
-    // removed.
-    delete serverSession;
-    delete pro;
+//    Workspace* ws = Workspace::get();
+//    QString err;
+//    err = ws->saveWorkspace();
+//    // If err has text, we had a problem.
+//    if (err != "") {
+//        QMessageBox msgBox;
+//        msgBox.setWindowTitle("Error saving server to workspace.");
+//        msgBox.setText(err);
+//        return false;
+//    }
+//    // For now, delete the session to avoid memory leaks.
+//    // When installation gets implemented, this line should be
+//    // removed.
+//    delete serverSession;
+//    delete pro;
 
     return true;
 }
