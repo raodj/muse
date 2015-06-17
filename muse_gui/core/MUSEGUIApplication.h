@@ -96,12 +96,27 @@ private:
      * \note With Qt's object hierarchy (in which MainWindow is not
      * copyable), we are sadly forced to use pointers rather than objects.
      */
-     //MainWindow *mainWindow;
-     std::unique_ptr<MainWindow> window;
+     MainWindow *mainWindow;
+     //std::unique_ptr<MainWindow> window;
 
      static const QString errorMessage;
 
+     static const QString knownHostsFileName = "known_hosts";
+     static const QString workspacesFileName = "workspaces";
+
      int testFirstRun();
+
+     QString appDir();
+
+     QString knownHostsFilePath();
+
+     QString workspacesFilePath();
+
+     std::vector<QString> getWorkspacePaths();
+
+     void addWorkspace(QString dir);
+
+     void createApplicationFiles();
 };
 
 #endif

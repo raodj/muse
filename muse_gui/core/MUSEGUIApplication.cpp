@@ -46,6 +46,7 @@
 #include <QStandardPaths>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QDialog>
 #include <QMessageBox>
 
@@ -86,10 +87,10 @@ MUSEGUIApplication::exec() {
         return 1;
     }
 
-    muse::appdata::init();
+    createApplicationFiles();
 
     // before continuing, ask the user what workspace they want to use
-    WorkspaceWizard ww(muse::appdata::workspaces());
+    WorkspaceWizard ww(getWorkspacePaths());
 
     if (ww.exec() == QDialog::Rejected) {
         return 1;
@@ -103,8 +104,8 @@ MUSEGUIApplication::exec() {
     }
 
     // Everything went well so far. Create one main window and show it.
-    window = std::make_unique<MainWindow>();
-    window->show();
+    mainWindow = new MainWindow();
+    mainWindow->show();
 
     // Let the base class do rest of the work.
     return QGuiApplication::exec();
@@ -112,7 +113,10 @@ MUSEGUIApplication::exec() {
 
 int
 MUSEGUIApplication::testFirstRun() {
-    if (muse::appdata::firstRun()) {
+    QFileInfo knownHostsFile(knownHostsFilePath());
+    QFileInfo workspacesFile(workspacesFilePath());
+
+    if (!knownHostsFile.exists() || !workspacesFile.exists()) {
         QFile file(":/resources/welcome.html");
         FirstRunWizard frw(file);
 
@@ -120,6 +124,57 @@ MUSEGUIApplication::testFirstRun() {
     }
 
     return QDialog::Accepted;
+}
+
+QString
+MUSEGUIApplication::appDir() {
+    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+}
+
+QString
+MUSEGUIApplication::knownHostsFilePath() {
+    return appDir() + QDir::separator() + knownHostsFileName;
+}
+
+QString
+MUSEGUIApplication::workspacesFilePath() {
+    return appDir() + QDir::separator() + workspacesFileName;
+}
+
+std::vector<QString>
+MUSEGUIApplication::getWorkspacePaths() {
+    std::vector<QString> ret;
+
+    QFile in(workspacesFilePath());
+    in.open(QIODevice::ReadOnly | QIODevice::Text);
+
+    while (!in.atEnd()) {
+        ret.push_back(QString(in.readLine()));
+    }
+
+    return ret;
+}
+
+void addWorkspace(QString dir) {
+    QFile out(workspacesFilePath());
+    out.open(QIODevice::Append | QIODevice::Text);
+
+    QTextStream stream(&out);
+
+    stream << dir;
+}
+
+void createApplicationFiles() {
+    QFile knownHostsFile(knownHostsFilePath());
+    QFile workspacesFile(workspacesFilePath());
+
+    if (!knownHostsFile.exists() && !knownHostsFile.open(QFile::WriteOnly)) {
+        throw QString("Failed to create known hosts file");
+    }
+
+    if (!workspacesFile.exists() && !workspacesFile.open(QFile::WriteOnly)) {
+        throw QString("Failed to create workspaces file");
+    }
 }
 
 #endif

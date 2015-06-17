@@ -40,65 +40,68 @@
 #include "ServerList.h"
 #include "Server.h"
 #include "JobList.h"
-#include "ServerWatcher.h"
 
 #include <QDateTime>
 
-namespace muse {
-namespace workspace {
+//namespace muse {
+//namespace workspace {
 
-/**
- * @brief init
- *
- * The first function that will be called by the main thread, used to initialize
- * all the necessary resources of the workspace.  Will create and files that
- * need to be created, and an exception will be thrown in the unlikely chance
- * creating one of these files goes wrong, the calling function will need to
- * handle these excepetions;
- */
-void init();
+//bool create(QString path);
 
-/**
- * @brief save
- *
- * Save the current information about the workspace
- */
-void save();
+//void use(QString path);
 
-/**
- * @brief load
- *
- * Load data from the save file into the workspace
- */
-void load();
+///**
+// * @brief init
+// *
+// * The first function that will be called by the main thread, used to initialize
+// * all the necessary resources of the workspace.  Will create and files that
+// * need to be created, and an exception will be thrown in the unlikely chance
+// * creating one of these files goes wrong, the calling function will need to
+// * handle these excepetions;
+// */
+//void init();
 
-/**
- * @brief clear
- *
- * Clear all information currently known about the workspace, this will not have
- * any effect on the persistant save file unless a call to save() is made
- * after clearing
- */
-void clear();
-void addServer(Server server);
-void removeServer(Server server);
-void addJob(Job &job);
+///**
+// * @brief save
+// *
+// * Save the current information about the workspace
+// */
+//void save();
 
-bool firstRun();
+///**
+// * @brief load
+// *
+// * Load data from the save file into the workspace
+// */
+//void load();
 
-std::vector<Server> getServers();
+///**
+// * @brief clear
+// *
+// * Clear all information currently known about the workspace, this will not have
+// * any effect on the persistant save file unless a call to save() is made
+// * after clearing
+// */
+//void clear();
+//void addServer(Server server);
+//void removeServer(Server server);
+//void addJob(Job &job);
 
-int serverCount();
+//bool firstRun();
 
-Server getServer(int index);
+//std::vector<Server> getServers();
 
-QString appDir();
-QString knownHostsFilePath();
-QString saveDataFilePath();
-QString reserveID(const QString &itemType);
+//int serverCount();
 
-}
-}
+//Server getServer(int index);
+
+//QString appDir();
+//QString knownHostsFilePath();
+//QString saveDataFilePath();
+//QString reserveID(const QString &itemType);
+
+//}
+//}
 
 
 /**
@@ -118,240 +121,238 @@ QString reserveID(const QString &itemType);
  * <p>This class also extends the XMLRootElement to ease marshalling and
  * unmarshalling to/from XML for persistence.</p>
  */
-//class Workspace : public XMLRootElement {
-//public:
-//    /**
-//     * @brief get Returns a pointer to the process-wide, unique workspace
-//     * (if one is available).
-//     *
-//     * The workspace object is a singleton (there is only one object).
-//     * Making changes in one affects all of the views of the workspace.
-//     *
-//     * @return The process-wide, unique workspace instance. If a workspace
-//     * has not yet been created, then this method returns NULL.
-//     *
-//     */
-//    static Workspace* get() {
-//        return workspace;
-//    }
+class Workspace : public XMLRootElement {
+public:
+    /**
+     * @brief get Returns a pointer to the process-wide, unique workspace
+     * (if one is available).
+     *
+     * The workspace object is a singleton (there is only one object).
+     * Making changes in one affects all of the views of the workspace.
+     *
+     * @return The process-wide, unique workspace instance. If a workspace
+     * has not yet been created, then this method returns NULL.
+     *
+     */
+    static Workspace* get() {
+        return workspace;
+    }
 
-//    /**
-//     * @brief ~Workspace The destructor.
-//     *
-//     * Currently, the destructor does not have any special operations to
-//     * perform because this class currently does not directly use any
-//     * dyanmically allocated objects
-//     */
-//    ~Workspace() {}
+    /**
+     * @brief ~Workspace The destructor.
+     *
+     * Currently, the destructor does not have any special operations to
+     * perform because this class currently does not directly use any
+     * dyanmically allocated objects
+     */
+    ~Workspace() {}
 
-//    /**
-//     * @brief good Determine if the workspace is a good condition.
-//     *
-//     * This flag is used to determine if the current workspace is
-//     * valid and ready for operations.
-//     *
-//     * @return This method returns true if the workspace is deemed to be
-//     * in a good condition. Otherwise this method returns false.
-//     */
-//    bool good() const { return isGood; }
+    /**
+     * @brief good Determine if the workspace is a good condition.
+     *
+     * This flag is used to determine if the current workspace is
+     * valid and ready for operations.
+     *
+     * @return This method returns true if the workspace is deemed to be
+     * in a good condition. Otherwise this method returns false.
+     */
+    bool good() const { return isGood; }
 
-//    /**
-//     * @brief dumpWorkspace Dump workspace data in XML format to the
-//     * programmer log for verification.
-//     *
-//     * This is a convenience method that can be used to dump the workspace
-//     * in XML format to the programmer log. The XML data can be used for
-//     * various types of verification and troubleshooting operations.
-//     */
-//    void dumpWorkspace();
+    /**
+     * @brief dumpWorkspace Dump workspace data in XML format to the
+     * programmer log for verification.
+     *
+     * This is a convenience method that can be used to dump the workspace
+     * in XML format to the programmer log. The XML data can be used for
+     * various types of verification and troubleshooting operations.
+     */
+    void dumpWorkspace();
 
-//    /**
-//     * @brief getServerList Obtain the list of servers in this workspace
-//     *
-//     * @return This method returns the list of servers associated with this
-//     * workspace.
-//     */
-//    ServerList& getServerList() { return serverList; }
+    /**
+     * @brief getServerList Obtain the list of servers in this workspace
+     *
+     * @return This method returns the list of servers associated with this
+     * workspace.
+     */
+    ServerList& getServerList() { return serverList; }
 
-//    /**
-//     * @brief getJobList Obtain the list of jobs in this workspace
-//     * @return This method returns the list of jobs associated with this
-//     * workspace.
-//     */
+    /**
+     * @brief getJobList Obtain the list of jobs in this workspace
+     * @return This method returns the list of jobs associated with this
+     * workspace.
+     */
 //    JobList& getJobList() { return jobList; }
 
-//    /**
-//     * @brief createWorkspace Create a default workspace file in the
-//     * given directory.
-//     *
-//     * @param directory The directory to be used for creating the
-//     * workspace. This directory must be valid and should exist.
-//     *
-//     * @return This method returns an empty string if the workspace was
-//     * successfully created. On various errors this method returns a
-//     * non-empty string with suitable error message.
-//     */
-//    static QString createWorkspace(const QString& directory);
+    /**
+     * @brief createWorkspace Create a default workspace file in the
+     * given directory.
+     *
+     * @param directory The directory to be used for creating the
+     * workspace. This directory must be valid and should exist.
+     *
+     * @return This method returns an empty string if the workspace was
+     * successfully created. On various errors this method returns a
+     * non-empty string with suitable error message.
+     */
+    static QString createWorkspace(const QString& directory);
 
-//    /**
-//     * @brief useWorkspace Use an existing workspace by unmarhsalling
-//     * data from an XML file.
-//     *
-//     * @param directory The directory associated with the workspace to be
-//     * used for processing.
-//     *
-//     * @return This method returns an empty string if the workspace was
-//     * successfully opened. On various errors this method returns a
-//     * non-empty string with suitable error message.
-//     */
-//    static QString useWorkspace(const QString& directory);
+    /**
+     * @brief useWorkspace Use an existing workspace by unmarhsalling
+     * data from an XML file.
+     *
+     * @param directory The directory associated with the workspace to be
+     * used for processing.
+     *
+     * @return This method returns an empty string if the workspace was
+     * successfully opened. On various errors this method returns a
+     * non-empty string with suitable error message.
+     */
+    static QString useWorkspace(const QString& directory);
 
-//    /**
-//     * @brief save Save the current workspace.
-//     *
-//     * This method must be used to save the current workspace to the
-//     * workspace file.
-//     *
-//     * \note On errors the good-status of the workspace is left unchanged
-//     * giving the user an opportunity to try to save again.
-//     *
-//     * @return This method returns an empty string if the workspace was
-//     * successfully saved. On various errors this method returns a
-//     * non-empty string with suitable error message.
-//     */
-//    QString saveWorkspace();
+    /**
+     * @brief save Save the current workspace.
+     *
+     * This method must be used to save the current workspace to the
+     * workspace file.
+     *
+     * \note On errors the good-status of the workspace is left unchanged
+     * giving the user an opportunity to try to save again.
+     *
+     * @return This method returns an empty string if the workspace was
+     * successfully saved. On various errors this method returns a
+     * non-empty string with suitable error message.
+     */
+    QString saveWorkspace();
 
-//    /**
-//     * @brief reserveID Assigns a unique ID to an object in this
-//     * workspace.
-//     * @param itemType The type of item in the workspace that is
-//     * going to receive a unique ID.
-//     * @return The unique ID that itemType is assigned.
-//     */
-//    QString reserveID(const QString& itemType);
+    /**
+     * @brief reserveID Assigns a unique ID to an object in this
+     * workspace.
+     * @param itemType The type of item in the workspace that is
+     * going to receive a unique ID.
+     * @return The unique ID that itemType is assigned.
+     */
+    QString reserveID(const QString& itemType);
 
-//    /**
-//     * @brief getTableModel Returns the table model representation of this
-//     * workspace.
-//     * @return  The ServerListTableModel of this workspace.
-//     */
-//    //ServerListTableModel& getTableModel();
+    /**
+     * @brief getTableModel Returns the table model representation of this
+     * workspace.
+     * @return  The ServerListTableModel of this workspace.
+     */
+    //ServerListTableModel& getTableModel();
 
-//    //ProjectsListTableModel& getProjectsListTableModel();
+    //ProjectsListTableModel& getProjectsListTableModel();
 
-//    //JobListTableModel& getJobListTableModel();
+    //JobListTableModel& getJobListTableModel();
 
-//    /**
-//     * @brief addServerToWorkSpace Adds server to the serverList and to the
-//     * ServerListTableModel.
-//     * @param server The server to be added.
-//     */
+    /**
+     * @brief addServerToWorkSpace Adds server to the serverList and to the
+     * ServerListTableModel.
+     * @param server The server to be added.
+     */
 //    void addServerToWorkSpace(Server& server);
 //    void addProjectToWorkSpace(Project& project, Server *server);
 //    void addJobToWorkSpace(Job& job);
 
 //    void startServerWatcher();
 
-//protected:
-//    /**
-//     * @brief Workspace The constructor creates a dummy workspace object.
-//     *
-//     * This constructor is used to create a default workspace. The
-//     * constructor calls the registerClasses() method to add the
-//     * pertinent classes for marshalling XML data to Qt's type
-//     * system. In addition, the constructor adds default namespaces
-//     * and attributes.
-//     *
-//     * @param directory The directory associated with the workspace.
-//     * The constructor does not perform any special checks on the
-//     * directory.
-//     *
-//     * @param isValid Flag to indicate if the workspace is in a valid
-//     * state.
-//     */
-//    Workspace(const QString& directory = "", bool isValid = false);
+protected:
+    /**
+     * @brief Workspace The constructor creates a dummy workspace object.
+     *
+     * This constructor is used to create a default workspace. The
+     * constructor calls the registerClasses() method to add the
+     * pertinent classes for marshalling XML data to Qt's type
+     * system. In addition, the constructor adds default namespaces
+     * and attributes.
+     *
+     * @param directory The directory associated with the workspace.
+     * The constructor does not perform any special checks on the
+     * directory.
+     *
+     * @param isValid Flag to indicate if the workspace is in a valid
+     * state.
+     */
+    Workspace(const QString& directory = "", bool isValid = false);
 
-//    /**
-//     * @brief registerClasses Convenience helper method to register
-//     * classes for unmarshalling.
-//     *
-//     * This method is a helper method that was introduced to aggregate
-//     * registration of classes derived from XMLElement with Qt's
-//     * type system using the qRegisterMetaType method.
-//     */
-//    static void registerClasses();
+    /**
+     * @brief registerClasses Convenience helper method to register
+     * classes for unmarshalling.
+     *
+     * This method is a helper method that was introduced to aggregate
+     * registration of classes derived from XMLElement with Qt's
+     * type system using the qRegisterMetaType method.
+     */
+    static void registerClasses();
 
-//private:
-//    /**
-//     * @brief directory The full path to the folder in which local files
-//     * associated with this workspace are stored.  This value is set when
-//     * a workspace is created.
-//     */
-//    QString directory;
+private:
+    /**
+     * @brief directory The full path to the folder in which local files
+     * associated with this workspace are stored.  This value is set when
+     * a workspace is created.
+     */
+    QString directory;
 
-//    /**
-//     * @brief timestamp The timestamp when the workspace was last updated.
-//     * This information is updated each time the workspace information
-//     * is updated (it is typically unrelated to the last time the work
-//     * space was saved which would be the timestamp on the workspace
-//     * file).
-//     */
-//    QDateTime timestamp;
+    /**
+     * @brief timestamp The timestamp when the workspace was last updated.
+     * This information is updated each time the workspace information
+     * is updated (it is typically unrelated to the last time the work
+     * space was saved which would be the timestamp on the workspace
+     * file).
+     */
+    QDateTime timestamp;
 
-//    /**
-//     * @brief seqCounter A monotonically increasing sequence counter that
-//     * is used to generate a unique IDs for various identifiers in this
-//     * workspace.
-//     */
-//    long seqCounter;
+    /**
+     * @brief seqCounter A monotonically increasing sequence counter that
+     * is used to generate a unique IDs for various identifiers in this
+     * workspace.
+     */
+    long seqCounter;
 
-//    /**
-//     * @brief serverList Object that encapsulates the list of servers
-//     * currently added to this workspace.
-//     */
-//    ServerList serverList;
+    /**
+     * @brief serverList Object that encapsulates the list of servers
+     * currently added to this workspace.
+     */
+    ServerList serverList;
 
-//    /**
-//     * @brief good Flag to indicate if the workspace is in a good state.
-//     * This flag is typically initialized to false when a dummy workspace
-//     * is created (at startup). This flag is set to true once a default
-//     * workspace is successfully created or a workspace is successfully
-//     * loaded from a given file.
-//     */
-//    bool isGood;
+    /**
+     * @brief good Flag to indicate if the workspace is in a good state.
+     * This flag is typically initialized to false when a dummy workspace
+     * is created (at startup). This flag is set to true once a default
+     * workspace is successfully created or a workspace is successfully
+     * loaded from a given file.
+     */
+    bool isGood;
 
-//    /**
-//     * The process-wide, unique instance of the workspace object. This object
-//     * contains all the necessary information regarding the workspace that
-//     * is being currently used. The pointer is initialized to NULL. A valid
-//     * workspace object can be created via calls to createWorkspace and
-//     * useWorkspace static methods in this class.
-//     */
-//    static Workspace *workspace;
+    /**
+     * The process-wide, unique instance of the workspace object. This object
+     * contains all the necessary information regarding the workspace that
+     * is being currently used. The pointer is initialized to NULL. A valid
+     * workspace object can be created via calls to createWorkspace and
+     * useWorkspace static methods in this class.
+     */
+    static Workspace *workspace;
 
-//    /**
-//     * @brief WorkspaceFileName A constant to refer to the specific
-//     * workspace file.  This value is appended to a directory path
-//     * to determine the actual workspace XML file.
-//     */
-//    static const QString WorkspaceFileName;
+    /**
+     * @brief WorkspaceFileName A constant to refer to the specific
+     * workspace file.  This value is appended to a directory path
+     * to determine the actual workspace XML file.
+     */
+    static const QString WorkspaceFileName;
 
 //    ServerListTableModel serverModel;
 //    ProjectsListTableModel projectsModel;
 //    JobListTableModel jobModel;
 
-//    /**
-//     * @brief addInitialServersToModel Iterates through serverList and adds
-//     * the servers to the table model for any views that use the
-//     * ServerListTableModel.
-//     */
+    /**
+     * @brief addInitialServersToModel Iterates through serverList and adds
+     * the servers to the table model for any views that use the
+     * ServerListTableModel.
+     */
 //    void addInitialServersToModel();
 //    void addInitialProjectsToModel();
 //    void addInitialJobsToModel();
 
 //    JobList jobList;
-
-//    ServerWatcher serverWatcher;
-//};
+};
 
 #endif // WORKSPACE_H

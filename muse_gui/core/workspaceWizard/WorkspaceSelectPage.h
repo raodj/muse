@@ -40,6 +40,7 @@
 #include <QComboBox>
 #include <QPushButton>
 #include <QString>
+#include <QVBoxLayout>
 
 #include <vector>
 
@@ -50,10 +51,13 @@ public:
 
     void setWorkspaceOptions(std::vector<QString> options);
 
+private slots:
+    void createNewWorkspace();
+
 private:
+    QVBoxLayout layout;
     QComboBox workspaceSelector;
-    QPushButton okButton;
-    QPushButton cancelButton;
+    QPushButton newWorkspaceButton;
 };
 
 #endif // WORKSPACE_SELECT_PAGE_H
