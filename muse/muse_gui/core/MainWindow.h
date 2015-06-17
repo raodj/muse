@@ -61,7 +61,7 @@ protected slots:
 
     void showGeospatialView();
 
-    void showProjectsJobsListView();
+    //void showProjectsJobsListView();
 
     /**
      * @brief showProjectWizard Creates and executes the ProjectWizard

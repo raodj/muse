@@ -41,6 +41,7 @@
 #include "Workspace.h"
 #include "Logger.h"
 #include "MUSEApplicationData.h"
+#include "workspaceWizard/WorkspaceWizard.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -87,9 +88,12 @@ MUSEGUIApplication::exec() {
 
     muse::appdata::init();
 
-    // implement selection of known workspaces
-    std::vector<QString> workspaces = muse::appdata::workspaces();
+    // before continuing, ask the user what workspace they want to use
+    WorkspaceWizard ww(muse::appdata::workspaces());
 
+    if (ww.exec() == QDialog::Rejected) {
+        return 1;
+    }
 
     try {
         muse::workspace::init();
@@ -110,7 +114,7 @@ int
 MUSEGUIApplication::testFirstRun() {
     if (muse::appdata::firstRun()) {
         QFile file(":/resources/welcome.html");
-        FirstRunWizard frw(*this, file);
+        FirstRunWizard frw(file);
 
         return frw.exec();
     }

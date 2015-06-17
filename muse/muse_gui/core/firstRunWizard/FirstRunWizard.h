@@ -41,7 +41,7 @@
 
 #include "LicensePage.h"
 #include "AppDirPage.h"
-#include "MUSEGUIApplication.h"
+//#include "MUSEGUIApplication.h"
 
 /**
  * @brief The FirstRunWizard class The class that is run to set up
@@ -55,7 +55,7 @@
  */
 class FirstRunWizard : public MUSEWizard {
 public:
-    FirstRunWizard(MUSEGUIApplication& app, QFile& file, QWidget* parent = 0);
+    FirstRunWizard(QFile& file, QWidget* parent = 0);
 
     /**
      * @brief accept The MUSE-specific implementation of the accept()
@@ -75,7 +75,7 @@ private:
      * to create the top-level application directory and various other
      * necessary files the first time MUSE-GUI is run by an user.
      */
-    MUSEGUIApplication& app;
+    //MUSEGUIApplication& app;
     LicensePage licensePage;
     AppDirPage  appDirPage;
 };

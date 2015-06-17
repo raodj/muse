@@ -15,6 +15,7 @@ void init();
 QString appDir();
 
 QString knownHostsFilePath();
+QString workspacesFilePath();
 
 std::vector<QString> workspaces();
 

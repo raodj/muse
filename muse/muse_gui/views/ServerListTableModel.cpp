@@ -36,8 +36,8 @@
 //
 //---------------------------------------------------------------------
 
-#include "Core.h"
 #include "ServerListTableModel.h"
+#include "Core.h"
 #include "Workspace.h"
 
 ServerListTableModel::ServerListTableModel() {

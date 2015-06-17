@@ -1,5 +1,5 @@
-#ifndef FIRST_RUN_WIZARD_CPP
-#define FIRST_RUN_WIZARD_CPP
+#ifndef WORKSPACE_WIZARD_H
+#define WORKSPACE_WIZARD_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,26 +36,19 @@
 //
 //---------------------------------------------------------------------
 
-#include "FirstRunWizard.h"
-#include "MUSEGUIApplication.h"
-#include "Workspace.h"
+#include "WorkspaceSelectPage.h"
 
-#include <QDir>
-#include <QFile>
+#include <QString>
+#include <QWizard>
 
-FirstRunWizard::FirstRunWizard(QFile &file, QWidget *parent) :
-    MUSEWizard(file, parent) {
-    setWindowTitle("First time setup");
+#include <vector>
 
-    addPage(&licensePage, "Review License");
-    addPage(&appDirPage,  "Finish setup", true);
-}
+class WorkspaceWizard : public QWizard {
+public:
+    WorkspaceWizard(std::vector<QString> options, QWidget* parent = 0);
 
-void
-FirstRunWizard::accept() {
-    //if (app.checkCreateAppDirectory(this)) {
-        QDialog::accept();
-    //}
-}
+private:
+    WorkspaceSelectPage workspaceSelectPage;
+};
 
-#endif
+#endif // WORKSPACE_WIZARD_H

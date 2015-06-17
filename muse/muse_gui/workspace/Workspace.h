@@ -38,10 +38,11 @@
 
 #include "XMLRootElement.h"
 #include "ServerList.h"
-#include <QDateTime>
 #include "Server.h"
 #include "JobList.h"
 #include "ServerWatcher.h"
+
+#include <QDateTime>
 
 namespace muse {
 namespace workspace {

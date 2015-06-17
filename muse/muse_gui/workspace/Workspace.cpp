@@ -39,15 +39,12 @@
 #include "Workspace.h"
 #include "Logger.h"
 #include "Core.h"
-#include "json/jsonHelper.h"
 #include "Server.h"
 
 #include <iostream>
 #include <algorithm>
 #include <thread>
 #include <chrono>
-
-#include <jsoncpp/json/json.h>
 
 #include <QDir>
 #include <QFileInfo>
@@ -90,9 +87,9 @@ bool checkForNeededFile() {
 }
 
 void useExisting() {
-    if (!muse::json::valid(saveDataFilePath())) {
-        throw QString("Failed to load workspace save data");
-    }
+//    if (!muse::json::valid(saveDataFilePath())) {
+//        throw QString("Failed to load workspace save data");
+//    }
 
     // the json file is valid, now load our workspace
     load();
@@ -138,35 +135,35 @@ void init() {
 }
 
 void save() {
-    Json::Value root = Json::objectValue;
-    Json::Value list = root["server-list"];
-    list = Json::arrayValue;
+//    Json::Value root = Json::objectValue;
+//    Json::Value list = root["server-list"];
+//    list = Json::arrayValue;
 
-    timestamp = QDateTime::currentDateTime();
+//    timestamp = QDateTime::currentDateTime();
 
-    root["directory"] = appDir().toStdString();
-    root["timestamp"] = timestamp.toString().toStdString();
-    root["counter"] = (int) counter;
+//    root["directory"] = appDir().toStdString();
+//    root["timestamp"] = timestamp.toString().toStdString();
+//    root["counter"] = (int) counter;
 
-    for (auto& s : servers) {
-        list.append(s.save());
-    }
+//    for (auto& s : servers) {
+//        list.append(s.save());
+//    }
 
-    muse::json::save(saveDataFilePath(), root);
+//    muse::json::save(saveDataFilePath(), root);
 }
 
 void load() {
-    Json::Value root = muse::json::load(saveDataFilePath());
-    Json::Value list = root["server-list"];
+//    Json::Value root = muse::json::load(saveDataFilePath());
+//    Json::Value list = root["server-list"];
 
-    timestamp = QDateTime::fromString(QString::fromStdString(root["timestamp"].asString()));
-    counter = root["counter"].asInt();
+//    timestamp = QDateTime::fromString(QString::fromStdString(root["timestamp"].asString()));
+//    counter = root["counter"].asInt();
 
-    for (auto& item : list) {
-        addServer(Server(item));
-    }
+//    for (auto& item : list) {
+//        addServer(Server(item));
+//    }
 
-    muse::json::save(saveDataFilePath(), root);
+//    muse::json::save(saveDataFilePath(), root);
 }
 
 void clear() {
