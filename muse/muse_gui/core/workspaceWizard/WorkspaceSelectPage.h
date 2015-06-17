@@ -54,9 +54,12 @@ public:
 private slots:
     void createNewWorkspace();
 
+    void workspaceSelected();
+
 private:
     QVBoxLayout layout;
     QComboBox workspaceSelector;
+    QPushButton selectWorkspaceButton;
     QPushButton newWorkspaceButton;
 };
 
