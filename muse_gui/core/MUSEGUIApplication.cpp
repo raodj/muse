@@ -158,7 +158,7 @@ MUSEGUIApplication::getWorkspacePaths() {
 }
 
 void
-MUSEGUIApplication::addWorkspace(QString dir) {
+MUSEGUIApplication::addWorkspaceEntry(QString dir) {
     QFile out(MUSEGUIApplication::workspacesFilePath());
     out.open(QIODevice::Append | QIODevice::Text);
 
