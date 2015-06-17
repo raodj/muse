@@ -1,5 +1,5 @@
-#ifndef FIRST_RUN_WIZARD_CPP
-#define FIRST_RUN_WIZARD_CPP
+#ifndef WORKSPACE_SELECT_PAGE_CPP
+#define WORKSPACE_SELECT_PAGE_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,26 +36,32 @@
 //
 //---------------------------------------------------------------------
 
-#include "FirstRunWizard.h"
-#include "MUSEGUIApplication.h"
-#include "Workspace.h"
+#include "WorkspaceSelectPage.h"
 
-#include <QDir>
-#include <QFile>
+#include <QLabel>
+#include <QVBoxLayout>
 
-FirstRunWizard::FirstRunWizard(QFile &file, QWidget *parent) :
-    MUSEWizard(file, parent) {
-    setWindowTitle("First time setup");
+WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
+    QWizardPage(parent)
+{
+    QVBoxLayout *layout = new QVBoxLayout();
 
-    addPage(&licensePage, "Review License");
-    addPage(&appDirPage,  "Finish setup", true);
+    layout->addWidget(new QLabel("Select a workspace to use"));
+    layout->addWidget(&workspaceSelector);
+
+    setButtonText(QWizard::FinishButton, "OK");
+    setButtonText(QWizard::CancelButton, "Cancel");
+
+    setLayout(layout);
+
+    setTitle("Select Workspace");
 }
 
 void
-FirstRunWizard::accept() {
-    //if (app.checkCreateAppDirectory(this)) {
-        QDialog::accept();
-    //}
+WorkspaceSelectPage::setWorkspaceOptions(std::vector<QString> options) {
+    for (auto &option : options) {
+        workspaceSelector.addItem(option);
+    }
 }
 
 #endif

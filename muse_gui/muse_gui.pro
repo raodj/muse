@@ -8,7 +8,7 @@ QT       += core gui xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2 -ljsoncpp
+LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
 CONFIG += c++1y
 QMAKE_CXXFLAGS += -std=c++1y
 
@@ -109,8 +109,9 @@ SOURCES +=\
     views/JobListView.cpp \
     views/GeospatialView.cpp \
     views/GeospatialWidget.cpp \
-    views/serverListTableModel.cpp \
-    core/MUSEApplicationData.cpp
+    core/MUSEApplicationData.cpp \
+    core/workspaceWizard/WorkspaceWizard.cpp \
+    core/workspaceWizard/WorkspaceSelectPage.cpp
 
 
 HEADERS  += \
@@ -196,7 +197,9 @@ HEADERS  += \
     views/ProjectListTableModel.h \
     views/JobListTableModel.h \
     views/GeospatialWidget.h \
-    core/MUSEApplicationData.h
+    core/MUSEApplicationData.h \
+    core/workspaceWizard/WorkspaceWizard.h \
+    core/workspaceWizard/WorkspaceSelectPage.h
 
 
 OTHER_FILES += \

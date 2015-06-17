@@ -166,7 +166,7 @@ public:
            QString description = "", QString userID = "", QString installPath = "",
            QString osType = UnknownOS, QString status = Installing);
 
-    Server(Json::Value value);
+//    Server(Json::Value value);
 
     bool operator==(const Server other);
 
@@ -303,7 +303,7 @@ public:
     std::vector<Project> getProjects();
     std::vector<Job> getJobs();
 
-    Json::Value save();
+//    Json::Value save();
 
 protected:
     // Currently this class does not have any protected members.

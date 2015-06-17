@@ -36,6 +36,9 @@
 //
 //---------------------------------------------------------------------
 
+#include <QWidget>
+#include <QPainter>
+
 /**
  * @brief The GeospatialWidget class draws an image using GPainter.
  */

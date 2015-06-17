@@ -106,7 +106,7 @@ MainWindow::showEvent(QShowEvent *event) {
     showProjectListView();
     showJobListView();
 
-    muse::model::init();
+//    muse::model::init();
     showGeospatialView();
 }
 
@@ -135,7 +135,7 @@ MainWindow::showGeospatialView() {
 }
 
 void
-MainWindow::showProjectsJobsListView() {
+MainWindow::showProjectListView() {
     // Check to see if a projects list view already exists in this main window.
     // If so do not perfrom any futher operations.
     if (findChild<ProjectListView*>(ProjectListView::ViewName) == NULL) {

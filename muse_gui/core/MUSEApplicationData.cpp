@@ -68,7 +68,7 @@ void addWorkspace(QString dir) {
 
     QTextStream stream(&out);
 
-    stream << dir << std::endl;
+    stream << dir;// << std::endl;
 }
 
 }

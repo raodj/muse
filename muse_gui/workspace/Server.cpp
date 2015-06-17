@@ -88,17 +88,17 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
 //    addElement(XMLElementInfo("ProjectList", &projects));
 }
 
-Server::Server(Json::Value value) {
-    ID = QString::fromStdString(value["ID"].asString());
-    remote = value["remote"].asBool();
-    name = QString::fromStdString(value["name"].asString());
-    port = value["port"].asInt();
-    description = QString::fromStdString(value["description"].asString());
-    userID = QString::fromStdString(value["userID"].asString());
-    installPath = QString::fromStdString(value["installPath"].asString());
-    status = QString::fromStdString(value["status"].asString());
-    osType = QString::fromStdString(value["os"].asString());
-}
+//Server::Server(Json::Value value) {
+//    ID = QString::fromStdString(value["ID"].asString());
+//    remote = value["remote"].asBool();
+//    name = QString::fromStdString(value["name"].asString());
+//    port = value["port"].asInt();
+//    description = QString::fromStdString(value["description"].asString());
+//    userID = QString::fromStdString(value["userID"].asString());
+//    installPath = QString::fromStdString(value["installPath"].asString());
+//    status = QString::fromStdString(value["status"].asString());
+//    osType = QString::fromStdString(value["os"].asString());
+//}
 
 bool
 Server::operator==(const Server other) {
@@ -170,21 +170,21 @@ Server::getJobs() {
     return jobs;
 }
 
-Json::Value
-Server::save() {
-    Json::Value item;
+//Json::Value
+//Server::save() {
+//    Json::Value item;
 
-    item["ID"] = ID.toStdString();
-    item["remote"] = remote;
-    item["name"] = name.toStdString();
-    item["port"] = port;
-    item["description"] = description.toStdString();
-    item["useID"] = userID.toStdString();
-    item["installPath"] = installPath.toStdString();
-    item["status"] = status.toStdString();
-    item["os"] = osType.toStdString();
+//    item["ID"] = ID.toStdString();
+//    item["remote"] = remote;
+//    item["name"] = name.toStdString();
+//    item["port"] = port;
+//    item["description"] = description.toStdString();
+//    item["useID"] = userID.toStdString();
+//    item["installPath"] = installPath.toStdString();
+//    item["status"] = status.toStdString();
+//    item["os"] = osType.toStdString();
 
-    return item;
-}
+//    return item;
+//}
 
 #endif
