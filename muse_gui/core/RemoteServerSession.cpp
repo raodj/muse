@@ -66,7 +66,7 @@ RemoteServerSession::~RemoteServerSession() {
 void
 RemoteServerSession::connectToServer() {
     socket = new SshSocket("Remote Server Operations", NULL,
-                           muse::workspace::knownHostsFilePath(),
+                           MUSEGUIApplication::knownHostsFilePath(),
                            true, true);
 
     // Now, intercept the signal to provide the SshSocket with the

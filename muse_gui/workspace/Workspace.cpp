@@ -42,6 +42,7 @@
 #include "Server.h"
 #include "ServerList.h"
 #include "XMLRootElement.h"
+#include "XMLParser.h"
 
 #include <iostream>
 #include <algorithm>
@@ -226,7 +227,7 @@
 Workspace* Workspace::workspace = NULL;
 
 // The actual XML workspace file name
-const QString Workspace::WorkspaceFileName  = "MUSEWorkspace.xml";
+const QString Workspace::workspaceFileName  = "MUSEWorkspace.xml";
 
 Workspace::Workspace(const QString& dir, bool isValid) :
     XMLRootElement("Workspace"), directory(dir),
@@ -249,8 +250,8 @@ Workspace::Workspace(const QString& dir, bool isValid) :
     addElement(XMLElementInfo("Directory",  &directory));
     addElement(XMLElementInfo("Timestamp",  &timestamp));
     addElement(XMLElementInfo("SeqCounter", &seqCounter));
-    //addElement(XMLElementInfo("ServerList", &serverList));
-    //addElement(XMLElementInfo("JobList", &jobList));
+    addElement(XMLElementInfo("ServerList", &serverList));
+   // addElement(XMLElementInfo("JobList", &jobList));
 }
 
 void
@@ -258,10 +259,10 @@ Workspace::registerClasses() {
     // Register all the underlying sub-elements for unmarshalling
     qRegisterMetaType<ServerList>("ServerList");
     qRegisterMetaType<Server>("Server");
-    //qRegisterMetaType<ProjectList>("ProjectList");
-    //qRegisterMetaType<Project>("Project");
-    //qRegisterMetaType<JobList>("JobList");
-    //qRegisterMetaType<Job>("Job");
+//    qRegisterMetaType<ProjectList>("ProjectList");
+//    qRegisterMetaType<Project>("Project");
+//    qRegisterMetaType<JobList>("JobList");
+//    qRegisterMetaType<Job>("Job");
 }
 
 void
@@ -274,33 +275,20 @@ Workspace::dumpWorkspace() {
 
 QString
 Workspace::createWorkspace(const QString &directory) {
-    // Ensure that the directory exists and writable
-    QDir dir(directory);
-    if (!dir.exists() || !dir.isReadable()) {
-        // Directory does not exists or it is not readable.
-        return "Workspace directory ('" + directory + "') does not exist " +
-                "or is not readable.";
-    }
-
     // Clear out existing workspace (if any)
     if (workspace != NULL) {
         delete workspace;
     }
 
     // Create a default workspace (assuming it is going to be usable)
-    const QString wsDir = dir.absolutePath() + QDir::separator();
+    QDir dir(directory);
+    QString wsDir = dir.absolutePath() + QDir::separator();
     workspace = new Workspace(wsDir, true);
 
     // Write the workspace to the workspace file in the given directory.
-    const QString xmlFileName = wsDir + WorkspaceFileName;
-    QString errMsg = "";
+    const QString xmlFileName = wsDir + workspaceFileName;
+    QString errMsg;
     XMLParser xmlParser;
-
-    //if (muse::json::validateFile(wsDir + "servers.json")) {
-    //    std::cout << "json was valid" << std::endl;
-    //
-
-    //workspace->serverList = muse::json::getServerList(wsDir + "server.json");
 
     if ((errMsg = xmlParser.saveXML(xmlFileName, *workspace)) != "") {
         // Error occurred!
@@ -322,34 +310,26 @@ Workspace::createWorkspace(const QString &directory) {
 QString
 Workspace::useWorkspace(const QString &directory) {
     // First check to ensure that the file actually exists.
-    QFileInfo wsFile(QDir(directory), WorkspaceFileName);
+    QFileInfo wsFile(QDir(directory), workspaceFileName);
     if (!wsFile.exists() || !wsFile.isFile() || !wsFile.isReadable()) {
         return "Workspace directory ('" + directory + "') does not " +
-               "constain a readable metadata file " + WorkspaceFileName;
+               "constain a readable metadata file " + workspaceFileName;
     }
 
     // Try and unmarshall the data in the workspace file into temporary ws.
-    //XMLParser xmlParser;
+    XMLParser xmlParser;
     QDir dir(directory);
     const QString wsDir = dir.absolutePath() + QDir::separator();
     Workspace *ws = new Workspace();
     QString errMsg;
-    //QString schemaFile = ":/resources/muse_gui.xsd";
+    QString schemaFile = ":/resources/muse_gui.xsd";
 
-    //if ((errMsg = xmlParser.loadXML(wsFile.filePath(),
-    //                                schemaFile, *ws)) != "") {
+    if ((errMsg = xmlParser.loadXML(wsFile.filePath(),
+                                    schemaFile, *ws)) != "") {
         // Error occurred. Do no further operations.
-    //    delete ws;
-    //    return errMsg;
-    //}
-
-    if (!muse::json::validateFile(wsDir + "servers.json")) {
-        std::cout << "json was invalied" << std::endl;
         delete ws;
         return errMsg;
     }
-
-    ws->serverList = muse::json::getServerList(wsDir + "servers.json");
 
     // Workspace loaded successfully! Update reference to workspace
     if (workspace != NULL) {
@@ -364,12 +344,9 @@ Workspace::useWorkspace(const QString &directory) {
     workspace->dumpWorkspace();
 
     // Add the list of servers to the table model
-    workspace->addInitialServersToModel();
-    workspace->addInitialProjectsToModel();
-    workspace->addInitialJobsToModel();
-
-    // Start the thread that will continuously monitor the servers for updates
-    workspace->startServerWatcher();
+//    workspace->addInitialServersToModel();
+//    workspace->addInitialProjectsToModel();
+//    workspace->addInitialJobsToModel();
 
     // Return success (no error message).
     return "";
@@ -377,7 +354,7 @@ Workspace::useWorkspace(const QString &directory) {
 
 QString
 Workspace::saveWorkspace() {
-    const QString filePath = directory + WorkspaceFileName;
+    const QString filePath = directory + workspaceFileName;
     XMLParser saver;
     return saver.saveXML(filePath, *workspace);
 }
@@ -387,65 +364,65 @@ Workspace::reserveID(const QString& itemType) {
     return itemType + QString::number(seqCounter++, 10);
 }
 
-void
-Workspace::addInitialServersToModel() {
-    for (int i = 0; i < serverList.size(); i++) {
-        serverModel.appendServerEntry(serverList.get(i));
-    }
-}
+//void
+//Workspace::addInitialServersToModel() {
+//    for (int i = 0; i < serverList.size(); i++) {
+//        serverModel.appendServerEntry(serverList.get(i));
+//    }
+//}
 
-void
-Workspace::addInitialProjectsToModel() {
-    for (int i = 0; i < serverList.size(); i++) {
-        Server& server = serverList.get(i);
+//void
+//Workspace::addInitialProjectsToModel() {
+//    for (int i = 0; i < serverList.size(); i++) {
+//        Server& server = serverList.get(i);
 
-        for (int k = 0; k < server.getProjectList().size(); k++) {
-            projectsModel.appendProjectEntry(server.getProjectList().get(k), server);
-        }
-    }
-}
+//        for (int k = 0; k < server.getProjectList().size(); k++) {
+//            projectsModel.appendProjectEntry(server.getProjectList().get(k), server);
+//        }
+//    }
+//}
 
-void
-Workspace::addInitialJobsToModel() {
-    for (int i = 0; i < jobList.size(); i++) {
-        jobModel.appendJobEntry(jobList.get(i));
-    }
-}
+//void
+//Workspace::addInitialJobsToModel() {
+//    for (int i = 0; i < jobList.size(); i++) {
+//        jobModel.appendJobEntry(jobList.get(i));
+//    }
+//}
 
-ServerListTableModel &
-Workspace::getTableModel() {
-    return serverModel;
-}
+//ServerListTableModel &
+//Workspace::getTableModel() {
+//    return serverModel;
+//}
 
-ProjectsListTableModel &
-Workspace::getProjectsListTableModel() {
-    return projectsModel;
-}
+//ProjectsListTableModel &
+//Workspace::getProjectsListTableModel() {
+//    return projectsModel;
+//}
 
-JobListTableModel &
-Workspace::getJobListTableModel() {
-    return jobModel;
-}
+//JobListTableModel &
+//Workspace::getJobListTableModel() {
+//    return jobModel;
+//}
 
-void
-Workspace::addServerToWorkSpace(Server &server) {
-    serverList.addServer(server);
-    serverModel.appendServerEntry(server);
-}
+//void
+//Workspace::addServerToWorkSpace(Server &server) {
+//    serverList.addServer(server);
+//    serverModel.appendServerEntry(server);
+//}
 
-void
-Workspace::addProjectToWorkSpace(Project &project, Server *server) {
-    projectsModel.appendProjectEntry(project, *server);
-}
+//void
+//Workspace::addProjectToWorkSpace(Project &project, Server *server) {
+//    projectsModel.appendProjectEntry(project, *server);
+//}
 
-void
-Workspace::addJobToWorkSpace(Job &job) {
-    jobModel.appendJobEntry(job);
-}
+//void
+//Workspace::addJobToWorkSpace(Job &job) {
+//    jobModel.appendJobEntry(job);
+//}
 
-void
-Workspace::startServerWatcher() {
-    serverWatcher.start();
-}
+//void
+//Workspace::startServerWatcher() {
+//    serverWatcher.start();
+//}
 
 #endif

@@ -40,7 +40,6 @@
 #include "FirstRunWizard.h"
 #include "Workspace.h"
 #include "Logger.h"
-#include "MUSEApplicationData.h"
 #include "workspaceWizard/WorkspaceWizard.h"
 
 #include <QStandardPaths>
@@ -72,6 +71,9 @@ const QString MUSEGUIApplication::errorMessage =
         "This is an unusual situation that may require your system" \
         "administrator involvement to resolve.";
 
+const QString MUSEGUIApplication::knownHostsFileName = "known_hosts";
+const QString MUSEGUIApplication::workspacesFileName = "workspaces";
+
 MUSEGUIApplication::MUSEGUIApplication(int &argc, char *argv[])
     : QApplication (argc, argv) {
     setApplicationName("MUSE");
@@ -96,12 +98,12 @@ MUSEGUIApplication::exec() {
         return 1;
     }
 
-    try {
-        muse::workspace::init();
-    } catch (QString err) {
-        QMessageBox::critical(NULL, "Error duing startup", errorMessage.arg(err));
-        return 2;
-    }
+//    try {
+//        muse::workspace::init();
+//    } catch (QString err) {
+//        QMessageBox::critical(NULL, "Error duing startup", errorMessage.arg(err));
+//        return 2;
+//    }
 
     // Everything went well so far. Create one main window and show it.
     mainWindow = new MainWindow();
@@ -155,8 +157,9 @@ MUSEGUIApplication::getWorkspacePaths() {
     return ret;
 }
 
-void addWorkspace(QString dir) {
-    QFile out(workspacesFilePath());
+void
+MUSEGUIApplication::addWorkspace(QString dir) {
+    QFile out(MUSEGUIApplication::workspacesFilePath());
     out.open(QIODevice::Append | QIODevice::Text);
 
     QTextStream stream(&out);
@@ -164,9 +167,10 @@ void addWorkspace(QString dir) {
     stream << dir;
 }
 
-void createApplicationFiles() {
-    QFile knownHostsFile(knownHostsFilePath());
-    QFile workspacesFile(workspacesFilePath());
+void
+MUSEGUIApplication::createApplicationFiles() {
+    QFile knownHostsFile(MUSEGUIApplication::knownHostsFilePath());
+    QFile workspacesFile(MUSEGUIApplication::workspacesFilePath());
 
     if (!knownHostsFile.exists() && !knownHostsFile.open(QFile::WriteOnly)) {
         throw QString("Failed to create known hosts file");

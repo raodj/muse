@@ -337,7 +337,7 @@ private:
      * workspace file.  This value is appended to a directory path
      * to determine the actual workspace XML file.
      */
-    static const QString WorkspaceFileName;
+    static const QString workspaceFileName;
 
 //    ServerListTableModel serverModel;
 //    ProjectsListTableModel projectsModel;
@@ -352,7 +352,7 @@ private:
 //    void addInitialProjectsToModel();
 //    void addInitialJobsToModel();
 
-//    JobList jobList;
+    JobList jobList;
 };
 
 #endif // WORKSPACE_H

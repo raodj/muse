@@ -63,7 +63,7 @@ ServerListTableModel::headerData(int section, Qt::Orientation orientation,
 
 QVariant
 ServerListTableModel::data(const QModelIndex &index, int role) const {
-    if ((index.row() < 0)    || (index.row() >= muse::workspace::serverCount()) ||
+    if ((index.row() < 0)    || (index.row() >= servers.size()) ||
         (index.column() < 0) || (index.column() >= MAX_COLUMNS)) {
         // A request that cannot be handled.
         return QVariant();
@@ -75,7 +75,7 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     }
 
     //Get the desired row of the server list
-    const Server server = muse::workspace::getServer(index.row());
+    const Server server = servers.at(index.row());
 
     //Return the value corresponding to the column.
     switch (index.column()) {
@@ -88,7 +88,7 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
 
 void
 ServerListTableModel::appendServerEntry(Server& server) {
-    muse::workspace::addServer(server);
+    //muse::workspace::addServer(server);
 
     emit serverAdded();
 }
