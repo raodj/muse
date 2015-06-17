@@ -37,22 +37,31 @@
 //---------------------------------------------------------------------
 
 #include "WorkspaceSelectPage.h"
+#include "Workspace.h"
 
 #include <QLabel>
-#include <QVBoxLayout>
+#include <QFileDialog>
+#include <QDialog>
+#include <QStringList>
+#include <QMessageBox>
+#include <QFileInfo>
+
+#include <iostream>
 
 WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
     QWizardPage(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout();
+    newWorkspaceButton.setText("New workspace");
+    connect(&newWorkspaceButton, SIGNAL(released()), this, SLOT(createNewWorkspace()));
 
-    layout->addWidget(new QLabel("Select a workspace to use"));
-    layout->addWidget(&workspaceSelector);
+    layout.addWidget(new QLabel("Select a workspace to use"));
+    layout.addWidget(&workspaceSelector);
+    layout.addWidget(&newWorkspaceButton);
 
     setButtonText(QWizard::FinishButton, "OK");
     setButtonText(QWizard::CancelButton, "Cancel");
 
-    setLayout(layout);
+    setLayout(&layout);
 
     setTitle("Select Workspace");
 }
@@ -62,6 +71,58 @@ WorkspaceSelectPage::setWorkspaceOptions(std::vector<QString> options) {
     for (auto &option : options) {
         workspaceSelector.addItem(option);
     }
+}
+
+void
+WorkspaceSelectPage::createNewWorkspace() {
+    QFileDialog select(this);
+    select.setFileMode(QFileDialog::Directory);
+    select.setOption(QFileDialog::ShowDirsOnly, true);
+
+    if (select.exec() == QDialog::Rejected) {
+        return;
+    }
+
+    QStringList selectedFiles = select.selectedFiles();
+    QMessageBox error;
+
+    if (selectedFiles.size() != 1) {
+        error.critical(NULL, "Error", "you can only select one item");
+        return;
+    }
+
+    QString selectedFile = selectedFiles[0];
+    QFileInfo fileInfo(selectedFile);
+
+    if (!fileInfo.exists()) {
+        error.critical(NULL, "Error", "It appears the file you chose doesnt exist");
+        return;
+    }
+
+    if (!fileInfo.isDir()) {
+        error.critical(NULL, "Error", "You must select a directory");
+        return;
+    }
+
+    if (!fileInfo.isReadable()) {
+        error.critical(NULL, "Error", "The directory you select must be readable");
+        return;
+    }
+
+    if (!fileInfo.isWritable()) {
+        error.critical(NULL, "Error", "The directory you select must be writeable");
+        return;
+    }
+
+    if (!muse::workspace::create(selectedFile)) {
+        error.critical(NULL, "Error", "There was an error creating a new workspace at" +
+                                      selectedFile);
+        return;
+    }
+
+    muse::workspace::use(selectedFile);
+
+    this->wizard()->accept();
 }
 
 #endif

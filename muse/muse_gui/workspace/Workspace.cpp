@@ -40,6 +40,8 @@
 #include "Logger.h"
 #include "Core.h"
 #include "Server.h"
+#include "ServerList.h"
+#include "XMLRootElement.h"
 
 #include <iostream>
 #include <algorithm>
@@ -49,170 +51,177 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QStandardPaths>
+#include <QDateTime>
 
-namespace muse {
-namespace workspace {
+//namespace muse {
+//namespace workspace {
 
-/*
- * private data stored about the workspace is kept in an anonymous namespace
- * so it is impossible to access from outside Workspace.cpp
- */
-namespace {
+///*
+// * the data about a workspace is kept in an xml file in the workspaces
+// * directory, the WorkspaceMetadata class is completely contained in an
+// * anonymous namesace so that it is invisible to the rest of the program,
+// * only the muse::workspace namespace should actually know how a workspace
+// * is handled internally
+// */
+//namespace {
 
-QDateTime timestamp;
+//class WorkspaceMetadata : public XMLRootElement {
+//public:
+//    WorkspaceMetadata(QString dir) :
+//        XMLRootElement("Workspace"), directory(dir),
+//        timestamp(QDateTime::currentDateTime()), counter(0)
+//    {
+//        // register all the sub-elements for unmarshalling
+//        registerClasses();
 
-std::vector<Server> servers;
+//        // add default namespace definitions
+//        const QString DefNS = "http://pc2lab.cec.miamiOH.edu/";
+//        const QString XsiNS = "http://www.w3.org/2001/XMLSchema-instance";
+//        namespaces.append(QXmlStreamNamespaceDeclaration("", DefNS));
+//        namespaces.append(QXmlStreamNamespaceDeclaration("xsi", XsiNS));
 
-std::thread serverWatcher;
+//        // add default top-level attributes
+//        const QString schemaLoc = "http://www.peace-tools.org/ muse_gui.xsd";
+//        attributes.append("xsi:schemaLocation", schemaLoc);
+//        attributes.append("Version", "0.1");
 
-long int counter;
-
-const QString saveDataFileName = "servers.json";
-const QString knownHostsFileName = "known_hosts";
-
-bool checkForNeededFile() {
-    // first, create the known hosts file if it doesnt exist, this is needed
-    // whether or not we are creating a new workspace or using an existing one
-    QFile knownHostsFile(knownHostsFilePath());
-
-    if (!knownHostsFile.exists() && !knownHostsFile.open(QFile::WriteOnly)) {
-        throw QString("Failed to create known hosts file");
-    }
-
-    QFileInfo file(saveDataFilePath());
-
-    // the existance of this file will determine if we create a new workspace
-    // or use what is already there
-    return file.exists() && file.isFile() && file.isReadable();
-}
-
-void useExisting() {
-//    if (!muse::json::valid(saveDataFilePath())) {
-//        throw QString("Failed to load workspace save data");
+//        // add the top-level elements to the base class.
+//        addElement(XMLElementInfo("Directory",  &directory));
+//        addElement(XMLElementInfo("Timestamp",  &timestamp));
+//        addElement(XMLElementInfo("Counter", &counter));
 //    }
 
-    // the json file is valid, now load our workspace
-    load();
-}
+//    void save() {
 
-void createNew() {
-    // create a json file to save our workspace data to
-    QFile saveDataFile(saveDataFilePath());
+//    }
 
-    if (!saveDataFile.exists() && !saveDataFile.open(QFile::WriteOnly)) {
-        throw QString("Failed to create save data file");
-    }
+//private:
+//    void registerClasses() {
+//        // register all the underlying sub-elements for unmarshalling
+//        qRegisterMetaType<ServerList>("ServerList");
+//        qRegisterMetaType<Server>("Server");
+//    }
 
-    // now that the json file has been created, save what we currently have to it
-    save();
-}
+//    QString directory;
+//    QDateTime timestamp;
 
-void serverWatcherExec() {
-    while (true) {
-        std::cout << "server watcher running..." << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(10));
-    }
-}
+//    long int counter;
 
-} // end anonymous namespace
+//    ServerList servers;
+//};
+
+//WorkspaceMetadata metadata;
+
+//} // end anonymous namespace
+
+//bool create(QString path) {
+//    // TODO: test if a workspace already exists in this directory, if there is
+//    // one, ask the user if they want to override it, for now, just assume there
+//    // is no workspace here yet
 
 
-/*
- * functions visible to the rest of muse gui
- */
+//}
 
-void init() {
-    timestamp = QDateTime::currentDateTime();
-    counter = 0;
+//void use(QString path) {
 
-    if (checkForNeededFile()) {
-        useExisting();
-    } else {
-        createNew();
-    }
+//}
 
-    serverWatcher = std::thread(serverWatcherExec);
-}
+///*
+// * functions visible to the rest of muse gui
+// */
 
-void save() {
-//    Json::Value root = Json::objectValue;
-//    Json::Value list = root["server-list"];
-//    list = Json::arrayValue;
-
+//void init() {
 //    timestamp = QDateTime::currentDateTime();
+//    counter = 0;
 
-//    root["directory"] = appDir().toStdString();
-//    root["timestamp"] = timestamp.toString().toStdString();
-//    root["counter"] = (int) counter;
-
-//    for (auto& s : servers) {
-//        list.append(s.save());
+//    if (checkForNeededFile()) {
+//        useExisting();
+//    } else {
+//        createNew();
 //    }
 
-//    muse::json::save(saveDataFilePath(), root);
-}
+//    serverWatcher = std::thread(serverWatcherExec);
+//}
 
-void load() {
-//    Json::Value root = muse::json::load(saveDataFilePath());
-//    Json::Value list = root["server-list"];
+//void save() {
+////    Json::Value root = Json::objectValue;
+////    Json::Value list = root["server-list"];
+////    list = Json::arrayValue;
 
-//    timestamp = QDateTime::fromString(QString::fromStdString(root["timestamp"].asString()));
-//    counter = root["counter"].asInt();
+////    timestamp = QDateTime::currentDateTime();
 
-//    for (auto& item : list) {
-//        addServer(Server(item));
-//    }
+////    root["directory"] = appDir().toStdString();
+////    root["timestamp"] = timestamp.toString().toStdString();
+////    root["counter"] = (int) counter;
 
-//    muse::json::save(saveDataFilePath(), root);
-}
+////    for (auto& s : servers) {
+////        list.append(s.save());
+////    }
 
-void clear() {
-    servers.clear();
-}
+////    muse::json::save(saveDataFilePath(), root);
+//}
 
-void addServer(Server server) {
-    servers.push_back(server);
-}
+//void load() {
+////    Json::Value root = muse::json::load(saveDataFilePath());
+////    Json::Value list = root["server-list"];
 
-void removeServer(Server server) {
-    servers.erase(std::remove(std::begin(servers), std::end(servers), server), std::end(servers));
-}
+////    timestamp = QDateTime::fromString(QString::fromStdString(root["timestamp"].asString()));
+////    counter = root["counter"].asInt();
 
-bool firstRun() {
-    return !checkForNeededFile();
-}
+////    for (auto& item : list) {
+////        addServer(Server(item));
+////    }
 
-std::vector<Server> getServers() {
-    return servers;
-}
+////    muse::json::save(saveDataFilePath(), root);
+//}
 
-int serverCount() {
-    return servers.size();
-}
+//void clear() {
+//    servers.clear();
+//}
 
-Server getServer(int index) {
-    return servers.at(index);
-}
+//void addServer(Server server) {
+//    servers.push_back(server);
+//}
 
-QString appDir() {
-    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
-}
+//void removeServer(Server server) {
+//    servers.erase(std::remove(std::begin(servers), std::end(servers), server), std::end(servers));
+//}
 
-QString knownHostsFilePath() {
-    return appDir() + QDir::separator() + knownHostsFileName;
-}
+//bool firstRun() {
+//    return !checkForNeededFile();
+//}
 
-QString saveDataFilePath() {
-    return appDir() + QDir::separator() + saveDataFileName;
-}
+//std::vector<Server> getServers() {
+//    return servers;
+//}
 
-QString reserveID(const QString &itemType) {
-    return itemType + QString::number(counter++);
-}
+//int serverCount() {
+//    return servers.size();
+//}
 
-} // end namespace workspace
-} // end namespace muse
-/*
+//Server getServer(int index) {
+//    return servers.at(index);
+//}
+
+//QString appDir() {
+//    return QStandardPaths::writableLocation(QStandardPaths::AppDataLocation);
+//}
+
+//QString knownHostsFilePath() {
+//    return appDir() + QDir::separator() + knownHostsFileName;
+//}
+
+//QString saveDataFilePath() {
+//    return appDir() + QDir::separator() + saveDataFileName;
+//}
+
+//QString reserveID(const QString &itemType) {
+//    return itemType + QString::number(counter++);
+//}
+
+//} // end namespace workspace
+//} // end namespace muse
+
 // The singleton workspace object
 Workspace* Workspace::workspace = NULL;
 
@@ -438,6 +447,5 @@ void
 Workspace::startServerWatcher() {
     serverWatcher.start();
 }
-*/
 
 #endif
