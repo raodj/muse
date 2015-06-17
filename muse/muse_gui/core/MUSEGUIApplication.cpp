@@ -50,6 +50,7 @@
 #include <QMessageBox>
 
 #include <vector>
+#include <algorithm>
 
 //// Error message reported to user
 //const QString MUSEGUIApplication::AppDirCreateErrMsg =
@@ -159,6 +160,13 @@ MUSEGUIApplication::getWorkspacePaths() {
 
 void
 MUSEGUIApplication::addWorkspaceEntry(QString dir) {
+    std::vector<QString> currentEntries = getWorkspacePaths();
+
+    if (std::find(std::begin(currentEntries), std::end(currentEntries),
+                  dir) != std::end(currentEntries)) {
+        return;
+    }
+
     QFile out(MUSEGUIApplication::workspacesFilePath());
     out.open(QIODevice::Append | QIODevice::Text);
 

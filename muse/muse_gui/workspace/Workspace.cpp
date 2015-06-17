@@ -273,6 +273,13 @@ Workspace::dumpWorkspace() {
     progLog() << endl << wsInfo;
 }
 
+bool
+Workspace::isWorkspace(const QString &directory) {
+    QFileInfo file(directory + QDir::separator() + workspaceFileName);
+
+    return file.exists();
+}
+
 QString
 Workspace::createWorkspace(const QString &directory) {
     // Clear out existing workspace (if any)
@@ -280,7 +287,6 @@ Workspace::createWorkspace(const QString &directory) {
         delete workspace;
     }
 
-    // Create a default workspace (assuming it is going to be usable)
     QDir dir(directory);
     QString wsDir = dir.absolutePath() + QDir::separator();
     workspace = new Workspace(wsDir, true);

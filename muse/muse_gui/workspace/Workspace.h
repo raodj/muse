@@ -184,6 +184,16 @@ public:
 //    JobList& getJobList() { return jobList; }
 
     /**
+     * @brief isWorkspace Determines if this directory is already a valid
+     * workspace
+     *
+     * @param directory The directory to test
+     *
+     * @return true if there is a valid workspace here, false otherwise
+     */
+    static bool isWorkspace(const QString &directory);
+
+    /**
      * @brief createWorkspace Create a default workspace file in the
      * given directory.
      *
