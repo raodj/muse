@@ -73,7 +73,6 @@ WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
 void
 WorkspaceSelectPage::setWorkspaceOptions(std::vector<QString> options) {
     for (auto &option : options) {
-        option = option.trimmed();
         workspaceSelector.addItem(option, QVariant(option));
     }
 }
@@ -88,9 +87,11 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
+    // get the list of files the user selected (should only be 1 directory)
     QStringList selectedFiles = select.selectedFiles();
     QMessageBox error;
 
+    // make sure it is just 1 item
     if (selectedFiles.size() != 1) {
         error.critical(NULL, "Error", "you can only select one item");
         return;
@@ -99,6 +100,7 @@ WorkspaceSelectPage::createNewWorkspace() {
     QString selectedFile = selectedFiles[0];
     QFileInfo fileInfo(selectedFile);
 
+    // it better exist, be a directory, be readable and writable
     if (!fileInfo.exists()) {
         error.critical(NULL, "Error", "It appears the file you chose doesnt exist");
         return;
@@ -119,6 +121,7 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
+    // attempt to create a workspace out of this directory
     QString errorMsg = Workspace::createWorkspace(selectedFile);
 
     if (errorMsg != "") {
@@ -126,6 +129,7 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
+    // everything went well, close the wizard
     this->wizard()->accept();
 }
 
@@ -138,6 +142,8 @@ WorkspaceSelectPage::workspaceSelected() {
     std::cout << "current: " << selectedFile.toStdString() << std::endl;
     std::cout << "index: " << workspaceSelector.currentIndex() << std::endl;
 
+    // the option the user selected needs to exist, be a directory, be readable
+    // and writable
     if (!fileInfo.exists()) {
         error.critical(NULL, "Error", "It appears this workspace directory no longer exists");
         return;
@@ -158,6 +164,7 @@ WorkspaceSelectPage::workspaceSelected() {
         return;
     }
 
+    // attempt to use this directory as the workspace
     QString errorMsg = Workspace::useWorkspace(selectedFile);
 
     if (errorMsg != "") {
@@ -165,6 +172,7 @@ WorkspaceSelectPage::workspaceSelected() {
         return;
     }
 
+    // everything went well, close the wizard
     this->wizard()->accept();
 }
 

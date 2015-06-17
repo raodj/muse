@@ -151,7 +151,7 @@ MUSEGUIApplication::getWorkspacePaths() {
     in.open(QIODevice::ReadOnly | QIODevice::Text);
 
     while (!in.atEnd()) {
-        ret.push_back(QString(in.readLine()));
+        ret.push_back(QString(in.readLine()).trimmed());
     }
 
     return ret;

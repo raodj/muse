@@ -52,8 +52,20 @@ public:
     void setWorkspaceOptions(std::vector<QString> options);
 
 private slots:
+    /**
+     * @brief createNewWorkspace Ask the user where they want the new workspace
+     * to be located and attempt to create it
+     *
+     * This method will be invoked when the newWorkspaceButton button is pressed
+     */
     void createNewWorkspace();
 
+    /**
+     * @brief workspaceSelected Use the currently selected workspace
+     *
+     * This method will be invoked when the selectWorkspaceButton button is
+     * pressed
+     */
     void workspaceSelected();
 
 private:
