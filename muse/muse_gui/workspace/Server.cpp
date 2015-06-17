@@ -76,29 +76,17 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
     description(pDescription), userID(pUserID), installPath(pInstallPath),
     status(pStatus), osType(pOsType) {
     // Add the set of instance variables that must be serialized/deserialized.
-//    addElement(XMLElementInfo("ID",          &ID));
-//    addElement(XMLElementInfo("Remote",      &remote));
-//    addElement(XMLElementInfo("Name",        &name));
-//    addElement(XMLElementInfo("Port",        &port));
-//    addElement(XMLElementInfo("Description", &description));
-//    addElement(XMLElementInfo("UserID",      &userID));
-//    addElement(XMLElementInfo("InstallPath", &installPath));
-//    addElement(XMLElementInfo("Status",      &status));
-//    addElement(XMLElementInfo("OSType",      &osType));
-//    addElement(XMLElementInfo("ProjectList", &projects));
+    addElement(XMLElementInfo("ID",          &ID));
+    addElement(XMLElementInfo("Remote",      &remote));
+    addElement(XMLElementInfo("Name",        &name));
+    addElement(XMLElementInfo("Port",        &port));
+    addElement(XMLElementInfo("Description", &description));
+    addElement(XMLElementInfo("UserID",      &userID));
+    addElement(XMLElementInfo("InstallPath", &installPath));
+    addElement(XMLElementInfo("Status",      &status));
+    addElement(XMLElementInfo("OSType",      &osType));
+    addElement(XMLElementInfo("ProjectList", &projects));
 }
-
-//Server::Server(Json::Value value) {
-//    ID = QString::fromStdString(value["ID"].asString());
-//    remote = value["remote"].asBool();
-//    name = QString::fromStdString(value["name"].asString());
-//    port = value["port"].asInt();
-//    description = QString::fromStdString(value["description"].asString());
-//    userID = QString::fromStdString(value["userID"].asString());
-//    installPath = QString::fromStdString(value["installPath"].asString());
-//    status = QString::fromStdString(value["status"].asString());
-//    osType = QString::fromStdString(value["os"].asString());
-//}
 
 bool
 Server::operator==(const Server other) {
@@ -145,46 +133,14 @@ Server::setID(const QString &id) {
 
 void
 Server::addProject(Project& project) {
-    projects.push_back(project);
-//    projects.addProject(project);
+    projects.addProject(project);
 //    Workspace::get()->addProjectToWorkSpace(project, this);
 }
 
-void
-Server::addJob(Job &job) {
-    jobs.push_back(job);
-}
 
 void
 Server::update() {
 
 }
-
-std::vector<Project>
-Server::getProjects() {
-    return projects;
-}
-
-std::vector<Job>
-Server::getJobs() {
-    return jobs;
-}
-
-//Json::Value
-//Server::save() {
-//    Json::Value item;
-
-//    item["ID"] = ID.toStdString();
-//    item["remote"] = remote;
-//    item["name"] = name.toStdString();
-//    item["port"] = port;
-//    item["description"] = description.toStdString();
-//    item["useID"] = userID.toStdString();
-//    item["installPath"] = installPath.toStdString();
-//    item["status"] = status.toStdString();
-//    item["os"] = osType.toStdString();
-
-//    return item;
-//}
 
 #endif

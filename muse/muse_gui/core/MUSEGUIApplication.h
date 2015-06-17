@@ -85,6 +85,16 @@ public:
      */
      int exec();
 
+     static QString appDir();
+
+     static QString knownHostsFilePath();
+
+     static QString workspacesFilePath();
+
+     static std::vector<QString> getWorkspacePaths();
+
+     static void addWorkspace(QString dir);
+
 private:
      /**
      * @brief mainWindow The top-level windows that are used to display
@@ -101,20 +111,10 @@ private:
 
      static const QString errorMessage;
 
-     static const QString knownHostsFileName = "known_hosts";
-     static const QString workspacesFileName = "workspaces";
+     static const QString knownHostsFileName;
+     static const QString workspacesFileName;
 
      int testFirstRun();
-
-     QString appDir();
-
-     QString knownHostsFilePath();
-
-     QString workspacesFilePath();
-
-     std::vector<QString> getWorkspacePaths();
-
-     void addWorkspace(QString dir);
 
      void createApplicationFiles();
 };

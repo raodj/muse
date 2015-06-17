@@ -114,13 +114,14 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
-    if (!muse::workspace::create(selectedFile)) {
-        error.critical(NULL, "Error", "There was an error creating a new workspace at" +
-                                      selectedFile);
+    QString errorMsg = Workspace::createWorkspace(selectedFile);
+
+    if (errorMsg != "") {
+        error.critical(NULL, "Error", errorMsg);
         return;
     }
 
-    muse::workspace::use(selectedFile);
+    //Workspace::useWorkspace(selectedFile);
 
     this->wizard()->accept();
 }

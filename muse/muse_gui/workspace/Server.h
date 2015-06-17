@@ -35,11 +35,11 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-
+#include "ProjectList.h"
 #include "Project.h"
 #include "Job.h"
 
-#include <jsoncpp/json/json.h>
+#include <XMLElement.h>
 
 /**
  * @brief The Server class that encapsulates information regarding a Server entry
@@ -51,7 +51,7 @@
  * In addition, it also provides the necessary infrastructure for marshaling and
  * unmarshaling data for persisting the information in a XML configuration file.
  */
-class Server { //: public XMLElement {
+class Server : public XMLElement {
 public:
     // Predefined constants consistent with XML schema values for the server status.
     /**
@@ -165,8 +165,6 @@ public:
     Server(QString ID = "", bool remote = false, QString name = "", int port = 22,
            QString description = "", QString userID = "", QString installPath = "",
            QString osType = UnknownOS, QString status = Installing);
-
-//    Server(Json::Value value);
 
     bool operator==(const Server other);
 
@@ -299,11 +297,9 @@ public:
      * @brief getProjectList Gets the list of projects for this Server.
      * @return The list of Projects.
      */
-    //ProjectList& getProjectList() { return projects; }
-    std::vector<Project> getProjects();
-    std::vector<Job> getJobs();
-
-//    Json::Value save();
+    ProjectList& getProjectList() { return projects; }
+//    std::vector<Project> getProjects();
+//    std::vector<Job> getJobs();
 
 protected:
     // Currently this class does not have any protected members.
@@ -398,10 +394,7 @@ private:
      */
     QString password;
 
-    //ProjectList projects;
-
-    std::vector<Project> projects;
-    std::vector<Job> jobs;
+    ProjectList projects;
 };
 
 #endif // SERVER_H

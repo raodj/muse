@@ -37,6 +37,8 @@
 //---------------------------------------------------------------------
 
 #include <QAbstractTableModel>
+#include <QList>
+
 #include "Server.h"
 #include "Workspace.h"
 
@@ -48,7 +50,7 @@ class ServerListTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     ServerListTableModel();
-    int rowCount(const QModelIndex & = QModelIndex()) const { return muse::workspace::serverCount(); }
+    int rowCount(const QModelIndex & = QModelIndex()) const { servers.size(); }
     int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
@@ -70,6 +72,9 @@ signals:
      * be updated.
      */
     void serverAdded();
+
+private:
+    QList<Server> servers;
 
 };
 
