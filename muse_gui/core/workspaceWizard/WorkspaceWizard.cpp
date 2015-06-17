@@ -44,7 +44,7 @@ WorkspaceWizard::WorkspaceWizard(std::vector<QString> options, QWidget *parent) 
     QWizard(parent)
 {
     QList<QWizard::WizardButton> buttonLayout;
-    buttonLayout << QWizard::FinishButton << QWizard::CancelButton;
+    buttonLayout << QWizard::CancelButton;
     setButtonLayout(buttonLayout);
 
     workspaceSelectPage.setWorkspaceOptions(options);

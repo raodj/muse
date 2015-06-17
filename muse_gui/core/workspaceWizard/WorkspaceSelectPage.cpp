@@ -54,8 +54,12 @@ WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
     newWorkspaceButton.setText("New workspace");
     connect(&newWorkspaceButton, SIGNAL(released()), this, SLOT(createNewWorkspace()));
 
+    selectWorkspaceButton.setText("Select workspace");
+    connect(&selectWorkspaceButton, SIGNAL(released()), this, SLOT(workspaceSelected()));
+
     layout.addWidget(new QLabel("Select a workspace to use"));
     layout.addWidget(&workspaceSelector);
+    layout.addWidget(&selectWorkspaceButton);
     layout.addWidget(&newWorkspaceButton);
 
     setButtonText(QWizard::FinishButton, "OK");
@@ -69,7 +73,8 @@ WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
 void
 WorkspaceSelectPage::setWorkspaceOptions(std::vector<QString> options) {
     for (auto &option : options) {
-        workspaceSelector.addItem(option);
+        option = option.trimmed();
+        workspaceSelector.addItem(option, QVariant(option));
     }
 }
 
@@ -110,7 +115,7 @@ WorkspaceSelectPage::createNewWorkspace() {
     }
 
     if (!fileInfo.isWritable()) {
-        error.critical(NULL, "Error", "The directory you select must be writeable");
+        error.critical(NULL, "Error", "The directory you select must be writable");
         return;
     }
 
@@ -121,7 +126,44 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
-    //Workspace::useWorkspace(selectedFile);
+    this->wizard()->accept();
+}
+
+void
+WorkspaceSelectPage::workspaceSelected() {
+    QString selectedFile = workspaceSelector.itemData(workspaceSelector.currentIndex()).toString();
+    QMessageBox error;
+    QFileInfo fileInfo(selectedFile);
+
+    std::cout << "current: " << selectedFile.toStdString() << std::endl;
+    std::cout << "index: " << workspaceSelector.currentIndex() << std::endl;
+
+    if (!fileInfo.exists()) {
+        error.critical(NULL, "Error", "It appears this workspace directory no longer exists");
+        return;
+    }
+
+    if (!fileInfo.isDir()) {
+        error.critical(NULL, "Error", "This workspace is not a directory");
+        return;
+    }
+
+    if (!fileInfo.isReadable()) {
+        error.critical(NULL, "Error", "This workspace is not readable");
+        return;
+    }
+
+    if (!fileInfo.isWritable()) {
+        error.critical(NULL, "Error", "This workspace is not writable");
+        return;
+    }
+
+    QString errorMsg = Workspace::useWorkspace(selectedFile);
+
+    if (errorMsg != "") {
+        error.critical(NULL, "Error", errorMsg);
+        return;
+    }
 
     this->wizard()->accept();
 }
