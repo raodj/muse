@@ -41,8 +41,6 @@
 #include <QString>
 #include <QApplication>
 
-#include <memory>
-
 /**
  * @brief The MUSEGUIApplication class The main class for the MUSE GUI.
  *
@@ -85,15 +83,58 @@ public:
      */
      int exec();
 
+     /**
+      * @brief appDir The directory where application data for MUSE GUI will
+      * be stored
+      *
+      * This is not the same place that information about workspaces will be
+      * stored and this is not a user defined location.  For example, on linux
+      * this will return /home/username/.local/share/MUSE
+      *
+      * @return A writable location where MUSE GUI data can be stored
+      */
      static QString appDir();
 
+     /**
+      * @brief knownHostsFilePath The file location of the known hosts file
+      * used by the SSH code
+      *
+      * This file is located in the directory returned by appDir().  It will
+      * return /home/username/.local/share/MUSE/known_hosts on linux
+      *
+      * @return The absolute file path of the known_hosts file
+      */
      static QString knownHostsFilePath();
 
+     /**
+      * @brief workspacesFilePath The file location of the knwon workspaces file
+      *
+      * This file is located in the directory returned by appDir().  It will
+      * return /home/username/.local/share/MUSE/workspaces on linux
+      *
+      * @return The absolute file path of the workspaces file
+      */
      static QString workspacesFilePath();
 
+     /**
+      * @brief getWorkspacePaths A list of every known workspace location
+      *
+      * Workspace directory locations are taken from the file at the location
+      * returned by workspacesFilePath()
+      *
+      * @return A vector of QStrings containing every known workspace location
+      */
      static std::vector<QString> getWorkspacePaths();
 
-     static void addWorkspace(QString dir);
+     /**
+      * @brief addWorkspaceEntry Add a workspace to the known workspaces file
+      *
+      * This does not actually create a new workspace, it only adds the given
+      * directory to the file at the location returned by workspacesFilePath()
+      *
+      * @param dir The directory location of the workspace to add
+      */
+     static void addWorkspaceEntry(QString dir);
 
 private:
      /**
@@ -107,15 +148,30 @@ private:
      * copyable), we are sadly forced to use pointers rather than objects.
      */
      MainWindow *mainWindow;
-     //std::unique_ptr<MainWindow> window;
 
      static const QString errorMessage;
 
      static const QString knownHostsFileName;
      static const QString workspacesFileName;
 
+     /**
+      * @brief testFirstRun Test if this is the first time MUSE GUI has been
+      * run by this user
+      *
+      * Will launch the FirstRunWizard if this is actually the first time the
+      * GUI has been run
+      *
+      * @return The return code of the FirstRunWizard
+      */
      int testFirstRun();
 
+     /**
+      * @brief createApplicationFiles Create the necessary application files
+      * if they dont exist
+      *
+      * creates the files at the locations indicated by knownHostsFilePath() and
+      * workspacesFilePath()
+      */
      void createApplicationFiles();
 };
 
