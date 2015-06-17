@@ -38,6 +38,7 @@
 
 #include "WorkspaceSelectPage.h"
 #include "Workspace.h"
+#include "MUSEGUIApplication.h"
 
 #include <QLabel>
 #include <QFileDialog>
@@ -47,6 +48,11 @@
 #include <QFileInfo>
 
 #include <iostream>
+
+const QString WorkspaceSelectPage::workspaceExistsMessage =
+        "The workspace you have selected already exists, would you like to " \
+        "continue creating a new workspace in this directory?  All data from " \
+        "the existing workspace will be lost.";
 
 WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
     QWizardPage(parent)
@@ -121,6 +127,19 @@ WorkspaceSelectPage::createNewWorkspace() {
         return;
     }
 
+    // make sure there isnt already a workspace in the directory the user selected,
+    // if there is, ask them if they want to override the existing one or not
+    if (Workspace::isWorkspace(selectedFile)) {
+        QMessageBox::StandardButton reply =
+                QMessageBox::question(this, "Workspace already exists",
+                                      workspaceExistsMessage,
+                                      QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::No) {
+            return;
+        }
+    }
+
     // attempt to create a workspace out of this directory
     QString errorMsg = Workspace::createWorkspace(selectedFile);
 
@@ -128,6 +147,9 @@ WorkspaceSelectPage::createNewWorkspace() {
         error.critical(NULL, "Error", errorMsg);
         return;
     }
+
+    // add this workspace to our list of known workspaces
+    MUSEGUIApplication::addWorkspaceEntry(selectedFile);
 
     // everything went well, close the wizard
     this->wizard()->accept();
@@ -138,9 +160,6 @@ WorkspaceSelectPage::workspaceSelected() {
     QString selectedFile = workspaceSelector.itemData(workspaceSelector.currentIndex()).toString();
     QMessageBox error;
     QFileInfo fileInfo(selectedFile);
-
-    std::cout << "current: " << selectedFile.toStdString() << std::endl;
-    std::cout << "index: " << workspaceSelector.currentIndex() << std::endl;
 
     // the option the user selected needs to exist, be a directory, be readable
     // and writable

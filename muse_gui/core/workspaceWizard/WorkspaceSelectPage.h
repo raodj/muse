@@ -73,6 +73,8 @@ private:
     QComboBox workspaceSelector;
     QPushButton selectWorkspaceButton;
     QPushButton newWorkspaceButton;
+
+    static const QString workspaceExistsMessage;
 };
 
 #endif // WORKSPACE_SELECT_PAGE_H
