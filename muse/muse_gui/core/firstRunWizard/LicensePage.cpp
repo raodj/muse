@@ -42,7 +42,7 @@ LicensePage::LicensePage(QWidget* parent) :
     OverviewPage(QFile(":/resources/gpl.html"), parent) {
     // Fix-up default titles and subtitles.
     setTitle("License Agreement");
-    setSubTitle("GNU Public Licence (GPLv3)");
+    setSubTitle("Review and accept license");
     setButtonText(QWizard::NextButton, "Accept");
 }
 

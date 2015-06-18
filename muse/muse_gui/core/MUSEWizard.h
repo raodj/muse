@@ -84,6 +84,11 @@ public:
      * @param stepName A short textual page title of <i>page</i> for
      * display in the wizard overview steps listing (to the left of wizard)
      *
+     * @param title The title to be set for this wizard page. The title is
+     * suitably formatted by this method.
+     *
+     * @param subtitle The subtitle (if any) to be set for this wizard page.
+     *
      * @param lastPage If this parameter is true then the page is
      * the last page in the wizard. This flag is used to finish GUI-layout of
      * steps on the left-hand-side of the wizard.
@@ -123,6 +128,26 @@ protected:
      */
     void setup();
 
+    /**
+     * @brief decorateTitles Change color of titles based on wizard style.
+     *
+     * This is a convenience method that is invoked from the addPage method
+     * to suitably update the color of the titles. This operation is needed
+     * only when the dark-blue header image is displayed in modern style.
+     *
+     * @param page The page whose titles and subtitle (if any) are to be
+     * decorated.
+     */
+    void decorateTitles(QWizardPage* page);
+
+protected:
+    /**
+     * @brief QWidget::resizeEvent
+     * @param event
+     */
+    virtual void resizeEvent(QResizeEvent * event);
+
+
 private:
     /**
      * @brief addStepToWidget Adds the checkbox and step QLabel being added in
@@ -154,6 +179,8 @@ private:
      * by this wizard.
      */
     OverviewPage overviewPage;
+
+    const QPixmap topBannerImage;
 };
 
 #endif // MUSE_WIZARD_H
