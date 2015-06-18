@@ -51,12 +51,10 @@ public:
     GeospatialWidget(QWidget *parent);
     ~GeospatialWidget();
 
-    void paintCircle();
+protected:
+    void paintEvent(QPaintEvent *e);
 
 };
-
-
-
 
 
 #endif // GEOSPATIALWIDGET_H

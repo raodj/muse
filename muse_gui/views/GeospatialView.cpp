@@ -52,7 +52,8 @@ GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
     GeospatialWidget *graphic = new GeospatialWidget(this);
-    graphic->paintCircle();
+    //graphic->paintCircle();
+    //graphic->update();
 }
 
 #endif
