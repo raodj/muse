@@ -47,8 +47,11 @@ class GeospatialWidget : public QWidget {
     Q_OBJECT
 
 public:
+    GeospatialWidget(GeospatialWidget *parent = 0);
     GeospatialWidget(QWidget *parent);
-    void paint(QPainter *painter);
+    ~GeospatialWidget();
+
+    void paintCircle();
 
 };
 

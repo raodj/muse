@@ -200,7 +200,7 @@ HEADERS  += \
     views/JobListTableModel.h \
     views/GeospatialWidget.h \
     core/workspaceWizard/WorkspaceWizard.h \
-    core/workspaceWizard/WorkspaceSelectPage.h
+    core/workspaceWizard/WorkspaceSelectPage.h \
 
 
 OTHER_FILES += \
