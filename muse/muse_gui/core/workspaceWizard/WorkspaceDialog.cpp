@@ -54,22 +54,30 @@
 #include <QTextEdit>
 
 WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) :
-    QDialog(parent)
-{
+    QDialog(parent) {
+    // Set a background image at the top to make the dialog box look pretty
+    QPalette palette;
+    QPixmap bgImg(":/images/logo/bannerImg.png");
+    palette.setBrush(QPalette::Background, bgImg);
+    setPalette(palette);
+    // Add "known" workspace paths to the dialog box.
     for (auto &option : options) {
         workspaceSelector.addItem(option, QVariant(option));
     }
-
+    // Create the tabbed display widget with 2 tabs created using helpers
     QTabWidget *tabWidget = new QTabWidget();
-
     tabWidget->addTab(createWorkspaceTab(), "Workspace");
     tabWidget->addTab(createLicenseTab(), "License");
 
+    // Organize the tab with a nice label on top. The label should become
+    // an image to make things look nice.
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("Miami University Simulation Environment (MUSE)"));
+    layout->addWidget(new QLabel("\nMiami University Simulation Environment (MUSE)\n"));
     layout->addWidget(tabWidget);
-
+    // Set the layout and control the maximum size to make background
+    // and images look nice.
     setLayout(layout);
+    setMaximumSize(800, 400);
 }
 
 QWidget*
@@ -89,18 +97,18 @@ WorkspaceDialog::createWorkspaceTab() {
     connect(cancelButton, SIGNAL(released()), this, SLOT(reject()));
 
     QHBoxLayout *selectorLayout = new QHBoxLayout();
-    selectorLayout->addWidget(&workspaceSelector);
-    selectorLayout->addWidget(newWorkspaceButton);
+    selectorLayout->addWidget(&workspaceSelector, 1);
+    selectorLayout->addWidget(newWorkspaceButton, 0);
 
     QHBoxLayout *bottomLayout = new QHBoxLayout();
-    bottomLayout->addWidget(new QLabel(MUSE_GUI_COPYRIGHT));
+    bottomLayout->addWidget(new QLabel(MUSE_GUI_COPYRIGHT), 1);
     bottomLayout->addWidget(selectWorkspaceButton);
     bottomLayout->addWidget(cancelButton);
 
     QVBoxLayout *mainLayout = new QVBoxLayout();
     mainLayout->addWidget(new QLabel("Select a workspace to use or create a new one"));
     mainLayout->addLayout(selectorLayout);
-    mainLayout->addSpacing(200);
+    mainLayout->addSpacing(100);
     mainLayout->addLayout(bottomLayout);
 
     widget->setLayout(mainLayout);
@@ -235,7 +243,6 @@ WorkspaceDialog::workspaceSelected() {
     }
 
     // everything went well, close the wizard
-    //this->wizard()->accept();
     accept();
 }
 
