@@ -1,6 +1,5 @@
-#ifndef SERVER_LIST_CPP
-#define SERVER_LIST_CPP
-
+#ifndef COMMON_H
+#define COMMON_H
 
 //---------------------------------------------------------------------
 //    ___
@@ -37,44 +36,11 @@
 //
 //---------------------------------------------------------------------
 
-#include "ServerList.h"
-#include <QDebug>
+/**
+ * @brief The ChangeKind enum Enumeration to indicate the type of change
+ * that occurred in the workspace when emitting singal(s).
+ */
+enum ChangeKind { UNKNOWN_CHANGE, ENTRY_INSERTED,
+                  ENTRY_UPDATED, ENTRY_DELETED };
 
-ServerList::ServerList() : XMLElement("ServerList") {
-    // Register elements in the order in which they shlould occur.
-    addElement(XMLElementInfo("Server", &servers));
-}
-
-void
-ServerList::addServer(const Server &entry) {
-   Server* server = new Server(entry.getID(), entry.isRemote(), entry.getName(), entry.getPort(),
-                               entry.getDescription(), entry.getUserID(), entry.getInstallPath(),
-                               entry.getOS(), entry.getStatus());
-   servers.append(server);
-   // Connect the server's signals to this list's slot
-   QObject::connect(server, SIGNAL(serverUpdated(Server)),
-                    this, SLOT(serverUpdated(Server)));
-   // Fire signal indicating change to the server list.
-   const int index = servers.size() - 1;
-   emit serverChanged(ENTRY_UPDATED, index, index);
-}
-
-int
-ServerList::getIndex(const QString& serverID) const {
-    for (int i = 0; (i < servers.size()); i++) {
-        if (get(i).getID() == serverID) {
-            return i;
-        }
-    }
-    return -1;
-}
-
-void
-ServerList::serverUpdated(const Server &server) {
-    const int index = getIndex(server.getID());
-    if (index != -1) {
-        emit serverChanged(ENTRY_UPDATED, index, index);
-    }
-}
-
-#endif
+#endif // COMMON_H

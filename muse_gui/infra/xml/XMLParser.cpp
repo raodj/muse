@@ -49,7 +49,7 @@
 
 XMLParser::XMLParser(QObject *parent) : QAbstractMessageHandler(parent) {
     // Register meta type about the XMLElement common base class.
-    qRegisterMetaType<XMLElement>("XMLElement");
+    // qRegisterMetaType<XMLElement>("XMLElement");
 }
 
 void

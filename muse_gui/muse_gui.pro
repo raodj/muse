@@ -106,10 +106,6 @@ SOURCES +=\
     core/jobWizard/SubmitPage.cpp \
     workspace/Job.cpp \
     workspace/JobList.cpp \
-    views/ProjectListTableModel.cpp \
-    views/ProjectListView.cpp \
-    views/JobListTableModel.cpp \
-    views/JobListView.cpp \
     views/GeospatialView.cpp \
     views/GeospatialWidget.cpp \
     core/workspaceWizard/WorkspaceSelectPage.cpp \
@@ -193,24 +189,13 @@ HEADERS  += \
     core/jobWizard/SubmitPage.h \
     workspace/Job.h \
     workspace/JobList.h \
-    views/ProjectListView.h \
-    views/JobListView.h \
     views/GeospatialView.h \
-    views/ProjectListTableModel.h \
-    views/JobListTableModel.h \
     views/GeospatialWidget.h \
     core/workspaceWizard/WorkspaceSelectPage.h \
     core/workspaceWizard/WorkspaceDialog.h
 
-
-OTHER_FILES += \
-    GPL.txt \
-    views/ServerListTableModel \
-    views/ServerListTableModel.txt
-
 RESOURCES += \
-    muse_gui.qrc \
-
+    muse_gui.qrc
 
 win32:CONFIG(release, debug|release): LIBS += -L$$PWD/../../../../../../../../usr/local/lib/release/ -lssh2
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$PWD/../../../../../../../../usr/local/lib/debug/ -lssh2

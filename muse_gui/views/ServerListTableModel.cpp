@@ -37,9 +37,11 @@
 //---------------------------------------------------------------------
 
 #include "ServerListTableModel.h"
+#include "Logger.h"
 #include "Core.h"
 
-ServerListTableModel::ServerListTableModel() {
+ServerListTableModel::ServerListTableModel(ServerList& serverList) :
+    servers(serverList) {
     //Set the column headers
     setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
     setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
@@ -56,7 +58,6 @@ ServerListTableModel::headerData(int section, Qt::Orientation orientation,
 
     // Return strings for column headers
     static const QString ColumnTitles[MAX_COLUMNS] = {"Server", "Status", "ID"};
-
     return  ColumnTitles[section];
 }
 
@@ -74,7 +75,7 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     }
 
     //Get the desired row of the server list
-    const Server server = servers.get(index.row());
+    const Server& server = servers.get(index.row());
 
     //Return the value corresponding to the column.
     switch (index.column()) {
@@ -85,20 +86,26 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     }
 }
 
-ServerList*
-ServerListTableModel::getServerList() {
-    return &servers;
-}
-
 void
-ServerListTableModel::addServer(Server &server) {
-    beginInsertRows(QModelIndex(), servers.size(), servers.size() + 1);
-
-    servers.addServer(server);
-
-    endInsertRows();
-
-    emit serverAdded();
+ServerListTableModel::handleServerChange(ChangeKind change,
+                                         int start, int end) {
+    switch (change) {
+    case ENTRY_INSERTED:
+        beginInsertRows(QModelIndex(), start, end);
+        endInsertRows();
+        break;
+    case ENTRY_UPDATED:
+        emit dataChanged(createIndex(start, 0, this),
+                         createIndex(end, MAX_COLUMNS, this));
+        break;
+    case ENTRY_DELETED:
+        beginRemoveRows(QModelIndex(), start, end);
+        endRemoveRows();
+    default:
+        progLog() << QString("Unhandled ServerList change encountered.")
+                  << endl;
+        break;
+    }
 }
 
 #endif

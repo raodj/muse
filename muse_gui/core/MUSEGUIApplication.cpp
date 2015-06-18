@@ -40,7 +40,7 @@
 #include "FirstRunWizard.h"
 #include "Workspace.h"
 #include "Logger.h"
-#include "workspaceWizard/WorkspaceWizard.h"
+#include "WorkspaceDialog.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -78,7 +78,6 @@ MUSEGUIApplication::exec() {
     }
 
     // Before continuing, ask the user what workspace they want to use
-    //WorkspaceWizard ww(getWorkspacePaths());
     WorkspaceDialog wd(getWorkspacePaths());
     if (wd.exec() == QDialog::Rejected) {
         return 1;

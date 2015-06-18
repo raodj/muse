@@ -38,12 +38,10 @@
 
 #include "XMLRootElement.h"
 #include "ServerList.h"
-#include "ServerListTableModel.h"
 #include "Server.h"
 #include "JobList.h"
 
 #include <QDateTime>
-
 
 /**
  * @brief The Workspace class that stores and manages all the data associated
@@ -115,7 +113,7 @@ public:
      * @return This method returns the list of servers associated with this
      * workspace.
      */
-    //ServerList& getServerList() { return serverList; }
+    ServerList& getServerList() { return serverList; }
 
     /**
      * @brief getJobList Obtain the list of jobs in this workspace
@@ -184,29 +182,20 @@ public:
      */
     QString reserveID(const QString& itemType);
 
-    /**
-     * @brief getTableModel Returns the table model representation of this
-     * workspace.
-     * @return  The ServerListTableModel of this workspace.
-     */
-    ServerListTableModel *getServerListTableModel();
-
     //ProjectsListTableModel& getProjectsListTableModel();
 
     //JobListTableModel& getJobListTableModel();
 
     /**
-     * @brief addServerToWorkSpace Adds server to the serverList and to the
-     * ServerListTableModel.
+     * @brief addServerToWorkSpace Adds server to the serverList in this
+     * workspace
+     *
      * @param server The server to be added.
      */
-    void addServerToWorkSpace(Server& server);
-//    void addProjectToWorkSpace(Project& project, Server *server);
-//    void addJobToWorkSpace(Job& job);
+    void addServerToWorkSpace(const Server& server);
 
-//    void startServerWatcher();
 
-    Server getServer(int index);
+    Server& getServer(int index);
 
     int serverCount();
 
@@ -267,7 +256,7 @@ private:
      * @brief serverList Object that encapsulates the list of servers
      * currently added to this workspace.
      */
-    //ServerList serverList;
+    ServerList serverList;
 
     /**
      * @brief good Flag to indicate if the workspace is in a good state.
@@ -293,10 +282,6 @@ private:
      * to determine the actual workspace XML file.
      */
     static const QString workspaceFileName;
-
-    ServerListTableModel serverModel;
-//    ProjectsListTableModel projectsModel;
-//    JobListTableModel jobModel;
 
     /**
      * @brief addInitialServersToModel Iterates through serverList and adds

@@ -35,11 +35,11 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
+
+#include <XMLElement.h>
 #include "ProjectList.h"
 #include "Project.h"
 #include "Job.h"
-
-#include <XMLElement.h>
 
 /**
  * @brief The Server class that encapsulates information regarding a Server entry
@@ -52,6 +52,7 @@
  * unmarshaling data for persisting the information in a XML configuration file.
  */
 class Server : public XMLElement {
+    Q_OBJECT
 public:
     // Predefined constants consistent with XML schema values for the server status.
     /**
@@ -208,7 +209,20 @@ public:
      */
     QString getName() const { return name; }
 
+    /**
+     * @brief setName Set the name (or IP address) for this server.
+     *
+     * @param name A valid domain name (such as: redhawk.hpc.miamiOH.edu)
+     * or IP address (192.168.0.1) for this server.
+     */
     void setName(const QString &name);
+
+    /**
+     * @brief setName Set the name (or IP address) for this server.
+     *
+     * @param name A valid domain name (such as: redhawk.hpc.miamiOH.edu)
+     * or IP address (192.168.0.1) for this server.
+     */
     void setName(const std::string &name);
 
     /**
@@ -270,6 +284,12 @@ public:
      */
     void setOS(const QString& os);
 
+    /**
+     * @brief getOS Obtain the operating system of this server.
+     *
+     * @return The operating system that was detected (or set) for
+     * this server.
+     */
     QString getOS() const { return osType; }
 
     /**
@@ -290,16 +310,21 @@ public:
      * @param project The project to be added.
      */
     void addProject(Project& project);
-    void addJob(Job& job);
-    void update();
 
     /**
      * @brief getProjectList Gets the list of projects for this Server.
      * @return The list of Projects.
      */
     ProjectList& getProjectList() { return projects; }
-//    std::vector<Project> getProjects();
-//    std::vector<Job> getJobs();
+
+signals:
+    /**
+     * @brief serverUpdated Signal generated when information in this server
+     * is updated.
+     *
+     * @param server The server whose information has been updated.
+     */
+    void serverUpdated(const Server& server);
 
 protected:
     // Currently this class does not have any protected members.
@@ -353,12 +378,9 @@ private:
     QString description;
 
     /**
-     * The login user ID to be used for accessing remote
-     * clusters. For the local machine, this value is set to null.
-     */
-    /**
      * @brief userID The login ID to be used for logging into the remote
-     * machine.
+     * machine. A valid domain name (such as: redhawk.hpc.miamiOH.edu)
+     * or IP address (192.168.0.1) for this server.
      */
     QString userID;
 
