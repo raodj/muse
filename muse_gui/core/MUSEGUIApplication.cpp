@@ -52,27 +52,9 @@
 #include <vector>
 #include <algorithm>
 
-//// Error message reported to user
-//const QString MUSEGUIApplication::AppDirCreateErrMsg =
-//        "Unable to create top-level application directory:\n%1\n" \
-//        "MUSE (GUI) cannot proceed further without the top-level\n" \
-//        "application directory. This is an unusual situation that\n" \
-//        "may require your system administrator involvement to resolve.";
-
-//// Error message reported to user
-//const QString MUSEGUIApplication::KnownHostsCreateErrMsg =
-//        "Unable to create the known hosts file required for SSH:\n%1\n" \
-//        "MUSE (GUI) cannot proceed further without this default\n" \
-//        "file required for operations. This is an unusual situation that\n" \
-//        "may require your system administrator involvement to resolve.";
-
-const QString MUSEGUIApplication::errorMessage =
-        "There was a serious error during startup:\n%1\n" \
-        "MUSE (GUI) cannot proceed further because of this error." \
-        "This is an unusual situation that may require your system" \
-        "administrator involvement to resolve.";
-
+// The known hosts file name.
 const QString MUSEGUIApplication::knownHostsFileName = "known_hosts";
+// The file with list of workspaces.
 const QString MUSEGUIApplication::workspacesFileName = "workspaces";
 
 MUSEGUIApplication::MUSEGUIApplication(int &argc, char *argv[])
@@ -81,30 +63,25 @@ MUSEGUIApplication::MUSEGUIApplication(int &argc, char *argv[])
 }
 
 MUSEGUIApplication::~MUSEGUIApplication() {
-
+    // Nothing else to be done for now.
 }
 
 int
 MUSEGUIApplication::exec() {
+    // Check with user about licensing on first run on this machine.
     if (testFirstRun() == QDialog::Rejected) {
         return 1;
     }
+    // Check and create application directory and work files.
+    if (!createApplicationFiles()) {
+        return 2;  // error with top-level files!
+    }
 
-    createApplicationFiles();
-
-    // before continuing, ask the user what workspace they want to use
+    // Before continuing, ask the user what workspace they want to use
     WorkspaceWizard ww(getWorkspacePaths());
-
     if (ww.exec() == QDialog::Rejected) {
         return 1;
     }
-
-//    try {
-//        muse::workspace::init();
-//    } catch (QString err) {
-//        QMessageBox::critical(NULL, "Error duing startup", errorMessage.arg(err));
-//        return 2;
-//    }
 
     // Everything went well so far. Create one main window and show it.
     mainWindow = new MainWindow();
@@ -116,16 +93,17 @@ MUSEGUIApplication::exec() {
 
 int
 MUSEGUIApplication::testFirstRun() {
+    // We need to have these two files to proceed further.
     QFileInfo knownHostsFile(knownHostsFilePath());
     QFileInfo workspacesFile(workspacesFilePath());
 
     if (!knownHostsFile.exists() || !workspacesFile.exists()) {
-        QFile file(":/resources/welcome.html");
-        FirstRunWizard frw(file);
-
+        // Looks like the first run on this machine.
+        FirstRunWizard frw(*this);
         return frw.exec();
     }
 
+    // Everything is fine so far and it is not the first run.
     return QDialog::Accepted;
 }
 
@@ -175,18 +153,41 @@ MUSEGUIApplication::addWorkspaceEntry(QString dir) {
     stream << dir << endl;
 }
 
-void
-MUSEGUIApplication::createApplicationFiles() {
-    QFile knownHostsFile(MUSEGUIApplication::knownHostsFilePath());
-    QFile workspacesFile(MUSEGUIApplication::workspacesFilePath());
+bool
+MUSEGUIApplication::createApplicationFiles(QWidget* parent) {
+    QString errMsg;  // Modified below to indicate error conditions.
 
-    if (!knownHostsFile.exists() && !knownHostsFile.open(QFile::WriteOnly)) {
-        throw QString("Failed to create known hosts file");
+    // First check and create the application directory. This is
+    // absolutely needed the directory exists first in Linux & Windows.
+    QDir mainDir(appDir());
+    if (!mainDir.exists() && !mainDir.mkdir(appDir())) {
+        errMsg = "Unable to create top-level application directory: " +
+                appDir();
+    } else {
+        // Check and create the known hosts file
+        QFile knownHostsFile(MUSEGUIApplication::knownHostsFilePath());
+        if (!knownHostsFile.exists() && !knownHostsFile.open(QFile::WriteOnly)) {
+            errMsg = "Unable to create required KnownHosts file at: " +
+                    knownHostsFile.fileName();
+        }
+        // Check and create the workspaces file.
+        QFile workspacesFile(MUSEGUIApplication::workspacesFilePath());
+        if (errMsg.isEmpty() && !workspacesFile.exists() &&
+            !workspacesFile.open(QFile::WriteOnly)) {
+            errMsg = "Unable to create required workspaces file at: " +
+                    workspacesFile.fileName();
+        }
     }
-
-    if (!workspacesFile.exists() && !workspacesFile.open(QFile::WriteOnly)) {
-        throw QString("Failed to create workspaces file");
+    // Check and report any errors that may have occurred
+    if (!errMsg.isEmpty()) {
+        // Error occurred!
+        errMsg += "\n\nMUSE (GUI) cannot proceed further without the top-level\n"  \
+            "application directory or file(s). This is an unusual situation that\n"\
+            "may require your system administrator involvement to resolve.";
+        QMessageBox::critical(parent, "Startup error", errMsg);
+        return false; // error
     }
+    return true; // success
 }
 
 #endif

@@ -35,15 +35,18 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizardPage>
 
-#include <QVBoxLayout>
-#include <QLabel>
+#include "OverviewPage.h"
+
 /**
  * @brief The AppDirPage class The final page of the FirstRunWizard,
  * informs the user that the application directory will be created.
+ * This page essentially displays some verbiage in a read-only text box
+ * similar to the OverviewPage. Consequently, this class has been
+ * implemented by customizing the functionality offered by the
+ * OverviewPage.
  */
-class AppDirPage : public QWizardPage {
+class AppDirPage : public OverviewPage {
 public:
     /**
      * @brief AppDirPage The constructor for the AppDirPage for
@@ -53,10 +56,6 @@ public:
      * @param parent The parent QWidget this page belongs to.
      */
     AppDirPage(QWidget* parent = 0);
-
-private:
-    QVBoxLayout* mainLayout;
-    QLabel* workspaceMessage;
 };
 
 #endif

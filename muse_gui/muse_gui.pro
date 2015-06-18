@@ -4,13 +4,17 @@
 #
 #-------------------------------------------------
 
-QT       += core gui xmlpatterns
+QT+= core gui xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
-CONFIG += c++1y
-QMAKE_CXXFLAGS += -std=c++1y
+
+# Setup Linux specific configuration flag
+unix:!macx {
+    CONFIG += c++1y
+    QMAKE_CXXFLAGS += -std=c++1y
+}
 
 TARGET = muse_gui
 TEMPLATE = app
@@ -18,7 +22,6 @@ TEMPLATE = app
 INCLUDEPATH += infra
 INCLUDEPATH += infra/xml
 INCLUDEPATH += infra/ssh
-INCLUDEPATH += infra/json
 INCLUDEPATH += workspace
 INCLUDEPATH += core
 INCLUDEPATH += core/filediag
@@ -28,7 +31,6 @@ INCLUDEPATH += core/serverWizard
 INCLUDEPATH += core/projectWizard
 INCLUDEPATH += core/workspaceWizard
 INCLUDEPATH += views
-INCLUDEPATH += /usr/local/include
 
 # DEFINES += QT_NO_DEBUG_STREAM
 

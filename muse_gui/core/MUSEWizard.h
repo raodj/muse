@@ -47,9 +47,30 @@
  */
 class MUSEWizard : public QWizard {
 public:
-    MUSEWizard(QFile& file, QWidget* parent = 0);
+    /** Constructor to create wizard with overview loaded from a given file.
+     *
+     * This constructor can be used to create a MUSE wizard that loads
+     * information for its overview from a given HTML file.
+     *
+     * @param file Path to the file (example: ":/resources/welcome.html")
+     * from where the information is to be loaded.
+     *
+     * @param parent The parent widget (if any).
+     */
+    MUSEWizard(const QFile& file, QWidget* parent = 0);
 
-    MUSEWizard(QString& text, QWidget* parent = 0);
+    /** Constructor to create wizard with overview information in a given
+     * string.
+     *
+     * This constructor can be used to create a MUSE wizard that uses
+     * the data in the given string to create the wizard.
+     *
+     * @param text A string containing HTML formatted content to be used
+     * as the overview description.
+     *
+     * @param parent The parent widget (if any).
+     */
+    MUSEWizard(const QString& text, QWidget* parent = 0);
 
     /**
      * @brief addPage Adds a page to the MUSEWizard.
@@ -73,6 +94,9 @@ public:
                 const bool lastPage = false);
 
 protected:
+    /** The list of steps in this wizard.  This list is used to display
+     * the steps that have been completed and those that are pending.
+     */
     QList<QLabel*> steps;
 
     /**
@@ -92,8 +116,14 @@ protected:
      */
     void cleanupPage(int id);
 
-private:
+    /** Convenience method to perform the operations required to
+     * setup the wizard.  This method is invoked from the constructors
+     * to perform the actual setup operation for this class.
+     *
+     */
+    void setup();
 
+private:
     /**
      * @brief addStepToWidget Adds the checkbox and step QLabel being added in
      * addPage() to the side widget of the MUSEWizard to provide the user with
@@ -108,8 +138,21 @@ private:
      * @param pageId The page that the user will see next.
      */
     void applyCheckMarks(const int pageId);
+
+    /** The main layout for this wizard that contains the size bar and
+     * the pages to be displayed.
+     */
     QVBoxLayout* mainLayout;
+
+    /** The sidebar widget/panel that is used to display the steps
+     * in the wizard to the left-hand-side of the wizard.
+     */
     QWidget sideBar;
+
+    /** The default overview page for this wizard that is used to provide
+     * the user with a summary information of the tasks to be accomplished
+     * by this wizard.
+     */
     OverviewPage overviewPage;
 };
 

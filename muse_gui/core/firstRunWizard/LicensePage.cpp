@@ -38,27 +38,11 @@
 #include <QFile>
 #include <QTextStream>
 
-LicensePage::LicensePage(QWidget* parent) : QWizardPage(parent) {
-
-    licenseText = new QTextEdit();
-    licenseText->setReadOnly(true);
-
-
-    //load the text from the html file
-    QFile page(":/resources/GPL.txt");
-    if(page.open(QFile::ReadOnly)){
-        QTextStream input(&page);
-
-        licenseText->setText(input.readAll());
-        page.close();
-    }
-
-    mainLayout = new QVBoxLayout();
-    mainLayout->addWidget(licenseText);
-    setLayout(mainLayout);
-    //Fixing for Mac display currently.
-    setTitle("    Welcome");
-    setSubTitle("License Agreement");
+LicensePage::LicensePage(QWidget* parent) :
+    OverviewPage(QFile(":/resources/gpl.html"), parent) {
+    // Fix-up default titles and subtitles.
+    setTitle("License Agreement");
+    setSubTitle("GNU Public Licence (GPLv3)");
     setButtonText(QWizard::NextButton, "Accept");
 }
 

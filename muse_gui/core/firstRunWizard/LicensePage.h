@@ -1,5 +1,5 @@
-#ifndef LICENSEPAGE_H
-#define LICENSEPAGE_H
+#ifndef LICENSE_PAGE_H
+#define LICENSE_PAGE_H
 //---------------------------------------------------------------------
 //    ___
 //   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
@@ -34,22 +34,26 @@
 //   \/__/    from <http://www.gnu.org/licenses/>.
 //
 //---------------------------------------------------------------------
-#include <QWizardPage>
-#include <QTextEdit>
-#include <QVBoxLayout>
+
+#include "OverviewPage.h"
 
 /**
  * @brief The LicensePage class Displays the GPL to the user in the
- * FirstRunWizard. This is the second page of the FirstRunWizard.
+ * FirstRunWizard. This is the second page of the FirstRunWizard. This
+ * page essentially displays the GPL verbiage in a read-only text box
+ * similar to the OverviewPage. Consequently, this class has been
+ * implemented by customizing the functionality offered by the
+ * OverviewPage.
  */
-class LicensePage : public QWizardPage {
+class LicensePage : public OverviewPage {
 public:
     LicensePage(QWidget *parent = 0);
 
-private:
-    QTextEdit* licenseText;
-    QVBoxLayout* mainLayout;
+protected:
+    // Currently no protected members.
 
+private:
+    // Currently no private members.
 };
 
-#endif // LICENSEPAGE_H
+#endif // LICENSE_PAGE_H
