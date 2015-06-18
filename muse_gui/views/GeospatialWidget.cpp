@@ -42,6 +42,7 @@
 
 GeospatialWidget::GeospatialWidget(QWidget *parent)
     : QWidget(parent) {
+    paintCircle();
 //    setFixedSize(200, 200);
 //    setAutoFillBackground(true);
 //    QPainter painter;
@@ -49,6 +50,16 @@ GeospatialWidget::GeospatialWidget(QWidget *parent)
 
 }
 
+GeospatialWidget::~GeospatialWidget(){
+
+}
+
+void GeospatialWidget::paintCircle(){
+    QPainter painter (this);
+    painter.drawEllipse(100, 100, 100, 100);
+}
+
+/*
 //void GeospatialWidget::paintEvent(QPainter *painter) {
 //    QPainter painter;
 //    painter.begin(this);
@@ -56,8 +67,8 @@ GeospatialWidget::GeospatialWidget(QWidget *parent)
 //    paint(&painter, event);
 //    painter.end();
 //}
-
-
+*/
+/*
 //void Helper::paint(QPainter *painter, QPaintEvent *event)
 //{
 //    background = QBrush(QColor(64, 32, 64));
@@ -73,5 +84,5 @@ GeospatialWidget::GeospatialWidget(QWidget *parent)
 
 //    painter->drawCircle(1);
 //    painter->restore();
-//}
+//}*/
 #endif
