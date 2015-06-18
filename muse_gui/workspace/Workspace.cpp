@@ -250,7 +250,7 @@ Workspace::Workspace(const QString& dir, bool isValid) :
     addElement(XMLElementInfo("Directory",  &directory));
     addElement(XMLElementInfo("Timestamp",  &timestamp));
     addElement(XMLElementInfo("SeqCounter", &seqCounter));
-    addElement(XMLElementInfo("ServerList", &serverList));
+    addElement(XMLElementInfo("ServerList", serverModel.getServerList()));
    // addElement(XMLElementInfo("JobList", &jobList));
 }
 
@@ -360,8 +360,9 @@ Workspace::useWorkspace(const QString &directory) {
 
 QString
 Workspace::saveWorkspace() {
-    const QString filePath = directory + workspaceFileName;
+    const QString filePath = directory + QDir::separator() + workspaceFileName;
     XMLParser saver;
+
     return saver.saveXML(filePath, *workspace);
 }
 
@@ -395,10 +396,10 @@ Workspace::reserveID(const QString& itemType) {
 //    }
 //}
 
-//ServerListTableModel &
-//Workspace::getTableModel() {
-//    return serverModel;
-//}
+ServerListTableModel *
+Workspace::getServerListTableModel() {
+    return &serverModel;
+}
 
 //ProjectsListTableModel &
 //Workspace::getProjectsListTableModel() {
@@ -410,11 +411,23 @@ Workspace::reserveID(const QString& itemType) {
 //    return jobModel;
 //}
 
-//void
-//Workspace::addServerToWorkSpace(Server &server) {
-//    serverList.addServer(server);
-//    serverModel.appendServerEntry(server);
-//}
+void
+Workspace::addServerToWorkSpace(Server &server) {
+    serverModel.addServer(server);
+    //serverList.addServer(server);
+}
+
+int
+Workspace::serverCount() {
+    return serverModel.servers.size();
+    //return serverList.size();
+}
+
+Server
+Workspace::getServer(int index) {
+    return serverModel.servers.get(index);
+    //return serverList.get(index);
+}
 
 //void
 //Workspace::addProjectToWorkSpace(Project &project, Server *server) {

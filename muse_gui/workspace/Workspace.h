@@ -38,70 +38,11 @@
 
 #include "XMLRootElement.h"
 #include "ServerList.h"
+#include "ServerListTableModel.h"
 #include "Server.h"
 #include "JobList.h"
 
 #include <QDateTime>
-
-//namespace muse {
-//namespace workspace {
-
-//bool create(QString path);
-
-//void use(QString path);
-
-///**
-// * @brief init
-// *
-// * The first function that will be called by the main thread, used to initialize
-// * all the necessary resources of the workspace.  Will create and files that
-// * need to be created, and an exception will be thrown in the unlikely chance
-// * creating one of these files goes wrong, the calling function will need to
-// * handle these excepetions;
-// */
-//void init();
-
-///**
-// * @brief save
-// *
-// * Save the current information about the workspace
-// */
-//void save();
-
-///**
-// * @brief load
-// *
-// * Load data from the save file into the workspace
-// */
-//void load();
-
-///**
-// * @brief clear
-// *
-// * Clear all information currently known about the workspace, this will not have
-// * any effect on the persistant save file unless a call to save() is made
-// * after clearing
-// */
-//void clear();
-//void addServer(Server server);
-//void removeServer(Server server);
-//void addJob(Job &job);
-
-//bool firstRun();
-
-//std::vector<Server> getServers();
-
-//int serverCount();
-
-//Server getServer(int index);
-
-//QString appDir();
-//QString knownHostsFilePath();
-//QString saveDataFilePath();
-//QString reserveID(const QString &itemType);
-
-//}
-//}
 
 
 /**
@@ -174,7 +115,7 @@ public:
      * @return This method returns the list of servers associated with this
      * workspace.
      */
-    ServerList& getServerList() { return serverList; }
+    //ServerList& getServerList() { return serverList; }
 
     /**
      * @brief getJobList Obtain the list of jobs in this workspace
@@ -248,7 +189,7 @@ public:
      * workspace.
      * @return  The ServerListTableModel of this workspace.
      */
-    //ServerListTableModel& getTableModel();
+    ServerListTableModel *getServerListTableModel();
 
     //ProjectsListTableModel& getProjectsListTableModel();
 
@@ -259,11 +200,15 @@ public:
      * ServerListTableModel.
      * @param server The server to be added.
      */
-//    void addServerToWorkSpace(Server& server);
+    void addServerToWorkSpace(Server& server);
 //    void addProjectToWorkSpace(Project& project, Server *server);
 //    void addJobToWorkSpace(Job& job);
 
 //    void startServerWatcher();
+
+    Server getServer(int index);
+
+    int serverCount();
 
 protected:
     /**
@@ -322,7 +267,7 @@ private:
      * @brief serverList Object that encapsulates the list of servers
      * currently added to this workspace.
      */
-    ServerList serverList;
+    //ServerList serverList;
 
     /**
      * @brief good Flag to indicate if the workspace is in a good state.
@@ -349,7 +294,7 @@ private:
      */
     static const QString workspaceFileName;
 
-//    ServerListTableModel serverModel;
+    ServerListTableModel serverModel;
 //    ProjectsListTableModel projectsModel;
 //    JobListTableModel jobModel;
 
@@ -362,7 +307,7 @@ private:
 //    void addInitialProjectsToModel();
 //    void addInitialJobsToModel();
 
-    JobList jobList;
+    //JobList jobList;
 };
 
 #endif // WORKSPACE_H
