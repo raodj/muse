@@ -133,7 +133,8 @@ class QXmlStreamWriter;
  *
  * \endcode
  */
-class XMLElement {
+class XMLElement : public QObject {
+    Q_OBJECT
     // Let the known (safe) derived class call private virtual methods
     friend class XMLRootElement;
 public:

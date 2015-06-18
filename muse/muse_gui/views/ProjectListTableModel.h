@@ -45,8 +45,8 @@ static const int MAX_COLUMNS = 2;
 
 class ProjectListItem {
 public:
-    ProjectListItem(Project ip, Server is)
-        : project(ip), server(is) {}
+    ProjectListItem(Project ip, Server is) {}
+        // : project(ip), server(is) {}
 
     Project project;
     Server server;
@@ -84,4 +84,4 @@ private:
     QList<ProjectListItem> projectEntries;
 };
 
-#endif // ProjectListTableModel_HPP
+#endif

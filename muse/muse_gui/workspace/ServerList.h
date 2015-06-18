@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "Server.h"
+#include "Common.h"
 
 /**
  * A class to encapsulate information about a list of servers that have
@@ -48,6 +49,7 @@
  *
  */
 class ServerList : public XMLElement {
+    Q_OBJECT
 public:
     /**
      * @brief ServerList The default constructor.
@@ -82,7 +84,7 @@ public:
      *
      * @param entry The server entry to be added.
      */
-    void addServer(Server& entry);
+    void addServer(const Server& entry);
 
     /**
      * @brief size Returns the number of server entries in this list.
@@ -107,6 +109,17 @@ public:
     Server& get(const int i) { return *dynamic_cast<Server*>(servers[i]); }
 
     /**
+     * @brief getIndex Obtain index position of a given entry.
+     *
+     * @param serverID The ID of the server whose index position is
+     * to be returned.
+     *
+     * @return The index position of the server entry if found. If the
+     * specified ID is not found, then this method returns -1.
+     */
+    int getIndex(const QString& serverID) const;
+
+    /**
      * @brief get Obtain the server entry at a given index location.
      *
      * \note Calling this method with an invalid index value will have
@@ -120,6 +133,34 @@ public:
      */
     const Server& get(const int i) const
     { return *dynamic_cast<const Server*>(servers[i]); }
+
+signals:
+    /** @brief Signal to indicate that information in the server
+     * list has changed.
+     *
+     * This signal is emitted whenever servers are added, removed, or the
+     * information is modified.
+     *
+     * @param change The type of change that has ocurred.
+     *
+     * @param start The starting index position for the change.
+     *
+     * @param end The ending index position for the change. Start is always
+     * less than or equal to end.
+     */
+    void serverChanged(ChangeKind change, int start, int end);
+
+private slots:
+    /**
+     * @brief serverUpdated Slot to intercept updates to server and
+     * fire a serverChanged signal.
+     *
+     * This slot is used to propagate changes to underlying server object
+     * up the hierarchy to various listeners appropriately.
+     *
+     * @param server The server whose information has been updated.
+     */
+    void serverUpdated(const Server& server);
 
 protected:
     /**

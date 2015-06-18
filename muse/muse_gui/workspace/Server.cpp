@@ -71,10 +71,10 @@ const QString Server::UnknownOS = "unknown_os";
 
 Server::Server(QString pID, bool pRemote, QString pName, int pPort,
                QString pDescription, QString pUserID, QString pInstallPath,
-               QString pOsType, QString pStatus) :
+               QString pOsType, QString pStatus) : XMLElement("Server"),
     ID(pID), remote(pRemote), name(pName), port(pPort),
     description(pDescription), userID(pUserID), installPath(pInstallPath),
-    status(pStatus), osType(pOsType), XMLElement("Server") {
+    status(pStatus), osType(pOsType) {
     // Add the set of instance variables that must be serialized/deserialized.
     addElement(XMLElementInfo("ID",          &ID));
     addElement(XMLElementInfo("Remote",      &remote));
@@ -99,48 +99,49 @@ Server::operator==(const Server other) {
 void
 Server::setName(const QString &name) {
     this->name = name;
+    emit serverUpdated(*this);
 }
 
 void
 Server::setName(const std::string &name) {
     this->name = QString::fromStdString(name);
+    emit serverUpdated(*this);
 }
 
 void
 Server::setPassword(const QString& credential) {
     password = credential;
+    emit serverUpdated(*this);
 }
 
 void
 Server::setDescription(const QString& description) {
     this->description = description;
+    emit serverUpdated(*this);
 }
 
 void
 Server::setOS(const QString& os) {
     osType = os;
+    emit serverUpdated(*this);
 }
 
 void
 Server::setInstallPath(const QString &path) {
     installPath = path;
+    emit serverUpdated(*this);
 }
 
 void
 Server::setID(const QString &id) {
     this->ID = id;
+    emit serverUpdated(*this);
 }
 
 void
 Server::addProject(Project& project) {
     projects.addProject(project);
-//    Workspace::get()->addProjectToWorkSpace(project, this);
-}
-
-
-void
-Server::update() {
-
+    emit serverUpdated(*this);
 }
 
 #endif

@@ -52,12 +52,10 @@
 #include "ProjectWizard.h"
 #include "JobWizard.h"
 #include "ServerListView.h"
-#include "ProjectListView.h"
-#include "JobListView.h"
 #include "GeospatialView.h"
 #include "Models.h"
 #include "Workspace.h"
-#include "WorkspaceWizard.h"
+#include "WorkspaceDialog.h"
 #include "MUSEGUIApplication.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
@@ -118,7 +116,8 @@ MainWindow::showServerListView() {
     // If so do not perfrom any futher operations.
     if (findChild<ServerListView*>(ServerListView::ViewName) == NULL) {
         // Create the widget and set its minimum width.
-        desktop->createSplitPane(new ServerListView(Workspace::get()->getServerListTableModel()), "Servers",
+        ServerListTableModel *model = new ServerListTableModel(Workspace::get()->getServerList());
+        desktop->createSplitPane(new ServerListView(model), "Servers",
                                  DnDTabBar::LEFT,
                                  QIcon(":/images/16x16/Server.png"));
     }
@@ -140,23 +139,27 @@ void
 MainWindow::showProjectListView() {
     // Check to see if a projects list view already exists in this main window.
     // If so do not perfrom any futher operations.
+    /*
     if (findChild<ProjectListView*>(ProjectListView::ViewName) == NULL) {
         // Create the widget and set its minimum width.
         desktop->createSplitPane(new ProjectListView(), "Projects",
                                  DnDTabBar::CENTER,
                                  QIcon(":/images/16x16/Server.png"));
     }
+    */
 }
 
 void
 MainWindow::showJobListView() {
     // will be used to show jobs view when it is created
+    /*
     if (findChild<JobListView*>(JobListView::ViewName) == NULL) {
         // Create the widget and set its minimum width.
         desktop->createSplitPane(new JobListView(), "Jobs",
                                  DnDTabBar::CENTER,
                                  QIcon(":/images/16x16/Server.png"));
     }
+    */
 }
 
 

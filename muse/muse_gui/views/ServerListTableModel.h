@@ -44,44 +44,100 @@
 
 /**
  * @brief The ServerListTableModel class The table model for showing a
- * listing of servers in MUSE GUI.
+ * listing of servers in MUSE GUI. This class provides the interface
+ * between the view and the in-memory storage classes in workspace. This
+ * is purely an adapter class and does not (and should not) contain any
+ * information. Instead it obtains the necessary information from the
+ * workspace entries.
  */
 class ServerListTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
-    ServerListTableModel();
+    /**
+     * @brief ServerListTableModel Constructor to create a server list
+     * table model.
+     *
+     * @param serverList The underlying workspace server list to be used
+     * to obtain the actual data.
+     */
+    ServerListTableModel(ServerList& serverList);
 
-    int rowCount(const QModelIndex & = QModelIndex()) const { servers.size(); }
+    /**
+     * @brief rowCount Override base class method to return number of entries.
+     *
+     * @return This method returns number of server entries (in the workspace).
+     */
+    int rowCount(const QModelIndex & = QModelIndex()) const {
+        return servers.size();
+    }
+
+    /**
+     * @brief columnCount Override base class method to return number of
+     * columns supported by this model.
+     *
+     * This model currently supports a fixed number of 3 columns.
+     *
+     * @return The number of columns supported by this method.
+     */
     int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
+    /**
+     * @brief data Overrides base class method to return the actual data for
+     * a given row and column.
+     *
+     * @param index The row and column information for which the data is to
+     * be returned.
+     *
+     * @param role The role for which data is desired.
+     *
+     * @return The value (if any) associated with the given index and role.
+     */
     QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
+
+    /**
+     * @brief headerData Override base class interface method to return the
+     * column title information.
+     *
+     * @param section The column (or section) for which the title is to be
+     * returned.
+     *
+     * @param orientation The orientation value is currently ignored by this
+     * method.
+     *
+     * @param role The display role for which the title is to be returned.
+     * This value is currently ignored.
+     *
+     * @return The column title for the given section.
+     */
     QVariant headerData(int section, Qt::Orientation orientation, int role) const;
 
-    static const int MAX_COLUMNS = 3;
-
-    ServerList *getServerList();
-
-    void addServer(Server &server);
-
-    ServerList servers;
-
-//public slots:
-//    /**
-//     * @brief appendServerEntry Adds a server to this ServerListTableModel.
-//     * @param server The server to add
-//     */
-//    void appendServerEntry(Server& server);
-
-signals:
+protected slots:
     /**
-     * @brief serverAdded Alerts any views using this ServerListTableModel
-     * that a server has been added to the table and that the views should
-     * be updated.
+     * @brief handleServerChange Slot to notify view(s) about change in
+     * server information.
+     *
+     * @param change The type of change encountered by the server.
+     *
+     * @param start The starting index position in the server list where
+     * the change occurred.
+     *
+     * @param end The ending index position in the server list where
+     * the change ends.
      */
-    void serverAdded();
+    void handleServerChange(ChangeKind change, int start, int end);
 
 private:
-    //ServerList servers;
+    /**
+     * @brief MAX_COLUMNS The maximum number of columns supported by
+     * this server model.
+     */
+    static const int MAX_COLUMNS = 3;
+
+    /**
+     * @brief servers Reference to the server list to be used by this
+     * model.
+     */
+    ServerList& servers;
 
 };
 
