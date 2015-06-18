@@ -112,8 +112,8 @@ SOURCES +=\
     views/JobListView.cpp \
     views/GeospatialView.cpp \
     views/GeospatialWidget.cpp \
-    core/workspaceWizard/WorkspaceWizard.cpp \
-    core/workspaceWizard/WorkspaceSelectPage.cpp
+    core/workspaceWizard/WorkspaceSelectPage.cpp \
+    core/workspaceWizard/WorkspaceDialog.cpp
 
 
 HEADERS  += \
@@ -199,8 +199,8 @@ HEADERS  += \
     views/ProjectListTableModel.h \
     views/JobListTableModel.h \
     views/GeospatialWidget.h \
-    core/workspaceWizard/WorkspaceWizard.h \
     core/workspaceWizard/WorkspaceSelectPage.h \
+    core/workspaceWizard/WorkspaceDialog.h
 
 
 OTHER_FILES += \

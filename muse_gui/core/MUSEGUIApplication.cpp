@@ -78,8 +78,9 @@ MUSEGUIApplication::exec() {
     }
 
     // Before continuing, ask the user what workspace they want to use
-    WorkspaceWizard ww(getWorkspacePaths());
-    if (ww.exec() == QDialog::Rejected) {
+    //WorkspaceWizard ww(getWorkspacePaths());
+    WorkspaceDialog wd(getWorkspacePaths());
+    if (wd.exec() == QDialog::Rejected) {
         return 1;
     }
 

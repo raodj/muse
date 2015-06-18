@@ -39,16 +39,40 @@
 #include "WorkspaceSelectPage.h"
 
 #include <QString>
-#include <QWizard>
+#include <QDialog>
+#include <QComboBox>
+#include <QWidget>
 
 #include <vector>
 
-class WorkspaceWizard : public QWizard {
+//class WorkspaceWizard : public QWizard {
+class WorkspaceDialog : public QDialog {
+    Q_OBJECT
 public:
-    WorkspaceWizard(std::vector<QString> options, QWidget* parent = 0);
+    WorkspaceDialog(std::vector<QString> options, QWidget* parent = 0);
+
+private slots:
+    /**
+     * @brief createNewWorkspace Ask the user where they want the new workspace
+     * to be located and attempt to create it
+     *
+     * This method will be invoked when the newWorkspaceButton button is pressed
+     */
+    void createNewWorkspace();
+
+    /**
+     * @brief workspaceSelected Use the currently selected workspace
+     *
+     * This method will be invoked when the selectWorkspaceButton button is
+     * pressed
+     */
+    void workspaceSelected();
 
 private:
-    WorkspaceSelectPage workspaceSelectPage;
+    QComboBox workspaceSelector;
+
+    QWidget *createWorkspaceTab();
+    QWidget *createLicenseTab();
 };
 
 #endif // WORKSPACE_WIZARD_H

@@ -1,5 +1,5 @@
-#ifndef WORKSPACE_SELECT_PAGE_CPP
-#define WORKSPACE_SELECT_PAGE_CPP
+#ifndef WORKSPACE_WIZARD_CPP
+#define WORKSPACE_WIZARD_CPP
 
 //---------------------------------------------------------------------
 //    ___
@@ -36,55 +36,95 @@
 //
 //---------------------------------------------------------------------
 
-#include "WorkspaceSelectPage.h"
+#include "WorkspaceDialog.h"
 #include "Workspace.h"
 #include "MUSEGUIApplication.h"
+#include "Version.h"
 
 #include <QLabel>
+#include <QList>
 #include <QFileDialog>
-#include <QDialog>
-#include <QStringList>
 #include <QMessageBox>
-#include <QFileInfo>
+#include <QBoxLayout>
+#include <QHBoxLayout>
+#include <QVBoxLayout>
+#include <QPushButton>
+#include <QTabWidget>
+#include <QSizePolicy>
+#include <QTextEdit>
 
-#include <iostream>
-
-const QString WorkspaceSelectPage::workspaceExistsMessage =
-        "The workspace you have selected already exists, would you like to " \
-        "continue creating a new workspace in this directory?  All data from " \
-        "the existing workspace will be lost.";
-
-WorkspaceSelectPage::WorkspaceSelectPage(QWidget *parent) :
-    QWizardPage(parent)
+WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) :
+    QDialog(parent)
 {
-    newWorkspaceButton.setText("New workspace");
-    connect(&newWorkspaceButton, SIGNAL(released()), this, SLOT(createNewWorkspace()));
-
-    selectWorkspaceButton.setText("Select workspace");
-    connect(&selectWorkspaceButton, SIGNAL(released()), this, SLOT(workspaceSelected()));
-
-    layout.addWidget(new QLabel("Miami University Simulation Environment (MUSE)"));
-    layout.addWidget(&workspaceSelector);
-    layout.addWidget(&selectWorkspaceButton);
-    layout.addWidget(&newWorkspaceButton);
-
-    setButtonText(QWizard::FinishButton, "OK");
-    setButtonText(QWizard::CancelButton, "Cancel");
-
-    setLayout(&layout);
-
-    setTitle("Select Workspace");
-}
-
-void
-WorkspaceSelectPage::setWorkspaceOptions(std::vector<QString> options) {
     for (auto &option : options) {
         workspaceSelector.addItem(option, QVariant(option));
     }
+
+    QTabWidget *tabWidget = new QTabWidget();
+
+    tabWidget->addTab(createWorkspaceTab(), "Workspace");
+    tabWidget->addTab(createLicenseTab(), "License");
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(new QLabel("Miami University Simulation Environment (MUSE)"));
+    layout->addWidget(tabWidget);
+
+    setLayout(layout);
+}
+
+QWidget*
+WorkspaceDialog::createWorkspaceTab() {
+    QWidget *widget = new QWidget();
+
+    QPushButton *newWorkspaceButton = new QPushButton();
+    newWorkspaceButton->setText("Browse");
+    connect(newWorkspaceButton, SIGNAL(released()), this, SLOT(createNewWorkspace()));
+
+    QPushButton *selectWorkspaceButton = new QPushButton();
+    selectWorkspaceButton->setText("Ok");
+    connect(selectWorkspaceButton, SIGNAL(released()), this, SLOT(workspaceSelected()));
+
+    QPushButton *cancelButton = new QPushButton();
+    cancelButton->setText("Cancel");
+    connect(cancelButton, SIGNAL(released()), this, SLOT(reject()));
+
+    QHBoxLayout *selectorLayout = new QHBoxLayout();
+    selectorLayout->addWidget(&workspaceSelector);
+    selectorLayout->addWidget(newWorkspaceButton);
+
+    QHBoxLayout *bottomLayout = new QHBoxLayout();
+    bottomLayout->addWidget(new QLabel(MUSE_GUI_COPYRIGHT));
+    bottomLayout->addWidget(selectWorkspaceButton);
+    bottomLayout->addWidget(cancelButton);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout();
+    mainLayout->addWidget(new QLabel("Select a workspace to use or create a new one"));
+    mainLayout->addLayout(selectorLayout);
+    mainLayout->addSpacing(200);
+    mainLayout->addLayout(bottomLayout);
+
+    widget->setLayout(mainLayout);
+
+    return widget;
+}
+
+QWidget*
+WorkspaceDialog::createLicenseTab() {
+    QWidget *widget = new QWidget();
+
+    QFile license(":/resources/gpl.html");
+    license.open(QIODevice::ReadOnly);
+
+    QVBoxLayout *layout = new QVBoxLayout();
+    layout->addWidget(new QTextEdit(license.readAll()));
+
+    widget->setLayout(layout);
+
+    return widget;
 }
 
 void
-WorkspaceSelectPage::createNewWorkspace() {
+WorkspaceDialog::createNewWorkspace() {
     QFileDialog select(this);
     select.setFileMode(QFileDialog::Directory);
     select.setOption(QFileDialog::ShowDirsOnly, true);
@@ -132,7 +172,9 @@ WorkspaceSelectPage::createNewWorkspace() {
     if (Workspace::isWorkspace(selectedFile)) {
         QMessageBox::StandardButton reply =
                 QMessageBox::question(this, "Workspace already exists",
-                                      workspaceExistsMessage,
+                                      "The workspace you have selected already exists, would you like to " \
+                                      "continue creating a new workspace in this directory?  All data from " \
+                                      "the existing workspace will be lost.",
                                       QMessageBox::Yes | QMessageBox::No);
 
         if (reply == QMessageBox::No) {
@@ -152,11 +194,12 @@ WorkspaceSelectPage::createNewWorkspace() {
     MUSEGUIApplication::addWorkspaceEntry(selectedFile);
 
     // everything went well, close the wizard
-    this->wizard()->accept();
+    //this->wizard()->accept();
+    accept();
 }
 
 void
-WorkspaceSelectPage::workspaceSelected() {
+WorkspaceDialog::workspaceSelected() {
     QString selectedFile = workspaceSelector.itemData(workspaceSelector.currentIndex()).toString();
     QMessageBox error;
     QFileInfo fileInfo(selectedFile);
@@ -192,7 +235,8 @@ WorkspaceSelectPage::workspaceSelected() {
     }
 
     // everything went well, close the wizard
-    this->wizard()->accept();
+    //this->wizard()->accept();
+    accept();
 }
 
 #endif
