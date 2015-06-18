@@ -56,7 +56,7 @@ ServerList::addServer(const Server &entry) {
                     this, SLOT(serverUpdated(Server)));
    // Fire signal indicating change to the server list.
    const int index = servers.size() - 1;
-   emit serverChanged(ENTRY_UPDATED, index, index);
+   emit serverChanged(ENTRY_INSERTED, index, index);
 }
 
 int

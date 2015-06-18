@@ -46,6 +46,9 @@ ServerListTableModel::ServerListTableModel(ServerList& serverList) :
     setHeaderData(0, Qt::Horizontal, "Server", Qt::DisplayRole);
     setHeaderData(1, Qt::Horizontal, "Status", Qt::DisplayRole);
     setHeaderData(2, Qt::Horizontal, "ID", Qt::DisplayRole);
+
+    connect(&serverList, SIGNAL(serverChanged(ChangeKind,int,int)),
+            this, SLOT(handleServerChange(ChangeKind,int,int)));
 }
 
 QVariant
