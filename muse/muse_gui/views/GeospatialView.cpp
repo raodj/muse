@@ -51,9 +51,8 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
-    GeospatialWidget *graphic = new GeospatialWidget(this);
-    //graphic->paintCircle();
-    //graphic->update();
+    GeospatialWidget *graphic = new GeospatialWidget(this, this->size());
+
 }
 
 #endif
