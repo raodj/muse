@@ -39,48 +39,50 @@
 #include "MUSEWizard.h"
 #include <QHBoxLayout>
 
-MUSEWizard::MUSEWizard(QFile &file, QWidget *parent) : QWizard(parent),
+MUSEWizard::MUSEWizard(const QFile &file, QWidget *parent) : QWizard(parent),
     overviewPage(file) {
-    setPixmap(QWizard::BannerPixmap,
-              QPixmap(":/images/logo/bannerImg.png"));
-    setPixmap(QWizard::BackgroundPixmap,
-              QPixmap(":/images/logo/columnBright.png"));
-
-    mainLayout = new QVBoxLayout();
-    sideBar.setLayout(mainLayout);
-    setSideWidget(&sideBar);
-
-    addPage(&overviewPage, "Overview");
-
-#ifndef Q_OS_MAC
-    setWizardStyle(QWizard::ModernStyle);
-#endif
+    // Let refactored method do rest of the operations.
+    setup();
 }
 
-MUSEWizard::MUSEWizard(QString& text, QWidget* parent) : QWizard(parent),
+MUSEWizard::MUSEWizard(const QString& text, QWidget* parent) : QWizard(parent),
     overviewPage(text) {
+    // Let refactored method do rest of the operations.
+    setup();
+}
+
+void
+MUSEWizard::setup() {
+    // Banner at the top of the wizard
     setPixmap(QWizard::BannerPixmap,
               QPixmap(":/images/logo/bannerImg.png"));
+    // Set banners to work correctly with Mac/Linux/Windows
     setPixmap(QWizard::BackgroundPixmap,
               QPixmap(":/images/logo/columnImg.png"));
+    setPixmap(QWizard::WatermarkPixmap,
+              QPixmap(":/images/logo/columnImg.png"));
 
+    // Create a side bar to list title of various pages in the wizard
     mainLayout = new QVBoxLayout();
     sideBar.setLayout(mainLayout);
     setSideWidget(&sideBar);
 
+    // Add the overview page as the first page in the wizard.
     addPage(&overviewPage, "Overview");
 
-#ifndef Q_OS_MAC
-    setWizardStyle(QWizard::ModernStyle);
-#endif
+    // Set a preferred sizes (arbitrary sizes) for the wizard
+    this->setMinimumSize(250,  100);
+    this->setMaximumSize(1024, 768);
+    this->resize(700, 500);
 }
 
 int
 MUSEWizard::addPage(QWizardPage *page, const QString& stepName,
                     const bool lastPage) {
     QLabel* const box = new QLabel();
-    box->setPixmap(QPixmap(":/images/16x16/Box.png"));
+    box->setPixmap(QPixmap(":/images/16x16/BoxWhite.png"));
     QLabel* const step = new QLabel(stepName);
+    step->setStyleSheet("QLabel { color : white; }");
     // Organize and add checkbox label and step-name to wizard.
     QHBoxLayout* row = new QHBoxLayout();
     row->addWidget(box);
@@ -113,8 +115,8 @@ MUSEWizard::cleanupPage(int id) {
 
 void
 MUSEWizard::applyCheckMarks(const int pageId) {
-    static const QPixmap box(":/images/16x16/Box.png");
-    static const QPixmap checkBox(":/images/16x16/CheckedBox.png");
+    static const QPixmap box(":/images/16x16/BoxWhite.png");
+    static const QPixmap checkBox(":/images/16x16/CheckedBoxWhite.png");
 
     for(int i = 0; i < steps.size(); i += 2) {
         steps.at(i)->setPixmap((pageId > i / 2) ? checkBox : box);

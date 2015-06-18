@@ -43,19 +43,22 @@
 #include <QDir>
 #include <QFile>
 
-FirstRunWizard::FirstRunWizard(QFile &file, QWidget *parent) :
-    MUSEWizard(file, parent) {
+FirstRunWizard::FirstRunWizard(MUSEGUIApplication& app, QWidget *parent) :
+    MUSEWizard(QFile(":/resources/welcome.html"), parent), app(app) {
     setWindowTitle("First time setup");
 
+    // Add additional pages in the wizard in the correct order.
     addPage(&licensePage, "Review License");
     addPage(&appDirPage,  "Finish setup", true);
 }
 
 void
 FirstRunWizard::accept() {
-    //if (app.checkCreateAppDirectory(this)) {
-        QDialog::accept();
-    //}
+    if (app.createApplicationFiles(this)) {
+        QDialog::accept();  // Successfully created
+    } else {
+        QDialog::reject();  // Error creating files
+    }
 }
 
 #endif

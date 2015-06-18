@@ -38,10 +38,9 @@
 
 #include "Core.h"
 #include "MUSEWizard.h"
-
 #include "LicensePage.h"
 #include "AppDirPage.h"
-//#include "MUSEGUIApplication.h"
+#include "MUSEGUIApplication.h"
 
 /**
  * @brief The FirstRunWizard class The class that is run to set up
@@ -55,7 +54,19 @@
  */
 class FirstRunWizard : public MUSEWizard {
 public:
-    FirstRunWizard(QFile& file, QWidget* parent = 0);
+    /** The only constructor for this class.
+     *
+     * The construtor creates the various wizard pages and sets up
+     * the wizard for various operations to be performed once it
+     * is displayed.
+     *
+     * @param app The top-level application that lauched this wizard.
+     * This reference is used to initialize the work directory for
+     * MUSE and necessary files in the wizard.
+     *
+     * @param parent An optional parent window for this wizard.
+     */
+    FirstRunWizard(MUSEGUIApplication& app, QWidget* parent = 0);
 
     /**
      * @brief accept The MUSE-specific implementation of the accept()
@@ -65,8 +76,6 @@ public:
      */
     void accept();
 
-
-
 private:
     /**
      * @brief app The top-level MUSE GUI application from where this
@@ -75,8 +84,13 @@ private:
      * to create the top-level application directory and various other
      * necessary files the first time MUSE-GUI is run by an user.
      */
-    //MUSEGUIApplication& app;
+    MUSEGUIApplication& app;
+
+    /** The wizard page that displays the GPLv3 license information.*/
     LicensePage licensePage;
+
+    /** The wizard page that informs the user that application directories
+     * are going to be created next */
     AppDirPage  appDirPage;
 };
 

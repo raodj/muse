@@ -47,6 +47,7 @@
  * This class handles and manages the execution of the entire GUI system.
  */
 class MUSEGUIApplication : public QApplication {
+    friend class FirstRunWizard;
 public:
     /**
      * @brief MUSEGUIApplication The only constructor to create a top-level
@@ -149,9 +150,15 @@ private:
      */
      MainWindow *mainWindow;
 
-     static const QString errorMessage;
-
+     /** This string contains the preferred name for the known hosts
+      * file used by SSH to validate connections to remote servers.
+      * Note that this string is just the file name without parent path.
+      */
      static const QString knownHostsFileName;
+
+     /** The path to the workspaces file name that contains the list of
+      * known workspaces that the user can select from.
+      */
      static const QString workspacesFileName;
 
      /**
@@ -170,9 +177,14 @@ private:
       * if they dont exist
       *
       * creates the files at the locations indicated by knownHostsFilePath() and
-      * workspacesFilePath()
+      * workspacesFilePath() and reports any errors that occur.
+      *
+      * @param parent The parent to be used when displaying error dialog boxes
+      *
+      * @return This method returns true if the top-level files were
+      * successfully created or were already present.
       */
-     void createApplicationFiles();
+     bool createApplicationFiles(QWidget *parent = 0);
 };
 
 #endif

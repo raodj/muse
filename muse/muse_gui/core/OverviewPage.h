@@ -51,22 +51,42 @@ public:
      * @brief OverviewPage One of two constructors for this QWizardPage.
      * The constructor simply loads the text into the QTextEdit to display
      * the information to the user.
-     * @param file The QFile that points to the html file that is the source of the
-     * text to be displayed on this OverviewPage.     *
+     *
+     * @param file The QFile that points to the html file that is the source
+     * of the text to be displayed on this OverviewPage.
+     *
      * @param parent The parent widget this page belongs to.
      */
-    OverviewPage(QFile& file, QWidget *parent = 0);
+    OverviewPage(const QFile& file, QWidget *parent = 0);
 
     /**
      * @brief OverviewPage One of two constructors for this QWizardPage.
      * This constructor takes the text given and places it in the QTextEdit
      * to display the information to the user.
+     *
      * @param text The text to be displayed in this page's QTextEdit.
+     *
      * @param parent The parent widget this page belongs to
      */
     OverviewPage(const QString& text, QWidget *parent = 0);
 
+    /**
+     * @brief setText Set the text to be displayed in this page.
+     *
+     * This method can be used to set/change the text displayed in this
+     * wizard page.
+     *
+     * @param text The text to be set/displayed in the wizard page. This
+     * method simply calls QTextEdit::setText() method to set the text
+     * to be displayed. See documentation on QTextEdit::setText() method
+     * for additional details on text/html formats.
+     */
+    void setText(const QString& text);
+
 private:
+    /** The text field used to display the overview text in a read-only
+     * mode on this wizard page
+     */
     QTextEdit overviewText;
 };
 

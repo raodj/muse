@@ -40,30 +40,32 @@
 #include <QTextStream>
 #include <QVBoxLayout>
 
-OverviewPage::OverviewPage(QFile &file, QWidget* parent) : QWizardPage(parent) {
-    //User can't edit the text in this view port.
+OverviewPage::OverviewPage(const QFile &file, QWidget* parent) :
+    QWizardPage(parent) {
+    // User can't edit the text in this view port.
     overviewText.setReadOnly(true);
-
-    //load the text from the html file
-    if(file.open(QFile::ReadOnly)){
-        QTextStream input(&file);
-
+    // Load the text from the html file. Need temporary ioFile
+    // to call non-const methods.
+    QFile ioFile(file.fileName());
+    if (ioFile.open(QFile::ReadOnly)) {
+        QTextStream input(&ioFile);
         overviewText.setHtml(input.readAll());
-        file.close();
+        ioFile.close();
     }
     QVBoxLayout* mainLayout = new QVBoxLayout();
+    mainLayout->setContentsMargins(0, 2, 0, 2);
     mainLayout->addWidget(&overviewText);
     setLayout(mainLayout);
 
-    //Fixing for Mac display currently.
+    // Fixing for Mac display currently.
     setTitle("Overview");
     setSubTitle("Overview of tasks in this wizard");
 }
 
-OverviewPage::OverviewPage(const QString& text, QWidget *parent) {
-    //User can't edit the text in this view port.
+OverviewPage::OverviewPage(const QString& text, QWidget *parent) :
+    QWizardPage(parent)  {
+    // User can't edit the text in this view port.
     overviewText.setReadOnly(true);
-
     overviewText.setText(text);
 
     QVBoxLayout* mainLayout = new QVBoxLayout();
@@ -72,6 +74,11 @@ OverviewPage::OverviewPage(const QString& text, QWidget *parent) {
 
     setTitle("Overview");
     setSubTitle("Overview of tasks in this wizard");
+}
+
+void
+OverviewPage::setText(const QString& text) {
+    overviewText.setText(text);
 }
 
 #endif

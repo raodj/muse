@@ -38,23 +38,16 @@
 
 #include "AppDirPage.h"
 #include "MUSEGUIApplication.h"
-#include "Workspace.h"
 
-AppDirPage::AppDirPage(QWidget* parent) : QWizardPage(parent) {
-    setTitle("Welcome");
-    setSubTitle("Create the main directory");
+AppDirPage::AppDirPage(QWidget* parent) : OverviewPage("", parent) {
+    setTitle("Finish setup");
+    setSubTitle("Create necessary directories & files");
 
-    mainLayout = new QVBoxLayout();
-
-    workspaceMessage = new QLabel();
-    workspaceMessage->setText("Once you click to end this wizard, "
-                              "the application directory will be created "
-                              "here: " + MUSEGUIApplication::appDir()
-                              + "<br/>Click the button to proceed.");
-
-    workspaceMessage->setWordWrap(true);
-    mainLayout->addWidget(workspaceMessage);
-    setLayout(mainLayout);
+    setText("Thank you for agreeing to use MUSE.<br/><br/>"
+            "Once you click the <tt>Finish</tt> button to end this wizard, "
+            "the application directory will be created "
+            "here: " + MUSEGUIApplication::appDir() +
+            "<br/><br/>Click the <tt>Finish</tt> button to proceed...");
 }
 
 #endif
