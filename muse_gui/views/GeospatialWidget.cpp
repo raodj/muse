@@ -38,9 +38,9 @@
 
 #include "GeospatialWidget.h"
 
-GeospatialWidget::GeospatialWidget(QWidget *parent)
+GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent) {
-
+    size = tempSize;
 
 }
 
@@ -50,7 +50,10 @@ GeospatialWidget::~GeospatialWidget(){
 
 void GeospatialWidget::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
-    painter.drawEllipse(10, 10, 10, 10);
+    this->resize(size);
+    QPixmap image("/home/kyle/Projects/muse/muse_gui/images/zoom1/0_0.png");
+    painter.drawPixmap(1, 1, 256,256, image);
+    //painter.drawEllipse(10, 10, 100, 100);
 }
 
 

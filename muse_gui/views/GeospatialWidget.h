@@ -38,6 +38,7 @@
 
 #include <QWidget>
 #include <QPainter>
+#include <QSize>
 
 /**
  * @brief The GeospatialWidget class draws an image using GPainter.
@@ -47,9 +48,11 @@ class GeospatialWidget : public QWidget {
     Q_OBJECT
 
 public:
-    GeospatialWidget(GeospatialWidget *parent = 0);
-    GeospatialWidget(QWidget *parent);
+    GeospatialWidget(QWidget *parent, QSize size);
     ~GeospatialWidget();
+
+private:
+    QSize size;
 
 protected:
     void paintEvent(QPaintEvent *e);
