@@ -176,8 +176,9 @@ MainWindow::showJobWizard() {
 
 void
 MainWindow::showWorkspaceWizard() {
-    WorkspaceWizard wiz(MUSEGUIApplication::getWorkspacePaths());
-    wiz.exec();
+    //WorkspaceWizard wiz(MUSEGUIApplication::getWorkspacePaths());
+    WorkspaceDialog dialog(MUSEGUIApplication::getWorkspacePaths());
+    dialog.exec();
 }
 
 void
