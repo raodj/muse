@@ -37,16 +37,10 @@
 //---------------------------------------------------------------------
 
 #include "GeospatialWidget.h"
-//#include <Painter>
-//#include <QPainter>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent)
     : QWidget(parent) {
-    paintCircle();
-//    setFixedSize(200, 200);
-//    setAutoFillBackground(true);
-//    QPainter painter;
-//    paint(&painter);
+
 
 }
 
@@ -54,35 +48,10 @@ GeospatialWidget::~GeospatialWidget(){
 
 }
 
-void GeospatialWidget::paintCircle(){
-    QPainter painter (this);
-    painter.drawEllipse(100, 100, 100, 100);
+void GeospatialWidget::paintEvent(QPaintEvent *e) {
+    QPainter painter(this);
+    painter.drawEllipse(10, 10, 10, 10);
 }
 
-/*
-//void GeospatialWidget::paintEvent(QPainter *painter) {
-//    QPainter painter;
-//    painter.begin(this);
-//    painter.setRenderHint(QPainter::Antialiasing);
-//    paint(&painter, event);
-//    painter.end();
-//}
-*/
-/*
-//void Helper::paint(QPainter *painter, QPaintEvent *event)
-//{
-//    background = QBrush(QColor(64, 32, 64));
-//    circleBrush = QBrush(gradient);
-//    circlePen.setWidth(1);
 
-//    painter->fillRect(event->rect(), background);
-//    painter->translate(100, 100);
-//    painter->save();
-//    painter->setBrush(circleBrush);
-//    painter->setPen(circlePen);
-//    //painter->rotate(elapsed * 0.030);
-
-//    painter->drawCircle(1);
-//    painter->restore();
-//}*/
 #endif
