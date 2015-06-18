@@ -75,6 +75,8 @@ protected slots:
      */
     void showJobWizard();
 
+    void showWorkspaceWizard();
+
 private:
     /**
      * @brief desktop The permanent desktop area for displaying core
@@ -93,6 +95,7 @@ private:
     QMenu fileMenu;
     QAction *newProject;
     QAction *newJob;
+    QAction *switchWorkspace;
 
     /**
      * @brief showServerWidget Displays a server list view in the main frame

@@ -40,7 +40,7 @@
 #include <QList>
 
 #include "Server.h"
-#include "Workspace.h"
+#include "ServerList.h"
 
 /**
  * @brief The ServerListTableModel class The table model for showing a
@@ -50,6 +50,7 @@ class ServerListTableModel : public QAbstractTableModel {
     Q_OBJECT
 public:
     ServerListTableModel();
+
     int rowCount(const QModelIndex & = QModelIndex()) const { servers.size(); }
     int columnCount(const QModelIndex & = QModelIndex()) const { return MAX_COLUMNS; }
 
@@ -58,12 +59,18 @@ public:
 
     static const int MAX_COLUMNS = 3;
 
-public slots:
-    /**
-     * @brief appendServerEntry Adds a server to this ServerListTableModel.
-     * @param server The server to add
-     */
-    void appendServerEntry(Server& server);
+    ServerList *getServerList();
+
+    void addServer(Server &server);
+
+    ServerList servers;
+
+//public slots:
+//    /**
+//     * @brief appendServerEntry Adds a server to this ServerListTableModel.
+//     * @param server The server to add
+//     */
+//    void appendServerEntry(Server& server);
 
 signals:
     /**
@@ -74,7 +81,7 @@ signals:
     void serverAdded();
 
 private:
-    QList<Server> servers;
+    //ServerList servers;
 
 };
 

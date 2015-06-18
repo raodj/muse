@@ -38,7 +38,6 @@
 
 #include "ServerListTableModel.h"
 #include "Core.h"
-#include "Workspace.h"
 
 ServerListTableModel::ServerListTableModel() {
     //Set the column headers
@@ -75,7 +74,7 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     }
 
     //Get the desired row of the server list
-    const Server server = servers.at(index.row());
+    const Server server = servers.get(index.row());
 
     //Return the value corresponding to the column.
     switch (index.column()) {
@@ -86,9 +85,18 @@ ServerListTableModel::data(const QModelIndex &index, int role) const {
     }
 }
 
+ServerList*
+ServerListTableModel::getServerList() {
+    return &servers;
+}
+
 void
-ServerListTableModel::appendServerEntry(Server& server) {
-    //muse::workspace::addServer(server);
+ServerListTableModel::addServer(Server &server) {
+    beginInsertRows(QModelIndex(), servers.size(), servers.size() + 1);
+
+    servers.addServer(server);
+
+    endInsertRows();
 
     emit serverAdded();
 }

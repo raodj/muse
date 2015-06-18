@@ -26,6 +26,7 @@ INCLUDEPATH += core/firstRunWizard
 INCLUDEPATH += core/jobWizard
 INCLUDEPATH += core/serverWizard
 INCLUDEPATH += core/projectWizard
+INCLUDEPATH += core/workspaceWizard
 INCLUDEPATH += views
 INCLUDEPATH += /usr/local/include
 

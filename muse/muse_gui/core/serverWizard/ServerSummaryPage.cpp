@@ -90,29 +90,19 @@ ServerSummaryPage::validatePage() {
     // This normally would return true.
     if (server->getID().isEmpty()) {
         server->setID(ws->reserveID("server"));
-        //server->setID(muse::workspace::reserveID("server"));
     }
-    // Add the server to the workspace
-    //ws->addServerToWorkSpace(*server);
-//    muse::workspace::addServer(*server);
-    //QString err;
-    //err = ws->saveWorkspace();
-    // If err has text, we had a problem.
-    //if (err != "") {
-    //    QMessageBox msgBox;
-    //    msgBox.setWindowTitle("Error saving server to workspace.");
-    //    msgBox.setText(err);
-    //    return false;
-    //}
 
-//    try {
-//        muse::workspace::save();
-//    } catch (...) {
-//        QMessageBox msgBox;
-//        msgBox.setWindowTitle("Error saving server to workspace.");
-//        //msgBox.setText(err);
-//        return false;
-//    }
+    // Add the server to the workspace
+    ws->addServerToWorkSpace(*server);
+    QString err;
+    err = ws->saveWorkspace();
+    // If err has text, we had a problem.
+    if (err != "") {
+        QMessageBox msgBox;
+        msgBox.setWindowTitle("Error saving server to workspace.");
+        msgBox.setText(err);
+        return false;
+    }
 
     // For now, delete the session to avoid memory leaks.
     // When installation gets implemented, this line should be

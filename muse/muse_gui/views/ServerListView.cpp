@@ -46,7 +46,7 @@
 // The constant string that identifies the name of this view
 const QString ServerListView::ViewName = "ServerListView";
 
-ServerListView::ServerListView(QWidget *parent) :
+ServerListView::ServerListView(ServerListTableModel *model, QWidget *parent) :
     View("ServerListView", parent), serverTable(this) {
     //Show a dotted line grid in the view
     serverTable.setShowGrid(true);
@@ -58,11 +58,10 @@ ServerListView::ServerListView(QWidget *parent) :
     // Set the full row to be selected by default
     serverTable.setSelectionBehavior(QAbstractItemView::SelectRows);
 
-    tableModel = std::make_unique<ServerListTableModel>();
-
     //This is probably not the way we actually want to implement this.
     //serverTable.setModel(&Workspace::get()->getTableModel());
-    serverTable.setModel(tableModel.get());
+    //serverTable.setModel(tableModel.get());
+    serverTable.setModel(model);
 
     // Initialize the toolbar buttons
     initializeToolBarButtons();
@@ -74,7 +73,9 @@ ServerListView::ServerListView(QWidget *parent) :
     connect(addServerButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
 
     // Connect the signal to allow the view to update the list.
-    connect(tableModel.get(), SIGNAL(serverAdded()), this, SLOT(updateView()));
+    // connect(tableModel.get(), SIGNAL(serverAdded()), this, SLOT(updateView()));
+    // connect(Workspace::get(), SIGNAL(serverAdded()), this, SLOT(updateView()));
+    connect(model, SIGNAL(serverAdded()), this, SLOT(updateView()));
 }
 
 void

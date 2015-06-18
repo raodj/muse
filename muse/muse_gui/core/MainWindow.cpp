@@ -56,6 +56,9 @@
 #include "JobListView.h"
 #include "GeospatialView.h"
 #include "Models.h"
+#include "Workspace.h"
+#include "WorkspaceWizard.h"
+#include "MUSEGUIApplication.h"
 
 MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent) {
     this->setWindowTitle("MUSE GUI");
@@ -106,7 +109,6 @@ MainWindow::showEvent(QShowEvent *event) {
     showProjectListView();
     showJobListView();
 
-//    muse::model::init();
     showGeospatialView();
 }
 
@@ -116,7 +118,7 @@ MainWindow::showServerListView() {
     // If so do not perfrom any futher operations.
     if (findChild<ServerListView*>(ServerListView::ViewName) == NULL) {
         // Create the widget and set its minimum width.
-        desktop->createSplitPane(new ServerListView(), "Servers",
+        desktop->createSplitPane(new ServerListView(Workspace::get()->getServerListTableModel()), "Servers",
                                  DnDTabBar::LEFT,
                                  QIcon(":/images/16x16/Server.png"));
     }
@@ -173,12 +175,21 @@ MainWindow::showJobWizard() {
 }
 
 void
+MainWindow::showWorkspaceWizard() {
+    WorkspaceWizard wiz(MUSEGUIApplication::getWorkspacePaths());
+    wiz.exec();
+}
+
+void
 MainWindow::createActions() {
     newProject = new QAction("Create New Project", this);
     connect(newProject, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
 
     newJob = new QAction("Create New Job", this);
     connect(newJob, SIGNAL(triggered()), this, SLOT(showJobWizard()));
+
+    switchWorkspace = new QAction("Switch Workspace", this);
+    connect(switchWorkspace, SIGNAL(triggered()), this, SLOT(showWorkspaceWizard()));
 }
 
 void
@@ -186,6 +197,8 @@ MainWindow::createMenus() {
     fileMenu.setTitle("File");
     fileMenu.addAction(newProject);
     fileMenu.addAction(newJob);
+    fileMenu.addSeparator();
+    fileMenu.addAction(switchWorkspace);
 
     menuBar()->addMenu(&fileMenu);
 }

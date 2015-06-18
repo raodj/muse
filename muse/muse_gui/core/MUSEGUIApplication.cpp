@@ -172,7 +172,7 @@ MUSEGUIApplication::addWorkspaceEntry(QString dir) {
 
     QTextStream stream(&out);
 
-    stream << dir;
+    stream << dir << endl;
 }
 
 void

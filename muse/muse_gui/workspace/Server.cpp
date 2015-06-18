@@ -74,7 +74,7 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
                QString pOsType, QString pStatus) :
     ID(pID), remote(pRemote), name(pName), port(pPort),
     description(pDescription), userID(pUserID), installPath(pInstallPath),
-    status(pStatus), osType(pOsType) {
+    status(pStatus), osType(pOsType), XMLElement("Server") {
     // Add the set of instance variables that must be serialized/deserialized.
     addElement(XMLElementInfo("ID",          &ID));
     addElement(XMLElementInfo("Remote",      &remote));
@@ -85,7 +85,7 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
     addElement(XMLElementInfo("InstallPath", &installPath));
     addElement(XMLElementInfo("Status",      &status));
     addElement(XMLElementInfo("OSType",      &osType));
-    addElement(XMLElementInfo("ProjectList", &projects));
+    //addElement(XMLElementInfo("ProjectList", &projects));
 }
 
 bool

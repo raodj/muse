@@ -41,8 +41,6 @@
 
 #include <QTableView>
 
-#include <memory>
-
 /**
  * @brief The ServerListView class Provides a visual, tabular listing of
  * servers that the user has connected to in the past.
@@ -50,7 +48,7 @@
 class ServerListView : public View {
     Q_OBJECT
 public:
-    ServerListView(QWidget* parent = 0);
+    ServerListView(ServerListTableModel *model, QWidget* parent = 0);
 
     /**
      * @brief ViewName A constant string to consistently refer to the name
@@ -75,8 +73,6 @@ private:
     QAction* myJobsButton;
     QAction* serverInfoButton;
     QAction* deleteServerButton;
-
-    std::unique_ptr<ServerListTableModel> tableModel;
 
     /**
      * @brief initializeToolBarButtons Initializes and adds the the buttons
