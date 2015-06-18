@@ -38,9 +38,11 @@
 
 #include "MUSEWizard.h"
 #include <QHBoxLayout>
+#include <QResizeEvent>
+#include <iostream>
 
 MUSEWizard::MUSEWizard(const QFile &file, QWidget *parent) : QWizard(parent),
-    overviewPage(file) {
+    overviewPage(file), topBannerImage(":/images/logo/wizard_header.png") {
     // Let refactored method do rest of the operations.
     setup();
 }
@@ -53,10 +55,11 @@ MUSEWizard::MUSEWizard(const QString& text, QWidget* parent) : QWizard(parent),
 
 void
 MUSEWizard::setup() {
-    // Banner at the top of the wizard
-    setPixmap(QWizard::BannerPixmap,
-              QPixmap(":/images/logo/bannerImg.png"));
-    // Set banners to work correctly with Mac/Linux/Windows
+    // Set preferred style for the wizard (only on Linux?)
+#ifdef Q_OS_LINUX
+    setWizardStyle(QWizard::ModernStyle);
+#endif
+    // Set side banners to work correctly with Mac/Linux/Windows
     setPixmap(QWizard::BackgroundPixmap,
               QPixmap(":/images/logo/columnImg.png"));
     setPixmap(QWizard::WatermarkPixmap,
@@ -70,10 +73,23 @@ MUSEWizard::setup() {
     // Add the overview page as the first page in the wizard.
     addPage(&overviewPage, "Overview");
 
+    // Show help button on the wizard (as a place holder)
+    setOption(QWizard::HaveHelpButton, true);
+
     // Set a preferred sizes (arbitrary sizes) for the wizard
-    this->setMinimumSize(250,  100);
+    this->setMinimumSize(400,  100);
     this->setMaximumSize(1024, 768);
     this->resize(700, 500);
+}
+
+void
+MUSEWizard::resizeEvent(QResizeEvent *event) {
+    QWizard::resizeEvent(event);
+    QPixmap clipBanner = topBannerImage.copy(topBannerImage.width() -
+                                             event->size().width(), 0,
+                                             topBannerImage.width(),
+                                             topBannerImage.height());
+    setPixmap(QWizard::BannerPixmap, clipBanner);
 }
 
 int
@@ -96,10 +112,23 @@ MUSEWizard::addPage(QWizardPage *page, const QString& stepName,
     // Save labels for updates as user navigates through wizard page.
     steps.append(box);
     steps.append(step);
+    // Decorate the title and subtitle as needed
+    decorateTitles(page);
     // Let base clas handle actual addition of the page.
     return QWizard::addPage(page);
 }
 
+void
+MUSEWizard::decorateTitles(QWizardPage *page) {
+    if (this->wizardStyle() == QWizard::ModernStyle) {
+        const QString colorFormat = "<font color=#ffffff>%1</font>";
+        QString whiteMainTitle = colorFormat.arg(page->title());
+        QString whiteSubTitle  = colorFormat.arg(page->subTitle());
+        // Set the formatted titles
+        page->setTitle(whiteMainTitle);
+        page->setSubTitle(whiteSubTitle);
+    }
+}
 
 void
 MUSEWizard::initializePage(int id) {

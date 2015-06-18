@@ -57,7 +57,7 @@ WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) 
     QDialog(parent) {
     // Set a background image at the top to make the dialog box look pretty
     QPalette palette;
-    QPixmap bgImg(":/images/logo/bannerImg.png");
+    QPixmap bgImg(":/images/logo/workspace_header.png");
     palette.setBrush(QPalette::Background, bgImg);
     setPalette(palette);
     // Add "known" workspace paths to the dialog box.
@@ -72,8 +72,9 @@ WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) 
     // Organize the tab with a nice label on top. The label should become
     // an image to make things look nice.
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addWidget(new QLabel("\nMiami University Simulation Environment (MUSE)\n"));
+    layout->addSpacing(72);
     layout->addWidget(tabWidget);
+    layout->setMargin(2);
     // Set the layout and control the maximum size to make background
     // and images look nice.
     setLayout(layout);
