@@ -53,6 +53,7 @@ public:
 
 private:
     QSize size;
+    int zoomLevel;
 
 protected:
     void paintEvent(QPaintEvent *e);

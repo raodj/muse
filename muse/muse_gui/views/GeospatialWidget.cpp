@@ -37,10 +37,13 @@
 //---------------------------------------------------------------------
 
 #include "GeospatialWidget.h"
+#include "MUSEGUIApplication.h"
+#include <iostream>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent) {
     size = tempSize;
+    zoomLevel = 1;
 
 }
 
@@ -51,9 +54,22 @@ GeospatialWidget::~GeospatialWidget(){
 void GeospatialWidget::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
     this->resize(size);
-    QPixmap image("/home/kyle/Projects/muse/muse_gui/images/zoom1/0_0.png");
-    painter.drawPixmap(1, 1, 256,256, image);
-    //painter.drawEllipse(10, 10, 100, 100);
+    //painter.drawEllipse(10,10,10,10);
+    switch (zoomLevel){
+        default:
+        case 1:
+            for (int i = 0; i < 4; i++){
+                for (int j = 0; j < 4; j++){
+                    //painter.drawText(MUSEGUIApplication::appDir());
+                    //QPixmap image((QString)MUSEGUIApplication::appDir() + "/maps/zoom1/1_0.png");
+                    //QPixmap image((Qstring)MUSEGUIApplication::appDir() + "/maps/zoom1/" + j + "_" + i + ".png");
+                    //painter.drawPixmap(j*256, i*256, 256,256, image);
+                    //painter.drawEllipse(i,j,10,10);
+                }
+            }
+            break;
+    }
+
 }
 
 
