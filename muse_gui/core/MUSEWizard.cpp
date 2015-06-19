@@ -61,9 +61,9 @@ MUSEWizard::setup() {
 #endif
     // Set side banners to work correctly with Mac/Linux/Windows
     setPixmap(QWizard::BackgroundPixmap,
-              QPixmap(":/images/logo/columnImg.png"));
-    setPixmap(QWizard::WatermarkPixmap,
-              QPixmap(":/images/logo/columnImg.png"));
+              QPixmap(":/images/logo/columnBright.png"));
+    // setPixmap(QWizard::WatermarkPixmap,
+    //          QPixmap(":/images/logo/column_background.png"));
 
     // Create a side bar to list title of various pages in the wizard
     mainLayout = new QVBoxLayout();
@@ -98,7 +98,7 @@ MUSEWizard::addPage(QWizardPage *page, const QString& stepName,
     QLabel* const box = new QLabel();
     box->setPixmap(QPixmap(":/images/16x16/BoxWhite.png"));
     QLabel* const step = new QLabel(stepName);
-    step->setStyleSheet("QLabel { color : white; }");
+    // step->setStyleSheet("QLabel { color : white; }");
     // Organize and add checkbox label and step-name to wizard.
     QHBoxLayout* row = new QHBoxLayout();
     row->addWidget(box);
@@ -144,8 +144,8 @@ MUSEWizard::cleanupPage(int id) {
 
 void
 MUSEWizard::applyCheckMarks(const int pageId) {
-    static const QPixmap box(":/images/16x16/BoxWhite.png");
-    static const QPixmap checkBox(":/images/16x16/CheckedBoxWhite.png");
+    static const QPixmap box(":/images/16x16/Box.png");
+    static const QPixmap checkBox(":/images/16x16/CheckedBox.png");
 
     for(int i = 0; i < steps.size(); i += 2) {
         steps.at(i)->setPixmap((pageId > i / 2) ? checkBox : box);

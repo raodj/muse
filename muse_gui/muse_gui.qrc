@@ -41,10 +41,10 @@
     </qresource>
     <qresource prefix="/images/logo">
         <file alias="MuseLogo.jpg">images/logo/muse_small_header.jpg</file>
-        <file alias="columnImg.png">images/logo/peace_wizard_column.png</file>
         <file alias="columnBright.png">images/logo/peace_wizard_column_brightened.png</file>
         <file alias="gplv3.png">images/logo/gplv3.png</file>
         <file alias="wizard_header.png">images/logo/wizard_header.png</file>
         <file alias="workspace_header.png">images/logo/workspace_header.png</file>
+        <file alias="column_background.png">images/logo/column_background.png</file>
     </qresource>
 </RCC>
