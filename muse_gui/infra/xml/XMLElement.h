@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "XMLElementInfo.h"
+#include "XMLMetaTypeHelper.h"
 #include <QMetaType>
 #include <QVector>
 #include <QXmlStreamReader>
@@ -103,6 +104,10 @@ class QXmlStreamWriter;
  *    QList<XMLElement*> addresses;
  * };
  *
+ * // Register custom helpers to tie into Qt's type system
+ * DECLARE_METATYPE_HELPER(Person)
+ *
+ * // Declare interface for Qt's meta type system
  * Q_DECLARE_METATYPE(Person)
  *
  * \endcode
@@ -447,5 +452,11 @@ private:
      */
     SubElementList subElemList;
 };
+
+// Define custom template specialization class for XMLElement
+DECLARE_METATYPE_HELPER(XMLElement)
+
+// Declare additional information required by Qt's meta type system
+Q_DECLARE_METATYPE(XMLElement)
 
 #endif // XMLELEMENT_H

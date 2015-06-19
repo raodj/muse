@@ -192,7 +192,8 @@ HEADERS  += \
     views/GeospatialView.h \
     views/GeospatialWidget.h \
     core/workspaceWizard/WorkspaceSelectPage.h \
-    core/workspaceWizard/WorkspaceDialog.h
+    core/workspaceWizard/WorkspaceDialog.h \
+    infra/xml/XMLMetaTypeHelper.h
 
 RESOURCES += \
     muse_gui.qrc

@@ -419,4 +419,10 @@ private:
     ProjectList projects;
 };
 
+// Define custom template specialization class
+DECLARE_METATYPE_HELPER(Server)
+
+// Declare additional information required by Qt's meta type system
+Q_DECLARE_METATYPE(Server)
+
 #endif // SERVER_H
