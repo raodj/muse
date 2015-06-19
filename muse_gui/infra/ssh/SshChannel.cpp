@@ -39,9 +39,11 @@
 #include "SshChannel.h"
 #include <QFile>
 #include <QFileInfo>
-#include <stdio.h>
 #include <QMessageBox>
 
+#include <cstdio>
+
+#include <fstream>
 #include <array>
 #include <algorithm>
 
@@ -65,11 +67,11 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
     size_t readToBuffer;
     QString remoteFilePath = destDirectory +
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
-    unsigned long notRead = fileInfo.size();
+    size_t notRead = fileInfo.size();
 
     // Send a file via scp. The mode parameter must only have permissions!
     channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode,
-                              (unsigned long)notRead);
+                               notRead);
 
     // If the channel isn't open.
     if (!channel) {
@@ -80,13 +82,13 @@ SshChannel::copy(const QString &srcDir, const QString &destDirectory,
 
     char buffer[1024];
     char* ptr;
-    size_t bytesWritten;
+    ssize_t bytesWritten;
 
     while (notRead > 0) {
         readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
         ptr = buffer;
 
-        while (readToBuffer != 0){
+        while (readToBuffer != 0) {
             //write the same data over and over, until error or completion
             bytesWritten = libssh2_channel_write(channel, ptr, readToBuffer);
 

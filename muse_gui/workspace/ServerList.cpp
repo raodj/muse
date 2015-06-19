@@ -45,13 +45,18 @@ ServerList::ServerList() : XMLElement("ServerList") {
     addElement(XMLElementInfo("Server", &servers));
 }
 
+ServerList::ServerList(const ServerList &list) : XMLElement("ServerList") {
+    servers = list.servers;
+   // addElement(XMLElementInfo("Server", &servers));
+}
+
 void
 ServerList::addServer(const Server &entry) {
    Server* server = new Server(entry.getID(), entry.isRemote(), entry.getName(), entry.getPort(),
                                entry.getDescription(), entry.getUserID(), entry.getInstallPath(),
                                entry.getOS(), entry.getStatus());
    servers.append(server);
-   // Connect the server's signals to this list's slot
+   //addElement(XMLElementInfo("Server", server));
    QObject::connect(server, SIGNAL(serverUpdated(Server)),
                     this, SLOT(serverUpdated(Server)));
    // Fire signal indicating change to the server list.

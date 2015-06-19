@@ -167,6 +167,9 @@ public:
            QString description = "", QString userID = "", QString installPath = "",
            QString osType = UnknownOS, QString status = Installing);
 
+    Server(const Server& server);
+    //Server();
+
     bool operator==(const Server other);
 
     /**
