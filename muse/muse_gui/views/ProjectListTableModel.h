@@ -43,14 +43,14 @@
 //#define MAX_COLUMNS 2
 static const int MAX_COLUMNS = 2;
 
-class ProjectListItem {
-public:
-    ProjectListItem(Project ip, Server is) {}
-        // : project(ip), server(is) {}
+//class ProjectListItem {
+//public:
+//    ProjectListItem(Project ip, Server is) {}
+//        // : project(ip), server(is) {}
 
-    Project project;
-    Server server;
-};
+//    Project project;
+//    Server server;
+//};
 
 class ProjectListTableModel : public QAbstractTableModel {
     Q_OBJECT
@@ -81,7 +81,7 @@ signals:
     void projectAdded();
 
 private:
-    QList<ProjectListItem> projectEntries;
+    QList<Project> projectEntries;
 };
 
 #endif

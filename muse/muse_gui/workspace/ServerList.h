@@ -60,6 +60,10 @@ public:
      */
     ServerList();
 
+    ServerList(const ServerList &list);
+
+    int getListSize() const { return servers.size(); }
+
     /**
      * @brief ~ServerList The destructor.
      *

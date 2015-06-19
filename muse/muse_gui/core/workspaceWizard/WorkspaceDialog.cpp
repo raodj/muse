@@ -95,15 +95,15 @@ WorkspaceDialog::createWorkspaceTab() {
 
     QPushButton *newWorkspaceButton = new QPushButton();
     newWorkspaceButton->setText("Browse");
-    connect(newWorkspaceButton, SIGNAL(released()), this, SLOT(createNewWorkspace()));
+    connect(newWorkspaceButton, SIGNAL(clicked()), this, SLOT(createNewWorkspace()));
 
     QPushButton *selectWorkspaceButton = new QPushButton();
     selectWorkspaceButton->setText("Ok");
-    connect(selectWorkspaceButton, SIGNAL(released()), this, SLOT(workspaceSelected()));
+    connect(selectWorkspaceButton, SIGNAL(clicked()), this, SLOT(workspaceSelected()));
 
     QPushButton *cancelButton = new QPushButton();
     cancelButton->setText("Cancel");
-    connect(cancelButton, SIGNAL(released()), this, SLOT(reject()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     QHBoxLayout *selectorLayout = new QHBoxLayout();
     selectorLayout->addWidget(&workspaceSelector, 1);

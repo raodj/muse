@@ -41,6 +41,7 @@
 #include <QMetaType>
 #include <QVector>
 #include <QXmlStreamReader>
+#include <QObject>
 
 /**
  * @brief SubElementList Convenience typedef to provide shortcut to

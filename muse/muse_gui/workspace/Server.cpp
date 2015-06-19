@@ -88,6 +88,22 @@ Server::Server(QString pID, bool pRemote, QString pName, int pPort,
     //addElement(XMLElementInfo("ProjectList", &projects));
 }
 
+Server::Server(const Server &server) : XMLElement("Server"),
+    ID(server.ID), remote(server.remote), name(server.name),
+    port(server.port), description(server.description),
+    userID(server.userID), installPath(server.installPath),
+    status(server.status), osType(server.osType) {
+    addElement(XMLElementInfo("ID",          &ID));
+    addElement(XMLElementInfo("Remote",      &remote));
+    addElement(XMLElementInfo("Name",        &name));
+    addElement(XMLElementInfo("Port",        &port));
+    addElement(XMLElementInfo("Description", &description));
+    addElement(XMLElementInfo("UserID",      &userID));
+    addElement(XMLElementInfo("InstallPath", &installPath));
+    addElement(XMLElementInfo("Status",      &status));
+    addElement(XMLElementInfo("OSType",      &osType));
+}
+
 bool
 Server::operator==(const Server other) {
     return ID == other.getID() && remote == other.isRemote() && name == other.getName()

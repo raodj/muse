@@ -90,6 +90,7 @@ Workspace::registerClasses() {
     // Register all the underlying sub-elements for unmarshalling
     qRegisterMetaType<ServerList>("ServerList");
     qRegisterMetaType<Server>("Server");
+    qRegisterMetaType<XMLElement>("XMLElement");
 //    qRegisterMetaType<ProjectList>("ProjectList");
 //    qRegisterMetaType<Project>("Project");
 //    qRegisterMetaType<JobList>("JobList");
@@ -117,6 +118,8 @@ Workspace::createWorkspace(const QString &directory) {
     if (workspace != NULL) {
         delete workspace;
     }
+
+    registerClasses();
 
     QDir dir(directory);
     QString wsDir = dir.absolutePath() + QDir::separator();
@@ -191,7 +194,7 @@ Workspace::useWorkspace(const QString &directory) {
 
 QString
 Workspace::saveWorkspace() {
-    const QString filePath = directory + QDir::separator() + workspaceFileName;
+    const QString filePath = directory + workspaceFileName;
     XMLParser saver;
 
     return saver.saveXML(filePath, *workspace);
