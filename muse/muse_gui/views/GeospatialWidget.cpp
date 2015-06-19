@@ -39,6 +39,7 @@
 #include "GeospatialWidget.h"
 #include "MUSEGUIApplication.h"
 #include <iostream>
+#include <vector>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent) {
@@ -54,21 +55,28 @@ GeospatialWidget::~GeospatialWidget(){
 void GeospatialWidget::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
     this->resize(size);
-    //painter.drawEllipse(10,10,10,10);
-    switch (zoomLevel){
-        default:
-        case 1:
-            for (int i = 0; i < 4; i++){
-                for (int j = 0; j < 4; j++){
-                    //painter.drawText(MUSEGUIApplication::appDir());
-                    //QPixmap image((QString)MUSEGUIApplication::appDir() + "/maps/zoom1/1_0.png");
-                    //QPixmap image((Qstring)MUSEGUIApplication::appDir() + "/maps/zoom1/" + j + "_" + i + ".png");
-                    //painter.drawPixmap(j*256, i*256, 256,256, image);
-                    //painter.drawEllipse(i,j,10,10);
-                }
-            }
+
+    std::vector< std::vector<QPixmap> > world;
+
+    /*
+    for (int i = 0;; i++){
+        if (QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_0.png").isNull){
             break;
+        }
+        std::vector<QPixmap> row();
+
+        for (int j = 0; !QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_" + QString(j+48) + ".png").isNull; j++){
+            row.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png"));
+        }
     }
+
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 2; j++){
+            //QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png");
+            painter.drawPixmap(j*256, i*256, image.width(), image.height(), world[i][j]);
+        }
+    }
+    */
 
 }
 
