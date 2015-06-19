@@ -46,5 +46,7 @@
         <file alias="wizard_header.png">images/logo/wizard_header.png</file>
         <file alias="workspace_header.png">images/logo/workspace_header.png</file>
         <file alias="column_background.png">images/logo/column_background.png</file>
+        <file alias="muse_white_logo.png">images/logo/muse_white_logo.png</file>
+        <file alias="pc2lab_logo.png">images/logo/pc2lab_logo.png</file>
     </qresource>
 </RCC>
