@@ -116,4 +116,13 @@
 */
 #define FULL_TITLE "Miami University Simulation Environment (MUSE)"
 
+/** \def LAB_INFO_HTML Information about lab in HTML format.
+ *
+ * This constant provides a convenient way to display PC2Lab information
+ * and such using a QLabel.
+*/
+#define LAB_INFO_HTML "<font size=\"-1\"><b>Parallel & Cloud Computing (PC2) Lab</b><br/>" \
+    "Miami University, Oxford, OHIO 45056<br/>" \
+    "Copyright (C) 2013-</font>"
+
 #endif // VERSION_H

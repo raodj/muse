@@ -69,12 +69,19 @@ WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) 
     tabWidget->addTab(createWorkspaceTab(), "Workspace");
     tabWidget->addTab(createLicenseTab(), "License");
 
-    // Organize the tab with a nice label on top. The label should become
-    // an image to make things look nice.
+    // Organize the tab with a nice label on top that is right justified
+    QLabel *logoLabel = new QLabel(this);
+    logoLabel->setPixmap(QPixmap(":/images/logo/muse_white_logo.png"));
+    QHBoxLayout *logoPanel = new QHBoxLayout();
+    logoPanel->addStretch();
+    logoPanel->addWidget(logoLabel);
+    logoPanel->addStretch();
+    // Create the top-level layout
     QVBoxLayout *layout = new QVBoxLayout();
-    layout->addSpacing(72);
+    layout->addSpacing(5);
+    layout->addLayout(logoPanel);
     layout->addWidget(tabWidget);
-    layout->setMargin(2);
+    layout->setMargin(3);
     // Set the layout and control the maximum size to make background
     // and images look nice.
     setLayout(layout);
@@ -101,8 +108,13 @@ WorkspaceDialog::createWorkspaceTab() {
     selectorLayout->addWidget(&workspaceSelector, 1);
     selectorLayout->addWidget(newWorkspaceButton, 0);
 
+    // Create label with lab logo and information.
+    QLabel *labLogo = new QLabel();
+    labLogo->setPixmap(QPixmap(":/images/logo/pc2lab_logo.png"));
     QHBoxLayout *bottomLayout = new QHBoxLayout();
-    bottomLayout->addWidget(new QLabel(MUSE_GUI_COPYRIGHT), 1);
+    bottomLayout->addWidget(labLogo);
+    bottomLayout->addWidget(new QLabel(LAB_INFO_HTML), 1);
+    bottomLayout->addSpacing(32);
     bottomLayout->addWidget(selectWorkspaceButton);
     bottomLayout->addWidget(cancelButton);
 
@@ -111,7 +123,6 @@ WorkspaceDialog::createWorkspaceTab() {
     mainLayout->addLayout(selectorLayout);
     mainLayout->addSpacing(100);
     mainLayout->addLayout(bottomLayout);
-
     widget->setLayout(mainLayout);
 
     return widget;
