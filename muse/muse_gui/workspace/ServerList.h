@@ -176,4 +176,10 @@ private:
     // Currently this class does not have any private members.
 };
 
+// Define custom template specialization class
+DECLARE_METATYPE_HELPER(ServerList)
+
+// Declare additional information required by Qt's meta type system
+Q_DECLARE_METATYPE(ServerList)
+
 #endif // SERVER_LIST_H

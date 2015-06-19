@@ -64,6 +64,7 @@ WorkspaceDialog::WorkspaceDialog(std::vector<QString> options, QWidget *parent) 
     for (auto &option : options) {
         workspaceSelector.addItem(option, QVariant(option));
     }
+    workspaceSelector.setEditable(true);
     // Create the tabbed display widget with 2 tabs created using helpers
     QTabWidget *tabWidget = new QTabWidget();
     tabWidget->addTab(createWorkspaceTab(), "Workspace");

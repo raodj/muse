@@ -88,8 +88,8 @@ Workspace::Workspace(const QString& dir, bool isValid) :
 void
 Workspace::registerClasses() {
     // Register all the underlying sub-elements for unmarshalling
-    // qRegisterMetaType<ServerList>("ServerList");
-    // qRegisterMetaType<Server>("Server");
+    qRegisterMetaType<ServerList>("ServerList");
+    qRegisterMetaType<Server>("Server");
 //    qRegisterMetaType<ProjectList>("ProjectList");
 //    qRegisterMetaType<Project>("Project");
 //    qRegisterMetaType<JobList>("JobList");

@@ -149,7 +149,13 @@ int
 XMLElementInfo::getType(const QString& typeName) {
     // Check if we have a valid mapping. If so, we are all set.
     if (TypeNameMap.contains(typeName)) {
-        return QMetaType::type(TypeNameMap[typeName].toStdString().c_str());
+        int qtTypeId = QMetaType::type(TypeNameMap[typeName].toStdString().c_str());
+        if (qtTypeId == QMetaType::UnknownType) {
+            std::cerr << "A valid type mapping for type " << typeName.toStdString()
+                      << " was not found in Qt. Ensure the type is registered.\n";
+            Q_ASSERT(qtTypeId != QMetaType::UnknownType);  // Will fail, per design
+        }
+        return qtTypeId;
     }
     // When control drops here, then we don't have a known mapping.
     // Let's try to see if the default typename works out.
