@@ -42,6 +42,7 @@
 #include <QTimer>
 #include <QShowEvent>
 #include <QMenuBar>
+#include <QMessageBox>
 
 #include "MainWindow.h"
 #include "Core.h"
@@ -53,7 +54,6 @@
 #include "JobWizard.h"
 #include "ServerListView.h"
 #include "GeospatialView.h"
-#include "Models.h"
 #include "Workspace.h"
 #include "WorkspaceDialog.h"
 #include "MUSEGUIApplication.h"
@@ -185,6 +185,32 @@ MainWindow::showWorkspaceWizard() {
 }
 
 void
+MainWindow::quitMUSE() {
+    Workspace *ws = Workspace::get();
+
+    // save the current workspace before we quit, just to make sure every change
+    // the user made gets saved
+    QString error = ws->saveWorkspace();
+
+    // if there was a problem with saving, let the user know, and ask them if
+    // they want to continue exiting MUSE
+    if (error != "") {
+        QMessageBox::StandardButton reply =
+                QMessageBox::question(this, "Error",
+                                      "There was a problem saving the workspace:"
+                                      + error + ".  Do you still wish to exit MUSE?",
+                                      QMessageBox::Yes | QMessageBox::No);
+
+        if (reply == QMessageBox::No) {
+            return;
+        }
+    }
+
+    // exit MUSE with a return code of 0
+    QApplication::exit();
+}
+
+void
 MainWindow::createActions() {
     newProject = new QAction("Create New Project", this);
     connect(newProject, SIGNAL(triggered()), this, SLOT(showProjectWizard()));
@@ -194,6 +220,9 @@ MainWindow::createActions() {
 
     switchWorkspace = new QAction("Switch Workspace", this);
     connect(switchWorkspace, SIGNAL(triggered()), this, SLOT(showWorkspaceWizard()));
+
+    quit = new QAction("Exit MUSE", this);
+    connect(quit, SIGNAL(triggered()), this, SLOT(quitMUSE()));
 }
 
 void
@@ -203,6 +232,8 @@ MainWindow::createMenus() {
     fileMenu.addAction(newJob);
     fileMenu.addSeparator();
     fileMenu.addAction(switchWorkspace);
+    fileMenu.addSeparator();
+    fileMenu.addAction(quit);
 
     menuBar()->addMenu(&fileMenu);
 }
