@@ -104,6 +104,7 @@ ServerListTableModel::handleServerChange(ChangeKind change,
     case ENTRY_DELETED:
         beginRemoveRows(QModelIndex(), start, end);
         endRemoveRows();
+        break;
     default:
         progLog() << QString("Unhandled ServerList change encountered.")
                   << endl;

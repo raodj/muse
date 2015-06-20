@@ -115,15 +115,28 @@ Workspace::isWorkspace(const QString &directory) {
 QString
 Workspace::createWorkspace(const QString &directory) {
     // Clear out existing workspace (if any)
-    if (workspace != NULL) {
-        delete workspace;
-    }
+    //if (workspace != NULL) {
+    //    delete workspace;
+    //}
 
     registerClasses();
 
     QDir dir(directory);
     QString wsDir = dir.absolutePath() + QDir::separator();
-    workspace = new Workspace(wsDir, true);
+
+    // if we are creating a workspace when the gui is first started then the
+    // workspace object will be NULL and we need to create it.  If we are
+    // simply changing workspaces into a new one, we need to update this workspace
+    // object, it cant just be deleted and new'd again because the view models
+    // rely on it existing
+    if (workspace == NULL) {
+        workspace = new Workspace(wsDir, true);
+    } else {
+        workspace->serverList.clear();
+        workspace->directory = wsDir;
+        workspace->timestamp = QDateTime::currentDateTime();
+        workspace->seqCounter = 0;
+    }
 
     // Write the workspace to the workspace file in the given directory.
     const QString xmlFileName = wsDir + workspaceFileName;
@@ -160,24 +173,44 @@ Workspace::useWorkspace(const QString &directory) {
     XMLParser xmlParser;
     QDir dir(directory);
     const QString wsDir = dir.absolutePath() + QDir::separator();
-    Workspace *ws = new Workspace();
+    //Workspace *ws = new Workspace();
     QString errMsg;
     QString schemaFile = ":/resources/muse_gui.xsd";
 
+    // if we are creating a workspace when the gui is first started then the
+    // workspace object will be NULL and we need to create it.  If we are
+    // simply changing workspaces into a new one, we need to update this workspace
+    // object, it cant just be deleted and new'd again because the view models
+    // rely on it existing
+    if (workspace == NULL) {
+        workspace = new Workspace(wsDir, true);
+    } else {
+        workspace->serverList.clear();
+    }
+
+    Workspace *temp = new Workspace();
+
     if ((errMsg = xmlParser.loadXML(wsFile.filePath(),
-                                    schemaFile, *ws)) != "") {
+                                    schemaFile, *temp)) != "") {
         // Error occurred. Do no further operations.
-        delete ws;
+        //delete ws;
+        delete temp;
         return errMsg;
     }
 
-    // Workspace loaded successfully! Update reference to workspace
-    if (workspace != NULL) {
-        // Clear out existing workspace.
-        delete workspace;
+    for (int i = 0; i < temp->serverCount(); i++) {
+        workspace->serverList.addServer(temp->serverList.get(i));
     }
 
-    workspace = ws;
+    delete temp;
+
+    // Workspace loaded successfully! Update reference to workspace
+    //if (workspace != NULL) {
+        // Clear out existing workspace.
+    //    delete workspace;
+    //}
+
+    //workspace = ws;
     workspace->isGood = true; // Set the workspace is in good condition.
 
     // Write the loaded data to programmer logs for cross reference.
