@@ -138,8 +138,10 @@ XMLElementInfo::~XMLElementInfo() {
     if (isList && isUserType()) {
         QList<XMLElement*>& list =
             *reinterpret_cast<QList<XMLElement*>*>(pointer);
-        for(int i = 0; (i < list.size()); i++) {
-            delete list[i];
+        std::cout << "size: " <<  list.size() << std::endl;
+        for(int i = 0; i < list.size(); i++) {
+            if (list[i] != NULL)
+                delete list[i];
         }
         
     }

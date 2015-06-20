@@ -64,6 +64,15 @@ ServerList::addServer(const Server &entry) {
    emit serverChanged(ENTRY_INSERTED, index, index);
 }
 
+void
+ServerList::clear() {
+    int size = servers.size();
+    servers.clear();
+    for (int i = 0; i < size; i++) {
+        emit serverChanged(ENTRY_DELETED, i, i);
+    }
+}
+
 int
 ServerList::getIndex(const QString& serverID) const {
     for (int i = 0; (i < servers.size()); i++) {

@@ -91,6 +91,11 @@ public:
     void addServer(const Server& entry);
 
     /**
+     * @brief clear Clear all servers in the list
+     */
+    void clear();
+
+    /**
      * @brief size Returns the number of server entries in this list.
      *
      * @return The number of server entries. This method returns zero
