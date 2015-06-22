@@ -40,15 +40,17 @@
 #include "ServerList.h"
 #include <QDebug>
 
+#include <iostream>
+
 ServerList::ServerList() : XMLElement("ServerList") {
     // Register elements in the order in which they shlould occur.
     addElement(XMLElementInfo("Server", &servers));
 }
 
-ServerList::ServerList(const ServerList &list) : XMLElement("ServerList") {
-    servers = list.servers;
-   // addElement(XMLElementInfo("Server", &servers));
-}
+//ServerList::ServerList(const ServerList &list) : XMLElement("ServerList") {
+//    servers = list.servers;
+//   // addElement(XMLElementInfo("Server", &servers));
+//}
 
 void
 ServerList::addServer(const Server &entry) {
@@ -66,11 +68,11 @@ ServerList::addServer(const Server &entry) {
 
 void
 ServerList::clear() {
-    int size = servers.size();
-    servers.clear();
-    for (int i = 0; i < size; i++) {
+    for (int i = servers.size(); i >= 0; i--) {
         emit serverChanged(ENTRY_DELETED, i, i);
     }
+
+    servers.clear();
 }
 
 int

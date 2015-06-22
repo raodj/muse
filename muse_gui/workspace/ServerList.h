@@ -60,7 +60,7 @@ public:
      */
     ServerList();
 
-    ServerList(const ServerList &list);
+//    ServerList(const ServerList &list);
 
     int getListSize() const { return servers.size(); }
 
@@ -116,6 +116,8 @@ public:
      * @return A reference to the server entry at the given location.
      */
     Server& get(const int i) { return *dynamic_cast<Server*>(servers[i]); }
+
+    Server getServer(const int i) { return *dynamic_cast<Server*>(servers[i]); }
 
     /**
      * @brief getIndex Obtain index position of a given entry.
