@@ -55,8 +55,14 @@ GeospatialWidget::~GeospatialWidget(){
 void GeospatialWidget::paintEvent(QPaintEvent *e) {
     QPainter painter(this);
     this->resize(size);
+    int i = 0;
+    int j = 0;
+    
 
-    std::vector< std::vector<QPixmap> > world;
+    QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_" + QString(j+48) + ".png");
+    painter.drawPixmap(0, 0, image.width(), image.height(), image);
+
+    //std::vector< std::vector<QPixmap> > world;
 
     /*
     for (int i = 0;; i++){
