@@ -55,16 +55,14 @@ void
 RSSAsyncHelper<RetVal>::run() {
     try {
         *result = method();
-    }
-    catch (const SshException &e) {
+    } catch (const SshException &e) {
         const QString exceptionDetails =
                 e.getErrorDetails().arg(e.getFileName(), QString::number(e.getLineNumber()),
                                  e.getMethodName(), QString::number(e.getSshErrorCode()),
                                  QString::number(e.getNetworkErrorCode()));
         emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
                              exceptionDetails);
-    }
-    catch (const std::exception& e ) {
+    } catch (const std::exception& e ) {
         emit exceptionThrown(e.what());
     }
 

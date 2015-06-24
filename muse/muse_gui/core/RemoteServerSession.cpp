@@ -74,26 +74,32 @@ RemoteServerSession::connectToServer() {
     connect(socket, SIGNAL(needCredentials(QString*, QString*)),
             &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
 
-    // Allow prompts for an unknown host to display
-    connect(socket->getKnownHosts(), SIGNAL(displayMessageBox(const QString&,
-                                                const QString&, const QString&,
-                                                const QString&, int*)),
-            &threadGUI, SLOT(promptUser(const QString&, const QString&,
-                                  const QString&, const QString&, int*)));
+    auto signal = SIGNAL(displayMessageBox(const QString&, const QString&,
+                                           const QString&, const QString&,
+                                           int*));
 
-    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket, std::bind(&SshSocket::connectToHost, socket,
-                                        server->getName(),
-                                        (QProgressDialog *) NULL,
-                                        server->getPort(),
-                                        QAbstractSocket::ReadWrite));
+    auto slot = SLOT(promptUser(const QString&, const QString&,
+                                const QString&, const QString&, int*));
+
+    // Allow prompts for an unknown host to display
+    connect(socket->getKnownHosts(), signal, &threadGUI, slot);
+
+    auto function = std::bind(&SshSocket::connectToHost, socket, server->getName(), nullptr,
+                              server->getPort(), QAbstractSocket::ReadWrite);
+
+    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket,
+                                                          function);
     socket->changeToThread(test);
 
     // Allow us to show exception dialog
     connect(test, SIGNAL(exceptionThrown(QString,QString,QString)),
             &threadGUI, SLOT(showException(QString,QString,QString)));
+
     test->start();
+
     // When the thread has completed, let the caller know the result.
     connect(test, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+
     // Delete the thread from memory once all of its tasks are complete.
     connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
 

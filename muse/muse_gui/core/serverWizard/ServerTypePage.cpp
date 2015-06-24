@@ -190,26 +190,28 @@ ServerTypePage::getUserName() {
 
 bool
 ServerTypePage::validatePage() {
-
-    if (! remoteConnectionVerified) {
+    if (!remoteConnectionVerified) {
         prgDialog.setVisible(true);
+
         // Make the server variable
         Server* server = new Server("", ((serverTypeSelector->currentIndex()) == REMOTE_SERVER_INDEX),
                                     serverName.text(), portNumber.value(), "", userId.text());
+
         // Specific operations for remote server.
         if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
             // Set the password, since we have it
             server->setPassword(password.text());
+
             // Make a session with the server
             serverSession = new RemoteServerSession(server);
-            //serverSession = rss;
+
             // Connect signal to find out the result of the connection.
             connect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
                     this, SLOT(checkConnectionTesterResult(bool)));
-        }
-        else {
+        } else {
             serverSession = new LocalServerSession(server);
         }
+
         // Let the other pages know we have made a server sesion
         emit serverSessionCreated(serverSession);
 
@@ -217,16 +219,20 @@ ServerTypePage::validatePage() {
         if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
             // Connect to the server.
             serverSession->connectToServer();
+
             // Stay on the page for now.
             return false;
         }
     }
-        // Hide the progress dialog
-        prgDialog.setVisible(false);
-        // If anyone returns to this page, they must verify everything again.
-        remoteConnectionVerified = false;
-        // Advance if we support the server's OS.
-        return verifyOS();
+
+    // Hide the progress dialog
+    prgDialog.setVisible(false);
+
+    // If anyone returns to this page, they must verify everything again.
+    remoteConnectionVerified = false;
+
+    // Advance if we support the server's OS.
+    return verifyOS();
 }
 
 void
@@ -247,9 +253,12 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
 
 bool
 ServerTypePage::verifyOS() {
-    QString out, err;
+    QString out;
+    QString err;
+
     // Verify the Operating System of the server
-    int returnCode = serverSession->exec("uname -a", out, err) ;
+    int returnCode = serverSession->exec("uname -a", out, err);
+
     // Inform the user of the result.
     QMessageBox msgBox;
     msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
@@ -266,6 +275,7 @@ ServerTypePage::verifyOS() {
                 setOS( out.contains("Linux", Qt::CaseInsensitive) ?
                            Server::Linux : Server::Unix);
     }
+
     return returnCode == SUCCESS_CODE;
 }
 
