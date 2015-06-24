@@ -75,14 +75,13 @@ void GeospatialWidget::paintEvent(QPaintEvent *e) {
             row.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png"));
         }
     }
-
+    */
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
-            //QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png");
-            painter.drawPixmap(j*256, i*256, image.width(), image.height(), world[i][j]);
+            QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png");
+            painter.drawPixmap(j*256, i*256, image.width(), image.height(), image);
         }
     }
-    */
 
 }
 

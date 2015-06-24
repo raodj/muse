@@ -8,8 +8,7 @@ QT+= core gui xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
-LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2 -lssh
-
+LIBS += -L"$$_PRO_FILE_PWD_/libs/" -lssh2
 # Setup Linux specific configuration flag
 unix:!macx {
     CONFIG += c++1y
