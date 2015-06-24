@@ -139,10 +139,7 @@ XMLElementInfo::~XMLElementInfo() {
         QList<XMLElement*>& list =
             *reinterpret_cast<QList<XMLElement*>*>(pointer);
 
-        for(int i = 0; i < list.size(); i++) {
-            //delete list[i];
-            delete list.at(i);
-        }   
+        qDeleteAll(list.begin(), list.end());
     }
 }
 

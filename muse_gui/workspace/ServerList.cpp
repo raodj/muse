@@ -44,6 +44,7 @@
 
 ServerList::ServerList() : XMLElement("ServerList") {
     // Register elements in the order in which they shlould occur.
+    qRegisterMetaType<XMLElement>("XMLElement");
     addElement(XMLElementInfo("Server", &servers));
 }
 

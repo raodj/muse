@@ -62,6 +62,8 @@
  */
 class Workspace : public XMLRootElement {
 public:
+    static void test();
+
     /**
      * @brief get Returns a pointer to the process-wide, unique workspace
      * (if one is available).

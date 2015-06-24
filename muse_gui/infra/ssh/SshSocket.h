@@ -24,19 +24,20 @@ class SshSocket : public QTcpSocket {
     Q_OBJECT
 public:
     SshSocket(const QString& reason = tr("MUSE GUI Operations"),
-              QWidget* parent = NULL,
+              QWidget* parent = nullptr,
               const QString& knownHostsFile = "known_hosts",
               bool handleSignals = true, bool runInSeparateThread = false,
-              Qt::ConnectionType connType = Qt::AutoConnection) throw ();
-    ~SshSocket() throw ();
+              Qt::ConnectionType connType = Qt::AutoConnection) noexcept;
+
+    ~SshSocket() noexcept;
 
     bool connectToHost(const QString &hostName,
-                       QProgressDialog *progDiag = NULL, quint16 port = 22,
-                       OpenMode mode = ReadWrite) throw (const SshException &);
+                       QProgressDialog *progDiag = nullptr, quint16 port = 22,
+                       OpenMode mode = ReadWrite);
 
-    QWidget* getOwner() const throw () { return owner; }
-    const QString& getReason() const throw () { return reason; }
-    QString getErrorMessage(const QString& prefix = "") const throw ();
+    QWidget* getOwner() const noexcept { return owner; }
+    const QString& getReason() const noexcept { return reason; }
+    QString getErrorMessage(const QString& prefix = "") const noexcept;
     int getErrorCode() const { return libssh2_session_last_errno(sshSession); }
 
     static const QString Title;
@@ -85,7 +86,7 @@ signals:
 
 
 protected:
-    bool authenticate(LIBSSH2_SESSION *sshSession) throw (const SshException&);
+    bool authenticate(LIBSSH2_SESSION *sshSession);
 
 private:
     LIBSSH2_SESSION *sshSession;

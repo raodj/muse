@@ -60,6 +60,15 @@ Workspace* Workspace::workspace = nullptr;
 // The actual XML workspace file name
 const QString Workspace::workspaceFileName  = "MUSEWorkspace.xml";
 
+void
+Workspace::test() {
+    Workspace w("/home/ethan", true);
+
+    Server server;
+
+    w.addServerToWorkSpace(server);
+}
+
 Workspace::Workspace(const QString& dir, bool isValid) :
     XMLRootElement("Workspace"), directory(dir),
     timestamp(QDateTime::currentDateTime()), seqCounter(0), isGood(isValid) {
