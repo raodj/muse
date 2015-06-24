@@ -37,8 +37,8 @@
 //---------------------------------------------------------------------
 
 #include "Core.h"
-#include <libssh2.h>
-#include <libssh2_sftp.h>
+//#include <libssh2.h>
+//#include <libssh2_sftp.h>
 #include "RemoteServerSession.h"
 #include "MUSEGUIApplication.h"
 #include <QObject>
