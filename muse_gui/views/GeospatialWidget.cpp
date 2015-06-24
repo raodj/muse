@@ -53,8 +53,10 @@ GeospatialWidget::~GeospatialWidget(){
 }
 
 void GeospatialWidget::paintEvent(QPaintEvent *e) {
+
     QPainter painter(this);
     this->resize(size);
+
     int i = 0;
     int j = 0;
     
@@ -79,7 +81,7 @@ void GeospatialWidget::paintEvent(QPaintEvent *e) {
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
             QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png");
-            painter.drawPixmap(j*256, i*256, image.width(), image.height(), image);
+            painter.drawPixmap(j*256, i*256, image.width() << (zoomLevel-1), image.height() << (zoomLevel-1), image);
         }
     }
 

@@ -51,8 +51,16 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
-    GeospatialWidget *graphic = new GeospatialWidget(this, this->size());
+    //GeospatialWidget *graphic = new GeospatialWidget(this, this->size());
+    scrollArea = new QScrollArea(this);
 
+    scrollArea->resize(this->size());
+
+    GeospatialWidget *world = new GeospatialWidget(scrollArea, scrollArea->size());
+    world->setMinimumSize(1000, 1000); //Hard-code
+    scrollArea->setWidget(world);
+
+    world->show();
 }
 
 #endif
