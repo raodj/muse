@@ -38,6 +38,7 @@
 
 #include "View.h"
 #include <QTableView>
+#include <QScrollArea>
 
 /**
  * @brief The GeospatialView class Provides a visual for data received
@@ -49,7 +50,8 @@ public:
     GeospatialView(QWidget* parent = 0);
 
     static const QString ViewName;
-
+private:
+    QScrollArea *scrollArea;
 };
 
 #endif // GEOSPATIALVIEW_H
