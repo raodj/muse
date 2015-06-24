@@ -215,7 +215,6 @@ WorkspaceDialog::createNewWorkspace() {
     MUSEGUIApplication::addWorkspaceEntry(selectedFile);
 
     // everything went well, close the wizard
-    //this->wizard()->accept();
     accept();
 }
 

@@ -134,7 +134,8 @@ throw (const SshException &) {
     }
     // Maybe we should check for different forms of authentication?
     // Now get login credentials from the user.
-    QString username = "dmadhava", password;
+    QString username;
+    QString password;
     bool cancel = false;
     // Perform the standard method of retreiving the credentials
     // if we are running int the Qt main thread.

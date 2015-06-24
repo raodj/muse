@@ -140,8 +140,7 @@ XMLElementInfo::~XMLElementInfo() {
             *reinterpret_cast<QList<XMLElement*>*>(pointer);
 
         for(int i = 0; i < list.size(); i++) {
-            //if (list[i] != NULL)
-            //    delete list[i];
+            //delete list[i];
             delete list.at(i);
         }   
     }
