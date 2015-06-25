@@ -102,8 +102,6 @@ RemoteServerSession::connectToServer() {
 
     // Delete the thread from memory once all of its tasks are complete.
     connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
-
-
 }
 
 void

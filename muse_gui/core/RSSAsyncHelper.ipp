@@ -62,8 +62,12 @@ RSSAsyncHelper<RetVal>::run() {
                                  QString::number(e.getNetworkErrorCode()));
         emit exceptionThrown(e.getMessage(), e.getGenericErrorMessage(),
                              exceptionDetails);
+
+        *result = false;
     } catch (const std::exception& e ) {
         emit exceptionThrown(e.what());
+
+        *result = false;
     }
 
     result = NULL;
