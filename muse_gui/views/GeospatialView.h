@@ -48,10 +48,14 @@ class GeospatialView : public View {
     Q_OBJECT
 public:
     GeospatialView(QWidget* parent = 0);
-
     static const QString ViewName;
 private:
+    QAction* zoomInButton;
+    QAction* zoomOutButton;
     QScrollArea *scrollArea;
+
+    void initializeToolBarButtons();
+
 };
 
 #endif // GEOSPATIALVIEW_H
