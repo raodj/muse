@@ -51,16 +51,27 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
-    //GeospatialWidget *graphic = new GeospatialWidget(this, this->size());
+    initializeToolBarButtons();
     scrollArea = new QScrollArea(this);
-
+    scrollArea->lower();
     scrollArea->resize(this->size());
 
     GeospatialWidget *world = new GeospatialWidget(scrollArea, scrollArea->size());
-    world->setMinimumSize(1000, 1000); //Hard-code
+    world->setMinimumSize(1, 1); //Hard-code
     scrollArea->setWidget(world);
+    //connect(zoomInButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
+}
 
-    world->show();
+void
+GeospatialView::initializeToolBarButtons() {
+    zoomInButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+                                  "Zoom In", 0);
+    addAction(zoomInButton);
+
+    zoomOutButton = new QAction((QIcon(":/images/16x16/DontSaveLog.png")),
+                                  "Zoom Out", 0);
+    addAction(zoomOutButton);
+
 }
 
 #endif
