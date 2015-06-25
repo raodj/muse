@@ -69,7 +69,7 @@ const QString XMLElementInfo::XmlDateTimeFormat = "yyyy-MM-ddThh:mm:ss.z";
 
 // Default constructor is protected to ensure it is never called directly.
 XMLElementInfo::XMLElementInfo() : name(""), type(QMetaType::Void),
-    isList(false), pointer(NULL) {
+    isList(false), pointer(nullptr) {
     // Setup the TypeNameMap for rapid type look-ups (done only once)
     if (TypeNameMap.empty()) {
         for(int i = 0; (TypeNameList[i] != NULL); i += 2) {
@@ -140,6 +140,8 @@ XMLElementInfo::~XMLElementInfo() {
             *reinterpret_cast<QList<XMLElement*>*>(pointer);
 
         qDeleteAll(list.begin(), list.end());
+
+        pointer = nullptr;
     }
 }
 
