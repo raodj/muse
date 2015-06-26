@@ -45,47 +45,39 @@ GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent) {
     size = tempSize;
     zoomLevel = 1;
-
 }
 
 GeospatialWidget::~GeospatialWidget(){
 
 }
 
-void GeospatialWidget::paintEvent(QPaintEvent *e) {
+void
+GeospatialWidget::paintEvent(QPaintEvent *e) {
+
+    //appDir() returns /home/user/.local/share/MUSE/maps/zoom1/
 
     QPainter painter(this);
     this->resize(size);
 
-    int i = 0;
-    int j = 0;
-    
+    loadZoomLevel(zoomLevel);
 
-    QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_" + QString(j+48) + ".png");
-    painter.drawPixmap(0, 0, image.width(), image.height(), image);
 
-    //std::vector< std::vector<QPixmap> > world;
-
-    /*
-    for (int i = 0;; i++){
-        if (QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_0.png").isNull){
-            break;
-        }
-        std::vector<QPixmap> row();
-
-        for (int j = 0; !QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(i+48) + "_" + QString(j+48) + ".png").isNull; j++){
-            row.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png"));
-        }
-    }
-    */
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
-            QPixmap image(MUSEGUIApplication::appDir() + "/maps/zoom1/" + QString(j+48) + "_" + QString(i+48) + ".png");
-            painter.drawPixmap(j*256, i*256, image.width() << (zoomLevel-1), image.height() << (zoomLevel-1), image);
+            painter.drawPixmap(j*world[2*i+j].width(), i*world[2*i+j].height(), 256 << (zoomLevel-1), 256 << (zoomLevel-1), world[2*i+j]);
         }
     }
-
 }
 
+void
+GeospatialWidget::loadZoomLevel(int level){
+    for (int i = 0; i < 2; i++){
+        for (int j = 0; j < 2; j++){
+            world.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom"
+                                    + QString(level+48) + "/" + QString(j+48) +
+                                    "_" + QString(i+48) + ".png"));
+        }
+    }
+}
 
 #endif

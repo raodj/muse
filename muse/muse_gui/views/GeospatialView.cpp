@@ -51,7 +51,7 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
-    initializeToolBarButtons();
+    //initializeToolBarButtons();
     scrollArea = new QScrollArea(this);
     scrollArea->lower();
     scrollArea->resize(this->size());
@@ -61,7 +61,7 @@ GeospatialView::GeospatialView(QWidget *parent) :
     scrollArea->setWidget(world);
     //connect(zoomInButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
 }
-
+/*
 void
 GeospatialView::initializeToolBarButtons() {
     zoomInButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
@@ -73,5 +73,11 @@ GeospatialView::initializeToolBarButtons() {
     addAction(zoomOutButton);
 
 }
+
+void
+GeospatialView::zoomOut() {
+
+}
+*/
 
 #endif
