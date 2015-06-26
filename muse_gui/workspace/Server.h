@@ -312,13 +312,13 @@ public:
      * @brief addProject Adds the given project to the project list.
      * @param project The project to be added.
      */
-    void addProject(Project& project);
+    //void addProject(Project& project);
 
     /**
      * @brief getProjectList Gets the list of projects for this Server.
      * @return The list of Projects.
      */
-    ProjectList& getProjectList() { return projects; }
+    //ProjectList& getProjectList() { return projects; }
 
 signals:
     /**
@@ -419,7 +419,7 @@ private:
      */
     QString password;
 
-    ProjectList projects;
+    //ProjectList projects;
 };
 
 // Define custom template specialization class

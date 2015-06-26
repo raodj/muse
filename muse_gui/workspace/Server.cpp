@@ -154,10 +154,10 @@ Server::setID(const QString &id) {
     emit serverUpdated(*this);
 }
 
-void
-Server::addProject(Project& project) {
-    projects.addProject(project);
-    emit serverUpdated(*this);
-}
+//void
+//Server::addProject(Project& project) {
+//    projects.addProject(project);
+//    emit serverUpdated(*this);
+//}
 
 #endif

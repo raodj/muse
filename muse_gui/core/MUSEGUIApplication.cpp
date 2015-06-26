@@ -41,6 +41,7 @@
 #include "Workspace.h"
 #include "Logger.h"
 #include "WorkspaceDialog.h"
+#include "ServerWatcher.h"
 
 #include <QStandardPaths>
 #include <QDir>
@@ -83,9 +84,15 @@ MUSEGUIApplication::exec() {
         return 1;
     }
 
+    // Our workspace has been set up and the gui is ready to be displayed,
+    // so lets start checking the servers for updates
+    serverWatcher.start();
+
     // Everything went well so far. Create one main window and show it.
     mainWindow = new MainWindow();
     mainWindow->show();
+
+
 
     // Let the base class do rest of the work.
     return QGuiApplication::exec();
