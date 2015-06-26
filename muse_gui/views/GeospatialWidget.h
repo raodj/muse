@@ -39,6 +39,7 @@
 #include <QWidget>
 #include <QPainter>
 #include <QSize>
+#include <QScrollArea>
 
 /**
  * @brief The GeospatialWidget class draws an image using GPainter.
@@ -54,6 +55,14 @@ public:
 private:
     QSize size;
     int zoomLevel;
+
+    void loadZoomLevel(int level);
+    QAction* zoomInButton;
+    QAction* zoomOutButton;
+    QScrollArea *scrollArea;
+    std::vector<QPixmap> world;
+
+    void initializeToolBarButtons();
 
 protected:
     void paintEvent(QPaintEvent *e);
