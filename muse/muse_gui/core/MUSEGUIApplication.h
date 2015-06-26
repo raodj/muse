@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "MainWindow.h"
+#include "ServerWatcher.h"
 
 #include <QString>
 #include <QApplication>
@@ -149,6 +150,14 @@ private:
      * copyable), we are sadly forced to use pointers rather than objects.
      */
      MainWindow *mainWindow;
+
+     /**
+      * @brief serverWatcher The class that will periodically check
+      * all the servers in the current workspace for updates.  This class
+      * will run in its own thread and will produce signals upon encountering
+      * an error with a server which will be handled/displayed by the gui
+      */
+     ServerWatcher serverWatcher;
 
      /** This string contains the preferred name for the known hosts
       * file used by SSH to validate connections to remote servers.
