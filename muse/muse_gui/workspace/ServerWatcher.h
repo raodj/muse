@@ -8,6 +8,7 @@
 #include <atomic>
 
 #include "Server.h"
+#include "ServerList.h"
 
 class ServerWatcher : public QThread {
     Q_OBJECT
@@ -24,16 +25,17 @@ private:
 
     void update();
 
-    void processRemoteServers();
-    void processLocalServers();
+    void processAllServers(ServerList& servers);
 
-    void processRemoteServer(Server server);
-    void processLocalServer(Server server);
+    void processRemoteServers(ServerList& servers);
+    void processLocalServers(ServerList& servers);
 
-    std::vector<Server> getRemoteServers();
-    std::vector<Server> getLocalServers();
+    void processRemoteServer(Server& server);
+    void processLocalServer(Server& server);
 
     std::atomic<bool> needsUpdate;
+
+    //ServerList& servers;
 };
 
 #endif // SERVER_WATCHER_H

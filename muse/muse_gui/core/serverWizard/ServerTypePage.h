@@ -103,17 +103,27 @@ signals:
 
 private:
     QComboBox* serverTypeSelector;
+
     QLineEdit serverName;
     QLineEdit userId;
     QLineEdit password;
+
     QSpinBox portNumber;
+
     QWidget* remoteServerWidget;
+
     QVBoxLayout* remoteServerLayout;
+
     ServerConnectionTester* tester;
+
     QProgressDialog prgDialog;
-    bool remoteConnectionVerified;
-    static const QString SuccessMessage, FailureMessage;
+
     ServerSession* serverSession;
+
+    static const QString SuccessMessage;
+    static const QString FailureMessage;
+
+    bool remoteConnectionVerified;
     
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the

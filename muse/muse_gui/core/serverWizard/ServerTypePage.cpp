@@ -84,9 +84,10 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     registerField("server", &serverName);
     registerField("userId", &userId);
     registerField("serverType", serverTypeSelector);
+
     // Set default value
     remoteConnectionVerified = false;
-    serverSession = NULL;
+    serverSession = nullptr;
 
     setTitle("Server Data");
     setSubTitle("Server Type and Credentials");
@@ -98,36 +99,47 @@ void
 ServerTypePage::buildRemoteServerWidget() {
     remoteServerWidget = new QWidget();
     remoteServerLayout = new QVBoxLayout();
+
     // Add the title
     remoteServerLayout->addWidget(new QLabel("Remote Server Data"));
+
     // Create the horizontal layout for server info
     createServerInfoLayout();
+
     // Create the layout for the credentials
     createCredentialsLayout();
+
     remoteServerWidget->setLayout(remoteServerLayout);
 }
 
 void
 ServerTypePage::createServerInfoLayout() {
     QHBoxLayout* serverInfoLayout = new QHBoxLayout();
-    // Create the vertical layout for the server name
     QVBoxLayout* serverNameLayout = new QVBoxLayout();
+
     // Create label for server name field
     serverNameLayout->addWidget(new QLabel("Enter name or IP Address of server:"));
+
     // Set up server name field with default value
     serverName.setText("localhost");
     serverNameLayout->addWidget(&serverName);
+
     // Add serverName layout to its horizontal row
     serverInfoLayout->addLayout(serverNameLayout);
+
     // Vertical layout for port number
     QVBoxLayout* portLayout = new QVBoxLayout();
+
     // Add Port label
     portLayout->addWidget(new QLabel("Port:"));
+
     // Set up port number
     portNumber.setValue(22);
     portLayout->addWidget(&portNumber);
+
     // Add port layout to its row
     serverInfoLayout->addLayout(portLayout);
+
     // Add server info layout to widget layout
     remoteServerLayout->addLayout(serverInfoLayout);
 }
@@ -136,45 +148,57 @@ void
 ServerTypePage::createCredentialsLayout() {
     // Create the credentials section
     QHBoxLayout* credentialsRow = new QHBoxLayout();
+
     // Username section
     QVBoxLayout* usernameLayout = new QVBoxLayout();
     usernameLayout->addWidget(new QLabel("Login (user) ID:"));
     userId.setText(getUserName());
+
     // Add the text field to its layout
     usernameLayout->addWidget(&userId);
+
     // Add the user id section to the credentials layout
     credentialsRow->addLayout(usernameLayout);
+
     // Password section
     QVBoxLayout* passwordLayout = new QVBoxLayout();
+
     // Add the password label
     passwordLayout->addWidget(new QLabel("Password:"));
+
     // Set the password field to use password characters
     password.setEchoMode(QLineEdit::Password);
+
     // Add the field to the layout
     passwordLayout->addWidget(&password);
+
     // Add the password layout to the credentials section
     credentialsRow->addLayout(passwordLayout);
+
     // Add the credentials section to the widget layout
     remoteServerLayout->addLayout(credentialsRow);
+
     // Set up the indicator for the remote connection tester.
     prgDialog.setLabelText("Please wait while we check the connection.");
     prgDialog.setCancelButton(0);
     prgDialog.setRange(0, 0);
-    remoteServerLayout->addWidget(&prgDialog);
     prgDialog.setVisible(false);
+    remoteServerLayout->addWidget(&prgDialog);
 }
 
 void
 ServerTypePage::serverTypeChanged(const int index) {
-    password.setText("");
+    //password.setText("");
+    password.clear();
     remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
     userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());
     serverName.setText( (index == REMOTE_SERVER_INDEX) ? "" : "localhost");
-    if (serverSession != NULL) {
-        // delete the pointer
+
+    if (serverSession != nullptr) {
         delete serverSession;
+        serverSession = nullptr;
     }
-    serverSession = NULL;
+
     // Share the update with the rest of the wizard.
     emit serverSessionCreated(serverSession);
 }
@@ -185,7 +209,11 @@ ServerTypePage::getUserName() {
     // "USERNAME" for Windows
     QString userName = qgetenv("USER");
 
-    return (!userName.isEmpty()) ? userName : qgetenv("USERNAME");
+    if (userName.isEmpty()) {
+        userName = qgetenv("USERNAME");
+    }
+
+    return userName;
 }
 
 bool
@@ -259,6 +287,15 @@ ServerTypePage::verifyOS() {
     // Verify the Operating System of the server
     int returnCode = serverSession->exec("uname -a", out, err);
 
+    // If 'uname -a' failed to run on the server then we need to test if
+    // this is a Windows machine
+    if (returnCode != SUCCESS_CODE) {
+        out.clear();
+        err.clear();
+
+        returnCode = serverSession->exec("ver", out, err);
+    }
+
     // Inform the user of the result.
     QMessageBox msgBox;
     msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
@@ -270,10 +307,20 @@ ServerTypePage::verifyOS() {
     msgBox.exec();
 
     if(returnCode == SUCCESS_CODE) {
+        QString os = Server::UnknownOS;
+
+        if (out.contains(Server::Linux, Qt::CaseInsensitive)) {
+            os = Server::Linux;
+        } else if (out.contains(Server::Unix, Qt::CaseInsensitive)) {
+            os = Server::Unix;
+        } else if (out.contains(Server::Windows, Qt::CaseInsensitive)) {
+            os = Server::Windows;
+        } else if (out.contains(Server::OSX, Qt::CaseInsensitive)) {
+            os = Server::OSX;
+        }
+
         // Set the osType of the server
-        serverSession->getServer()->
-                setOS( out.contains("Linux", Qt::CaseInsensitive) ?
-                           Server::Linux : Server::Unix);
+        serverSession->getServer()->setOs(os);
     }
 
     return returnCode == SUCCESS_CODE;

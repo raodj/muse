@@ -59,8 +59,14 @@ private:
 
     ServerTypePage serverTypePage;
     ServerInfoPage serverInfoPage;
-//    ComponentsPage componentsPage;
     ServerSummaryPage serverSummaryPage;
+
+    /**
+     * @brief init Add all the necessary pages and signal connects needed
+     * for this wizard.  This is just used so the constructors dont have
+     * the same copy/pasted code
+     */
+    void init();
 
     /**
      * @brief passSessionToPages Sets the RemoteServerSession
