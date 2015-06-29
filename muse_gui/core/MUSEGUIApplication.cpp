@@ -92,8 +92,6 @@ MUSEGUIApplication::exec() {
     mainWindow = new MainWindow();
     mainWindow->show();
 
-
-
     // Let the base class do rest of the work.
     return QGuiApplication::exec();
 }

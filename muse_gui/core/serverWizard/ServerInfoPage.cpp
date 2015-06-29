@@ -50,46 +50,62 @@ const QString ServerInfoPage::InstallDirectoryMessage =
         " will be created when MUSE runtime is installed.";
 
 ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
-
     // Set up the main layout
     QVBoxLayout* mainLayout = new QVBoxLayout();
+
     // Add label for server description
     mainLayout->addWidget(new QLabel("Description of server (for your reference):"));
+
     // Set the QTextEdit to be editable
     serverDescription.setReadOnly(false);
+
     // Add the QTextEdit to the layout
     mainLayout->addWidget(&serverDescription);
+
     // Add label for install path
     mainLayout->addWidget(new QLabel("Enter install directory (absolute path)"));
+
     //Create horizontal layout for install directory and browse button
     QHBoxLayout* directoryLayout = new QHBoxLayout();
+
     // Add line edit to layout
     directoryLayout->addWidget(&installDirectoryDisplay);
+
     // Set up browse button
     browse.setText("Browse");
+
     // Add the button to the directory layout
     directoryLayout->addWidget(&browse);
+
     // Allow the button to trigger the QFileDialog
     connect(&browse, SIGNAL(clicked()), this, SLOT(browseFileSystem()));
+
     // Add the directory layout to the overall layout
     mainLayout->addLayout(directoryLayout);
+
     // Set the spinbox to a default first value
     pollingDelay.setValue(30);
+
     // Add the label for the polling delay
     mainLayout->addWidget(new QLabel("Enter polling delay (seconds):"));
     mainLayout->addWidget(&pollingDelay);
+
     // Set up the indicator for the remote connection tester.
     prgDialog.setLabelText("Please wait while we verify the install directory...");
     prgDialog.setCancelButton(0);
     prgDialog.setRange(0, 0);
     prgDialog.setVisible(false);
     mainLayout->addWidget(&prgDialog);
+
     // Register the install directory as a field
     registerField("installPath*", &installDirectoryDisplay);
     setLayout(mainLayout);
+
     // Default value
-    installDirectoryVerified = mkdirSucceeded = false;
-    serverSession = NULL;
+    installDirectoryVerified = false;
+    mkdirSucceeded = false;
+    serverSession = nullptr;
+
     setTitle("Server Data");
     setSubTitle("Additional Information");
 }
@@ -98,61 +114,71 @@ void
 ServerInfoPage::initializePage() {
     // Only enable the button if the user is creating a local server.
     browse.setEnabled((field("serverType") == LOCAL_SERVER));
+
     // Set the default text for the install directory
     installDirectoryDisplay.setText( (field("serverType") == LOCAL_SERVER) ? "" :
                                   "/home/" + field("userId").toString() + "/MUSE");
-
 }
 
 bool
 ServerInfoPage::validatePage() {
     prgDialog.setVisible(true);
+
     // Step 1: mkdir
     if (!mkdirSucceeded) {
         // connect the signal to learn of the result.
         connect(serverSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
+
         // Attempt to make the directory
         serverSession->mkdir(installDirectoryDisplay.text());
+
         // Stay on the page
         return false;
     }
+
     // Step 2: rmdir
-   else if (mkdirSucceeded && !installDirectoryVerified) {
+    if (mkdirSucceeded && !installDirectoryVerified) {
         // connect the signal to learn of the result
         connect(serverSession, SIGNAL(directoryRemoved(bool)),
                 this, SLOT(getRmdirResult(bool)));
+
         // Attempt to remove the directory
         serverSession->rmdir(installDirectoryDisplay.text());
+
         // Stay on the page.
         return false;
     }
+
     // Step 3: Advance to next page
-    else {
-        // Disconnect the signals
-        disconnect(serverSession, SIGNAL(directoryCreated(bool)),
-                   this, SLOT(getMkdirResult(bool)));
-        disconnect(serverSession, SIGNAL(directoryRemoved(bool)),
-                   this, SLOT(getRmdirResult(bool)));
-        // Ensure that a return to this page reverifies everything
-        mkdirSucceeded = false;
-        installDirectoryVerified = false;
-        Server *server = serverSession->getServer();
-        // Add the server description.
-        server->setDescription((serverDescription.toPlainText().isEmpty()) ?
-                                  "None provided." : serverDescription.toPlainText());
-        // Add the install directory
-        server->setInstallPath(installDirectoryDisplay.text());
-        // Inform the user of the success.
-        QMessageBox msgBox;
-        msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
-        msgBox.setDetailedText("More info to come later...");
-        msgBox.setWindowTitle("Install Validation Success");
-        msgBox.setStandardButtons(QMessageBox::Ok);
-        msgBox.exec();
-        // Finally, we can advance to the next page.
-        return true;
-    }
+    // Disconnect the signals
+    disconnect(serverSession, SIGNAL(directoryCreated(bool)),
+               this, SLOT(getMkdirResult(bool)));
+    disconnect(serverSession, SIGNAL(directoryRemoved(bool)),
+               this, SLOT(getRmdirResult(bool)));
+
+    // Ensure that a return to this page reverifies everything
+    mkdirSucceeded = false;
+    installDirectoryVerified = false;
+    Server *server = serverSession->getServer();
+
+    // Add the server description.
+    server->setDescription((serverDescription.toPlainText().isEmpty()) ?
+                              "None provided." : serverDescription.toPlainText());
+
+    // Add the install directory
+    server->setInstallPath(installDirectoryDisplay.text());
+
+    // Inform the user of the success.
+    QMessageBox msgBox;
+    msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
+    msgBox.setDetailedText("More info to come later...");
+    msgBox.setWindowTitle("Install Validation Success");
+    msgBox.setStandardButtons(QMessageBox::Ok);
+    msgBox.exec();
+
+    // Finally, we can advance to the next page.
+    return true;
 }
 
 void
@@ -173,8 +199,7 @@ ServerInfoPage::getMkdirResult(bool result) {
         msgBox.exec();
         // Hide the dialog since we are stopping the process.
         prgDialog.setVisible(false);
-    }
-    else {
+    } else {
         // mkdirSucceeded is true, we can move on to the next step
         wizard()->next();
     }

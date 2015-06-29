@@ -72,7 +72,7 @@ ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
     mainLayout->addWidget(&installDirectory);
     // Set mainLayout as default layout
     setLayout(mainLayout);
-    serverSession = NULL;
+    serverSession = nullptr;
 }
 
 void

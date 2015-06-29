@@ -118,10 +118,18 @@ public:
     static const QString Windows;
 
     /**
+     * @brief Windows This predefined string constant identifies the type of the OS
+     * on this server to be Apple OS X.
+     */
+    static const QString OSX;
+
+    /**
      * @brief UnknownOS This predefined string constant is used denote OS whose
      * actual type is not known.
      */
     static const QString UnknownOS;
+
+
 
      /**
      * @brief Server  The constructor merely initializes all the instance

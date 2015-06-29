@@ -27,7 +27,7 @@
 //   \/__/    derivatives.
 //
 //    ___     By using or  copying  this  Software,  Licensee  agree to
-//   /\  \    abide  by the intellectual  property laws,  and all other
+//   /\  \    abide  by the intellectual  property laws,  and all other225
 //  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
 // /::\:\__\  General  Public  License  (version 3).  You  should  have
 // \:\:\/  /  received a  copy of the  GNU General Public License along
@@ -65,6 +65,9 @@ const QString Server::Unix = "unix";
 
 // Predefined constants consistent with XML schema values for OS type
 const QString Server::Windows = "windows";
+
+// Predefined constants consistent with XML schema values for OS type
+const QString Server::OSX = "Darwin";
 
 // Predefined constants consistent with XML schema values for OS type
 const QString Server::UnknownOS = "unknown_os";
