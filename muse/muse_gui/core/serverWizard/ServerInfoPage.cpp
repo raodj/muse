@@ -78,6 +78,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
         Q_UNUSED(text);
         installDirChecked = false;
         installDirExists = false;
+        installDirValidated = false;
+        installDirHasServerData = false;
     });
 
     // Set up browse button
@@ -116,6 +118,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
 
     installDirChecked = false;
     installDirExists = false;
+    installDirValidated = false;
+    installDirHasServerData = false;
 
     serverSession = nullptr;
 
@@ -135,10 +139,6 @@ ServerInfoPage::initializePage() {
                                         field("userId").toString() + serverSession->getServer()->separator() +
                                         "MUSE");
     }
-
-    // Set the default text for the install directory
-    //installDirectoryDisplay.setText( (field("serverType") == LOCAL_SERVER) ? "" :
-     //                             "/home/" + field("userId").toString() + "/MUSE");
 }
 
 bool
@@ -155,7 +155,7 @@ ServerInfoPage::validatePage() {
         return false;
     }
 
-    // Next, if the directory doesnt exist, we need to make it
+    // Next, if the directory doesnt exist, we nee to create it
     if (!installDirExists) {
         connect(serverSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
@@ -165,15 +165,43 @@ ServerInfoPage::validatePage() {
         return false;
     }
 
+    // The directory exists (it may have just been created) but now we
+    // need to add the necessary files and directories to make this a valid
+    // Server
+    if (!installDirHasServerData) {
+        connect(serverSession, SIGNAL(serverDataCreated(bool)),
+                this, SLOT(getServerDataCreatedResult(bool)));
+
+        serverSession->createServerData(installDirectoryDisplay.text());
+
+        return false;
+    }
+
+    // The install directory the user chose already exists, so if we have
+    // not yet done so, we need to check if its a valid server
+    if (!installDirValidated) {
+        connect(serverSession, SIGNAL(directoryValidated(bool)),
+                this, SLOT(getDirValidatedResult(bool)));
+
+        serverSession->validate(installDirectoryDisplay.text());
+
+        return false;
+    }
+
     // At this point, we are ready to go to the next page in the wizard
     disconnect(serverSession, SIGNAL(directoryCreated(bool)),
                this, SLOT(getMkdirResult(bool)));
     disconnect(serverSession, SIGNAL(directoryExists(bool)),
                this, SLOT(getDirExistsResult(bool)));
+    disconnect(serverSession, SIGNAL(serverDataCreated(bool)),
+               this, SLOT(getServerDataCreatedResult(bool)));
+    disconnect(serverSession, SIGNAL(directoryValidated(bool)),
+               this, SLOT(getDirValidatedResult(bool)));
 
     // Ensure that a return to this page reverifies everything
     installDirChecked = false;
     installDirExists = false;
+    installDirValidated = false;
 
     Server *server = serverSession->getServer();
 
@@ -183,14 +211,6 @@ ServerInfoPage::validatePage() {
 
     // Add the install directory
     server->setInstallPath(installDirectoryDisplay.text());
-
-    // Inform the user of the success.
-//    QMessageBox msgBox;
-//    msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
-//    msgBox.setDetailedText("More info to come later...");
-//    msgBox.setWindowTitle("Install Validation Success");
-//    msgBox.setStandardButtons(QMessageBox::Ok);
-//    msgBox.exec();
 
     // Finally, we can advance to the next page.
     return true;
@@ -203,46 +223,37 @@ ServerInfoPage::setServerSessionPointer(ServerSession *ss) {
 
 void
 ServerInfoPage::getMkdirResult(bool result) {
-    mkdirSucceeded = result;
-    if (!mkdirSucceeded) {
+    // If mkdir() failed then we need to check the existance of the dir next
+    // time we try to advance the wizard
+    installDirChecked = result;
+    installDirExists = result;
+
+    if (!installDirExists) {
         QMessageBox msgBox;
         msgBox.setWindowTitle("Error");
         msgBox.setText("There was an issue creating the install directory.<br/>"\
                        "This likely means that the directory currently exists," \
                        " which is not good. Please change the install directory.");
         msgBox.exec();
+
         // Hide the dialog since we are stopping the process.
         prgDialog.setVisible(false);
     } else {
-        // mkdirSucceeded is true, we can move on to the next step
-        wizard()->next();
-    }
-}
-
-void
-ServerInfoPage::getRmdirResult(bool result) {
-    installDirectoryVerified = result;
-    if (!installDirectoryVerified) {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Error");
-        msgBox.setText("There was an issue deleting the install directory.<br/>"\
-                       "This is an unusual occurrence, and likely means that the," \
-                       " connection to the server was dropped.");
-        msgBox.exec();
-        // Couldn't remove the directory, return to initial state
-        mkdirSucceeded = false;
-        prgDialog.setVisible(false);
-    }
-    else {
-        // We removed the directory, we can move on.
         wizard()->next();
     }
 }
 
 void
 ServerInfoPage::getDirExistsResult(bool result) {
+    // We dont need to check the existance of this directory again, regardless
+    // of the result of dirExists()
     installDirChecked = true;
     installDirExists = result;
+
+    // We will assume for now that if the user is selecting an existing directory
+    // then it already has server data, but we need to make sure it is valid
+    installDirHasServerData = result;
+    installDirValidated = false;
 
     QMessageBox message;
 
@@ -264,20 +275,66 @@ ServerInfoPage::getDirExistsResult(bool result) {
 }
 
 void
-ServerInfoPage::browseFileSystem() {
-    QFileDialog fileDiag;
-    QString dirPath = fileDiag.getExistingDirectory(NULL,
-                                                    "TYPE the name of the directory to CREATE",
-                                  QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+ServerInfoPage::getServerDataCreatedResult(bool result) {
+    // If the creating the server data was a success then we are done checking
+    // this directory, if not, we need to recheck it completely the next time
+    installDirChecked = result;
+    installDirExists = result;
+    installDirHasServerData = result;
+    installDirectoryVerified = result;
 
-    if (!dirPath.isEmpty()) {
-        installDirectoryDisplay.setText(dirPath);
-        QDir dir;
-        // The user thinks they created the directory.
-        // It's irrelevant if rmdir fails or not.
-        dir.rmdir(dirPath);
+    // If the server data was successfully created, we can advance in the
+    // wizard, otherwise we need to inform the user that there was a problem
+    if (installDirHasServerData) {
+        wizard()->next();
+    } else {
+        QMessageBox message;
+        message.setWindowTitle("Error creating necessary server files");
+        message.setText("There was an error creating the required server files.<br/>"\
+                        "This is an unusual occurrence, and likely means that the, "\
+                        "connection to the server was dropped.");
+        message.exec();
+    }
+}
+
+void
+ServerInfoPage::getDirValidatedResult(bool result) {
+    // If the dir is a valid Server, then we dont need to validate it again or
+    // create any new Server data
+    installDirValidated = result;
+    installDirHasServerData = result;
+
+    // If it turns out this is not a valid server, we need to ask the user
+    // what they want to do about it
+    if (!installDirValidated) {
+        auto reply = QMessageBox::question(this, "This directory is not a valid server",
+                                           "The directory you have chosen does not contain "\
+                                           "any valid server information, do you wish to create "\
+                                           "a new Server in this directory?",
+                                           QMessageBox::Yes | QMessageBox::No);
+
+        // If the user does not want to use this directory as a new Server then
+        // make sure we completely recheck the directory next time we try to
+        // advance in the wizard
+        if (reply == QMessageBox::No) {
+            installDirChecked = false;
+            installDirExists = false;
+            installDirHasServerData = false;
+            installDirValidated = false;
+
+            return;
+        }
     }
 
+    wizard()->next();
+}
+
+void
+ServerInfoPage::browseFileSystem() {
+    QFileDialog fileDiag;
+    QString dirPath = fileDiag.getExistingDirectory(nullptr,
+                                                    "TYPE the name of the directory to CREATE",
+                                                    QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
 }
 
 #endif

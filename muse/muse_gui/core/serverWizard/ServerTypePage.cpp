@@ -93,8 +93,6 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     setSubTitle("Server Type and Credentials");
 }
 
-
-
 void
 ServerTypePage::buildRemoteServerWidget() {
     remoteServerWidget = new QWidget();
@@ -188,7 +186,6 @@ ServerTypePage::createCredentialsLayout() {
 
 void
 ServerTypePage::serverTypeChanged(const int index) {
-    //password.setText("");
     password.clear();
     remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
     userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());

@@ -155,7 +155,7 @@ public:
      * directory was removed.
      * @param directory The full path to the empty directory to be removed from the target machine.
      */
-    void rmdir(const QString &directory) override;
+    //void rmdir(const QString &directory) override;
 
     /**
      * @brief dirExists Tests if a given directory actually exists on the server.
@@ -163,6 +163,23 @@ public:
      * @param directory The full path to the directory that you want to check
      */
     void dirExists(const QString& directory) override;
+
+    /**
+     * @brief createServerData Attempts to create the necessary data for a Server
+     * in the given directory.  This data includes xml files, directories for
+     * projects, jobs, etc. and the server scripts for getting server updates
+     *
+     * @param directory The full path to the directory that we want to make a Server
+     */
+    void createServerData(const QString& directory) override;
+
+    /**
+     * @brief validate Checks if the given directory has the necessary files
+     * and directories to be a valid Server
+     *
+     * @param directory True if the directory is a valid Server, false otherwise
+     */
+    void validate(const QString& directory) override;
 
     /**
      * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.

@@ -179,7 +179,7 @@ public:
      * been established successfully via a call to connect method.</p>
      * @param directory The full path to the empty directory to be removed from the target machine.
      */
-    virtual void rmdir(const QString &directory) = 0;
+    //virtual void rmdir(const QString &directory) = 0;
 
     /**
      * @brief dirExists Tests if a given directory actually exists on the server.
@@ -187,6 +187,23 @@ public:
      * @param directory The full path to the directory that you want to check
      */
     virtual void dirExists(const QString& directory) = 0;
+
+    /**
+     * @brief createServerData Attempts to create the necessary data for a Server
+     * in the given directory.  This data includes xml files, directories for
+     * projects, jobs, etc. and the server scripts for getting server updates
+     *
+     * @param directory The full path to the directory that we want to make a Server
+     */
+    virtual void createServerData(const QString& directory) = 0;
+
+    /**
+     * @brief validate Checks if the given directory has the necessary files
+     * and directories to be a valid Server
+     *
+     * @param directory True if the directory is a valid Server, false otherwise
+     */
+    virtual void validate(const QString& directory) = 0;
 
     //FileInfo is a PEACE class that has yet to be translated to C++
     /**
@@ -233,7 +250,7 @@ signals:
      * @param result True if the directory was sucessfully removed, false
      * otherwise.
      */
-    void directoryRemoved(bool result);
+    //void directoryRemoved(bool result);
 
     /**
      * @brief directoryExists Announces whether or not a directory was
@@ -242,6 +259,22 @@ signals:
      * @param result True if the directory exists, false otherwise.
      */
     void directoryExists(bool result);
+
+    /**
+     * @brief serverDataCreated Announces whether or not createServerData()
+     * successfully created the necessary Server data
+     *
+     * @param result True if the data was created, false otherwise
+     */
+    void serverDataCreated(bool result);
+
+    /**
+     * @brief directoryValidated Announces whether or not a directory was
+     * determined to be a valid Server by validate()
+     *
+     * @param result True if the directory is a valid Server, false otherwise
+     */
+    void directoryValidated(bool result);
 
 protected:
     Server* server;
