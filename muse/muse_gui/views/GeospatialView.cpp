@@ -42,6 +42,7 @@
 #include "GeospatialView.h"
 #include "GeospatialWidget.h"
 #include "Workspace.h"
+#include "MUSEGUIApplication.h"
 //#include <QOpenGL>
 #include <QHeaderView>
 
@@ -51,26 +52,45 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
-    //initializeToolBarButtons();
+    const QString zoomLabels[] = {
+        "Zoom 0 (max out)",
+        "Zoom 1 (very out)",
+        "Zoom 2 (out)",
+        "Zoom 3 (slightly out)",
+        "Zoom 4 (default)",
+        "Zoom 5 (slightly in)",
+        "Zoom 6 (in)",
+        "Zoom 7 (very in)",
+        "Zoom 8 (max in)",
+    };
+
+    initializeToolBarButtons();
     scrollArea = new QScrollArea(this);
     scrollArea->lower();
     scrollArea->resize(this->size());
 
     GeospatialWidget *world = new GeospatialWidget(scrollArea, scrollArea->size());
-    world->setMinimumSize(1, 1); //Hard-code
+    world->setMinimumSize(1, 1);
     scrollArea->setWidget(world);
-    //connect(zoomInButton, SIGNAL(triggered()), this, SLOT(showServerWizard()));
+    connect(zoomInButton, SIGNAL(triggered()), this, SLOT(zoomIn()));
+    world->setZoomLevel(3);
 }
-/*
+
 void
 GeospatialView::initializeToolBarButtons() {
-    zoomInButton = new QAction((QIcon(":/images/16x16/ServerAdd.png")),
+
+    zoomInButton = new QAction((QIcon(MUSEGUIApplication::appDir() + "/icons/stock_zoom-in.png")),
                                   "Zoom In", 0);
     addAction(zoomInButton);
 
-    zoomOutButton = new QAction((QIcon(":/images/16x16/DontSaveLog.png")),
+    zoomOutButton = new QAction((QIcon(MUSEGUIApplication::appDir() + "/icons/stock_zoom-out.png")),
                                   "Zoom Out", 0);
     addAction(zoomOutButton);
+
+}
+
+void
+GeospatialView::zoomIn() {
 
 }
 
@@ -78,6 +98,6 @@ void
 GeospatialView::zoomOut() {
 
 }
-*/
+
 
 #endif
