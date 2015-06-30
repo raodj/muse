@@ -130,7 +130,6 @@ public:
     static const QString UnknownOS;
 
 
-
      /**
      * @brief Server  The constructor merely initializes all the instance
      * variables using the supplied parameters.
@@ -175,8 +174,7 @@ public:
            QString description = "", QString userID = "", QString installPath = "",
            QString osType = UnknownOS, QString status = Installing);
 
-    Server(const Server& server);
-    //Server();
+    Server(const Server& other);
 
     bool operator==(const Server other);
 
@@ -327,6 +325,9 @@ public:
      * @return The list of Projects.
      */
     //ProjectList& getProjectList() { return projects; }
+
+    QString getHomeDir();
+    QString separator();
 
 signals:
     /**

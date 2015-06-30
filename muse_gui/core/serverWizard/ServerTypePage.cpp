@@ -299,7 +299,7 @@ ServerTypePage::verifyOS() {
     // Inform the user of the result.
     QMessageBox msgBox;
     msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
-                                                  FailureMessage );
+                                                   FailureMessage );
     msgBox.setDetailedText( (returnCode == SUCCESS_CODE) ? out : err);
     msgBox.setWindowTitle( (returnCode == SUCCESS_CODE) ? "Connection Success"
                                                         : "Connection Failure");
@@ -319,8 +319,7 @@ ServerTypePage::verifyOS() {
             os = Server::OSX;
         }
 
-        // Set the osType of the server
-        serverSession->getServer()->setOs(os);
+        serverSession->getServer()->setOS(os);
     }
 
     return returnCode == SUCCESS_CODE;

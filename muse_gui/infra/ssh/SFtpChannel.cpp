@@ -42,8 +42,7 @@
 #define MAX_PATH_LEN 1024
 #define SUCCESS_CODE 0
 
-SFtpChannel::SFtpChannel(SshSocket& ssh) throw (const SshException &) :
-    ssh(ssh) {
+SFtpChannel::SFtpChannel(SshSocket& ssh) : ssh(ssh) {
     sftpChannel = libssh2_sftp_init(ssh.getSession());
     if (sftpChannel == NULL) {
         throw SSH_EXP(ssh, getErrorMessage(), ssh.getErrorCode(), ssh.error());
@@ -65,7 +64,7 @@ SFtpChannel::SFtpChannel(const SFtpChannel &channel) : ssh(channel.getSocket()) 
 }
 
 QString
-SFtpChannel::getErrorMessage() const throw () {
+SFtpChannel::getErrorMessage() const {
     QString errMsg(ssh.getErrorMessage());
     if (error == LIBSSH2_ERROR_SFTP_PROTOCOL) {
         errMsg += "[SFftp error code: ";
@@ -76,7 +75,7 @@ SFtpChannel::getErrorMessage() const throw () {
 }
 
 QString
-SFtpChannel::getPwd() throw (const SshException &) {
+SFtpChannel::getPwd() {
     char tmpPath[MAX_PATH_LEN];
     if ((error = libssh2_sftp_realpath(sftpChannel, ".",
                                        tmpPath, MAX_PATH_LEN)) <= 0) {
@@ -87,7 +86,7 @@ SFtpChannel::getPwd() throw (const SshException &) {
 }
 
 SFtpDir
-SFtpChannel::getDir(const QString &dir) throw (const SshException &) {
+SFtpChannel::getDir(const QString &dir) {
     return SFtpDir(*this, dir);
 }
 
@@ -119,6 +118,13 @@ SFtpChannel::rmdir(const QString &dir) {
         }
         // Success! We removed the directory!
         return true;
+}
+
+bool
+SFtpChannel::dirExists(const QString& dir) {
+    // libssh2_sftp_opendir will return a LIBSSH2_SFTP_HANDLE* if the directory
+    // was opened, or null if it was not
+    return libssh2_sftp_opendir(sftpChannel, dir.toStdString().c_str()) != nullptr;
 }
 
 #endif

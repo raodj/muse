@@ -55,7 +55,7 @@ public:
      * @param ssh The SshSocket through which this channel will be communicating
      * and working.
      */
-    SFtpChannel(SshSocket& ssh) throw (const SshException &);
+    SFtpChannel(SshSocket& ssh);
     ~SFtpChannel();
 
     /**
@@ -72,14 +72,14 @@ public:
      * @return A QString representation of the path to the current working
      * directory.
      */
-    QString getPwd() throw (const SshException &);
+    QString getPwd();
 
     /**
      * @brief getErrorMessage Gets the error message description in the event
      * that an error occurs through the use of this SFtpChannel.
      * @return The error message.
      */
-    QString getErrorMessage() const throw ();
+    QString getErrorMessage() const;
 
     /**
      * @brief getSocket Returns the SshSocket being used for this SFtopChannel.
@@ -99,7 +99,7 @@ public:
      * @param dir The path to the directory that is to be operated on.
      * @return A reference to the SFtpDir created.
      */
-    SFtpDir getDir(const QString& dir) throw (const SshException &);
+    SFtpDir getDir(const QString& dir);
 
     /**
      * @brief mkdir Creates a directory on the target machine.
@@ -121,6 +121,15 @@ public:
      * @return True if the directory was successfully deleted, false otherwise.
      */
     bool rmdir(const QString& dir);
+
+    /**
+     * @brief dirExists Test if a given directory exists on the server.
+     *
+     * @param dir The directory to test
+     *
+     * @return True if the directory exists, false otherwise
+     */
+    bool dirExists(const QString& dir);
 
 signals:
     /**

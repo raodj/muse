@@ -67,7 +67,7 @@ const QString Server::Unix = "unix";
 const QString Server::Windows = "windows";
 
 // Predefined constants consistent with XML schema values for OS type
-const QString Server::OSX = "Darwin";
+const QString Server::OSX = "darwin";
 
 // Predefined constants consistent with XML schema values for OS type
 const QString Server::UnknownOS = "unknown_os";
@@ -162,5 +162,31 @@ Server::setID(const QString &id) {
 //    projects.addProject(project);
 //    emit serverUpdated(*this);
 //}
+
+QString
+Server::getHomeDir() {
+    if (osType == Linux || osType == Unix) {
+        return "/home/";
+    }
+
+    if (osType == OSX) {
+        return "/Users/";
+    }
+
+    if (osType == Windows) {
+        return "C:\\Users\\";
+    }
+
+    return "";
+}
+
+QString
+Server::separator() {
+    if (osType == Windows) {
+        return "\\";
+    }
+
+    return "/";
+}
 
 #endif
