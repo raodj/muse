@@ -117,7 +117,7 @@ RemoteServerSession::disconnectFromServer() {
 
 int
 RemoteServerSession::exec(const QString &command, QString &stdoutput,
-                              QString &stderrmsgs) throw() {
+                              QString &stderrmsgs) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -134,7 +134,7 @@ RemoteServerSession::exec(const QString &command, QString &stdoutput,
 }
 
 int
-RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
+RemoteServerSession::exec(const QString &command, QTextEdit &output) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -151,7 +151,7 @@ RemoteServerSession::exec(const QString &command, QTextEdit &output) throw() {
 
 bool
 RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
-                               const QString &destFileName, const int& mode) throw() {
+                               const QString &destFileName, const int& mode) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -168,7 +168,7 @@ RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
 
 bool
 RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
-                               const QString &srcFileName) throw() {
+                               const QString &srcFileName) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -235,6 +235,24 @@ RemoteServerSession::rmdir(const QString &directory) {
 }
 
 void
+RemoteServerSession::dirExists(const QString &directory) {
+    if (sftpChannel == nullptr) {
+        sftpChannel = new SFtpChannel(*socket);
+    }
+
+    RSSAsyncHelper<bool>* existsHelper = new RSSAsyncHelper<bool>
+            (&threadedResult, socket, std::bind(&SFtpChannel::dirExists,
+                                                sftpChannel, directory),
+             sftpChannel);
+
+    socket->moveToThread(existsHelper);
+    sftpChannel->moveToThread(existsHelper);
+
+    connect(existsHelper, SIGNAL(finished()), this, SLOT(announceDirExistsResult()));
+    connect(existsHelper, SIGNAL(finished()), existsHelper, SLOT(deleteLater()));
+}
+
+void
 RemoteServerSession::setPurpose(const QString &text) {
     purpose = text;
 }
@@ -281,6 +299,11 @@ RemoteServerSession::announceMkdirResult() {
 void
 RemoteServerSession::announceRmdirResult() {
     emit directoryRemoved(threadedResult);
+}
+
+void
+RemoteServerSession::announceDirExistsResult() {
+    emit directoryExists(threadedResult);
 }
 
 #endif

@@ -71,6 +71,15 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Add line edit to layout
     directoryLayout->addWidget(&installDirectoryDisplay);
 
+    // if the user changes the selected directory, we need to recheck if it
+    // exists
+    connect(&installDirectoryDisplay, &QLineEdit::textChanged,
+            [=] (const QString& text) {
+        Q_UNUSED(text);
+        installDirChecked = false;
+        installDirExists = false;
+    });
+
     // Set up browse button
     browse.setText("Browse");
 
@@ -104,6 +113,10 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // Default value
     installDirectoryVerified = false;
     mkdirSucceeded = false;
+
+    installDirChecked = false;
+    installDirExists = false;
+
     serverSession = nullptr;
 
     setTitle("Server Data");
@@ -115,51 +128,53 @@ ServerInfoPage::initializePage() {
     // Only enable the button if the user is creating a local server.
     browse.setEnabled((field("serverType") == LOCAL_SERVER));
 
+    if (field("serverType") == LOCAL_SERVER) {
+        installDirectoryDisplay.setText("");
+    } else {
+        installDirectoryDisplay.setText(serverSession->getServer()->getHomeDir() +
+                                        field("userId").toString() + serverSession->getServer()->separator() +
+                                        "MUSE");
+    }
+
     // Set the default text for the install directory
-    installDirectoryDisplay.setText( (field("serverType") == LOCAL_SERVER) ? "" :
-                                  "/home/" + field("userId").toString() + "/MUSE");
+    //installDirectoryDisplay.setText( (field("serverType") == LOCAL_SERVER) ? "" :
+     //                             "/home/" + field("userId").toString() + "/MUSE");
 }
 
 bool
 ServerInfoPage::validatePage() {
     prgDialog.setVisible(true);
 
-    // Step 1: mkdir
-    if (!mkdirSucceeded) {
-        // connect the signal to learn of the result.
+    // The first thing to do is check to make sure the install directory exists
+    if (!installDirChecked) {
+        connect(serverSession, SIGNAL(directoryExists(bool)),
+                this, SLOT(getDirExistsResult(bool)));
+
+        serverSession->dirExists(installDirectoryDisplay.text());
+
+        return false;
+    }
+
+    // Next, if the directory doesnt exist, we need to make it
+    if (!installDirExists) {
         connect(serverSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
 
-        // Attempt to make the directory
         serverSession->mkdir(installDirectoryDisplay.text());
 
-        // Stay on the page
         return false;
     }
 
-    // Step 2: rmdir
-    if (mkdirSucceeded && !installDirectoryVerified) {
-        // connect the signal to learn of the result
-        connect(serverSession, SIGNAL(directoryRemoved(bool)),
-                this, SLOT(getRmdirResult(bool)));
-
-        // Attempt to remove the directory
-        serverSession->rmdir(installDirectoryDisplay.text());
-
-        // Stay on the page.
-        return false;
-    }
-
-    // Step 3: Advance to next page
-    // Disconnect the signals
+    // At this point, we are ready to go to the next page in the wizard
     disconnect(serverSession, SIGNAL(directoryCreated(bool)),
                this, SLOT(getMkdirResult(bool)));
-    disconnect(serverSession, SIGNAL(directoryRemoved(bool)),
-               this, SLOT(getRmdirResult(bool)));
+    disconnect(serverSession, SIGNAL(directoryExists(bool)),
+               this, SLOT(getDirExistsResult(bool)));
 
     // Ensure that a return to this page reverifies everything
-    mkdirSucceeded = false;
-    installDirectoryVerified = false;
+    installDirChecked = false;
+    installDirExists = false;
+
     Server *server = serverSession->getServer();
 
     // Add the server description.
@@ -170,12 +185,12 @@ ServerInfoPage::validatePage() {
     server->setInstallPath(installDirectoryDisplay.text());
 
     // Inform the user of the success.
-    QMessageBox msgBox;
-    msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
-    msgBox.setDetailedText("More info to come later...");
-    msgBox.setWindowTitle("Install Validation Success");
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.exec();
+//    QMessageBox msgBox;
+//    msgBox.setText(ServerInfoPage::InstallDirectoryMessage);
+//    msgBox.setDetailedText("More info to come later...");
+//    msgBox.setWindowTitle("Install Validation Success");
+//    msgBox.setStandardButtons(QMessageBox::Ok);
+//    msgBox.exec();
 
     // Finally, we can advance to the next page.
     return true;
@@ -183,7 +198,6 @@ ServerInfoPage::validatePage() {
 
 void
 ServerInfoPage::setServerSessionPointer(ServerSession *ss) {
-    //remoteServerSession = rss;
     serverSession = ss;
 }
 
@@ -223,6 +237,30 @@ ServerInfoPage::getRmdirResult(bool result) {
         // We removed the directory, we can move on.
         wizard()->next();
     }
+}
+
+void
+ServerInfoPage::getDirExistsResult(bool result) {
+    installDirChecked = true;
+    installDirExists = result;
+
+    QMessageBox message;
+
+    if (installDirExists) {
+        message.setWindowTitle("Directory Exists");
+        message.setText("The directory you have chosen already exists, so we "\
+                        "will attempt to load the data from this server if it "\
+                        "is valid.");
+        message.exec();
+    } else {
+        message.setWindowTitle("Directory Does Not Exist");
+        message.setText("The directory you have chosen does not exist, so we "\
+                        "will attempt to create it and setup all the necessary "\
+                        "data needed for the server");
+        message.exec();
+    }
+
+    wizard()->next();
 }
 
 void

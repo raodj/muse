@@ -73,6 +73,11 @@ LocalServerSession::rmdir(const QString &directory) {
     emit directoryRemoved(dir.rmdir(directory));
 }
 
+void
+LocalServerSession::dirExists(const QString &directory) {
+    emit directoryExists(QDir(directory).exists());
+}
+
 //To be reincluded into the class definition when the FileInfo class
 //gets redefined
 

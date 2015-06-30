@@ -83,7 +83,7 @@ public:
      * This method must be used to establish a connection to a server before
      * performing any tasks. This method is overridden from the base class.
      */
-    void connectToServer();
+    void connectToServer() override;
 
     /**
      * @brief Disconnect from a remote server.
@@ -91,7 +91,7 @@ public:
      * This method disconnects from the remoter server if it is connected.
      * All current sessions will be terminated.
      */
-    void disconnectFromServer();
+    void disconnectFromServer() override;
 
     /**
      * @brief Executes to run a <b>brief</b> command that produces succint output.
@@ -111,7 +111,7 @@ public:
      *
      *  @return The exit code from the command that was run on the target machine.
      */
-    int exec(const QString &command, QString &stdoutput, QString &stderrmsgs) throw();
+    int exec(const QString &command, QString &stdoutput, QString &stderrmsgs) override;
 
     /**
      * @brief exec Method to be run with a long running command that may
@@ -131,7 +131,7 @@ public:
      *
      * @return The exit code from the command that was run on the target machine.
      */
-    int exec(const QString &command, QTextEdit& output) throw();
+    int exec(const QString &command, QTextEdit& output) override;
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
@@ -148,7 +148,7 @@ public:
      * as the mode for the target file.
      */
     bool copy(const QString &srcData, const QString &destDirectory,
-              const QString &destFileName, const int &mode) throw ();
+              const QString &destFileName, const int &mode) override;
 
 
     //Java version of below method also had a progress bar as a last parameter.....
@@ -161,7 +161,7 @@ public:
      * @param srcFileName The name of the source file from where the data is to be copied.
      */
     bool copy(const QString &destData, const QString &srcDirectory,
-              const QString &srcFileName) throw ();
+              const QString &srcFileName) override;
 
     /**
      * @brief mkdir Creates a directory on the target machine.
@@ -171,7 +171,7 @@ public:
      *
      * @param directory The full path to the directory that is to be created.
      */
-    void mkdir(const QString &directory);
+    void mkdir(const QString &directory) override;
 
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
@@ -180,7 +180,14 @@ public:
      * been established successfully via a call to connect method.</p>
      * @param directory The full path to the empty directory to be removed from the target machine.
      */
-    void rmdir(const QString &directory);
+    void rmdir(const QString &directory) override;
+
+    /**
+     * @brief dirExists Tests if a given directory actually exists on the server.
+     *
+     * @param directory The full path to the directory that you want to check
+     */
+    void dirExists(const QString& directory) override;
 
     /**
      * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.
@@ -189,7 +196,7 @@ public:
      * @param path The path (absolute or relative to home directory) of the file whose meta data is to be retrieved.
      * @return A FileInfo object containing the information about the path.
      */
-    FileInfo fStat(const QString &path);
+    //FileInfo fStat(const QString &path);
 
     /**
      * @brief setPurpose Sets a purpose message for this session.
@@ -275,6 +282,12 @@ private slots:
      * to inform the call of rmdir if the directory was removed or not.
      */
     void announceRmdirResult();
+
+    /**
+     * @brief announceDirExistsResult Emits directoryExists(bool)
+     * to inform the call of dirExists if the direcotry exists or not.
+     */
+    void announceDirExistsResult();
 
 };
 

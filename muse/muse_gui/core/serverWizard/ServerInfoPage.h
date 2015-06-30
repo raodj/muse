@@ -106,6 +106,14 @@ public slots:
      */
     void getRmdirResult(bool result);
 
+    /**
+     * @brief getDirExistsResult Gets the result of calling dirExists()
+     * on the ServerSession to verify if the install directory exists
+     *
+     * @param result The result of dirExists in ServerSession
+     */
+    void getDirExistsResult(bool result);
+
 private:
     QTextEdit serverDescription;
     QLineEdit installDirectoryDisplay;
@@ -115,6 +123,9 @@ private:
     bool installDirectoryVerified, mkdirSucceeded;
     ServerSession* serverSession;
     static const QString InstallDirectoryMessage;
+
+    bool installDirChecked;
+    bool installDirExists;
 
 private slots:
     /**

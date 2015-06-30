@@ -181,6 +181,13 @@ public:
      */
     virtual void rmdir(const QString &directory) = 0;
 
+    /**
+     * @brief dirExists Tests if a given directory actually exists on the server.
+     *
+     * @param directory The full path to the directory that you want to check
+     */
+    virtual void dirExists(const QString& directory) = 0;
+
     //FileInfo is a PEACE class that has yet to be translated to C++
     /**
      * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.
@@ -227,6 +234,14 @@ signals:
      * otherwise.
      */
     void directoryRemoved(bool result);
+
+    /**
+     * @brief directoryExists Announces whether or not a directory was
+     * determined to exist by dirExtists()
+     *
+     * @param result True if the directory exists, false otherwise.
+     */
+    void directoryExists(bool result);
 
 protected:
     Server* server;
