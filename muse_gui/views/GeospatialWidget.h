@@ -50,6 +50,7 @@ class GeospatialWidget : public QWidget {
 
 public:
     GeospatialWidget(QWidget *parent, QSize size);
+    void setZoomLevel(int tempZoom);
     ~GeospatialWidget();
 
 private:

@@ -46,19 +46,22 @@
  */
 class GeospatialView : public View {
     Q_OBJECT
+
 public:
     GeospatialView(QWidget* parent = 0);
     static const QString ViewName;
 
 protected slots:
+    void zoomIn();
+    void zoomOut();
 
 private:
-
-    //QAction* zoomInButton;
-    //QAction* zoomOutButton;
+    QAction* zoomInButton;
+    QAction* zoomOutButton;
     QScrollArea *scrollArea;
 
-    //void initializeToolBarButtons();
+
+    void initializeToolBarButtons();
 
 };
 

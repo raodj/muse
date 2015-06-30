@@ -57,27 +57,33 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
     //appDir() returns /home/user/.local/share/MUSE/maps/zoom1/
 
     QPainter painter(this);
-    this->resize(size);
-
-    loadZoomLevel(zoomLevel);
-
+    this->resize(size.height() << (zoomLevel-1), size.width() << (zoomLevel-1));
+    loadZoomLevel(1);
 
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
-            painter.drawPixmap(j*world[2*i+j].width(), i*world[2*i+j].height(), 256 << (zoomLevel-1), 256 << (zoomLevel-1), world[2*i+j]);
+            painter.drawPixmap(j*world[2*i+j].width() << (zoomLevel-1),
+                    i*world[2*i+j].height() << (zoomLevel-1),
+                    world[2*i+j].width() << (zoomLevel-1), world[2*i+j].height()
+                    << (zoomLevel-1), world[2*i+j]);
         }
     }
 }
 
 void
-GeospatialWidget::loadZoomLevel(int level){
+GeospatialWidget::loadZoomLevel(int tileLevel){
     for (int i = 0; i < 2; i++){
         for (int j = 0; j < 2; j++){
             world.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom"
-                                    + QString(level+48) + "/" + QString(j+48) +
+                                    + QString(tileLevel+48) + "/" + QString(j+48) +
                                     "_" + QString(i+48) + ".png"));
         }
     }
+}
+
+void
+GeospatialWidget::setZoomLevel(int tempZoom){
+    zoomLevel = tempZoom;
 }
 
 #endif
