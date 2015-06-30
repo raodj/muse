@@ -104,15 +104,33 @@ public slots:
      * This methods sets installDirectoryVerified = result.
      * @param result
      */
-    void getRmdirResult(bool result);
+    //void getRmdirResult(bool result);
 
     /**
      * @brief getDirExistsResult Gets the result of calling dirExists()
-     * on the ServerSession to verify if the install directory exists
+     * on the ServerSession to verify if the install directory exists.
      *
-     * @param result The result of dirExists in ServerSession
+     * @param result True if the dir exists, false otherwise
      */
     void getDirExistsResult(bool result);
+
+    /**
+     * @brief getServerDataCreatedResult Gets the result of calling
+     * createServerData() on the ServerSession to verify if the required
+     * data was successfully created.
+     *
+     * @param result True if the data was created, false otherwise
+     */
+    void getServerDataCreatedResult(bool result);
+
+    /**
+     * @brief getDirValidatedResult Gets the result of calling
+     * validate() on the ServerSession to verify if the selected directory
+     * is a valid Server.
+     *
+     * @param result True if the dir is a valid Server, false otherwise
+     */
+    void getDirValidatedResult(bool result);
 
 private:
     QTextEdit serverDescription;
@@ -126,6 +144,8 @@ private:
 
     bool installDirChecked;
     bool installDirExists;
+    bool installDirHasServerData;
+    bool installDirValidated;
 
 private slots:
     /**
