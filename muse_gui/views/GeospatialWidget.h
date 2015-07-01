@@ -40,6 +40,10 @@
 #include <QPainter>
 #include <QSize>
 #include <QScrollArea>
+#include <QDir>
+
+#include <unordered_map>
+#include <vector>
 
 /**
  * @brief The GeospatialWidget class draws an image using GPainter.
@@ -50,23 +54,42 @@ class GeospatialWidget : public QWidget {
 
 public:
     GeospatialWidget(QWidget *parent, QSize size);
-    void setZoomLevel(int tempZoom);
     ~GeospatialWidget();
 
+    void setZoomLevel(int tempZoom);
+    void zoomIn();
+    void zoomOut();
+
+public slots:
+    void xPositionChanged(int x);
+    void yPositionChanged(int y);
+
+protected:
+    void paintEvent(QPaintEvent *e);
+
 private:
-    QSize size;
+    QSize widgetSize;
     int zoomLevel;
 
-    void loadZoomLevel(int level);
-    QAction* zoomInButton;
-    QAction* zoomOutButton;
+    int xStart;
+    int yStart;
+
+    std::unordered_map<int, std::vector<QPixmap>> worldMaps;
+
+    QPainter painter;
+
+    void loadZoomLevels();
+
+    void loadZoomLevel(QDir dir);
+
     QScrollArea *scrollArea;
     std::vector<QPixmap> world;
 
     void initializeToolBarButtons();
 
-protected:
-    void paintEvent(QPaintEvent *e);
+
+
+
 
 };
 

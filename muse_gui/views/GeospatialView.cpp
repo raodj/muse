@@ -40,11 +40,11 @@
 
 #include "Core.h"
 #include "GeospatialView.h"
-#include "GeospatialWidget.h"
 #include "Workspace.h"
 #include "MUSEGUIApplication.h"
-//#include <QOpenGL>
+#include <iostream>
 #include <QHeaderView>
+#include <QScrollBar>
 
 // The constant string that identifies the name of this view
 const QString GeospatialView::ViewName = "GeospatialView";
@@ -69,11 +69,16 @@ GeospatialView::GeospatialView(QWidget *parent) :
     scrollArea->lower();
     scrollArea->resize(this->size());
 
-    GeospatialWidget *world = new GeospatialWidget(scrollArea, scrollArea->size());
+    world = new GeospatialWidget(scrollArea, scrollArea->size());
+
     world->setMinimumSize(1, 1);
     scrollArea->setWidget(world);
     connect(zoomInButton, SIGNAL(triggered()), this, SLOT(zoomIn()));
-    world->setZoomLevel(3);
+    connect(zoomOutButton, SIGNAL(triggered()), this, SLOT(zoomOut()));
+    connect(scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)),
+            world, SLOT(xPositionChanged(int)));
+    connect(scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)),
+            world, SLOT(yPositionChanged(int)));
 }
 
 void
@@ -90,13 +95,18 @@ GeospatialView::initializeToolBarButtons() {
 }
 
 void
-GeospatialView::zoomIn() {
+GeospatialView::resizeEvent(QResizeEvent *event) {
+    scrollArea->resize(size());
+}
 
+void
+GeospatialView::zoomIn() {
+    world->zoomIn();
 }
 
 void
 GeospatialView::zoomOut() {
-
+    world->zoomOut();
 }
 
 

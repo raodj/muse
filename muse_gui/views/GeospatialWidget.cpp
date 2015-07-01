@@ -38,13 +38,17 @@
 
 #include "GeospatialWidget.h"
 #include "MUSEGUIApplication.h"
+
+#include <QDir>
+#include <QStringList>
+
 #include <iostream>
 #include <vector>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
-    : QWidget(parent) {
-    size = tempSize;
-    zoomLevel = 1;
+    : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1) {
+    loadZoomLevels();
+    resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
 }
 
 GeospatialWidget::~GeospatialWidget(){
@@ -53,37 +57,98 @@ GeospatialWidget::~GeospatialWidget(){
 
 void
 GeospatialWidget::paintEvent(QPaintEvent *e) {
+    std::vector<QPixmap>& map = worldMaps[zoomLevel];
 
-    //appDir() returns /home/user/.local/share/MUSE/maps/zoom1/
+    int size = std::sqrt(map.size());
+    int zoom = zoomLevel - 1;
 
     QPainter painter(this);
-    this->resize(size.height() << (zoomLevel-1), size.width() << (zoomLevel-1));
-    loadZoomLevel(1);
 
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-            painter.drawPixmap(j*world[2*i+j].width() << (zoomLevel-1),
-                    i*world[2*i+j].height() << (zoomLevel-1),
-                    world[2*i+j].width() << (zoomLevel-1), world[2*i+j].height()
-                    << (zoomLevel-1), world[2*i+j]);
+    for (int y = 0; y < size; y++) {
+        for (int x = 0; x < size; x++) {
+            painter.drawPixmap(x * map[2 * x + y].width() << zoom,
+                               y * map[2 * x + y].height() << zoom,
+                               map[2 * x + y].width() << zoom,
+                               map[2 * x + y].height() << zoom,
+                               map[2 * x + y]);
+            painter.drawRect(QRect(x * map[2 * x + y].width() << zoom,
+                                   y * map[2 * x + y].height() << zoom,
+                                   map[2 * x + y].width() << zoom,
+                                   map[2 * x + y].height() << zoom));
+        }
+    }
+
+
+//    QPainter painter(this);
+//    this->resize(size.height() << (zoomLevel-1), size.width() << (zoomLevel-1));
+
+//    for (int i = 0; i < 2; i++){
+//        for (int j = 0; j < 2; j++){
+//            painter.drawPixmap(j*world[2*i+j].width() << (zoomLevel-1),
+//                    i*world[2*i+j].height() << (zoomLevel-1),
+//                    world[2*i+j].width() << (zoomLevel-1), world[2*i+j].height()
+//                    << (zoomLevel-1), world[2*i+j]);
+//        }
+//    }
+}
+
+void
+GeospatialWidget::loadZoomLevels() {
+    QDir dir(MUSEGUIApplication::appDir() + QDir::separator() + "maps");
+    dir.setFilter(QDir::Dirs | QDir::NoDotAndDotDot | QDir::NoSymLinks);
+
+    QStringList dirs = dir.entryList();
+
+    for (auto& file : dirs) {
+        if (file.contains("zoom")) {
+            loadZoomLevel(QDir(dir.absoluteFilePath(file)));
         }
     }
 }
 
 void
-GeospatialWidget::loadZoomLevel(int tileLevel){
-    for (int i = 0; i < 2; i++){
-        for (int j = 0; j < 2; j++){
-            world.push_back(QPixmap(MUSEGUIApplication::appDir() + "/maps/zoom"
-                                    + QString(tileLevel+48) + "/" + QString(j+48) +
-                                    "_" + QString(i+48) + ".png"));
-        }
+GeospatialWidget::loadZoomLevel(QDir dir){
+    dir.setNameFilters(QStringList("*.png"));
+    dir.setFilter(QDir::Files);
+
+    QStringList files = dir.entryList();
+
+    int zoom = dir.dirName().split("zoom")[1].toInt();
+
+    for (auto& file : files) {
+        worldMaps[zoom].push_back(QPixmap(dir.absoluteFilePath(file)));
     }
 }
 
 void
 GeospatialWidget::setZoomLevel(int tempZoom){
+    if (tempZoom > 0 && tempZoom < 9)
     zoomLevel = tempZoom;
+}
+
+void
+GeospatialWidget::zoomIn(){
+    if (zoomLevel < 8){
+        ++zoomLevel;
+    }
+}
+
+void
+GeospatialWidget::zoomOut(){
+    if (zoomLevel > 1){
+        --zoomLevel;
+    }
+
+}
+
+void
+GeospatialWidget::xPositionChanged(int x) {
+    std::cout << x << std::endl;
+}
+
+void
+GeospatialWidget::yPositionChanged(int y) {
+    std::cout << y << std::endl;
 }
 
 #endif
