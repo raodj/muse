@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "View.h"
+#include "GeospatialWidget.h"
 #include <QTableView>
 #include <QScrollArea>
 
@@ -59,9 +60,11 @@ private:
     QAction* zoomInButton;
     QAction* zoomOutButton;
     QScrollArea *scrollArea;
-
+    GeospatialWidget *world;
 
     void initializeToolBarButtons();
+
+    void resizeEvent(QResizeEvent* event) override;
 
 };
 
