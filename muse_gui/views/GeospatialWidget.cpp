@@ -63,35 +63,27 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
     int zoom = zoomLevel - 1;
 
     QPainter painter(this);
-
+    auto tiles = 0;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            painter.drawPixmap(x * map[2 * x + y].width() << zoom,
-                               y * map[2 * x + y].height() << zoom,
+            int xCoordinate = x * map[2 * x + y].width() << zoom;
+            int yCoordinate = y * map[2 * x + y].height() << zoom;
+            int differenceThreshold = map[2 * x + y].width();
+            if (xCoordinate >= xStart - differenceThreshold && yCoordinate >= yStart - differenceThreshold){
+            painter.drawPixmap(xCoordinate, yCoordinate,
                                map[2 * x + y].width() << zoom,
                                map[2 * x + y].height() << zoom,
                                map[2 * x + y]);
-            painter.drawRect(QRect(x * map[2 * x + y].width() << zoom,
-                                   y * map[2 * x + y].height() << zoom,
-                                   map[2 * x + y].width() << zoom,
-                                   map[2 * x + y].height() << zoom));
+            tiles++;
+            }
+//            painter.drawRect(QRect(x * map[2 * x + y].width() << zoom,
+//                                   y * map[2 * x + y].height() << zoom,
+//                                   map[2 * x + y].width() << zoom,
+//                                   map[2 * x + y].height() << zoom));
         }
     }
-
-
-//    QPainter painter(this);
-//    this->resize(size.height() << (zoomLevel-1), size.width() << (zoomLevel-1));
-
-//    for (int i = 0; i < 2; i++){
-//        for (int j = 0; j < 2; j++){
-//            painter.drawPixmap(j*world[2*i+j].width() << (zoomLevel-1),
-//                    i*world[2*i+j].height() << (zoomLevel-1),
-//                    world[2*i+j].width() << (zoomLevel-1), world[2*i+j].height()
-//                    << (zoomLevel-1), world[2*i+j]);
-//        }
-//    }
+    std::cout << "Tiles printed to screen: " << tiles << std::endl;
 }
-
 void
 GeospatialWidget::loadZoomLevels() {
     QDir dir(MUSEGUIApplication::appDir() + QDir::separator() + "maps");
@@ -143,12 +135,14 @@ GeospatialWidget::zoomOut(){
 
 void
 GeospatialWidget::xPositionChanged(int x) {
-    std::cout << x << std::endl;
+    //std::cout << x << std::endl;
+    xStart = x;
 }
 
 void
 GeospatialWidget::yPositionChanged(int y) {
-    std::cout << y << std::endl;
+    //std::cout << y << std::endl;
+    yStart = y;
 }
 
 #endif
