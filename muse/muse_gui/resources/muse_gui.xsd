@@ -97,7 +97,7 @@
 	    <xsd:enumeration value="linux" />
 	    <xsd:enumeration value="unix" />
 	    <xsd:enumeration value="windows" />
-	    <xsd:enumeration value="Darwin" />
+	    <xsd:enumeration value="darwin" />
 	    <xsd:enumeration value="unknown_os" />            
 	</xsd:restriction>
     </xsd:simpleType>

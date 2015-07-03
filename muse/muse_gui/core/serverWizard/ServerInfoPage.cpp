@@ -74,7 +74,7 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     // if the user changes the selected directory, we need to recheck if it
     // exists
     connect(&installDirectoryDisplay, &QLineEdit::textChanged,
-            [=] (const QString& text) {
+            [&] (const QString& text) {
         Q_UNUSED(text);
         installDirChecked = false;
         installDirExists = false;

@@ -109,7 +109,9 @@ SOURCES +=\
     views/GeospatialWidget.cpp \
     core/workspaceWizard/WorkspaceSelectPage.cpp \
     core/workspaceWizard/WorkspaceDialog.cpp \
-    workspace/ServerWatcher.cpp
+    workspace/ServerWatcher.cpp \
+    workspace/ServerWorkspace.cpp \
+    workspace/LocalServerWorkspace.cpp
 
 
 HEADERS  += \
@@ -194,7 +196,9 @@ HEADERS  += \
     core/workspaceWizard/WorkspaceSelectPage.h \
     core/workspaceWizard/WorkspaceDialog.h \
     infra/xml/XMLMetaTypeHelper.h \
-    workspace/ServerWatcher.h
+    workspace/ServerWatcher.h \
+    workspace/ServerWorkspace.h \
+    workspace/LocalServerWorkspace.h
 
 RESOURCES += \
     muse_gui.qrc
