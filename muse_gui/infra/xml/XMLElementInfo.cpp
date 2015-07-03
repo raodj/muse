@@ -47,7 +47,7 @@
 // This list would not be needed under c++11
 const char* XMLElementInfo::TypeNameList[] = {
     "7QString", "QString", "i", "int", "l", "long", "f", "float",
-    "d", "double", "P10XMLElement", "XMLElement",
+    "d", "double", "P10XMLElement", "XMLElement", "Project", "Project",
     NULL, NULL // Do not remove this last line!
 };
 

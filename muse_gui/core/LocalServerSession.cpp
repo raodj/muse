@@ -1,5 +1,10 @@
-#include "Core.h"
+#ifndef LOCAL_SERVER_SESSION_CPP
+#define LOCAL_SERVER_SESSION_CPP
+
 #include "LocalServerSession.h"
+#include "Core.h"
+#include "LocalServerWorkspace.h"
+
 #include <QDir>
 #include <QProcess>
 
@@ -21,20 +26,18 @@ LocalServerSession::disconnectFromServer() {
 
 int
 LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &stderrmsgs) {
-    QProcess process; //= new QProcess();
+    QProcess process;
     process.start(command);
     process.waitForFinished();
     stdoutput = process.readAllStandardOutput();
     stderrmsgs = process.readAllStandardError();
 
     return process.exitCode();
-
 }
 
 int
 LocalServerSession::exec(const QString &command, QTextEdit& output) {
-
-    QProcess process; //= new QProcess();
+    QProcess process;
     process.start(command);
     process.waitForFinished();
     output.append(process.readAllStandardOutput());
@@ -45,17 +48,16 @@ LocalServerSession::exec(const QString &command, QTextEdit& output) {
 
 bool
 LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
-                              const QString &destFileName, const int &mode) {
+                         const QString &destFileName, const int &mode) {
+    Q_UNUSED(mode);
     QString newFilePath = destDirectory +
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
     return QFile::copy(srcData, newFilePath);
-    Q_UNUSED(mode);
 }
 
 bool
 LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
-                              const QString& srcFileName) {
-
+                         const QString& srcFileName) {
     QString curFilePath = srcDirectory +
             (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
    return QFile::copy(curFilePath, destData);
@@ -114,9 +116,9 @@ LocalServerSession::validate(const QString &directory) {
     /// will work in a way similar to Workspace.  For now we will just create
     /// the necessary directories
 
-    QDir projectsDir(directory + server->separator() + "projects");
-    QDir jobsDir(directory + server->separator() + "jobs");
-    QDir scriptsDir(directory + server->separator() + "scripts");
+    QDir projectsDir{ directory + server->separator() + "projects" };
+    QDir jobsDir{ directory + server->separator() + "jobs" };
+    QDir scriptsDir{ directory + server->separator() + "scripts" };
 
     if (!projectsDir.exists()) {
         emit directoryValidated(false);
@@ -129,6 +131,15 @@ LocalServerSession::validate(const QString &directory) {
     }
 
     if (!scriptsDir.exists()) {
+        emit directoryValidated(false);
+        return;
+    }
+
+    LocalServerWorkspace sw{ directory };
+
+    try {
+        sw.load();
+    } catch (QString error) {
         emit directoryValidated(false);
         return;
     }
@@ -151,3 +162,5 @@ LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owne
 
     Q_UNUSED(owner);
 }
+
+#endif
