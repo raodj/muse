@@ -73,6 +73,7 @@ GeospatialView::GeospatialView(QWidget *parent) :
 
     world->setMinimumSize(1, 1);
     scrollArea->setWidget(world);
+
     connect(zoomInButton, SIGNAL(triggered()), this, SLOT(zoomIn()));
     connect(zoomOutButton, SIGNAL(triggered()), this, SLOT(zoomOut()));
     connect(scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)),
