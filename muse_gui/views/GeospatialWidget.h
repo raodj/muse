@@ -79,14 +79,13 @@ private:
     QPainter painter;
 
     void loadZoomLevels();
-
     void loadZoomLevel(QDir dir);
 
     QScrollArea *scrollArea;
     std::vector<QPixmap> world;
 
     void initializeToolBarButtons();
-
+    void automaticResize(int width, int height, int zoom);
 
 
 
