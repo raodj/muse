@@ -145,7 +145,7 @@ bool
 ServerInfoPage::validatePage() {
     prgDialog.setVisible(true);
 
-    // The first thing to do is check to make sure the install directory exists
+    // The first thing to do is check if the install directory exists
     if (!installDirChecked) {
         connect(serverSession, SIGNAL(directoryExists(bool)),
                 this, SLOT(getDirExistsResult(bool)));
@@ -165,9 +165,11 @@ ServerInfoPage::validatePage() {
         return false;
     }
 
-    // The directory exists (it may have just been created) but now we
-    // need to add the necessary files and directories to make this a valid
-    // Server
+    // If the directory didn't exist and had to be created, then now we need
+    // to add the necessary server files and directories, we will skip this at
+    // first if the user chose a directory that already exists.  If it turns
+    // out there is no valid server info in that directory, then we will
+    // create it as we do for a new directory
     if (!installDirHasServerData) {
         connect(serverSession, SIGNAL(serverDataCreated(bool)),
                 this, SLOT(getServerDataCreatedResult(bool)));
@@ -201,6 +203,7 @@ ServerInfoPage::validatePage() {
     // Ensure that a return to this page reverifies everything
     installDirChecked = false;
     installDirExists = false;
+    installDirHasServerData = false;
     installDirValidated = false;
 
     Server *server = serverSession->getServer();
