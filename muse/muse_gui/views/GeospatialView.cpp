@@ -68,7 +68,7 @@ GeospatialView::GeospatialView(QWidget *parent) :
     scrollArea = new QScrollArea(this);
     scrollArea->lower();
     scrollArea->resize(this->size());
-
+    std::cout << scrollArea->width() << std::endl;
     world = new GeospatialWidget(scrollArea, scrollArea->size());
 
     world->setMinimumSize(1, 1);

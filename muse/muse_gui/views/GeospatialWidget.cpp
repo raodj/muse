@@ -44,6 +44,7 @@
 
 #include <iostream>
 #include <vector>
+#include <math.h>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1) {
@@ -61,20 +62,24 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
 
     int size = std::sqrt(map.size());
     int zoom = zoomLevel - 1;
+    automaticResize(map[0].width(), map[0].height(), zoom);
 
     QPainter painter(this);
     auto tiles = 0;
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            int xCoordinate = x * map[2 * x + y].width() << zoom;
-            int yCoordinate = y * map[2 * x + y].height() << zoom;
-            int differenceThreshold = map[2 * x + y].width();
-            if (xCoordinate >= xStart - differenceThreshold && yCoordinate >= yStart - differenceThreshold){
-            painter.drawPixmap(xCoordinate, yCoordinate,
-                               map[2 * x + y].width() << zoom,
-                               map[2 * x + y].height() << zoom,
-                               map[2 * x + y]);
-            tiles++;
+            int xCoordinate = x * map[pow(2, zoomLevel) * x + y].width() << zoom;
+            int yCoordinate = y * map[pow(2, zoomLevel) * x + y].height() << zoom;
+
+            int xDifferenceThreshold = ((int)(map[pow(2, zoomLevel) * x + y].width())) << zoom;
+            int yDifferenceThreshold = ((int)(map[pow(2, zoomLevel) * x + y].height())) << zoom;
+
+            if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold){
+                painter.drawPixmap(xCoordinate, yCoordinate,
+                                   map[pow(2, zoomLevel) * x + y].width() << zoom,
+                                   map[pow(2, zoomLevel) * x + y].height() << zoom,
+                                   map[pow(2, zoomLevel) * x + y]);
+                tiles++;
             }
 //            painter.drawRect(QRect(x * map[2 * x + y].width() << zoom,
 //                                   y * map[2 * x + y].height() << zoom,
@@ -144,5 +149,11 @@ GeospatialWidget::yPositionChanged(int y) {
     //std::cout << y << std::endl;
     yStart = y;
 }
+
+void
+GeospatialWidget::automaticResize(int tileWidth, int tileHeight, int zoom){
+    this->resize(((int)(pow(2, zoomLevel) * tileWidth)) << zoom, ((int)(pow(2, zoomLevel) * tileHeight)) << zoom);
+}
+
 
 #endif
