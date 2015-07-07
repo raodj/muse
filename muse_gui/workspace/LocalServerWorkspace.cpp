@@ -16,35 +16,26 @@ LocalServerWorkspace::~LocalServerWorkspace() {
 
 }
 
-void
+QString
 LocalServerWorkspace::save() {
     QFileInfo info{ QDir{ directory }, serverFileName };
-    XMLParser parser;
-    QString error{ parser.saveXML(info.absoluteFilePath(), *this) };
 
-    if (error != "") {
-        throw error;
-    }
+    return XMLParser{}.saveXML(info.absoluteFilePath(), *this);
 }
 
-void
+QString
 LocalServerWorkspace::load() {
     QDir serverDir{ directory };
     QFileInfo info{ serverDir, serverFileName };
 
     if (!info.exists() || !info.isFile() || !info.isReadable()) {
-        throw QString{ "Server directory ('" + directory + "') does not "\
-                       "contain a readable metadata file: " + serverFileName };
+        return QString{ "Server directory ('" + directory + "') does not "\
+                        "contain a readable metadata file: " + serverFileName };
     }
 
-    XMLParser parser;
     QString schemaFile{ ":/resources/muse_gui.xsd" };
-    QString error;
 
-    error = parser.loadXML(info.absoluteFilePath(), schemaFile, *this);
-    if (error != "") {
-        throw error;
-    }
+    return XMLParser{}.loadXML(info.absoluteFilePath(), schemaFile, *this);
 }
 
 #endif

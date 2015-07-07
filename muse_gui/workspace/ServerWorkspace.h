@@ -48,8 +48,8 @@ public:
     ServerWorkspace(const QString& dir);
     virtual ~ServerWorkspace();
 
-    virtual void save() = 0;
-    virtual void load() = 0;
+    virtual QString save() = 0;
+    virtual QString load() = 0;
 
     void addProject(const Project& project);
     void addJob(const Job& job);

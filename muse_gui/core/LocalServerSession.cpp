@@ -2,8 +2,8 @@
 #define LOCAL_SERVER_SESSION_CPP
 
 #include "LocalServerSession.h"
-#include "Core.h"
 #include "LocalServerWorkspace.h"
+#include "Core.h"
 
 #include <QDir>
 #include <QProcess>
@@ -106,7 +106,11 @@ LocalServerSession::createServerData(const QString& directory) {
         return;
     }
 
-    emit serverDataCreated(true);
+    if (LocalServerWorkspace{ directory }.save() != "") {
+        emit serverDataCreated(false);
+    } else {
+        emit serverDataCreated(true);
+    }
 }
 
 void
@@ -135,16 +139,11 @@ LocalServerSession::validate(const QString &directory) {
         return;
     }
 
-    LocalServerWorkspace sw{ directory };
-
-    try {
-        sw.load();
-    } catch (QString error) {
+    if (LocalServerWorkspace{ directory }.load() != "") {
         emit directoryValidated(false);
-        return;
+    } else {
+        emit directoryValidated(true);
     }
-
-    emit directoryValidated(true);
 }
 
 void

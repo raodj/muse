@@ -8,8 +8,8 @@ public:
     LocalServerWorkspace(const QString& dir);
     ~LocalServerWorkspace();
 
-    void save() override;
-    void load() override;
+    QString save() override;
+    QString load() override;
 };
 
 #endif // LOCAL_SERVER_WORKSPACE_H
