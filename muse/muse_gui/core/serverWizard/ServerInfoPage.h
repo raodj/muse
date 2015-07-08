@@ -138,7 +138,7 @@ private:
     QPushButton browse;
     QSpinBox pollingDelay;
     QProgressDialog prgDialog;
-    bool installDirectoryVerified, mkdirSucceeded;
+    //bool installDirectoryVerified, mkdirSucceeded;
     ServerSession* serverSession;
     static const QString InstallDirectoryMessage;
 

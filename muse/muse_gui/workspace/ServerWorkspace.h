@@ -46,7 +46,6 @@
 class ServerWorkspace : public XMLRootElement {
 public:
     ServerWorkspace(const QString& dir);
-    virtual ~ServerWorkspace();
 
     virtual QString save() = 0;
     virtual QString load() = 0;

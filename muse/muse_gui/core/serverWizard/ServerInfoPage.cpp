@@ -73,14 +73,14 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
 
     // if the user changes the selected directory, we need to recheck if it
     // exists
-    connect(&installDirectoryDisplay, &QLineEdit::textChanged,
-            [&] (const QString& text) {
-        Q_UNUSED(text);
-        installDirChecked = false;
-        installDirExists = false;
-        installDirValidated = false;
-        installDirHasServerData = false;
-    });
+//    connect(&installDirectoryDisplay, &QLineEdit::textChanged,
+//            [&] (const QString& text) {
+//        Q_UNUSED(text);
+//        installDirChecked = false;
+//        installDirExists = false;
+//        installDirValidated = false;
+//        installDirHasServerData = false;
+//    });
 
     // Set up browse button
     browse.setText("Browse");
@@ -113,8 +113,8 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     setLayout(mainLayout);
 
     // Default value
-    installDirectoryVerified = false;
-    mkdirSucceeded = false;
+    //installDirectoryVerified = false;
+    //mkdirSucceeded = false;
 
     installDirChecked = false;
     installDirExists = false;
@@ -284,7 +284,7 @@ ServerInfoPage::getServerDataCreatedResult(bool result) {
     installDirChecked = result;
     installDirExists = result;
     installDirHasServerData = result;
-    installDirectoryVerified = result;
+    installDirValidated = result;
 
     // If the server data was successfully created, we can advance in the
     // wizard, otherwise we need to inform the user that there was a problem
@@ -338,6 +338,7 @@ ServerInfoPage::browseFileSystem() {
     QString dirPath = fileDiag.getExistingDirectory(nullptr,
                                                     "TYPE the name of the directory to CREATE",
                                                     QStandardPaths::writableLocation(QStandardPaths::HomeLocation));
+    installDirectoryDisplay.setText(dirPath);
 }
 
 #endif
