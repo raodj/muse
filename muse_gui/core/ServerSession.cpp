@@ -38,6 +38,11 @@
 
 #include "Core.h"
 #include "ServerSession.h"
+
+const QString ServerSession::projectsDirName{ "projects" };
+const QString ServerSession::jobsDirName{ "jobs" };
+const QString ServerSession::scriptsDirName{ "scripts" };
+
 ServerSession::ServerSession(Server* server, QWidget *parent, QString osType) :
     server(server) , parent(parent), osType(osType) {
 //Nothing to do.

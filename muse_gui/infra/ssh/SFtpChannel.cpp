@@ -106,6 +106,22 @@ SFtpChannel::mkdir(const QString& dir) {
 }
 
 bool
+SFtpChannel::mkdirs(const QStringList &dirs) {
+    for (const auto& dir : dirs) {
+        if (!mkdir(dir)) {
+            return false;
+        }
+    }
+
+    return true;
+}
+
+bool
+SFtpChannel::validateServer(const QString &dir) {
+
+}
+
+bool
 SFtpChannel::rmdir(const QString &dir) {
         int returnCode = libssh2_sftp_rmdir(sftpChannel, dir.toStdString().c_str());
         // If the directory couldn't be removed, we have a problem,

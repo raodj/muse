@@ -48,7 +48,8 @@ template<typename RetVal>
  * that could otherwise lock the user interface.
  */
 class RSSAsyncHelper : public MUSEThread {
-typedef std::function<RetVal(void)> MethodCall;
+//typedef std::function<RetVal(void)> MethodCall;
+using MethodCall = std::function<RetVal<void>>;
 public:
 
     RSSAsyncHelper();

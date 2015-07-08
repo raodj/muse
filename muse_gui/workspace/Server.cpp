@@ -108,7 +108,7 @@ Server::Server(const Server &server) : XMLElement("Server"),
 }
 
 bool
-Server::operator==(const Server other) {
+Server::operator==(const Server& other) {
     return ID == other.getID() && remote == other.isRemote() && name == other.getName()
             && port == other.getPort() && description == other.getDescription()
             && userID == other.getUserID() && installPath == other.getInstallPath()
@@ -187,6 +187,14 @@ Server::separator() {
     }
 
     return "/";
+}
+
+bool
+Server::isSameServer(const Server& other) {
+    return remote == other.isRemote() && name == other.getName()
+            && port == other.getPort() && description == other.getDescription()
+            && userID == other.getUserID() && installPath == other.getInstallPath()
+            && status == other.getStatus() && osType == other.getOS();
 }
 
 #endif

@@ -266,6 +266,18 @@ RemoteServerSession::createServerData(const QString &directory) {
     /// for now, we will just tell the caller that the server data failed
     /// to be created, because we have to tell them something
 
+    QString projectsDir{ directory + server->separator() + projectsDirName };
+    QString jobsDir{ directory + server->separator() + jobsDirName };
+    QString scriptsDir{ directory + server->separator() + scriptsDirName };
+
+    RSSAsyncHelper<bool>* dirHelper = new RSSAsyncHelper<bool>
+            (&threadedResult, socket, std::bind(&SFtpChannel::mkdirs,
+                                                sftpChannel,
+                                                { projectsDir, jobsDir, scriptsDir }));
+
+    socket->moveToThread(dirHelper);
+    sftpChannel->moveToThread(dirHelper);
+
     emit serverDataCreated(false);
 }
 

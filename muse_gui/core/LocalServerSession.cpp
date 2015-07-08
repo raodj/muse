@@ -139,14 +139,11 @@ LocalServerSession::validate(const QString &directory) {
         return;
     }
 
-    QString s = LocalServerWorkspace{ directory }.load();
-    if (s == "") {
+    if (LocalServerWorkspace{ directory }.load() == "") {
         emit directoryValidated(true);
     } else {
         emit directoryValidated(false);
     }
-
-    std::cout << "error: '" << s.toStdString() << "'" << std::endl;
 }
 
 void
