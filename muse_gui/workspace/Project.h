@@ -141,4 +141,10 @@ private:
     long jobCount;
 };
 
+// Define custom template specialization class
+DECLARE_METATYPE_HELPER(Project)
+
+// Declare additional information required by Qt's meta type system
+Q_DECLARE_METATYPE(Project)
+
 #endif // PROJECT_H

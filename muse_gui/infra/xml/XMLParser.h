@@ -84,7 +84,8 @@ public:
      * a plase holder (for any future extensions) and to adhere to coding
      * conventions.
      */
-    virtual ~XMLParser() {}
+    // destructor removed to adhere to rule-of-zero
+    //virtual ~XMLParser() {}
 
     /**
      * @brief validate Validate if a given XML file conforms to an XML schema

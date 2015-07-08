@@ -94,4 +94,10 @@ protected:
     QList<XMLElement*>jobs;
 };
 
+// Define custom template specialization class
+DECLARE_METATYPE_HELPER(JobList)
+
+// Declare additional information required by Qt's meta type system
+Q_DECLARE_METATYPE(JobList)
+
 #endif // JOBLIST_H

@@ -58,9 +58,11 @@ ServerWorkspace::ServerWorkspace(const QString &dir) :
     addElement(XMLElementInfo("Directory",  &directory));
     addElement(XMLElementInfo("JobList", &jobs));
     addElement(XMLElementInfo("ProjectList", &projects));
-}
 
-ServerWorkspace::~ServerWorkspace() {
+    qRegisterMetaType<ProjectList>("ProjectList");
+    qRegisterMetaType<Project>("Project");
+    qRegisterMetaType<JobList>("JobList");
+    qRegisterMetaType<Job>("Job");
 }
 
 #endif

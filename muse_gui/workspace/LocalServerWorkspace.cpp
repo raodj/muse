@@ -12,10 +12,6 @@ LocalServerWorkspace::LocalServerWorkspace(const QString& dir)
 {
 }
 
-LocalServerWorkspace::~LocalServerWorkspace() {
-
-}
-
 QString
 LocalServerWorkspace::save() {
     QFileInfo info{ QDir{ directory }, serverFileName };

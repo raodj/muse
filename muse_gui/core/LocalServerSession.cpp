@@ -106,10 +106,10 @@ LocalServerSession::createServerData(const QString& directory) {
         return;
     }
 
-    if (LocalServerWorkspace{ directory }.save() != "") {
-        emit serverDataCreated(false);
-    } else {
+    if (LocalServerWorkspace{ directory }.save() == "") {
         emit serverDataCreated(true);
+    } else {
+        emit serverDataCreated(false);
     }
 }
 
@@ -139,11 +139,14 @@ LocalServerSession::validate(const QString &directory) {
         return;
     }
 
-    if (LocalServerWorkspace{ directory }.load() != "") {
-        emit directoryValidated(false);
-    } else {
+    QString s = LocalServerWorkspace{ directory }.load();
+    if (s == "") {
         emit directoryValidated(true);
+    } else {
+        emit directoryValidated(false);
     }
+
+    std::cout << "error: '" << s.toStdString() << "'" << std::endl;
 }
 
 void
