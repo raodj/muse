@@ -194,10 +194,12 @@ public:
      */
     void addServerToWorkSpace(const Server& server);
 
-
     Server& getServer(int index);
 
     int serverCount();
+
+    bool hasServer(const Server& server);
+    bool hasServer(Server* server);
 
 protected:
     /**

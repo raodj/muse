@@ -241,4 +241,20 @@ Workspace::getServer(int index) {
     return serverList.get(index);
 }
 
+bool
+Workspace::hasServer(const Server &server) {
+    for (int i = 0; i < serverList.size(); i++) {
+        if (serverList.get(i).isSameServer(server)) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool
+Workspace::hasServer(Server *server) {
+    return hasServer(reinterpret_cast<const Server&>(server));
+}
+
 #endif

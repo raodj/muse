@@ -112,6 +112,10 @@ public:
      */
     bool mkdir(const QString& dir);
 
+    bool mkdirs(const QStringList& dirs);
+
+    bool validateServer(const QString& dir);
+
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
      * This method will only succeed if the directory is empty.

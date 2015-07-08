@@ -37,7 +37,10 @@
 //---------------------------------------------------------------------
 
 #define LOCAL_SERVER "0"
+
 #include "ServerInfoPage.h"
+#include "Workspace.h"
+
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QLabel>
@@ -214,6 +217,17 @@ ServerInfoPage::validatePage() {
 
     // Add the install directory
     server->setInstallPath(installDirectoryDisplay.text());
+
+    // Make sure the user hasnt already added this server to this workspace
+    if (Workspace::get()->hasServer(*server)) {
+        QMessageBox::information(this, "Duplicate server",
+                                 "It appears this server has already "\
+                                 "been added to this workspace so there is no "\
+                                 "reason to add it again, please change "\
+                                 "the server information if you wish to continue");
+
+        return false;
+    }
 
     // Finally, we can advance to the next page.
     return true;

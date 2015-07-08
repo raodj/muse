@@ -281,6 +281,10 @@ protected:
     const QWidget* parent;
     QString& osType;
 
+    static const QString projectsDirName;
+    static const QString jobsDirName;
+    static const QString scriptsDirName;
+
 };
 
 #endif

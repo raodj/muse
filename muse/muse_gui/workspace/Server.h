@@ -176,7 +176,7 @@ public:
 
     Server(const Server& other);
 
-    bool operator==(const Server other);
+    bool operator==(const Server& other);
 
     /**
      * @brief ~Server The destructor.
@@ -186,7 +186,7 @@ public:
      * a plase holder (for any future extensions) and to adhere to coding
      * conventions.
      */
-    ~Server() {}
+    //~Server() {}
 
     /**
      * @brief getID Returns the workspace-unique ID assigned for this server
@@ -328,6 +328,18 @@ public:
 
     QString getHomeDir();
     QString separator();
+
+    /**
+     * @brief isSameServer Determines if the information about this server
+     * is the same as another server, this is very similar to what operator==
+     * does, except this doesnt compare ID's because that isnt important
+     * to determining if two Servers point to the same actual Server
+     *
+     * @param other The other Server to test against
+     *
+     * @return True if they are the same, false otherwise
+     */
+    bool isSameServer(const Server& other);
 
 signals:
     /**
