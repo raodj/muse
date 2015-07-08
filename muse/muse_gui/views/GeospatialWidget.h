@@ -63,12 +63,14 @@ public:
 public slots:
     void xPositionChanged(int x);
     void yPositionChanged(int y);
+    void getScrollAreaSize(QSize scrollSize);
 
 protected:
     void paintEvent(QPaintEvent *e);
 
 private:
     QSize widgetSize;
+    QSize scrollSize;
     int zoomLevel;
 
     int xStart;

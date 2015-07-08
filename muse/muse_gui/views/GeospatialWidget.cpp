@@ -47,7 +47,8 @@
 #include <math.h>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
-    : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1) {
+    : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1),
+    scrollSize(50, 50){
     loadZoomLevels();
     resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
 }
@@ -63,7 +64,7 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
     int size = std::sqrt(map.size());
     int zoom = zoomLevel - 1;
     automaticResize(map[0].width(), map[0].height(), zoom);
-
+    std::cout << "Scroll width: " << scrollSize.width() << std::endl;
     QPainter painter(this);
     auto tiles = 0;
     for (int y = 0; y < size; y++) {
@@ -75,16 +76,14 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
             int yDifferenceThreshold = ((int)(map[pow(2, zoomLevel) * x + y].height())) << zoom;
 
             if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold){
-                painter.drawPixmap(xCoordinate, yCoordinate,
-                                   map[pow(2, zoomLevel) * x + y].width() << zoom,
-                                   map[pow(2, zoomLevel) * x + y].height() << zoom,
-                                   map[pow(2, zoomLevel) * x + y]);
-                tiles++;
+                if (xCoordinate < xStart + scrollSize.width() && yCoordinate < yStart + scrollSize.height()){
+                    painter.drawPixmap(xCoordinate, yCoordinate,
+                                       map[pow(2, zoomLevel) * x + y].width() << zoom,
+                                       map[pow(2, zoomLevel) * x + y].height() << zoom,
+                                       map[pow(2, zoomLevel) * x + y]);
+                    tiles++;
+                }
             }
-//            painter.drawRect(QRect(x * map[2 * x + y].width() << zoom,
-//                                   y * map[2 * x + y].height() << zoom,
-//                                   map[2 * x + y].width() << zoom,
-//                                   map[2 * x + y].height() << zoom));
         }
     }
     std::cout << "Tiles printed to screen: " << tiles << std::endl;
@@ -148,6 +147,12 @@ void
 GeospatialWidget::yPositionChanged(int y) {
     //std::cout << y << std::endl;
     yStart = y;
+}
+
+void
+GeospatialWidget::getScrollAreaSize(QSize scrollSize) {
+    this->scrollSize = scrollSize;
+    std::cout << "Received Width: " << scrollSize.width() << " and Height: " << scrollSize.height() << std::endl;
 }
 
 void
