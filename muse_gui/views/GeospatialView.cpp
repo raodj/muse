@@ -80,6 +80,8 @@ GeospatialView::GeospatialView(QWidget *parent) :
             world, SLOT(xPositionChanged(int)));
     connect(scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)),
             world, SLOT(yPositionChanged(int)));
+    //connect(scrollArea->resize() , SIGNAL(valueChanged(QSize)), this,
+            //SLOT(sendTheSize()));
 }
 
 void
@@ -98,6 +100,7 @@ GeospatialView::initializeToolBarButtons() {
 void
 GeospatialView::resizeEvent(QResizeEvent *event) {
     scrollArea->resize(size());
+    sendTheSize();
 }
 
 void
@@ -108,6 +111,11 @@ GeospatialView::zoomIn() {
 void
 GeospatialView::zoomOut() {
     world->zoomOut();
+}
+
+void
+GeospatialView::sendTheSize(){
+    world->getScrollAreaSize(scrollArea->size());
 }
 
 

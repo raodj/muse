@@ -55,6 +55,7 @@ public:
 protected slots:
     void zoomIn();
     void zoomOut();
+    void sendTheSize();
 
 private:
     QAction* zoomInButton;
