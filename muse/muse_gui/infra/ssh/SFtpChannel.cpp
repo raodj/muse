@@ -117,11 +117,6 @@ SFtpChannel::mkdirs(const QStringList &dirs) {
 }
 
 bool
-SFtpChannel::validateServer(const QString &dir) {
-
-}
-
-bool
 SFtpChannel::rmdir(const QString &dir) {
         int returnCode = libssh2_sftp_rmdir(sftpChannel, dir.toStdString().c_str());
         // If the directory couldn't be removed, we have a problem,
@@ -141,6 +136,17 @@ SFtpChannel::dirExists(const QString& dir) {
     // libssh2_sftp_opendir will return a LIBSSH2_SFTP_HANDLE* if the directory
     // was opened, or null if it was not
     return libssh2_sftp_opendir(sftpChannel, dir.toStdString().c_str()) != nullptr;
+}
+
+bool
+SFtpChannel::dirsExist(QStringList dirs) {
+    for (const auto& dir : dirs) {
+        if (!dirExists(dir)) {
+            return false;
+        }
+    }
+
+    return true;
 }
 
 #endif

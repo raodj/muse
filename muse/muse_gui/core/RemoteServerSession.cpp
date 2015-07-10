@@ -193,107 +193,67 @@ RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
 //}
 
 void
-RemoteServerSession::mkdir(const QString &directory) {
-    // We need an SftpChannel
-    if (sftpChannel == NULL) {
-        sftpChannel = new SFtpChannel(*socket);
-    }
-    // Make an AsyncHelper
-    RSSAsyncHelper<bool>* mkdirHelper = new RSSAsyncHelper<bool>
-            (&threadedResult, socket, std::bind(&SFtpChannel::mkdir,
-                                        sftpChannel, directory), sftpChannel);
-    // Move the socket and SftpChannel to the helper thread.
-    socket->moveToThread(mkdirHelper);
-    sftpChannel->moveToThread(mkdirHelper);
-    // Connect signal so that we can act appropriately based on result
-    // of the command's execution.
-    connect(mkdirHelper, SIGNAL(finished()), this, SLOT(announceMkdirResult()));
-    // Delete the helper once the event loop of the thread has ended.
-    connect(mkdirHelper, SIGNAL(finished()), mkdirHelper, SLOT(deleteLater()));
-    mkdirHelper->start();
-
-}
-
-//void
-//RemoteServerSession::rmdir(const QString &directory) {
-//    // We need an SftpChannel
-//    if (sftpChannel == NULL) {
-//        sftpChannel = new SFtpChannel(*socket);
-//    }
-//    // Make an AsyncHelper
-//    RSSAsyncHelper<bool>* rmdirHelper = new RSSAsyncHelper<bool>
-//            (&threadedResult, socket, std::bind(&SFtpChannel::rmdir,
-//                                        sftpChannel, directory), sftpChannel);
-//    socket->moveToThread(rmdirHelper);
-//    sftpChannel->moveToThread(rmdirHelper);
-//    // Connect signal so that we can act appropriately based on result
-//    // of the command's execution.
-//    connect(rmdirHelper, SIGNAL(finished()), this, SLOT(announceRmdirResult()));
-//    // Delete the helper once the event loop of the thread has ended.
-//    connect(rmdirHelper, SIGNAL(finished()), rmdirHelper, SLOT(deleteLater()));
-//    rmdirHelper->start();
-//}
-
-void
-RemoteServerSession::dirExists(const QString &directory) {
+RemoteServerSession::mkdir() {
     if (sftpChannel == nullptr) {
         sftpChannel = new SFtpChannel(*socket);
     }
 
-    RSSAsyncHelper<bool>* existsHelper = new RSSAsyncHelper<bool>
-            (&threadedResult, socket, std::bind(&SFtpChannel::dirExists,
-                                                sftpChannel, directory),
-             sftpChannel);
-
-    socket->moveToThread(existsHelper);
-    sftpChannel->moveToThread(existsHelper);
-
-    connect(existsHelper, SIGNAL(finished()), this, SLOT(announceDirExistsResult()));
-    connect(existsHelper, SIGNAL(finished()), existsHelper, SLOT(deleteLater()));
+    emit directoryCreated(sftpChannel->mkdir(directory));
 }
 
 void
-RemoteServerSession::createServerData(const QString &directory) {
+RemoteServerSession::dirExists() {
     if (sftpChannel == nullptr) {
         sftpChannel = new SFtpChannel(*socket);
     }
 
-    /// TODO: actually create the ServerData, this will be tricky because
-    /// of the way RSSAsyncHelper works, unless we want to add a function
-    /// to SFtpChannel specifically for creating necessary Server files,
-    /// however, I do not believe it is SFtpChannel's job to do that
-    ///
-    /// for now, we will just tell the caller that the server data failed
-    /// to be created, because we have to tell them something
+    emit directoryExists(sftpChannel->dirExists(directory));
+}
+
+void
+RemoteServerSession::createServerData() {
+    if (sftpChannel == nullptr) {
+        sftpChannel = new SFtpChannel(*socket);
+    }
 
     QString projectsDir{ directory + server->separator() + projectsDirName };
     QString jobsDir{ directory + server->separator() + jobsDirName };
     QString scriptsDir{ directory + server->separator() + scriptsDirName };
 
-    RSSAsyncHelper<bool>* dirHelper = new RSSAsyncHelper<bool>
-            (&threadedResult, socket, std::bind(&SFtpChannel::mkdirs,
-                                                sftpChannel,
-                                                { projectsDir, jobsDir, scriptsDir }));
+    if (!sftpChannel->mkdirs({ projectsDir, jobsDir, scriptsDir })) {
+        emit serverDataCreated(false);
+        return;
+    }
 
-    socket->moveToThread(dirHelper);
-    sftpChannel->moveToThread(dirHelper);
+    if (RemoteServerWorkspace{ directory }.save() != "") {
+        emit serverDataCreated(false);
+        return;
+    }
 
-    emit serverDataCreated(false);
+    emit serverDataCreated(true);
 }
 
 void
-RemoteServerSession::validate(const QString &directory) {
+RemoteServerSession::validate() {
     if (sftpChannel == nullptr) {
         sftpChannel = new SFtpChannel(*socket);
     }
 
-    /// TODO: We will attempt to load the directory into a "ServerWorkspace"
-    /// object (a class which doesn't exist yet) to test if this directory
-    /// is a valid Server
-    ///
-    /// for now, just say that it is not
+    QString projectsDir{ directory + server->separator() + projectsDirName };
+    QString jobsDir{ directory + server->separator() + jobsDirName };
+    QString scriptsDir{ directory + server->separator() + scriptsDirName };
 
-    emit directoryValidated(false);
+    if (!sftpChannel->dirsExist({ projectsDir, jobsDir, scriptsDir })) {
+        emit directoryValidated(false);
+        return;
+    }
+
+    if (RemoteServerWorkspace{ directory }.load() != "") {
+        emit serverDataCreated(false);
+        return;
+    }
+
+    emit directoryValidated(true);
 }
 
 void

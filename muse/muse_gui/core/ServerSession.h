@@ -46,6 +46,13 @@
 
 class FileInfo;
 
+enum class ChangeType {
+    CREATE_DIR,
+    DIR_EXISTS,
+    CREATE_SERVER,
+    VALIDATE_SERVER,
+};
+
 /**
  * @brief A base class for local and remote connections.
  *
@@ -91,6 +98,12 @@ public:
      * in the ServerSession class and is overridden in the derived classes.
      */
     virtual void disconnectFromServer() = 0;
+
+    virtual void manageServer(ChangeType change) final;
+
+    virtual void setDirectory(const QString& dir) final {
+        directory = dir;
+    }
 
     /**
      * @brief exec Method to run a <b>brief</b> command that produces succint output.
@@ -170,7 +183,7 @@ public:
      *
      * @param directory The full path to the directory that is to be created.
      */
-    virtual void mkdir(const QString &directory) = 0;
+    virtual void mkdir() = 0;
 
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
@@ -186,7 +199,7 @@ public:
      *
      * @param directory The full path to the directory that you want to check
      */
-    virtual void dirExists(const QString& directory) = 0;
+    virtual void dirExists() = 0;
 
     /**
      * @brief createServerData Attempts to create the necessary data for a Server
@@ -195,7 +208,7 @@ public:
      *
      * @param directory The full path to the directory that we want to make a Server
      */
-    virtual void createServerData(const QString& directory) = 0;
+    virtual void createServerData() = 0;
 
     /**
      * @brief validate Checks if the given directory has the necessary files
@@ -203,7 +216,7 @@ public:
      *
      * @param directory True if the directory is a valid Server, false otherwise
      */
-    virtual void validate(const QString& directory) = 0;
+    virtual void validate() = 0;
 
     //FileInfo is a PEACE class that has yet to be translated to C++
     /**
@@ -276,15 +289,26 @@ signals:
      */
     void directoryValidated(bool result);
 
+    /**
+     * @brief errorEncountered Announces to the caller that an error has
+     * been encountered while managing the server
+     *
+     * @param error The error message that occurred
+     */
+    void errorEncountered(QString error);
+
 protected:
     Server* server;
     const QWidget* parent;
     QString& osType;
 
+    QString directory;
+
+    bool threadedResult;
+
     static const QString projectsDirName;
     static const QString jobsDirName;
     static const QString scriptsDirName;
-
 };
 
 #endif

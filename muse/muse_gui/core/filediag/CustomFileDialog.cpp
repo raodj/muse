@@ -229,7 +229,8 @@ CustomFileDialog::createNewDirectory() {
     DirectoryNameDialog dnDialog;
     if (dnDialog.exec() == QDialog::Accepted) {
         dirName = dirSelector.currentText() + "/" + dnDialog.getDirName();
-        serverSession->mkdir(dirName);
+        serverSession->setDirectory(dirName);
+        serverSession->mkdir();
         connect(serverSession, SIGNAL(directoryCreated(bool)), this, SLOT(refresh()));
     }
 }
