@@ -49,7 +49,7 @@ template<typename RetVal>
  */
 class RSSAsyncHelper : public MUSEThread {
 //typedef std::function<RetVal(void)> MethodCall;
-using MethodCall = std::function<RetVal<void>>;
+using MethodCall = std::function<RetVal(void)>;
 public:
 
     RSSAsyncHelper();

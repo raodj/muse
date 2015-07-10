@@ -135,6 +135,8 @@ public:
      */
     bool dirExists(const QString& dir);
 
+    bool dirsExist(QStringList dirs);
+
 signals:
     /**
      * @brief alertUser Alerts the program that a message needs to be displayed

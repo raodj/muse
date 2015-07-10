@@ -39,6 +39,11 @@
 #include "Core.h"
 #include "ServerSession.h"
 
+#include <QThread>
+
+#include <functional>
+#include <thread>
+
 const QString ServerSession::projectsDirName{ "projects" };
 const QString ServerSession::jobsDirName{ "jobs" };
 const QString ServerSession::scriptsDirName{ "scripts" };
@@ -46,6 +51,29 @@ const QString ServerSession::scriptsDirName{ "scripts" };
 ServerSession::ServerSession(Server* server, QWidget *parent, QString osType) :
     server(server) , parent(parent), osType(osType) {
 //Nothing to do.
+}
+
+void
+ServerSession::manageServer(ChangeType change) {
+    std::thread thread;
+
+    switch (change) {
+    case ChangeType::CREATE_DIR:
+        thread = std::thread(std::bind(&ServerSession::mkdir, this));
+        break;
+    case ChangeType::CREATE_SERVER:
+        thread = std::thread(std::bind(&ServerSession::createServerData, this));
+        break;
+    case ChangeType::DIR_EXISTS:
+        thread = std::thread(std::bind(&ServerSession::dirExists, this));
+        break;
+    case ChangeType::VALIDATE_SERVER:
+        thread = std::thread(std::bind(&ServerSession::validate, this));
+        break;
+    default:
+        // should never happen, but inform the user of the error just in case
+        emit errorEncountered("Unknown change on server");
+    }
 }
 
 #endif

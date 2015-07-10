@@ -64,8 +64,8 @@ LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
 }
 
 void
-LocalServerSession::mkdir(const QString &directory) {
-    QDir dir(directory);
+LocalServerSession::mkdir() {
+    QDir dir{ directory };
     emit directoryCreated(dir.mkdir(directory));
 }
 
@@ -76,12 +76,12 @@ LocalServerSession::mkdir(const QString &directory) {
 //}
 
 void
-LocalServerSession::dirExists(const QString &directory) {
-    emit directoryExists(QDir(directory).exists());
+LocalServerSession::dirExists() {
+    emit directoryExists(QDir{ directory }.exists());
 }
 
 void
-LocalServerSession::createServerData(const QString& directory) {
+LocalServerSession::createServerData() {
     /// TODO: A class to store information from the Server still needs
     /// to be made.  The Server will store its info as xml, so this class
     /// will work in a way similar to Workspace.  For now we will just create
@@ -114,7 +114,7 @@ LocalServerSession::createServerData(const QString& directory) {
 }
 
 void
-LocalServerSession::validate(const QString &directory) {
+LocalServerSession::validate() {
     /// TODO: A class to store information from the Server still needs
     /// to be made.  The Server will store its info as xml, so this class
     /// will work in a way similar to Workspace.  For now we will just create

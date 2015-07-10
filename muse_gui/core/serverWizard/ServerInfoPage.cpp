@@ -76,14 +76,15 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
 
     // if the user changes the selected directory, we need to recheck if it
     // exists
-//    connect(&installDirectoryDisplay, &QLineEdit::textChanged,
-//            [&] (const QString& text) {
-//        Q_UNUSED(text);
-//        installDirChecked = false;
-//        installDirExists = false;
-//        installDirValidated = false;
-//        installDirHasServerData = false;
-//    });
+    connect(&installDirectoryDisplay, &QLineEdit::textChanged,
+            [&] (const QString& text) {
+        installDirChecked = false;
+        installDirExists = false;
+        installDirValidated = false;
+        installDirHasServerData = false;
+
+        serverSession->setDirectory(text);
+    });
 
     // Set up browse button
     browse.setText("Browse");
@@ -153,7 +154,8 @@ ServerInfoPage::validatePage() {
         connect(serverSession, SIGNAL(directoryExists(bool)),
                 this, SLOT(getDirExistsResult(bool)));
 
-        serverSession->dirExists(installDirectoryDisplay.text());
+        serverSession->manageServer(ChangeType::DIR_EXISTS);
+        //serverSession->dirExists(installDirectoryDisplay.text());
 
         return false;
     }
@@ -163,7 +165,8 @@ ServerInfoPage::validatePage() {
         connect(serverSession, SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
 
-        serverSession->mkdir(installDirectoryDisplay.text());
+        serverSession->manageServer(ChangeType::CREATE_DIR);
+        //serverSession->mkdir(installDirectoryDisplay.text());
 
         return false;
     }
@@ -177,7 +180,8 @@ ServerInfoPage::validatePage() {
         connect(serverSession, SIGNAL(serverDataCreated(bool)),
                 this, SLOT(getServerDataCreatedResult(bool)));
 
-        serverSession->createServerData(installDirectoryDisplay.text());
+        serverSession->manageServer(ChangeType::CREATE_SERVER);
+        //serverSession->createServerData(installDirectoryDisplay.text());
 
         return false;
     }
@@ -188,7 +192,8 @@ ServerInfoPage::validatePage() {
         connect(serverSession, SIGNAL(directoryValidated(bool)),
                 this, SLOT(getDirValidatedResult(bool)));
 
-        serverSession->validate(installDirectoryDisplay.text());
+        serverSession->manageServer(ChangeType::VALIDATE_SERVER);
+        //serverSession->validate(installDirectoryDisplay.text());
 
         return false;
     }

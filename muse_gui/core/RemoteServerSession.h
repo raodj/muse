@@ -171,7 +171,7 @@ public:
      *
      * @param directory The full path to the directory that is to be created.
      */
-    void mkdir(const QString &directory) override;
+    void mkdir() override;
 
     /**
      * @brief rmdir Removes an <i>empty</i> directory from the target machine.
@@ -187,7 +187,7 @@ public:
      *
      * @param directory The full path to the directory that you want to check
      */
-    void dirExists(const QString& directory) override;
+    void dirExists() override;
 
     /**
      * @brief createServerData Attempts to create the necessary data for a Server
@@ -196,7 +196,7 @@ public:
      *
      * @param directory The full path to the directory that we want to make a Server
      */
-    void createServerData(const QString& directory) override;
+    void createServerData() override;
 
     /**
      * @brief validate Checks if the given directory has the necessary files
@@ -204,7 +204,7 @@ public:
      *
      * @param directory True if the directory is a valid Server, false otherwise
      */
-    void validate(const QString& directory) override;
+    void validate() override;
 
     /**
      * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.
@@ -278,7 +278,7 @@ private:
     SshSocket* socket;
     QString& purpose;
     ThreadedConnectionGUI threadGUI;
-    bool threadedResult;
+    //bool threadedResult;
     int numericThreadedResult;
 
 private slots:
