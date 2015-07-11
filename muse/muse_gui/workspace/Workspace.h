@@ -182,6 +182,8 @@ public:
      */
     QString reserveID(const QString& itemType);
 
+    QString getDirectory() { return directory; }
+
     //ProjectsListTableModel& getProjectsListTableModel();
 
     //JobListTableModel& getJobListTableModel();

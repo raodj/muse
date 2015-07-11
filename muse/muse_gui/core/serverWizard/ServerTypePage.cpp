@@ -281,6 +281,8 @@ ServerTypePage::verifyOS() {
     QString out;
     QString err;
 
+
+
     // Verify the Operating System of the server
     int returnCode = serverSession->exec("uname -a", out, err);
 

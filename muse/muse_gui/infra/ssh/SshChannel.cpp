@@ -46,6 +46,7 @@
 #include <fstream>
 #include <array>
 #include <algorithm>
+#include <iostream>
 
 SshChannel::SshChannel(SshSocket& socket) {
     session = socket.getSession();
@@ -57,32 +58,35 @@ SshChannel::~SshChannel() {
 }
 
 bool
-SshChannel::copy(const QString &srcDir, const QString &destDirectory,
+SshChannel::copy(const QString &srcData, const QString &destDirectory,
                  const QString &destFileName, const int& mode) {
     QMessageBox msg;
-    QFileInfo fileInfo(srcDir);
+    //QFileInfo fileInfo(srcDir);
 
     // Open the file in a read only state.
-    FILE* srcFile = fopen(srcDir.toStdString().c_str(), "r");
+    //FILE* srcFile = fopen(srcDir.toStdString().c_str(), "r");
     size_t readToBuffer;
     QString remoteFilePath = destDirectory +
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
-    size_t notRead = fileInfo.size();
+    int notRead = srcData.length();
 
     // Send a file via scp. The mode parameter must only have permissions!
     channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode,
                                notRead);
 
     // If the channel isn't open.
-    if (!channel) {
+    if (channel == nullptr) {
         msg.setText("Channel problem");
         msg.exec();
         return false;
     }
 
+    std::array<char, 1024> buffer;
     char buffer[1024];
     char* ptr;
     ssize_t bytesWritten;
+
+    std::stringstream stream{ srcData.toStdString() };
 
     while (notRead > 0) {
         readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
