@@ -100,6 +100,7 @@ public:
 
     /**
      * @brief copy A method to copy given data from an input stream to a given file on the server.
+     *
      * @param srcData The source stream that provides the data to be copied.
      *
      * @param destDirectory The destination directory to which the data is to be copied.
@@ -110,17 +111,22 @@ public:
      * @param mode The POSIX compliant mode string (such as: "0600" or "0700") to be used
      * as the mode for the target file.
      */
-    bool copy(const QString& srcDir, const QString &destDirectory,
-               const QString &destFileName, const int& mode);
+    bool copy(const QString& srcData, const QString &destDirectory,
+              const QString &destFileName, const int& mode);
 
     /**
      * @brief copy Copy file from a remote machine to a given output stream.
+     *
      * @param destData The destination stream to which the data is to be written.
+     *
      * @param srcDirectory The source directory from where the file is to be copied.
+     *
      * @param srcFileName The name of the source file from where the data is to be copied.
+     *
+     * @return True if the data was copied successfully, false otherwise
      */
     bool copy(const QString& destData, const QString &srcDirectory,
-               const QString &srcFileName);
+              const QString &srcFileName);
 
 private:
     LIBSSH2_SESSION* session;

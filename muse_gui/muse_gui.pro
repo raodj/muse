@@ -111,7 +111,8 @@ SOURCES +=\
     core/workspaceWizard/WorkspaceDialog.cpp \
     workspace/ServerWatcher.cpp \
     workspace/ServerWorkspace.cpp \
-    workspace/LocalServerWorkspace.cpp
+    workspace/LocalServerWorkspace.cpp \
+    workspace/RemoteServerWorkspace.cpp
 
 
 HEADERS  += \
@@ -198,7 +199,8 @@ HEADERS  += \
     infra/xml/XMLMetaTypeHelper.h \
     workspace/ServerWatcher.h \
     workspace/ServerWorkspace.h \
-    workspace/LocalServerWorkspace.h
+    workspace/LocalServerWorkspace.h \
+    workspace/RemoteServerWorkspace.h
 
 RESOURCES += \
     muse_gui.qrc

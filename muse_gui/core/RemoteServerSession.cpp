@@ -37,15 +37,16 @@
 //---------------------------------------------------------------------
 
 #include "Core.h"
-//#include <libssh2.h>
-//#include <libssh2_sftp.h>
 #include "RemoteServerSession.h"
 #include "MUSEGUIApplication.h"
+#include "SFtpChannel.h"
+#include "RemoteServerWorkspace.h"
+
+//#include <libssh2.h>
+//#include <libssh2_sftp.h>
+
 #include <QObject>
 #include <QMessageBox>
-#include "SFtpChannel.h"
-#include "RSSAsyncHelper.h"
-#include "Workspace.h"
 
 #define SUCCESS_CODE 0
 
@@ -117,7 +118,7 @@ RemoteServerSession::disconnectFromServer() {
 
 int
 RemoteServerSession::exec(const QString &command, QString &stdoutput,
-                              QString &stderrmsgs) {
+                          QString &stderrmsgs) {
     // Don't try this code if we aren't connected.
     if (socket == NULL) {
         throw (std::string) "Not connected to remote server.";
@@ -293,21 +294,6 @@ RemoteServerSession::getSftpChannel() {
 void
 RemoteServerSession::announceBooleanResult() {
     emit booleanResult(threadedResult);
-}
-
-void
-RemoteServerSession::announceMkdirResult() {
-    emit directoryCreated(threadedResult);
-}
-
-//void
-//RemoteServerSession::announceRmdirResult() {
-//    emit directoryRemoved(threadedResult);
-//}
-
-void
-RemoteServerSession::announceDirExistsResult() {
-    emit directoryExists(threadedResult);
 }
 
 #endif

@@ -7,7 +7,7 @@
 #include <QFileInfo>
 #include <QDir>
 
-LocalServerWorkspace::LocalServerWorkspace(const QString& dir)
+LocalServerWorkspace::LocalServerWorkspace(QString dir)
     : ServerWorkspace(dir)
 {
 }
@@ -21,8 +21,7 @@ LocalServerWorkspace::save() {
 
 QString
 LocalServerWorkspace::load() {
-    QDir serverDir{ directory };
-    QFileInfo info{ serverDir, serverFileName };
+    QFileInfo info{ QDir{ directory }, serverFileName };
 
     if (!info.exists() || !info.isFile() || !info.isReadable()) {
         return QString{ "Server directory ('" + directory + "') does not "\

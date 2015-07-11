@@ -69,12 +69,6 @@ LocalServerSession::mkdir() {
     emit directoryCreated(dir.mkdir(directory));
 }
 
-//void
-//LocalServerSession::rmdir(const QString &directory) {
-//    QDir dir(directory);
- //   emit directoryRemoved(dir.rmdir(directory));
-//}
-
 void
 LocalServerSession::dirExists() {
     emit directoryExists(QDir{ directory }.exists());
@@ -82,14 +76,9 @@ LocalServerSession::dirExists() {
 
 void
 LocalServerSession::createServerData() {
-    /// TODO: A class to store information from the Server still needs
-    /// to be made.  The Server will store its info as xml, so this class
-    /// will work in a way similar to Workspace.  For now we will just create
-    /// the necessary directories
-
-    QDir projectsDir(directory + server->separator() + "projects");
-    QDir jobsDir(directory + server->separator() + "jobs");
-    QDir scriptsDir(directory + server->separator() + "scripts");
+    QDir projectsDir(directory + QDir::separator() + projectsDirName);
+    QDir jobsDir(directory + QDir::separator() + jobsDirName);
+    QDir scriptsDir(directory + QDir::separator() + scriptsDirName);
 
     if (!projectsDir.exists() && !projectsDir.mkdir(projectsDir.absolutePath())) {
         emit serverDataCreated(false);
@@ -115,14 +104,9 @@ LocalServerSession::createServerData() {
 
 void
 LocalServerSession::validate() {
-    /// TODO: A class to store information from the Server still needs
-    /// to be made.  The Server will store its info as xml, so this class
-    /// will work in a way similar to Workspace.  For now we will just create
-    /// the necessary directories
-
-    QDir projectsDir{ directory + server->separator() + "projects" };
-    QDir jobsDir{ directory + server->separator() + "jobs" };
-    QDir scriptsDir{ directory + server->separator() + "scripts" };
+    QDir projectsDir(directory + QDir::separator() + projectsDirName);
+    QDir jobsDir(directory + QDir::separator() + jobsDirName);
+    QDir scriptsDir(directory + QDir::separator() + scriptsDirName);
 
     if (!projectsDir.exists()) {
         emit directoryValidated(false);
