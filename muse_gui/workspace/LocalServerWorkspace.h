@@ -5,7 +5,7 @@
 
 class LocalServerWorkspace : public ServerWorkspace {
 public:
-    LocalServerWorkspace(const QString& dir);
+    LocalServerWorkspace(QString dir);
 
     QString save() override;
     QString load() override;

@@ -41,38 +41,35 @@
 #include "MUSEGUIApplication.h"
 #include "SFtpChannel.h"
 #include "RemoteServerWorkspace.h"
-
-//#include <libssh2.h>
-//#include <libssh2_sftp.h>
+#include "RSSAsyncHelper.h"
 
 #include <QObject>
 #include <QMessageBox>
 
 #define SUCCESS_CODE 0
 
-RemoteServerSession::RemoteServerSession(Server* server, QWidget *parent,
-                                         QString purpose) :
-    ServerSession(server, parent), purpose(purpose), threadGUI(server) {
-    socket = NULL;
-    sftpChannel = NULL;
-    sshChannel = NULL;
+RemoteServerSession::RemoteServerSession(const Server& server, QWidget *parent) :
+    ServerSession(server, parent), threadGUI{ server },
+    socket{ "Remote Server Operations", nullptr,
+            MUSEGUIApplication::knownHostsFilePath(),
+            true, true }
+{
+//    socket = NULL;
+//    sftpChannel = NULL;
+//    sshChannel = NULL;
 }
 
-RemoteServerSession::~RemoteServerSession() {
-    delete sftpChannel;
-    delete sshChannel;
-    delete socket;
-}
+//RemoteServerSession::~RemoteServerSession() {
+//    delete sftpChannel;
+//    delete sshChannel;
+//    delete socket;
+//}
 
 void
 RemoteServerSession::connectToServer() {
-    socket = new SshSocket("Remote Server Operations", NULL,
-                           MUSEGUIApplication::knownHostsFilePath(),
-                           true, true);
-
     // Now, intercept the signal to provide the SshSocket with the
     // user's credentials
-    connect(socket, SIGNAL(needCredentials(QString*, QString*)),
+    connect(&socket, SIGNAL(needCredentials(QString*, QString*)),
             &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
 
     auto signal = SIGNAL(displayMessageBox(const QString&, const QString&,
@@ -83,108 +80,95 @@ RemoteServerSession::connectToServer() {
                                 const QString&, const QString&, int*));
 
     // Allow prompts for an unknown host to display
-    connect(socket->getKnownHosts(), signal, &threadGUI, slot);
+    connect(socket.getKnownHosts(), signal, &threadGUI, slot);
 
-    auto function = std::bind(&SshSocket::connectToHost, socket, server->getName(), nullptr,
-                              server->getPort(), QAbstractSocket::ReadWrite);
+    bool connectResult = socket.connectToHost(server.getName(), nullptr,
+                                              server.getPort(), QAbstractSocket::ReadWrite);
 
-    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket,
-                                                          function);
-    socket->changeToThread(test);
+    disconnect(socket, SIGNAL(needCredentials(QString*, QString*)),
+               &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
+    disconnect(socket.getKnownHosts(), signal, &threadGUI, slot);
 
-    // Allow us to show exception dialog
-    connect(test, SIGNAL(exceptionThrown(QString,QString,QString)),
-            &threadGUI, SLOT(showException(QString,QString,QString)));
+    emit connectedToServer(connectResult);
 
-    test->start();
+//    auto function = std::bind(&SshSocket::connectToHost, socket, server->getName(), nullptr,
+//                              server->getPort(), QAbstractSocket::ReadWrite);
 
-    // When the thread has completed, let the caller know the result.
-    connect(test, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+//    RSSAsyncHelper<bool>* test = new RSSAsyncHelper<bool>(&threadedResult, socket,
+//                                                          function);
+//    socket->changeToThread(test);
 
-    // Delete the thread from memory once all of its tasks are complete.
-    connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
+//    // Allow us to show exception dialog
+//    connect(test, SIGNAL(exceptionThrown(QString,QString,QString)),
+//            &threadGUI, SLOT(showException(QString,QString,QString)));
+
+//    test->start();
+
+//    // When the thread has completed, let the caller know the result.
+//    connect(test, SIGNAL(finished()), this, SLOT(announceBooleanResult()));
+
+//    // Delete the thread from memory once all of its tasks are complete.
+//    connect(test, SIGNAL(finished()), test, SLOT(deleteLater()));
 }
 
-void
-RemoteServerSession::disconnectFromServer() {
-    delete sftpChannel;
-    delete sshChannel;
-    delete socket;
+//void
+//RemoteServerSession::disconnectFromServer() {
+//    delete sftpChannel;
+//    delete sshChannel;
+//    delete socket;
 
-    sshChannel = NULL;
-    sftpChannel = NULL;
-    socket = NULL;
-}
+//    sshChannel = NULL;
+//    sftpChannel = NULL;
+//    socket = NULL;
+//}
 
-int
-RemoteServerSession::exec(const QString &command, QString &stdoutput,
-                          QString &stderrmsgs) {
-    // Don't try this code if we aren't connected.
-    if (socket == NULL) {
-        throw (std::string) "Not connected to remote server.";
-    }
-    // Check if the channel has been created, if not, create it.
-    if (sshChannel == NULL) {
-        // Might need to try/catch this.
-        sshChannel = new SshChannel(*socket);
-    }
+//int
+//RemoteServerSession::exec(const QString &command, QString &stdoutput,
+//                          QString &stderrmsgs) {
+//    if (!socket) {
+//        throw QString{ "Not connected to remote server." };
+//    }
 
-    int retCode = sshChannel->exec(command, stdoutput, stderrmsgs);
-    closeSshChannel();
-    return retCode;
-}
+//    return SshChannel{ *socket }.exec(command, stdoutput, stderrmsgs);
+//}
 
-int
-RemoteServerSession::exec(const QString &command, QTextEdit &output) {
-    // Don't try this code if we aren't connected.
-    if (socket == NULL) {
-        throw (std::string) "Not connected to remote server.";
-    }
-    // Check if the channel has been created, if not, create it.
-    if (sshChannel == NULL) {
-        // Might need to try/catch this.
-        sshChannel = new SshChannel(*socket);
-    }
-    int retCode = sshChannel->exec(command, output);
-    closeSshChannel();
-    return retCode;
-}
+//int
+//RemoteServerSession::exec(const QString &command, QTextEdit &output) {
+//    if (!socket) {
+//        throw QString{ "Not connected to remote server." };
+//    }
 
-bool
-RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
-                               const QString &destFileName, const int& mode) {
-    // Don't try this code if we aren't connected.
-    if (socket == NULL) {
-        throw (std::string) "Not connected to remote server.";
-    }
-    // Check if the channel has been created, if not, create it.
-    if (sshChannel == NULL) {
-        // Might need to try/catch this.
-        sshChannel = new SshChannel(*socket);
-    }
-    bool success = sshChannel->copy(srcData, destDirectory, destFileName, mode);
-    closeSshChannel();
-    return success;
-}
+//    return SshChannel{ *socket }.exec(command, output);
+//}
 
-bool
-RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
-                               const QString &srcFileName) {
-    // Don't try this code if we aren't connected.
-    if (socket == NULL) {
-        throw (std::string) "Not connected to remote server.";
-    }
-    // Check if the channel has been created, if not, create it.
-    if (sshChannel == NULL) {
-        // Might need to try/catch this.
-        sshChannel = new SshChannel(*socket);
-    }
-    bool success = sshChannel->copy(destData, srcDirectory, srcFileName);
-    closeSshChannel();
-    return success;
+//bool
+//RemoteServerSession::copy(const QString& srcData, const QString &destDirectory,
+//                               const QString &destFileName, const int& mode) {
+//    if (!socket) {
+//        throw QString{ "Not connected to remote server." };
+//    }
+
+//    return SshChannel{ *socket }.copy(srcData, destDirectory, destFileName, mode);
+//}
+
+//bool
+//RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
+//                               const QString &srcFileName) {
+//    // Don't try this code if we aren't connected.
+//    if (socket == NULL) {
+//        throw (std::string) "Not connected to remote server.";
+//    }
+//    // Check if the channel has been created, if not, create it.
+//    if (sshChannel == NULL) {
+//        // Might need to try/catch this.
+//        sshChannel = new SshChannel(*socket);
+//    }
+//    bool success = sshChannel->copy(destData, srcDirectory, srcFileName);
+//    closeSshChannel();
+//    return success;
 
 
-}
+//}
 
 //To be reincluded into the class definition when the FileInfo class
 //gets redefined
@@ -194,39 +178,60 @@ RemoteServerSession::copy(const QString& destData, const QString &srcDirectory,
 //}
 
 void
-RemoteServerSession::mkdir() {
-    if (sftpChannel == nullptr) {
-        sftpChannel = new SFtpChannel(*socket);
+RemoteServerSession::getOSType() {
+    SshChannel channel{ *socket };
+
+    QString os{ Server::UnknownOS };
+    QString out;
+    QString err;
+
+    int returnCode = channel.exec("uname -a", out, err);
+
+    if (returnCode != SUCCESS_CODE) {
+        out.clear();
+        err.clear();
+
+        // Windows specific command 'ver' is equivalent to 'uname -a'
+        returnCode = serverSession->exec("ver", out, err);
     }
 
-    emit directoryCreated(sftpChannel->mkdir(directory));
+    if (returnCode == SUCCESS_CODE) {
+        if (out.contains(Server::Linux, Qt::CaseInsensitive)) {
+            os = Server::Linux;
+        } else if (out.contains(Server::Unix, Qt::CaseInsensitive)) {
+            os = Server::Unix;
+        } else if (out.contains(Server::Windows, Qt::CaseInsensitive)) {
+            os = Server::Windows;
+        } else if (out.contains(Server::OSX, Qt::CaseInsensitive)) {
+            os = Server::OSX;
+        }
+    }
+
+    emit announceOSType(os);
+}
+
+void
+RemoteServerSession::mkdir() {
+    emit directoryCreated(SFtpChannel{ *socket }.mkdir(directory));
 }
 
 void
 RemoteServerSession::dirExists() {
-    if (sftpChannel == nullptr) {
-        sftpChannel = new SFtpChannel(*socket);
-    }
-
-    emit directoryExists(sftpChannel->dirExists(directory));
+    emit directoryExists(SFtpChannel{ *socket }.dirExists(directory));
 }
 
 void
 RemoteServerSession::createServerData() {
-    if (sftpChannel == nullptr) {
-        sftpChannel = new SFtpChannel(*socket);
-    }
-
     QString projectsDir{ directory + server->separator() + projectsDirName };
     QString jobsDir{ directory + server->separator() + jobsDirName };
     QString scriptsDir{ directory + server->separator() + scriptsDirName };
 
-    if (!sftpChannel->mkdirs({ projectsDir, jobsDir, scriptsDir })) {
+    if (!SFtpChannel{ socket }.mkdirs({ projectsDir, jobsDir, scriptsDir })) {
         emit serverDataCreated(false);
         return;
     }
 
-    if (RemoteServerWorkspace{ directory }.save() != "") {
+    if (RemoteServerWorkspace{ directory, socket }.save() != "") {
         emit serverDataCreated(false);
         return;
     }
@@ -236,20 +241,16 @@ RemoteServerSession::createServerData() {
 
 void
 RemoteServerSession::validate() {
-    if (sftpChannel == nullptr) {
-        sftpChannel = new SFtpChannel(*socket);
-    }
-
     QString projectsDir{ directory + server->separator() + projectsDirName };
     QString jobsDir{ directory + server->separator() + jobsDirName };
     QString scriptsDir{ directory + server->separator() + scriptsDirName };
 
-    if (!sftpChannel->dirsExist({ projectsDir, jobsDir, scriptsDir })) {
+    if (!SFtpChannel{ socket }.dirsExist({ projectsDir, jobsDir, scriptsDir })) {
         emit directoryValidated(false);
         return;
     }
 
-    if (RemoteServerWorkspace{ directory }.load() != "") {
+    if (RemoteServerWorkspace{ directory, socket }.load() != "") {
         emit serverDataCreated(false);
         return;
     }
@@ -257,43 +258,43 @@ RemoteServerSession::validate() {
     emit directoryValidated(true);
 }
 
-void
-RemoteServerSession::setPurpose(const QString &text) {
-    purpose = text;
-}
+//void
+//RemoteServerSession::setPurpose(const QString &text) {
+//    purpose = text;
+//}
 
-SshSocket*
-RemoteServerSession::getSocket() {
-    return socket;
-}
+//SshSocket*
+//RemoteServerSession::getSocket() {
+//    return socket;
+//}
 
-void
-RemoteServerSession::openSftpChannel() {
-    if (sftpChannel == NULL) {
-        sftpChannel = new SFtpChannel(*socket);
-    }
-}
+//void
+//RemoteServerSession::openSftpChannel() {
+//    if (sftpChannel == NULL) {
+//        sftpChannel = new SFtpChannel(*socket);
+//    }
+//}
 
-void
-RemoteServerSession::closeSftpChannel() {
-    delete sftpChannel;
-    sftpChannel = NULL;
-}
+//void
+//RemoteServerSession::closeSftpChannel() {
+//    delete sftpChannel;
+//    sftpChannel = NULL;
+//}
 
-void
-RemoteServerSession::closeSshChannel() {
-    delete sshChannel;
-    sshChannel = NULL;
-}
+//void
+//RemoteServerSession::closeSshChannel() {
+//    delete sshChannel;
+//    sshChannel = NULL;
+//}
 
-SFtpChannel*
-RemoteServerSession::getSftpChannel() {
-    return sftpChannel;
-}
+//SFtpChannel*
+//RemoteServerSession::getSftpChannel() {
+//    return sftpChannel;
+//}
 
-void
-RemoteServerSession::announceBooleanResult() {
-    emit booleanResult(threadedResult);
-}
+//void
+//RemoteServerSession::announceBooleanResult() {
+//    emit booleanResult(threadedResult);
+//}
 
 #endif

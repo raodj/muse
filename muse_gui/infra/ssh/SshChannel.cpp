@@ -47,6 +47,7 @@
 #include <array>
 #include <algorithm>
 #include <iostream>
+#include <sstream>
 
 SshChannel::SshChannel(SshSocket& socket) {
     session = socket.getSession();
@@ -60,45 +61,45 @@ SshChannel::~SshChannel() {
 bool
 SshChannel::copy(const QString &srcData, const QString &destDirectory,
                  const QString &destFileName, const int& mode) {
-    QMessageBox msg;
+    // QMessageBox msg;
     //QFileInfo fileInfo(srcDir);
 
     // Open the file in a read only state.
     //FILE* srcFile = fopen(srcDir.toStdString().c_str(), "r");
-    size_t readToBuffer;
     QString remoteFilePath = destDirectory +
             (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
+
     int notRead = srcData.length();
 
     // Send a file via scp. The mode parameter must only have permissions!
     channel = libssh2_scp_send(session, remoteFilePath.toStdString().c_str(), mode,
                                notRead);
 
-    // If the channel isn't open.
     if (channel == nullptr) {
-        msg.setText("Channel problem");
-        msg.exec();
+        //msg.setText("Channel problem");
+        //msg.exec();
         return false;
     }
 
     std::array<char, 1024> buffer;
-    char buffer[1024];
     char* ptr;
-    ssize_t bytesWritten;
 
     std::stringstream stream{ srcData.toStdString() };
 
     while (notRead > 0) {
-        readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
-        ptr = buffer;
+        stream.read(buffer.data(), buffer.size());
+        auto readToBuffer = stream.gcount();
+        //readToBuffer = fread(buffer, 1, sizeof(buffer), srcFile);
+
+        ptr = buffer.data();
 
         while (readToBuffer != 0) {
             //write the same data over and over, until error or completion
-            bytesWritten = libssh2_channel_write(channel, ptr, readToBuffer);
+            auto bytesWritten = libssh2_channel_write(channel, ptr, readToBuffer);
 
             if (bytesWritten < 0) {
-                msg.setText("byteswritten < 0");
-                msg.exec();
+                //msg.setText("byteswritten < 0");
+                //msg.exec();
                 return false;
             } else {
                 ptr += bytesWritten;
@@ -113,7 +114,6 @@ SshChannel::copy(const QString &srcData, const QString &destDirectory,
 
     // Wait for acknowledgment of the EOF signal
     libssh2_channel_wait_eof(channel);
-    fclose(srcFile);
 
     return true;
 }

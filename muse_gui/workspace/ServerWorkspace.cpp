@@ -40,7 +40,7 @@
 
 const QString ServerWorkspace::serverFileName = "MUSEServer.xml";
 
-ServerWorkspace::ServerWorkspace(const QString &dir) :
+ServerWorkspace::ServerWorkspace(QString dir) :
     XMLRootElement("ServerWorkspace"), directory(dir)
 {
     // Add default namespace definitions
