@@ -48,9 +48,9 @@ const QString ServerSession::projectsDirName{ "projects" };
 const QString ServerSession::jobsDirName{ "jobs" };
 const QString ServerSession::scriptsDirName{ "scripts" };
 
-ServerSession::ServerSession(Server* server, QWidget *parent, QString osType) :
-    server(server) , parent(parent), osType(osType) {
-//Nothing to do.
+ServerSession::ServerSession(const Server& server, QWidget* parent) :
+    server{ server } , parent{ parent }
+{
 }
 
 void
@@ -58,6 +58,12 @@ ServerSession::manageServer(ChangeType change) {
     std::thread thread;
 
     switch (change) {
+    case ChangeType::CONNECT:
+        thread = std::thread(std::bind(&ServerSession::connectToServer, this));
+        break;
+    case ChangeType::GET_OS_TYPE:
+        thread = std::thread(std::bind(&ServerSession::getOSType, this));
+        break;
     case ChangeType::CREATE_DIR:
         thread = std::thread(std::bind(&ServerSession::mkdir, this));
         break;

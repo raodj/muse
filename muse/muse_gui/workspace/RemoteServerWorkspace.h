@@ -4,15 +4,17 @@
 #include "ServerWorkspace.h"
 #include "SshChannel.h"
 #include "SFtpChannel.h"
+#include "SshSocket.h"
 
 class RemoteServerWorkspace : public ServerWorkspace {
 public:
-    RemoteServerWorkspace(QString dir, const SshChannel& channel);
+    RemoteServerWorkspace(QString dir, const SshSocket& socket);
+
     QString save() override;
     QString load() override;
 
 private:
-    SshChannel& channel;
+    SshChannel channel;
 };
 
 #endif

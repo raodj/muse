@@ -7,61 +7,80 @@
 
 #include <QDir>
 #include <QProcess>
+#include <QSysInfo>
 
-LocalServerSession::LocalServerSession(Server* server, QWidget *parent, QString purpose) :
-    ServerSession(server, parent), purpose(purpose) {
+LocalServerSession::LocalServerSession(const Server& server, QWidget *parent) :
+    ServerSession(server, parent)
+{
 }
 
+void
+LocalServerSession::getOSType() {
+    QString os{ Server::UnknownOS };
+    QString info{ QSysInfo::kernelType() };
+
+    if (info.contains(Server::Linux, Qt::CaseInsensitive)) {
+        os = Server::Linux;
+    } else if (info.contains(Server::Unix, Qt::CaseInsensitive)) {
+        os = Server::Unix;
+    } else if (info.contains(Server::Windows, Qt::CaseInsensitive)) {
+        os = Server::Windows;
+    } else if (info.contains(Server::OSX, Qt::CaseInsensitive)) {
+        os = Server::OSX;
+    }
+
+    emit announceOSType(os);
+}
 
 void
 LocalServerSession::connectToServer() {
-
+    emit connectedToServer(true);
 }
 
 
-void
-LocalServerSession::disconnectFromServer() {
+//void
+//LocalServerSession::disconnectFromServer() {
 
-}
+//}
 
-int
-LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &stderrmsgs) {
-    QProcess process;
-    process.start(command);
-    process.waitForFinished();
-    stdoutput = process.readAllStandardOutput();
-    stderrmsgs = process.readAllStandardError();
+//int
+//LocalServerSession::exec(const QString &command, QString &stdoutput,  QString &stderrmsgs) {
+//    QProcess process;
+//    process.start(command);
+//    process.waitForFinished();
+//    stdoutput = process.readAllStandardOutput();
+//    stderrmsgs = process.readAllStandardError();
 
-    return process.exitCode();
-}
+//    return process.exitCode();
+//}
 
-int
-LocalServerSession::exec(const QString &command, QTextEdit& output) {
-    QProcess process;
-    process.start(command);
-    process.waitForFinished();
-    output.append(process.readAllStandardOutput());
-    output.append(process.readAllStandardError());
+//int
+//LocalServerSession::exec(const QString &command, QTextEdit& output) {
+//    QProcess process;
+//    process.start(command);
+//    process.waitForFinished();
+//    output.append(process.readAllStandardOutput());
+//    output.append(process.readAllStandardError());
 
-    return process.exitCode();
-}
+//    return process.exitCode();
+//}
 
-bool
-LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
-                         const QString &destFileName, const int &mode) {
-    Q_UNUSED(mode);
-    QString newFilePath = destDirectory +
-            (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
-    return QFile::copy(srcData, newFilePath);
-}
+//bool
+//LocalServerSession::copy(const QString& srcData, const QString &destDirectory,
+//                         const QString &destFileName, const int &mode) {
+//    Q_UNUSED(mode);
+//    QString newFilePath = destDirectory +
+//            (destDirectory.endsWith("/") ? destFileName : "/" + destFileName);
+//    return QFile::copy(srcData, newFilePath);
+//}
 
-bool
-LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
-                         const QString& srcFileName) {
-    QString curFilePath = srcDirectory +
-            (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
-   return QFile::copy(curFilePath, destData);
-}
+//bool
+//LocalServerSession::copy(const QString& destData, const QString &srcDirectory,
+//                         const QString& srcFileName) {
+//    QString curFilePath = srcDirectory +
+//            (srcDirectory.endsWith("/") ? srcFileName : "/" + srcFileName);
+//   return QFile::copy(curFilePath, destData);
+//}
 
 void
 LocalServerSession::mkdir() {
@@ -108,17 +127,17 @@ LocalServerSession::validate() {
     QDir jobsDir(directory + QDir::separator() + jobsDirName);
     QDir scriptsDir(directory + QDir::separator() + scriptsDirName);
 
-    if (!projectsDir.exists()) {
+    if (!projectsDir.exists() || !projectsDir.isReadable()) {
         emit directoryValidated(false);
         return;
     }
 
-    if (!jobsDir.exists()) {
+    if (!jobsDir.exists() || !jobsDir.isReadable()) {
         emit directoryValidated(false);
         return;
     }
 
-    if (!scriptsDir.exists()) {
+    if (!scriptsDir.exists() || !scriptsDir.isReadable()) {
         emit directoryValidated(false);
         return;
     }
@@ -130,20 +149,20 @@ LocalServerSession::validate() {
     }
 }
 
-void
-LocalServerSession::setPurpose(const QString &text) {
-    purpose = text;
-}
+//void
+//LocalServerSession::setPurpose(const QString &text) {
+//    purpose = text;
+//}
 
-void
-LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owner) {
-    QString perm = &permDigit;
-    uint permNum = perm.toUInt(0, 16);
-    file.setPermissions(file.symLinkTarget(), QFile::Permissions((permNum & 0x4) |
-                                                                 (permNum & 0x2) |
-                                                                 (permNum & 0x1)));
+//void
+//LocalServerSession::setPerms(QFile &file, const char &permDigit, const bool owner) {
+//    QString perm = &permDigit;
+//    uint permNum = perm.toUInt(0, 16);
+//    file.setPermissions(file.symLinkTarget(), QFile::Permissions((permNum & 0x4) |
+//                                                                 (permNum & 0x2) |
+//                                                                 (permNum & 0x1)));
 
-    Q_UNUSED(owner);
-}
+//    Q_UNUSED(owner);
+//}
 
 #endif

@@ -7,8 +7,8 @@
 
 #include <QFileInfo>
 
-RemoteServerWorkspace::RemoteServerWorkspace(QString dir, const SshChannel &channel)
-    : ServerWorkspace(dir), channel{ channel }
+RemoteServerWorkspace::RemoteServerWorkspace(QString dir, const SshSocket &socket)
+    : ServerWorkspace(dir), channel{ socket }
 {
 }
 
@@ -23,7 +23,7 @@ RemoteServerWorkspace::save() {
         return result;
     }
 
-    if (!channel->copy(serverData, directory, serverFileName, 0600)) {
+    if (!channel.copy(serverData, directory, serverFileName, 0600)) {
         return QString{ "Failed to write the XML data to the remote server" };
     }
 
@@ -49,7 +49,7 @@ RemoteServerWorkspace::load() {
 
     // Copy the data from the servers xml file to a temporary QString
     QString tempData;
-    bool result = channel->copy(tempData, directory, serverFileName);
+    bool result = channel.copy(tempData, directory, serverFileName);
     if (!result) {
         return QString{ "Failed to read the XML from the server" };
     }
