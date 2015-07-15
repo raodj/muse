@@ -176,6 +176,8 @@ public:
 
     Server(const Server& other);
 
+    Server& operator=(const Server& other) = default;
+
     bool operator==(const Server& other);
 
     /**
@@ -326,8 +328,8 @@ public:
      */
     //ProjectList& getProjectList() { return projects; }
 
-    QString getHomeDir();
-    QString separator();
+    QString getHomeDir() const;
+    QString separator() const;
 
     /**
      * @brief isSameServer Determines if the information about this server

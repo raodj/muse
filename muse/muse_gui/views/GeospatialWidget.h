@@ -44,6 +44,7 @@
 
 #include <unordered_map>
 #include <vector>
+#include <future>
 
 /**
  * @brief The GeospatialWidget class draws an image using GPainter.
@@ -71,26 +72,24 @@ protected:
 private:
     QSize widgetSize;
     QSize scrollSize;
-    int zoomLevel;
+    std::vector<QPixmap>& map;
 
+    int zoomLevel;
+    int size;
+    int zoom;
     int xStart;
     int yStart;
 
     std::unordered_map<int, std::vector<QPixmap>> worldMaps;
 
     QPainter painter;
+    QScrollArea *scrollArea;
 
     void loadZoomLevels();
     void loadZoomLevel(QDir dir);
-
-    QScrollArea *scrollArea;
-    std::vector<QPixmap> world;
-
     void initializeToolBarButtons();
     void automaticResize(int width, int height, int zoom);
-
-
-
+    void renderTiles(QPainter* painter, int x, int y);
 
 };
 

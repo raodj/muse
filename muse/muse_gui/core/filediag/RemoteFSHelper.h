@@ -51,8 +51,10 @@ public:
     /**
      * @brief RemoteFSHelper The constructor for the RemoteFSHelper
      * class.
+     *
      * @param ssh Pointer to the ssh socket that has been established
      * with the remote computer.
+     *
      * @param deleteSocket Whether or not the socket should be
      * deleted when this class is deleted.
      */
@@ -62,39 +64,45 @@ public:
     /**
      * @brief getEntries Gets a listing of entries at the specified
      * directory.
+     *
      * @param dir The directory to get the listing of entries from.
+     *
      * @return The listing of entries.
      */
     const FSEntryList* getEntries(const FSEntry& dir) const;
 
     /**
      * @brief getRoot Gets the root of the current file system.
+     *
      * @return The FSEntry of the root in the current file system.
      */
-    const FSEntry&     getRoot() const;
+    const FSEntry& getRoot() const;
 
     /**
      * @brief getHomePath Gets the path to the home directory on
      * this local file system.
+     *
      * @return A QString representing the path to the home directory
      */
-    QString  getHomePath()  const;
+    QString getHomePath()  const;
 
     /**
      * @brief getSeparator Gets the character used as a path separator
      * for the file system. In Qt, this is always "/", regardless of
      * the operating system.
+     *
      * @return The QString representation of the path separator.
      */
-    QString  getSeparator() const;
+    QString getSeparator() const;
 
     /**
      * @brief getColumns Gets the number of columns to use for
      * display in the CustomFileDialog.
+     *
      * @return The number of columns to use for displaying file and
      * directory information.
      */
-    int      getColumns()   const { return 3; }
+    int getColumns() const { return 3; }
 
 protected:
     /**
@@ -106,8 +114,7 @@ protected:
      * calling this method.
      */
     bool populateCache(const FSEntry& parentDir) const;
-    void addEntries(const FSEntry& parentDir, SFtpDir& dir, FSEntryList& list) const
-    throw (const SshException &);
+    void addEntries(const FSEntry& parentDir, SFtpDir& dir, FSEntryList& list) const;
 
     /**
      * @brief addDir Adds the given directory to the listing of FSEntries.
@@ -116,8 +123,7 @@ protected:
      * @param dir The SFtpDir of the directory on the remote server.
      * @param list The list dir will be added to.
      */
-    void addDir(const FSEntry &parentDir, SFtpDir &dir, FSEntryList& list) const
-    throw (const SshException &);
+    void addDir(const FSEntry &parentDir, SFtpDir &dir, FSEntryList& list) const;
 
     /**
      * @brief convert Converts the file flags on the remote system

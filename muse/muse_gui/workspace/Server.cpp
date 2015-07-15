@@ -164,7 +164,7 @@ Server::setID(const QString &id) {
 //}
 
 QString
-Server::getHomeDir() {
+Server::getHomeDir() const {
     if (osType == Linux || osType == Unix) {
         return "/home/";
     }
@@ -181,7 +181,7 @@ Server::getHomeDir() {
 }
 
 QString
-Server::separator() {
+Server::separator() const {
     if (osType == Windows) {
         return "\\";
     }

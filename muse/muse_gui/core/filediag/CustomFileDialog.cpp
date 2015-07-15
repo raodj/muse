@@ -180,23 +180,23 @@ CustomFileDialog::selectLocalFS() {
 
 void
 CustomFileDialog::selectRemoteFS() {
-    if (serverSession->getServer()->isRemote()) {
-        RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
-        // If we aren't connected to the server, connect to it.
-        if (rss->getSocket() == NULL) {
-            connect(rss, SIGNAL(booleanResult(bool)),
-                    this, SLOT(connectedToRemoteServer(bool)));
-            serverSession->connectToServer();
-        }
-        // We are connected...start reading files.
-        else {
-            fsm.setHelper(new RemoteFSHelper(rss, false));
-            treeView.setCurrentIndex(dirFilter.index(0, 0));
-            // Start viewing from the home directory.
-            toHomeDir();
-        }
+//    if (serverSession->getServer()->isRemote()) {
+//        RemoteServerSession* rss = dynamic_cast<RemoteServerSession*> (serverSession);
+//        // If we aren't connected to the server, connect to it.
+//        if (rss->getSocket() == NULL) {
+//            connect(rss, SIGNAL(booleanResult(bool)),
+//                    this, SLOT(connectedToRemoteServer(bool)));
+//            serverSession->connectToServer();
+//        }
+//        // We are connected...start reading files.
+//        else {
+//            fsm.setHelper(new RemoteFSHelper(rss, false));
+//            treeView.setCurrentIndex(dirFilter.index(0, 0));
+//            // Start viewing from the home directory.
+//            toHomeDir();
+//        }
 
-    }
+//    }
 
 }
 
@@ -225,14 +225,14 @@ void CustomFileDialog::connectedToRemoteServer(bool connected) {
 
 void
 CustomFileDialog::createNewDirectory() {
-    QString dirName;
-    DirectoryNameDialog dnDialog;
-    if (dnDialog.exec() == QDialog::Accepted) {
-        dirName = dirSelector.currentText() + "/" + dnDialog.getDirName();
-        serverSession->setDirectory(dirName);
-        serverSession->mkdir();
-        connect(serverSession, SIGNAL(directoryCreated(bool)), this, SLOT(refresh()));
-    }
+//    QString dirName;
+//    DirectoryNameDialog dnDialog;
+//    if (dnDialog.exec() == QDialog::Accepted) {
+//        dirName = dirSelector.currentText() + "/" + dnDialog.getDirName();
+//        serverSession->setDirectory(dirName);
+//        serverSession->mkdir();
+//        connect(serverSession, SIGNAL(directoryCreated(bool)), this, SLOT(refresh()));
+//    }
 }
 
 void

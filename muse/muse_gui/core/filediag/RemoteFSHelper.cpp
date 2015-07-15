@@ -42,16 +42,17 @@
 #include <QThread>
 
 RemoteFSHelper::RemoteFSHelper(RemoteServerSession* session, const bool deleteSocket) :
-    ssh(session->getSocket()), deleteSocket(deleteSocket),
-    root(session->getSocket()->peerName(), -1, -1, FSEntry::COMPUTER_FLAG) {
-    connect(this, SIGNAL(needSocket(QThread*,SshSocket*)),
-            this, SLOT(moveToThread(QThread*,SshSocket*)),
-            Qt::BlockingQueuedConnection);
-    if (session->getSftpChannel() == NULL) {
-        session->openSftpChannel();
-    }
+    /// THESE SHOULD NOT BE NULLPTR, MUST BE FIXED
+    ssh(nullptr), deleteSocket(deleteSocket),
+    root(nullptr, -1, -1, FSEntry::COMPUTER_FLAG) {
+//    connect(this, SIGNAL(needSocket(QThread*,SshSocket*)),
+//            this, SLOT(moveToThread(QThread*,SshSocket*)),
+//            Qt::BlockingQueuedConnection);
+//    if (session->getSftpChannel() == NULL) {
+//        session->openSftpChannel();
+//    }
 
-    sftp = session->getSftpChannel();
+//    sftp = session->getSftpChannel();
 }
 
 RemoteFSHelper::~RemoteFSHelper() {
@@ -148,8 +149,7 @@ RemoteFSHelper::populateCache(const FSEntry &parentDir) const {
 
 void
 RemoteFSHelper::addDir(const FSEntry &parentDir,
-                       SFtpDir &dir, FSEntryList &list) const
-throw (const SshException &) {
+                       SFtpDir &dir, FSEntryList &list) const {
     // Get information about the directory itself.
     long size  = -1, timestamp = -1;
     int  flags = -1;
@@ -162,8 +162,7 @@ throw (const SshException &) {
 
 void
 RemoteFSHelper::addEntries(const FSEntry &parentDir,
-                           SFtpDir &dir, FSEntryList &list) const
-throw (const SshException &) {
+                           SFtpDir &dir, FSEntryList &list) const {
     // Extract and setup path for use further below.
     const QString path = dir.getPath();
     // Repeatedly get entry and add it to the cacheEntries list

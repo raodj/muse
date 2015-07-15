@@ -44,13 +44,18 @@
 
 #include <iostream>
 #include <vector>
-#include <math.h>
+#include <functional>
+
+#include <cmath>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1),
-    scrollSize(50, 50){
+    scrollSize(50, 50), zoom(zoomLevel - 1), map{ worldMaps[zoomLevel] }, painter{ this } {
+
     loadZoomLevels();
     resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
+    //map = worldMaps[zoomLevel];
+    size = std::sqrt(map.size());
 }
 
 GeospatialWidget::~GeospatialWidget(){
@@ -59,34 +64,15 @@ GeospatialWidget::~GeospatialWidget(){
 
 void
 GeospatialWidget::paintEvent(QPaintEvent *e) {
-    std::vector<QPixmap>& map = worldMaps[zoomLevel];
 
-    int size = std::sqrt(map.size());
-    int zoom = zoomLevel - 1;
     automaticResize(map[0].width(), map[0].height(), zoom);
-    std::cout << "Scroll width: " << scrollSize.width() << std::endl;
-    QPainter painter(this);
-    auto tiles = 0;
+    //QPainter painter(this);
+
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            int xCoordinate = x * map[pow(2, zoomLevel) * x + y].width() << zoom;
-            int yCoordinate = y * map[pow(2, zoomLevel) * x + y].height() << zoom;
-
-            int xDifferenceThreshold = ((int)(map[pow(2, zoomLevel) * x + y].width())) << zoom;
-            int yDifferenceThreshold = ((int)(map[pow(2, zoomLevel) * x + y].height())) << zoom;
-
-            if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold){
-                if (xCoordinate < xStart + scrollSize.width() && yCoordinate < yStart + scrollSize.height()){
-                    painter.drawPixmap(xCoordinate, yCoordinate,
-                                       map[pow(2, zoomLevel) * x + y].width() << zoom,
-                                       map[pow(2, zoomLevel) * x + y].height() << zoom,
-                                       map[pow(2, zoomLevel) * x + y]);
-                    tiles++;
-                }
-            }
+            std::async(std::launch::async, &GeospatialWidget::renderTiles, this, &painter, x, y);
         }
     }
-    std::cout << "Tiles printed to screen: " << tiles << std::endl;
 }
 void
 GeospatialWidget::loadZoomLevels() {
@@ -126,6 +112,8 @@ void
 GeospatialWidget::zoomIn(){
     if (zoomLevel < 8){
         ++zoomLevel;
+        zoom = zoomLevel - 1;
+        map = worldMaps[zoomLevel];
     }
 }
 
@@ -133,19 +121,19 @@ void
 GeospatialWidget::zoomOut(){
     if (zoomLevel > 1){
         --zoomLevel;
+        zoom = zoomLevel - 1;
+        map  = worldMaps[zoomLevel];
     }
 
 }
 
 void
 GeospatialWidget::xPositionChanged(int x) {
-    //std::cout << x << std::endl;
     xStart = x;
 }
 
 void
 GeospatialWidget::yPositionChanged(int y) {
-    //std::cout << y << std::endl;
     yStart = y;
 }
 
@@ -156,8 +144,27 @@ GeospatialWidget::getScrollAreaSize(QSize scrollSize) {
 }
 
 void
-GeospatialWidget::automaticResize(int tileWidth, int tileHeight, int zoom){
+GeospatialWidget::automaticResize(int tileWidth, int tileHeight, int zoom) {
     this->resize(((int)(pow(2, zoomLevel) * tileWidth)) << zoom, ((int)(pow(2, zoomLevel) * tileHeight)) << zoom);
+}
+
+void
+GeospatialWidget::renderTiles(QPainter* painter, int x, int y) {
+    int xCoordinate = x * map[std::pow(2, zoomLevel) * x + y].width() << zoom;
+    int yCoordinate = y * map[std::pow(2, zoomLevel) * x + y].height() << zoom;
+
+    int xDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].width())) << zoom;
+    int yDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].height())) << zoom;
+
+    if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold){
+        if (xCoordinate < xStart + scrollSize.width() && yCoordinate < yStart + scrollSize.height()){
+
+            painter->drawPixmap(xCoordinate, yCoordinate,
+                               map[std::pow(2, zoomLevel) * x + y].width() << zoom,
+                               map[std::pow(2, zoomLevel) * x + y].height() << zoom,
+                               map[std::pow(2, zoomLevel) * x + y]);
+        }
+    }
 }
 
 

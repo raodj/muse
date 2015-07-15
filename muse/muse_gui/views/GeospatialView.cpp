@@ -80,8 +80,6 @@ GeospatialView::GeospatialView(QWidget *parent) :
             world, SLOT(xPositionChanged(int)));
     connect(scrollArea->verticalScrollBar(), SIGNAL(valueChanged(int)),
             world, SLOT(yPositionChanged(int)));
-    //connect(scrollArea->resize() , SIGNAL(valueChanged(QSize)), this,
-            //SLOT(sendTheSize()));
 }
 
 void

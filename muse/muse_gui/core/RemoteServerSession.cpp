@@ -85,7 +85,7 @@ RemoteServerSession::connectToServer() {
     bool connectResult = socket.connectToHost(server.getName(), nullptr,
                                               server.getPort(), QAbstractSocket::ReadWrite);
 
-    disconnect(socket, SIGNAL(needCredentials(QString*, QString*)),
+    disconnect(&socket, SIGNAL(needCredentials(QString*, QString*)),
                &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
     disconnect(socket.getKnownHosts(), signal, &threadGUI, slot);
 
@@ -179,7 +179,7 @@ RemoteServerSession::connectToServer() {
 
 void
 RemoteServerSession::getOSType() {
-    SshChannel channel{ *socket };
+    SshChannel channel{ socket };
 
     QString os{ Server::UnknownOS };
     QString out;
@@ -192,7 +192,7 @@ RemoteServerSession::getOSType() {
         err.clear();
 
         // Windows specific command 'ver' is equivalent to 'uname -a'
-        returnCode = serverSession->exec("ver", out, err);
+        returnCode = channel.exec("ver", out, err);
     }
 
     if (returnCode == SUCCESS_CODE) {
@@ -212,19 +212,19 @@ RemoteServerSession::getOSType() {
 
 void
 RemoteServerSession::mkdir() {
-    emit directoryCreated(SFtpChannel{ *socket }.mkdir(directory));
+    emit directoryCreated(SFtpChannel{ socket }.mkdir(directory));
 }
 
 void
 RemoteServerSession::dirExists() {
-    emit directoryExists(SFtpChannel{ *socket }.dirExists(directory));
+    emit directoryExists(SFtpChannel{ socket }.dirExists(directory));
 }
 
 void
 RemoteServerSession::createServerData() {
-    QString projectsDir{ directory + server->separator() + projectsDirName };
-    QString jobsDir{ directory + server->separator() + jobsDirName };
-    QString scriptsDir{ directory + server->separator() + scriptsDirName };
+    QString projectsDir{ directory + server.separator() + projectsDirName };
+    QString jobsDir{ directory + server.separator() + jobsDirName };
+    QString scriptsDir{ directory + server.separator() + scriptsDirName };
 
     if (!SFtpChannel{ socket }.mkdirs({ projectsDir, jobsDir, scriptsDir })) {
         emit serverDataCreated(false);
@@ -241,9 +241,9 @@ RemoteServerSession::createServerData() {
 
 void
 RemoteServerSession::validate() {
-    QString projectsDir{ directory + server->separator() + projectsDirName };
-    QString jobsDir{ directory + server->separator() + jobsDirName };
-    QString scriptsDir{ directory + server->separator() + scriptsDirName };
+    QString projectsDir{ directory + server.separator() + projectsDirName };
+    QString jobsDir{ directory + server.separator() + jobsDirName };
+    QString scriptsDir{ directory + server.separator() + scriptsDirName };
 
     if (!SFtpChannel{ socket }.dirsExist({ projectsDir, jobsDir, scriptsDir })) {
         emit directoryValidated(false);
