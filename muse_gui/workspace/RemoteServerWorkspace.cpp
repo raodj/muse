@@ -6,18 +6,18 @@
 #include "XMLParser.h"
 
 #include <QFileInfo>
+#include <QDir>
 
 RemoteServerWorkspace::RemoteServerWorkspace(QString dir, const SshSocket &socket)
-    : ServerWorkspace(dir), channel{ socket }
+    : ServerWorkspace(dir), channel{ const_cast<SshSocket&>(socket) }
 {
 }
 
 QString
 RemoteServerWorkspace::save() {
     // Save our data to a temporary QString
-    QString schemaFile{ ":/resources/muse_gui.xsd" };
     QString serverData;
-    QString result{ XMLParser{}.saveXML(serverData, schemaFile, *this) };
+    QString result{ XMLParser{}.saveXML(serverData, *dynamic_cast<XMLRootElement*>(this)) };
 
     if (result != "") {
         return result;
@@ -60,10 +60,10 @@ RemoteServerWorkspace::load() {
 
     // Load our temporary xml file with the XMLParser then remove the file
     QString schemaFile{ ":/resources/muse_gui.xsd" };
-    result = XMLParser{}.loadXML(tempFileInfo.absoluteFilePath(), schemaFile, *this);
+    QString loadResult = XMLParser{}.loadXML(tempFileInfo.absoluteFilePath(), schemaFile, *dynamic_cast<XMLRootElement*>(this));
     tempFile.remove();
 
-    return result;
+    return loadResult;
 }
 
 #endif

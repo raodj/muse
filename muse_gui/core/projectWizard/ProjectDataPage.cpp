@@ -138,7 +138,7 @@ ProjectDataPage::browseForSrcFiles() {
         codeFilePath.setText(temp.at(0));
         emit sourceListUpdate(sourceFiles);
     }
-    session->disconnectFromServer();
+    //session->disconnectFromServer();
 }
 
 void
@@ -148,7 +148,7 @@ ProjectDataPage::browseForMakeFile() {
     if (!path.isEmpty()) {
         makeFilePath.setText(path);
     }
-    session->disconnectFromServer();
+    //session->disconnectFromServer();
 }
 
 void
@@ -158,7 +158,7 @@ ProjectDataPage::browseForExecutable() {
     if (!path.isEmpty()) {
         executablePath.setText(path);
     }
-    session->disconnectFromServer();
+    //session->disconnectFromServer();
 }
 
 void
@@ -168,7 +168,7 @@ ProjectDataPage::browseForOutputDir() {
     if (!path.isEmpty()) {
         outputDirPath.setText(path);
     }
-    session->disconnectFromServer();
+    //session->disconnectFromServer();
 }
 
 #endif

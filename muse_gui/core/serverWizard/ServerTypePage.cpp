@@ -228,13 +228,13 @@ ServerTypePage::validatePage() {
             server->setPassword(password.text());
 
             // Make a session with the server
-            serverSession = new RemoteServerSession(server);
+            serverSession = new RemoteServerSession(*server);
 
             // Connect signal to find out the result of the connection.
             connect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
                     this, SLOT(checkConnectionTesterResult(bool)));
         } else {
-            serverSession = new LocalServerSession(server);
+            serverSession = new LocalServerSession(*server);
         }
 
         // Let the other pages know we have made a server sesion
@@ -243,7 +243,7 @@ ServerTypePage::validatePage() {
         // Specific to remote server
         if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
             // Connect to the server.
-            serverSession->connectToServer();
+            //serverSession->connectToServer();
 
             // Stay on the page for now.
             return false;
@@ -278,48 +278,48 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
 
 bool
 ServerTypePage::verifyOS() {
-    QString out;
-    QString err;
+//    QString out;
+//    QString err;
 
-    // Verify the Operating System of the server
-    int returnCode = serverSession->exec("uname -a", out, err);
+//    // Verify the Operating System of the server
+//    int returnCode = serverSession->exec("uname -a", out, err);
 
-    // If 'uname -a' failed to run on the server then we need to test if
-    // this is a Windows machine
-    if (returnCode != SUCCESS_CODE) {
-        out.clear();
-        err.clear();
+//    // If 'uname -a' failed to run on the server then we need to test if
+//    // this is a Windows machine
+//    if (returnCode != SUCCESS_CODE) {
+//        out.clear();
+//        err.clear();
 
-        returnCode = serverSession->exec("ver", out, err);
-    }
+//        returnCode = serverSession->exec("ver", out, err);
+//    }
 
-    // Inform the user of the result.
-    QMessageBox msgBox;
-    msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
-                                                   FailureMessage );
-    msgBox.setDetailedText( (returnCode == SUCCESS_CODE) ? out : err);
-    msgBox.setWindowTitle( (returnCode == SUCCESS_CODE) ? "Connection Success"
-                                                        : "Connection Failure");
-    msgBox.setStandardButtons(QMessageBox::Ok);
-    msgBox.exec();
+//    // Inform the user of the result.
+//    QMessageBox msgBox;
+//    msgBox.setText( (returnCode == SUCCESS_CODE) ? SuccessMessage :
+//                                                   FailureMessage );
+//    msgBox.setDetailedText( (returnCode == SUCCESS_CODE) ? out : err);
+//    msgBox.setWindowTitle( (returnCode == SUCCESS_CODE) ? "Connection Success"
+//                                                        : "Connection Failure");
+//    msgBox.setStandardButtons(QMessageBox::Ok);
+//    msgBox.exec();
 
-    if(returnCode == SUCCESS_CODE) {
-        QString os = Server::UnknownOS;
+//    if(returnCode == SUCCESS_CODE) {
+//        QString os = Server::UnknownOS;
 
-        if (out.contains(Server::Linux, Qt::CaseInsensitive)) {
-            os = Server::Linux;
-        } else if (out.contains(Server::Unix, Qt::CaseInsensitive)) {
-            os = Server::Unix;
-        } else if (out.contains(Server::Windows, Qt::CaseInsensitive)) {
-            os = Server::Windows;
-        } else if (out.contains(Server::OSX, Qt::CaseInsensitive)) {
-            os = Server::OSX;
-        }
+//        if (out.contains(Server::Linux, Qt::CaseInsensitive)) {
+//            os = Server::Linux;
+//        } else if (out.contains(Server::Unix, Qt::CaseInsensitive)) {
+//            os = Server::Unix;
+//        } else if (out.contains(Server::Windows, Qt::CaseInsensitive)) {
+//            os = Server::Windows;
+//        } else if (out.contains(Server::OSX, Qt::CaseInsensitive)) {
+//            os = Server::OSX;
+//        }
 
-        serverSession->getServer()->setOS(os);
-    }
+//        serverSession->getServer()->setOS(os);
+//    }
 
-    return returnCode == SUCCESS_CODE;
+    return !SUCCESS_CODE;
 }
 
 #endif

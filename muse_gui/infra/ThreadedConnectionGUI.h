@@ -64,15 +64,15 @@ public:
      * remote server.
      * @param server The server being connected to.
      */
-    ThreadedConnectionGUI(Server* server);
-    ~ThreadedConnectionGUI();
+    ThreadedConnectionGUI(const Server& server);
+    //~ThreadedConnectionGUI();
     ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg);
 
     // For controlling the threads
     static QWaitCondition userHasResponded, passUserData;
     static QMutex mutex, userDataMutex;
 
-    Server* getServer();
+    Server* getServer() { const_cast<Server*>(&server); }
 
 public slots:
     /**
@@ -118,7 +118,8 @@ signals:
 
 
 private:
-     Server* server;
+     Server server;
+     //Server* server;
 };
 
 #endif

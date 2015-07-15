@@ -91,7 +91,7 @@ public:
      * Being a virtual method, this method has no implementation
      * in the ServerSession class and is overridden in the derived classes.
      */
-    virtual void disconnectFromServer() = 0;
+    //virtual void disconnectFromServer() = 0;
 
     /**
      * @brief manageServer Main function called by the GUI to manage the
@@ -210,14 +210,14 @@ public:
      * If the message is long, then ensure it is properly broken into multiple lines
      * so that the dialog boxes display at reasonable sizes.
      */
-    virtual void setPurpose(const QString &text) = 0;
+    //virtual void setPurpose(const QString &text) = 0;
 
     /**
      * @brief getServer Gets a pointer to the server this ServerSession refers to.
      *
      * @return A pointer to the server.
      */
-    Server* getServer() const { return server; }
+    Server* getServer() const { return const_cast<Server*>(&server); }
 
 signals:
     /**
