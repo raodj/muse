@@ -45,12 +45,12 @@
 #include <iostream>
 #include <vector>
 #include <functional>
-
 #include <cmath>
+#include <QFile>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1),
-    scrollSize(50, 50), zoom(zoomLevel - 1), map{ worldMaps[zoomLevel] }, painter{ this } {
+    scrollSize(50, 50), zoom(zoomLevel - 1), map{ worldMaps[zoomLevel] } {
 
     loadZoomLevels();
     resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
@@ -64,9 +64,8 @@ GeospatialWidget::~GeospatialWidget(){
 
 void
 GeospatialWidget::paintEvent(QPaintEvent *e) {
-
     automaticResize(map[0].width(), map[0].height(), zoom);
-    //QPainter painter(this);
+    QPainter painter(this);
 
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
@@ -165,6 +164,18 @@ GeospatialWidget::renderTiles(QPainter* painter, int x, int y) {
                                map[std::pow(2, zoomLevel) * x + y]);
         }
     }
+}
+
+int*
+GeospatialWidget::getDataPoints(){
+    QFile file(MUSEGUIApplication::appDir() + QDir::separator() + "dataPoints");
+    for (int i = 0; i < 3; i++){
+        file.readLine();
+        //std::cout << line << std::endl;
+    }
+    file.close();
+    int *array = new int[0];
+    return array;
 }
 
 

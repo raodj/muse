@@ -82,7 +82,6 @@ private:
 
     std::unordered_map<int, std::vector<QPixmap>> worldMaps;
 
-    QPainter painter;
     QScrollArea *scrollArea;
 
     void loadZoomLevels();
@@ -90,7 +89,7 @@ private:
     void initializeToolBarButtons();
     void automaticResize(int width, int height, int zoom);
     void renderTiles(QPainter* painter, int x, int y);
-
+    int* getDataPoints();
 };
 
 
