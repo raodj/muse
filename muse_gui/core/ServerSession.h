@@ -70,7 +70,6 @@ enum class ChangeType {
 class ServerSession : public QObject {
     Q_OBJECT
 public:
-
     /**
       * The constructor merely initializes the instance variables to
       * the values supplied as parameters.
@@ -82,16 +81,7 @@ public:
       * create GUI elements that may be needed for any interactive
       * operations.
       */
-    ServerSession(const Server& server, QWidget* parent = nullptr);
-
-    /**
-     * @brief disconnect Method that closes the connection to a server.
-     *
-     * This method must be used to end the existing connection to server.
-     * Being a virtual method, this method has no implementation
-     * in the ServerSession class and is overridden in the derived classes.
-     */
-    //virtual void disconnectFromServer() = 0;
+    ServerSession(Server server, QWidget* parent = nullptr);
 
     /**
      * @brief manageServer Main function called by the GUI to manage the
@@ -111,106 +101,6 @@ public:
     virtual void setDirectory(const QString& dir) final {
         directory = dir;
     }
-
-//    /**
-//     * @brief exec Method to run a <b>brief</b> command that produces succint output.
-//     * The two possible outputs (standard output and error output) will be stored separately as Strings.
-//     * <p><b>Note:</b>  The connection to the remote server must have
-//     * been established successfully via a call to connect method.</p>
-//     *
-//     * @param command The command to be executed on the target machine.
-//     * The command must be compatible with the target machine's OS,
-//     * otherwise an exception will be generated.
-//     *
-//     * @param stdoutput The output that comes from the standard output
-//     * stream as a result of running the command.
-//     *
-//     * @param stderrmsgs The output that comes from the standard error
-//     * stream as a result of running the command.
-//     *
-//     * @return The exit code from the command that was run on the target machine.
-//     */
-//    virtual int exec(const QString &command, QString &stdoutput, QString &stderrmsgs) = 0;
-
-//    /**
-//     * @brief exec Method to be run with a long running command that may
-//     * produce verbose output. The output is deposited in a QTextDocument
-//     * with appropriate styling given to the output returned from the command.
-//     * In other words, the standard output will appear differently than the
-//     * error stream and any other type of output.
-//     * <p><b>Note:</b>  The connection to the remote server must have
-//     * been established successfully via a call to connect method.</p>
-//     *
-//     * @param command The command to be executed on the target machine.
-//     * The command must be compatible with the target machine's OS,
-//     * otherwise an exception will be generated.
-//     *
-//     * @param output The QTextEdit that the output will be directed to and deposited in.
-//     *  This parameter cannot be null.
-//     *
-//     * @return The exit code from the command that was run on the target machine.
-//     */
-//    virtual int exec(const QString &command, QTextEdit &output) = 0;
-
-//    /**
-//     * @brief copy A method to copy given data from an input stream to a given file on the server.
-//     * <p><b>Note:</b>  The connection to the remote server must have
-//     * been established successfully via a call to connect method.</p>
-//     * @param srcData The source stream that provides the data to be copied.
-//     *
-//     * @param destDirectory The destination directory to which the data is to be copied.
-//     * This method will assume the directory has already been created.
-//     *
-//     * @param destFileName The name of the destination file to which the data will be copied to.
-//     *
-//     * @param mode The POSIX compliant mode string (such as: "0600" or "0700") to be used
-//     * as the mode for the target file.
-//     */
-//    virtual bool copy(const QString &srcData, const QString &destDirectory,
-//                      const QString &destFileName, const int &mode) = 0;
-
-
-//    //Java version of below method also had a progress bar as a last parameter.....
-//    /**
-//     * @brief copy Copy file from a remote machine to a given output stream.
-//     * <p><b>Note:</b>  The connection to the remote server must have
-//     * been established successfully via a call to connect method.</p>
-//     *
-//     * @param destData The destination stream to which the data is to be written.
-//     *
-//     * @param srcDirectory The source directory from where the file is to be copied.
-//     *
-//     * @param srcFileName The name of the source file from where the data is to be copied.
-//     */
-//    virtual bool copy(const QString &destData, const QString &srcDirectory,
-//                      const QString &srcFileName) = 0;
-
-    //FileInfo is a PEACE class that has yet to be translated to C++
-    /**
-     * @brief fstat Obtain information about a given path on the target machine. This method uses SFTP to copy the data.
-     * <p><b>Note:</b>  The connection to the remote server must have
-     * been established successfully via a call to connect method.</p>
-     *
-     * @param path The path (absolute or relative to home directory) of the file whose meta data is to be retrieved.
-     *
-     * @return A FileInfo object containing the information about the path.
-     */
-    //virtual FileInfo fstat(const QString &path) = 0;
-
-    /*Server class not yet translated to C++, so this method header may change
-    once the Server class exists and the enumerations are transferred. Maybe it should
-   return an int? */
-    //virtual Server.OSType getOSType()= 0;
-
-    /**
-     * @brief setPurpose Sets a purpose message for this session.
-     *
-     * @param text The purpose for this session. The text can contain
-     * HTML tags or possibly an icon, so it can be HTML in addition to plain text.
-     * If the message is long, then ensure it is properly broken into multiple lines
-     * so that the dialog boxes display at reasonable sizes.
-     */
-    //virtual void setPurpose(const QString &text) = 0;
 
     /**
      * @brief getServer Gets a pointer to the server this ServerSession refers to.
@@ -280,12 +170,9 @@ signals:
     void errorEncountered(QString error);
 
 protected:
-    const Server& server;
-    const QWidget* parent;
+    Server server;
 
     QString directory;
-
-    //bool threadedResult;
 
     static const QString projectsDirName;
     static const QString jobsDirName;
@@ -295,8 +182,7 @@ protected:
      * @brief connect Method that establishes a connection to a server.
      *
      * This method must be used to establish a connection to a server before
-     * performing any tasks. Being a virtual method, this method has no implementation
-     * in the ServerSession class and is overridden in the derived classes.
+     * performing any tasks.
      */
     virtual void connectToServer() = 0;
 
@@ -324,7 +210,7 @@ protected:
     /**
      * @brief createServerData Attempts to create the necessary data for a Server
      * in the given directory.  This data includes xml files, directories for
-     * projects, jobs, etc. and the server scripts for getting server updates
+     * projects, jobs, etc. and the scripts for getting server updates
      */
     virtual void createServerData() = 0;
 

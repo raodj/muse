@@ -155,7 +155,6 @@ ServerInfoPage::validatePage() {
                 this, SLOT(getDirExistsResult(bool)));
 
         serverSession->manageServer(ChangeType::DIR_EXISTS);
-        //serverSession->dirExists(installDirectoryDisplay.text());
 
         return false;
     }
@@ -166,7 +165,6 @@ ServerInfoPage::validatePage() {
                 this, SLOT(getMkdirResult(bool)));
 
         serverSession->manageServer(ChangeType::CREATE_DIR);
-        //serverSession->mkdir(installDirectoryDisplay.text());
 
         return false;
     }
@@ -181,7 +179,6 @@ ServerInfoPage::validatePage() {
                 this, SLOT(getServerDataCreatedResult(bool)));
 
         serverSession->manageServer(ChangeType::CREATE_SERVER);
-        //serverSession->createServerData(installDirectoryDisplay.text());
 
         return false;
     }
@@ -193,7 +190,6 @@ ServerInfoPage::validatePage() {
                 this, SLOT(getDirValidatedResult(bool)));
 
         serverSession->manageServer(ChangeType::VALIDATE_SERVER);
-        //serverSession->validate(installDirectoryDisplay.text());
 
         return false;
     }

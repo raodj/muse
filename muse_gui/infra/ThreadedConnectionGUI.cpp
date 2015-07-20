@@ -54,10 +54,6 @@ ThreadedConnectionGUI::ThreadedConnectionGUI(const Server& server) :
     QObject(), server{ server } {
 }
 
-ThreadedConnectionGUI::ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg) :
-    QObject(), server{ tcg.server } {
-}
-
 void
 ThreadedConnectionGUI::interceptRequestForCredentials(QString* username, QString* passWord) {
     LoginCredentialsDialog lcd;

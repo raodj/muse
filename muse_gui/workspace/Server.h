@@ -129,7 +129,6 @@ public:
      */
     static const QString UnknownOS;
 
-
      /**
      * @brief Server  The constructor merely initializes all the instance
      * variables using the supplied parameters.
@@ -166,17 +165,17 @@ public:
      * @param osType The type of operating system running on the server.
      * This value must be one of the predefined operating system types.
      *
+     * @param password The password used to login to a remote server
+     *
      * @param status The initial status for this server (if any). The server
      * status must be one of the predefined constant status values from this
      * class.
      */
     Server(QString ID = "", bool remote = false, QString name = "", int port = 22,
            QString description = "", QString userID = "", QString installPath = "",
-           QString osType = UnknownOS, QString status = Installing);
+           QString osType = UnknownOS, QString status = Installing, QString password = "");
 
     Server(const Server& other);
-
-    Server& operator=(const Server& other) = default;
 
     bool operator==(const Server& other);
 
@@ -288,6 +287,8 @@ public:
      * @return True if this Server is a remote server, false otherwise.
      */
     bool isRemote() const { return remote; }
+
+    void setIsRemote(bool remote);
 
     /**
      * @brief setOS Sets the operating system for this Server.

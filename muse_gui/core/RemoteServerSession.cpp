@@ -48,27 +48,16 @@
 
 #define SUCCESS_CODE 0
 
-RemoteServerSession::RemoteServerSession(const Server& server, QWidget *parent) :
+RemoteServerSession::RemoteServerSession(Server server, QWidget *parent) :
     ServerSession(server, parent), threadGUI{ server },
     socket{ "Remote Server Operations", nullptr,
             MUSEGUIApplication::knownHostsFilePath(),
             true, true }
 {
-//    socket = NULL;
-//    sftpChannel = NULL;
-//    sshChannel = NULL;
 }
-
-//RemoteServerSession::~RemoteServerSession() {
-//    delete sftpChannel;
-//    delete sshChannel;
-//    delete socket;
-//}
 
 void
 RemoteServerSession::connectToServer() {
-    // Now, intercept the signal to provide the SshSocket with the
-    // user's credentials
     connect(&socket, SIGNAL(needCredentials(QString*, QString*)),
             &threadGUI, SLOT(interceptRequestForCredentials(QString*, QString*)));
 

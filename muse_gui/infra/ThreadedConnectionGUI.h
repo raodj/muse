@@ -62,17 +62,18 @@ public:
      * RemoteServerSession is created. This allows MUSE
      * to display GUI prompts/issues when connecting to the
      * remote server.
+     *
      * @param server The server being connected to.
      */
     ThreadedConnectionGUI(const Server& server);
     //~ThreadedConnectionGUI();
-    ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg);
+    //ThreadedConnectionGUI(const ThreadedConnectionGUI& tcg);
 
     // For controlling the threads
     static QWaitCondition userHasResponded, passUserData;
     static QMutex mutex, userDataMutex;
 
-    Server* getServer() { const_cast<Server*>(&server); }
+    Server* getServer() { return &server; }
 
 public slots:
     /**
@@ -94,8 +95,8 @@ public slots:
      * @param userChoice The button pressed to close the QMessageBox.
      */
      void promptUser(const QString &windowTitle, const QString& text,
-                    const QString &informativeText,
-                    const QString &detailedText, int* userChoice);
+                     const QString &informativeText,
+                     const QString &detailedText, int* userChoice);
 
     /**
      * @brief showException Shows a dialog explaining the exception thrown
@@ -105,7 +106,7 @@ public slots:
      * @param exceptionDetails The exact details of the error.
      */
      void showException(const QString& message, const QString& genErrorMessage,
-                       const QString& exceptionDetails);
+                        const QString& exceptionDetails);
 
      /**
       * @brief showMessage Shows a simple message to the user that only contains
@@ -119,7 +120,6 @@ signals:
 
 private:
      Server server;
-     //Server* server;
 };
 
 #endif
