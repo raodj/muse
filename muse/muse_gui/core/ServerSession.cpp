@@ -42,39 +42,37 @@
 #include <QThread>
 
 #include <functional>
-#include <thread>
+#include <future>
 
 const QString ServerSession::projectsDirName{ "projects" };
 const QString ServerSession::jobsDirName{ "jobs" };
 const QString ServerSession::scriptsDirName{ "scripts" };
 
-ServerSession::ServerSession(const Server& server, QWidget* parent) :
-    server{ server } , parent{ parent }
+ServerSession::ServerSession(Server server, QWidget* parent) :
+     server{ std::move(server) }
 {
 }
 
 void
 ServerSession::manageServer(ChangeType change) {
-    std::thread thread;
-
     switch (change) {
     case ChangeType::CONNECT:
-        thread = std::thread(std::bind(&ServerSession::connectToServer, this));
+        std::async(std::launch::async, &ServerSession::connectToServer, this);
         break;
     case ChangeType::GET_OS_TYPE:
-        thread = std::thread(std::bind(&ServerSession::getOSType, this));
+        std::async(std::launch::async, &ServerSession::getOSType, this);
         break;
     case ChangeType::CREATE_DIR:
-        thread = std::thread(std::bind(&ServerSession::mkdir, this));
+        std::async(std::launch::async, &ServerSession::mkdir, this);
         break;
     case ChangeType::CREATE_SERVER:
-        thread = std::thread(std::bind(&ServerSession::createServerData, this));
+        std::async(std::launch::async, &ServerSession::createServerData, this);
         break;
     case ChangeType::DIR_EXISTS:
-        thread = std::thread(std::bind(&ServerSession::dirExists, this));
+        std::async(std::launch::async, &ServerSession::dirExists, this);
         break;
     case ChangeType::VALIDATE_SERVER:
-        thread = std::thread(std::bind(&ServerSession::validate, this));
+        std::async(std::launch::async, &ServerSession::validate, this);
         break;
     default:
         // should never happen, but inform the user of the error just in case

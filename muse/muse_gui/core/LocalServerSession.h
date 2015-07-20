@@ -61,7 +61,7 @@ public:
      * create GUI elements that may be needed for any interactive
      * operations.
      */
-    LocalServerSession(const Server& server, QWidget *parent = nullptr);
+    LocalServerSession(Server server, QWidget *parent = nullptr);
 
 
 

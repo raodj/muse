@@ -74,10 +74,10 @@ const QString Server::UnknownOS = "unknown_os";
 
 Server::Server(QString pID, bool pRemote, QString pName, int pPort,
                QString pDescription, QString pUserID, QString pInstallPath,
-               QString pOsType, QString pStatus) : XMLElement("Server"),
+               QString pOsType, QString pStatus, QString password) : XMLElement("Server"),
     ID(pID), remote(pRemote), name(pName), port(pPort),
     description(pDescription), userID(pUserID), installPath(pInstallPath),
-    status(pStatus), osType(pOsType) {
+    status(pStatus), osType(pOsType), password(password) {
     // Add the set of instance variables that must be serialized/deserialized.
     addElement(XMLElementInfo("ID",          &ID));
     addElement(XMLElementInfo("Remote",      &remote));
@@ -136,6 +136,12 @@ Server::setPassword(const QString& credential) {
 void
 Server::setDescription(const QString& description) {
     this->description = description;
+    emit serverUpdated(*this);
+}
+
+void
+Server::setIsRemote(bool remote) {
+    this->remote = remote;
     emit serverUpdated(*this);
 }
 

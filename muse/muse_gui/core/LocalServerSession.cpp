@@ -9,7 +9,7 @@
 #include <QProcess>
 #include <QSysInfo>
 
-LocalServerSession::LocalServerSession(const Server& server, QWidget *parent) :
+LocalServerSession::LocalServerSession(Server server, QWidget *parent) :
     ServerSession(server, parent)
 {
 }
@@ -84,8 +84,7 @@ LocalServerSession::connectToServer() {
 
 void
 LocalServerSession::mkdir() {
-    QDir dir{ directory };
-    emit directoryCreated(dir.mkdir(directory));
+    emit directoryCreated(QDir{ directory }.mkdir(directory));
 }
 
 void
@@ -114,11 +113,12 @@ LocalServerSession::createServerData() {
         return;
     }
 
-    if (LocalServerWorkspace{ directory }.save() == "") {
-        emit serverDataCreated(true);
-    } else {
+    if (LocalServerWorkspace{ directory }.save() != "") {
         emit serverDataCreated(false);
+        return;
     }
+
+    emit serverDataCreated(true);
 }
 
 void
@@ -142,11 +142,12 @@ LocalServerSession::validate() {
         return;
     }
 
-    if (LocalServerWorkspace{ directory }.load() == "") {
-        emit directoryValidated(true);
-    } else {
+    if (LocalServerWorkspace{ directory }.load() != "") {
         emit directoryValidated(false);
+        return;
     }
+
+    emit directoryValidated(true);
 }
 
 //void

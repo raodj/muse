@@ -97,6 +97,13 @@ private slots:
      */
     void checkConnectionTesterResult(bool result);
 
+    /**
+     * @brief getServerOS Gets the result of the ServerSession determining
+     * the OS on the server
+     *
+     * @param os The name of the Server
+     */
+    void getServerOS(QString os);
 
 signals:
     void serverSessionCreated(ServerSession* ss);
@@ -123,7 +130,8 @@ private:
     static const QString SuccessMessage;
     static const QString FailureMessage;
 
-    bool remoteConnectionVerified;
+    bool connectionVerified;
+    bool serverOSVerified;
     
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the
@@ -156,7 +164,7 @@ private:
      * to verify that it is a Linux or UNIX operating system.
      * @return True if the OS is Linux or UNIX, false otherwise.
      */
-    bool verifyOS();
+    //bool verifyOS();
 };
 
 #endif
