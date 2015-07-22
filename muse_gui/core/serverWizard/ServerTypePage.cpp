@@ -244,7 +244,13 @@ ServerTypePage::validatePage() {
         connect(serverSession, SIGNAL(announceOSType(QString)),
                 this, SLOT(getServerOS(QString)));
         serverSession->manageServer(ChangeType::GET_OS_TYPE);
+        return false;
     }
+
+    disconnect(serverSession, SIGNAL(connectedToServer(bool)),
+            this, SLOT(checkConnectionTesterResult(bool)));
+    disconnect(serverSession, SIGNAL(announceOSType(QString)),
+            this, SLOT(getServerOS(QString)));
 
     prgDialog.setVisible(false);
 
@@ -264,10 +270,6 @@ void
 ServerTypePage::checkConnectionTesterResult(bool result) {
     connectionVerified = result;
     serverOSVerified = false;
-
-    // Disconnect from the boolean result signal.
-    disconnect((RemoteServerSession*)serverSession, SIGNAL(booleanResult(bool)),
-               this, SLOT(checkConnectionTesterResult(bool)));
 
     if (connectionVerified) {
         wizard()->next();
