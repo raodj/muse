@@ -38,6 +38,8 @@
 
 #include "MUSEGUIApplication.h"
 
+#include <string>
+
 int main(int argc, char *argv[]) {
     MUSEGUIApplication app(argc, argv);
     return app.exec();

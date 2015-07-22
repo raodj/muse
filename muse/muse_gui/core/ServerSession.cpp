@@ -55,24 +55,29 @@ ServerSession::ServerSession(Server server, QWidget* parent) :
 
 void
 ServerSession::manageServer(ChangeType change) {
+    if (thread.joinable()) {
+        std::cout << "thread running" << std::endl;
+        thread.join();
+    }
+
     switch (change) {
     case ChangeType::CONNECT:
-        std::async(std::launch::async, &ServerSession::connectToServer, this);
+        thread = std::thread(std::bind(&ServerSession::connectToServer, this));
         break;
     case ChangeType::GET_OS_TYPE:
-        std::async(std::launch::async, &ServerSession::getOSType, this);
+        thread = std::thread(std::bind(&ServerSession::getOSType, this));
         break;
     case ChangeType::CREATE_DIR:
-        std::async(std::launch::async, &ServerSession::mkdir, this);
+        thread = std::thread(std::bind(&ServerSession::mkdir, this));
         break;
     case ChangeType::CREATE_SERVER:
-        std::async(std::launch::async, &ServerSession::createServerData, this);
+        thread = std::thread(std::bind(&ServerSession::createServerData, this));
         break;
     case ChangeType::DIR_EXISTS:
-        std::async(std::launch::async, &ServerSession::dirExists, this);
+        thread = std::thread(std::bind(&ServerSession::dirExists, this));
         break;
     case ChangeType::VALIDATE_SERVER:
-        std::async(std::launch::async, &ServerSession::validate, this);
+        thread = std::thread(std::bind(&ServerSession::validate, this));
         break;
     default:
         // should never happen, but inform the user of the error just in case

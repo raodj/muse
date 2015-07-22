@@ -54,16 +54,20 @@ GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
 
     loadZoomLevels();
     resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
-    //map = worldMaps[zoomLevel];
+    map = worldMaps[zoomLevel];
     size = std::sqrt(map.size());
 }
 
-GeospatialWidget::~GeospatialWidget(){
+GeospatialWidget::~GeospatialWidget() {
 
 }
 
 void
 GeospatialWidget::paintEvent(QPaintEvent *e) {
+    if (map.empty()) {
+        return;
+    }
+
     automaticResize(map[0].width(), map[0].height(), zoom);
     QPainter painter(this);
 

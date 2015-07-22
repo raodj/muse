@@ -9,6 +9,9 @@
 #include <QProcess>
 #include <QSysInfo>
 
+#include <thread>
+#include <chrono>
+
 LocalServerSession::LocalServerSession(Server server, QWidget *parent) :
     ServerSession(server, parent)
 {
@@ -34,6 +37,13 @@ LocalServerSession::getOSType() {
 
 void
 LocalServerSession::connectToServer() {
+    std::cout << "connecting to server" << std::endl;
+
+    using namespace std::literals::chrono_literals;
+    std::this_thread::sleep_for(10s);
+
+    std::cout << "done connecting" << std::endl;
+
     emit connectedToServer(true);
 }
 

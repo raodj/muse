@@ -36,15 +36,17 @@
 //
 //---------------------------------------------------------------------
 
+#include "Server.h"
 
-#include <iostream>
-#include <ostream>
 #include <QWidget>
 #include <QString>
 #include <QTextEdit>
-#include "Server.h"
 
-class FileInfo;
+#include <iostream>
+#include <ostream>
+#include <thread>
+
+//class FileInfo;
 
 enum class ChangeType {
     CONNECT,
@@ -219,6 +221,9 @@ protected:
      * and directories to be a valid Server
      */
     virtual void validate() = 0;
+
+private:
+    std::thread thread;
 };
 
 #endif
