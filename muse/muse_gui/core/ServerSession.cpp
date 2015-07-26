@@ -36,8 +36,9 @@
 //
 //---------------------------------------------------------------------
 
-#include "Core.h"
 #include "ServerSession.h"
+#include "Core.h"
+#include "Workspace.h"
 
 #include <QThread>
 
@@ -55,34 +56,58 @@ ServerSession::ServerSession(Server server, QWidget* parent) :
 
 void
 ServerSession::manageServer(ChangeType change) {
-    if (thread.joinable()) {
-        std::cout << "thread running" << std::endl;
-        thread.join();
-    }
+    //if (thread.joinable()) {
+    //    std::cout << "thread running" << std::endl;
+   //     thread.join();
+    //}
 
     switch (change) {
     case ChangeType::CONNECT:
-        thread = std::thread(std::bind(&ServerSession::connectToServer, this));
+        std::thread(std::bind(&ServerSession::connectToServer, this)).detach();
         break;
     case ChangeType::GET_OS_TYPE:
-        thread = std::thread(std::bind(&ServerSession::getOSType, this));
+        std::thread(std::bind(&ServerSession::getOSType, this)).detach();
+        //thread = std::thread(std::bind(&ServerSession::getOSType, this));
         break;
     case ChangeType::CREATE_DIR:
-        thread = std::thread(std::bind(&ServerSession::mkdir, this));
+        //thread = std::thread(std::bind(&ServerSession::mkdir, this));
         break;
     case ChangeType::CREATE_SERVER:
-        thread = std::thread(std::bind(&ServerSession::createServerData, this));
+        //thread = std::thread(std::bind(&ServerSession::createServerData, this));
         break;
     case ChangeType::DIR_EXISTS:
-        thread = std::thread(std::bind(&ServerSession::dirExists, this));
+        //thread = std::thread(std::bind(&ServerSession::dirExists, this));
         break;
     case ChangeType::VALIDATE_SERVER:
-        thread = std::thread(std::bind(&ServerSession::validate, this));
+        //thread = std::thread(std::bind(&ServerSession::validate, this));
+        break;
+    case ChangeType::SAVE_TO_WORKSPACE:
+        //thread = std::thread(std::bind(&ServerSession::saveToWorkspace, this));
         break;
     default:
         // should never happen, but inform the user of the error just in case
         emit errorEncountered("Unknown change on server");
     }
+}
+
+void
+ServerSession::saveToWorkspace() {
+    Workspace* ws = Workspace::get();
+
+    // Assign a unique id unless the server has one already.
+    // This normally would return true.
+    if (server.getID().isEmpty()) {
+        server.setID(ws->reserveID("server"));
+    }
+
+    bool saved = true;
+
+    ws->addServerToWorkSpace(server);
+    if (ws->saveWorkspace() != "") {
+        saved = false;
+    }
+
+    emit announceSaveToWorkspaceResult(saved);
 }
 
 #endif

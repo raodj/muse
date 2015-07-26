@@ -88,7 +88,7 @@ public slots:
      * server.
      * @param rss The pointer to the RemoteServerSession
      */
-    void setServerSessionPointer(ServerSession* ss);
+    void setServerSessionPointer(std::shared_ptr<ServerSession> ss);
 
     /**
      * @brief getMkdirResult Gets the result of calling mkdir
@@ -138,9 +138,10 @@ private:
     QPushButton browse;
     QSpinBox pollingDelay;
     QProgressDialog prgDialog;
-    //bool installDirectoryVerified, mkdirSucceeded;
-    ServerSession* serverSession;
+
     static const QString InstallDirectoryMessage;
+
+    std::shared_ptr<ServerSession> serverSession;
 
     bool installDirChecked;
     bool installDirExists;

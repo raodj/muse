@@ -83,7 +83,7 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
         installDirValidated = false;
         installDirHasServerData = false;
 
-        serverSession->setDirectory(text);
+        serverSession.get()->setDirectory(text);
     });
 
     // Set up browse button
@@ -125,8 +125,6 @@ ServerInfoPage::ServerInfoPage(QWidget *parent) : QWizardPage(parent) {
     installDirValidated = false;
     installDirHasServerData = false;
 
-    serverSession = nullptr;
-
     setTitle("Server Data");
     setSubTitle("Additional Information");
 }
@@ -139,8 +137,8 @@ ServerInfoPage::initializePage() {
     if (field("serverType") == LOCAL_SERVER) {
         installDirectoryDisplay.setText("");
     } else {
-        installDirectoryDisplay.setText(serverSession->getServer()->getHomeDir() +
-                                        field("userId").toString() + serverSession->getServer()->separator() +
+        installDirectoryDisplay.setText(serverSession.get()->getServer()->getHomeDir() +
+                                        field("userId").toString() + serverSession.get()->getServer()->separator() +
                                         "MUSE");
     }
 }
@@ -151,20 +149,20 @@ ServerInfoPage::validatePage() {
 
     // The first thing to do is check if the install directory exists
     if (!installDirChecked) {
-        connect(serverSession, SIGNAL(directoryExists(bool)),
+        connect(serverSession.get(), SIGNAL(directoryExists(bool)),
                 this, SLOT(getDirExistsResult(bool)));
 
-        serverSession->manageServer(ChangeType::DIR_EXISTS);
+        serverSession.get()->manageServer(ChangeType::DIR_EXISTS);
 
         return false;
     }
 
     // Next, if the directory doesnt exist, we nee to create it
     if (!installDirExists) {
-        connect(serverSession, SIGNAL(directoryCreated(bool)),
+        connect(serverSession.get(), SIGNAL(directoryCreated(bool)),
                 this, SLOT(getMkdirResult(bool)));
 
-        serverSession->manageServer(ChangeType::CREATE_DIR);
+        serverSession.get()->manageServer(ChangeType::CREATE_DIR);
 
         return false;
     }
@@ -175,10 +173,10 @@ ServerInfoPage::validatePage() {
     // out there is no valid server info in that directory, then we will
     // create it as we do for a new directory
     if (!installDirHasServerData) {
-        connect(serverSession, SIGNAL(serverDataCreated(bool)),
+        connect(serverSession.get(), SIGNAL(serverDataCreated(bool)),
                 this, SLOT(getServerDataCreatedResult(bool)));
 
-        serverSession->manageServer(ChangeType::CREATE_SERVER);
+        serverSession.get()->manageServer(ChangeType::CREATE_SERVER);
 
         return false;
     }
@@ -186,22 +184,22 @@ ServerInfoPage::validatePage() {
     // The install directory the user chose already exists, so if we have
     // not yet done so, we need to check if its a valid server
     if (!installDirValidated) {
-        connect(serverSession, SIGNAL(directoryValidated(bool)),
+        connect(serverSession.get(), SIGNAL(directoryValidated(bool)),
                 this, SLOT(getDirValidatedResult(bool)));
 
-        serverSession->manageServer(ChangeType::VALIDATE_SERVER);
+        serverSession.get()->manageServer(ChangeType::VALIDATE_SERVER);
 
         return false;
     }
 
     // At this point, we are ready to go to the next page in the wizard
-    disconnect(serverSession, SIGNAL(directoryCreated(bool)),
+    disconnect(serverSession.get(), SIGNAL(directoryCreated(bool)),
                this, SLOT(getMkdirResult(bool)));
-    disconnect(serverSession, SIGNAL(directoryExists(bool)),
+    disconnect(serverSession.get(), SIGNAL(directoryExists(bool)),
                this, SLOT(getDirExistsResult(bool)));
-    disconnect(serverSession, SIGNAL(serverDataCreated(bool)),
+    disconnect(serverSession.get(), SIGNAL(serverDataCreated(bool)),
                this, SLOT(getServerDataCreatedResult(bool)));
-    disconnect(serverSession, SIGNAL(directoryValidated(bool)),
+    disconnect(serverSession.get(), SIGNAL(directoryValidated(bool)),
                this, SLOT(getDirValidatedResult(bool)));
 
     // Ensure that a return to this page reverifies everything
@@ -210,32 +208,27 @@ ServerInfoPage::validatePage() {
     installDirHasServerData = false;
     installDirValidated = false;
 
-    Server *server = serverSession->getServer();
+//    serverSession.get()->setServerDescription((serverDescription.toPlainText().isEmpty()) ?
+//                                                  "None provided." : serverDescription.toPlainText());
+//    serverSession.get()->setServerInstallPath(installDirectoryDisplay.text());
 
-    // Add the server description.
-    server->setDescription((serverDescription.toPlainText().isEmpty()) ?
-                              "None provided." : serverDescription.toPlainText());
+//    // Make sure the user hasnt already added this server to this workspace
+//    if (serverSession.get()->serverAlreadyInWorkspace()) {
+//        QMessageBox::information(this, "Duplicate server",
+//                                 "It appears this server has already "\
+//                                 "been added to this workspace so there is no "\
+//                                 "reason to add it again, please change "\
+//                                 "the server information if you wish to continue");
 
-    // Add the install directory
-    server->setInstallPath(installDirectoryDisplay.text());
-
-    // Make sure the user hasnt already added this server to this workspace
-    if (Workspace::get()->hasServer(*server)) {
-        QMessageBox::information(this, "Duplicate server",
-                                 "It appears this server has already "\
-                                 "been added to this workspace so there is no "\
-                                 "reason to add it again, please change "\
-                                 "the server information if you wish to continue");
-
-        return false;
-    }
+//        return false;
+//    }
 
     // Finally, we can advance to the next page.
     return true;
 }
 
 void
-ServerInfoPage::setServerSessionPointer(ServerSession *ss) {
+ServerInfoPage::setServerSessionPointer(std::shared_ptr<ServerSession> ss) {
     serverSession = ss;
 }
 

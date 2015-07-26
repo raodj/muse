@@ -44,7 +44,7 @@
 
 #include <iostream>
 #include <ostream>
-#include <thread>
+//#include <thread>
 
 //class FileInfo;
 
@@ -55,6 +55,7 @@ enum class ChangeType {
     DIR_EXISTS,
     CREATE_SERVER,
     VALIDATE_SERVER,
+    SAVE_TO_WORKSPACE,
 };
 
 /**
@@ -164,6 +165,14 @@ signals:
     void directoryValidated(bool result);
 
     /**
+     * @brief announceSaveToWorkspaceResult Announces whether or not the Server
+     * was successfully saved to our Workspace
+     *
+     * @param result True if the server was saved, false otherwise
+     */
+    void announceSaveToWorkspaceResult(bool result);
+
+    /**
      * @brief errorEncountered Announces to the caller that an error has
      * been encountered while managing the server
      *
@@ -223,7 +232,16 @@ protected:
     virtual void validate() = 0;
 
 private:
-    std::thread thread;
+    //std::thread thread;
+
+
+    /**
+     * @brief saveToWorkspace Save the server associated with this ServerSession
+     * to the local Workspace
+     *
+     * @note This is the same process for both a remote and local server
+     */
+    virtual void saveToWorkspace() final;
 };
 
 #endif

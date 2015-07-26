@@ -37,12 +37,12 @@ LocalServerSession::getOSType() {
 
 void
 LocalServerSession::connectToServer() {
-    std::cout << "connecting to server" << std::endl;
-
+    std::cout << "connecting to localhost..." << std::endl;
     using namespace std::literals::chrono_literals;
-    std::this_thread::sleep_for(10s);
+    std::this_thread::sleep_for(5s);
+    std::cout << "connected to localhost." << std::endl;
 
-    std::cout << "done connecting" << std::endl;
+    test = 0;
 
     emit connectedToServer(true);
 }

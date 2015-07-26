@@ -36,11 +36,14 @@
 //
 //---------------------------------------------------------------------
 
+#include "RemoteServerSession.h"
+#include "LocalServerSession.h"
+
 #include <QWizardPage>
 #include <QTextEdit>
 #include <QLineEdit>
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+
+#include <memory>
 
 /**
  * @brief The ServerSummaryPage class The summary page for the ServerWizard
@@ -56,6 +59,7 @@ public:
      * ServerSummaryPage. Creates the layout for the summary page and reads
      * in the html document (serverSummary.html) containing the formatted
      * text to display to the user.
+     *
      * @param parent
      */
     ServerSummaryPage(QWidget *parent = 0);
@@ -70,24 +74,31 @@ public:
     /**
      * @brief validatePage Adds the server to the workspace and begins
      * the process of installing MUSE runtime on the server.
+     *
      * @return True if the wizard can advance to the next page.
      */
     bool validatePage();
 
 public slots:
+    void getSaveToWorkspaceResults(bool result);
+
     /**
      * @brief setServerSessionPointer Sets the wizard-wide ServerSession
      * variable so that this page and the ServerInfoPage can operate on the
      * server.
+     *
      * @param rss The pointer to the RemoteServerSession
      */
-    void setServerSessionPointer(ServerSession* ss);
+    void setServerSessionPointer(std::shared_ptr<ServerSession> ss);
 
 private:
     QTextEdit summaryText;
     QLineEdit serverName;
     QLineEdit installDirectory;
-    ServerSession* serverSession;
+
+    bool savedToWorkspace;
+
+    std::shared_ptr<ServerSession> serverSession;
 };
 
 #endif // SERVERSUMMARYPAGE_H

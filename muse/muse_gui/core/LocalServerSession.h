@@ -205,6 +205,7 @@ protected:
     void validate() override;
 
 private:
+    int test;
 //    QString& purpose;
 
 //    /**

@@ -118,6 +118,8 @@ public:
       */
      static QString workspacesFilePath();
 
+     static QString getUserName();
+
      /**
       * @brief getWorkspacePaths A list of every known workspace location
       *
