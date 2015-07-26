@@ -127,6 +127,19 @@ MUSEGUIApplication::workspacesFilePath() {
     return appDir() + QDir::separator() + workspacesFileName;
 }
 
+QString
+MUSEGUIApplication::getUserName() {
+    // Gets the username on the system. "USER" for linux/Mac,
+    // "USERNAME" for Windows
+    QString userName = qgetenv("USER");
+
+    if (userName.isEmpty()) {
+        userName = qgetenv("USERNAME");
+    }
+
+    return userName;
+}
+
 std::vector<QString>
 MUSEGUIApplication::getWorkspacePaths() {
     std::vector<QString> ret;

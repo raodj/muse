@@ -36,15 +36,18 @@
 //
 //---------------------------------------------------------------------
 
+#include "ServerConnectionTester.h"
+#include "RemoteServerSession.h"
+#include "LocalServerSession.h"
+
 #include <QWizardPage>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QLineEdit>
 #include <QVBoxLayout>
 #include <QProgressDialog>
-#include "ServerConnectionTester.h"
-#include "RemoteServerSession.h"
-#include "LocalServerSession.h"
+
+#include <memory>
 
 /**
  * @brief The ServerTypePage class The ServerTypePage presents the user
@@ -57,20 +60,28 @@ public:
     ServerTypePage(QWidget *parent = 0);
 
     /**
+     * @brief initializePage The overridden method of QWizardPage.  This
+     * will be called whenever this page is opened in the wizard, it will
+     * reset all necessary information that would be needed again
+     */
+    void initializePage() override;
+
+    /**
      * @brief validatePage The overridden method of QWizardPage. This method
      * spawns a thread that will validate the login credentials and the
      * existence of the remote server entered in this ServerWizardPage.
+     *
      * @return Whether or not the ServerWizard can proceed to the next page
      * when the user has clicked the "next" button.
      */
-    bool validatePage();
+    bool validatePage() override;
 
     /**
      * @brief cleanupPage The overridden method of QWizardPage. This method
      * merely ensures that the QProgressDialog is removed from the view if
      * the user selects the "Back" button on this QWizardPage.
      */
-    void cleanupPage();
+    void cleanupPage() override;
 
     /**
      * @brief setServerSessionPointer Sets the wizard-wide ServerSession
@@ -82,6 +93,13 @@ public:
 
 
 private slots:
+    /**
+     * @brief wizardClosed Called when the wizard is closed on this page, either
+     * by closing the wizard itself or pressing the cancel button.  This will
+     * take care of cleaning up any async function calls that may be still running
+     */
+    void wizardClosed();
+
     /**
      * @brief serverTypeChanged Enables or disables the fields on this page
      * that pertain only to a remote server.
@@ -106,7 +124,8 @@ private slots:
     void getServerOS(QString os);
 
 signals:
-    void serverSessionCreated(ServerSession* ss);
+    //void serverSessionCreated(ServerSession* ss);
+    void serverSessionCreated(std::shared_ptr<ServerSession> ss);
 
 private:
     QComboBox* serverTypeSelector;
@@ -125,14 +144,30 @@ private:
 
     QProgressDialog prgDialog;
 
-    ServerSession* serverSession;
+    //ServerSession* serverSession;
+
+    std::shared_ptr<ServerSession> serverSession;
 
     static const QString SuccessMessage;
     static const QString FailureMessage;
 
     bool connectionVerified;
     bool serverOSVerified;
-    
+    bool waitingForResponse;
+
+    /**
+     * @brief preventUserInput Called whenever we request the ServerSession
+     * to do any processing on the server.  This will prevent the user from
+     * interacting with the server again until the ServerSession thread is done.
+     */
+    void preventUserInput();
+
+    /**
+     * @brief allowUserInput Called when the ServerSession is done processing,
+     * so the user can make changes to the server information.
+     */
+    void allowUserInput();
+
     /**
      * @brief buildRemoteServerWidget Calls helper methods to assist in the
      * construction of the remoteServerWidget, which is a section of this page
@@ -151,20 +186,6 @@ private:
      * and labels for the remoteServerWidget.
      */
     void createCredentialsLayout();
-
-    /**
-     * @brief getUserName Gets the user name for the user logged on to the local
-     * computer
-     * @return The user name.
-     */
-    QString getUserName();
-
-    /**
-     * @brief verifyRemoteOS Executes "uname -a" on the remote server
-     * to verify that it is a Linux or UNIX operating system.
-     * @return True if the OS is Linux or UNIX, false otherwise.
-     */
-    //bool verifyOS();
 };
 
 #endif

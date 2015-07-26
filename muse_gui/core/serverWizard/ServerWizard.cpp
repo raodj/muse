@@ -37,7 +37,10 @@
 //---------------------------------------------------------------------
 
 #include "ServerWizard.h"
+
 #include <QFile>
+
+#include <memory>
 
 ServerWizard::ServerWizard(QFile &welcomeFile, QWidget *parent) :
     MUSEWizard(welcomeFile, parent) {
@@ -55,11 +58,17 @@ ServerWizard::init() {
     addPage(&serverInfoPage,    "Server Information");
     addPage(&serverSummaryPage, "Summary", true);
 
-    connect(&serverTypePage, SIGNAL(serverSessionCreated(ServerSession*)),
-            &serverInfoPage, SLOT(setServerSessionPointer(ServerSession*)));
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(std::shared_ptr<ServerSession>)),
+            &serverInfoPage, SLOT(setServerSessionPointer(std::shared_ptr<ServerSession>)));
 
-    connect(&serverTypePage, SIGNAL(serverSessionCreated(ServerSession*)),
-            &serverSummaryPage, SLOT(setServerSessionPointer(ServerSession*)));
+    connect(&serverTypePage, SIGNAL(serverSessionCreated(std::shared_ptr<ServerSession>)),
+            &serverSummaryPage, SLOT(setServerSessionPointer(std::shared_ptr<ServerSession>)));
+
+    setOption(QWizard::HaveHelpButton, false);
+
+    QList<QWizard::WizardButton> layout;
+    layout << QWizard::Stretch << QWizard::NextButton <<  QWizard::CancelButton;
+    setButtonLayout(layout);
 }
 
 #endif

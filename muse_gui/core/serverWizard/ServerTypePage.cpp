@@ -64,6 +64,7 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     serverTypeSelector = new QComboBox();
     serverTypeSelector->addItem("Local Server (localhost)");
     serverTypeSelector->addItem("Remote Server (access via SSH)");
+    serverTypeSelector->setEnabled(true);
 
     mainLayout->addWidget(new QLabel("Select a type of server to add:"));
     mainLayout->addWidget(serverTypeSelector, 0);
@@ -88,7 +89,6 @@ ServerTypePage::ServerTypePage(QWidget *parent) : QWizardPage(parent) {
     // Set default value
     connectionVerified = false;
     serverOSVerified = false;
-    serverSession = nullptr;
 
     setTitle("Server Data");
     setSubTitle("Server Type and Credentials");
@@ -151,7 +151,7 @@ ServerTypePage::createCredentialsLayout() {
     // Username section
     QVBoxLayout* usernameLayout = new QVBoxLayout();
     usernameLayout->addWidget(new QLabel("Login (user) ID:"));
-    userId.setText(getUserName());
+    userId.setText(MUSEGUIApplication::getUserName());
 
     // Add the text field to its layout
     usernameLayout->addWidget(&userId);
@@ -183,76 +183,93 @@ ServerTypePage::createCredentialsLayout() {
     prgDialog.setRange(0, 0);
     prgDialog.setVisible(false);
     remoteServerLayout->addWidget(&prgDialog);
+
+
+}
+
+void
+ServerTypePage::wizardClosed() {
+
 }
 
 void
 ServerTypePage::serverTypeChanged(const int index) {
     password.clear();
     remoteServerWidget->setEnabled(index == REMOTE_SERVER_INDEX);
-    userId.setText( (index == REMOTE_SERVER_INDEX) ? "" : getUserName());
-    serverName.setText( (index == REMOTE_SERVER_INDEX) ? "" : "localhost");
 
-    if (serverSession != nullptr) {
-        delete serverSession;
-        serverSession = nullptr;
+    if (index == REMOTE_SERVER_INDEX) {
+        userId.clear();
+        serverName.clear();
+    } else {
+        userId.setText(MUSEGUIApplication::getUserName());
+        serverName.setText("localhost");
     }
 
-    // Share the update with the rest of the wizard.
-    emit serverSessionCreated(serverSession);
+    connectionVerified = false;
+    serverOSVerified = false;
 }
 
-QString
-ServerTypePage::getUserName() {
-    // Gets the username on the system. "USER" for linux/Mac,
-    // "USERNAME" for Windows
-    QString userName = qgetenv("USER");
+void
+ServerTypePage::preventUserInput() {
+    prgDialog.setVisible(true);
+    serverTypeSelector->setEnabled(false);
+}
 
-    if (userName.isEmpty()) {
-        userName = qgetenv("USERNAME");
-    }
+void
+ServerTypePage::allowUserInput() {
+    prgDialog.setVisible(false);
+    serverTypeSelector->setEnabled(true);
+}
 
-    return userName;
+void
+ServerTypePage::initializePage() {
+    std::cout << "ServerTypePage initialize" << std::endl;
+
+    allowUserInput();
+
+    connectionVerified = false;
+    serverOSVerified = false;
+
+    connect(wizard(), SIGNAL(destroyed()),
+            this, SLOT(wizardClosed()));
 }
 
 bool
 ServerTypePage::validatePage() {
     if (!connectionVerified) {
-        prgDialog.setVisible(true);
+        preventUserInput();
 
         Server server{ "", false, serverName.text(), portNumber.value(), "", userId.text() };
 
         if (serverTypeSelector->currentIndex() == REMOTE_SERVER_INDEX) {
             server.setIsRemote(true);
             server.setPassword(password.text());
-            serverSession = new RemoteServerSession{ server };
+            serverSession = std::make_shared<RemoteServerSession>(server);
         } else {
-            serverSession = new LocalServerSession{ server };
+            serverSession = std::make_shared<LocalServerSession>(server);
         }
 
-        connect(serverSession, SIGNAL(connectedToServer(bool)),
+        connect(serverSession.get(), SIGNAL(connectedToServer(bool)),
                 this, SLOT(checkConnectionTesterResult(bool)));
+
+        serverSession->manageServer(ChangeType::CONNECT);
 
         // Let the other pages know we have made a server sesion
         emit serverSessionCreated(serverSession);
-
-        serverSession->manageServer(ChangeType::CONNECT);
 
         return false;
     }
 
     if (!serverOSVerified) {
-        connect(serverSession, SIGNAL(announceOSType(QString)),
+        preventUserInput();
+
+        connect(serverSession.get(), SIGNAL(announceOSType(QString)),
                 this, SLOT(getServerOS(QString)));
+
         serverSession->manageServer(ChangeType::GET_OS_TYPE);
+
         return false;
     }
-
-    disconnect(serverSession, SIGNAL(connectedToServer(bool)),
-            this, SLOT(checkConnectionTesterResult(bool)));
-    disconnect(serverSession, SIGNAL(announceOSType(QString)),
-            this, SLOT(getServerOS(QString)));
-
-    prgDialog.setVisible(false);
 
     // If anyone returns to this page, they must verify everything again.
     connectionVerified = false;
@@ -271,22 +288,42 @@ ServerTypePage::checkConnectionTesterResult(bool result) {
     connectionVerified = result;
     serverOSVerified = false;
 
+    prgDialog.setVisible(result);
+
+    // we need to disconnect this signal now because the user could change
+    // the server type which would create a new ServerSession
+    disconnect(serverSession.get(), SIGNAL(connectedToServer(bool)),
+               this, SLOT(checkConnectionTesterResult(bool)));
+
+    // if we connected, just keep processing this wizard page, otherwise
+    // let the user change the server info
     if (connectionVerified) {
         wizard()->next();
     } else {
-        prgDialog.setVisible(false);
+        allowUserInput();
     }
 }
 
 void
 ServerTypePage::getServerOS(QString os) {
+    // we need to disconnect this signal now because the user could change
+    // the server type which would create a new ServerSession
+    disconnect(serverSession.get(), SIGNAL(announceOSType(QString)),
+               this, SLOT(getServerOS(QString)));
+
     if (os == Server::UnknownOS) {
+        connectionVerified = false;
         serverOSVerified = false;
+
         QMessageBox::critical(this, "Unknown Server OS",
                               "Error: the operating system on this "\
                               "server could not be determined.");
+
+        allowUserInput();
     } else {
+        connectionVerified = true;
         serverOSVerified = true;
+
         wizard()->next();
     }
 }

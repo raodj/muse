@@ -37,16 +37,14 @@
 //---------------------------------------------------------------------
 
 #include "ServerSummaryPage.h"
+
 #include <QFile>
 #include <QLabel>
 #include <QTextStream>
 #include <QVBoxLayout>
-#include "Workspace.h"
-#include "ServerList.h"
 #include <QMessageBox>
 
 ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
-
     // Set up the layout
     QVBoxLayout* mainLayout = new QVBoxLayout();
     // User can't edit the text in this view port.
@@ -60,6 +58,7 @@ ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
         summaryText.setHtml(input.readAll());
         page.close();
     }
+
     // Add the text to the layout
     mainLayout->addWidget(&summaryText);
     // Add label for server name
@@ -72,48 +71,46 @@ ServerSummaryPage::ServerSummaryPage(QWidget* parent) : QWizardPage(parent) {
     mainLayout->addWidget(&installDirectory);
     // Set mainLayout as default layout
     setLayout(mainLayout);
-    serverSession = nullptr;
+
+    savedToWorkspace = false;
 }
 
 void
 ServerSummaryPage::initializePage() {
+    savedToWorkspace = false;
     serverName.setText(field("server").toString());
     installDirectory.setText(field("installPath").toString());
 }
 
 bool
 ServerSummaryPage::validatePage() {
-    Workspace* ws = Workspace::get();
-    // Get the server.
-    Server* server = serverSession->getServer();
-    // Assign a unique id unless the server has one already.
-    // This normally would return true.
-    if (server->getID().isEmpty()) {
-        server->setID(ws->reserveID("server"));
-    }
-
-    // Add the server to the workspace
-    ws->addServerToWorkSpace(*server);
-    QString err;
-    err = ws->saveWorkspace();
-    // If err has text, we had a problem.
-    if (err != "") {
-        QMessageBox msgBox;
-        msgBox.setWindowTitle("Error saving server to workspace.");
-        msgBox.setText(err);
+    if (!savedToWorkspace) {
+        connect(serverSession.get(), SIGNAL(announceSaveToWorkspaceResult(bool)),
+                this, SLOT(getSaveToWorkspaceResult(bool)));
+        serverSession.get()->manageServer(ChangeType::SAVE_TO_WORKSPACE);
         return false;
     }
 
-    // For now, delete the session to avoid memory leaks.
-    // When installation gets implemented, this line should be
-    // removed.
-    delete serverSession;
     // Saved successfully, close the wizard.
     return true;
 }
 
 void
-ServerSummaryPage::setServerSessionPointer(ServerSession *ss) {
+ServerSummaryPage::getSaveToWorkspaceResults(bool result) {
+    savedToWorkspace = result;
+
+    if (savedToWorkspace) {
+        wizard()->next();
+    } else {
+        QMessageBox::critical(this, "Failed to create server",
+                              "The server you have attempted to add or create "\
+                              "could not be saved to our local workspace, there "\
+                              "may be a problem with the workspace directory");
+    }
+}
+
+void
+ServerSummaryPage::setServerSessionPointer(std::shared_ptr<ServerSession> ss) {
     serverSession = ss;
 }
 
