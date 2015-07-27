@@ -41,6 +41,7 @@
 #include <QSize>
 #include <QScrollArea>
 #include <QDir>
+#include <QByteArray>
 
 #include <unordered_map>
 #include <vector>
@@ -89,7 +90,7 @@ private:
     void initializeToolBarButtons();
     void automaticResize(int width, int height, int zoom);
     void renderTiles(QPainter* painter, int x, int y);
-    int* getDataPoints();
+    QByteArray* getDataPoints();
 };
 
 
