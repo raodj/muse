@@ -43,10 +43,12 @@
 #include <QStringList>
 
 #include <iostream>
+#include <fstream>
 #include <vector>
 #include <functional>
 #include <cmath>
 #include <QFile>
+#include <string>
 
 GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent), xStart(0), yStart(0), widgetSize(tempSize), zoomLevel(1),
@@ -170,16 +172,27 @@ GeospatialWidget::renderTiles(QPainter* painter, int x, int y) {
     }
 }
 
-int*
+QByteArray*
 GeospatialWidget::getDataPoints(){
-    QFile file(MUSEGUIApplication::appDir() + QDir::separator() + "dataPoints");
-    for (int i = 0; i < 3; i++){
-        file.readLine();
-        //std::cout << line << std::endl;
+
+    QFile file(MUSEGUIApplication::appDir() + QDir::separator() + "dataPoints" +
+               QDir::separator() + "textFile.txt");
+    file.open(QIODevice::ReadOnly);
+    QByteArray *temp = new QByteArray(file.readAll());
+
+    if (!file.open(QIODevice::ReadOnly)){
+
+        for (int i = 0; i < temp->size(); i++){
+            std::cout << temp->at(i) << std::endl;
+        }
+
+    }else{
+        std::cout << "File does not exist" << std::endl;
     }
+
     file.close();
-    int *array = new int[0];
-    return array;
+
+    return temp;
 }
 
 
