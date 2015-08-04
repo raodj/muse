@@ -73,10 +73,12 @@ protected:
 private:
     QSize widgetSize;
     QSize scrollSize;
-    std::vector<QPixmap>& map;
+    //std::vector<QPixmap>& map;
+
+    std::vector<std::future<void>> loadImagesAsyncCalls;
 
     int zoomLevel;
-    int size;
+    //int size;
     int zoom;
     int xStart;
     int yStart;
@@ -89,8 +91,9 @@ private:
     void loadZoomLevel(QDir dir);
     void initializeToolBarButtons();
     void automaticResize(int width, int height, int zoom);
-    void renderTiles(QPainter* painter, int x, int y);
+    void renderTiles(QPainter *painter, const std::vector<QPixmap>& map, int x, int y);
     QByteArray* getDataPoints();
+    int* drawBuildings();
 };
 
 
