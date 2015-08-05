@@ -38,9 +38,11 @@
 
 #include "GeospatialWidget.h"
 #include "MUSEGUIApplication.h"
+#include "geospatialhelper.h"
 
 #include <QDir>
 #include <QStringList>
+#include <QPixmapCache>
 
 #include <iostream>
 #include <fstream>
@@ -55,9 +57,7 @@ GeospatialWidget::GeospatialWidget(QWidget *parent, QSize tempSize)
     : QWidget(parent), widgetSize{ std::move(tempSize) }, scrollSize{ 50, 50 }, zoomLevel{ 1 },
       zoom{ zoomLevel - 1 }, xStart{ 0 }, yStart{ 0 }
 {
-    for (int i = 0; i < 8; i++) {
-        worldMaps[i] = std::vector<QPixmap>{ };
-    }
+    array = getDataPoints();
 
     loadZoomLevels();
     resize(widgetSize.width() << (zoomLevel-1), widgetSize.height() << (zoomLevel-1));
@@ -71,9 +71,55 @@ void
 GeospatialWidget::paintEvent(QPaintEvent *e) {
     Q_UNUSED(e)
 
+    const auto& map = worldMaps[zoomLevel];
+
+    if (map.empty()) {
+        return;
+    }
+
+    QPainter paint(this);
+
+    automaticResize(map[0].width(), map[0].height(), zoom);
+
+    const float imageSize = map[0].width();
+
+    const float xTilePos = xStart / imageSize;
+    const float yTilePos = yStart / imageSize;
+    float xTilePosEnd = xTilePos + ((float)scrollSize.width() / imageSize);
+    float yTilePosEnd = yTilePos + ((float)scrollSize.height() / imageSize);
+    const float xTilePosMax = std::pow(2, zoomLevel);
+    const float yTilePosMax = std::pow(2, zoomLevel);
+
+    if (xTilePosEnd >= xTilePosMax) {
+        xTilePosEnd = xTilePosMax - 1;
+    }
+
+    if (yTilePosEnd >= yTilePosMax) {
+        yTilePosEnd = yTilePosMax - 1;
+    }
+
+    std::cout << "zoom level: " << zoomLevel << std::endl;
+    std::cout << "image size: " << imageSize << std::endl;
+    std::cout << "x: " << xStart << " pixel, " << xTilePos << " tile" << std::endl;
+    std::cout << "y: " << yStart << " pixel, " << yTilePos << " tile" << std::endl;
+    std::cout << "x tiles, start: " << xTilePos << " end: " << xTilePosEnd << std::endl;
+    std::cout << "y tiles, start: " << yTilePos << " end: " << yTilePosEnd << std::endl;
+    std::cout << "w: " << scrollSize.width() << std::endl;
+    std::cout << "h: " << scrollSize.height() << std::endl;
+
+    for (int i = xTilePos; i <= xTilePosEnd; i++){
+        for (int j = yTilePos; j <= yTilePosEnd; j++) {
+            renderTiles(&paint, map, i, j, i * imageSize, j * imageSize);
+        }
+    }
+
+
+
+    return;
+
     std::cout << "maps: " << worldMaps.size() << std::endl;
 
-    const std::vector<QPixmap>& map = worldMaps[zoomLevel];
+    //const auto& map = worldMaps[zoomLevel];
     const auto size = std::sqrt(map.size());
 
     if (map.empty()) {
@@ -86,10 +132,28 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
 
     for (int y = 0; y < size; y++) {
         for (int x = 0; x < size; x++) {
-            std::async(std::launch::async, &GeospatialWidget::renderTiles, this, &painter, map, x, y);
+            int xCoordinate = x * map[std::pow(2, zoomLevel) * x + y].width() << zoom;
+            int yCoordinate = y * map[std::pow(2, zoomLevel) * x + y].height() << zoom;
+
+            int xDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].width())) << zoom;
+            int yDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].height())) << zoom;
+
+            if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold) {
+                if (xCoordinate < xStart + scrollSize.width() && yCoordinate < yStart + scrollSize.height()) {
+//                    renderImageAsyncCalls.push_back(std::async(std::launch::async,
+//                                                               &GeospatialWidget::renderTiles,
+//                                                               this, &painter, map, x, y, xCoordinate, yCoordinate));
+                    renderTiles(&painter, map, x, y, xCoordinate, yCoordinate);
+                }
+            }
         }
     }
+
+    for (int i = 0; i < 10; i++){
+        painter.drawText(i*10, 10, (QString)(array->at(i)));
+    }
 }
+
 void
 GeospatialWidget::loadZoomLevels() {
     QDir dir(MUSEGUIApplication::appDir() + QDir::separator() + "maps");
@@ -99,12 +163,33 @@ GeospatialWidget::loadZoomLevels() {
 
     QStringList dirs = dir.entryList();
 
-    for (auto d : dirs) {
+    qRegisterMetaType<std::vector<QImage>>("std::vector<QImage>");
+
+    for (const auto& d : dirs) {
         if (d.contains("zoom")) {
-            loadImagesAsyncCalls.push_back(std::async(std::launch::async, &GeospatialWidget::loadZoomLevel, this, QDir{ dir.absoluteFilePath(d) }));
-            //loadZoomLevel(QDir(dir.absoluteFilePath(file)));
+            QThread* t = new QThread();
+            GeospatialHelper* w = new GeospatialHelper(QDir{ dir.absoluteFilePath(d) });
+
+            w->moveToThread(t);
+
+            connect(t, SIGNAL(started()), w, SLOT(work()));
+            //connect(t, SIGNAL(finished()), w, SLOT(deleteLater()));
+
+            connect(w, SIGNAL(finished(int, const std::vector<QImage>&)), this, SLOT(retrieveMapImages(int, const std::vector<QImage>&)));
+
+            t->start();
+
+            //loadImagesAsyncCalls.push_back(std::async(std::launch::async, std::bind(&GeospatialWidget::loadZoomLevel, this, QDir{ dir.absoluteFilePath(d) })));
+            //loadImagesAsyncCalls.push_back(std::async(std::launch::async, std::bind(load, QDir{ dir.absoluteFilePath(d) }, worldMaps[z])));
+            //loadZoomLevel(QDir(dir.absoluteFilePath(d)));
         }
     }
+}
+
+void
+GeospatialWidget::retrieveMapImages(int zoom, const std::vector<QImage>& images) {
+    std::cout << "get images for zoom: " << zoom << " count: " << images.size() << std::endl;
+    worldMaps[zoom] = std::move(images);
 }
 
 void
@@ -116,13 +201,33 @@ GeospatialWidget::loadZoomLevel(QDir dir) {
 
     int zoom = dir.dirName().split("zoom")[1].toInt();
 
+    mapLoaded[zoom] = false;
+
+    if (zoom > 5) {
+        return;
+    }
+
     std::cout << "loading zoom level: " << zoom << " from thread: " << std::this_thread::get_id() << std::endl;
     std::cout << "file count for zoom level: " << zoom << " is " << files.size() << std::endl;
     std::cout << "dir location: " << dir.absolutePath().toStdString() << std::endl;
 
-    for (auto& file : files) {
-        worldMaps[zoom].push_back(QPixmap(dir.absoluteFilePath(file)));
+    int count = 0;
+
+    for (const auto& file : files) {
+        //if (dir.absoluteFilePath(file) == "") {
+        //    std::cout << "wat" << std::endl;
+        //}
+
+        if (count % 10 == 0)
+        std::cout << "file: " << count << "/" << files.size() << std::endl;
+
+        //QPixmap t{ dir.absoluteFilePath(file) };
+        //QPixmap t{ "/home/kyle/.local/share/MUSE/maps/zoom4/" + QString::number(x) + "_" + QString::number(y) + ".png" };
+        worldMaps[zoom].push_back(QImage{ dir.absoluteFilePath(file) });
+        count++;
     }
+
+    mapLoaded[zoom] = true;
 
     std::cout << "done loading zoom level: " << zoom << std::endl;
 }
@@ -135,19 +240,17 @@ GeospatialWidget::setZoomLevel(int tempZoom){
 
 void
 GeospatialWidget::zoomIn(){
-    if (zoomLevel < 8){
+    if (zoomLevel < 8 ) {
         ++zoomLevel;
         zoom = zoomLevel - 1;
-        //map = worldMaps[zoomLevel];
     }
 }
 
 void
 GeospatialWidget::zoomOut(){
-    if (zoomLevel > 1){
+    if (zoomLevel > 1 ) {
         --zoomLevel;
         zoom = zoomLevel - 1;
-        //map  = worldMaps[zoomLevel];
     }
 
 }
@@ -170,26 +273,35 @@ GeospatialWidget::getScrollAreaSize(QSize scrollSize) {
 
 void
 GeospatialWidget::automaticResize(int tileWidth, int tileHeight, int zoom) {
-    this->resize(((int)(pow(2, zoomLevel) * tileWidth)) << zoom, ((int)(pow(2, zoomLevel) * tileHeight)) << zoom);
+    this->resize(((int)(pow(2, zoomLevel) * tileWidth)), ((int)(pow(2, zoomLevel) * tileHeight)));
 }
 
 void
-GeospatialWidget::renderTiles(QPainter* painter, const std::vector<QPixmap>& map, int x, int y) {
-    int xCoordinate = x * map[std::pow(2, zoomLevel) * x + y].width() << zoom;
-    int yCoordinate = y * map[std::pow(2, zoomLevel) * x + y].height() << zoom;
+GeospatialWidget::renderTiles(QPainter* painter, const std::vector<QImage>& map, int x, int y, int xCoordinate, int yCoordinate) {
+    const QImage& img = map[std::pow(2, zoomLevel) * x + y];
 
-    int xDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].width())) << zoom;
-    int yDifferenceThreshold = ((int)(map[std::pow(2, zoomLevel) * x + y].height())) << zoom;
-
-    if (xCoordinate >= xStart - xDifferenceThreshold && yCoordinate >= yStart - yDifferenceThreshold){
-        if (xCoordinate < xStart + scrollSize.width() && yCoordinate < yStart + scrollSize.height()){
-
-            painter->drawPixmap(xCoordinate, yCoordinate,
-                               map[std::pow(2, zoomLevel) * x + y].width() << zoom,
-                               map[std::pow(2, zoomLevel) * x + y].height() << zoom,
-                               map[std::pow(2, zoomLevel) * x + y]);
-        }
+    if (img.isNull()) {
+        return;
     }
+
+//    painter->setPen(Qt::black);
+//    painter->drawRect(QRect{ xCoordinate, yCoordinate,
+//                             map[std::pow(2, zoomLevel) * x + y].width() << zoom,
+//                             map[std::pow(2, zoomLevel) * x + y].height() << zoom});
+//    painter->setPen(Qt::white);
+//    painter->drawRect(QRect{ xCoordinate + 2, yCoordinate + 2,
+//                             (map[std::pow(2, zoomLevel) * x + y].width() << zoom) - 4,
+//                             (map[std::pow(2, zoomLevel) * x + y].height() << zoom) - 4 });
+
+    painter->drawImage(xCoordinate, yCoordinate, img.scaled(map[std::pow(2, zoomLevel) * x + y].width(),
+                                                            map[std::pow(2, zoomLevel) * x + y].height()));
+
+//    painter->drawImage(xCoordinate, yCoordinate, img.scaled(map[i].width, map[j]));
+//
+//            painter->drawPixmap(xCoordinate, yCoordinate,
+//                               map[std::pow(2, zoomLevel) * x + y].width() << zoom,
+//                               map[std::pow(2, zoomLevel) * x + y].height() << zoom,
+//                               map[std::pow(2, zoomLevel) * x + y]);
 
     if (zoomLevel == 8){
         int* tempArray = drawBuildings();
@@ -203,7 +315,7 @@ GeospatialWidget::renderTiles(QPainter* painter, const std::vector<QPixmap>& map
 QByteArray*
 GeospatialWidget::getDataPoints(){
 
-    QFile file("home/kyle/Sample Image Generation Files 2/MicroWorld/building_Schools.hapi");
+    QFile file("/home/kyle/Sample_Image_Generation_Files_2/MicroWorld/building_Schools.hapi");
     file.open(QIODevice::ReadOnly);
     QByteArray *temp = new QByteArray(file.readAll());
 
@@ -211,6 +323,7 @@ GeospatialWidget::getDataPoints(){
 
         for (int i = 0; i < temp->size(); i++){
             std::cout << temp->at(i) << std::endl;
+
         }
 
     }else{

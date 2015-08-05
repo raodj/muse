@@ -42,6 +42,7 @@
 #include <QScrollArea>
 #include <QDir>
 #include <QByteArray>
+#include <QImage>
 
 #include <unordered_map>
 #include <vector>
@@ -66,6 +67,7 @@ public slots:
     void xPositionChanged(int x);
     void yPositionChanged(int y);
     void getScrollAreaSize(QSize scrollSize);
+    void retrieveMapImages(int zoom, const std::vector<QImage>& images);
 
 protected:
     void paintEvent(QPaintEvent *e);
@@ -73,17 +75,19 @@ protected:
 private:
     QSize widgetSize;
     QSize scrollSize;
-    //std::vector<QPixmap>& map;
 
+    std::vector<std::future<void>> renderImageAsyncCalls;
     std::vector<std::future<void>> loadImagesAsyncCalls;
-
     int zoomLevel;
-    //int size;
     int zoom;
     int xStart;
     int yStart;
+    QByteArray* array;
 
-    std::unordered_map<int, std::vector<QPixmap>> worldMaps;
+    bool rendering;
+
+    std::unordered_map<int, std::vector<QImage>> worldMaps;
+    std::unordered_map<int, bool> mapLoaded;
 
     QScrollArea *scrollArea;
 
@@ -91,7 +95,7 @@ private:
     void loadZoomLevel(QDir dir);
     void initializeToolBarButtons();
     void automaticResize(int width, int height, int zoom);
-    void renderTiles(QPainter *painter, const std::vector<QPixmap>& map, int x, int y);
+    void renderTiles(QPainter *painter, const std::vector<QImage>& map, int x, int y, int xCoordinate, int yCoordinate);
     QByteArray* getDataPoints();
     int* drawBuildings();
 };

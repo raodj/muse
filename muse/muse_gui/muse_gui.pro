@@ -112,7 +112,8 @@ SOURCES +=\
     workspace/ServerWatcher.cpp \
     workspace/ServerWorkspace.cpp \
     workspace/LocalServerWorkspace.cpp \
-    workspace/RemoteServerWorkspace.cpp
+    workspace/RemoteServerWorkspace.cpp \
+    views/geospatialhelper.cpp
 
 
 HEADERS  += \
@@ -200,7 +201,8 @@ HEADERS  += \
     workspace/ServerWatcher.h \
     workspace/ServerWorkspace.h \
     workspace/LocalServerWorkspace.h \
-    workspace/RemoteServerWorkspace.h
+    workspace/RemoteServerWorkspace.h \
+    views/geospatialhelper.h
 
 RESOURCES += \
     muse_gui.qrc
