@@ -71,6 +71,7 @@ class Event {
     friend class LadderQueue;
     friend class HeapBottom;
     friend class HeapEventQueue;
+    friend class ThreeTierHeapEventQueue;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.
@@ -104,7 +105,7 @@ public:
     inline Time getReceiveTime() const { return receiveTime; }
 
     inline int getReferenceCount() const {return referenceCount; }
-
+  
 protected:
     /** \brief Type-setting constructor
         
@@ -237,6 +238,18 @@ protected:
     char color;
  
 };
+
+/** \brief compares the receive times of events 
+ *  This will allow the sorting of events in the EventContainer
+ *  by the event receive time 
+    \returns True if lhs receiveTime is less than rhs receiveTime */
+inline bool operator < (const Event& lhs, const Event& rhs);
+/** \brief 
+ *  This will allow the filtering of unique events in the EventContainer
+ *  using std::unique
+    \returns True if lhs agentID is equal to rhs agentID and lhs
+     receiveTime is equal to rhs receiveTime*/
+inline bool operator == (const Event& lhs, const Event& rhs);
 
 END_NAMESPACE(muse);
 
