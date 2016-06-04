@@ -101,6 +101,7 @@ kernel/include/LinuxHashMap.h
 kernel/include/ResChannel.h
 kernel/include/Scheduler.h
 kernel/include/TwoTierHeapEventQueue.h
+kernel/include/ThreeTierHeapEventQueue.h
 kernel/include/WindowsHashMap.h
 kernel/src/Agent.cpp
 kernel/src/AgentPQ.cpp
@@ -123,6 +124,7 @@ kernel/src/SimStream.cpp
 kernel/src/Simulation.cpp
 kernel/src/State.cpp
 kernel/src/TwoTierHeapEventQueue.cpp
+kernel/src/ThreeTierHeapEventQueue.cpp
 kernel/src/Utilities.cpp
 muse_gui/core/filediag/CustomFileDialog.cpp
 muse_gui/core/filediag/CustomFileDialog.h
@@ -381,6 +383,7 @@ kernel/include/LinuxHashMap.h
 kernel/include/ResChannel.h
 kernel/include/Scheduler.h
 kernel/include/TwoTierHeapEventQueue.h
+kernel/include/ThreeTierHeapEventQueue.h
 kernel/include/WindowsHashMap.h
 kernel/src/Agent.cpp
 kernel/src/AgentPQ.cpp
@@ -403,6 +406,7 @@ kernel/src/SimStream.cpp
 kernel/src/Simulation.cpp
 kernel/src/State.cpp
 kernel/src/TwoTierHeapEventQueue.cpp
+kernel/src/ThreeTierHeapEventQueue.cpp
 kernel/src/Utilities.cpp
 muse_gui/core/filediag/CustomFileDialog.cpp
 muse_gui/core/filediag/CustomFileDialog.h
@@ -660,6 +664,7 @@ kernel/include/LinuxHashMap.h
 kernel/include/ResChannel.h
 kernel/include/Scheduler.h
 kernel/include/TwoTierHeapEventQueue.h
+kernel/include/ThreeTierHeapEventQueue.h
 kernel/include/WindowsHashMap.h
 kernel/src/Agent.cpp
 kernel/src/AgentPQ.cpp
@@ -682,6 +687,7 @@ kernel/src/SimStream.cpp
 kernel/src/Simulation.cpp
 kernel/src/State.cpp
 kernel/src/TwoTierHeapEventQueue.cpp
+kernel/src/ThreeTierHeapEventQueue.cpp
 kernel/src/Utilities.cpp
 muse_gui/core/filediag/CustomFileDialog.cpp
 muse_gui/core/filediag/CustomFileDialog.h
