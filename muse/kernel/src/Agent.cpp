@@ -82,7 +82,7 @@ Agent::saveState() {
         stateQueue.front()->timestamp = getLVT();
     }
     // Save the states of all of the SimStreams.  This is needed to
-    // handle optimisitic I/O correctly, immaterial of whether state
+    // handle optimistic I/O correctly, immaterial of whether state
     // saving is enabled/disabled.
     oss.saveState(getLVT());
     for (size_t i = 0; (i < allSimStreams.size()); i++) {
