@@ -67,6 +67,7 @@ class Agent {
     friend class Scheduler;
     friend class AgentPQ;
     friend class TwoTierHeapEventQueue;
+    friend class ThreeTierHeapEventQueue;
 public:
     
     /** enum for return Time.
