@@ -30,6 +30,7 @@
 #include "LadderQueue.h"
 #include "HeapEventQueue.h"
 #include "TwoTierHeapEventQueue.h"
+#include "ThreeTierHeapEventQueue.h"
 #include "ArgParser.h"
 
 using namespace muse;
@@ -205,7 +206,9 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
     } else if (queueName == "ladderQ") {
         agentPQ = new LadderQueue();
     } else if (queueName == "2tHeap") {
-        agentPQ = new TwoTierHeapEventQueue();
+        agentPQ = new TwoTierHeapEventQueue(); 
+    } else if (queueName == "3tHeap") {
+        agentPQ = new ThreeTierHeapEventQueue();
     } else {
         agentPQ = new AgentPQ();
     }
