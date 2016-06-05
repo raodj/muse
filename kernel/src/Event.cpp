@@ -65,17 +65,6 @@ Event::setColor(const char col) {
     color = col;
 }
 
-bool
-operator < (const Event& lhs, const Event& rhs) {
-    return lhs.getReceiveTime() < rhs.getReceiveTime();
-}
-
-bool 
-operator == (const Event& lhs, const Event& rhs) {
-    return lhs.getReceiverAgentID() == rhs.getReceiverAgentID()
-           && lhs.getReceiveTime() == rhs.getReceiveTime();
-}
-
 ostream&
 operator<<(ostream& os, const muse::Event& event) {
     os << "Event[Sender=" << event.getSenderAgentID()   << ","
