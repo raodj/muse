@@ -247,7 +247,26 @@ protected:
                                 const muse::Agent* const rhs) {
         return (lhs->getTopTime() >= rhs->getTopTime());
     }
-
+    
+    /** \brief compares the receive times of events 
+    *  This will allow the sorting of events in the EventContainer
+    *  by the event receive time 
+    \returns True if lhs receiveTime is less than rhs receiveTime */
+    inline static bool compareEvents(const muse::Event* lhs, const muse::Event* rhs) {
+        return (lhs->getReceiveTime() < rhs->getReceiveTime());
+    }
+    
+    /** \brief compares agent id and receive times of events
+    *  This will allow the filtering of unique events in the EventContainer
+    *  using std::unique
+    \returns True if lhs agentID is equal to rhs agentID and lhs
+     receiveTime is equal to rhs receiveTime*/
+    inline static bool compareEventAttributes(const muse::Event* lhs,
+                                              const muse::Event* rhs) {
+         return (lhs->getReceiverAgentID() == rhs->getReceiverAgentID()
+           && lhs->getReceiveTime() == rhs->getReceiveTime());
+    }
+    
     /** Convenience method to obtain the top-most or front agent.
 
         This method can be used to obtain a pointer to the top/front
