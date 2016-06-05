@@ -83,9 +83,10 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
     ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
     // sort events by the event receiveTime
-    std::sort(events.begin(), events.end());
+    std::sort(events.begin(), events.end(), compareEvents);
     // remove duplicate events from the EventContainer
-    events.erase(std::unique(events.begin(), events.end()), events.end());
+    events.erase(std::unique(events.begin(), events.end(),
+                 compareEventAttributes), events.end());
     // Add events to the agent's 1st tier heap
     agent->eventPQ->push(events);
     // Update the 2nd tier heap for scheduling.
@@ -112,7 +113,7 @@ ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
 
 void
 ThreeTierHeapEventQueue::prettyPrint(std::ostream& os) const {
-    os << "ThreeTierHeapEventQueue::prettyPreint() : not implemented.\n";
+    os << "ThreeTierHeapEventQueue::prettyPrint() : not implemented.\n";
 }
 
 size_t
