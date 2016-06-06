@@ -70,10 +70,22 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
-    // Add event to the agent's heap first.
-    agent->eventPQ->push(event);
-    // Now update the position of the agent in this tier for scheduling.
-    updateHeap(agent);
+    list<Event*>::iterator iter = agent->inputQueue.end();
+    --iter;
+    Event *lastEventInQueue = (*iter);
+    if (agent->inputQueue.empty()) {
+        // Add event to the agent's 1st tier heap
+        agent->eventPQ->push(event);
+        // Now update the position of the agent in this tier for scheduling.
+        updateHeap(agent);
+    }
+    else if ( (lastEventInQueue->getReceiveTime() != event->getReceiveTime())
+            && !(agent->inputQueue.empty()) ) {
+        // Add event to the agent's 1st tier heap
+        agent->eventPQ->push(event);
+        // Now update the position of the agent in this tier for scheduling.
+        updateHeap(agent);
+    }
 }
 
 void
