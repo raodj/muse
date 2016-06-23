@@ -163,6 +163,20 @@ public:
     */
     virtual void reportStats(std::ostream& os);
     
+        
+    /** Print full contents of scheduler queue to given output stream.
+
+        This is a convenience method that is used primarily for
+        troubleshooting purposes.  This method is expected to print
+        the complete set of events in the event queue to the given
+        output stream.  The format of the output is dependent of the
+        the input queue used by the scheduler.
+
+        \param[out] os The output stream to which the contents of the
+        scheduler queue are to be written.
+    */
+    virtual void prettyPrint(std::ostream& os) const;
+    
 protected:
     /** \brief Handle a rollback, if necessary
         

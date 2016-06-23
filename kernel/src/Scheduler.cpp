@@ -219,4 +219,10 @@ Scheduler::reportStats(std::ostream& os) {
     agentPQ->reportStats(os);
 }
 
+void 
+Scheduler::prettyPrint(std::ostream& os) const {
+    ASSERT( agentPQ != NULL );
+    agentPQ->prettyPrint(os);
+}
+
 #endif
