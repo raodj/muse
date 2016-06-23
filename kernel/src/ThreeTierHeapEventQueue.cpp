@@ -65,27 +65,30 @@ ThreeTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     }
 }
 
+void 
+ThreeTierHeapEventQueue::schedule(muse::Event* event) {
+    auto check = std::find(tier2.begin(), tier2.end(), event);
+    auto index = std::distance(tier2.begin(), check);
+    if(check != tier2.end()) {
+        TierThree current;
+        current = tier2[index];
+        current.updateContainer(event);
+    }
+    else {
+        TierThree tierThree(event);
+        tier2.push_back(tierThree);
+    }
+}
+
 void
 ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
-    list<Event*>::iterator iter = agent->inputQueue.end();
-    --iter;
-    Event *lastEventInQueue = (*iter);
-    if (agent->inputQueue.empty()) {
-        // Add event to the agent's 1st tier heap
-        agent->eventPQ->push(event);
-        // Now update the position of the agent in this tier for scheduling.
-        updateHeap(agent);
-    }
-    else if ( (lastEventInQueue->getReceiveTime() != event->getReceiveTime())
-            && !(agent->inputQueue.empty()) ) {
-        // Add event to the agent's 1st tier heap
-        agent->eventPQ->push(event);
-        // Now update the position of the agent in this tier for scheduling.
-        updateHeap(agent);
-    }
+    // Add event to the agent's 1st tier heap
+    agent->eventPQ->push(event);
+    // Now update the position of the agent in this tier for scheduling.
+    updateHeap(agent);
 }
 
 void
@@ -197,7 +200,6 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
     // Return the final index position for the agent
     return currPos;    
 }
-
 
 END_NAMESPACE(muse)
 
