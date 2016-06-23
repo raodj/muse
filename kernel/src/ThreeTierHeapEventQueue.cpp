@@ -70,8 +70,7 @@ ThreeTierHeapEventQueue::schedule(muse::Event* event) {
     auto check = std::find(tier2.begin(), tier2.end(), event);
     auto index = std::distance(tier2.begin(), check);
     if(check != tier2.end()) {
-        TierThree current;
-        current = tier2[index];
+        TierThree& current = tier2[index];
         current.updateContainer(event);
     }
     else {
