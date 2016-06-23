@@ -28,6 +28,49 @@
 
 BEGIN_NAMESPACE(muse)
 
+/** The TierThree class creates an object that stores concurrent events.
+ * The events are stored in the EventContainer and the objects are stored
+ * in the tier2 container. 
+ */
+class TierThree {
+private:
+    Time recvTime;
+    AgentID agentID;
+    muse::EventContainer eventList; 
+public:
+    
+    TierThree();
+    
+    TierThree(muse::Event* event) {
+        eventList.push_back(event);
+        recvTime = event->getReceiveTime();
+        agentID = event->getReceiverAgentID();
+    }
+    
+    /** Appends events to the EventContainer list.
+     *  The method is used to append concurrent events to their respective
+     *  position in the tier2 container. 
+     */
+    void updateContainer(muse::Event* event){
+        eventList.push_back(event);
+    }
+    
+    /** \brief compares the receive times of events
+     *  The method is used to determine whether or not an event already exists
+     *  in the tier2 container.
+        \returns True if lhs receiveTime is equal to rhs receiveTime */
+    bool operator == (const TierThree &rhs) {
+        return (this->recvTime == rhs.recvTime);
+    }
+    
+    Time getRecvTime() {
+        return recvTime;
+    }
+    AgentID getAgentID() {
+        return agentID;
+    }
+};
+
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.
 
@@ -224,7 +267,15 @@ public:
         to be written.
     */
     virtual void reportStats(std::ostream& os);
-
+    
+    /** Method to enqueue concurrent events.
+     *  ThreeTier objects that store events are created and placed into
+     *  the tier2 container. Any subsequent concurrent event is appended
+     *  to the events stored in the ThreeTier objects. 
+     * 
+     */
+    void schedule(muse::Event* event);
+    
 protected:
     /** Comparator method to sort events in the heap.
 
@@ -345,8 +396,17 @@ private:
         \c std::pop_heap.
     */
     std::vector<muse::Agent*> agentList;
+    
+    /** Storage for concurrent events.
+     * 
+     *  This vector contains the list of TierThree objects that store the 
+     *  concurrent events. 
+     */
+    std::vector<TierThree> tier2;     
 };
 
+
+         
 END_NAMESPACE(muse)
 
 #endif
