@@ -65,7 +65,7 @@ public:
 
         \return A pointer to the top Event
     */
-    inline Event* top() const { return heapContainer->front(); }
+    inline T* top() const { return heapContainer->front(); }
 
     /** \brief Remove the top element from the heap
 
@@ -87,7 +87,8 @@ public:
 
         \param[in] event The event to be push into the heap
     */
-    void push(Event* event);
+    template <typename T2>
+    void push(T2* event);
     
     /** \brief Push an set of events onto the heap.
 
@@ -103,6 +104,7 @@ public:
 
         \param[in] events The set of events to be added to the heap
     */
+    template <typename T2>
     void push(T& events);
     
     /** \brief Push a TierThree object onto the heap.
@@ -112,8 +114,8 @@ public:
 
         \param[in] Tier2 The vector of TierThree objects to be added to the heap
     */
-
-    void push(TierThree *tierThree);
+    template <typename T2>
+    void pushObj(T2& tierThree);
     
         /** \brief Push a set of TierThree objects onto the heap.
 
@@ -137,7 +139,8 @@ public:
         
         \return True if any cancellation was done
     */
-    bool removeFutureEvents(const Event* antiMsg);
+    template <typename T2>
+    bool removeFutureEvents(const T2* antiMsg);
 
     /** \brief Remove all events from a given sender that have been
         sent after a specified time.
@@ -159,6 +162,7 @@ public:
         \return This method returns the number of events actually
         removed.        
     */
+    template <typename T2>
     int removeFutureEvents(const muse::AgentID sender,
                            const muse::Time sentTime);
     
@@ -203,7 +207,7 @@ protected:
 private:
     /// The vector backing the heap
     T* heapContainer;
-   
+    
     /** \brief Event Comparator for min-heap creation
 
         This class provides a function for comparing two Event
@@ -215,16 +219,13 @@ private:
     class EventComp {
     public:
         inline EventComp() {}
-        inline bool operator()(const muse::Event* const lhs,
-                               const muse::Event* const rhs) const {
+        template <typename T2>
+        inline bool operator()(const T2* const lhs,
+                               const T2* const rhs) const {
             const Time lhs_time = lhs->getReceiveTime(); 
             return (lhs_time > rhs->getReceiveTime()); 
         }
-        inline bool operator()(TierThree* const lhs, TierThree* const rhs) {
-            Time lhs_time = lhs->getRecvTime();
-            return (lhs_time > rhs->getRecvTime()); 
-        }
-        inline bool operator()(TierThree lhs, TierThree rhs) const {
+        inline bool operator()(TierThree lhs,  TierThree rhs) const {
             Time lhs_time = lhs.getRecvTime();
             return (lhs_time > rhs.getRecvTime()); 
         }
@@ -253,13 +254,15 @@ void BinaryHeap<T>::pop() {
 }
 
 template <typename T>
-void BinaryHeap<T>::push(Event *event) {
+template <typename T2>
+void BinaryHeap<T>::push(T2 *event) {
     event->increaseReference();
     heapContainer->push_back(event);
     std::push_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
 
 template <typename T>
+template <typename T2>
 void BinaryHeap<T>::push(T& events) {
     // Due to bulk adding, ensure that the heap container has enough
     // capacity.
@@ -267,7 +270,7 @@ void BinaryHeap<T>::push(T& events) {
     // Add all the events to the container.
     for(typename T::iterator curr = events.begin(); (curr != events.end());
         curr++) {
-        muse::Event* event = *curr;
+        T2* event = *curr;
         heapContainer->push_back(event);
     }
     std::make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
@@ -276,7 +279,8 @@ void BinaryHeap<T>::push(T& events) {
 }
 
 template <typename T>
-void BinaryHeap<T>::push(TierThree *tierThree) {
+template <typename T2>
+void BinaryHeap<T>::pushObj(T2& tierThree) {
     heapContainer->push_back(tierThree);
     std::push_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
@@ -285,7 +289,7 @@ template <typename T>
 void BinaryHeap<T>::pushObjs(T& tierTwo) {
     heapContainer->reserve(heapContainer->size() + tierTwo.size() + 1);
     for(typename T::iterator it = tierTwo.begin(); it != tierTwo.end(); it++) {
-        muse::TierThree& current = *it;  
+        TierThree& current = *it;  
         heapContainer->push_back(current);
     }
     std::make_heap(heapContainer->begin(), heapContainer->end(), EventComp());
@@ -311,13 +315,15 @@ void BinaryHeap<T>::printObjs(std::ostream& os) const {
 }
 
 template <typename T>
-bool BinaryHeap<T>::removeFutureEvents(const Event* antiMsg) {
+template <typename T2>
+bool BinaryHeap<T>::removeFutureEvents(const T2* antiMsg) {
     const int numRemoved = removeFutureEvents(antiMsg->getSenderAgentID(),
                                               antiMsg->getSentTime());
     return (numRemoved > 0);
 }
 
 template <typename T>
+template <typename T2>
 int BinaryHeap<T>::removeFutureEvents(const muse::AgentID sender,
                                       const muse::Time sentTime) {
     EventComp comparator;   // Event comparator used further below.
@@ -330,7 +336,7 @@ int BinaryHeap<T>::removeFutureEvents(const muse::AgentID sender,
     // iterations will backfire!
     while (!heapContainer->empty() && (currIdx >= 0)) {
         ASSERT(currIdx < (long) heapContainer->size());
-        Event* const evt = (*heapContainer)[currIdx];
+        T2* const evt = (*heapContainer)[currIdx];
         ASSERT(evt != NULL);
         // An event is deleted only if the *sent* time is greater than
         // the antiMessage's and if the event is from same sender
