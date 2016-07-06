@@ -12,9 +12,16 @@
  */
 
 #include <cstdlib>
+#include <vector>
 #include "TwoTierHeapEventQueue.h"
+#include "ThreeTierHeapEventQueue.h"
 #include "Scheduler.h"
 #include "Agent.h"
+#include "BinaryHeap.h"
+#include "BinaryHeapWrapper.h"
+#include "Event.h"
+#include "EventQueue.h"
+#include "DataTypes.h"
 
 class TestAgent : public muse::Agent {
 public:
@@ -37,14 +44,40 @@ public:
     }
 };
 
-void addEvents(TestScheduler& sched, const std::vector<int>& agentTimeList) {
+void testThreeTierHeap(muse::ThreeTierHeapEventQueue& threeTier, const std::vector<int>& agentTimeList) {
     // Assume that agentTimeList has pairs of integers in the form
     // <agentID, recvTime>
     for (size_t i = 0; (i < agentTimeList.size()); i += 2) {
         muse::AgentID id(agentTimeList[i]);
         muse::Time time(agentTimeList[i + 1]);
-        muse::Event *testEvent1 = muse::Event::create(id, time);
-        sched.scheduleEvent(testEvent1);
+        muse::Event *testEvent = muse::Event::create(id, time);
+        threeTier.schedule(testEvent);     
+    }   
+     threeTier.placeOnHeap();
+}
+template <typename T>
+void addListOfEventsToBinaryHeap(muse::BinaryHeap<T>& bHeap, const std::vector<int>& agentTimeList) {
+    // Assume that agentTimeList has pairs of integers in the form
+    // <agentID, recvTime>
+    muse::EventContainer eventList;
+    for (size_t i = 0; (i < agentTimeList.size()); i += 2) {
+        muse::AgentID id(agentTimeList[i]);
+        muse::Time time(agentTimeList[i + 1]);
+        muse::Event *testEvent = muse::Event::create(id, time);
+        eventList.push_back(testEvent);
+    }
+    bHeap.push(eventList);
+}
+
+template <typename T>
+void addEventsToBinaryHeap(muse::BinaryHeap<T>& bHeap, const std::vector<int>& agentTimeList) {
+    // Assume that agentTimeList has pairs of integers in the form
+    // <agentID, recvTime>
+    for (size_t i = 0; (i < agentTimeList.size()); i += 2) {
+        muse::AgentID id(agentTimeList[i]);
+        muse::Time time(agentTimeList[i + 1]);
+        muse::Event *testEvent = muse::Event::create(id, time);
+        bHeap.push(testEvent);
     }
 }
 
@@ -55,10 +88,19 @@ void addAgents(TestScheduler& sched, const std::vector<int>& agentIDList) {
     }
 }
 
+void addEvents(TestScheduler& sched, const std::vector<int>& agentTimeList) {
+    for (size_t i = 0; (i < agentTimeList.size()); i += 2) {
+        muse::AgentID id(agentTimeList[i]);
+        muse::Time time(agentTimeList[i + 1]);
+        muse::Event *testEvent = muse::Event::create(id, time);
+        sched.scheduleEvent(testEvent);
+    }
+}
+
 /*
  * 
  */
-int main(int argc, char** argv) {
+int main(int argc, char** argv) {    
     // Create the test scheduler with the queue name as the parameter
     TestScheduler sched("2theap");
     // Create test agents
@@ -66,8 +108,22 @@ int main(int argc, char** argv) {
     // Add some events
     addEvents(sched, {1, 1,   1, 3,   3, 2});
     // Print the scheduler queue to see if it looks correct
-    sched.prettyPrint(std::cout);
-
+    //sched.prettyPrint(std::cout);
+   
+    muse::ThreeTierHeapEventQueue threeTierHeap;
+    testThreeTierHeap(threeTierHeap, {1, 1,   1, 3,   3, 2});
+    
+    
+    muse::BinaryHeap<muse::EventContainer> bHeap;   
+    //addEventsToBinaryHeap(bHeap, {1, 1,   1, 3,   3, 2});
+    addListOfEventsToBinaryHeap(bHeap, {1, 1,   1, 3,   1, 2,   2, 2,   3, 4,   1, 8,   2, 7});
+    bHeap.print(std::cout);
+    std::cout << "Size: " << bHeap.size() << std::endl;
+    bHeap.pop();
+    bHeap.pop();
+    bHeap.pop();
+    bHeap.print(std::cout);
+    std::cout << "Size: " << bHeap.size() << std::endl;
+ 
     return 0;
 }
-
