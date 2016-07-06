@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "ThreeTierHeapEventQueue.h"
+#include "BinaryHeap.h"
 #include <algorithm>
 
 BEGIN_NAMESPACE(muse)
@@ -77,6 +78,13 @@ ThreeTierHeapEventQueue::schedule(muse::Event* event) {
         TierThree tierThree(event);
         tier2.push_back(tierThree);
     }
+}
+
+void
+ThreeTierHeapEventQueue::placeOnHeap() {
+     BinaryHeap<Tier2>bHeap;
+     bHeap.pushObjs(tier2);
+     bHeap.printObjs(std::cout);
 }
 
 void
