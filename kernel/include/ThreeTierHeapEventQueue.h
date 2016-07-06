@@ -71,6 +71,12 @@ public:
     }
 };
 
+
+/** The Tier2 of type vector.
+    This is a container for storing TierThree objects.
+*/
+typedef std::vector<TierThree> Tier2;
+
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.
 
@@ -269,13 +275,19 @@ public:
     virtual void reportStats(std::ostream& os);
     
     /** Method to enqueue concurrent events.
-     *  ThreeTier objects that store events are created and placed into
+     *  TierThree objects that store events are created and placed into
      *  the tier2 container. Any subsequent concurrent event is appended
-     *  to the events stored in the ThreeTier objects. 
+     *  to the events stored in the TierThree objects. 
      * 
      */
     void schedule(muse::Event* event);
     
+    /** Method to place TierThree objects stored in the tier2 container
+     *  onto the heap.
+     *  At the moment, this is being used for debugging purposes.
+     */
+    void placeOnHeap();
+        
 protected:
     /** Comparator method to sort events in the heap.
 
@@ -404,8 +416,6 @@ private:
      */
     std::vector<TierThree> tier2;     
 };
-
-
          
 END_NAMESPACE(muse)
 
