@@ -66,35 +66,43 @@ ThreeTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     }
 }
 
-void 
-ThreeTierHeapEventQueue::schedule(muse::Event* event) {
-    auto check = std::find(tier2.begin(), tier2.end(), event);
-    auto index = std::distance(tier2.begin(), check);
-    if(check != tier2.end()) {
-        TierThree& current = tier2[index];
-        current.updateContainer(event);
-    }
-    else {
-        TierThree tierThree(event);
-        tier2.push_back(tierThree);
-    }
-}
-
-void
-ThreeTierHeapEventQueue::placeOnHeap() {
-     BinaryHeap<Tier2>bHeap;
-     bHeap.pushObjs(tier2);
-     bHeap.printObjs(std::cout);
-}
-
 void
 ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
-    // Add event to the agent's 1st tier heap
-    agent->eventPQ->push(event);
-    // Now update the position of the agent in this tier for scheduling.
+    /*If the heap is empty, then create and send an instance of Tier2Entry
+      to the binary heap.
+     */
+    if(agent->myEventPQ->empty()) {
+        Tier2Entry tier2Entry(event);
+        agent->myEventPQ->push(tier2Entry);
+    }else {
+        /*If the heap is not empty, then compare the event's receive time
+          against the receive time of the events in the heap.
+         */
+        size_t index = 0;
+        size_t len = agent->myEventPQ->size() - 1;
+        Tier2Entry* currIdx = &agent->myEventPQ->top();
+        Tier2Entry tier2Entry(event);
+        while(index <= len) {
+            /*If there is an event with a matching receive time in the heap,
+              then add the event to the list of events associated with
+              that particular Tier2Entry object */
+            if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
+                agent->myEventPQ->top().updateContainer(event);
+                break;
+            }
+            /*If there is no event with a matching receive time in the heap,
+             then send an instance of Tier2Entry to the binary heap. 
+             */
+            else if((currIdx+index)->getRecvTime() != event->getReceiveTime() &&
+                    (index == len)) {
+                agent->myEventPQ->push(tier2Entry);
+            }
+            index++;
+        }
+    }
     updateHeap(agent);
 }
 
@@ -104,14 +112,35 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
     ASSERT(agent != NULL);
     ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
-    // sort events by the event receiveTime
-    std::sort(events.begin(), events.end(), compareEvents);
-    // remove duplicate events from the EventContainer
-    events.erase(std::unique(events.begin(), events.end(),
-                 compareEventAttributes), events.end());
-    // Add events to the agent's 1st tier heap
-    agent->eventPQ->push(events);
-    // Update the 2nd tier heap for scheduling.
+    EventContainer::iterator iter = events.begin();
+    // Compare the list of events in the EventContainer with the event
+    // receive times on the heap.
+    while(iter!=events.end()) {
+        muse::Event* event = *iter;
+        size_t index = 0;
+        size_t len = agent->myEventPQ->size() - 1;
+        Tier2Entry* currIdx = &agent->myEventPQ->top();
+        Tier2Entry tier2Entry(event);
+        while(index <= len) {
+            /*If there is a match in the receive time, then append the event 
+              to the list of events associated with that particular
+              Tier2Entry object.*/
+            if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
+                agent->myEventPQ->top().updateContainer(event);
+                break;
+            }
+            /*If there is no match, then create a Tier2Entry object and add
+              the object to the vector of Tier2Entry objects.*/
+            else if((currIdx+index)->getRecvTime() != event->getReceiveTime() &&
+                    (index == len)) {
+                tier2.push_back(tier2Entry);
+            }
+            index++;
+        }
+        iter++;  
+    }
+    agent->myEventPQ->push(tier2);
+    tier2.clear();
     updateHeap(agent);
 }
 
@@ -182,7 +211,7 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
         agentList[currPos] = std::move(agentList[secondChild]);
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos = secondChild;
-    }
+    } 
     if (((agentList.size() & 1) == 0) &&
         (secondChild == (agentList.size() - 2) / 2)) {
         secondChild        = 2 * (secondChild + 1);
