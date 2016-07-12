@@ -25,23 +25,24 @@
 #include <vector>
 #include "EventQueue.h"
 #include "BinaryHeapWrapper.h"
+#include "BinaryHeap.h"
 
 BEGIN_NAMESPACE(muse)
 
-/** The TierThree class creates an object that stores concurrent events.
+/** The Tier2Entry class creates an object that contains concurrent events.
  * The events are stored in the EventContainer and the objects are stored
  * in the tier2 container. 
  */
-class TierThree {
+class Tier2Entry {
 private:
     Time recvTime;
     AgentID agentID;
     muse::EventContainer eventList; 
 public:
     
-    TierThree();
+    Tier2Entry();
     
-    TierThree(muse::Event* event) {
+    Tier2Entry(muse::Event* event) {
         eventList.push_back(event);
         recvTime = event->getReceiveTime();
         agentID = event->getReceiverAgentID();
@@ -59,23 +60,34 @@ public:
      *  The method is used to determine whether or not an event already exists
      *  in the tier2 container.
         \returns True if lhs receiveTime is equal to rhs receiveTime */
-    bool operator == (const TierThree &rhs) {
+    bool operator == (const Tier2Entry &rhs) {
         return (this->recvTime == rhs.recvTime);
     }
     
-    Time getRecvTime() {
+    bool operator < (const Tier2Entry &rhs) {
+        return (this->recvTime > rhs.recvTime);
+    }
+    
+    Time getRecvTime() const {
         return recvTime;
     }
-    AgentID getAgentID() {
+    
+    AgentID getAgentID() const {
         return agentID;
     }
 };
 
+class EventComp {
+public:
+    inline bool operator() (const Tier2Entry lhs, const Tier2Entry rhs) const {
+        return (lhs.getRecvTime() > rhs.getRecvTime() );
+    }
+};
 
-/** The Tier2 of type vector.
-    This is a container for storing TierThree objects.
+/** The Tier2 of type BinaryHeap.
+    This is a heap of Tier2Entry objects that can store concurrent events.
 */
-typedef std::vector<TierThree> Tier2;
+//typedef muse::BinaryHeap<Tier2Entry, EventComp> Tier2;
 
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.
@@ -230,7 +242,7 @@ public:
         that the agent with the least-time-stamp is at the top of the
         heap.
 
-        \param[in] dest The agent whose currently secheduled events
+        \param[in] dest The agent whose currently scheduled events
         are to be checked and cleaned-up.  This agent must be a valid
         agent that has been registered/added to this event queue.  The
         pointer cannot be NULL.  This parameter is not used.
@@ -274,20 +286,6 @@ public:
     */
     virtual void reportStats(std::ostream& os);
     
-    /** Method to enqueue concurrent events.
-     *  TierThree objects that store events are created and placed into
-     *  the tier2 container. Any subsequent concurrent event is appended
-     *  to the events stored in the TierThree objects. 
-     * 
-     */
-    void schedule(muse::Event* event);
-    
-    /** Method to place TierThree objects stored in the tier2 container
-     *  onto the heap.
-     *  At the moment, this is being used for debugging purposes.
-     */
-    void placeOnHeap();
-        
 protected:
     /** Comparator method to sort events in the heap.
 
@@ -411,12 +409,13 @@ private:
     
     /** Storage for concurrent events.
      * 
-     *  This vector contains the list of TierThree objects that store the 
+     *  This vector contains the list of Tier2Entry objects that store the 
      *  concurrent events. 
      */
-    std::vector<TierThree> tier2;     
+    std::vector<Tier2Entry> tier2;     
+
 };
-         
+
 END_NAMESPACE(muse)
 
 #endif

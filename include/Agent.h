@@ -59,7 +59,11 @@ BEGIN_NAMESPACE(muse);
 
 //forward declare here
 class BinaryHeapWrapper;
+template<typename T, typename Compare>
+class BinaryHeap;
 class EventQueue;
+class Tier2Entry;
+class EventComp;
 
 class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
@@ -527,7 +531,16 @@ private:
         \see BinaryHeapWrapper()
     */
     BinaryHeapWrapper* eventPQ;
-
+    
+    /** The BinaryHeap type myEventPQ.
+        
+        This is access to the custom binary heap data structure that
+        houses Tier2Entry values for processing. The heap also accepts
+        a custom comparator to be used to order the items in the heap
+        by event receive time.
+    */
+    BinaryHeap<Tier2Entry, EventComp>* myEventPQ;
+    
     /** The pointer type.
         
         Pointer to the location of the agent in the fibonacci heap.
