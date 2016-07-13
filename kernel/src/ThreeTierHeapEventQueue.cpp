@@ -90,7 +90,7 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
               then add the event to the list of events associated with
               that particular Tier2Entry object */
             if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
-                agent->myEventPQ->top().updateContainer(event);
+                (currIdx+index)->updateContainer(event);
                 break;
             }
             /*If there is no event with a matching receive time in the heap,
@@ -126,7 +126,7 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
               to the list of events associated with that particular
               Tier2Entry object.*/
             if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
-                agent->myEventPQ->top().updateContainer(event);
+                (currIdx+index)->updateContainer(event);
                 break;
             }
             /*If there is no match, then create a Tier2Entry object and add
