@@ -117,25 +117,40 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
     // receive times on the heap.
     while(iter!=events.end()) {
         muse::Event* event = *iter;
-        size_t index = 0;
-        size_t len = agent->myEventPQ->size() - 1;
-        Tier2Entry* currIdx = &agent->myEventPQ->top();
-        Tier2Entry tier2Entry(event);
-        while(index <= len) {
-            /*If there is a match in the receive time, then append the event 
-              to the list of events associated with that particular
-              Tier2Entry object.*/
-            if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
-                (currIdx+index)->updateContainer(event);
-                break;
+        if(agent->myEventPQ->empty()) {
+            Tier2Entry tier2Entry(event);
+            agent->myEventPQ->push(tier2Entry);
+        } else {
+            size_t index = 0;
+            size_t len = agent->myEventPQ->size() - 1;
+            Tier2Entry* currIdx = &agent->myEventPQ->top();
+            Tier2Entry tier2Entry(event);
+            while(index <= len) {
+                /*If there is a match in the receive time, then append the event 
+                  to the list of events associated with that particular
+                  Tier2Entry object.*/
+                if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
+                    (currIdx+index)->updateContainer(event);
+                    break;
+                }
+                /*If there is no match, then create a Tier2Entry object and add
+                  the object to the vector of Tier2Entry objects.*/
+                else if((currIdx+index)->getRecvTime() != 
+                        event->getReceiveTime() && (index == len)) {
+                    // Ensure concurrent events in the EventContainer list are
+                    // appended accordingly in the vector of Tier2Entry objects.
+                    auto check = std::find(tier2.begin(), tier2.end(),
+                                           tier2Entry);
+                    auto index = std::distance(tier2.begin(), check);
+                    if(check != tier2.end()) {
+                        Tier2Entry* curr = &tier2[index];
+                        curr->updateContainer(event);
+                    } else {
+                        tier2.push_back(tier2Entry);
+                    }
+                }
+                index++;
             }
-            /*If there is no match, then create a Tier2Entry object and add
-              the object to the vector of Tier2Entry objects.*/
-            else if((currIdx+index)->getRecvTime() != event->getReceiveTime() &&
-                    (index == len)) {
-                tier2.push_back(tier2Entry);
-            }
-            index++;
         }
         iter++;  
     }
