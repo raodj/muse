@@ -24,6 +24,8 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include <algorithm>
+#include <unordered_map>
 #include "DataTypes.h"
 #include "EventQueue.h"
 
@@ -63,12 +65,12 @@ public:
 
     /** \brief Get the top element of the heap
 
-        This method returns a pointer to the current top element of
+        This method returns a reference to the current top element of
         the heap.
 
-        \return A pointer to the top value.
+        \return A reference to the top value.
     */
-    inline T& top() const { return heapContainer->front(); }
+    inline T& top() { return heapContainer.front(); }
 
     /** \brief Remove the top element from the heap
 
@@ -76,12 +78,12 @@ public:
         and then fixup the heap.
     */
     void pop() {
-        if (heapContainer->empty()) {
+        if (heapContainer.empty()) {
             return;
         }
-        pop_heap(heapContainer->begin(), heapContainer->end(), comp);
-        heapContainer->back()->decreaseReference();
-        heapContainer->pop_back();
+        std::pop_heap(heapContainer.begin(), heapContainer.end(), comp);
+        heapContainer.back();
+        heapContainer.pop_back();
     }
 
     /** \brief Push an element onto the heap
@@ -97,8 +99,8 @@ public:
     void push(T& value) {
         // Note that any increase in reference counts needs to be done
         // prior to calling this method.
-        heapContainer->push_back(value);
-        push_heap(heapContainer->begin(), heapContainer->end(), comp);
+        heapContainer.push_back(value);
+        std::push_heap(heapContainer.begin(), heapContainer.end(), comp);
     }
 
     /** \brief Push an vector of values onto the heap.
@@ -119,13 +121,13 @@ public:
     void push(std::vector<T>& values) {
         // Due to bulk adding, ensure that the heap container has enough
         // capacity.
-        heapContainer->reserve(heapContainer->size() + values.size() + 1);
-        // Add all the events to the container.
+        heapContainer.reserve(heapContainer.size() + values.size() + 1);
+        // Add each value item to the container.
         for(auto curr = values.begin(); (curr != values.end()); curr++) {
             T val = *curr;
-            heapContainer->push_back(val);
+            heapContainer.push_back(val);
         }
-        make_heap(heapContainer->begin(), heapContainer->end(), comp);
+        std::make_heap(heapContainer.begin(), heapContainer.end(), comp);
         // Clear out values in the container as per API expectations
         values.clear();
     }
@@ -185,16 +187,40 @@ public:
 
         \return The current size of the heap        
      */
-    inline EventContainer::size_type size() const {
-        return heapContainer->size();
+    inline typename std::vector<T>::size_type size() const {
+        return heapContainer.size();
     }
 
     /** \brief Check if the heap is empty
 
         \return True if the heap is empty
      */
-    inline bool empty() const { return heapContainer->empty(); }
+    inline bool empty() const { return heapContainer.empty(); }
+    
+    /** \brief iterator to the position that follows the last
+        element in the unordered_map container 
 
+        \return iterator to the element past the end of the container
+     */
+    inline typename std::unordered_map<Time, T>::iterator mapEnd() {
+        return heapMap.end();
+    }
+    
+    /** \brief Creates an unordered map of items placed in the heap container
+         This method is used to search for elements stored on the heap.
+      
+        \return iterator to the element, if the searched key is found or 
+         unordered_map::end(), if the searched key is not found
+     */
+    typename std::unordered_map<Time, T>::iterator find(T& value) {
+        for(auto curr = heapContainer.begin(); curr!= heapContainer.end();
+                curr++) {
+            T val = *curr;
+            heapMap.insert(std::make_pair(val.getReceiveTime(), val));
+        }
+        return heapMap.find(value.getReceiveTime());
+    }
+    
     /** Print values in this heap to a given output stream.
 
         This method prints all the values currently in the heap to a
@@ -204,7 +230,15 @@ public:
         \param[out] os The output stream to which the values are to be
         written.
     */
-    void print(std::ostream& os) const;
+    void print(std::ostream& os) const {
+        for(auto curr = heapContainer.begin(); curr!= heapContainer.end();
+                curr++) {
+            T val = *curr;
+            os << "[Agent ID: "  << val.getReceiverAgentID() << ", " 
+               << " Receive Time: " << val.getReceiveTime() << "]\n";
+          
+        }
+    }
 
 protected:
     /** The default comparator object to be used to order values in
@@ -213,7 +247,8 @@ protected:
 
 private:
     /// The vector backing the heap
-    std::vector<T>* heapContainer;
+    std::vector<T> heapContainer;
+    std::unordered_map<Time, T> heapMap;
 };
 
 END_NAMESPACE(muse);

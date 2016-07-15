@@ -71,38 +71,20 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
-    /*If the heap is empty, then create and send an instance of Tier2Entry
-      to the binary heap.
-     */
-    if(agent->myEventPQ->empty()) {
-        Tier2Entry tier2Entry(event);
+    Tier2Entry tier2Entry(event);
+    std::unordered_map<Time, Tier2Entry>::iterator iter;
+    iter = agent->myEventPQ->find(tier2Entry);
+    /* If there is an event with a matching receive time in the heap,
+    then add the event to the list of events associated with
+    that particular Tier2Entry object. */ 
+    if(iter!=agent->myEventPQ->mapEnd()) {
+        (iter->second).updateContainer(event);
+    } else {
+        /*If there is no event with a matching receive time in the heap,
+        then send an instance of Tier2Entry to the binary heap. */
         agent->myEventPQ->push(tier2Entry);
-    }else {
-        /*If the heap is not empty, then compare the event's receive time
-          against the receive time of the events in the heap.
-         */
-        size_t index = 0;
-        size_t len = agent->myEventPQ->size() - 1;
-        Tier2Entry* currIdx = &agent->myEventPQ->top();
-        Tier2Entry tier2Entry(event);
-        while(index <= len) {
-            /*If there is an event with a matching receive time in the heap,
-              then add the event to the list of events associated with
-              that particular Tier2Entry object */
-            if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
-                (currIdx+index)->updateContainer(event);
-                break;
-            }
-            /*If there is no event with a matching receive time in the heap,
-             then send an instance of Tier2Entry to the binary heap. 
-             */
-            else if((currIdx+index)->getRecvTime() != event->getReceiveTime() &&
-                    (index == len)) {
-                agent->myEventPQ->push(tier2Entry);
-            }
-            index++;
-        }
     }
+    // Fix the position of this agent in the scheduler's heap.
     updateHeap(agent);
 }
 
@@ -112,53 +94,42 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
     ASSERT(agent != NULL);
     ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
-    EventContainer::iterator iter = events.begin();
+    EventContainer::iterator it = events.begin();
     // Compare the list of events in the EventContainer with the event
     // receive times on the heap.
-    while(iter!=events.end()) {
-        muse::Event* event = *iter;
-        if(agent->myEventPQ->empty()) {
-            Tier2Entry tier2Entry(event);
-            agent->myEventPQ->push(tier2Entry);
+    while(it!=events.end()) {
+        muse::Event* event = *it;
+        Tier2Entry tier2Entry(event);
+        std::unordered_map<Time, Tier2Entry>::iterator iter;
+        iter = agent->myEventPQ->find(tier2Entry);
+        /*If there is a match in the receive time, then append the event 
+        to the list of events associated with that particular
+        Tier2Entry object. */
+        if(iter!=agent->myEventPQ->mapEnd()) {
+            (iter->second).updateContainer(event);
+        /*If there is no match, then create a Tier2Entry object and add
+        the object to the vector of Tier2Entry objects. */
         } else {
-            size_t index = 0;
-            size_t len = agent->myEventPQ->size() - 1;
-            Tier2Entry* currIdx = &agent->myEventPQ->top();
-            Tier2Entry tier2Entry(event);
-            while(index <= len) {
-                /*If there is a match in the receive time, then append the event 
-                  to the list of events associated with that particular
-                  Tier2Entry object.*/
-                if((currIdx+index)->getRecvTime() == event->getReceiveTime()) {
-                    (currIdx+index)->updateContainer(event);
-                    break;
-                }
-                /*If there is no match, then create a Tier2Entry object and add
-                  the object to the vector of Tier2Entry objects.*/
-                else if((currIdx+index)->getRecvTime() != 
-                        event->getReceiveTime() && (index == len)) {
-                    // Ensure concurrent events in the EventContainer list are
-                    // appended accordingly in the vector of Tier2Entry objects.
-                    auto check = std::find(tier2.begin(), tier2.end(),
-                                           tier2Entry);
-                    auto index = std::distance(tier2.begin(), check);
-                    if(check != tier2.end()) {
-                        Tier2Entry* curr = &tier2[index];
-                        curr->updateContainer(event);
-                    } else {
-                        tier2.push_back(tier2Entry);
-                    }
-                }
-                index++;
+            // Ensure concurrent events in the EventContainer list are
+            // appended accordingly in the vector of Tier2Entry objects.
+            auto check = std::find(tier2.begin(), tier2.end(),
+                                   tier2Entry);
+            auto index = std::distance(tier2.begin(), check);
+            if(check != tier2.end()) {
+                Tier2Entry* curr = &tier2[index];
+                curr->updateContainer(event);
+            } else {
+                tier2.push_back(tier2Entry);
             }
         }
-        iter++;  
+        it++;       
     }
     agent->myEventPQ->push(tier2);
     tier2.clear();
+    // Fix the position of this agent in the scheduler's heap
     updateHeap(agent);
 }
-
+  
 int
 ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
                                   const muse::Time sentTime) {

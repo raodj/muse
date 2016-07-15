@@ -68,11 +68,11 @@ public:
         return (this->recvTime > rhs.recvTime);
     }
     
-    Time getRecvTime() const {
+    Time getReceiveTime() const {
         return recvTime;
     }
     
-    AgentID getAgentID() const {
+    AgentID getReceiverAgentID() const {
         return agentID;
     }
 };
@@ -80,7 +80,7 @@ public:
 class EventComp {
 public:
     inline bool operator() (const Tier2Entry lhs, const Tier2Entry rhs) const {
-        return (lhs.getRecvTime() > rhs.getRecvTime() );
+        return (lhs.getReceiveTime() > rhs.getReceiveTime() );
     }
 };
 
