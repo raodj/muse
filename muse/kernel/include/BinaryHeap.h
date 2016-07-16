@@ -197,28 +197,28 @@ public:
      */
     inline bool empty() const { return heapContainer.empty(); }
     
-    /** \brief iterator to the position that follows the last
-        element in the unordered_map container 
-
-        \return iterator to the element past the end of the container
-     */
-    inline typename std::unordered_map<Time, T>::iterator mapEnd() {
-        return heapMap.end();
-    }
-    
-    /** \brief Creates an unordered map of items placed in the heap container
-         This method is used to search for elements stored on the heap.
+    /** \brief Get the iterator referring to past the end element in the
+         vector container.
       
-        \return iterator to the element, if the searched key is found or 
-         unordered_map::end(), if the searched key is not found
+       \return An iterator to the element past the end of the sequence. 
      */
-    typename std::unordered_map<Time, T>::iterator find(T& value) {
-        for(auto curr = heapContainer.begin(); curr!= heapContainer.end();
-                curr++) {
-            T val = *curr;
-            heapMap.insert(std::make_pair(val.getReceiveTime(), val));
+    inline typename std::vector<T>::iterator end() {return heapContainer.end();}
+\
+    /** \brief This method is used to search for a specific element
+         stored on the heap.
+      
+        \return iterator to the element, if the specified element is found or 
+         heapContainer::end(), if the searched element is not found
+     */
+    typename std::vector<T>::iterator find(const T& value) {
+        typename std::vector<T>::iterator curr = heapContainer.begin();
+        while(curr!= heapContainer.end()) {
+            if(*curr == value) {
+                return curr;
+            }
+            curr++;
         }
-        return heapMap.find(value.getReceiveTime());
+        return curr;
     }
     
     /** Print values in this heap to a given output stream.
@@ -248,7 +248,6 @@ protected:
 private:
     /// The vector backing the heap
     std::vector<T> heapContainer;
-    std::unordered_map<Time, T> heapMap;
 };
 
 END_NAMESPACE(muse);
