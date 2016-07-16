@@ -72,13 +72,14 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
     Tier2Entry tier2Entry(event);
-    std::unordered_map<Time, Tier2Entry>::iterator iter;
+    std::vector<Tier2Entry>::iterator iter;
     iter = agent->myEventPQ->find(tier2Entry);
     /* If there is an event with a matching receive time in the heap,
     then add the event to the list of events associated with
     that particular Tier2Entry object. */ 
-    if(iter!=agent->myEventPQ->mapEnd()) {
-        (iter->second).updateContainer(event);
+    if(iter!=agent->myEventPQ->end()) {
+        Tier2Entry& cur = *iter;
+        cur.updateContainer(event);
     } else {
         /*If there is no event with a matching receive time in the heap,
         then send an instance of Tier2Entry to the binary heap. */
@@ -100,13 +101,14 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
     while(it!=events.end()) {
         muse::Event* event = *it;
         Tier2Entry tier2Entry(event);
-        std::unordered_map<Time, Tier2Entry>::iterator iter;
+        std::vector<Tier2Entry>::iterator iter;
         iter = agent->myEventPQ->find(tier2Entry);
         /*If there is a match in the receive time, then append the event 
         to the list of events associated with that particular
         Tier2Entry object. */
-        if(iter!=agent->myEventPQ->mapEnd()) {
-            (iter->second).updateContainer(event);
+        if(iter!=agent->myEventPQ->end()) {
+            Tier2Entry& cur = *iter;
+            cur.updateContainer(event);
         /*If there is no match, then create a Tier2Entry object and add
         the object to the vector of Tier2Entry objects. */
         } else {
