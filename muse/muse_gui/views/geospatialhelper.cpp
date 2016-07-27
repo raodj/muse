@@ -46,10 +46,6 @@ GeospatialHelper::work() {
         return false;
     });
 
-    for (const auto& str : files) {
-        std::cout << str.toStdString() << std::endl;
-    }
-
     std::cout << "loading zoom level: " << zoom << std::endl;
     std::cout << "file count for zoom level: " << zoom << " is " << files.size() << std::endl;
     std::cout << "dir location: " << dir.absolutePath().toStdString() << std::endl;
