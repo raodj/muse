@@ -37,7 +37,8 @@ class Tier2Entry {
 private:
     Time recvTime;
     AgentID agentID;
-    muse::EventContainer eventList; 
+    muse::EventContainer eventList;
+    muse::Event* evt;
 public:
     
     Tier2Entry();
@@ -46,6 +47,7 @@ public:
         eventList.push_back(event);
         recvTime = event->getReceiveTime();
         agentID = event->getReceiverAgentID();
+        evt = event;
     }
     
     /** Appends events to the EventContainer list.
@@ -75,6 +77,9 @@ public:
     AgentID getReceiverAgentID() const {
         return agentID;
     }
+    muse::Event* getEvent() {
+        return evt;
+    } 
 };
 
 class EventComp {
@@ -84,10 +89,21 @@ public:
     }
 };
 
-/** The Tier2 of type BinaryHeap.
-    This is a heap of Tier2Entry objects that can store concurrent events.
-*/
-//typedef muse::BinaryHeap<Tier2Entry, EventComp> Tier2;
+class IsFutureEvent{
+public:
+    IsFutureEvent(const muse::AgentID sender, const muse::Time sentTime) :
+        sender(sender), sentTime(sentTime) {}
+        inline bool operator()(muse::Tier2Entry tierTwoEntry) const {
+            if((tierTwoEntry.getEvent()->getSenderAgentID() == sender) &&
+                    (tierTwoEntry.getEvent()->getSentTime() >= sentTime)) {
+                return true;
+            }
+            return false;
+        }
+private:
+    muse::AgentID sender;
+    muse::Time sentTime;
+};
 
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.

@@ -47,7 +47,7 @@ muse::Event*
 ThreeTierHeapEventQueue::front() {
     muse::Event* retVal = NULL;
     if (!empty()) {
-        retVal = top()->eventPQ->top();
+        retVal = top()->myEventPQ->top().getEvent(); 
     }
     return retVal;
 }
@@ -138,7 +138,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sende
     ASSERT(dest != NULL);
     ASSERT(getIndex(dest) < agentList.size());
     // Get agent's heap to cancel out events.
-    int numRemoved = dest->eventPQ->removeFutureEvents(sender, sentTime);
+    int numRemoved = dest->myEventPQ->remove(IsFutureEvent(sender, sentTime)); 
     // Update the 2nd tier heap for scheduling.
     updateHeap(dest);
     return numRemoved;
@@ -152,7 +152,7 @@ ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
 
 void
 ThreeTierHeapEventQueue::prettyPrint(std::ostream& os) const {
-    os << "ThreeTierHeapEventQueue::prettyPrint() : not implemented.\n";
+    os << "ThreeTierHeapEventQueue::prettyPrint() : not implemented.\n";   
 }
 
 size_t
