@@ -73,6 +73,7 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
 
     const auto& map = worldMaps[zoomLevel];
 
+    //If a requested zoom level is not loaded yet, do not return images.
     if (map.empty()) {
         return;
     }
@@ -98,6 +99,7 @@ GeospatialWidget::paintEvent(QPaintEvent *e) {
         yTilePosEnd = yTilePosMax - 1;
     }
 
+    //Application output for debugging widget information
     std::cout << "Zoom level: " << zoomLevel << std::endl;
     std::cout << "Image size: " << imageSize << std::endl;
     std::cout << "x: " << xStart << " pixel, " << xTilePos << " tile" << std::endl;
@@ -202,7 +204,7 @@ GeospatialWidget::loadZoomLevel(QDir dir) {
     int zoom = dir.dirName().split("zoom")[1].toInt();
 
     mapLoaded[zoom] = false;
-
+    //Application output notification for when a given zoom level has begun loading
     std::cout << "loading zoom level: " << zoom << " from thread: " << std::this_thread::get_id() << std::endl;
     std::cout << "file count for zoom level: " << zoom << " is " << files.size() << std::endl;
     std::cout << "dir location: " << dir.absolutePath().toStdString() << std::endl;
@@ -213,7 +215,7 @@ GeospatialWidget::loadZoomLevel(QDir dir) {
         worldMaps[zoom].push_back(QImage{ dir.absoluteFilePath(file) });
         count++;
     }
-
+    //Sets the status for a given zoom level to complete.
     mapLoaded[zoom] = true;
 
     std::cout << "done loading zoom level: " << zoom << std::endl;
@@ -227,18 +229,15 @@ GeospatialWidget::setZoomLevel(int tempZoom){
 
 void
 GeospatialWidget::zoomIn(){
-    if (zoomLevel < 8 ) {
-        ++zoomLevel;
-        zoom = zoomLevel - 1;
-    }
+    setZoomLevel(zoomLevel+1);
+    zoom = zoomLevel - 1;
+
 }
 
 void
 GeospatialWidget::zoomOut(){
-    if (zoomLevel > 1 ) {
-        --zoomLevel;
-        zoom = zoomLevel - 1;
-    }
+    setZoomLevel(zoomLevel-1);
+    zoom = zoomLevel - 1;
 
 }
 
