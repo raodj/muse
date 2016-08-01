@@ -62,14 +62,15 @@ public:
     /**
      * @brief GeospatialWidget The constructor for creating a GeospatialWidget.
      *
-     * The constructor creates the default Geospatial Widget
+     * The constructor creates the default widget, creating the map based on
+     * zoom level one image files and loading the rest into memory.
      *
      * @param parent The parent of the GeospatialWidget is passed as to assign
      * the GeospatialWidget to a location within the program. Ideally, this
-     * is in the GeospatialView class.
+     * is in the scroll area within the GeospatialView class.
      *
      * @param size The size of the viewing window is passed via this parameter,
-     * but the size of the GeospatialWidget may change based on the interal
+     * but the size of the GeospatialWidget may change based on the internal
      * value of the zoom level.
      */
     GeospatialWidget(QWidget *parent, QSize size);
@@ -84,10 +85,9 @@ public:
     ~GeospatialWidget();
 
     /**
-     * @brief setZoomLevel Sets the zoom level to the specified value.
-     *
-     * This method allows for the direct modification of the GeospatialWidget's
-     * zoom level. The current range allowed is from zoom level 1 to 8.
+     * @brief setZoomLevel This method allows for the direct modification of the
+     * GeospatialWidget's zoom level. The current range allowed is from zoom
+     * level 1 to 8.
      *
      * @param zoom The passed zoom level is what the method sets for the
      * GeospatialWidget, so long as the value is within a set range.

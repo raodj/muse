@@ -42,7 +42,7 @@
 #include <QScrollArea>
 
 /**
- * @brief The GeospatialView class Provides a visual for data received
+ * @brief The GeospatialView class provides a visual for data received
  * from the redhawk.
  */
 class GeospatialView : public View {
@@ -53,18 +53,48 @@ public:
     static const QString ViewName;
 
 protected slots:
+    /**
+     * @brief zoomIn Connects zoomInButton to the GeospatialWidget instance,
+     * calling the zoomIn method contained within the widget.
+     */
     void zoomIn();
+
+    /**
+     * @brief zoomOut Connects zoomInButton to the GeospatialWidget instance,
+     * calling the zoomOut method contained within the widget.
+     */
     void zoomOut();
+
+    /**
+     * @brief zoomOut Passes the size of the scroll area to the GeospatialWidget
+     * instance so that the size of the widget may adjust the map accordingly.
+     */
     void sendTheSize();
 
 private:
     QAction* zoomInButton;
     QAction* zoomOutButton;
+
+    //This QScrollArea is the container for the GeospatialWidget 'world'.
     QScrollArea *scrollArea;
+    //This GeospatialWidget is the instance of the map.
     GeospatialWidget *world;
 
+    /**
+     * @brief initializeToolBarButtons Creates toolbar for the map interface,
+     * which currently include the zoom-in and zoom-out buttons.
+     */
     void initializeToolBarButtons();
 
+    /**
+     * @brief resizeEvent This slot checks to see if a change has been made to
+     * the size of the GeospatialView and if there is, sends the new size to the
+     * GeospatialWidget class to inform the class of the new size of the viewing
+     * window.
+     *
+     * @param event Not used in method but may be used later for precision
+     * modifications to the scroll area size.
+     */
     void resizeEvent(QResizeEvent* event) override;
 
 };
