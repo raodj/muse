@@ -52,6 +52,7 @@ const QString GeospatialView::ViewName = "GeospatialView";
 GeospatialView::GeospatialView(QWidget *parent) :
                 View("GeospatialView", parent)/*, QOpenGL(this)*/ {
 
+    //Currently unused
     const QString zoomLabels[] = {
         "Zoom 0 (max out)",
         "Zoom 1 (very out)",
@@ -64,16 +65,21 @@ GeospatialView::GeospatialView(QWidget *parent) :
         "Zoom 8 (max in)",
     };
 
+    //Generates zoom-in and zoom-out buttons
     initializeToolBarButtons();
+
+    //Creates left and right scroll window for world map
     scrollArea = new QScrollArea(this);
     scrollArea->lower();
     scrollArea->resize(this->size());
     std::cout << scrollArea->width() << std::endl;
     world = new GeospatialWidget(scrollArea, scrollArea->size());
 
+    //Populates scroll region with map of the world.
     world->setMinimumSize(1, 1);
     scrollArea->setWidget(world);
 
+    //Connect changes in the viewing window to the GeospatialWidget drawing.
     connect(zoomInButton, SIGNAL(triggered()), this, SLOT(zoomIn()));
     connect(zoomOutButton, SIGNAL(triggered()), this, SLOT(zoomOut()));
     connect(scrollArea->horizontalScrollBar(), SIGNAL(valueChanged(int)),
