@@ -19,6 +19,10 @@ signals:
     void finished(int zoom, const std::vector<QImage>& images);
 
 public slots:
+    /**
+     * @brief work Retrieves zoom level images and stores them in 'images',
+     * and then emits a finished signal with the zoom level and array of images.
+     */
     void work();
 };
 

@@ -1,4 +1,4 @@
-#include "geospatialhelper.h"
+#include "GeospatialHelper.h"
 
 #include <iostream>
 #include <thread>
@@ -16,7 +16,7 @@ GeospatialHelper::work() {
     int zoom = dir.dirName().split("zoom")[1].toInt();
 
     std::vector<QImage> images;
-
+    //Ensures each file ends with '.png'
     dir.setNameFilters(QStringList{ "*.png" });
     dir.setFilter(QDir::Files);
 
@@ -53,14 +53,8 @@ GeospatialHelper::work() {
     //int count = 0;
 
     for (const auto& file : files) {
-        //if (count % 10 == 0)
-        //    std::cout << "file: " << count << "/" << files.size() << std::endl;
-
-        //QPixmap t{ dir.absoluteFilePath(file) };
-        //QPixmap t{ "/home/kyle/.local/share/MUSE/maps/zoom4/" + QString::number(x) + "_" + QString::number(y) + ".png" };
 
         images.push_back(QImage{ dir.absoluteFilePath(file) });
-        //count++;
 
         std::this_thread::sleep_for(100ns);
     }
