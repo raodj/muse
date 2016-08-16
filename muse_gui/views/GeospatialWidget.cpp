@@ -39,6 +39,7 @@
 #include "GeospatialWidget.h"
 #include "MUSEGUIApplication.h"
 #include "GeospatialHelper.h"
+#include "GeospatialDrawHelper.h"
 
 #include <QDir>
 #include <QStringList>
@@ -271,9 +272,20 @@ GeospatialWidget::renderTiles(QPainter* painter, const std::vector<QImage>& map,
         return;
     }
 
+    // --Original--
     painter->drawImage(xCoordinate, yCoordinate, img.scaled(map[std::pow(2, zoomLevel) * x + y].width(),
                                                             map[std::pow(2, zoomLevel) * x + y].height()));
-    std::cout << "drew a tile" << std::endl;
+     /*
+    QThread* t = new QThread();
+    GeospatialDrawHelper* dh = new GeospatialDrawHelper();
+
+    connect(t, SIGNAL(started)), dh, SLOT(work((*)(int,int,QImage*),int,int,QImage*))
+    //dh.work();
+
+    t->start(&drawImage, xCoordinate, yCoordinate, img.scaled(map[std::pow(2, zoomLevel) * x + y].width(),
+             map[std::pow(2, zoomLevel) * x + y].height()));
+    */
+    //std::cout << "drew a tile" << std::endl;
     if (zoomLevel == 8){
         int* tempArray = drawBuildings();
         for (int i = 0; i < 10; i++){

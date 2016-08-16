@@ -12,6 +12,6 @@ GeospatialDrawHelper::GeospatialDrawHelper(/*QObject* parent*/)// : QObject(pare
 }
 
 void
-GeospatialDrawHelper::work(){
-
+GeospatialDrawHelper::work(void (*draw)(int x, int y, QImage *img), int x, int y, QImage *img){
+    draw(x, y, img);
 }
