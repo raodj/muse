@@ -13,7 +13,7 @@ public:
     GeospatialDrawHelper(/*QObject* parent = nullptr*/);
 
 public slots:
-    void work();
+    void work(void (*draw)(int x, int y, QImage *img), int x, int y, QImage *img);
 };
 
 
