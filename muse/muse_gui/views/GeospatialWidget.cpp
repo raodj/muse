@@ -275,23 +275,27 @@ GeospatialWidget::renderTiles(QPainter* painter, const std::vector<QImage>& map,
     // --Original--
     painter->drawImage(xCoordinate, yCoordinate, img.scaled(map[std::pow(2, zoomLevel) * x + y].width(),
                                                             map[std::pow(2, zoomLevel) * x + y].height()));
-     /*
-    QThread* t = new QThread();
-    GeospatialDrawHelper* dh = new GeospatialDrawHelper();
 
-    connect(t, SIGNAL(started)), dh, SLOT(work((*)(int,int,QImage*),int,int,QImage*))
+    QThread t;
+    //Will hold all of the necessary objects and variables for painting these tiles
+    QImage i = img.scaled(map[std::pow(2, zoomLevel) * x + y].width(), map[std::pow(2, zoomLevel) * x + y].height());
+    GeospatialDrawHelper dh(this, painter, xCoordinate, yCoordinate, &i);
+
+
+    //dh.doSetup(t);
+    //dh.moveToThread(&t);
+    //t.start();
     //dh.work();
 
-    t->start(&drawImage, xCoordinate, yCoordinate, img.scaled(map[std::pow(2, zoomLevel) * x + y].width(),
-             map[std::pow(2, zoomLevel) * x + y].height()));
-    */
     //std::cout << "drew a tile" << std::endl;
+
     if (zoomLevel == 8){
         int* tempArray = drawBuildings();
         for (int i = 0; i < 10; i++){
             painter->drawEllipse(i*10, 0, 5, 5);
         }
     }
+
 
 }
 
