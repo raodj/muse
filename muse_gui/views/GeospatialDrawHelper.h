@@ -6,11 +6,11 @@
 #include <QPainter>
 #include <vector>
 
-class GeospatialDrawHelper : public QObject {
+class GeospatialDrawHelper : public QObject{
     Q_OBJECT
 public:
     GeospatialDrawHelper(QObject *parent, QPainter* p, int x, int y, QImage *img);
-    void doSetup(QThread &cThread);
+    void doSetup(QThread *cThread);
     QPainter *painter;
 
 private:
@@ -21,7 +21,6 @@ private:
 
 public slots:
     void work();
-
 
 };
 
