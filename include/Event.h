@@ -71,8 +71,6 @@ class Event {
     friend class LadderQueue;
     friend class HeapBottom;
     friend class HeapEventQueue;
-    template<class T>
-    friend class BinaryHeap;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.
