@@ -52,8 +52,9 @@ public:
         The constructor initializes the vector and creates the
         initial, empty heap.
      */
-    BinaryHeap() {}
-
+    BinaryHeap(){
+       heapContainer = new std::vector<T>; 
+    }
     /** \brief Destructor.
 
         The destructor deletes all allocated memory, in this case, the
@@ -61,7 +62,9 @@ public:
         pointers are not deleted by heap.  If using pointers, it is
         best to use a std::shared_ptr with this heap.
      */
-    ~BinaryHeap() {}
+    ~BinaryHeap() {
+        delete heapContainer;
+    }
 
     /** \brief Get the top element of the heap
 
@@ -70,7 +73,7 @@ public:
 
         \return A reference to the top value.
     */
-    inline T& top() { return heapContainer.front(); }
+    inline T& top() { return heapContainer->front(); }
 
     /** \brief Remove the top element from the heap
 
@@ -78,12 +81,12 @@ public:
         and then fixup the heap.
     */
     void pop() {
-        if (heapContainer.empty()) {
+        if (heapContainer->empty()) {
             return;
         }
-        std::pop_heap(heapContainer.begin(), heapContainer.end(), comp);
-        heapContainer.back();
-        heapContainer.pop_back();
+        std::pop_heap(heapContainer->begin(), heapContainer->end(), comp);
+        heapContainer->back();
+        heapContainer->pop_back();
     }
 
     /** \brief Push an element onto the heap
@@ -99,8 +102,8 @@ public:
     void push(T& value) {
         // Note that any increase in reference counts needs to be done
         // prior to calling this method.
-        heapContainer.push_back(value);
-        std::push_heap(heapContainer.begin(), heapContainer.end(), comp);
+        heapContainer->push_back(value);
+        std::push_heap(heapContainer->begin(), heapContainer->end(), comp);
     }
 
     /** \brief Push an vector of values onto the heap.
@@ -121,13 +124,13 @@ public:
     void push(std::vector<T>& values) {
         // Due to bulk adding, ensure that the heap container has enough
         // capacity.
-        heapContainer.reserve(heapContainer.size() + values.size() + 1);
+        heapContainer->reserve(heapContainer->size() + values.size() + 1);
         // Add each value item to the container.
         for(auto curr = values.begin(); (curr != values.end()); curr++) {
             T val = *curr;
-            heapContainer.push_back(val);
+            heapContainer->push_back(val);
         }
-        std::make_heap(heapContainer.begin(), heapContainer.end(), comp);
+        std::make_heap(heapContainer->begin(), heapContainer->end(), comp);
         // Clear out values in the container as per API expectations
         values.clear();
     }
@@ -149,7 +152,7 @@ public:
     template<typename UnaryPredicate>
     int remove(UnaryPredicate pred) {
         int  numRemoved = 0;
-        long currIdx    = heapContainer.size() - 1;
+        long currIdx    = heapContainer->size() - 1;
         
         // NOTE: Here the heap is sorted based on different comparator
         // (for example: receive time for scheduling).  However, we
@@ -157,22 +160,22 @@ public:
         // one that compares agent ID and sentTime).  Consequently,
         // doing any clever optimizations to minimize iterations will
         // backfire!
-        while (!heapContainer.empty() && (currIdx >= 0)) {
-            ASSERT(currIdx < (long) heapContainer.size());
+        while (!heapContainer->empty() && (currIdx >= 0)) {
+            ASSERT(currIdx < (long) heapContainer->size());
             // A value is deleted only if it matches a given predicate
             // -- for example: An event is removed only if the *sent*
             // time is greater than the antiMessage's and if the event
             // is from same sender
-            if (pred(heapContainer[currIdx])) {
+            if (pred((*heapContainer)[currIdx])) {
                 numRemoved++;
                 // Now it is time to patchup the hole and fix up the heap.
                 // To patch-up we move event from the bottom up to this
                 // slot and then fix-up the heap.
-                heapContainer[currIdx] = heapContainer.back();
-                heapContainer.pop_back();
-                EventQueue::fixHeap(heapContainer, currIdx, comp);
+                (*heapContainer)[currIdx] = heapContainer->back();
+                heapContainer->pop_back();
+                EventQueue::fixHeap(*heapContainer, currIdx, comp);
                 // Update the current index so that it is within bounds.
-                currIdx = std::min<long>(currIdx, heapContainer.size() - 1);
+                currIdx = std::min<long>(currIdx, heapContainer->size() - 1);
             } else {
                 // Check the previous element in the vector to see if that
                 // is a candidate for removal.
@@ -188,21 +191,21 @@ public:
         \return The current size of the heap        
      */
     inline typename std::vector<T>::size_type size() const {
-        return heapContainer.size();
+        return heapContainer->size();
     }
 
     /** \brief Check if the heap is empty
 
         \return True if the heap is empty
      */
-    inline bool empty() const { return heapContainer.empty(); }
+    inline bool empty() const { return heapContainer->empty(); }
     
     /** \brief Get the iterator referring to past the end element in the
          vector container.
       
        \return An iterator to the element past the end of the sequence. 
      */
-    inline typename std::vector<T>::iterator end() {return heapContainer.end();}
+    inline typename std::vector<T>::iterator end() {return heapContainer->end();}
 \
     /** \brief This method is used to search for a specific element
          stored on the heap.
@@ -211,8 +214,8 @@ public:
          heapContainer::end(), if the searched element is not found
      */
     typename std::vector<T>::iterator find(const T& value) {
-        typename std::vector<T>::iterator curr = heapContainer.begin();
-        while(curr!= heapContainer.end()) {
+        typename std::vector<T>::iterator curr = heapContainer->begin();
+        while(curr!= heapContainer->end()) {
             if(*curr == value) {
                 return curr;
             }
@@ -231,7 +234,7 @@ public:
         written.
     */
     void print(std::ostream& os) const {
-        for(auto curr = heapContainer.begin(); curr!= heapContainer.end();
+        for(auto curr = heapContainer->begin(); curr!= heapContainer->end();
                 curr++) {
             T val = *curr;
             os << "[Agent ID: "  << val.getReceiverAgentID() << ", " 
@@ -247,7 +250,7 @@ protected:
 
 private:
     /// The vector backing the heap
-    std::vector<T> heapContainer;
+    std::vector<T>* heapContainer;
 };
 
 END_NAMESPACE(muse);

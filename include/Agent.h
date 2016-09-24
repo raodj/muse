@@ -63,8 +63,6 @@ template<typename T, typename Compare>
 class BinaryHeap;
 class EventQueue;
 class Tier2Entry;
-class EventComp;
-
 class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
@@ -521,25 +519,14 @@ private:
     */
     State* myState;
 
-    /** The BinaryHeapWrapper type eventPQ.
+    /** The BinaryHeap type eventPQ.
         
         This is access to the custom binary heap data structure that
-        houses events to process.  This pointer is used only when
-        Fibonacci heap is being used for scheduling.  Otherwise this
-        list pointer is unused.
+        houses events to process.  
         
-        \see BinaryHeapWrapper()
+        \see BinaryHeap()
     */
-    BinaryHeapWrapper* eventPQ;
-    
-    /** The BinaryHeap type myEventPQ.
-        
-        This is access to the custom binary heap data structure that
-        houses Tier2Entry values for processing. The heap also accepts
-        a custom comparator to be used to order the items in the heap
-        by event receive time.
-    */
-    BinaryHeap<Tier2Entry, EventComp>* myEventPQ;
+   void* eventPQ;
     
     /** The pointer type.
         
