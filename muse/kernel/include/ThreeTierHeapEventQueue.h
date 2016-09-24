@@ -172,8 +172,10 @@ public:
         \return This method returns true if the event queue of the
         top-agent is logically empty.
     */    
-    virtual bool empty() {
-        return (agentList.empty() || top()->eventPQ->empty());
+    virtual bool empty() { 
+        BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+        bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>(top()->eventPQ); 
+        return (agentList.empty() || bh->empty());
     }
 
     /** Obtain pointer to the highest priority (lowest receive time)
@@ -425,11 +427,10 @@ private:
     
     /** Storage for concurrent events.
      * 
-     *  This vector contains the list of Tier2Entry objects that store the 
+     *  This vector contains the list of Tier2Entry objects that can store 
      *  concurrent events. 
-     */
-    std::vector<Tier2Entry> tier2;     
-
+     */ 
+    std::vector<muse::Tier2Entry> tier2;
 };
 
 END_NAMESPACE(muse)

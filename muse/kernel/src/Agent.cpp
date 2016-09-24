@@ -28,7 +28,7 @@
 #include "Simulation.h"
 #include "HashMap.h"
 #include "BinaryHeapWrapper.h"
-
+#include "ThreeTierHeapEventQueue.h"
 #include <iostream>
 #include <cstdlib>
 #include "EventQueue.h"
@@ -41,6 +41,7 @@ Agent::Agent(AgentID id, State* agentState)
       numMPIMessages(0), numCommittedEvents(0), numSchedules(0) {
     // Make an Event Priority Queue
     eventPQ = new BinaryHeapWrapper();
+    eventPQ = new BinaryHeap<muse::Tier2Entry, muse::EventComp>();
     // Initialize fibonacci heap cross references
     fibHeapPtr = NULL;
     oldTopTime = TIME_INFINITY;
@@ -50,17 +51,18 @@ Agent::~Agent() {
     // Let's make sure we dont have any left over events because
     // finalize() method should have properly cleaned up the Priority
     // Queue
-    DEBUG({
-            if (!eventPQ->empty()) {
-                eventPQ->print(std::cout);
-            }
-    });
-    ASSERT(eventPQ->empty());
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+    bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (eventPQ); 
+    //BinaryHeapWrapper *bhw = reinterpret_cast<BinaryHeapWrapper*>(eventPQ); 
+    ASSERT(bh->empty());
+    //ASSERT(bhw->empty());
     ASSERT(inputQueue.empty());
     ASSERT(outputQueue.empty());
     ASSERT(stateQueue.empty());
     
-    delete eventPQ;
+    delete bh;
+    //delete bhw;
     delete myState;
 }
 
@@ -122,11 +124,15 @@ Agent::processNextEvents(muse::EventContainer& events) {
 
 void
 Agent::getNextEvents(EventContainer& container) {
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+    bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (eventPQ); 
     ASSERT(container.empty());
-    ASSERT(eventPQ->top() != NULL);
-    const Time currTime = eventPQ->top()->getReceiveTime();
+    ASSERT( (bh->top().getEvent() != NULL) );
+    
+    const Time currTime = bh->top().getEvent()->getReceiveTime();  
     do {
-        Event* event = eventPQ->top();
+        Event* event = bh->top().getEvent();  
         // We should never process an anti-message.
         if (event->isAntiMessage()) { 
             std::cerr << "Anti-message Processing: " << *event << std::endl;
@@ -157,9 +163,9 @@ Agent::getNextEvents(EventContainer& container) {
         
         // Finally it is safe to remove this event from the eventPQ as
         // it has been added to the inputQueue
-        eventPQ->pop();
-    } while ((!eventPQ->empty()) &&
-             (TIME_EQUALS(eventPQ->top()->getReceiveTime(), currTime)));   
+        bh->pop();
+    } while ((!bh->empty()) &&
+             (TIME_EQUALS(bh->top().getEvent()->getReceiveTime(), currTime)));   
 }
 
 State*
@@ -523,15 +529,24 @@ Agent::getTime(TimeType timeType) const {
 
 Time
 Agent::getTopTime() const {
-    return eventPQ->empty() ? TIME_INFINITY : eventPQ->top()->getReceiveTime();
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+    bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (eventPQ); 
+    return bh->empty() ? TIME_INFINITY : bh->top().getEvent()->getReceiveTime();
 }
 
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const {
-    Time lhs_time = (lhs->eventPQ->empty() ? TIME_INFINITY :
-		     lhs->eventPQ->top()->getReceiveTime());
-    Time rhs_time = (rhs->eventPQ->empty() ? TIME_INFINITY :
-		     rhs->eventPQ->top()->getReceiveTime());
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *lbh;
+    lbh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (lhs->eventPQ);
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *rbh;
+    rbh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (rhs->eventPQ);
+    Time lhs_time = (lbh->empty() ? TIME_INFINITY :
+		     lbh->top().getEvent()->getReceiveTime());
+    Time rhs_time = (rbh->empty() ? TIME_INFINITY :
+		     rbh->top().getEvent()->getReceiveTime());
     return (lhs_time >= rhs_time);
 }
 
@@ -549,10 +564,13 @@ statePrinter(ostream& os, list<muse::State*> state_q ) {
 
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+    bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (agent.eventPQ); 
     os << "Agent[id: "       << agent.getAgentID() << "; "
-       << "Events in heap: " << agent.eventPQ->size();
-    if (!agent.eventPQ->empty()) {
-	DEBUG(os << "; Top Event: " << *agent.eventPQ->top());
+       << "Events in heap: " << bh->size();
+    if (!bh->empty()) {
+	DEBUG(os << "; Top Event: " << *agent.bh->top());
     } else {
 	DEBUG(os << "; Top Event: none");
     }
@@ -563,6 +581,9 @@ operator<<(ostream& os, const muse::Agent& agent) {
 
 void
 Agent::dumpStats(std::ostream& os, const bool printHeader) const {
+    BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
+    bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>
+            (eventPQ); 
     if (printHeader) {
         os << "AgentID\tLVT\tInputQueueSize\tOutputQueueSize\tStateQueueSize\t"
            << "EventQueueSize\t#Sched.Evts\t#Processed.Evts\t#Rollbacks\t"
@@ -575,7 +596,7 @@ Agent::dumpStats(std::ostream& os, const bool printHeader) const {
        << inputQueue.size()  << TAB
        << outputQueue.size() << TAB
        << stateQueue.size()  << TAB
-       << eventPQ->size()    << TAB
+       << bh->size()         << TAB
        << numScheduledEvents << TAB
        << numProcessedEvents << TAB
        << numRollbacks       << TAB

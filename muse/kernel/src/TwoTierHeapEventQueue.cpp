@@ -39,14 +39,16 @@ TwoTierHeapEventQueue::~TwoTierHeapEventQueue() {
 void*
 TwoTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
-    return reinterpret_cast<void*>(agentList.size() - 1);
+    return reinterpret_cast<void*> (agentList.size() - 1);
 }
 
 muse::Event*
 TwoTierHeapEventQueue::front() {
     muse::Event* retVal = NULL;
     if (!empty()) {
-        retVal = top()->eventPQ->top();
+        BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
+                (top()->eventPQ);
+        retVal = bh->top();
     }
     return retVal;
 }
@@ -55,7 +57,7 @@ void
 TwoTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
-        muse::Agent* const agent = top();
+        muse::Agent * const agent = top();
         ASSERT(getIndex(agent) == 0);
         // Have the events give up its next set of events
         agent->getNextEvents(events);
@@ -71,30 +73,36 @@ TwoTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
     // Add event to the agent's heap first.
-    agent->eventPQ->push(event);
+    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
+            (agent->eventPQ);
+    bh->push(event);
     // Now update the position of the agent in this tier for scheduling.
     updateHeap(agent);
 }
 
 void
 TwoTierHeapEventQueue::enqueue(muse::Agent* agent,
-                               muse::EventContainer& events) {
+        muse::EventContainer& events) {
     ASSERT(agent != NULL);
     ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
     // Add events to the agent's 1nd tier heap
-    agent->eventPQ->push(events);
+    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
+            (agent->eventPQ);
+    bh->push(events);
     // Update the 2nd tier heap for scheduling.
     updateHeap(agent);
 }
 
 int
 TwoTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
-                                  const muse::Time sentTime) {
+        const muse::Time sentTime) {
     ASSERT(dest != NULL);
     ASSERT(getIndex(dest) < agentList.size());
     // Get agent's heap to cancel out events.
-    int numRemoved = dest->eventPQ->removeFutureEvents(sender, sentTime);
+    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
+            (dest->eventPQ);
+    int numRemoved = bh->removeFutureEvents(sender, sentTime);
     // Update the 2nd tier heap for scheduling.
     updateHeap(dest);
     return numRemoved;
@@ -114,7 +122,7 @@ TwoTierHeapEventQueue::prettyPrint(std::ostream& os) const {
 size_t
 TwoTierHeapEventQueue::getIndex(muse::Agent *agent) const {
     ASSERT(agent != NULL);
-    size_t index = reinterpret_cast<size_t>(agent->fibHeapPtr);
+    size_t index = reinterpret_cast<size_t> (agent->fibHeapPtr);
     ASSERT(index < agentList.size());
     ASSERT(agentList[index] == agent);
     return index;
@@ -142,43 +150,43 @@ TwoTierHeapEventQueue::updateHeap(muse::Agent* agent) {
 size_t
 TwoTierHeapEventQueue::fixHeap(size_t currPos) {
     ASSERT(currPos < agentList.size());
-    muse::Agent* value    = agentList[currPos];
-    const size_t len      = (agentList.size() - 1) / 2;
-    size_t secondChild    = currPos;
+    muse::Agent* value = agentList[currPos];
+    const size_t len = (agentList.size() - 1) / 2;
+    size_t secondChild = currPos;
     // This code was borrowed from libstdc++ implementation to ensure
     // that the fix-ups are consistent with std::make_heap API.
-    while (secondChild < len)  {
+    while (secondChild < len) {
         secondChild = 2 * (secondChild + 1);
         if (compare(agentList[secondChild], agentList[secondChild - 1])) {
             secondChild--;
         }
         agentList[currPos] = std::move(agentList[secondChild]);
-        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
+        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*> (currPos);
         currPos = secondChild;
     }
     if (((agentList.size() & 1) == 0) &&
-        (secondChild == (agentList.size() - 2) / 2)) {
-        secondChild        = 2 * (secondChild + 1);
+            (secondChild == (agentList.size() - 2) / 2)) {
+        secondChild = 2 * (secondChild + 1);
         agentList[currPos] = std::move(agentList[secondChild - 1]);
-        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
-        currPos            = secondChild - 1;
+        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*> (currPos);
+        currPos = secondChild - 1;
     }
     // Use libstdc++'s internal method to fix-up the vector from the
     // given location.
     // std::__push_heap(agentList.begin(), currPos, 0, value,
     //                 __gnu_cxx::__ops::__iter_comp_val(compare));
-    
+
     size_t parent = (currPos - 1) / 2;
-    while ((currPos > 0) && (compare(agentList[parent],value))) {
+    while ((currPos > 0) && (compare(agentList[parent], value))) {
         agentList[currPos] = std::move(agentList[parent]);
-        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
+        agentList[currPos]->fibHeapPtr = reinterpret_cast<void*> (currPos);
         currPos = parent;
-        parent  = (currPos - 1) / 2;
+        parent = (currPos - 1) / 2;
     }
     agentList[currPos] = value;
-    agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
+    agentList[currPos]->fibHeapPtr = reinterpret_cast<void*> (currPos);
     // Return the final index position for the agent
-    return currPos;    
+    return currPos;
 }
 
 

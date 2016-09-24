@@ -13,7 +13,7 @@
  */
 
 #ifndef AGENTPQ_H
-#define	AGENTPQ_H
+#define AGENTPQ_H
 
 #include <functional>
 #include <vector>
@@ -24,59 +24,89 @@
 BEGIN_NAMESPACE(muse);
 
 class AgentPQ : public EventQueue {
-
+    
 protected:
     //This is the node define. what the fibonacci heap will maintain.
     class node {
     public:
-        node(Agent * data): m_parent(0), m_lost_child(0), m_data(data) { m_children.reserve(8); }
-        ~node() {}
 
-        void      destroy();
-        node*     join(node* tree); // add tree as a child
-        void      cut(node* child); // remove the child
-    
-        int       lost_child() const { return m_lost_child; }
-        void      clear()            { m_parent = 0; m_lost_child = 0; }
-        int       rank() const       { return m_children.size(); }
-        bool      is_root() const    { return m_parent == 0; }
-        node*     parent() const     { return m_parent; }
-        void      remove_all()       { m_children.erase(m_children.begin(), m_children.end()); }
-        Agent*    data() const       { return m_data; }
-        void      data(Agent* data)  { m_data = data; }
+        node(Agent * data) : m_parent(0), m_lost_child(0), m_data(data) {
+            m_children.reserve(8);
+        }
+
+        ~node() {
+        }
+
+        void destroy();
+        node* join(node* tree); // add tree as a child
+        void cut(node* child); // remove the child
+
+        int lost_child() const {
+            return m_lost_child;
+        }
+
+        void clear() {
+            m_parent = 0;
+            m_lost_child = 0;
+        }
+
+        int rank() const {
+            return m_children.size();
+        }
+
+        bool is_root() const {
+            return m_parent == 0;
+        }
+
+        node* parent() const {
+            return m_parent;
+        }
+
+        void remove_all() {
+            m_children.erase(m_children.begin(), m_children.end());
+        }
+
+        Agent* data() const {
+            return m_data;
+        }
+
+        void data(Agent* data) {
+            m_data = data;
+        }
 
         std::vector<node*>::const_iterator begin() const {
             return m_children.begin();
         }
+
         std::vector<node*>::const_iterator end() const {
             return m_children.end();
         }
 
-        void ppHelper(std::ostream& os, const std::string &indent) const{
-            os << indent <<((is_root()) ? "*" : ">") << *data() << std::endl;
-            for (size_t i=0; (i <  m_children.size()); i++) {
-                if ( m_children[i] != 0 ){
+        void ppHelper(std::ostream& os, const std::string &indent) const {
+            os << indent << ((is_root()) ? "*" : ">") << *data() << std::endl;
+            for (size_t i = 0; (i < m_children.size()); i++) {
+                if (m_children[i] != 0) {
                     m_children[i]->ppHelper(os, indent + "-");
                 }
             }//end for
         }//end ppHelper
 
     private:
-        int                m_index;  // index of the object in the parent's vector
-        node*              m_parent; // pointer to the parent node
+        int m_index; // index of the object in the parent's vector
+        node* m_parent; // pointer to the parent node
         std::vector<node*> m_children;
-        int                m_lost_child;
-        Agent*             m_data;
+        int m_lost_child;
+        Agent* m_data;
 
         node(node const&);
-        void operator= (node const&);
+        void operator=(node const&);
     };
 
 protected:
     std::vector<node*> m_roots;
-    int                m_size;
+    int m_size;
 
-public:  
+public:
     typedef node* pointer;
 
     AgentPQ();
@@ -96,7 +126,7 @@ public:
         \return This method returns a pointer to the node that was
         created.  This node is never deleted and is strictly
         associated with the agent.
-    */
+     */
     virtual void* addAgent(Agent* data);
 
     /** Determine if the event queue is empty.
@@ -106,8 +136,14 @@ public:
 
         \return This method returns true if the heap is logically
         empty.
-    */
-    virtual bool empty() { return (m_size == 0) || (top()->eventPQ->empty()); }
+     */
+    virtual bool empty() {
+        BinaryHeapWrapper *bh;
+        bh = reinterpret_cast<BinaryHeapWrapper*>
+                (top()->eventPQ);
+        
+        return (m_size == 0) || (bh->empty());
+    }
 
     /** Obtain pointer to the highest priority (lowest receive time)
         event.
@@ -120,7 +156,7 @@ public:
         
         \return A pointer to the next event to be processed.  If the
         heap is empty then this method returns NULL.
-    */    
+     */
     virtual muse::Event* front();
 
     /** Method to obtain the next batch of events to be processed by
@@ -134,7 +170,7 @@ public:
         \param[out] events The event container in which the next set
         of concurrent events are to be placed.  Note that the order of
         concurrent events in the event container is unspecified.
-    */
+     */
     virtual void dequeueNextAgentEvents(muse::EventContainer& events);
 
     /** Enqueue a new event.
@@ -149,7 +185,7 @@ public:
         
         \param[in] event The event to be enqueued.  This parameter can
         never be NULL.
-    */
+     */
     virtual void enqueue(muse::Agent* agent, muse::Event* event);
 
     /** Enqueue a batch of events.
@@ -166,7 +202,7 @@ public:
 
         \param[in] event The event to be enqueued.  This parameter can
         never be NULL.
-    */
+     */
     virtual void enqueue(muse::Agent* agent, muse::EventContainer& events);
 
     /** Dequeue all events sent by an agent after a given time.
@@ -191,21 +227,26 @@ public:
 
         \return This method returns the number of events actually
         removed.
-    */
+     */
     virtual int eraseAfter(muse::Agent* dest, const muse::AgentID sender,
-                           const muse::Time sentTime);
-    
-    Agent*   top();   
-    void     update(pointer n, double old_top_time);
+            const muse::Time sentTime);
+
+    Agent* top();
+    void update(pointer n, double old_top_time);
     //void     remove(pointer);
 
-    bool     empty() const { return m_size == 0; }
-    int      size()  const  { return m_size; }
+    bool empty() const {
+        return m_size == 0;
+    }
+
+    int size() const {
+        return m_size;
+    }
 
     virtual void prettyPrint(std::ostream& os) const {
-        for (size_t i=0; (i < m_roots.size()); i++){
-            if (m_roots[i] != 0 ){
-                m_roots[i]->ppHelper(os,"-");
+        for (size_t i = 0; (i < m_roots.size()); i++) {
+            if (m_roots[i] != 0) {
+                m_roots[i]->ppHelper(os, "-");
             }
         }
     }
@@ -219,26 +260,26 @@ public:
 
         \param[out] os The output stream to which the statistics are
         to be written.
-    */
+     */
     virtual void reportStats(std::ostream& os);
-    
+
 private:
-    void     decrease(pointer, Agent*);
-    void     increase(pointer, Agent*);
-    void     add_root(node* n);
-    void     cut(node* n);
-    void     find_min() const;
+    void decrease(pointer, Agent*);
+    void increase(pointer, Agent*);
+    void add_root(node* n);
+    void cut(node* n);
+    void find_min() const;
     mutable node* m_min;
-  
-    inline bool compare(const Agent *lhs, const Agent * rhs){
+
+    inline bool compare(const Agent *lhs, const Agent * rhs) {
         return (lhs->getTopTime() >= rhs->getTopTime());
     }
- 
-    AgentPQ(AgentPQ const&);         // deliberately not implemented
-    void operator=(AgentPQ const&);  // deliberately not implemented
+
+    AgentPQ(AgentPQ const&); // deliberately not implemented
+    void operator=(AgentPQ const&); // deliberately not implemented
 };
 
 
 END_NAMESPACE(muse); //end namespace
 
-#endif	/* AGENTPQ_H */
+#endif /* AGENTPQ_H */
