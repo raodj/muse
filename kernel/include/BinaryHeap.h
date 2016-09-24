@@ -52,9 +52,7 @@ public:
         The constructor initializes the vector and creates the
         initial, empty heap.
      */
-    BinaryHeap(){
-       heapContainer = new std::vector<T>; 
-    }
+    BinaryHeap(){ heapContainer = new std::vector<T>; }
     /** \brief Destructor.
 
         The destructor deletes all allocated memory, in this case, the
@@ -62,9 +60,7 @@ public:
         pointers are not deleted by heap.  If using pointers, it is
         best to use a std::shared_ptr with this heap.
      */
-    ~BinaryHeap() {
-        delete heapContainer;
-    }
+    ~BinaryHeap() { delete heapContainer; }
 
     /** \brief Get the top element of the heap
 

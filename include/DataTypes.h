@@ -72,7 +72,7 @@ typedef unsigned int SimulatorID;
     
     Holds a collection of agents, this is basically a set of
     Agents. Always use the AgentContainer type, because the underlying
-    implamentation could change.
+    implementation could change.
 */
 typedef std::vector<Agent*> AgentContainer;
 
