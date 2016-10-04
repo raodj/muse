@@ -173,9 +173,7 @@ public:
         top-agent is logically empty.
     */    
     virtual bool empty() { 
-        BinaryHeap<muse::Tier2Entry, muse::EventComp> *bh;
-        bh = reinterpret_cast<BinaryHeap<muse::Tier2Entry, muse::EventComp>*>(top()->eventPQ); 
-        return (agentList.empty() || bh->empty());
+        return (agentList.empty() || top()->schedRef.tier2eventPQ->empty());
     }
 
     /** Obtain pointer to the highest priority (lowest receive time)

@@ -46,9 +46,7 @@ muse::Event*
 TwoTierHeapEventQueue::front() {
     muse::Event* retVal = NULL;
     if (!empty()) {
-        BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-                (top()->eventPQ);
-        retVal = bh->top();
+        retVal = top()->schedRef.eventPQ->top();
     }
     return retVal;
 }
@@ -73,9 +71,7 @@ TwoTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
     // Add event to the agent's heap first.
-    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (agent->eventPQ);
-    bh->push(event);
+    agent->schedRef.eventPQ->push(event);
     // Now update the position of the agent in this tier for scheduling.
     updateHeap(agent);
 }
@@ -87,9 +83,7 @@ TwoTierHeapEventQueue::enqueue(muse::Agent* agent,
     ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
     // Add events to the agent's 1nd tier heap
-    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (agent->eventPQ);
-    bh->push(events);
+    agent->schedRef.eventPQ->push(events);
     // Update the 2nd tier heap for scheduling.
     updateHeap(agent);
 }
@@ -100,9 +94,7 @@ TwoTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
     ASSERT(dest != NULL);
     ASSERT(getIndex(dest) < agentList.size());
     // Get agent's heap to cancel out events.
-    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (dest->eventPQ);
-    int numRemoved = bh->removeFutureEvents(sender, sentTime);
+    int numRemoved = dest->schedRef.eventPQ->removeFutureEvents(sender, sentTime);
     // Update the 2nd tier heap for scheduling.
     updateHeap(dest);
     return numRemoved;

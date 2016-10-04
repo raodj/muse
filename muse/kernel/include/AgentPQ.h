@@ -138,11 +138,7 @@ public:
         empty.
      */
     virtual bool empty() {
-        BinaryHeapWrapper *bh;
-        bh = reinterpret_cast<BinaryHeapWrapper*>
-                (top()->eventPQ);
-        
-        return (m_size == 0) || (bh->empty());
+        return (m_size == 0) || (top()->schedRef.eventPQ->empty());
     }
 
     /** Obtain pointer to the highest priority (lowest receive time)
