@@ -96,9 +96,7 @@ public:
         top-agent is logically empty.
     */    
     virtual bool empty() {
-        BinaryHeapWrapper *bh;
-        bh = reinterpret_cast<BinaryHeapWrapper*>(top()->eventPQ);
-        return (agentList.empty() || bh->empty());
+        return (agentList.empty() || top()->schedRef.eventPQ->empty());
     }
 
     /** Obtain pointer to the highest priority (lowest receive time)

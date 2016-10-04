@@ -63,6 +63,7 @@ template<typename T, typename Compare>
 class BinaryHeap;
 class EventQueue;
 class Tier2Entry;
+class EventComp;
 class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
@@ -519,14 +520,25 @@ private:
     */
     State* myState;
 
-    /** The BinaryHeap type eventPQ.
+    union {
+        /** The BinaryHeap type eventPQ.
         
-        This is access to the custom binary heap data structure that
-        houses events to process.  
+            This is access to the custom binary heap data structure that
+            houses events to process.  
         
-        \see BinaryHeap()
-    */
-   void* eventPQ;
+            \see BinaryHeap()
+         */
+        BinaryHeapWrapper* eventPQ;
+
+        /** The BinaryHeap type myEventPQ.
+        
+            This is access to the custom binary heap data structure that
+            houses Tier2Entry objects to process.  
+        
+            \see BinaryHeap()
+         */
+        BinaryHeap<muse::Tier2Entry, EventComp>* tier2eventPQ;
+    } schedRef;
     
     /** The pointer type.
         

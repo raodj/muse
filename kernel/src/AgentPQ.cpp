@@ -252,9 +252,7 @@ muse::Event*
 AgentPQ::front() {
     muse::Event* retVal = NULL;
     if (!empty()) {
-        BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-                (top()->eventPQ);
-        retVal = bh->top();
+        retVal = top()->schedRef.eventPQ->top();
     }
     return retVal;
 }
@@ -273,9 +271,7 @@ AgentPQ::dequeueNextAgentEvents(muse::EventContainer& events) {
 
 void
 AgentPQ::enqueue(muse::Agent* agent, muse::Event* event) {
-    BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (agent->eventPQ);
-    bh->push(event);
+    agent->schedRef.eventPQ->push(event);
     pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
     update(ptr, agent->oldTopTime);
     agent->oldTopTime = agent->getTopTime();
@@ -284,9 +280,7 @@ AgentPQ::enqueue(muse::Agent* agent, muse::Event* event) {
 void
 AgentPQ::enqueue(muse::Agent* agent, muse::EventContainer& events) {
     const Time oldTopTime = agent->oldTopTime;
-        BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (agent->eventPQ);
-    bh->push(events);
+    agent->schedRef.eventPQ->push(events);
     pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
     update(ptr, oldTopTime);
     agent->oldTopTime = agent->getTopTime();
@@ -296,9 +290,7 @@ int
 AgentPQ::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
         const muse::Time sentTime) {
     const Time oldTopTime = dest->oldTopTime;
-        BinaryHeapWrapper *bh = reinterpret_cast<BinaryHeapWrapper*>
-            (dest->eventPQ);
-    int numRemoved = bh->removeFutureEvents(sender, sentTime);
+    int numRemoved = dest->schedRef.eventPQ->removeFutureEvents(sender, sentTime);
     pointer ptr = reinterpret_cast<pointer>(dest->fibHeapPtr);
     update(ptr, oldTopTime);
     dest->oldTopTime = dest->getTopTime();
