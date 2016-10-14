@@ -25,6 +25,7 @@
 #include <vector>
 #include "EventQueue.h"
 #include "BinaryHeapWrapper.h"
+#include "TwoTierHeapAdapter.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -72,20 +73,37 @@ public:
     /** Add/register an agent with the event queue.
 
         <p>This method implements the corresponding API method in the
-        class.  Refer to the API documentation in the base class for
-        intended functionality.</p>
+        EventQueue class.  Refer to the API documentation in the base
+        class for intended functionality.</p>
 
         <p>This class uses the supplied agent pointer to setup the
         list of agents managed and scheduled by this class.</p>
 
         \param[in,out] agent A pointer to the agent to be registered.
-        This value is not used.
+        This parameter is used to setup the TwoTierHeapAdapter object
+        associated with the agent.
 
         \return This method returns the iterator to the position of
         the agent in its internal vector as a cross-reference to be
         stored in an agent.
     */    
     virtual void* addAgent(muse::Agent* agent);
+
+    /** Remove/unregister an agent with this event queue.
+
+        <p>This method implements the corresponding API method in the
+        EventQueue class.  Refer to the API documentation in the base
+        class for intended functionality.</p>
+
+        <p>This class uses the supplied agent pointer to delete the
+        TwoTierHeapAdapter object associated with the agent by the
+        addAgent method.</p>
+
+        \param[in,out] agent A pointer to the agent to be registered.
+        This parameter is used to delete the TwoTierHeapAdapter object
+        associated with the agent.
+    */
+    virtual void removeAgent(muse::Agent* agent);
     
     /** Determine if the event queue is empty.
         
@@ -226,6 +244,19 @@ public:
     virtual void reportStats(std::ostream& os);
 
 protected:
+    /** Convenience method to get the top-event time for a given
+        agent.
+
+        This method is a convenience wrapper to call
+        BinaryHeapWrapper::getTopTime() method.
+        
+        \return The receive time of top event's recv time or
+        TIME_INFINITY if heap is empty.
+    */
+    muse::Time getTopTime(const muse::Agent* const agent) const {
+        return agent->schedRef.agentEventHeap->getTopTime();
+    }
+    
     /** Comparator method to sort events in the heap.
 
         This is the comparator method that is passed to various
@@ -243,9 +274,9 @@ protected:
         \return This method returns if lhs < rhs, i.e., the lhs event
         should be scheduled before the rhs event.
     */
-    inline static  bool compare(const muse::Agent* const lhs,
-                                const muse::Agent* const rhs) {
-        return (lhs->getTopTime() >= rhs->getTopTime());
+    inline bool compare(const muse::Agent* const lhs,
+                        const muse::Agent* const rhs) {
+        return getTopTime(lhs) >= getTopTime(rhs);
     }
 
     /** Convenience method to obtain the top-most or front agent.

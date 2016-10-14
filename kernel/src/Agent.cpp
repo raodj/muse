@@ -39,9 +39,9 @@ Agent::Agent(AgentID id, State* agentState)
     : myID(id), lvt(0), myState(agentState), mustSaveState(true),
       numRollbacks(0), numScheduledEvents(0), numProcessedEvents(0),
       numMPIMessages(0), numCommittedEvents(0), numSchedules(0) {
-    // Make an Event Priority Queue
-    schedRef.eventPQ = new BinaryHeapWrapper();
-    schedRef.tier2eventPQ = new BinaryHeap<muse::Tier2Entry, muse::EventComp>();
+    // The event queue creation now happens in respective queue
+    // classes derived from EventQueue (in addAgent() method).
+
     // Initialize fibonacci heap cross references
     fibHeapPtr = NULL;
     oldTopTime = TIME_INFINITY;
@@ -51,15 +51,9 @@ Agent::~Agent() {
     // Let's make sure we dont have any left over events because
     // finalize() method should have properly cleaned up the Priority
     // Queue
-
-   // ASSERT(schedRef.eventPQ->empty());
-    ASSERT(schedRef.tier2eventPQ->empty());
     ASSERT(inputQueue.empty());
     ASSERT(outputQueue.empty());
     ASSERT(stateQueue.empty());
-    
-    //delete schedRef.eventPQ;
-    delete schedRef.tier2eventPQ;
     delete myState;
 }
 
@@ -88,9 +82,7 @@ Agent::saveState() {
         allSimStreams[i]->saveState(getLVT());
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " saved state at "
-                    << getLVT() << ". Next event time: "
-                    << (!schedRef->eventPQ->empty() ? schedRef->eventPQ->top()->getReceiveTime() :
-                        TIME_INFINITY) << std::endl);
+                    << getLVT());
 }
 
 void

@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          meseret.gebre@gmail.com
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -139,6 +138,14 @@ public:
     */
     int removeFutureEvents(const muse::AgentID sender,
                            const muse::Time sentTime);
+
+    /** Remove all events in this heap.
+
+        This is a convenience method that is used to remove all
+        pending events in this heap.  This method is handy when an
+        agent is logically removed from a scheduler queue.
+    */
+    void clear();
     
     /** \brief Get the current size of the heap
 
@@ -165,6 +172,20 @@ public:
     */
     void print(std::ostream& os) const;
 
+    /** Convenience method to return receive time of the lowest
+        timestamp event in this heap (for a given agent).
+        
+        Simply returns the receive Time of the top event in this
+        heap. If heap is empty then TIME_INIFINITY is returned. This
+        is used heavily in AgentPQ class.
+		
+        \return The receive time of top event recv time or
+        TIME_INFINITY if heap is empty.
+    */
+    inline muse::Time getTopTime() const {
+        return empty() ? TIME_INFINITY : top()->getReceiveTime();
+    }
+    
 protected:
     // Currently, this class does not have any protected members
 

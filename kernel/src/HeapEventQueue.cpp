@@ -41,6 +41,38 @@ HeapEventQueue::addAgent(muse::Agent* agent) {
     return NULL;
 }
 
+void
+HeapEventQueue::removeAgent(muse::Agent* agent) {
+    ASSERT( agent != NULL );
+    const AgentID id = agent->getAgentID();
+    long currIdx     = eventList.size() - 1;
+    // NOTE: Here the heap is sorted based on receive time for
+    // scheduling.  However, we are canceling based on sentTime.
+    // Consequently, doing any clever optimizations to minimize
+    // iterations will backfire!
+    while (!eventList.empty() && (currIdx >= 0)) {
+        Event* const evt = eventList[currIdx];
+        ASSERT(evt != NULL);
+        // the antiMessage's and if the event is from same sender
+        if (evt->getReceiverAgentID() == id) {
+            // This event is for the agent being removed. Delete it.
+            evt->decreaseReference();
+            // Now it is time to patchup the hole and fix up the heap.
+            // To patch-up we move event from the bottom up to this
+            // slot and then fix-up the heap.
+            eventList[currIdx] = eventList.back();
+            eventList.pop_back();
+            EventQueue::fixHeap(eventList, currIdx, compare);
+            // Update the current index so that it is within bounds.
+            currIdx = std::min<long>(currIdx, eventList.size() - 1);
+        } else {
+            // Check the previous element in the vector to see if that
+            // is a candidate for cancellation.
+            currIdx--;
+        }
+    }
+}
+
 muse::Event*
 HeapEventQueue::front() {
     return !empty() ? eventList.front() : NULL;

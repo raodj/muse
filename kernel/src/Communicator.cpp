@@ -20,7 +20,6 @@
 //
 // Authors: Meseret R. Gebre       meseret.gebre@gmail.com
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org  
 //
 //---------------------------------------------------------------------------
 
