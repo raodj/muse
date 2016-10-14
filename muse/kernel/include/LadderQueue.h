@@ -145,6 +145,15 @@ public:
 
     int remove_after(muse::AgentID sender, const Time sendTime);
 
+    /** Remove all events for a given receiver agent ID.
+
+        This is a convenience method that removes all events for a
+        given receiver agent.  This method is used to remove events
+        scheduled for an agent, when an agent is removed from the
+        scheduler.
+    */
+    int remove(muse::AgentID receiver);
+    
     // The method below is purely for troubleshooting one scenario
     // where an event would get stuck in the ladder and not get
     // scheduled correctly.
@@ -197,6 +206,16 @@ public:
 
     int remove_after(muse::AgentID sender, const Time sendTime);
 
+    /** Remove all events in thisd vector bucket for a given receiver
+        agent ID.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this bucket.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver);
+    
     // The method below is purely for troubleshooting one scenario
     // where an event would get stuck in the ladder and not get
     // scheduled correctly.
@@ -234,6 +253,17 @@ public:
     int size() const { return events.size(); }
 
     int remove_after(muse::AgentID sender, const Time sendTime);
+
+    /** Remove all events for a given receiver agent in the bucket
+        encapsulated by this object.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this object.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver);
+    
     // The method below is purely for troubleshooting one scenario
     // where an event would get stuck in the ladder and not get
     // scheduled correctly.
@@ -265,6 +295,17 @@ public:
     }
 
     int remove_after(muse::AgentID sender, const Time sendTime);
+    
+    /** Remove all events for a given receiver agent in the bucket
+        encapsulated by this object.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this object.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver);
+    
     void dequeueNextAgentEvents(muse::EventContainer& events);
     muse::Time maxTime();  // purely for debugging
 
@@ -302,6 +343,17 @@ public:
     bool empty() const { return sel.empty();  }
 
     int remove_after(muse::AgentID sender, const Time sendTime);
+
+    /** Remove all events for a given receiver agent in the bucket
+        encapsulated by this object.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this object.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver);
+
     void dequeueNextAgentEvents(muse::EventContainer& events);
     muse::Time maxTime() const;  // purely for debugging
     muse::Time findMinTime() const; // purely for debugging
@@ -348,6 +400,17 @@ public:
 
     int remove_after(muse::AgentID sender, const Time sendTime
                      LQ_STATS(COMMA Avg& ceScanRung));
+
+    /** Remove all events for a given receiver agent in this rung.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this rung.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver
+               LQ_STATS(COMMA Avg& ceScanRung));
+    
     void validateEventCounts() const;
     void prettyPrint(std::ostream& os) const;
     
@@ -391,6 +454,7 @@ public:
     }
 
     virtual void* addAgent(muse::Agent* agent);
+    virtual void removeAgent(muse::Agent* agent);
     virtual muse::Event* front();
     virtual void dequeueNextAgentEvents(muse::EventContainer& events);
     virtual void enqueue(muse::Agent* agent, muse::Event* event);

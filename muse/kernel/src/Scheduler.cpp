@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -43,6 +42,18 @@ Scheduler::addAgentToScheduler(Agent* agent) {
     if (agentMap[agent->getAgentID()] == NULL) {
         agentMap[agent->getAgentID()] = agent;
         agent->fibHeapPtr = agentPQ->addAgent(agent);
+        return true;
+    }
+    return false;
+}
+
+bool
+Scheduler::removeAgentFromScheduler(Agent* agent) {
+    ASSERT(agent != NULL);
+    if (agentMap[agent->getAgentID()] == NULL) {
+        agentPQ->removeAgent(agent);  // remove agent from scheduler.
+        // Clear out agent entry in our internal look-up map.
+        agentMap[agent->getAgentID()] = NULL;
         return true;
     }
     return false;

@@ -73,6 +73,28 @@ muse::ListBucket::haveBefore(const Time recvTime) const {
     return false;
 }
 
+int
+muse::ListBucket::remove(muse::AgentID receiver) {
+    size_t removedCount = 0;
+    ListBucket::iterator next = list.before_begin();
+    ListBucket::iterator curr = next++;
+    while (next != list.end()) {
+        muse::Event* const event = *next;
+        if (event->getReceiverAgentID() == receiver) {
+            list.erase_after(curr);
+            event->decreaseReference();
+            removedCount++;
+            next = curr;
+            next++;
+        } else {
+            next++;  // on to the next events
+            curr++;  // track both iterators.
+        }
+    }
+    count -= removedCount;  // Track remaining events
+    return removedCount;    
+}
+
 // ----------------------[ VectorBucket methods ]-----------------------
 
 muse::VectorBucket::~VectorBucket() {
@@ -89,6 +111,24 @@ muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
         muse::Event* const event = list[curr];
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
+            list.erase(list.begin() + curr);
+            event->decreaseReference();
+            removedCount++;
+        } else {
+            curr++;
+        }
+    }
+    count -= removedCount;  // Track remaining events
+    return removedCount;
+}
+
+int
+muse::VectorBucket::remove(muse::AgentID receiver) {
+    size_t removedCount = 0;
+    size_t curr = 0;
+    while (curr < list.size()) {
+        muse::Event* const event = list[curr];
+        if (event->getReceiverAgentID() == receiver) {
             list.erase(list.begin() + curr);
             event->decreaseReference();
             removedCount++;
@@ -137,6 +177,11 @@ muse::Top::remove_after(muse::AgentID sender, const Time sendTime) {
     return events.remove_after(sender, sendTime);
 }
 
+int
+muse::Top::remove(muse::AgentID receiver) {
+    return events.remove(receiver);
+}
+
 // ---------------------------[ Bottom methods ]-----------------------------
 
 void
@@ -171,6 +216,11 @@ muse::Bottom::enqueue(muse::Event* event) {
 int
 muse::Bottom::remove_after(muse::AgentID sender, const Time sendTime) {
     return sel.remove_after(sender, sendTime);
+}
+
+int
+muse::Bottom::remove(muse::AgentID receiver) {
+    return sel.remove(receiver);
 }
 
 void
@@ -265,6 +315,28 @@ muse::HeapBottom::remove_after(muse::AgentID sender, const Time sendTime) {
         muse::Event* const event = *curr;
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
+            event->decreaseReference();
+            removedCount++;
+        } else {
+            retained.push_back(event);
+        }
+    }
+    // Update the sel with list of retained events
+    sel.swap(retained);
+    std::make_heap(sel.begin(), sel.end(), Bottom::compare);
+    return removedCount;
+}
+
+int
+muse::HeapBottom::remove(muse::AgentID receiver) {
+    // Copy events to be retained into a temporary vector and finally
+    // swap it with sel.
+    size_t removedCount = 0;
+    EventVector retained;
+    retained.reserve(sel.size());
+    for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
+        muse::Event* const event = *curr;
+        if (event->getReceiverAgentID() == receiver) {
             event->decreaseReference();
             removedCount++;
         } else {
@@ -460,6 +532,25 @@ muse::Rung::remove_after(muse::AgentID sender, const Time sendTime
             (rStartTS + (bucketNum + 1) * bucketWidth) >= sendTime) {
             LQ_STATS(ceScanRung += bucketList[bucketNum].size());
             numRemoved += bucketList[bucketNum].remove_after(sender, sendTime);
+        }
+    }
+    rungEventCount -= numRemoved;
+    DEBUG(validateEventCounts());
+    return numRemoved;
+}
+
+int
+muse::Rung::remove(muse::AgentID receiver
+                   LQ_STATS(COMMA Avg& ceScanRung)) {
+    if (empty()) {
+        return 0;
+    }
+    int numRemoved = 0;
+    for (size_t bucketNum = currBucket; (bucketNum < bucketList.size());
+         bucketNum++) {
+        if (!bucketList[bucketNum].empty()) {
+            LQ_STATS(ceScanRung += bucketList[bucketNum].size());
+            numRemoved += bucketList[bucketNum].remove(receiver);
         }
     }
     rungEventCount -= numRemoved;
@@ -758,6 +849,31 @@ muse::LadderQueue::addAgent(muse::Agent* agent) {
     UNUSED_PARAM(agent);
     return NULL;
 }
+
+void
+muse::LadderQueue::removeAgent(muse::Agent* agent) {
+    ASSERT( agent != NULL );
+    const AgentID receiver = agent->getAgentID();
+    // Remove events for agent from top
+    LQ_STATS(ceScanTop += top.size());
+    int numRemoved    = top.remove(receiver);
+    LQ_STATS(ceTop += numRemoved);
+    
+    // Next remove events for agent from all the rungs in the ladder
+    for (Rung& rung : ladder) {
+        int rungEvtRemoved = rung.remove(agent->getAgentID()
+                                         LQ_STATS(COMMA ceBot));
+        ladderEventCount  -= rungEvtRemoved;
+        numRemoved        += rungEvtRemoved;
+        LQ_STATS(ceLadder += rungEvtRemoved);
+    }
+    // Finally remove events from bottom for the agent.
+    LQ_STATS(ceScanBot  += bottom.size());
+    const int botRemoved = bottom.remove(receiver);
+    numRemoved          += botRemoved;
+    LQ_STATS(ceBot      += botRemoved);
+}
+
 
 muse::Event*
 muse::LadderQueue::front() {

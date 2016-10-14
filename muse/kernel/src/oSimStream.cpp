@@ -19,7 +19,6 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //
 //---------------------------------------------------------------------------
@@ -180,6 +179,12 @@ oSimStream::garbageCollect(const Time& gvt){
             //now we delete the state and pop from storage
             delete current_state;
             oSimStreamState_storage.pop_front();
+        }
+        // Finally dump anything in our intermediate oss buffer if
+        // time is infinity (that is end of simulation)
+        if (gvt == TIME_INFINITY) {
+            the_original_ostream->write(oss->str().c_str(),
+                                        oss->str().length());
         }
     }
 }

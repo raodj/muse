@@ -71,6 +71,8 @@ class Event {
     friend class LadderQueue;
     friend class HeapBottom;
     friend class HeapEventQueue;
+    friend class TwoTierHeapAdapter;
+    friend class AgentPQ;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.
@@ -104,7 +106,14 @@ public:
     inline Time getReceiveTime() const { return receiveTime; }
 
     inline int getReferenceCount() const {return referenceCount; }
+
   
+    /** \brief Determine if this Event is an anti-message
+        
+        \return True if this event is an anti-message.
+    */
+    inline bool isAntiMessage() const { return antiMessage; }
+
 protected:
     /** \brief Type-setting constructor
         
@@ -174,12 +183,6 @@ protected:
         users. MUSE uses this to handle memory for you.
     */
     void increaseReference();
-  
-    /** \brief Determine if this Event is an anti-message
-        
-        \return True if this event is an anti-message.
-    */
-    inline bool isAntiMessage() const { return antiMessage; }
   
     /** \brief Turn this Event into an anti-message
         

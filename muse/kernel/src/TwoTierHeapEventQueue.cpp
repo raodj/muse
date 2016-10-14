@@ -22,8 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include "TwoTierHeapEventQueue.h"
 #include <algorithm>
+#include "TwoTierHeapAdapter.h"
+#include "TwoTierHeapEventQueue.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -39,7 +40,20 @@ TwoTierHeapEventQueue::~TwoTierHeapEventQueue() {
 void*
 TwoTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
+    // Create the binary heap adapter that manages events for the agent.
+    agent->schedRef.agentEventHeap = new TwoTierHeapAdapter(agent);
+    // Return index of agent used to quickly update the heap
     return reinterpret_cast<void*> (agentList.size() - 1);
+}
+
+void
+TwoTierHeapEventQueue::removeAgent(muse::Agent* agent) {
+    ASSERT(agent != NULL);
+    ASSERT(agent->schedRef.agentEventHeap != NULL);
+    // Remove all events for this agent from the 2nd tier heap.
+    agent->schedRef.agentEventHeap->clear();
+    // Update the heap to place agent with LTSF
+    updateHeap(agent);
 }
 
 muse::Event*
@@ -56,9 +70,10 @@ TwoTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
         muse::Agent * const agent = top();
+        ASSERT(agent != NULL);
         ASSERT(getIndex(agent) == 0);
         // Have the events give up its next set of events
-        agent->getNextEvents(events);
+        agent->schedRef.agentEventHeap->getNextEvents(events);
         ASSERT(!events.empty());
         // Fix the position of this agent in the scheduler's heap
         updateHeap(agent);
@@ -78,12 +93,13 @@ TwoTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
 
 void
 TwoTierHeapEventQueue::enqueue(muse::Agent* agent,
-        muse::EventContainer& events) {
+                               muse::EventContainer& events) {
     ASSERT(agent != NULL);
-    ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
-    // Add events to the agent's 1nd tier heap
-    agent->schedRef.eventPQ->push(events);
+    // Add events to the agent's 1nd tier heap (if any)
+    if (!events.empty()) {
+        agent->schedRef.eventPQ->push(events);
+    }
     // Update the 2nd tier heap for scheduling.
     updateHeap(agent);
 }
@@ -124,16 +140,16 @@ size_t
 TwoTierHeapEventQueue::updateHeap(muse::Agent* agent) {
     ASSERT(agent != NULL);
     size_t index = getIndex(agent);
-    if (agent->oldTopTime != agent->getTopTime()) {
+    if (agent->oldTopTime != getTopTime(agent)) {
         index = fixHeap(index);
         // Update the position of the agent in the scheduler's heap
         // Validate
         ASSERT(agentList[index] == agent);
         ASSERT(getIndex(agent) == index);
         // Update time value as well for future access
-        agent->oldTopTime = agent->getTopTime();
+        agent->oldTopTime = getTopTime(agent);
         // Validation check.
-        ASSERT(agentList[0]->getTopTime() <= agentList[1]->getTopTime());
+        ASSERT(getTopTime(agentList[0]) <= getTopTime(agentList[1]));
     }
     // Return the new index position of the agent
     return index;

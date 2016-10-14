@@ -90,6 +90,20 @@ public:
         cross-reference to be stored in an agent.
     */    
     virtual void* addAgent(muse::Agent* agent);
+
+    /** Remove/unregister an agent with the event queue.
+
+        <p>This method implements the corresponding API method in the
+        class.  Refer to the API documentation in the base class for
+        intended functionality.</p>
+
+        <p>This method removes all events scheduled for the specified
+        agent in its internal data structures.</p>
+        
+        \param[in,out] agent A pointer to the agent whose events are
+        to be removed from the heap managed by this class.
+    */
+    void removeAgent(muse::Agent* agent) override;
     
     /** Determine if the event queue is empty.
         

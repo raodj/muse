@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -76,6 +75,23 @@ public:
     */
     virtual bool processNextAgentEvents();
 
+    /** \brief Remove the specified Agent from the Scheduler
+
+        Removes the agent to the scheduler. This happens in the
+        Simulation::finalize() method.  Only used by the Simulation
+        kernel. Users of MUSE API should not touch this function.
+
+        \param[in] agent Agent to be removed from the Scheduler.  The
+        agent is also removed from the scheduler queue.  The scheduler
+        queue is the one that actually has the brunt of the work to be
+        done.
+        
+        \return True if the agent was successfully removed from the
+        scheduler.  This method returns false if the agent was not
+        found in the scheduler's internal tables.
+    */
+    virtual bool removeAgentFromScheduler(Agent *agent);
+
     /** \brief Add the specified Agent to the Scheduler
 
         Adds the agent to the scheduler. This happens in the
@@ -87,7 +103,7 @@ public:
         \return True if the agent was added to the scheduler.
     */
     virtual bool addAgentToScheduler(Agent *agent);
-
+    
     /** \brief Determine the timestamp of the next top-most event in
         the scheduler.
 

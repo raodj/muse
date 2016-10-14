@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          meseret.gebre@gmail.com
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -82,8 +81,6 @@ BinaryHeapWrapper::removeFutureEvents(const Event* antiMsg) {
                                               antiMsg->getSentTime());
     return (numRemoved > 0);
 }
-
-// #define REBUILD_HEAP
 
 #ifdef REBUILD_HEAP
 int
@@ -162,7 +159,7 @@ BinaryHeapWrapper::removeFutureEvents(const muse::AgentID sender,
     // Return number of events canceled to track statistics. 
     return numRemoved;
 }
-#endif
+#endif  // REBUILD_HEAP
 
 void
 BinaryHeapWrapper::print(std::ostream& os) const {
@@ -170,6 +167,17 @@ BinaryHeapWrapper::print(std::ostream& os) const {
         (curr != heapContainer->end()); curr++) {
         os << **curr << std::endl;
     }
+}
+
+void
+BinaryHeapWrapper::clear() {
+    ASSERT( heapContainer != NULL );
+    // Decrease reference for all events in our event container
+    for (Event* evt : *heapContainer) {
+        evt->decreaseReference();
+    }
+    // Clear out our event container
+    heapContainer->clear();
 }
 
 #endif

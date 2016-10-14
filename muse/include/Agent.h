@@ -41,6 +41,15 @@ extern std::ostream& operator<<(ostream&, const muse::Agent&);
 
 BEGIN_NAMESPACE(muse);
 
+//forward declare here
+class BinaryHeapWrapper;
+template<typename T, typename Compare>
+class BinaryHeap;
+class EventQueue;
+class Tier2Entry;
+class EventComp;
+class TwoTierHeapAdapter;
+
 /** The base class for all agents in a simulation.
         
     <p>This class represents the base class from which all
@@ -55,15 +64,6 @@ BEGIN_NAMESPACE(muse);
     from this Agent Class, Also be sure to override all methods that
     are declared virtual.</p>
 */
-
-
-//forward declare here
-class BinaryHeapWrapper;
-template<typename T, typename Compare>
-class BinaryHeap;
-class EventQueue;
-class Tier2Entry;
-class EventComp;
 class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
@@ -265,7 +265,6 @@ protected:
         they are working with MUSE Simulation kernel internals.  This
         method can be overrided for advanced purposes, but it is
         highly recommended to avoid doing so.
-
     */
     virtual void saveState();
 
@@ -293,6 +292,10 @@ protected:
                            const bool printHeader = false) const;
 private:
     /** The getTopTime method.
+
+        \deprecated This method is deprecated.  Instead the
+        funtionality of this method must be implemented in the
+        respective EventQueue derived class(es).
         
         Simply returns the receive Time of the top event in the
         eventPQ. If eventPQ is empty then TIME_INIFINITY is
@@ -301,9 +304,14 @@ private:
         \return Time, the top event recv time or TIME_INFINITY if
         eventPQ empty.
     */
+    __attribute__((deprecated))
     Time getTopTime() const;
     
     /** The getNextEvents method.
+
+        \deprecated This method is deprecated.  Instead the
+        funtionality of this method must be implemented in the
+        respective EventQueue derived class(es).
         
         This method is a helper that will grab the next
         set of events to be processed by this agent.
@@ -311,6 +319,7 @@ private:
         \param[out] container The reference of the container into
         which events should be added.        
     */
+    __attribute__((deprecated))
     void getNextEvents(EventContainer& container);
 
     /** The setLVT method.
@@ -521,22 +530,34 @@ private:
     State* myState;
 
     union {
-        /** The BinaryHeap type eventPQ.
-        
-            This is access to the custom binary heap data structure that
-            houses events to process.  
-        
-            \see BinaryHeap()
-         */
-        BinaryHeapWrapper* eventPQ;
+        /** The TwoTierHeapAdapter for TwoTierHeapEventQueue.
+            
+            This object is setup by TwoTierHeapEventQueue.  It is used
+            by TwoTierHeapEventQueue to manage a binary heap data
+            structure that houses events to be scheduled for this
+            specific Agent.  Placing this pointer in Agent object
+            helps conceptually organize events appropriately.
+            
+            \see TwoTierHeapEventQueue::addAgent()
+        */
+        TwoTierHeapAdapter* agentEventHeap;
 
-        /** The BinaryHeap type myEventPQ.
+        /** The BinaryHeap that is used by Fibonacci Heap (AgentPQ).
+            
+            This is access to the custom binary heap data structure
+            that houses events associated with this agent.
+            
+            \see BinaryHeap()
+        */
+        BinaryHeapWrapper* eventPQ;
         
+        /** The BinaryHeap type myEventPQ.
+            
             This is access to the custom binary heap data structure that
             houses Tier2Entry objects to process.  
-        
+            
             \see BinaryHeap()
-         */
+        */
         BinaryHeap<muse::Tier2Entry, EventComp>* tier2eventPQ;
     } schedRef;
     

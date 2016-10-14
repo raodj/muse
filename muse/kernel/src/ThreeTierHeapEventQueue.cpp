@@ -43,6 +43,14 @@ ThreeTierHeapEventQueue::addAgent(muse::Agent* agent) {
     return reinterpret_cast<void*>(agentList.size() - 1);
 }
 
+void
+ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
+    ASSERT( agent != NULL );
+    // This will force a failure reminding developers that this method
+    // needs to be correctly implemented.
+    ASSERT( "This method needs to be impleted" != NULL );
+}
+
 muse::Event*
 ThreeTierHeapEventQueue::front() {
     muse::Event* retVal = NULL;

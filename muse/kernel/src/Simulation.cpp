@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -263,6 +262,8 @@ Simulation::finalize(bool stopMPI) {
 	 it != allAgents.end(); it++) {
         Agent* const agent = *it;
         agent->cleanOutputQueue();
+        // Remove agent from scheduler
+        scheduler->removeAgentFromScheduler(agent);
         // Bye byte agent!
         delete agent;
     }

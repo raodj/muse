@@ -64,6 +64,20 @@ public:
     */
     virtual void* addAgent(muse::Agent* agent) = 0;
 
+    /** Remove/unregister an agent from the event queue.
+
+        This method is invoked just before an agent is removed from
+        the simulation.  Typically this method is invoked to inform
+        the event queue that the data structures associated with the
+        agent can be removed.
+
+        \param[in,out] agent A pointer to the agent to be removed.
+        The pointer is internally used by derived classes to manage
+        cross references etc.  Consequently, the object pointed must
+        not be deleted by this method.
+    */
+    virtual void removeAgent(muse::Agent* agent) = 0;
+    
     /** Update the specified Agent's information.
 
         This method is invoked after events associated with an agent

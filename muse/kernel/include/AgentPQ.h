@@ -129,6 +129,20 @@ public:
      */
     virtual void* addAgent(Agent* data);
 
+    /** Remove/unregister an agent with the event queue.
+
+        <p>This method implements the corresponding API method in the
+        class.  Refer to the API documentation in the base class for
+        intended functionality.</p>
+
+        <p>This method removes all events scheduled for the specified
+        agent in its internal data structures.</p>
+        
+        \param[in,out] agent A pointer to the agent whose events are
+        to be removed from the heap managed by this class.
+    */
+    void removeAgent(muse::Agent* agent) override;
+
     /** Determine if the event queue is empty.
 
         This method implements the base class API to report if any
@@ -259,6 +273,18 @@ public:
      */
     virtual void reportStats(std::ostream& os);
 
+protected:
+    /** The getNextEvents method.
+
+        This method is a helper that will grab the next set of events
+        to be processed for a given agent.  This method is invoked in
+        dequeueNextAgentEvents() method in this class.
+		
+        \param[out] container The reference of the container into
+        which events should be added.        
+    */
+    void getNextEvents(Agent* agent, EventContainer& container);
+    
 private:
     void decrease(pointer, Agent*);
     void increase(pointer, Agent*);
@@ -267,8 +293,12 @@ private:
     void find_min() const;
     mutable node* m_min;
 
-    inline bool compare(const Agent *lhs, const Agent * rhs) {
-        return (lhs->getTopTime() >= rhs->getTopTime());
+    inline muse::Time getTopTime(const Agent* const agent) const {
+        return agent->schedRef.eventPQ->getTopTime();
+    }
+    
+    inline bool compare(const Agent *lhs, const Agent * rhs) const {
+        return (getTopTime(lhs) >= getTopTime(rhs));
     }
 
     AgentPQ(AgentPQ const&); // deliberately not implemented
