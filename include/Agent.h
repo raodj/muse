@@ -551,7 +551,7 @@ private:
         */
         BinaryHeapWrapper* eventPQ;
         
-        /** The BinaryHeap type myEventPQ.
+        /** The BinaryHeap type tier2eventPQ.
             
             This is access to the custom binary heap data structure that
             houses Tier2Entry objects to process.  

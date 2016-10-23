@@ -25,7 +25,6 @@
 
 #include <vector>
 #include <algorithm>
-#include <unordered_map>
 #include "DataTypes.h"
 #include "EventQueue.h"
 
@@ -52,7 +51,10 @@ public:
         The constructor initializes the vector and creates the
         initial, empty heap.
      */
-    BinaryHeap(){ heapContainer = new std::vector<T>; }
+    BinaryHeap(){ 
+        heapContainer = new std::vector<T>;
+         std::make_heap(heapContainer->begin(), heapContainer->end(), comp);
+    }
     /** \brief Destructor.
 
         The destructor deletes all allocated memory, in this case, the
@@ -69,7 +71,18 @@ public:
 
         \return A reference to the top value.
     */
-    inline T& top() { return heapContainer->front(); }
+    inline T& top() const { return heapContainer->front(); }
+    
+    /** Remove all objects in this heap.
+
+        This is a convenience method that is used to remove all
+        pending objects in this heap.  This method is handy when an
+        agent is logically removed from a scheduler queue.
+    */
+    void clear() {
+         ASSERT( heapContainer != NULL );
+         heapContainer->clear();
+    }
 
     /** \brief Remove the top element from the heap
 
@@ -148,7 +161,7 @@ public:
     template<typename UnaryPredicate>
     int remove(UnaryPredicate pred) {
         int  numRemoved = 0;
-        long currIdx    = heapContainer->size() - 1;
+        long currIdx    = heapContainer->size() - 1; 
         
         // NOTE: Here the heap is sorted based on different comparator
         // (for example: receive time for scheduling).  However, we
@@ -202,6 +215,19 @@ public:
        \return An iterator to the element past the end of the sequence. 
      */
     inline typename std::vector<T>::iterator end() {return heapContainer->end();}
+    
+    /** Convenience method to return receive time of the lowest
+        timestamp event in this heap (for a given agent).
+        
+        Simply returns the receive Time of the top event in this
+        heap. If heap is empty then TIME_INIFINITY is returned.
+     
+        \return The receive time of top event recv time or
+        TIME_INFINITY if heap is empty.
+    */
+    inline muse::Time getTopTime() const {
+        return empty() ? TIME_INFINITY : top().getReceiveTime();
+    }
 \
     /** \brief This method is used to search for a specific element
          stored on the heap.
@@ -233,9 +259,7 @@ public:
         for(auto curr = heapContainer->begin(); curr!= heapContainer->end();
                 curr++) {
             T val = *curr;
-            os << "[Agent ID: "  << val.getReceiverAgentID() << ", " 
-               << " Receive Time: " << val.getReceiveTime() << "]\n";
-          
+            os << val << std::endl;
         }
     }
 
