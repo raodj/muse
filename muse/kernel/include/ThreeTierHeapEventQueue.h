@@ -24,7 +24,6 @@
 
 #include <vector>
 #include "EventQueue.h"
-#include "BinaryHeapWrapper.h"
 #include "BinaryHeap.h"
 
 BEGIN_NAMESPACE(muse)
@@ -77,14 +76,18 @@ public:
     AgentID getReceiverAgentID() const {
         return agentID;
     }
-    muse::Event* getEvent() {
+    muse::Event* getEvent() const {
         return evt;
-    } 
+    }
+    std::ostream& operator<<(std::ostream& os) {
+        os << this->getEvent();
+        return os;
+    }
 };
 
 class EventComp {
 public:
-    inline bool operator() (const Tier2Entry lhs, const Tier2Entry rhs) const {
+    inline bool operator() (const Tier2Entry& lhs, const Tier2Entry& rhs) const {
         return (lhs.getReceiveTime() > rhs.getReceiveTime() );
     }
 };
@@ -317,6 +320,19 @@ public:
     virtual void reportStats(std::ostream& os);
     
 protected:
+        /** Convenience method to get the top-event time for a given
+        agent.
+
+        This method is a convenience wrapper to call
+        BinaryHeapWrapper::getTopTime() method.
+        
+        \return The receive time of top event's recv time or
+        TIME_INFINITY if heap is empty.
+    */
+    muse::Time getTopTime(const muse::Agent* const agent) const {
+        return agent->schedRef.tier2eventPQ->getTopTime();
+    }
+    
     /** Comparator method to sort events in the heap.
 
         This is the comparator method that is passed to various
@@ -334,28 +350,8 @@ protected:
         \return This method returns if lhs < rhs, i.e., the lhs event
         should be scheduled before the rhs event.
     */
-    inline static  bool compare(const muse::Agent* const lhs,
-                                const muse::Agent* const rhs) {
-        return (lhs->getTopTime() >= rhs->getTopTime());
-    }
-    
-    /** \brief compares the receive times of events 
-    *  This will allow the sorting of events in the EventContainer
-    *  by the event receive time 
-    \returns True if lhs receiveTime is less than rhs receiveTime */
-    inline static bool compareEvents(const muse::Event* lhs, const muse::Event* rhs) {
-        return (lhs->getReceiveTime() < rhs->getReceiveTime());
-    }
-    
-    /** \brief compares agent id and receive times of events
-    *  This will allow the filtering of unique events in the EventContainer
-    *  using std::unique
-    \returns True if lhs agentID is equal to rhs agentID and lhs
-     receiveTime is equal to rhs receiveTime*/
-    inline static bool compareEventAttributes(const muse::Event* lhs,
-                                              const muse::Event* rhs) {
-         return (lhs->getReceiverAgentID() == rhs->getReceiverAgentID()
-           && lhs->getReceiveTime() == rhs->getReceiveTime());
+    inline bool compare(const Agent *lhs, const Agent * rhs) const {
+        return getTopTime(lhs) >= getTopTime(rhs);
     }
     
     /** Convenience method to obtain the top-most or front agent.
@@ -426,7 +422,19 @@ protected:
     */
     size_t fixHeap(size_t currPos);
     
+    /** The getNextEvents method.
+
+        This method is a helper that will grab the next set of events
+        to be processed for a given agent.  This method is invoked in
+        dequeueNextAgentEvents() method in this class.
+		
+        \param[out] container The reference of the container into
+        which events should be added.        
+    */
+    void getNextEvents(Agent* agent, EventContainer& container);
+    
 private:
+    
     /** The backing storage for events managed by this class.
 
         This vector contains the list of agents being managed by the

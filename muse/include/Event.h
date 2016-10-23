@@ -71,7 +71,9 @@ class Event {
     friend class LadderQueue;
     friend class HeapBottom;
     friend class HeapEventQueue;
+    friend class TwoTierHeapEventQueue;
     friend class TwoTierHeapAdapter;
+    friend class ThreeTierHeapEventQueue;
     friend class AgentPQ;
 public:
     // Use MUSE macro to define the create method to instantiate

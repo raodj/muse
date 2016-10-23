@@ -28,7 +28,6 @@
 #include "Simulation.h"
 #include "HashMap.h"
 #include "BinaryHeapWrapper.h"
-#include "ThreeTierHeapEventQueue.h"
 #include <iostream>
 #include <cstdlib>
 #include "EventQueue.h"
@@ -109,49 +108,6 @@ Agent::processNextEvents(muse::EventContainer& events) {
     
     // Save the state (if needed) now that events have been processed.
     saveState();
-}
-
-void
-Agent::getNextEvents(EventContainer& container) {
-    ASSERT(container.empty());
-    ASSERT( (schedRef.tier2eventPQ->top().getEvent() != NULL) );
-    
-    const Time currTime = schedRef.tier2eventPQ->top().getEvent()->getReceiveTime();  
-    do {
-        Event* event = schedRef.tier2eventPQ->top().getEvent();  
-        // We should never process an anti-message.
-        if (event->isAntiMessage()) { 
-            std::cerr << "Anti-message Processing: " << *event << std::endl;
-            std::cerr << "Trying to process an anti-message event, "
-                      << "please notify MUSE developers of this issue" << std::endl;
-            abort();
-        }
-    
-        // Ensure that the top event is greater than LVT
-        if (event->getReceiveTime() <= getLVT()) {
-            std::cerr << "Agent is being scheduled to process an event ("
-                      << *event << ") that is at or below it LVT (LVT="
-                      << getLVT() << ", GVT=" << getTime(GVT)
-                      << "). This is a serious error. Aborting.\n";
-            std::cerr << *this << std::endl;
-            abort();
-        }
-
-        ASSERT(event->getReferenceCount() < 3);
-        
-        // We add the top event we popped to the event container
-        event->increaseReference(); 
-        container.push_back(event);
-
-        DEBUG(std::cout << "Delivering: " << *event << std::endl);
-        
-        // inputQueue.push_back(event);
-        
-        // Finally it is safe to remove this event from the eventPQ as
-        // it has been added to the inputQueue
-        schedRef.tier2eventPQ->pop();
-    } while ((!schedRef.tier2eventPQ->empty()) &&
-             (TIME_EQUALS(schedRef.tier2eventPQ->top().getEvent()->getReceiveTime(), currTime)));   
 }
 
 State*
@@ -513,17 +469,12 @@ Agent::getTime(TimeType timeType) const {
     return TIME_INFINITY;
 }
 
-Time
-Agent::getTopTime() const {
-    return schedRef.tier2eventPQ->empty() ? TIME_INFINITY : schedRef.tier2eventPQ->top().getEvent()->getReceiveTime();
-}
-
 bool
 Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const {
-    Time lhs_time = (lhs->schedRef.tier2eventPQ->empty() ? TIME_INFINITY :
-		     lhs->schedRef.tier2eventPQ->top().getEvent()->getReceiveTime());
-    Time rhs_time = (rhs->schedRef.tier2eventPQ->empty() ? TIME_INFINITY :
-		     rhs->schedRef.tier2eventPQ->top().getEvent()->getReceiveTime());
+    Time lhs_time = (lhs->schedRef.eventPQ->empty() ? TIME_INFINITY :
+		     lhs->schedRef.eventPQ->top()->getReceiveTime());
+    Time rhs_time = (rhs->schedRef.eventPQ->empty() ? TIME_INFINITY :
+		     rhs->schedRef.eventPQ->top()->getReceiveTime());
     return (lhs_time >= rhs_time);
 }
 
@@ -542,9 +493,9 @@ statePrinter(ostream& os, list<muse::State*> state_q ) {
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
     os << "Agent[id: "       << agent.getAgentID() << "; "
-       << "Events in heap: " <<  agent.schedRef.tier2eventPQ->size();
-    if (!agent.schedRef.tier2eventPQ->empty()) {
-	DEBUG(os << "; Top Event: " << *agent.schedRef.tier2eventPQ->top());
+       << "Events in heap: " <<  agent.schedRef.eventPQ->size();
+    if (!agent.schedRef.eventPQ->empty()) {
+	DEBUG(os << "; Top Event: " << *agent.schedRef.eventPQ->top());
     } else {
 	DEBUG(os << "; Top Event: none");
     }
@@ -567,7 +518,7 @@ Agent::dumpStats(std::ostream& os, const bool printHeader) const {
        << inputQueue.size()  << TAB
        << outputQueue.size() << TAB
        << stateQueue.size()  << TAB
-       << schedRef.tier2eventPQ->size() << TAB
+       << schedRef.eventPQ->size() << TAB
        << numScheduledEvents << TAB
        << numProcessedEvents << TAB
        << numRollbacks       << TAB

@@ -40,15 +40,19 @@ ThreeTierHeapEventQueue::~ThreeTierHeapEventQueue() {
 void*
 ThreeTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
+    // Create the binary heap that is used to manage events for the agent.
+    agent->schedRef.tier2eventPQ = new BinaryHeap<muse::Tier2Entry, muse::EventComp>();
     return reinterpret_cast<void*>(agentList.size() - 1);
 }
 
 void
 ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
-    // This will force a failure reminding developers that this method
-    // needs to be correctly implemented.
-    ASSERT( "This method needs to be impleted" != NULL );
+    ASSERT(agent->schedRef.tier2eventPQ != NULL);
+    // Remove all tier2 events for this agent from the heap.
+    agent->schedRef.tier2eventPQ->clear();
+    // Update the heap to place agent with LTSF
+    updateHeap(agent);
 }
 
 muse::Event*
@@ -61,13 +65,55 @@ ThreeTierHeapEventQueue::front() {
 }
 
 void
+ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) {
+    ASSERT(container.empty());
+    ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
+    BinaryHeap<muse::Tier2Entry, muse::EventComp>* const tier2eventPQ = agent->schedRef.tier2eventPQ;
+    const Time currTime = tier2eventPQ->getTopTime();  
+    do {
+        Event* event = tier2eventPQ->top().getEvent();
+        // We should never process an anti-message.
+        if (event->isAntiMessage()) { 
+            std::cerr << "Anti-message Processing: " << *event << std::endl;
+            std::cerr << "Trying to process an anti-message event, "
+                      << "please notify MUSE developers of this issue"
+                      << std::endl;
+            abort();
+        }
+    
+        // Ensure that the top event is greater than LVT
+        if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
+            std::cerr << "Agent is being scheduled to process an event ("
+                      << *event << ") that is at or below it LVT (LVT="
+                      << agent->getTime(Agent::LVT) << ", GVT="
+                      << agent->getTime(Agent::GVT)
+                      << "). This is a serious error. Aborting.\n";
+            std::cerr << *agent << std::endl;
+            abort();
+        }
+
+        ASSERT(event->getReferenceCount() < 3);
+        
+        // We add the top event we popped to the event container
+        event->increaseReference(); 
+        container.push_back(event);
+
+        DEBUG(std::cout << "Delivering: " << *event << std::endl);
+        
+        // Finally it is safe to remove this tier2event object from the 
+        // tier2eventPQ as it has been added to the inputQueue
+        tier2eventPQ->pop();
+    } while (!tier2eventPQ->empty() && (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)));
+}
+
+void
 ThreeTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
         muse::Agent* const agent = top();
         ASSERT(getIndex(agent) == 0);
         // Have the events give up its next set of events
-        agent->getNextEvents(events);
+        getNextEvents(agent, events);
         ASSERT(!events.empty());
         // Fix the position of this agent in the scheduler's heap
         updateHeap(agent);
@@ -90,7 +136,7 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
         cur.updateContainer(event);
     } else {
         /*If there is no event with a matching receive time in the heap,
-        then send an instance of Tier2Entry to the binary heap. */
+        then send an instance of Tier2Entry to the binary heap. */ 
         agent->schedRef.tier2eventPQ->push(tier2Entry);
     }
     // Fix the position of this agent in the scheduler's heap.
@@ -160,7 +206,7 @@ ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
 
 void
 ThreeTierHeapEventQueue::prettyPrint(std::ostream& os) const {
-    os << "ThreeTierHeapEventQueue::prettyPrint() : not implemented.\n";   
+    os << "ThreeTierHeapEventQueue::prettyPrint() : not implemented.\n";  
 }
 
 size_t
@@ -176,16 +222,16 @@ size_t
 ThreeTierHeapEventQueue::updateHeap(muse::Agent* agent) {
     ASSERT(agent != NULL);
     size_t index = getIndex(agent);
-    if (agent->oldTopTime != agent->getTopTime()) {
+    if (agent->oldTopTime != getTopTime(agent)) {
         index = fixHeap(index);
         // Update the position of the agent in the scheduler's heap
         // Validate
         ASSERT(agentList[index] == agent);
         ASSERT(getIndex(agent) == index);
         // Update time value as well for future access
-        agent->oldTopTime = agent->getTopTime();
+        agent->oldTopTime = getTopTime(agent);
         // Validation check.
-        ASSERT(agentList[0]->getTopTime() <= agentList[1]->getTopTime());
+        ASSERT(getTopTime(agentList[0]) <= getTopTime(agentList[1]));
     }
     // Return the new index position of the agent
     return index;

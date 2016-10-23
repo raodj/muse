@@ -25,7 +25,6 @@
 #include <vector>
 #include "EventQueue.h"
 #include "BinaryHeapWrapper.h"
-#include "TwoTierHeapAdapter.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -254,7 +253,7 @@ protected:
         TIME_INFINITY if heap is empty.
     */
     muse::Time getTopTime(const muse::Agent* const agent) const {
-        return agent->schedRef.agentEventHeap->getTopTime();
+        return agent->schedRef.eventPQ->getTopTime();
     }
     
     /** Comparator method to sort events in the heap.
@@ -346,6 +345,17 @@ protected:
         the agentList vector.
     */
     size_t fixHeap(size_t currPos);
+    
+    /** The getNextEvents method.
+
+        This method is a helper that will grab the next set of events
+        to be processed for a given agent.  This method is invoked in
+        dequeueNextAgentEvents() method in this class.
+		
+        \param[out] container The reference of the container into
+        which events should be added.        
+    */
+    void getNextEvents(Agent* agent, EventContainer& container);
     
 private:
     /** The backing storage for events managed by this class.

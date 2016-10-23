@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include <algorithm>
-#include "TwoTierHeapAdapter.h"
 #include "TwoTierHeapEventQueue.h"
 
 BEGIN_NAMESPACE(muse)
@@ -41,7 +40,7 @@ void*
 TwoTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
     // Create the binary heap adapter that manages events for the agent.
-    agent->schedRef.agentEventHeap = new TwoTierHeapAdapter(agent);
+    agent->schedRef.eventPQ = new BinaryHeapWrapper();
     // Return index of agent used to quickly update the heap
     return reinterpret_cast<void*> (agentList.size() - 1);
 }
@@ -49,9 +48,9 @@ TwoTierHeapEventQueue::addAgent(muse::Agent* agent) {
 void
 TwoTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT(agent != NULL);
-    ASSERT(agent->schedRef.agentEventHeap != NULL);
+    ASSERT(agent->schedRef.eventPQ != NULL);
     // Remove all events for this agent from the 2nd tier heap.
-    agent->schedRef.agentEventHeap->clear();
+    agent->schedRef.eventPQ->clear();
     // Update the heap to place agent with LTSF
     updateHeap(agent);
 }
@@ -66,6 +65,48 @@ TwoTierHeapEventQueue::front() {
 }
 
 void
+TwoTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) {
+    ASSERT(container.empty());
+    ASSERT(agent->schedRef.eventPQ->top() != NULL ); 
+    BinaryHeapWrapper* const eventPQ = agent->schedRef.eventPQ;
+    const Time currTime = eventPQ->getTopTime();  
+    do {
+        Event* event = eventPQ->top();
+        // We should never process an anti-message.
+        if (event->isAntiMessage()) { 
+            std::cerr << "Anti-message Processing: " << *event << std::endl;
+            std::cerr << "Trying to process an anti-message event, "
+                      << "please notify MUSE developers of this issue"
+                      << std::endl;
+            abort();
+        }
+    
+        // Ensure that the top event is greater than LVT
+        if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
+            std::cerr << "Agent is being scheduled to process an event ("
+                      << *event << ") that is at or below it LVT (LVT="
+                      << agent->getTime(Agent::LVT) << ", GVT="
+                      << agent->getTime(Agent::GVT)
+                      << "). This is a serious error. Aborting.\n";
+            std::cerr << *agent << std::endl;
+            abort();
+        }
+
+        ASSERT(event->getReferenceCount() < 3);
+        
+        // We add the top event we popped to the event container
+        event->increaseReference(); 
+        container.push_back(event);
+
+        DEBUG(std::cout << "Delivering: " << *event << std::endl);
+        
+        // Finally it is safe to remove this event from the eventPQ as
+        // it has been added to the inputQueue
+        eventPQ->pop();
+    } while (!empty() && (TIME_EQUALS(eventPQ->getTopTime(), currTime)));  
+}
+
+void
 TwoTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
@@ -73,7 +114,7 @@ TwoTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
         ASSERT(agent != NULL);
         ASSERT(getIndex(agent) == 0);
         // Have the events give up its next set of events
-        agent->schedRef.agentEventHeap->getNextEvents(events);
+        getNextEvents(agent, events);
         ASSERT(!events.empty());
         // Fix the position of this agent in the scheduler's heap
         updateHeap(agent);
