@@ -80,7 +80,19 @@
 
 */
 class ArgParser {
-    friend std::ostream& operator<<(std::ostream&, ArgParser&);
+    /** Prints a nicely formatted list of parameters.  This method is
+        used when printing help information.
+
+        \param[out] os The output stream to where the data is to be
+        written.
+
+        \param[in] ap The argument parser whose parameters is to be
+        printed in a nice format.
+
+        \return The output stream passed in as the parameter.
+    */
+    friend std::ostream& operator<<(std::ostream& os, ArgParser& ap);
+
  public:
     /** \brief Specify the argument type
         
@@ -252,44 +264,44 @@ class ArgParser {
 	\param[in] argv The argument vector.
 
 	\param[in] caxoe Compain And eXit On Error. If this parameter
-	is true and an argument (beginning with a \c '-') is found
+	is true and an argument (beginning with a '-') is found
 	remaining then this method exits (after displaying an error
 	message and printing help).  Otherwise it simply prints help
-	and returns with \c false.
+	and returns with false.
 
 	\param[in] caxoa Complain And eXit on Argument.  If this
-	parameter is \c true and more than 1 argument is left, then
-	this method displays an error message, prints help, and returns
-	\c false.
+	parameter is true and more than 1 argument is left, then this
+	method displays an error message, prints help, and returns
+	false.
 
-	\return This method returns \c true if the remaining arguments
-	are valid. Otherwise it returns \c false to indicate that
-	further processing should logically terminate.
+	\return This method returns true if the remaining arguments
+	are valid. Otherwise it returns false to indicate that further
+	processing should logically terminate.
     */
     bool checkRemainingArguments(int argc, char* argv[],
                                  bool caxoe = true, bool caxoa = false);
 
-
     /** Helper method to locate and change an argument record in
-	ArgParser::argRecords.
+	argRecords.
 
-	This is a helper method that is used by the various forms of
-	setArgument() method to locate a given argument, check its
-	data type, and update its value.  This method is templatized
-	so that it can handle the various value parmaeters elegantly.
-
-        \param[in] arg The argument whose value is to be changed.  The
-	argument string must exactly match one of the entries in the
-	ArgParser::argRecord vector.
-
+        This is a helper method that is used by the various forms of
+        setArgument method to locate a given argument, check its data
+        type, and update its value.  This method is templatized so
+        that it can handle the various value parameters elegantly.
+        
+        \return This method returns true if the specified arg was
+        valid and its value was successfully updated.  Otherwise this
+        method returns false.
+        
         \param[in] argType The expected data type of the argument.
 
         \param[in] value The new value to be associated with the
         argument.
+        
+        \param[in] arg The argument whose value is to be changed.  The
+	argument string must exactly match one of the entries in the
+	ArgParser::argRecord vector.
 
-        \return This method returns \c true if the specified argument
-	(arg) was valid and its value was successfully updated.
-	Otherwise this method returns \c false.
     */
     template <typename ValueType>
     bool setArgument(const std::string& arg, const ArgParser::ArgType argType,
@@ -341,13 +353,13 @@ protected:
 	This method is a helper method that is called from printArg()
 	method to obtain the string representation of the value
 	specified for a given arg record.  This method utilizes the
-	ArgType and current #data value for the given argument record
-	and approriately converts #data to a string.
+	ArgType and current data value for the given argument record
+	and approriately converts data to a string.
 
-	\param[in] The information about the argument whose value is
-        to be returned as a string by this method.
+	\param[in] argRec The information about the argument whose
+        value is to be returned as a string by this method.
 
-	\return The string representation of the #data value stored in
+	\return The string representation of the data value stored in
 	this argument record.
     */
     static std::string getValue(const ArgRecord& argRec);
