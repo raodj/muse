@@ -14,10 +14,12 @@ PCSAgent::PCSAgent(muse::AgentID id, PCS_State* state, int x, int y, int n, int 
 Agent(id, state), X(x), Y(y), N(n), Delay(d), lookAhead(lookAhead),
 selfEvents(selfEvents), granularity(granularity), channels(num_channels),
 callIntervalMean(call_interval_mean), callDurationMean(call_duration_mean),
-moveIntervalMean(move_interval_mean), generator(new std::mt19937(id)) {
+moveIntervalMean(move_interval_mean), generator(id) {
     // Setup the random seed used for generating random delays.
     seed = id;
+    myState = state;
     blocked_channels = call_attempts = hand_off_blocks = 0;
+    
 }
 
 NextAction
@@ -167,20 +169,12 @@ PCSAgent::nextCall(PCSEvent& event,
         pcs_state->setBlockedChannels(blocked_channels++);
         // Next call timestamp of the portable is incremented.
         next_call_timeStamp += intervalDistrib;
-        if (next_call_timeStamp < move_timeStamp) {
-            method = NEXT_CALL;
-        } else {
-            method = MOVE_OUT;
-        }
+        method = (next_call_timeStamp < move_timeStamp)? NEXT_CALL : MOVE_OUT;
     } else { // Channel is available and so the call is allocated.
         pcs_state->setIdleChannels(channels--);
         // Complete call timestamp of the portable is incremented.
         complete_call_timeStamp += durationDistrib;
-        if (complete_call_timeStamp < move_timeStamp) {
-            method = COMPLETE_CALL;
-        } else {
-            method = MOVE_OUT;
-        }
+        method = (complete_call_timeStamp < move_timeStamp)? COMPLETE_CALL : MOVE_OUT;
     }
     
     // Make random receive time for the future.
@@ -212,9 +206,9 @@ PCSAgent::initialize() throw (std::exception) {
     pcs_state->setCallAttempts(call_attempts);
     pcs_state->setHandOffBlocks(hand_off_blocks);
     for (int i = 0; i < N; i++) {
-        unsigned int complete_call_timeStamp = duration_distrib(*this->generator);
-        unsigned int next_call_timeStamp = interval_distrib(*this->generator);
-        unsigned int move_timeStamp = move_distrib(*this->generator);
+        unsigned int complete_call_timeStamp = duration_distrib(generator);
+        unsigned int next_call_timeStamp = interval_distrib(generator);
+        unsigned int move_timeStamp = move_distrib(generator);
         action = minTimeStamp(complete_call_timeStamp, next_call_timeStamp, move_timeStamp);
         switch (action) {
             case NEXTCALL: { method = NEXT_CALL; } break;
@@ -225,11 +219,7 @@ PCSAgent::initialize() throw (std::exception) {
                     method = COMPLETE_CALL;
                 } else {
                     pcs_state->setBlockedChannels(blocked_channels++);
-                    if (next_call_timeStamp < move_timeStamp) {
-                        method = NEXT_CALL;
-                    } else {
-                        method = MOVE_OUT;
-                    }
+                    method = (next_call_timeStamp < move_timeStamp)? NEXT_CALL : MOVE_OUT;
                 }
             } break;
             default:
@@ -248,9 +238,6 @@ PCSAgent::initialize() throw (std::exception) {
     }
 }
 
-#pragma GCC push_options
-#pragma GCC optimize ("-O0")
-
 void
 PCSAgent::simGranularity() {
     
@@ -261,7 +248,6 @@ PCSAgent::simGranularity() {
         }
     }
 }
-#pragma GCC pop_options
 
 void
 PCSAgent::executeTask(const muse::EventContainer* events) {
@@ -275,12 +261,12 @@ PCSAgent::executeTask(const muse::EventContainer* events) {
         switch (current_event->getMethod()) {
             case NEXT_CALL: {
                 nextCall(*current_event,
-                        duration_distrib(*this->generator),
-                        interval_distrib(*this->generator));
+                        duration_distrib(generator),
+                        interval_distrib(generator));
             } break;
             case MOVE_IN: {
                 moveIn(*current_event,
-                        move_distrib(*this->generator));
+                        move_distrib(generator));
             } break;
             case MOVE_OUT: { moveOut(*current_event); } break;
             case COMPLETE_CALL: { completionCall(*current_event); } break;
