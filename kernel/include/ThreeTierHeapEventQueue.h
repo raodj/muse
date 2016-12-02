@@ -97,11 +97,8 @@ public:
     IsFutureEvent(const muse::AgentID sender, const muse::Time sentTime) :
         sender(sender), sentTime(sentTime) {}
         inline bool operator()(muse::Tier2Entry tierTwoEntry) const {
-            if((tierTwoEntry.getEvent()->getSenderAgentID() == sender) &&
-                    (tierTwoEntry.getEvent()->getSentTime() >= sentTime)) {
-                return true;
-            }
-            return false;
+            return ((tierTwoEntry.getEvent()->getSenderAgentID() == sender)
+                    && (tierTwoEntry.getEvent()->getSentTime() >= sentTime));
         }
 private:
     muse::AgentID sender;
