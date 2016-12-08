@@ -70,8 +70,12 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
     ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
     BinaryHeap<muse::Tier2Entry, muse::EventComp>* const tier2eventPQ = agent->schedRef.tier2eventPQ;
     const Time currTime = tier2eventPQ->getTopTime();  
+    std::vector<Event*> eventList = tier2eventPQ->top().getEventList();
+    std::vector<Event*>::iterator start = eventList.begin();
+    std::vector<Event*>::iterator end = eventList.end(); 
     do {
-        Event* event = tier2eventPQ->top().getEvent();
+        Event* event = *start;
+        start++;
         // We should never process an anti-message.
         if (event->isAntiMessage()) { 
             std::cerr << "Anti-message Processing: " << *event << std::endl;
@@ -97,13 +101,13 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
         // We add the top event we popped to the event container
         event->increaseReference(); 
         container.push_back(event);
-
+       
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
-        
-        // Finally it is safe to remove this tier2event object from the 
-        // tier2eventPQ as it has been added to the inputQueue
-        tier2eventPQ->pop();
-    } while (!tier2eventPQ->empty() && (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)));
+       
+    } while (!tier2eventPQ->empty() && (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)) && start != end);
+    // Finally it is safe to remove this tier2event object from the 
+    // tier2eventPQ as it's list of events have been added to the inputQueue
+    tier2eventPQ->pop();
 }
 
 void
@@ -133,7 +137,7 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     that particular Tier2Entry object. */ 
     if(iter!= agent->schedRef.tier2eventPQ->end()) {
         Tier2Entry& cur = *iter;
-        cur.updateContainer(event);
+        cur.updateContainer(event);        
     } else {
         /*If there is no event with a matching receive time in the heap,
         then send an instance of Tier2Entry to the binary heap. */ 

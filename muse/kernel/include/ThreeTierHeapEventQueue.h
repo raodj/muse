@@ -83,6 +83,9 @@ public:
         os << this->getEvent();
         return os;
     }
+    const EventContainer& getEventList() const {
+        return eventList;
+    }
 };
 
 class EventComp {
@@ -96,7 +99,7 @@ class IsFutureEvent{
 public:
     IsFutureEvent(const muse::AgentID sender, const muse::Time sentTime) :
         sender(sender), sentTime(sentTime) {}
-        inline bool operator()(muse::Tier2Entry tierTwoEntry) const {
+        inline bool operator()(const muse::Tier2Entry& tierTwoEntry) const {
             return ((tierTwoEntry.getEvent()->getSenderAgentID() == sender)
                     && (tierTwoEntry.getEvent()->getSentTime() >= sentTime));
         }
