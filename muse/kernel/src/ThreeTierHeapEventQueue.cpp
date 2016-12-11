@@ -49,7 +49,7 @@ void
 ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
     ASSERT(agent->schedRef.tier2eventPQ != NULL);
-    // Remove all tier2 events for this agent from the heap.
+    // Remove all Tier2Entry objects for this agent from the heap.
     agent->schedRef.tier2eventPQ->clear();
     // Update the heap to place agent with LTSF
     updateHeap(agent);
@@ -71,10 +71,11 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
     BinaryHeap<muse::Tier2Entry, muse::EventComp>* const tier2eventPQ = agent->schedRef.tier2eventPQ;
     const Time currTime = tier2eventPQ->getTopTime();  
     std::vector<Event*> eventList = tier2eventPQ->top().getEventList();
-    std::vector<Event*>::iterator start = eventList.begin();
-    std::vector<Event*>::iterator end = eventList.end(); 
+    EventContainer::iterator start = eventList.begin();
+    EventContainer::iterator end = eventList.end(); 
     do {
         Event* event = *start;
+         std::cout << "Event: " << event->getReceiverAgentID() << ", " << event->getSenderAgentID() << ", " << event->getReceiveTime() << std::endl;
         start++;
         // We should never process an anti-message.
         if (event->isAntiMessage()) { 
@@ -196,7 +197,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sende
     ASSERT(dest != NULL);
     ASSERT(getIndex(dest) < agentList.size());
     // Get agent's heap to cancel out events.
-    int numRemoved = dest->schedRef.tier2eventPQ->remove(IsFutureEvent(sender, sentTime)); 
+    int numRemoved = dest->schedRef.tier2eventPQ->remove(IsFutureEvent(sender, sentTime));
     // Update the 2nd tier heap for scheduling.
     updateHeap(dest);
     return numRemoved;
