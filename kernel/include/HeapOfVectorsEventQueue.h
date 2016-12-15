@@ -111,7 +111,7 @@ public:
         \return This method returns true if the event queue of the
         top-agent is logically empty.
     */    
-    virtual bool empty() {return tier2.empty();}
+    virtual bool empty() {return agentList.empty() || top()->tier2->empty();}
 
     /** Obtain pointer to the highest priority (lowest receive time)
         event.
@@ -240,7 +240,10 @@ public:
     virtual void reportStats(std::ostream& os);
     
 protected:
-       
+    
+    muse::Agent* top() {
+        return agentList.front();
+    }
     /** This method is used to search for a specific element
          stored agent's vector of Tier2Entry objects.
       
@@ -252,12 +255,118 @@ protected:
     find(std::vector<Tier2Entry>::iterator first,
         std::vector<Tier2Entry>::iterator last, const Tier2Entry& tier2Entry);
     
+    /** Convenience method to get the top-event time for a given
+        agent.
+
+        This method returns the top event time in the vector of events queue.
+        If agent's vector of event queue is empty, then it returns infinity. 
+        
+        \return The receive time of top event's recv time or
+        TIME_INFINITY if vector is empty.
+    */
+    muse::Time getTopTime(const muse::Agent* const agent) const {
+        return agent->tier2->empty()? TIME_INFINITY :
+            agent->tier2->front().getReceiveTime();}      
+    
+    /** Comparator method to sort events in the heap.
+
+        This is the comparator method that is passed to various
+        standard C++ algorithms to organize events as a heap.  This
+        comparator method gives first preference to receive time of
+        events.  Tie between two events with the same recieve time is
+        broken based on the receiver agent ID.
+
+        \param[in] lhs The left-hand-side event to be used for
+        comparison.  This parameter cannot be NULL.
+
+        \param[in] rhs The right-hand-side event to be used for
+        comparison. This parameter cannot be NULL.
+
+        \return This method returns if lhs < rhs, i.e., the lhs event
+        should be scheduled before the rhs event.
+    */
+    inline bool compare(const Agent *lhs, const Agent * rhs) const {
+        return getTopTime(lhs) >= getTopTime(rhs);
+    }
+    
+    /** The getNextEvents method.
+
+        This method is a helper that will grab the next set of events
+        to be processed for a given agent.  This method is invoked in
+        dequeueNextAgentEvents() method in this class.
+		
+        \param[out] container The reference of the container into
+        which events should be added.        
+    */
+    void getNextEvents(Agent* agent, EventContainer& container);
+    
+        /** Obtain the current index of the agent from it's
+        cross-reference.
+
+        This method is a refactored utility method that has been
+        introduced to streamline the code.  This method essentially
+        obtains the index position of the given agent in the agentList
+        vector from the agent's fibHeapPtr corss-reference.  This
+        cross-reference is consistently updated by the various methods
+        in this class to enable rapid access to the location of the
+        agent.
+
+        \param[in] agent The agent whose index value in the agentList
+        is to be determined.
+
+        \return The index position of the agent in the agentList
+        vector (if all checks pass).
+    */
+    size_t getIndex(muse::Agent *agent) const;
+    
+    /** Update position of agent in the scheduler's heap.
+
+        This is an internal helper method that is used to update the
+        position of an agent in the scheduler's heap.  This method
+        essentially performs sanity checks, uses the fixHeap() method
+        to update position of the agent, and updates cross references
+        for future use.
+
+        \param[in] agent The agent whose position in the heap is to be
+        updated.  This pointer cannot be NULL.
+
+        \return This method returns the updated index position of the
+        agent in agentList (the vector that serves as storage for the
+        heap).
+    */
+    size_t updateHeap(muse::Agent* agent);
+    
+    /** Fix-up the location of the agent in the heap.
+
+        This method can be used to update the location of an agent in
+        the heap.
+
+        \note The implementation for this method has been heavily
+        borrowed from libstdc++'s code base to ensure that heap
+        updates are consistent with std::make_heap API.
+        Unfortunately, this does imply that there is a chance this
+        method may be incompatible with future versions.
+
+        \param[in] currPos The current position of the agent in the
+        heap whose position is to be updated.  This value is the index
+        position of the agent in the agentList vector.
+        
+        \return This method returns the new position of the agent in
+        the agentList vector.
+    */
+    size_t fixHeap(size_t currPos);
+    
 private:
     
-    /** The vector that stores Tier2Entry objects that will maintained by
-        this class.
+    /** The backing storage for events managed by this class.
+
+        This vector contains the list of agents being managed by the
+        class.  The agents in the vector are stored and maintained as
+        a heap.  The heap is created and managed using standard C++
+        algorithms, namely: \c std::make_heap, \c std::push_heap, and
+        \c std::pop_heap.
     */
-    std::vector<Tier2Entry> tier2;
+     std::vector<muse::Agent*> agentList;
 };
 
 END_NAMESPACE(muse)

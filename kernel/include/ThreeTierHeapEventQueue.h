@@ -66,7 +66,7 @@ public:
     }
     
     bool operator < (const Tier2Entry &rhs) {
-        return (this->recvTime > rhs.recvTime);
+        return (this->recvTime < rhs.recvTime);
     }
     
     Time getReceiveTime() const {
