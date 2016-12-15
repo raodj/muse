@@ -71,6 +71,7 @@ class Agent {
     friend class AgentPQ;
     friend class TwoTierHeapEventQueue;
     friend class ThreeTierHeapEventQueue;
+    friend class HeapOfVectorsEventQueue;
 public:
     
     /** enum for return Time.
@@ -528,7 +529,9 @@ private:
         \see State()
     */
     State* myState;
-
+    
+    std::vector<Tier2Entry>* tier2;
+        
     union {
         /** The TwoTierHeapAdapter for TwoTierHeapEventQueue.
             
