@@ -70,12 +70,11 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
     ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
     BinaryHeap<muse::Tier2Entry, muse::EventComp>* const tier2eventPQ = agent->schedRef.tier2eventPQ;
     const Time currTime = tier2eventPQ->getTopTime();  
-    std::vector<Event*> eventList = tier2eventPQ->top().getEventList();
+    EventContainer eventList = tier2eventPQ->top().getEventList();
     EventContainer::iterator start = eventList.begin();
     EventContainer::iterator end = eventList.end(); 
     do {
         Event* event = *start;
-         std::cout << "Event: " << event->getReceiverAgentID() << ", " << event->getSenderAgentID() << ", " << event->getReceiveTime() << std::endl;
         start++;
         // We should never process an anti-message.
         if (event->isAntiMessage()) { 
@@ -85,7 +84,6 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
                       << std::endl;
             abort();
         }
-    
         // Ensure that the top event is greater than LVT
         if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
             std::cerr << "Agent is being scheduled to process an event ("
@@ -105,7 +103,8 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
        
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
        
-    } while (!tier2eventPQ->empty() && (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)) && start != end);
+    } while (!tier2eventPQ->empty() && 
+            (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)) && start != end);
     // Finally it is safe to remove this tier2event object from the 
     // tier2eventPQ as it's list of events have been added to the inputQueue
     tier2eventPQ->pop();
