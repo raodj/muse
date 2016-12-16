@@ -356,6 +356,10 @@ protected:
     */
     size_t fixHeap(size_t currPos);
     
+    bool
+    isFutureEvent(const muse::AgentID sender, const muse::Time sentTime, 
+            const muse::Event* evt);
+    
 private:
     
     /** The backing storage for events managed by this class.

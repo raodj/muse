@@ -28,6 +28,7 @@
 #include "Agent.h"
 #include "AgentPQ.h"
 #include "ThreeTierHeapEventQueue.h"
+#include "HeapOfVectorsEventQueue.h"
 
 BEGIN_NAMESPACE(muse);
      

@@ -220,6 +220,8 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new TwoTierHeapEventQueue(); 
     } else if (queueName == "3tHeap") {
         agentPQ = new ThreeTierHeapEventQueue();
+    } else if (queueName == "heap2tQ") {
+        agentPQ = new HeapOfVectorsEventQueue();
     } else {
         agentPQ = new AgentPQ();
     }

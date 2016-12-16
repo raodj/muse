@@ -39,7 +39,7 @@ HeapOfVectorsEventQueue::~HeapOfVectorsEventQueue() {
 void*
 HeapOfVectorsEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
-    // Create the binary heap that is used to manage events for the agent.
+    // Create the vector that is used to manage events for the agent.
     agent->tier2 = new std::vector<Tier2Entry>();
     return reinterpret_cast<void*>(agentList.size() - 1);
 }
@@ -60,7 +60,7 @@ HeapOfVectorsEventQueue::front() {
 
 void
 HeapOfVectorsEventQueue::getNextEvents(Agent* agent, EventContainer& container) {
-        ASSERT(container.empty());
+    ASSERT(container.empty());
     ASSERT(agent->tier2->front().getEvent() != NULL);
     const muse::Time currTime = agent->tier2->front().getReceiveTime();
     EventContainer eventList = agent->tier2->front().getEventList();
@@ -87,12 +87,10 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
             std::cerr << *agent << std::endl;
             abort();
         }
-        
         ASSERT(event->getReferenceCount() < 3);
         // We add the top event we popped to the event container
         event->increaseReference();
         container.push_back(event);
-
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     } while (!empty() &&
             (TIME_EQUALS(agent->tier2->front().getReceiveTime(), currTime)) &&
@@ -102,9 +100,10 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
 
 void
 HeapOfVectorsEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
-        if(!empty()) {
+    if(!empty()) {
         // Get agent and validate.
         muse::Agent* const agent = top();
+        ASSERT(agent != NULL);
         ASSERT(getIndex(agent) == 0);
         // Have the events give up its next set of events
         getNextEvents(agent, events);
@@ -113,6 +112,7 @@ HeapOfVectorsEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
         updateHeap(agent);
     }
 }
+
 std::vector<Tier2Entry>::iterator
 HeapOfVectorsEventQueue::find(std::vector<Tier2Entry>::iterator first,
         std::vector<Tier2Entry>::iterator last, const Tier2Entry& tierTwoEntry) {
@@ -147,16 +147,16 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     if(agent->tier2->empty()) {
         agent->tier2->push_back(tier2Entry);
     } else {
-    std::vector<Tier2Entry>::iterator first = agent->tier2->begin();
-    std::vector<Tier2Entry>::iterator last = agent->tier2->end();
-    std::vector<Tier2Entry>::iterator iter = find(first, last, tier2Entry);
-    /* If there is an event with a matching receive time in the vector,
-    then add the event to the list of events associated with
-    that particular Tier2Entry object. */ 
-        if(*iter == tier2Entry){
+        std::vector<Tier2Entry>::iterator first = agent->tier2->begin();
+        std::vector<Tier2Entry>::iterator last = agent->tier2->end();
+        std::vector<Tier2Entry>::iterator iter = find(first, last, tier2Entry);
+        /* If there is an event with a matching receive time in the vector,
+        then add the event to the list of events associated with
+        that particular Tier2Entry object. */
+        if (*iter == tier2Entry) {
             Tier2Entry& cur = *iter;
             cur.updateContainer(event);
-        } else {    
+        } else {
             /*If there is no event with a matching receive time in the vector,
             then insert an instance of Tier2Entry into the vector at the
             appropriate position. */
@@ -185,35 +185,57 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
         // Queue must contain an object in order for binary search to work correctly.
         if(agent->tier2->empty()) {
             agent->tier2->push_back(tier2Entry);
-        }
-        iter = find(first, last, tier2Entry);
-        /*If there is a match in the receive time, then append the event 
-        to the list of events associated with that particular
-        Tier2Entry object. */
-        if(*iter == tier2Entry){
-            Tier2Entry& cur = *iter;
-            cur.updateContainer(event);   
         } else {
-            /*If there is no match, then insert the Tier2Entry object into its 
-            position in the vector of Tier2Entry objects. */
-            agent->tier2->insert(iter, tier2Entry);   
+            iter = find(first, last, tier2Entry);
+            /*If there is a match in the receive time, then append the event 
+            to the list of events associated with that particular
+            Tier2Entry object. */
+            if (*iter == tier2Entry) {
+                Tier2Entry& cur = *iter;
+                cur.updateContainer(event);
+            } else {
+                /*If there is no match, then insert the Tier2Entry object into its 
+                position in the vector of Tier2Entry objects. */
+                agent->tier2->insert(iter, tier2Entry);
+            }
         }
         it++;
     }
+    events.clear();
     updateHeap(agent);
 }
-  
+
+bool
+HeapOfVectorsEventQueue::isFutureEvent(const muse::AgentID sender,
+        const muse::Time sentTime, const muse::Event* evt) {
+    return ((evt->getSenderAgentID() == sender)
+                    && (evt->getSentTime() >= sentTime));
+}
+
 int
 HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
                                   const muse::Time sentTime) {
-    UNUSED_PARAM(dest);
-    ASSERT(dest != NULL);
-    ASSERT(getIndex(dest) < agentList.size());
-    // Get agent's heap to cancel out events.
-        UNUSED_PARAM(dest);
-    ASSERT(dest != NULL);
     int  numRemoved = 0;
-   
+    std::vector<Tier2Entry>* tier2eventPQ = dest->tier2;
+    long currIdx = tier2eventPQ->size() - 1;
+    while(!(tier2eventPQ->empty()) && (currIdx >= 0)) {
+        if((*tier2eventPQ)[currIdx].getReceiveTime() > sentTime) {
+            EventContainer eventList = (*tier2eventPQ)[currIdx].getEventList();
+            long index = 0;
+            while(!(eventList.empty())) {
+                Event* const evt = eventList[index];
+                ASSERT(evt != NULL);
+                if(isFutureEvent(sender, sentTime, evt)) {
+                    evt->decreaseReference();
+                    numRemoved++;
+                    eventList[index] = eventList.back();
+                    eventList.pop_back();
+                }
+                index++;
+            }
+        } 
+        currIdx--;
+    }
     // Update the 2nd tier heap for scheduling.
     updateHeap(dest);
     // Return number of events canceled to track statistics.
