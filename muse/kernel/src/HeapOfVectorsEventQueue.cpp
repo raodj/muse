@@ -163,7 +163,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
             agent->tier2->insert(iter, tier2Entry);
         }
     }
-       // Fix the position of this agent in the scheduler's heap.
+    // Fix the position of this agent in the scheduler's heap.
     updateHeap(agent);
 }
 
@@ -222,7 +222,7 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sende
         if((*tier2eventPQ)[currIdx].getReceiveTime() > sentTime) {
             EventContainer eventList = (*tier2eventPQ)[currIdx].getEventList();
             long index = 0;
-            while(!(eventList.empty())) {
+            while(!eventList.empty() && (index < eventList.size())) {
                 Event* const evt = eventList[index];
                 ASSERT(evt != NULL);
                 if(isFutureEvent(sender, sentTime, evt)) {
