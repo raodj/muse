@@ -48,6 +48,18 @@ void
 HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
     ASSERT(!empty());
+    // Decrease reference count for all events in the agent event queue
+    // before agent removal.
+    std::vector<Tier2Entry>* tier2eventPQ = agent->tier2;
+    std::vector<Tier2Entry>::iterator start = tier2eventPQ->begin();
+    std::vector<Tier2Entry>::iterator end = tier2eventPQ->end();
+    while(start!=end) {
+        EventContainer eventList = (*start).getEventList();
+       for(Event* evt: eventList) {
+            evt->decreaseReference();
+        }
+        start++;
+    }
     agent->tier2->clear();
     // Update the heap to place agent with LTSF
     updateHeap(agent);
@@ -56,6 +68,17 @@ HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
 muse::Event*
 HeapOfVectorsEventQueue::front() {
     return !top()->tier2->empty() ? top()->tier2->front().getEvent() : NULL;
+}
+
+void
+HeapOfVectorsEventQueue::pop_front(muse::Agent* agent) {
+    // Decrease reference count for all events in the front of the agent event queue
+    // before the list of events is removed from the event queue.
+    EventContainer eventList = agent->tier2->front().getEventList();
+    for(Event* evt: eventList) {
+        evt->decreaseReference();
+    }
+    agent->tier2->erase(agent->tier2->begin()); 
 }
 
 void
@@ -88,14 +111,16 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
             abort();
         }
         ASSERT(event->getReferenceCount() < 3);
-        // We add the top event we popped to the event container
+        // The events in the event list at the front of the tier2 event queue
+        // are added to the event container and we increase the reference count
+        // for each event added.
         event->increaseReference();
         container.push_back(event);
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     } while (!empty() &&
             (TIME_EQUALS(agent->tier2->front().getReceiveTime(), currTime)) &&
-            start != end);
-    agent->tier2->erase(agent->tier2->begin()); 
+             start != end);
+    pop_front(agent); 
 }
 
 void
@@ -143,6 +168,8 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
     Tier2Entry tier2Entry(event);
+    // Increase event reference count for every event added to the event queue.
+    event->increaseReference();
     // Queue must contain an object in order for binary search to work correctly.
     if(agent->tier2->empty()) {
         agent->tier2->push_back(tier2Entry);
@@ -236,7 +263,7 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sende
         } 
         currIdx--;
     }
-    // Update the 2nd tier heap for scheduling.
+    // Update the 1st tier heap for scheduling.
     updateHeap(dest);
     // Return number of events canceled to track statistics.
     return numRemoved;

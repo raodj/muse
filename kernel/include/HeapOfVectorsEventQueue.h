@@ -240,10 +240,24 @@ public:
     virtual void reportStats(std::ostream& os);
     
 protected:
+    /** Convenience method to remove events.
+
+        This is an internal convenience method that is used to remove
+        the front (i.e., events with lowest timestamp) event list from this
+        queue.
+    */
+    void pop_front(muse::Agent* agent);
     
-    muse::Agent* top() {
-        return agentList.front();
-    }
+    /** Convenience method to obtain the top-most or front agent.
+
+        This method can be used to obtain a pointer to the top/front
+        agent -- that is, the agent with the lowest timestamp event to
+        be scheduled next.
+
+        \return A pointer to the top-most agent in this heap.
+    */
+    muse::Agent* top() { return agentList.front();}
+    
     /** This method is used to search for a specific element
          stored agent's vector of Tier2Entry objects.
       
