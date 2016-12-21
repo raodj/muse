@@ -52,7 +52,6 @@ BEGIN_NAMESPACE(muse)
     in the fixHeap() method.
 */
 class HeapOfVectorsEventQueue : public EventQueue {
-   
 public:
     /** The constructor for the TwoTierHeapEventQueue.
 

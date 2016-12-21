@@ -174,7 +174,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
         ASSERT(iter->getReceiveTime() > event->getReceiveTime());
         agent->tier2->insert(iter, Tier2Entry(event));
     }
-    ASSERT(std::is_sorted(tier2.begin(), tier2.end()));
+    // ASSERT(std::is_sorted(tier2.begin(), tier2.end()));
     // Fix the position of this agent in the scheduler's heap.
     if (fixHeap) {
         updateHeap(agent);
