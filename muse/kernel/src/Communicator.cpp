@@ -34,6 +34,7 @@ using namespace muse;
 
 Communicator::Communicator() {
     gvtManager = NULL;
+    myMPIrank  = -1;
 }
 
 SimulatorID
@@ -42,7 +43,9 @@ Communicator::initialize(int argc, char* argv[], bool initMPI) {
         // Initialize MPI.
         MPI_INIT(argc, argv);
     }
-    return MPI_GET_RANK();
+    // Setup the rank for this process
+    myMPIrank = MPI_GET_RANK();
+    return myMPIrank;
 }
 
 void
@@ -257,10 +260,10 @@ Communicator::receiveEvent(){
 
 bool
 Communicator::isAgentLocal(const AgentID id) {
-    //cout << "Check if Local Agent: " << id <<endl;
-    //ASSERT(id >= 0 && id <= 4);
-    SimulatorID my_id = MPI_GET_RANK();
-    return (agentMap[id] == my_id);
+    // cout << "Check if Local Agent: " << id <<endl;
+    // ASSERT(id >= 0 && id <= 4);
+    // SimulatorID my_id = MPI_GET_RANK();
+    return (agentMap[id] == myMPIrank);
 }
 
 void

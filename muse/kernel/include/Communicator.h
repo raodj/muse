@@ -262,7 +262,6 @@ public:
     void finalize(bool stopMPI = true);
 
 private:
-
     /** \brief The locations of all agents in the simulation.
         
 	When simulation starts, all simulation kernels, will perform a
@@ -274,7 +273,7 @@ private:
 	\see SimulatorID
     */
     AgentIDSimulatorIDMap agentMap;
-    
+
     /** \brief Instance variable to hold reference to GVT manager.
 
         This instance variable is used to hold a pointer to the GVT
@@ -285,6 +284,13 @@ private:
         before it starts simulation.  
     */
     GVTManager* gvtManager;
+
+    /** The MPI rank associated with this communicator.  This value is
+        setup in the initialize method and is used in the isAgentLocal
+        method, to minimize calls to MPI_GET_RANK (which is shown to
+        be expensive).
+    */
+    SimulatorID myMPIrank;
 };
 
 END_NAMESPACE(muse)
