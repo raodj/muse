@@ -26,9 +26,18 @@
 #
 
 GLOBALCPPFLAGS  = $(WALL) $(WEXTRA) $(PIPE) $(INFORM_WARN) -g
-GLOBALCPPFLAGS += -DDEVELOPER_ASSERTIONS $(ICC_NO_WARN_SOME)
+GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
 GLOBALCPPFLAGS += $(CPP11) $(CPP0X)
+
+# The following compiler flag enables additional sanity checks that
+# may slow down simulations.  So for full performance and performance
+# comparisons ensure the following flag is disabled.
+# GLOBALCPPFLAGS += -DDEVELOPER_ASSERTIONS
+
+# The following compiler flag enables recyling of events during
+# simulation. See Event::allocate and Event::deallocate methods.
+GLOBALCPPFLAGS += -DRECYCLE_EVENTS
 
 AM_CXXFLAGS = $(GLOBALCXXFLAGS)
 AM_CPPFLAGS = $(GLOBALCPPFLAGS) \
