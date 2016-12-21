@@ -39,7 +39,7 @@ Event::~Event() {}
 
 void
 Event::decreaseReference(){
-    ASSERT(getReferenceCount() >= 0);
+    ASSERT(getReferenceCount() > 0);
     // Decrement the reference count.
     referenceCount--;
     if (referenceCount == 0) {

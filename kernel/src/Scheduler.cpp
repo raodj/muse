@@ -85,6 +85,8 @@ Scheduler::processNextAgentEvents() {
     // Get the first of next batch of events to be scheduled.
     const muse::Event* const front = agentPQ->front();
     ASSERT(front != NULL);
+    DEBUG(std::cout << "Scheduler is processing event: " << *front
+                    << std::endl);
     // Figure out the agent to receive this event.
     Agent* const agent = agentMap[front->getReceiverAgentID()];
     ASSERT(agent != NULL);    
