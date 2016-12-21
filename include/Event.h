@@ -25,6 +25,8 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
+#include <unordered_map>
+#include <stack>
 
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(std::ostream&, const muse::Event&);
@@ -42,7 +44,7 @@ extern std::ostream& operator<<(std::ostream&, const muse::Event&);
                                   const muse::Time recvTime,            \
                                   const int size = sizeof(EventClassName)) { \
         EventClassName* event =                                         \
-            reinterpret_cast<EventClassName*>(new char[size]);          \
+            reinterpret_cast<EventClassName*>(allocate(size));          \
         new (event) EventClassName(receiverID, recvTime);               \
         return event;                                                   \
     }
@@ -108,6 +110,12 @@ public:
     */
     inline Time getReceiveTime() const { return receiveTime; }
 
+    /** Convenience method to check reference count on events for
+        troubleshooting/debugging purposes.
+
+        \return The reference count on events. For valid events this
+        value is in the range 0 < referenceCount < 3.
+    */
     inline int getReferenceCount() const {return referenceCount; }
 
   
@@ -213,7 +221,7 @@ protected:
         to guarantee that it is "flat" and ready to be sent across the
         wire.
     */
-    ~Event(); 
+    virtual ~Event();
 
     /// The ID of the Agent that sent this Event
     AgentID senderAgentID;
@@ -224,8 +232,40 @@ protected:
     /// The Time this Event will be delivered/was received
     Time receiveTime;
     /// Is this an anti-message?
-    bool antiMessage;      
-    /// Internal reference counter for memory management
+    bool antiMessage;
+
+    /** Internal reference counter for memory management.
+
+        The reference count for valid events being used for processing
+        is either 1 or 2 (any other value would be temporary/invalid):
+
+        <ol>
+
+        <li>The reference count is 1 (particularly for remote events)
+        indicating the event is in:
+
+        <ul>
+
+        <li>the scheduler's queue awaiting processing (or cancellation
+        due to anti-messages)</li>
+
+        <li>Agent's queue of processed events, maintained for
+        rescheduling events after a rollback.</li>
+
+        <li>Agent's output queue -- maintained for sending out
+        anti-messages during a rollback.</li>
+
+        </ul>
+
+        </li>
+
+        <li>The reference count is 2 for local events.  This is
+        because the event is in the output queue of sending agent (on
+        the same machine) as well as the input queue (scheduler or
+        agent) of the receiving agent.</li>
+        
+        </ol>
+    */
     int referenceCount; 
   
     /** \brief Instance variable to hold the color of this event for
@@ -241,9 +281,82 @@ protected:
         \see GVTManager
     */
     char color;
- 
-};
 
+    /** Convenience method to allocate flat memory for a given event.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events.  This method allows memory
+        recycling for events to be enabled/disabled using compile-time
+        macro RECYCLE_EVENTS.
+
+        <p>If recycling of events is disabled, this method always
+        creates a flat array of characters using new[] operator and
+        returns it.</p>
+
+        <p>On the other hand, if recycling of events is enabled (via
+        compiler flag RECYCLE_EVENTS), then this method operates as
+        follows.  First it checks to see if EventRecycler has an entry
+        of the specified size.  If so it returns it.  Otherwise it
+        creates a new flat array of characters (using new[] operator)
+        and returns it.</p>
+
+        \param[in] size The size of the flat buffer to be allocated
+        for storing event information.
+
+        \return A pointer to a valid/flat buffer. This method always
+        returns a valid event pointer.
+    */
+    static char* allocate(const int size);
+
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events.  This method allows memory
+        recycling for events to be enabled/disabled using compile-time
+        macro RECYCLE_EVENTS.
+
+        <p>If recycling of events is disabled, this method simply
+        deletes the buffer using delete[] operator.</p>
+
+        <p>On the other hand, if recycling of events is enabled (via
+        compiler flag RECYCLE_EVENTS), then this method adds the
+        buffer to the appropriate entry in the EventRecycler map in
+        this class.</p>
+        
+        \param[in] buffer The event buffer previously obtained via
+        call to the allocate method in this class.
+
+        \param[in] size The size of the buffer (in bytes).  The size
+        is used to recycle the buffer in future calls to allocate.
+     */
+    static void deallocate(char* buffer, const int size);
+    
+private:
+    /** An unordered map of stacks to recycle events of different
+        sizes.
+
+        This map is used only if RECYCLE_EVENTS macro has been enabled
+        at compile time.
+        
+        The key into this unordered map is the size of the event being
+        recycled.  For each size a stack is maintained to return the
+        most recently used event to improve cache performance.
+
+        This map is used by the allocate and deallocate methods in
+        this class.  Typically the Event::create method is the one
+        that is used by applications to create an event.
+    */
+    static std::unordered_map<int, std::stack<char*>> EventRecycler;
+
+    /** Helper method to clear out all events in the recycler.
+
+        This method is typically called at the end of the simulation
+        from Simulation::finalize() method.  This method deletes all
+        events in the EventRecycler and empty's it.
+    */
+    static void deleteRecycledEvents();
+};
 
 END_NAMESPACE(muse);
 

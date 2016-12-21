@@ -28,6 +28,9 @@
 
 using namespace muse;
 
+// The static map used for recycling events
+std::unordered_map<int, std::stack<char*>> Event::EventRecycler;
+
 Event::Event(const AgentID  receiverID, const Time  receiveTime):
     senderAgentID(-1u), receiverAgentID(receiverID), sentTime(TIME_INFINITY), 
     receiveTime(receiveTime), antiMessage(false), referenceCount(1),
@@ -35,16 +38,25 @@ Event::Event(const AgentID  receiverID, const Time  receiveTime):
     // Nothing else to be done in the constructor.
 }
 
-Event::~Event() {}
+Event::~Event() {
+    // Nothing else to be done in the destructor.
+}
 
 void
-Event::decreaseReference(){
+Event::decreaseReference() {
     ASSERT(getReferenceCount() > 0);
     // Decrement the reference count.
     referenceCount--;
     if (referenceCount == 0) {
-        char* buffer = reinterpret_cast<char*>(this);
-        delete []  buffer;
+        // Manually call event destructor
+        this->~Event();
+        // Free-up or recycle the memory for this event.
+#ifdef RECYCLE_EVENTS        
+        deallocate(reinterpret_cast<char*>(this), this->getEventSize());
+#else
+        // Avoid 1 extra call to getEventSize() in this situation
+        deallocate(reinterpret_cast<char*>(this), 0);
+#endif
     }
 }
 
@@ -76,6 +88,48 @@ operator<<(ostream& os, const muse::Event& event) {
        << "ID="           << &event                     << "]";
     
     return os;
+}
+
+// ------------[ Methods associated with event recycling ]--------------
+
+char*
+Event::allocate(const int size) {
+#ifdef RECYCLE_EVENTS
+    std::unordered_map<int, std::stack<char*>>::iterator curr =
+        EventRecycler.find(size);
+    if (curr != EventRecycler.end() && !curr->second.empty()) {
+        // Recycle existing buffer.
+        char *buf = curr->second.top();
+        curr->second.pop();
+        return buf;
+    }
+#endif
+    // No existing buffer of given size to recycle (or recycling is
+    // disabled). So, create a new one.
+    return new char[size];
+}
+
+void
+Event::deallocate(char* buffer, const int size) {
+#ifdef RECYCLE_EVENTS
+    EventRecycler[size].push(buffer);
+#else
+    UNUSED_PARAM(size);
+    delete [] buffer;
+#endif
+}
+
+void
+Event::deleteRecycledEvents() {
+    std::unordered_map<int, std::stack<char*>>::iterator curr;
+    for (curr = EventRecycler.begin(); (curr != EventRecycler.end()); curr++) {
+        std::stack<char*>& stack = curr->second;
+        while (!stack.empty()) {
+            delete [] stack.top();
+            stack.pop();
+        }
+    }
+    EventRecycler.clear();
 }
 
 #endif
