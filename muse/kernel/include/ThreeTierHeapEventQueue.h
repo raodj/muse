@@ -69,7 +69,7 @@ public:
         return (this->recvTime < rhs.recvTime);
     }
     
-    Time getReceiveTime() const {
+    inline Time getReceiveTime() const {
         return recvTime;
     }
     
@@ -77,15 +77,18 @@ public:
         return agentID;
     }
     muse::Event* getEvent() const {
-        return evt;
+        return eventList.front();
     }
     std::ostream& operator<<(std::ostream& os) {
         os << this->getEvent();
         return os;
     }
-    const EventContainer& getEventList() const {
+    inline const EventContainer& getEventList() const {
         return eventList;
     }
+    inline EventContainer& getEventList() {
+        return eventList;
+    }    
 };
 
 class EventComp {
