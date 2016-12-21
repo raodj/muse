@@ -285,9 +285,9 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 void
 Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {  
     AgentIDBoolMap bitMap;
-    list<Event*>::iterator outQ_it = outputQueue.begin();
+    List<Event*>::iterator outQ_it = outputQueue.begin();
     while (outQ_it != outputQueue.end()) {
-        list<Event*>::iterator del_it = outQ_it;
+        List<Event*>::iterator del_it = outQ_it;
         outQ_it++; 
         Event* currentEvent = (*del_it);
         //check if the event is invalid.
@@ -326,9 +326,9 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
                                      const Event* straggler,
                                      muse::EventContainer& reschedule) {
     ASSERT(straggler != NULL);
-    list<Event*>::iterator inQ_it = inputQueue.begin();
+    List<Event*>::iterator inQ_it = inputQueue.begin();
     while (inQ_it != inputQueue.end()) {
-        list<Event*>::iterator del_it = inQ_it;
+        List<Event*>::iterator del_it = inQ_it;
         inQ_it++;
         Event *currentEvent = (*del_it);
         ASSERT(currentEvent->isAntiMessage() == false);
@@ -403,7 +403,7 @@ void
 Agent::garbageCollect(const Time gvt) {
     // First find a state in state queue that is below GVT so we will
     // always have a state to rollback to.
-    list<State*>::iterator safe_point_it = stateQueue.begin();
+    List<State*>::iterator safe_point_it = stateQueue.begin();
     Time oneBelowGVT = 0;
     ASSERT(!stateQueue.empty());    
     while ((safe_point_it != stateQueue.end()) &&
@@ -482,8 +482,8 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const {
 
 
 ostream&
-statePrinter(ostream& os, list<muse::State*> state_q ) {
-    list<muse::State*>::iterator it = state_q.begin();
+statePrinter(ostream& os, List<muse::State*> state_q ) {
+    List<muse::State*>::iterator it = state_q.begin();
     os << "(";
     for (; it != state_q.end(); it++) {
         os << (*it)->getTimeStamp() << ",";

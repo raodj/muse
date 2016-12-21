@@ -25,7 +25,7 @@
 
 #include <iostream>
 #include <exception>
-#include <list>
+#include <deque>
 #include <cmath>
 #include "DataTypes.h"
 #include "Event.h"
@@ -50,6 +50,16 @@ class Tier2Entry;
 class EventComp;
 class TwoTierHeapAdapter;
 
+/** \typedef std::deque<T> List<T>
+
+    \brief Data structure to define the list of events and states
+    managed by each agent.  This alias provides a convenient approach
+    to quickly change the underlying data structure used in the code
+    with minor modification (and lots of testing).
+*/
+template<typename T>
+using List = std::deque<T>;
+
 /** The base class for all agents in a simulation.
         
     <p>This class represents the base class from which all
@@ -72,8 +82,7 @@ class Agent {
     friend class TwoTierHeapEventQueue;
     friend class ThreeTierHeapEventQueue;
     friend class HeapOfVectorsEventQueue;
-public:
-    
+public:    
     /** enum for return Time.
         when agent ask for time via getTime()
         user will be able to pass in TimeType and get
@@ -483,7 +492,7 @@ private:
     */
     Time lvt;
 
-    /** The double linked list State Queue.
+    /** The list State Queue.
         
         Houses a sorted list of state object-pointers. The list is
         used to restore the state of the agent as part of rollback
@@ -493,9 +502,13 @@ private:
         automatically sorted based on LVT of the agent.  The list is
         periodically garbage collected based on GVT.
 
+        \note Prior to Dec 21 2016, this data structure was a
+        std::list<State*> which was memory intensive.  Consequently,
+        it has been changed to a std::deque instead.
+
         \see State()
     */
-    list<State*> stateQueue;
+    List<State*> stateQueue;
 
     /** The double linked list Output Queue.
         
@@ -504,9 +517,13 @@ private:
         rollback recovery process.  The list is periodically garbage
         collected based on GVT.
 
+        \note Prior to Dec 21 2016, this data structure was a
+        std::list<State*> which was memory intensive.  Consequently,
+        it has been changed to a std::deque instead.
+        
         \see Event()
     */
-    list<Event*> outputQueue;
+    List<Event*> outputQueue;
 
     /** The double linked list Input Queue.
         
@@ -515,9 +532,13 @@ private:
         part of rollback recovery processing.  The list is
         periodically garbage collected based on GVT.
 
+        \note Prior to Dec 21 2016, this data structure was a
+        std::list<State*> which was memory intensive.  Consequently,
+        it has been changed to a std::deque instead.
+        
         \see Event()
     */
-    list<Event*> inputQueue;
+    List<Event*> inputQueue;
 
     /** The State type myState.
         
