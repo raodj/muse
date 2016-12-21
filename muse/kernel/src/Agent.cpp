@@ -81,7 +81,7 @@ Agent::saveState() {
         allSimStreams[i]->saveState(getLVT());
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " saved state at "
-                    << getLVT());
+                    << getLVT() << std::endl);
 }
 
 void
@@ -96,6 +96,8 @@ Agent::processNextEvents(muse::EventContainer& events) {
         // (*curr)->decreaseReference();  // remove from events container
         inputQueue.push_back(*curr);
     }
+    DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
+                    << "events at time: " << events.front()->getReceiveTime());
     ASSERT(events.front()->getReceiveTime() > getState()->timestamp);
     // Set the LVT and timestamp
     setLVT(events.front()->getReceiveTime());
