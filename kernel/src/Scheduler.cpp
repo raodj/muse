@@ -224,8 +224,13 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new ThreeTierHeapEventQueue();
     } else if (queueName == "heap2tQ") {
         agentPQ = new HeapOfVectorsEventQueue();
-    } else {
+    } else if (queueName == "fibHeap") {
         agentPQ = new AgentPQ();
+    } else {
+        std::cerr << "Invalid scheduler queue name. Valid queue names are:\n"
+                  << "\tladderQ fibHeap heap 2tHeap 3tHeap heap2tQ.\n"
+                  << "Aborting.\n";
+        std::abort();  // throw an exception instead?
     }
 }
 
