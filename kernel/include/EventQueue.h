@@ -153,8 +153,8 @@ public:
     /** Enqueue a batch of events.
 
         This method can be used to enqueue/add a batch of events to
-        this event queue.  Once added the reference count on each one
-        of the events is increased.  This method provides a convenient
+        this event queue.  Note that the event reference count is not
+        changed by this method.  This method provides a convenient
         approach to enqueue a batch of events, particularly after a
         rollback.
 
