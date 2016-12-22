@@ -17,7 +17,6 @@ callIntervalMean(call_interval_mean), callDurationMean(call_duration_mean),
 moveIntervalMean(move_interval_mean), generator(id) {
     // Setup the random seed used for generating random delays.
     seed = id;
-    myState = state;
     blocked_channels = call_attempts = hand_off_blocks = 0;
     
 }
@@ -272,7 +271,6 @@ PCSAgent::executeTask(const muse::EventContainer* events) {
             case COMPLETE_CALL: { completionCall(*current_event); } break;
             default: {
                 std::cerr << "Unhandled method type encountered in PCSAgent.cpp\n";
-                assert(0);
             }
         }
     }
