@@ -24,6 +24,7 @@
 
 #include <vector>
 #include <algorithm>
+#include "Avg.h"
 #include "EventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
 
@@ -444,7 +445,14 @@ private:
         algorithms, namely: \c std::make_heap, \c std::push_heap, and
         \c std::pop_heap.
     */
-     std::vector<muse::Agent*> agentList;
+    std::vector<muse::Agent*> agentList;
+
+    /** Stats object to track the average tier-2 bucket size.  This
+        value is the one that primarily determines if tier-2
+        operations are going to be optimal or not.  Higher this value,
+        the better for this event queue.
+    */
+    Avg avgSchedBktSize;
 };
 
 END_NAMESPACE(muse)
