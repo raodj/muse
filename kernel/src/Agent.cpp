@@ -284,29 +284,29 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 
 void
 Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {  
-    AgentIDBoolMap bitMap;
+    AgentIDBoolMap bitMap;  // track if anti-msg has been sent to an agent
     List<Event*>::iterator outQ_it = outputQueue.begin();
     while (outQ_it != outputQueue.end()) {
-        List<Event*>::iterator del_it = outQ_it;
-        outQ_it++; 
-        Event* currentEvent = (*del_it);
-        //check if the event is invalid.
+        Event* const currentEvent = *outQ_it;
+        // check if the event is invalid.
         if (currentEvent->getSentTime() > restoredTime) {
-            //check if bitMap to receiver agent has been set.
-            if (bitMap[currentEvent->getReceiverAgentID()] == false) {
-                bitMap[currentEvent->getReceiverAgentID()] = true;
-                if (!(Simulation::getSimulator())->isAgentLocal(currentEvent->getReceiverAgentID())) {
+            const AgentID receiver = currentEvent->getReceiverAgentID();
+            // check if bitMap to receiver agent has been set.
+            if (bitMap[receiver] == false) {
+                bitMap[receiver] = true;  // send anit-message flag.
+                if (!Simulation::getSimulator()->isAgentLocal(receiver)) {
                     currentEvent->makeAntiMessage();
-                    //cout << "Making Anti-Message: " << *currentEvent << endl;
+                    // cout << "Making Anti-Message: " << *currentEvent << endl;
                     Simulation::getSimulator()->scheduleEvent(currentEvent);
                 } else {
                     // Send an anti-message to the agent on the same
                     // process so that it rolls back. Since pointers
                     // are shared, a duplicate needs to be made.
-                    char* flatAntiEvent = new char[sizeof(Event)];
-                    memcpy(flatAntiEvent, currentEvent, sizeof(Event));
-                    Event* antiEvent = reinterpret_cast<Event*>(flatAntiEvent);
-                    antiEvent->setReferenceCount(1);
+                    Event* const antiEvent =
+                        Event::create(receiver, currentEvent->getReceiveTime());
+                    // Setup sender and send-time information.
+                    antiEvent->senderAgentID = currentEvent->senderAgentID;
+                    antiEvent->sentTime      = currentEvent->sentTime;
                     antiEvent->makeAntiMessage();
                     if (!Simulation::getSimulator()->scheduleEvent(antiEvent)) {
                         // The scheduler rejected our anti-message.
@@ -316,7 +316,9 @@ Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
             }
             // Invalid events automatically get removed
             currentEvent->decreaseReference();
-            outputQueue.erase(del_it);
+            outQ_it = outputQueue.erase(outQ_it);  // erase & update iterator
+        } else {
+            outQ_it++;  // Onto the next event to be checked
         }
     }
 }
@@ -326,24 +328,24 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
                                      const Event* straggler,
                                      muse::EventContainer& reschedule) {
     ASSERT(straggler != NULL);
-    List<Event*>::iterator inQ_it = inputQueue.begin();
-    while (inQ_it != inputQueue.end()) {
-        List<Event*>::iterator del_it = inQ_it;
-        inQ_it++;
+    List<Event*>::iterator del_it = inputQueue.begin();
+    while (del_it != inputQueue.end()) {
         Event *currentEvent = (*del_it);
+        ASSERT(currentEvent != NULL);
         ASSERT(currentEvent->isAntiMessage() == false);
-
+        // There are different cases to be applied for processing below.
         if (currentEvent->getReceiveTime() <= restoredTime) {
             // This event needs to stay in the input queue - it does
             // not need to be reprocessed or deleted.
+            del_it++;   // onto the next entry
             continue;
         }
         
         if ((currentEvent->getSenderAgentID() == myID) &&
             (currentEvent->getSentTime() > restoredTime)) {
             // We sent this event to ourselves in the future - it gets deleted
-            currentEvent->decreaseReference();
-            inputQueue.erase(del_it);
+            del_it = inputQueue.erase(del_it);  // remove & update iterator
+            currentEvent->decreaseReference();  // release reference
             continue;
         }
         
@@ -365,7 +367,7 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
             // Current event is discarded as it is not rescheduled.
             currentEvent->decreaseReference();
         }
-        inputQueue.erase(del_it);
+        del_it = inputQueue.erase(del_it);  // remove & update iterator
     }
 }
 
