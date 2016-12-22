@@ -25,6 +25,7 @@
 #include <forward_list>
 #include <queue>
 #include <vector>
+#include "Avg.h"
 #include "Event.h"
 #include "EventQueue.h"
 
@@ -54,48 +55,16 @@
     \brief Define a convenient macro for conditionally compiling
     additional statistics collection regarding ladder queue.
 
-    Define a custom macro DEBUG (note the all caps) macro to be used
+    Define a custom macro LQ_STATS (note the all caps) macro to be used
     to conditionally compile in debugging code to generate detailed
     logs.  This helps to minimize code modification to insert and
     remove debugging messages.
 */
 #define COMMA ,
 #define LQ_STATS(x) x
+// #define LQ_STATS(x)
 
 BEGIN_NAMESPACE(muse)
-
-/** Helper class to streamline the process of tracking average statistics.
-
-    This is a convenience class that that has been developed to
-    streamline the process of collecting average values of runtime
-    statistics.
-*/
-class Avg {
-    friend std::ostream& operator<<(std::ostream& os, const Avg& ag) {
-        return (os << ag.sum << " / " << ag.samples << " = " << ag.mean);
-    }
-public:
-    Avg(double mean = 0.0, long samples = 0L) : mean(mean), samples(samples) {}
-    ~Avg() {}
-    void add(const double value) {
-        sum += value;
-        mean = ((mean * samples) + value) / (samples + 1);
-        samples++;
-    }
-    Avg& operator++() {
-        samples++;
-        sum++;
-        return *this;
-    }
-    Avg& operator+=(const double value) {
-        add(value);
-        return *this;
-    }
-private:
-    double mean;
-    long   sum;
-    long   samples;
-};
 
 // Defintion for a vector events
 using EventVector = std::vector<muse::Event*>;
@@ -226,6 +195,7 @@ private:
     size_t count;
 };
 
+// using Bucket = ListBucket;
 using Bucket = VectorBucket;
 
 class Top {
@@ -247,7 +217,7 @@ public:
     double getBucketWidth() const {
         DEBUG(std::cout << "minTS=" << minTS << ", maxTS=" << maxTS
                         << ", size=" << size() << std::endl);
-        return (maxTS - minTS) / size();
+        return (maxTS - minTS + size() - 1.0) / size();
     }
 
     int size() const { return events.size(); }
@@ -378,7 +348,7 @@ public:
     explicit Rung(Top& top);
     Rung(Bucket&& bkt, const Time rStart, const double bucketWidth);
     Rung(EventVector&& list, const Time rStart, const double bucketWidth);
-
+    
     Bucket&& removeNextBucket(muse::Time& bktTime);
     bool empty() const { return (rungEventCount == 0); }
 
@@ -386,7 +356,7 @@ public:
 
     muse::Time getStartTime() const { return rStartTS; }
 
-    muse::Time getBucketWidth() const { return bucketWidth; }
+    double getBucketWidth() const { return bucketWidth; }
 
     muse::Time getCurrTime() const {
         return rCurrTS;
@@ -434,6 +404,8 @@ private:
     std::vector<Bucket> bucketList;
     // Total number of events still present in this rung.
     int rungEventCount;
+    // The maximum number of buckets used in this rung
+    LQ_STATS(size_t maxBkts);
 };
 
 class LadderQueue : public EventQueue {
@@ -503,6 +475,7 @@ private:
     LQ_STATS(size_t maxRungs);
     LQ_STATS(Avg avgBktCnt);
     LQ_STATS(Avg botLen);
+    LQ_STATS(Avg avgBktWidth);
 };
 
 END_NAMESPACE(muse)
