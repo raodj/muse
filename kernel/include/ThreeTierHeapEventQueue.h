@@ -76,16 +76,20 @@ public:
     AgentID getReceiverAgentID() const {
         return agentID;
     }
+    
     muse::Event* getEvent() const {
         return eventList.front();
     }
+    
     std::ostream& operator<<(std::ostream& os) {
         os << this->getEvent();
         return os;
     }
+    
     inline const EventContainer& getEventList() const {
         return eventList;
     }
+    
     inline EventContainer& getEventList() {
         return eventList;
     }    
@@ -96,19 +100,6 @@ public:
     inline bool operator() (const Tier2Entry& lhs, const Tier2Entry& rhs) const {
         return (lhs.getReceiveTime() > rhs.getReceiveTime() );
     }
-};
-
-class IsFutureEvent{
-public:
-    IsFutureEvent(const muse::AgentID sender, const muse::Time sentTime) :
-        sender(sender), sentTime(sentTime) {}
-        inline bool operator()(const muse::Tier2Entry& tierTwoEntry) const {
-            return ((tierTwoEntry.getEvent()->getSenderAgentID() == sender)
-                    && (tierTwoEntry.getEvent()->getSentTime() >= sentTime));
-        }
-private:
-    muse::AgentID sender;
-    muse::Time sentTime;
 };
 
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
@@ -323,7 +314,29 @@ public:
     virtual void reportStats(std::ostream& os);
     
 protected:
-        /** Convenience method to get the top-event time for a given
+    
+    /** Enqueue a new event.
+
+        This method must be used to enqueue/add an event to this event
+        queue.  Once added the reference count on the event is
+        increased.  This method adds the event to the specified agent.
+        Next this method fixes the heap to ensure that the agent with
+        the least-time-stamp is at the top of the heap.
+
+        \param[in] agent The agent to which the event is to be
+        scheduled.  This agent corresponds to the agent ID returned by
+        event->getReceiverAgentID() method.
+        
+        \param[in] event The event to be enqueued.  This parameter can
+        never be NULL.
+
+        \param[in] fixHeap If this flag is true, then position of the
+        specified agent in the heap is updated.
+    */
+    virtual void enqueue(muse::Agent* agent, muse::Event* event,
+                         const bool fixHeap = false);
+    
+    /** Convenience method to get the top-event time for a given
         agent.
 
         This method is a convenience wrapper to call
@@ -356,6 +369,14 @@ protected:
     inline bool compare(const Agent *lhs, const Agent * rhs) const {
         return getTopTime(lhs) >= getTopTime(rhs);
     }
+    
+    /** Convenience method to remove events.
+
+        This is an internal convenience method that is used to remove
+        the front (i.e., events with lowest timestamp) event list from this
+        queue.
+    */
+    void pop_front(muse::Agent* agent);
     
     /** Convenience method to obtain the top-most or front agent.
 
@@ -435,6 +456,30 @@ protected:
         which events should be added.        
     */
     void getNextEvents(Agent* agent, EventContainer& container);
+    
+
+    /** Convenience method to determine if an event is a future event.
+
+        This method is a helper method used in the eraseAfter() method
+        to determine if a given event is a future event from a given
+        sender agent.
+
+        \param[in] sender The sender agent to be used in comparison.
+
+        \param[in] sendTime The reference time for comparison
+
+        \param[in] evt The event to be checked if it is future event.
+
+        \return This method returns true if the event is sent from a
+        given sender agent and its send time is greater-or-equal to
+        the given sentTime.
+     */
+    inline bool
+    isFutureEvent(const muse::AgentID sender, const muse::Time sentTime, 
+                  const muse::Event* evt) const { 
+        return ((evt->getSenderAgentID() == sender) &&
+                (evt->getSentTime() >= sentTime));
+    }
     
 private:
     
