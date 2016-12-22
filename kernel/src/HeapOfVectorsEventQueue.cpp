@@ -120,7 +120,9 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     }
     // Remove the entry at the beginning of the queue.
-    pop_front(agent); 
+    pop_front(agent);
+    // Track bucket/block size statistics
+    avgSchedBktSize += container.size();
 }
 
 void
@@ -242,7 +244,7 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
 void
 HeapOfVectorsEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
-    // No statistics are currently reported.
+    os << "Average scheduled bucket size: " << avgSchedBktSize << std::endl;
 }
 
 void
