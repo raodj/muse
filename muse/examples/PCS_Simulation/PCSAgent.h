@@ -169,7 +169,7 @@ private:
     
     /** The engine that generates pseudo-random numbers.
      */
-    std::shared_ptr<std::mt19937> generator;
+    std::mt19937 generator;
     
     /** The action to be taken which is dependent on the minimum timestamp.
      */
