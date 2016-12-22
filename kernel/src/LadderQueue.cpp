@@ -27,7 +27,7 @@
 #include "LadderQueue.h"
 
 #define MAX_BUCKETS 100
-#define MIN_BUCKET_WIDTH 0.01
+#define MIN_BUCKET_WIDTH 1.0
 
 // ----------------------[ ListBucket methods ]-----------------------
 
@@ -432,8 +432,10 @@ muse::Rung::Rung(Top& top) : Rung(std::move(top.events), top.minTS,
 muse::Rung::Rung(Bucket&& bkt, const Time minTS, const double bktWidth) :
     rStartTS(minTS), rCurrTS(minTS), bucketWidth(bktWidth), currBucket(0),
     rungEventCount(0) {
+    // Initialize variable to track maximum bucket count
+    LQ_STATS(maxBkts = 0);
     // Ensure bucket width is not ridiculously small
-    // bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -451,8 +453,10 @@ muse::Rung::Rung(Bucket&& bkt, const Time minTS, const double bktWidth) :
 muse::Rung::Rung(EventVector&& list, const Time minTS, const double bktWidth) :
     rStartTS(minTS), rCurrTS(minTS), bucketWidth(bktWidth), currBucket(0),
     rungEventCount(0) {
+    // Initialize variable to track maximum bucket count
+    LQ_STATS(maxBkts = 0);    
     // Ensure bucket width is not ridiculously small
-    // bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -483,6 +487,8 @@ muse::Rung::enqueue(muse::Event* event) {
     if (bucketNum >= bucketList.size()) {
         // Ensure bucket list of sufficient size
         bucketList.resize(bucketNum + 1);
+        // update variable to track maximum bucket count
+        LQ_STATS(maxBkts = std::max(maxBkts, bucketList.size()));
     }
     ASSERT(bucketNum < bucketList.size());
     // Add event into appropriate bucket
@@ -596,7 +602,7 @@ muse::Rung::prettyPrint(std::ostream& os) const {
 
 void
 muse::Rung::updateStats(Avg& avgBktCnt) const {
-    avgBktCnt.add(bucketList.size());
+    LQ_STATS(avgBktCnt += maxBkts);
 }
 
 bool
@@ -617,12 +623,13 @@ muse::LadderQueue::~LadderQueue() {
 
 void
 muse::LadderQueue::reportStats(std::ostream& os) {
+    UNUSED_PARAM(os);    
     LQ_STATS({
             // Collect final bucket counts from the ladder
             for (size_t i = 0; (i < ladder.size()); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
-            os << "Events cancelled from top   : " << ceTop
+            os << "Events cancelled from top   : "   << ceTop
                << "\nEvents scanned in top       : " << ceScanTop
                << "\nEvents cancelled from ladder: " << ceLadder
                << "\nEvents scanned from ladder  : " << ceScanLadder
@@ -632,8 +639,9 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nInserts into rungs          : " << insLadder
                << "\nInserts into bottom         : " << insBot
                << "\nMax rung count              : " << maxRungs
-               << "\nAverage bucket count        : " << avgBktCnt
+               << "\nAverage #buckets per rung   : " << avgBktCnt
                << "\nAverage bottom size         : " << botLen
+               << "\nAverage bucket width        : " << avgBktWidth
                << std::endl;
     });
 }
@@ -707,9 +715,11 @@ muse::LadderQueue::createRungFromBottom() {
                     << ", rStart = " << rStart << ", bucketWidth = "
                     << (bucketWidth / bottom.size()) << std::endl);
     ladderEventCount += bottom.size();  // Update ladder event count
-    ladder.push_back(Rung(std::move(bottom.sel), rStart,
-                          bucketWidth / bottom.size()));
-    maxRungs = std::max(maxRungs, ladder.size());  // Track max rungs
+    const double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
+    ladder.push_back(Rung(std::move(bottom.sel), rStart, bktWidth));
+    DEBUG(std::cout << "1. Bucket width: " << bktWidth << std::endl);
+    LQ_STATS(avgBktWidth += bktWidth);
+    LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));  // Track max rungs
     ASSERT(bottom.empty());
     return ladder.size() - 1;
 }
@@ -719,11 +729,19 @@ muse::LadderQueue::recurseRung() {
     ASSERT(!empty());
     // Find the next non-empty bucket across multiple rungs in the
     // ladder
+    LQ_STATS(bool isLastRung = true);
     while (!ladder.empty() && ladder.back().empty()) {
         // Track statistics if enabled.
-        LQ_STATS(ladder.back().updateStats(avgBktCnt));
+        LQ_STATS({
+                if (!isLastRung) {
+                    ladder.back().updateStats(avgBktCnt);
+                }
+            });
         // Remove empty rung (i.e., NRung--) at the end.
         ladder.pop_back();
+        // In the next iteration the rung to remove (if any) was not
+        // the last rung in the ladder
+        LQ_STATS(isLastRung = false);
     }
     ASSERT(!ladder.empty());
     // Now the last rung in ladder is the rung that has the next
@@ -737,9 +755,12 @@ muse::LadderQueue::recurseRung() {
         (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
         // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
         // that is needed to ensure consistent ladder setup.
-        const double bucketWidth = lastRung.getBucketWidth() / bkt.size();
+        const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
+                                    1.0) / bkt.size();
         ladder.push_back(Rung(std::move(bkt), bktTime, bucketWidth));
-        maxRungs = std::max(maxRungs, ladder.size());  // Track max rungs
+        DEBUG(std::cout << "2. Bucket width: " << bucketWidth << std::endl);
+        LQ_STATS(avgBktWidth += bucketWidth);
+        LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));
         return recurseRung();  // Recurse now looking at newly added rung
     }
     // Track events being removed from the ladder
@@ -784,7 +805,10 @@ muse::LadderQueue::populateBottom() {
         ladder.clear();
         ladderEventCount += top.size();  // Track events in ladder
         ladder.push_back(Rung(top));     // Move events into ladder
-        maxRungs = std::max(maxRungs, ladder.size());
+        LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));
+        LQ_STATS(avgBktWidth += ladder.back().getBucketWidth());
+        DEBUG(std::cout << "3. Bucket width: "
+                        << ladder.back().getBucketWidth() << std::endl);
         DEBUG(prettyPrint(std::cout));
         ASSERT(top.empty());
     }
