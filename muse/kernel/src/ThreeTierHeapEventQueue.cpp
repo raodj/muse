@@ -28,6 +28,9 @@
 
 BEGIN_NAMESPACE(muse)
 
+// A convenience shortcut used just in this source file
+using Tier2List = BinaryHeap<muse::Tier2Entry, muse::EventComp>;
+
 ThreeTierHeapEventQueue::ThreeTierHeapEventQueue() :
 EventQueue("ThreeTierHeapEventQueue") {
     // Nothing else to be done.
@@ -41,7 +44,7 @@ void*
 ThreeTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
     // Create the binary heap that is used to manage events for the agent.
-    agent->schedRef.tier2eventPQ = new BinaryHeap<muse::Tier2Entry, muse::EventComp>();
+    agent->schedRef.tier2eventPQ = new Tier2List();
     return reinterpret_cast<void*>(agentList.size() - 1);
 }
 
@@ -49,42 +52,60 @@ void
 ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
     ASSERT(agent->schedRef.tier2eventPQ != NULL);
-    // Remove all Tier2Entry objects for this agent from the heap.
-    agent->schedRef.tier2eventPQ->clear();
-    // Update the heap to place agent with LTSF
+    // Logically remove events in this agent's tier2 queues/buckets.
+    Tier2List& tier2eventPQ = *agent->schedRef.tier2eventPQ;
+    for (auto iter = tier2eventPQ.begin(); iter != tier2eventPQ.end(); iter++) {
+        for (Event* evt : (*iter).getEventList()) {
+            evt->decreaseReference();  // logically remove event
+        }
+    }
+    // clear out tier2 queue (so this agent's time becomes INFINITY).
+    tier2eventPQ.clear();
+    // Update the heap to place agent with LTSF.
     updateHeap(agent);
 }
 
 muse::Event*
 ThreeTierHeapEventQueue::front() {
-    muse::Event* retVal = NULL;
-    if (!empty()) {
-        retVal = top()->schedRef.tier2eventPQ->top().getEvent(); 
-    }
-    return retVal;
+ return (!top()->schedRef.tier2eventPQ->empty()) ?
+            top()->schedRef.tier2eventPQ->top().getEvent() : NULL;               
 }
 
 void
-ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) {
+ThreeTierHeapEventQueue::pop_front(muse::Agent* agent) {
+    // Decrease reference count for all events in the front of the
+    // agent event queue before the list of events is removed from the
+    // event queue.
+    EventContainer& eventList = 
+            agent->schedRef.tier2eventPQ->top().getEventList();
+    for (Event* evt: eventList) {
+        evt->decreaseReference();
+    }
+    agent->schedRef.tier2eventPQ->pop();
+}
+
+void
+ThreeTierHeapEventQueue::getNextEvents(Agent* agent,
+                                       EventContainer& container) {
     ASSERT(container.empty());
     ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
-    BinaryHeap<muse::Tier2Entry, muse::EventComp>* const tier2eventPQ = agent->schedRef.tier2eventPQ;
-    const Time currTime = tier2eventPQ->getTopTime();  
-    EventContainer eventList = tier2eventPQ->top().getEventList();
-    EventContainer::iterator start = eventList.begin();
-    EventContainer::iterator end = eventList.end(); 
-    do {
-        Event* event = *start;
-        start++;
-        // We should never process an anti-message.
-        if (event->isAntiMessage()) { 
+    // All events in tier2 front should have same receive times.
+    const Time eventTime = agent->schedRef.tier2eventPQ->getTopTime();  
+    // Move all the events out of the tier2 front into the return container.
+    container = std::move(agent->schedRef.tier2eventPQ->top().getEventList());
+    // Do validation checks on the events in tier2.
+    for (const Event* event : container) {
+         //  All events must have the same receive time.
+        ASSERT( event->getReceiveTime() == eventTime );
+                // We should never process an anti-message.
+        if (event->isAntiMessage()) {
             std::cerr << "Anti-message Processing: " << *event << std::endl;
             std::cerr << "Trying to process an anti-message event, "
                       << "please notify MUSE developers of this issue"
                       << std::endl;
             abort();
         }
-        // Ensure that the top event is greater than LVT
+        // Ensure that the top event is greater than LVT.
         if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
             std::cerr << "Agent is being scheduled to process an event ("
                       << *event << ") that is at or below it LVT (LVT="
@@ -94,20 +115,13 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent, EventContainer& container) 
             std::cerr << *agent << std::endl;
             abort();
         }
-
+        // Ensure reference counts are consistent.
         ASSERT(event->getReferenceCount() < 3);
-        
-        // We add the top event we popped to the event container
-        event->increaseReference(); 
-        container.push_back(event);
-       
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
-       
-    } while (!tier2eventPQ->empty() && 
-            (TIME_EQUALS(tier2eventPQ->getTopTime(), currTime)) && start != end);
-    // Finally it is safe to remove this tier2event object from the 
-    // tier2eventPQ as it's list of events have been added to the inputQueue
-    tier2eventPQ->pop();
+    }
+    // Finally it is safe to remove this tier2event entry from the event queue,
+    // as it's list of events have been added to the inputQueue.
+    pop_front(agent);
 }
 
 void
@@ -115,90 +129,104 @@ ThreeTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
         muse::Agent* const agent = top();
+        ASSERT(agent != NULL);
         ASSERT(getIndex(agent) == 0);
-        // Have the events give up its next set of events
+        // Have the events give up its next set of events.
         getNextEvents(agent, events);
         ASSERT(!events.empty());
-        // Fix the position of this agent in the scheduler's heap
+        // Fix the position of this agent in the scheduler's heap.
         updateHeap(agent);
     }
 }
 
 void
 ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
+    // Use helper method (just below this one) to add event and fix-up
+    // the queue.  First Increase event reference count for every
+    // event added to the event queue.
+    event->increaseReference();
+    enqueue(agent, event, true);
+}
+
+void
+ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
+                                 const bool fixHeap) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
-    Tier2Entry tier2Entry(event);
     std::vector<Tier2Entry>::iterator iter;
+    Tier2Entry tier2Entry(event);
     iter = agent->schedRef.tier2eventPQ->find(tier2Entry);
     /* If there is an event with a matching receive time in the heap,
-    then add the event to the list of events associated with
+    then add the event to the bucket of events associated with
     that particular Tier2Entry object. */ 
-    if(iter!= agent->schedRef.tier2eventPQ->end()) {
-        Tier2Entry& cur = *iter;
-        cur.updateContainer(event);        
+    if(iter != agent->schedRef.tier2eventPQ->end()) {
+        iter->updateContainer(event);        
     } else {
         /*If there is no event with a matching receive time in the heap,
         then send an instance of Tier2Entry to the binary heap. */ 
         agent->schedRef.tier2eventPQ->push(tier2Entry);
     }
     // Fix the position of this agent in the scheduler's heap.
-    updateHeap(agent);
+    if(fixHeap) {
+        updateHeap(agent);
+    }
 }
 
 void
 ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
-                               muse::EventContainer& events) {
+                                 muse::EventContainer& events) {
     ASSERT(agent != NULL);
-    ASSERT(!events.empty());
     ASSERT(getIndex(agent) < agentList.size());
-    EventContainer::iterator it = events.begin();
-    // Compare the list of events in the EventContainer with the event
-    // receive times on the heap.
-    while(it!=events.end()) {
-        muse::Event* event = *it;
-        Tier2Entry tier2Entry(event);
-        std::vector<Tier2Entry>::iterator iter;
-        iter = agent->schedRef.tier2eventPQ->find(tier2Entry);
-        /*If there is a match in the receive time, then append the event 
-        to the list of events associated with that particular
-        Tier2Entry object. */
-        if(iter!=agent->schedRef.tier2eventPQ->end()) {
-            Tier2Entry& cur = *iter;
-            cur.updateContainer(event);
-        /*If there is no match, then create a Tier2Entry object and add
-        the object to the vector of Tier2Entry objects. */
-        } else {
-            // Ensure concurrent events in the EventContainer list are
-            // appended accordingly in the vector of Tier2Entry objects.
-            auto check = std::find(tier2.begin(), tier2.end(),
-                                   tier2Entry);
-            auto index = std::distance(tier2.begin(), check);
-            if(check != tier2.end()) {
-                Tier2Entry* curr = &tier2[index];
-                curr->updateContainer(event);
-            } else {
-                tier2.push_back(tier2Entry);
-            }
-        }
-        it++;       
+    for(muse::Event* event : events) {
+        // Enqueue event but don't waste time fixing-up heap yet for
+        // this agent.  We will do it at the end after all events are
+        // added.  However, we don't increase reference counts in this
+        // API.
+        enqueue(agent, event, false);
     }
-    agent->schedRef.tier2eventPQ->push(tier2);
-    tier2.clear();
-    // Fix the position of this agent in the scheduler's heap
+    // Clear out all the events in the incoming container.
+    events.clear();
+    // Update the location of this agent on the heap as needed.
     updateHeap(agent);
 }
   
 int
 ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
-                                  const muse::Time sentTime) {
-    ASSERT(dest != NULL);
-    ASSERT(getIndex(dest) < agentList.size());
-    // Get agent's heap to cancel out events.
-    int numRemoved = dest->schedRef.tier2eventPQ->remove(IsFutureEvent(sender, sentTime));
-    // Update the 2nd tier heap for scheduling.
+                                    const muse::Time sentTime) {
+    ASSERT(dest->schedRef.tier2eventPQ != NULL);
+    int  numRemoved =0;
+    Tier2List& tier2eventPQ = *dest->schedRef.tier2eventPQ;
+    long currIdx = tier2eventPQ.size() - 1;
+    auto iter = tier2eventPQ.rbegin();
+    while ( (iter != tier2eventPQ.rend()) && currIdx >= 0 ) {
+        if(iter->getReceiveTime() > sentTime) {
+            EventContainer& eventList = iter->getEventList();
+            size_t index = 0;
+            while (!eventList.empty() && (index < eventList.size())) {
+                Event* const evt = eventList[index];
+                ASSERT(evt != NULL);
+                if (isFutureEvent(sender, sentTime, evt)) {
+                    evt->decreaseReference();
+                    numRemoved++;
+                    eventList[index] = eventList.back();
+                    eventList.pop_back();
+                } else {
+                    index++;  // onto next event in this bucket
+                }
+            }
+            // If all events are canceled then this bucket needs to be
+            // removed from the agent's event queue.
+            if (eventList.empty()) {
+                tier2eventPQ.remove(currIdx);
+            }
+        }
+        currIdx--;
+        iter++;
+    }
+    // Update the 1st tier heap for scheduling.
     updateHeap(dest);
+    // Return number of events canceled to track statistics.
     return numRemoved;
 }
 
@@ -229,15 +257,15 @@ ThreeTierHeapEventQueue::updateHeap(muse::Agent* agent) {
     if (agent->oldTopTime != getTopTime(agent)) {
         index = fixHeap(index);
         // Update the position of the agent in the scheduler's heap
-        // Validate
+        // Validate.
         ASSERT(agentList[index] == agent);
         ASSERT(getIndex(agent) == index);
-        // Update time value as well for future access
+        // Update time value as well for future access.
         agent->oldTopTime = getTopTime(agent);
         // Validation check.
         ASSERT(getTopTime(agentList[0]) <= getTopTime(agentList[1]));
     }
-    // Return the new index position of the agent
+    // Return the new index position of the agent.
     return index;
 }
 

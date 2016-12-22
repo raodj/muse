@@ -195,6 +195,15 @@ public:
         return numRemoved;
     }
     
+    void remove(long index) {
+        // Delete object and fix up the heap.
+        // To patch-up we move object from the bottom up this 
+        // slot and then fix-up the heap.
+        (*heapContainer)[index] = heapContainer->back();
+        heapContainer->pop_back();
+        EventQueue::fixHeap(*heapContainer, index, comp);
+    }
+    
     /** \brief Get the current size of the heap
 
         \return The current size of the heap        
@@ -209,12 +218,37 @@ public:
      */
     inline bool empty() const { return heapContainer->empty(); }
     
+    /** \brief Get the iterator referring to the beginning of the element in the
+         vector container.
+      
+       \return An iterator to the beginning element of the sequence. 
+     */
+    inline typename std::vector<T>::iterator begin() {return heapContainer->begin();}
+    
     /** \brief Get the iterator referring to past the end element in the
          vector container.
       
        \return An iterator to the element past the end of the sequence. 
      */
     inline typename std::vector<T>::iterator end() {return heapContainer->end();}
+    
+    /** \brief Get the reverse iterator referring to past the end element in the
+         vector container.
+      
+       \return A reverse iterator to the element past the end of the sequence. 
+     */
+    inline typename std::vector<T>::reverse_iterator rbegin() {
+        return heapContainer->rbegin();
+    }
+    
+    /** \brief Get the reverse iterator referring to the beginning element in the
+         vector container.
+      
+       \return A reverse iterator to the beginning element of the sequence. 
+     */    
+    inline typename std::vector<T>::reverse_iterator rend() {
+        return heapContainer->rend();
+    }
     
     /** Convenience method to return receive time of the lowest
         timestamp event in this heap (for a given agent).
