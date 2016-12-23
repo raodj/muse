@@ -156,6 +156,8 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
     ASSERT(getIndex(agent) < agentList.size());
+    // Use linear search O(n) to find match or insert position
+    agentBktCount += agent->schedRef.tier2eventPQ->size();
     std::vector<Tier2Entry>::iterator iter;
     Tier2Entry tier2Entry(event);
     iter = agent->schedRef.tier2eventPQ->find(tier2Entry);
@@ -236,7 +238,12 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
 void
 ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
+    const long comps = std::log2(agentList.size()) *
+        avgSchedBktSize.getCount() + fixHeapSwapCount.getSum();
+    os << "Average #buckets per agent   : " << agentBktCount    << std::endl;
     os << "Average scheduled bucket size: " << avgSchedBktSize << std::endl;
+    os << "Average fixHeap compares     : " << fixHeapSwapCount << std::endl;
+    os << "Compare estimate             : " << comps            << std::endl;
 }
 
 void
@@ -278,6 +285,7 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
     muse::Agent* value    = agentList[currPos];
     const size_t len      = (agentList.size() - 1) / 2;
     size_t secondChild    = currPos;
+    int          opCount  = 0;
     // This code was borrowed from libstdc++ implementation to ensure
     // that the fix-ups are consistent with std::make_heap API.
     while (secondChild < len)  {
@@ -288,6 +296,7 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
         agentList[currPos] = std::move(agentList[secondChild]);
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos = secondChild;
+        opCount++;  // track statistics on number of operations performed
     } 
     if (((agentList.size() & 1) == 0) &&
         (secondChild == (agentList.size() - 2) / 2)) {
@@ -295,6 +304,7 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
         agentList[currPos] = std::move(agentList[secondChild - 1]);
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos            = secondChild - 1;
+        opCount++;  // track statistics on number of operations performed
     }
     // Use libstdc++'s internal method to fix-up the vector from the
     // given location.
@@ -310,6 +320,8 @@ ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
     }
     agentList[currPos] = value;
     agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
+    // Update aggregate statistics
+    fixHeapSwapCount += opCount;
     // Return the final index position for the agent
     return currPos;    
 }
