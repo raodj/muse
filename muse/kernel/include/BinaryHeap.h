@@ -223,14 +223,18 @@ public:
       
        \return An iterator to the beginning element of the sequence. 
      */
-    inline typename std::vector<T>::iterator begin() {return heapContainer->begin();}
+    inline typename std::vector<T>::iterator begin() {
+        return heapContainer->begin();
+    }
     
     /** \brief Get the iterator referring to past the end element in the
          vector container.
       
        \return An iterator to the element past the end of the sequence. 
      */
-    inline typename std::vector<T>::iterator end() {return heapContainer->end();}
+    inline typename std::vector<T>::iterator end() {
+        return heapContainer->end();
+    }
     
     /** \brief Get the reverse iterator referring to past the end element in the
          vector container.
