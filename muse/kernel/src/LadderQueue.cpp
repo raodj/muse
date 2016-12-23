@@ -629,6 +629,8 @@ muse::LadderQueue::reportStats(std::ostream& os) {
             for (size_t i = 0; (i < ladder.size()); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
+            // Compute net number of compares for ladderQ
+            const long comps = log2(botLen.getMean()) * botLen.getSum();
             os << "Events cancelled from top   : "   << ceTop
                << "\nEvents scanned in top       : " << ceScanTop
                << "\nEvents cancelled from ladder: " << ceLadder
@@ -642,6 +644,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nAverage #buckets per rung   : " << avgBktCnt
                << "\nAverage bottom size         : " << botLen
                << "\nAverage bucket width        : " << avgBktWidth
+               << "\nCompare estimate            : " << comps
                << std::endl;
     });
 }
@@ -819,6 +822,7 @@ muse::LadderQueue::populateBottom() {
     bottom.enqueue(recurseRung());  // Transfer bucket_k into bottom
     ASSERT(!bottom.empty());
     DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
+    LQ_STATS(botLen += bottom.size());
 }
 
 int
@@ -924,7 +928,6 @@ muse::LadderQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
         populateBottom();
     }
     ASSERT(!bottom.empty());
-    LQ_STATS(botLen += bottom.size());
     bottom.dequeueNextAgentEvents(events);
     ASSERT(!events.empty());
     DEBUG(ASSERT(!haveBefore(events.front()->getReceiveTime())));
