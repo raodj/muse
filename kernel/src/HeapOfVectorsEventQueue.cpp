@@ -159,6 +159,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
     // A convenience reference to tier2 list of buckets
     Tier2List& tier2 = *agent->tier2;
     // Use binary search O(log n) to find match or insert position
+    agentBktCount += tier2.size();
     Tier2List::iterator iter = 
         std::lower_bound(tier2.begin(), tier2.end(), event, lessThan);
     // There are 3 cases: 1. we found matching bucket, 2: iterator
@@ -244,7 +245,9 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
 void
 HeapOfVectorsEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
-    os << "Average scheduled bucket size: " << avgSchedBktSize << std::endl;
+    os << "Average #buckets per agent   : " << agentBktCount    << std::endl;
+    os << "Average scheduled bucket size: " << avgSchedBktSize  << std::endl;
+    os << "Average fixHeap compares     : " << fixHeapSwapCount << std::endl;
 }
 
 void
@@ -286,6 +289,7 @@ HeapOfVectorsEventQueue::fixHeap(size_t currPos) {
     muse::Agent* value    = agentList[currPos];
     const size_t len      = (agentList.size() - 1) / 2;
     size_t secondChild    = currPos;
+    int          opCount  = 0;
     // This code was borrowed from libstdc++ implementation to ensure
     // that the fix-ups are consistent with std::make_heap API.
     while (secondChild < len)  {
@@ -296,13 +300,15 @@ HeapOfVectorsEventQueue::fixHeap(size_t currPos) {
         agentList[currPos] = std::move(agentList[secondChild]);
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos = secondChild;
-    } 
+        opCount++;  // track statistics on number of operations performed
+    }
     if (((agentList.size() & 1) == 0) &&
         (secondChild == (agentList.size() - 2) / 2)) {
         secondChild        = 2 * (secondChild + 1);
         agentList[currPos] = std::move(agentList[secondChild - 1]);
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos            = secondChild - 1;
+        opCount++;  // track statistics on number of operations performed
     }
     // Use libstdc++'s internal method to fix-up the vector from the
     // given location.
@@ -315,12 +321,14 @@ HeapOfVectorsEventQueue::fixHeap(size_t currPos) {
         agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
         currPos = parent;
         parent  = (currPos - 1) / 2;
+        opCount++;  // track statistics on number of operations performed
     }
     agentList[currPos] = value;
     agentList[currPos]->fibHeapPtr = reinterpret_cast<void*>(currPos);
+    // Update aggregate statistics
+    fixHeapSwapCount += opCount;
     // Return the final index position for the agent
-    return currPos;    
-
+    return currPos;
 }
 
 END_NAMESPACE(muse)
