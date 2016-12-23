@@ -37,7 +37,7 @@ GLOBALCPPFLAGS += $(CPP11) $(CPP0X)
 
 # The following compiler flag enables recyling of events during
 # simulation. See Event::allocate and Event::deallocate methods.
-# GLOBALCPPFLAGS += -DRECYCLE_EVENTS
+GLOBALCPPFLAGS += -DRECYCLE_EVENTS
 
 AM_CXXFLAGS = $(GLOBALCXXFLAGS)
 AM_CPPFLAGS = $(GLOBALCPPFLAGS) \

@@ -150,7 +150,7 @@ public:
     }
 
     muse::Event* front() const {
-        return (!list.empty() ? list.front() : NULL);
+        return (!list.empty() ? list.back() : NULL);
     }
 
     muse::Event* pop_front() {
