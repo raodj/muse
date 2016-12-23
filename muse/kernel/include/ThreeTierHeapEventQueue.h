@@ -507,6 +507,21 @@ private:
         the better for this event queue.
     */
     Avg avgSchedBktSize;
+    
+    /** The number of times the fixHeap method performed heap-fixing
+        operations.  This variable is fine-grained in that it
+        accumulates the average number of compares that occur to fix
+        up the heap of agents.  The fixHeap method has a q1 = O(log
+        n1) compares.  So if this method is called m times, the
+        statistics reports (q1 + q2 + ... + qm) / m.
+    */
+    Avg fixHeapSwapCount;
+
+    /** The average queue size for each agent.  This value determines
+        the time takes to find a bucket into which an event is to be
+        inserted.
+    */
+    Avg agentBktCount;
 };
 
 END_NAMESPACE(muse)
