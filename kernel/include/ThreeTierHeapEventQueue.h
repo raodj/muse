@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include "Avg.h"
 #include "EventQueue.h"
 #include "BinaryHeap.h"
 
@@ -499,6 +500,13 @@ private:
      *  concurrent events. 
      */ 
     std::vector<muse::Tier2Entry> tier2;
+    
+    /** Stats object to track the average tier-2 bucket size.  This
+        value is the one that primarily determines if tier-2
+        operations are going to be optimal or not.  Higher this value,
+        the better for this event queue.
+    */
+    Avg avgSchedBktSize;
 };
 
 END_NAMESPACE(muse)
