@@ -89,11 +89,11 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent,
                                        EventContainer& container) {
     ASSERT(container.empty());
     ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
-    // All events in tier2 front should have same receive times.
+    // All events in tier2eventPQ top should have same receive times.
     const Time eventTime = agent->schedRef.tier2eventPQ->getTopTime();  
-    // Move all the events out of the tier2 front into the return container.
+    // Move all the events out of the tier2eventPQ top into the return container.
     container = std::move(agent->schedRef.tier2eventPQ->top().getEventList());
-    // Do validation checks on the events in tier2.
+    // Do validation checks on the events in tier2eventPQ.
     for (const Event* event : container) {
          //  All events must have the same receive time.
         ASSERT( event->getReceiveTime() == eventTime );
@@ -122,6 +122,8 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent,
     // Finally it is safe to remove this tier2event entry from the event queue,
     // as it's list of events have been added to the inputQueue.
     pop_front(agent);
+    // Track bucket/block size statistics
+    avgSchedBktSize += container.size();
 }
 
 void
@@ -192,7 +194,8 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
 }
   
 int
-ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
+ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
+                                    const muse::AgentID sender,
                                     const muse::Time sentTime) {
     ASSERT(dest->schedRef.tier2eventPQ != NULL);
     int  numRemoved =0;
@@ -233,7 +236,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sende
 void
 ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
-    // No statistics are currently reported.
+    os << "Average scheduled bucket size: " << avgSchedBktSize << std::endl;
 }
 
 void
