@@ -245,9 +245,12 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
 void
 HeapOfVectorsEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
+    const long comps = std::log2(agentList.size()) *
+        avgSchedBktSize.getCount() + fixHeapSwapCount.getSum();
     os << "Average #buckets per agent   : " << agentBktCount    << std::endl;
     os << "Average scheduled bucket size: " << avgSchedBktSize  << std::endl;
     os << "Average fixHeap compares     : " << fixHeapSwapCount << std::endl;
+    os << "Compare estimate             : " << comps            << std::endl;
 }
 
 void
