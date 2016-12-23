@@ -101,6 +101,24 @@ public:
         add(value);
         return *this;
     }
+    
+    /** The getMean method.
+        \return This method returns the running mean of this object.
+        \see mean 
+    */
+    inline double getMean() { return mean; }
+    
+    /** The getSum method.
+        \return This method returns the sum of all samples added to this object.
+        \see sum 
+    */
+    inline double getSum() { return sum; }
+    
+    /** The getCount method.
+        \return This method returns the number of samples added to this object.
+        \see samples 
+    */
+    inline long getCount() {return samples; }
 
 protected:
     // Currently this class does not have any protected members.
