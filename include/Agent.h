@@ -551,7 +551,7 @@ private:
     */
     State* myState;
     
-    std::vector<Tier2Entry>* tier2;
+    std::deque<Tier2Entry>* tier2;
         
     union {
         /** The TwoTierHeapAdapter for TwoTierHeapEventQueue.
