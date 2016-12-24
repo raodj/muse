@@ -306,24 +306,40 @@ muse::HeapBottom::pop_front() {
 
 int
 muse::HeapBottom::remove_after(muse::AgentID sender, const Time sendTime) {
-    // Copy events to be retained into a temporary vector and finally
-    // swap it with sel.
+    // Prior to Dec 23 2016, this method would copy events to be
+    // retained into a temporary vector and make heap again.  This
+    // approach was too slow for larger list.  So instead, this method
+    // removes events one at a time from the heap, similar to the one
+    // done in BinaryHeapWrapper::removeFutureEvents.
     size_t removedCount = 0;
-    EventVector retained;
-    retained.reserve(sel.size());
-    for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
-        muse::Event* const event = *curr;
+    long currIdx        = sel.size() - 1;
+    while (!sel.empty() && (currIdx >= 0)) {
+        ASSERT(currIdx < (long) sel.size());
+        muse::Event* const event = sel[currIdx];
+        ASSERT(event != NULL);
+        // An event is deleted only if the *sent* time is greater than
+        // the sendTime and if the event is from same sender        
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
+            // This event needs to be removed.
             event->decreaseReference();
-            removedCount++;
+            removedCount++; 
+            // Now it is time to patchup the hole and fix up the heap.
+            // To patch-up we move event from the bottom up to this
+            // slot and then fix-up the heap.
+            sel[currIdx] = sel.back();
+            sel.pop_back();
+            // Fix-up the heap using helper method.
+            EventQueue::fixHeap(sel, currIdx, Bottom::compare);
+            // Update the current index so that it is within bounds.
+            currIdx = std::min<long>(currIdx, sel.size() - 1);
         } else {
-            retained.push_back(event);
+            // Check the previous element in the vector to see if that
+            // is a candidate for cancellation.
+            currIdx--;
         }
     }
-    // Update the sel with list of retained events
-    sel.swap(retained);
-    std::make_heap(sel.begin(), sel.end(), Bottom::compare);
+    // Return number of events canceled to track statistics.
     return removedCount;
 }
 
