@@ -28,7 +28,7 @@
 BEGIN_NAMESPACE(muse)
 
 // A convenience shortcut used just in this source file
-using Tier2List = std::vector<Tier2Entry>;
+using Tier2List = std::deque<Tier2Entry>;
 
 HeapOfVectorsEventQueue::HeapOfVectorsEventQueue() :
     EventQueue("HeapOfVectorsEventQueue") {
@@ -175,7 +175,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
         // vector, then insert an instance of Tier2Entry (aka bucket)
         // into the vector at the appropriate position.
         ASSERT(iter->getReceiveTime() > event->getReceiveTime());
-        agent->tier2->insert(iter, Tier2Entry(event));
+        tier2.insert(iter, Tier2Entry(event));
     }
     // ASSERT(std::is_sorted(tier2.begin(), tier2.end()));
     // Fix the position of this agent in the scheduler's heap.
