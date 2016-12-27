@@ -200,13 +200,22 @@ private:
     */
     int lookAhead;
     
-    /** The maximum uniform-random delay to be added to the lookahead
-        when scheduling events.  This value is not zero, then it used
-        to compute a random delay factor as: lookAhead + (rand() %
-        delay).
+    /** The maximum uniform-random/mean delay to be added to the
+        lookahead when scheduling events.  This value is not zero,
+        then it used to compute a random delay factor as: lookAhead +
+        (rand() % delay).
     */
     int delay;
 
+    /** The type of delay distribution to be for generating delays.
+        Valid delay distributions are: uniform, poisson, exponential,
+        reverse_poisson, reverse_exponential.  The reverse forms of
+        the distribution are mirror images of the regular
+        distributions causing a heavy tailed distribution.
+    */
+    std::string delayDistrib;
+
+    
     /** The virtual time when the simulation is deemed to be complete.
         This value is set via the command-line argument --endTime
     */
@@ -214,6 +223,9 @@ private:
 
     /** The MPI rank of this simulation process.  */
     int rank;
+
+    /** Flag to indicate if the delay histogram should be printed. */
+    bool delayHist;
 };
 
 #endif

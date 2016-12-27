@@ -43,15 +43,17 @@
 #include "ArgParser.h"
 
 PHOLDSimulation::PHOLDSimulation() {
-    rows       = 3;
-    cols       = 3;
-    events     = 3;
-    delay      = 0;
-    lookAhead  = 1;
-    imbalance  = 0.0;
-    selfEvents = 0.0;
-    end_time   = 100;
-    granularity= 0;
+    rows         = 3;
+    cols         = 3;
+    events       = 3;
+    delay        = 0;
+    lookAhead    = 1;
+    imbalance    = 0.0;
+    selfEvents   = 0.0;
+    end_time     = 100;
+    granularity  = 0;
+    delayDistrib = "uniform";
+    delayHist    = false;
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
@@ -68,6 +70,8 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          ArgParser::INTEGER},
         {"--delay", "The maximum random time added to look ahead [0, 100]",
          &delay, ArgParser::INTEGER },
+        {"--delay-distrib", "The type of delay distribution to be used",
+         &delayDistrib, ArgParser::STRING},
         {"--eventsPerAgent", "Initial number of events per agent",
          &events, ArgParser::INTEGER },
         {"--selfEvents", "Fraction of events agents send to themselves [0, 1]",
@@ -78,6 +82,8 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          &imbalance, ArgParser::DOUBLE},
         {"--granularity", "Granularity (no units) per events", &granularity,
          ArgParser::LONG},
+        {"--print-hist", "Print delay histogram", &delayHist,
+         ArgParser::BOOLEAN},
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -104,6 +110,14 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
                   << "greater than number of MPI processes.\n";
         return false;
     }
+    // Ensure the delay distribution specified is indeed valid.
+    PHOLDAgent::DelayType delayType = PHOLDAgent::toDelayType(delayDistrib);
+    if (delayType == PHOLDAgent::INVALID_DELAY) {
+        std::cerr << "Invalid delay distribution specified. Valid values are: "
+                  << "uniform, poisson, exponential, reverse_poission, "
+                  << "reverse_exponential.\n";
+        return false;
+    }
     // Everything went well.
     return true;
 }
@@ -126,12 +140,20 @@ PHOLDSimulation::createAgents() {
     const int agentStartID   = (agentsPerNode * rank) + cumlSum(rank, factor);
     const int agentEndID     = (rank == max_nodes - 1) ? max_agents :
         ((agentsPerNode * (rank + 1)) + cumlSum(rank + 1, factor));
-    
+    // Converte delay type string to suitable enumeration.
+    const PHOLDAgent::DelayType delayType =
+        PHOLDAgent::toDelayType(delayDistrib);
+    // Create the agents.
     for (int i = agentStartID; (i < agentEndID); i++) {
         PholdState* state = new PholdState();
         PHOLDAgent* agent = new PHOLDAgent(i, state, rows, cols, events, delay,
-                                           lookAhead, selfEvents, granularity);
+                                           lookAhead, selfEvents, granularity,
+                                           delayType);
         kernel->registerAgent(agent);
+        // Have the first agent print the delay histogram
+        if (delayHist && (i == agentStartID)) {
+            agent->printDelayDistrib(std::cout);
+        }
     }
     std::cout << "Rank " << rank << ": Registered agents from "
               << agentStartID    << " to "
