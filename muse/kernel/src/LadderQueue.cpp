@@ -403,9 +403,9 @@ muse::HeapBottom::findMinTime() const {
         return 0;
     }
     muse::Time minTime = front()->getReceiveTime();
-    for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
-        minTime = std::min(minTime, (*curr)->getReceiveTime());
-    }
+    // for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
+    //     minTime = std::min(minTime, (*curr)->getReceiveTime());
+    // }
     return minTime;
 }
 
@@ -431,6 +431,148 @@ muse::HeapBottom::validate() {
 void
 muse::HeapBottom::print(std::ostream& os) const {
     os << "Bottom:";
+    for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
+        os << " " << (*curr)->getReceiveTime();
+    }
+    os << std::endl;
+}
+
+// -----------------------[ MultiSetBottom methods ]---------------------------
+
+void
+muse::MultiSetBottom::enqueue(Bucket&& bucket) {
+    // Note that pop_front must be O(1) here -- which it is since
+    // bucket is a linked list.
+    // Add all the events to the conainer.
+    while (!bucket.empty()) {
+        sel.insert(bucket.pop_front());
+    }
+}
+
+void
+muse::MultiSetBottom::enqueue(muse::Event* event) {
+    ASSERT(sel.empty() || (front()->getReceiveTime() <= findMinTime()));
+    sel.insert(event);
+}
+
+muse::Event*
+muse::MultiSetBottom::pop_front() {
+    muse::Event* retVal = front();
+    sel.erase(sel.begin());
+    return retVal;
+}
+
+int
+muse::MultiSetBottom::remove_after(muse::AgentID sender, const Time sendTime) {
+    // Since MutliSet events are sorted based on receive time there is
+    // only simple sanity checks we can do here...
+    if (sendTime > maxTime()) {
+        // Since max event time is greater than sentTime the bottom
+        // cannot have an event to be cancelled.
+        return 0;
+    }
+    size_t removedCount = 0;
+    EventMultiSet::iterator currIdx = sel.begin();
+    while (!sel.empty() && (currIdx != sel.end())) {
+        muse::Event* const event = *currIdx;
+        ASSERT(event != NULL);
+        // An event is deleted only if the *sent* time is greater than
+        // the sendTime and if the event is from same sender        
+        if ((event->getSenderAgentID() == sender) &&
+            (event->getSentTime() >= sendTime)) {
+            // This event needs to be removed.
+            event->decreaseReference();
+            removedCount++;
+            currIdx = sel.erase(currIdx);
+        } else {
+            // Check the next event to see it is a candidate for
+            // cancellation.
+            currIdx++;
+        }
+    }
+    // Return number of events canceled to track statistics.
+    return removedCount;
+}
+
+int
+muse::MultiSetBottom::remove(muse::AgentID receiver) {
+    size_t removedCount = 0;
+    EventMultiSet::iterator currIdx = sel.begin();
+    while (!sel.empty() && (currIdx != sel.end())) {
+        Event* const event = *currIdx;
+        if (event->getReceiverAgentID() == receiver) {
+            event->decreaseReference();
+            removedCount++;
+            currIdx = sel.erase(currIdx);
+        } else {
+            currIdx++;
+        }
+    }
+    return removedCount;
+}
+
+void
+muse::MultiSetBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
+    if (sel.empty()) {
+        return;
+    }
+    
+    const muse::Event*  nextEvt    = front();
+    const muse::AgentID receiver   = nextEvt->getReceiverAgentID();
+    const muse::Time    currTime   = nextEvt->getReceiveTime();
+
+    do {
+        muse::Event* event = pop_front();
+        events.push_back(event);
+        nextEvt = (!empty() ? front() : NULL);
+        DEBUG(std::cout << "Delivering: " << *event << std::endl);
+    } while (!empty() && (nextEvt->getReceiverAgentID() == receiver) &&
+             TIME_EQUALS(nextEvt->getReceiveTime(), currTime));
+    DEBUG(validate());
+}
+
+muse::Time
+muse::MultiSetBottom::maxTime() const {
+    if (empty()) {
+        return TIME_INFINITY;
+    }
+    muse::Time maxTime = (*sel.crbegin())->getReceiveTime();
+    ASSERT(maxTime >= front()->getReceiveTime());
+    return maxTime;
+}
+
+muse::Time
+muse::MultiSetBottom::findMinTime() const {
+    if (empty()) {
+        return 0;
+    }
+    muse::Time minTime = front()->getReceiveTime();
+    ASSERT(minTime <= maxTime());
+    return minTime;
+}
+
+bool
+muse::MultiSetBottom::haveBefore(const Time recvTime) const {
+    if (empty()) {
+        return false;
+    }
+    for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
+        if ((*curr)->getReceiveTime() <= recvTime) {
+            return true;
+        }
+    }
+    return false;
+}
+
+void
+muse::MultiSetBottom::validate() {
+    // MultiSet are implemented using standard C++ algorithms and
+    // consequently no special validation is deemed necessary.
+}
+
+void
+muse::MultiSetBottom::print(std::ostream& os) const {
+    os << "MultiSetBottom:";
     for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
         os << " " << (*curr)->getReceiveTime();
     }
@@ -484,6 +626,27 @@ muse::Rung::Rung(EventVector&& list, const Time minTS, const double bktWidth) :
     }
     // Clear out entries in the supplied list
     list.clear();
+    DEBUG(validateEventCounts());
+}
+
+muse::Rung::Rung(EventMultiSet&& set, const Time minTS, const double bktWidth) :
+    rStartTS(minTS), rCurrTS(minTS), bucketWidth(bktWidth), currBucket(0),
+    rungEventCount(0) {
+    // Initialize variable to track maximum bucket count
+    LQ_STATS(maxBkts = 0);    
+    // Ensure bucket width is not ridiculously small
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
+    DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
+    ASSERT(bucketWidth > 0);
+    ASSERT(rungEventCount == 0);
+    // Move events from given set into buckets in this Rung.
+    DEBUG(std::cout << "Adding " << list.size() << " events to rung\n");
+    for (auto curr = set.begin(); (curr != set.end()); curr++) {
+        // Add to the appropriate bucket in this rung
+        enqueue(*curr);
+    }
+    // Clear out entries in the supplied list
+    set.clear();
     DEBUG(validateEventCounts());
 }
 
@@ -990,8 +1153,8 @@ muse::LadderQueue::prettyPrint(std::ostream& os) const {
     }
     // Print info on bottom
     os << "Bottom: Events=" << bottom.size()
-       << ", min="          << (!bottom.empty() ?
-                                bottom.front()->getReceiveTime() : -1.0)
+       << ", min="          << (!bottom.empty() ? bottom.findMinTime() : -1.0)
+       << ", max="          << (!bottom.empty() ? bottom.maxTime()     : -1.0)
        << std::endl;
 }
 
