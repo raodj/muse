@@ -72,6 +72,7 @@ class Event {
     friend class VectorBucket;
     friend class LadderQueue;
     friend class HeapBottom;
+    friend class MultiSetBottom;
     friend class HeapEventQueue;
     friend class TwoTierHeapEventQueue;
     friend class TwoTierHeapAdapter;

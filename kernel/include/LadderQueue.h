@@ -25,6 +25,8 @@
 #include <forward_list>
 #include <queue>
 #include <vector>
+#include <typeinfo>
+#include <set>
 #include "Avg.h"
 #include "Event.h"
 #include "EventQueue.h"
@@ -341,6 +343,69 @@ private:
     EventVector sel;
 };
 
+
+/** Comparator for multi-set to ensure least-time-stamp-first (LTSF)
+    ordering in the set of events.  This definition is necessary
+    because the Bottom::compare used with heap arranges events in
+    reverse order when used with std::multiset.
+*/
+struct MultiSetComparator {
+    inline bool operator()(const muse::Event* const lhs,
+                           const muse::Event* const rhs) {
+        return Bottom::compare(rhs, lhs);
+    }
+};
+
+// The definition for a multi-set of Events
+using EventMultiSet = std::multiset<muse::Event*, MultiSetComparator>;
+                                    
+/** An alternative implementation for Bottom that uses a std::multiset
+    instead of a binary heap.  The objective of having multiple
+    implementations for Bottom is to identify the best data structure
+    for the type of operations that are performed on Bottom in both
+    sequential and TimeWarp simulations.
+*/
+class MultiSetBottom {
+    friend class LadderQueue;   // NOTE: uses sel directly
+public:
+    // MultiSetBottom() : sel(MultiSetComparator()) {}
+    void enqueue(Bucket&& bucket);
+    void enqueue(muse::Event* event);
+
+    muse::Event* pop_front();
+    muse::Event* front() const { return *sel.cbegin(); }
+
+    bool empty() const { return sel.empty();  }
+
+    int remove_after(muse::AgentID sender, const Time sendTime);
+
+    /** Remove all events for a given receiver agent in the bucket
+        encapsulated by this object.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this object.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver);
+
+    void dequeueNextAgentEvents(muse::EventContainer& events);
+    muse::Time maxTime() const;  // purely for debugging
+    muse::Time findMinTime() const; // purely for debugging
+    
+    void validate();
+
+    inline size_t size() const { return sel.size(); }
+
+    bool haveBefore(const Time recvTime) const;
+    
+protected:
+    // Currently there are no protected members in this class
+    void print(std::ostream& os = std::cout) const;
+private:
+    EventMultiSet sel;
+};
+
 class Rung {
 public:
     Rung() : rStartTS(TIME_INFINITY), rCurrTS(TIME_INFINITY),
@@ -348,6 +413,7 @@ public:
     explicit Rung(Top& top);
     Rung(Bucket&& bkt, const Time rStart, const double bucketWidth);
     Rung(EventVector&& list, const Time rStart, const double bucketWidth);
+    Rung(EventMultiSet&& set, const Time rStart, const double bucketWidth);
     
     Bucket&& removeNextBucket(muse::Time& bktTime);
     bool empty() const { return (rungEventCount == 0); }
@@ -460,6 +526,7 @@ private:
     std::vector<Rung> ladder;
     int ladderEventCount;
     HeapBottom bottom;
+    // MultiSetBottom bottom;
 
     LQ_STATS(Avg ceTop);
     LQ_STATS(Avg ceBot);
