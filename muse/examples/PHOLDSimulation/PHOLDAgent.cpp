@@ -212,15 +212,15 @@ PHOLDAgent::toDelayType(const std::string& delay) {
     std::string delay_str(delay);
     std::transform(delay.begin(), delay.end(), delay_str.begin(), ::tolower);
     // Convert string to delays based on their value.
-    if (delay_str == "uniform") {
+    if ((delay_str == "uniform") || (delay_str == "1")) {
         return UNIFORM;
-    } else if (delay_str == "poisson") {
+    } else if ((delay_str == "poisson") || (delay_str == "2")) {
         return POISSON;
-    } else if (delay_str == "exponential") {
+    } else if ((delay_str == "exponential") || (delay_str == "3")) {
         return EXPONENTIAL;
-    } else if (delay_str == "reverse_poisson") {
+    } else if ((delay_str == "reverse_poisson") || (delay_str == "4")) {
         return REVERSE_POISSON;
-    } else if (delay_str == "reverse_exponential") {
+    } else if ((delay_str == "reverse_exponential") || (delay_str == "5")) {
         return REVERSE_EXPONENTIAL;
     }
     return INVALID_DELAY;
