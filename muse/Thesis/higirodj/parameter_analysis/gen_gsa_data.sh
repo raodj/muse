@@ -27,11 +27,11 @@ QUEUE2_DEFAULT="heap2tQ"
 declare -A CmdLineParams
 CmdLineParams=( ['--rows']="10 100"
                 ['--cols']="10 100"
-                ['--delay']="0 100"
-                ['--delay-distrib']="1 5"
+                ['--delay']="0 25"
+#               ['--delay-distrib']="1 5"
                 ['--eventsPerAgent']="1 20"
                 ['--granularity']="0 50"
-                ['--simEndTime']="50 500"
+                ['--simEndTime']="500 1000"
                 ['--imbalance%']="0 100"
               )
 
@@ -137,7 +137,9 @@ function param2CmdLine() {
     if [ "${key: -1}" == "%" ]; then
         paramVal=`echo "$paramVal / 100.0" | bc -l`
         # Remove traling % from key.
-        key="${key:0:-1}"
+        # key="${key:0:-1}"
+		local len=$(( ${#key} - 1 ))
+		key=${key:0:len}
     fi
     # Echo the parameter and its value
     echo "$key $paramVal"
