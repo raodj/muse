@@ -243,8 +243,8 @@ PHOLDAgent::printDelayDistrib(std::ostream& os) {
     }
     // Now print vertical histogram (maxFreq == 75 stars).
     for (const auto& p : hist) {
-        os << p.first << ' ' << std::string(p.second * 75 / maxFreq, '*')
-           << std::endl;
+        os << p.first << " ("  << p.second << ") "
+           << std::string(p.second * 75 / maxFreq, '*') << std::endl;
     }
 }
 
