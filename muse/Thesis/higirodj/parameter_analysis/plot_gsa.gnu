@@ -66,9 +66,10 @@ toTitle(word) = system(sprintf("echo '%s' | sed 's/[A-Z]/ &/g'", word))
 file_exists(file) = system("[ -f '".file."' ] && echo '1' || echo '0'") + 0
 
 # Colors for the different parameters plotted by this script
-# ColorList="#8dd3c7 #b8860b #928bc1 #fb8072 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5"
-ColorList="9294791 12092939 9604033 16482418 8434131 16626786 11787881 16078504 5066239 12353725 13429701"
-getColor(c) = word(ColorList, int(c) + 1) + 0
+ColorList="#8dd3c7 #b8860b #928bc1 #fb8072 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5"
+getColor(c) = word(ColorList, int(c) + 1)
+# ColorList="9294791 12092939 9604033 16482418 8434131 16626786 11787881 16078504 5066239 12353725 13429701"
+# getColor(c) = word(ColorList, int(c) + 1) + 0
 
 do for [i=1:8] {
     # Generate GSA results using c++ program

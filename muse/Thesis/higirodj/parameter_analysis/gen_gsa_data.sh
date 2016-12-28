@@ -248,6 +248,10 @@ function compare_queues() {
 
 # The main function that coordinates tasks in this script.
 function main() {
+	# Change to working directory if specified
+	if [ ! -z "$PBS_O_WORKDIR" ]; then
+		cd "$PBS_O_WORKDIR"
+	fi
     # First process all command-line arguments and setup global variables
     parseArgs $*
     # Next check to ensure we have all the necessary variables setup
