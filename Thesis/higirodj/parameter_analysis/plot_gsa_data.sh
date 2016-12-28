@@ -14,7 +14,7 @@ rm -f "${FULL_DATA}"
 # Aggregate all the GSA data into a single file in TMP dir
 for dataFile in *.csv
 do
-    cat "$dataFile" >> "$FULL_DATA"
+    grep -v "\-\-" "$dataFile" >> "$FULL_DATA"
 done
 
 # Compile all the necessary support C++ program
