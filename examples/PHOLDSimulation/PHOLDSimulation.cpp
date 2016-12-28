@@ -52,7 +52,7 @@ PHOLDSimulation::PHOLDSimulation() {
     selfEvents   = 0.0;
     end_time     = 100;
     granularity  = 0;
-    delayDistrib = "uniform";
+    delayDistrib = "exponential";
     delayHist    = false;
 }
 

@@ -92,7 +92,7 @@ PHOLDAgent::getDelay(const DelayType delType) {
     }
     case EXPONENTIAL: {
         std::exponential_distribution<double> exp(Delay);
-        return exp(rng);
+        return 2 * exp(rng);
     }
     case REVERSE_POISSON: {
         std::poisson_distribution<int> poi(Delay);
@@ -100,7 +100,7 @@ PHOLDAgent::getDelay(const DelayType delType) {
     }
     case REVERSE_EXPONENTIAL: {
         std::exponential_distribution<double> exp(Delay);
-        return maxDelay - ((int) exp(rng) % maxDelay);
+        return maxDelay - ((int) (2 * exp(rng)) % maxDelay);
     }
     case INVALID_DELAY:
     default:
@@ -123,7 +123,10 @@ PHOLDAgent::getMaxDelayValue() const {
         maxDel = 0;
         std::exponential_distribution<double> poi(Delay);
         for (int i = 0; (i < 100000); i++) {
-            maxDel = std::max<int>(maxDel, poi(rnd));
+            // The 2 factor is from http://en.cppreference.com/
+            // example.  Since exponential distribution is real/double
+            // the 2 factor provides a better spread.
+            maxDel = std::max<int>(maxDel, 2 * poi(rnd));
         }        
     }
     return maxDel;
