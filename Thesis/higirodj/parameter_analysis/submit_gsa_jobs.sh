@@ -6,7 +6,13 @@
 SKIP=1000
 REPS=10
 
-for job in `seq 1 5`
+# Compile Sobol random number generator
+g++ -g -Wall -std=c++11 Sobol.cpp -o Sobol
+
+# Make a link to PHOLD for convenience
+ln -s ${HOME}/research/muse/examples/PHOLDSimulation/phold .
+
+for job in `seq 1 2`
 do
     name="gsa_${job}"
     outFile="raw_gsa_data_${job}.csv"
