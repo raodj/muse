@@ -81,7 +81,7 @@ public:
     void printResults(const GSATable& gsaTab,
                       std::ostream& os = std::cout) const;
     void printGSAtable(std::ostream&os = std::cout) const;
-    double computeStdErr(const double bootSize = 1.0,
+    double computeStdErr(const double bootSize = 0.75,
                          const int reps = 5000) const;
     void printCI(std::ostream& os = std::cout) const;
     GSAEntry getMaxEntry(const GSATable& gsaTab) const;

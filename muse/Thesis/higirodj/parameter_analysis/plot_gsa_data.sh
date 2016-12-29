@@ -8,11 +8,18 @@
 TMP_DIR="tmp/"
 mkdir -p "$TMP_DIR"
 
+# Ensure at least one input .csv file has been specified
+if [ $# -lt 1 ]; then
+    echo "Specify input CSV files to be aggregated and analyzed."
+    exit 2
+fi
+
 # File name for the full data file
 FULL_DATA="${TMP_DIR}/full_gsa.csv"
 rm -f "${FULL_DATA}"
 # Aggregate all the GSA data into a single file in TMP dir
-for dataFile in *.csv
+echo "Aggregating files: $* ..."
+for dataFile in $*
 do
     grep -v "\-\-" "$dataFile" >> "$FULL_DATA"
 done

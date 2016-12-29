@@ -6,7 +6,7 @@
 
 # NOTE: THE ORDER OF COLUMN TITLES BELOW SHOULD MATCH ORDER IN CSV!!!
 # NOTE: Last 2 columns must be timing for ladderQ, heap2tQ!!!
-VarNames = "Imbalance TimeStep TimeStepDistrib SimTime Rows EventsPerAgent Granularity Cols"
+VarNames = "GVTPeriod Imbalance Lambda SelfEvents% SimEndTime Rows EventsPerAgent Granularity Cols"
 
 # Ensure you add trailing '/' to dir
 if (!exists('dir')) {
@@ -16,7 +16,7 @@ dataFile = dir . csv . ".csv"
 outFile = dir. csv . ".pdf"
 
 # Setup output file based on input file by chaning extension
-set terminal pdfcairo enhanced color size 3.5in,6in font ", 12"
+set terminal pdfcairo enhanced color size 6.5in,6.5in font ", 12"
 set output outFile
 
 # Set separator to be comma
@@ -37,9 +37,9 @@ round_tics(x) = system(sprintf("./round_tics %f", x)) + 0
 
 # Setup multiplot with/without title
 if (exists("title")) {
-    set multiplot layout 4, 2 title title
+    set multiplot layout 3, 3 title title
 } else {
-    set multiplot layout 4, 2 
+    set multiplot layout 3, 3
 }
 set tmargin 1
 set rmargin 1
@@ -66,12 +66,14 @@ toTitle(word) = system(sprintf("echo '%s' | sed 's/[A-Z]/ &/g'", word))
 file_exists(file) = system("[ -f '".file."' ] && echo '1' || echo '0'") + 0
 
 # Colors for the different parameters plotted by this script
-ColorList="#8dd3c7 #b8860b #928bc1 #fb8072 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5"
-getColor(c) = word(ColorList, int(c) + 1)
-# ColorList="9294791 12092939 9604033 16482418 8434131 16626786 11787881 16078504 5066239 12353725 13429701"
-# getColor(c) = word(ColorList, int(c) + 1) + 0
+# ColorList="#8dd3c7 #b8860b #928bc1 #fb8072 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5"
+# getColor(c) = word(ColorList, int(c) + 1)
+ColorList="9294791 12092939 9604033 16482418 8434131 16626786 11787881 16078504 5066239 12353725 13429701"
+getColor(c) = word(ColorList, int(c) + 1) + 0
 
-do for [i=1:8] {
+# Draw sub-plots for each parameter
+MaxVars = words(VarNames)
+do for [i=1:MaxVars] {
     # Generate GSA results using c++ program
     outFile = dir . csv . "_" . word(VarNames, i) . "_gsa.csv"
     # if (!file_exists(outFile)) {    

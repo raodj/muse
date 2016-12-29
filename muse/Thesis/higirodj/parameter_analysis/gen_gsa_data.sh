@@ -22,17 +22,20 @@ QUEUE2_DEFAULT="heap2tQ"
 
 # The list of command-line parameters to be explored for GSA.  These
 # values change from simulation-to-simulation.  Entries are in the
-# form: cmd-line-arg="min max"
+# form: cmd-line-arg="min max".  If cmd-line-arg name ends with a '%'
+# sign (e.g.: --imbalance%), then the range is converted to a
+# fraction.
 
 declare -A CmdLineParams
 CmdLineParams=( ['--rows']="10 100"
                 ['--cols']="10 100"
                 ['--delay']="0 25"
-#               ['--delay-distrib']="1 5"
+                ['--selfEvents%']="0 100"
                 ['--eventsPerAgent']="1 20"
                 ['--granularity']="0 50"
                 ['--simEndTime']="500 1000"
                 ['--imbalance%']="0 100"
+                ['--gvt-delay']="100 10000"
               )
 
 # ------ Typically you should not have to modify values below this line. -----
