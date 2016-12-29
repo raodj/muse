@@ -16,18 +16,19 @@ fi
 suffix="$1"
 output="$2"
 
-# The list of column names in the order to be plotted.
-colNames=( "Imbalance" "TimeStep" "TimeStepDistrib" "SimTime" "Rows" \
-           "EventsPerAgent" "Granularity" "Cols" )
+# The following column names are used for analysis 
+colNames=( "GVTPeriod" "Imbalance" "Lambda" "SelfEvents%" "SimEndTime"
+           "Rows" "EventsPerAgent" "Granularity" "Cols" )
 
 # Setup associative array to map long EpiParams names to acronyms
 declare -A Acronym
-Acronym=( ["Imbalance"]="Imbalance"
-          ["TimeStep"]="Time Step"
-          ["TimeStepDistrib"]="Distrib."
-          ["SimTime"]="Sim Time"
+Acronym=( ["GVTPeriod"]="GVT Period"
+          ["Imbalance"]="Imbalance"
+          ["Lambda"]="Time Step"
+          ["SelfEvents%"]="Self Evt.%"
+          ["SimEndTime"]="End Time"
           ["Rows"]="Rows"
-          ["EventsPerAgent"]="Evt/Agent"
+          ["EventsPerAgent"]="Evt./Agent"
           ["Granularity"]="Evt. Gran."
           ["Cols"]="Cols"
         )
