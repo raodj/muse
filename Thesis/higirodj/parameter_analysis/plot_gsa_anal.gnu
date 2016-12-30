@@ -18,6 +18,8 @@ set output output
 
 set xtics rotate 270
 set yrange[0:0.9]
+# set yrange[0:0.55]
+set ylabel "F-measure (and 95% CI)"
 
 # Function to get last line from SA error log
 genData(x) = system(sprintf("./extract_gsa_for_plot.sh %s %s", suffix, csvLog))
