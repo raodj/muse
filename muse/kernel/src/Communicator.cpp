@@ -194,7 +194,7 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
     }
     // Figure out the size of the string we need.
     const int strSize = status.Get_count(MPI_TYPE_CHAR);
-    std::string msg(strSize, 0);
+    std::string msg(strSize - 1, 0);
     // Read the actual string data.
     try {
         MPI_RECV(&msg[0], strSize, MPI::CHAR,
