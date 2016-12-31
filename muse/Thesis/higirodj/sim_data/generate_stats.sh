@@ -26,9 +26,9 @@ SIM_EXEC="./phold"
 # the end are converted to percentage values in the range 0.0 to 1.0
 
 declare -A CmdLineParams
-CmdLineParams=( ['--delay']="0 1 2 4 8"
-                ['--selfEvents%']="0 25 50"
-                ['--eventsPerAgent']="1 2 4 6 8 10 15 20"
+CmdLineParams=( ['--delay']="1 2 4 8"
+                ['--selfEvents%']="0 25"
+                ['--eventsPerAgent']="1 2 5 10 15 20"
               )
 
 # The global array of current values for the parameters to be
