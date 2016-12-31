@@ -1,0 +1,1684 @@
+Using temproary directory: ./tmp_26989
+--delay 0 1 2 4 8
+--selfEvents% 0 25 50
+--eventsPerAgent 1 2 4 6 8 10 15 20
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802161.mualhpcp01.local 3802162.mualhpcp01.local 3802163.mualhpcp01.local 3802164.mualhpcp01.local 3802165.mualhpcp01.local 3802166.mualhpcp01.local 3802167.mualhpcp01.local 3802168.mualhpcp01.local 3802169.mualhpcp01.local 3802170.mualhpcp01.local
+    Waiting for: 3802161.mualhpcp01.local
+    Waiting for: 3802162.mualhpcp01.local
+    Waiting for: 3802163.mualhpcp01.local
+    Waiting for: 3802164.mualhpcp01.local
+    Waiting for: 3802165.mualhpcp01.local
+    Waiting for: 3802166.mualhpcp01.local
+    Waiting for: 3802167.mualhpcp01.local
+    Waiting for: 3802168.mualhpcp01.local
+    Waiting for: 3802169.mualhpcp01.local
+    Waiting for: 3802170.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802191.mualhpcp01.local 3802192.mualhpcp01.local 3802193.mualhpcp01.local 3802194.mualhpcp01.local 3802195.mualhpcp01.local 3802196.mualhpcp01.local 3802197.mualhpcp01.local 3802198.mualhpcp01.local 3802199.mualhpcp01.local 3802200.mualhpcp01.local
+    Waiting for: 3802191.mualhpcp01.local
+    Waiting for: 3802192.mualhpcp01.local
+    Waiting for: 3802193.mualhpcp01.local
+    Waiting for: 3802194.mualhpcp01.local
+    Waiting for: 3802195.mualhpcp01.local
+    Waiting for: 3802196.mualhpcp01.local
+    Waiting for: 3802197.mualhpcp01.local
+    Waiting for: 3802198.mualhpcp01.local
+    Waiting for: 3802199.mualhpcp01.local
+    Waiting for: 3802200.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802241.mualhpcp01.local 3802242.mualhpcp01.local 3802243.mualhpcp01.local 3802244.mualhpcp01.local 3802245.mualhpcp01.local 3802246.mualhpcp01.local 3802247.mualhpcp01.local 3802248.mualhpcp01.local 3802249.mualhpcp01.local 3802250.mualhpcp01.local
+    Waiting for: 3802241.mualhpcp01.local
+    Waiting for: 3802242.mualhpcp01.local
+    Waiting for: 3802243.mualhpcp01.local
+    Waiting for: 3802244.mualhpcp01.local
+    Waiting for: 3802245.mualhpcp01.local
+    Waiting for: 3802246.mualhpcp01.local
+    Waiting for: 3802247.mualhpcp01.local
+    Waiting for: 3802248.mualhpcp01.local
+    Waiting for: 3802249.mualhpcp01.local
+    Waiting for: 3802250.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802291.mualhpcp01.local 3802292.mualhpcp01.local 3802293.mualhpcp01.local 3802294.mualhpcp01.local 3802295.mualhpcp01.local 3802296.mualhpcp01.local 3802297.mualhpcp01.local 3802298.mualhpcp01.local 3802299.mualhpcp01.local 3802300.mualhpcp01.local
+    Waiting for: 3802291.mualhpcp01.local
+    Waiting for: 3802292.mualhpcp01.local
+    Waiting for: 3802293.mualhpcp01.local
+    Waiting for: 3802294.mualhpcp01.local
+    Waiting for: 3802295.mualhpcp01.local
+    Waiting for: 3802296.mualhpcp01.local
+    Waiting for: 3802297.mualhpcp01.local
+    Waiting for: 3802298.mualhpcp01.local
+    Waiting for: 3802299.mualhpcp01.local
+    Waiting for: 3802300.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802341.mualhpcp01.local 3802342.mualhpcp01.local 3802343.mualhpcp01.local 3802344.mualhpcp01.local 3802345.mualhpcp01.local 3802346.mualhpcp01.local 3802347.mualhpcp01.local 3802348.mualhpcp01.local 3802349.mualhpcp01.local 3802350.mualhpcp01.local
+    Waiting for: 3802341.mualhpcp01.local
+    Waiting for: 3802342.mualhpcp01.local
+    Waiting for: 3802343.mualhpcp01.local
+    Waiting for: 3802344.mualhpcp01.local
+    Waiting for: 3802345.mualhpcp01.local
+    Waiting for: 3802346.mualhpcp01.local
+    Waiting for: 3802347.mualhpcp01.local
+    Waiting for: 3802348.mualhpcp01.local
+    Waiting for: 3802349.mualhpcp01.local
+    Waiting for: 3802350.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802371.mualhpcp01.local 3802372.mualhpcp01.local 3802373.mualhpcp01.local 3802375.mualhpcp01.local 3802378.mualhpcp01.local 3802380.mualhpcp01.local 3802382.mualhpcp01.local 3802384.mualhpcp01.local 3802385.mualhpcp01.local 3802387.mualhpcp01.local
+    Waiting for: 3802371.mualhpcp01.local
+    Waiting for: 3802372.mualhpcp01.local
+    Waiting for: 3802373.mualhpcp01.local
+    Waiting for: 3802375.mualhpcp01.local
+    Waiting for: 3802378.mualhpcp01.local
+    Waiting for: 3802380.mualhpcp01.local
+    Waiting for: 3802382.mualhpcp01.local
+    Waiting for: 3802384.mualhpcp01.local
+    Waiting for: 3802385.mualhpcp01.local
+    Waiting for: 3802387.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802461.mualhpcp01.local 3802462.mualhpcp01.local 3802463.mualhpcp01.local 3802464.mualhpcp01.local 3802465.mualhpcp01.local 3802466.mualhpcp01.local 3802467.mualhpcp01.local 3802468.mualhpcp01.local 3802469.mualhpcp01.local 3802470.mualhpcp01.local
+    Waiting for: 3802461.mualhpcp01.local
+    Waiting for: 3802462.mualhpcp01.local
+    Waiting for: 3802463.mualhpcp01.local
+    Waiting for: 3802464.mualhpcp01.local
+    Waiting for: 3802465.mualhpcp01.local
+    Waiting for: 3802466.mualhpcp01.local
+    Waiting for: 3802467.mualhpcp01.local
+    Waiting for: 3802468.mualhpcp01.local
+    Waiting for: 3802469.mualhpcp01.local
+    Waiting for: 3802470.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802511.mualhpcp01.local 3802512.mualhpcp01.local 3802513.mualhpcp01.local 3802514.mualhpcp01.local 3802515.mualhpcp01.local 3802516.mualhpcp01.local 3802517.mualhpcp01.local 3802518.mualhpcp01.local 3802519.mualhpcp01.local 3802520.mualhpcp01.local
+    Waiting for: 3802511.mualhpcp01.local
+    Waiting for: 3802512.mualhpcp01.local
+    Waiting for: 3802513.mualhpcp01.local
+    Waiting for: 3802514.mualhpcp01.local
+    Waiting for: 3802515.mualhpcp01.local
+    Waiting for: 3802516.mualhpcp01.local
+    Waiting for: 3802517.mualhpcp01.local
+    Waiting for: 3802518.mualhpcp01.local
+    Waiting for: 3802519.mualhpcp01.local
+    Waiting for: 3802520.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802561.mualhpcp01.local 3802562.mualhpcp01.local 3802563.mualhpcp01.local 3802564.mualhpcp01.local 3802565.mualhpcp01.local 3802566.mualhpcp01.local 3802567.mualhpcp01.local 3802568.mualhpcp01.local 3802569.mualhpcp01.local 3802570.mualhpcp01.local
+    Waiting for: 3802561.mualhpcp01.local
+    Waiting for: 3802562.mualhpcp01.local
+    Waiting for: 3802563.mualhpcp01.local
+    Waiting for: 3802564.mualhpcp01.local
+    Waiting for: 3802565.mualhpcp01.local
+    Waiting for: 3802566.mualhpcp01.local
+    Waiting for: 3802567.mualhpcp01.local
+    Waiting for: 3802568.mualhpcp01.local
+    Waiting for: 3802569.mualhpcp01.local
+    Waiting for: 3802570.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802601.mualhpcp01.local 3802602.mualhpcp01.local 3802603.mualhpcp01.local 3802604.mualhpcp01.local 3802605.mualhpcp01.local 3802606.mualhpcp01.local 3802607.mualhpcp01.local 3802608.mualhpcp01.local 3802609.mualhpcp01.local 3802610.mualhpcp01.local
+    Waiting for: 3802601.mualhpcp01.local
+    Waiting for: 3802602.mualhpcp01.local
+    Waiting for: 3802603.mualhpcp01.local
+    Waiting for: 3802604.mualhpcp01.local
+    Waiting for: 3802605.mualhpcp01.local
+    Waiting for: 3802606.mualhpcp01.local
+    Waiting for: 3802607.mualhpcp01.local
+    Waiting for: 3802608.mualhpcp01.local
+    Waiting for: 3802609.mualhpcp01.local
+    Waiting for: 3802610.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802651.mualhpcp01.local 3802652.mualhpcp01.local 3802653.mualhpcp01.local 3802654.mualhpcp01.local 3802655.mualhpcp01.local 3802656.mualhpcp01.local 3802657.mualhpcp01.local 3802658.mualhpcp01.local 3802659.mualhpcp01.local 3802660.mualhpcp01.local
+    Waiting for: 3802651.mualhpcp01.local
+    Waiting for: 3802652.mualhpcp01.local
+    Waiting for: 3802653.mualhpcp01.local
+    Waiting for: 3802654.mualhpcp01.local
+    Waiting for: 3802655.mualhpcp01.local
+    Waiting for: 3802656.mualhpcp01.local
+    Waiting for: 3802657.mualhpcp01.local
+    Waiting for: 3802658.mualhpcp01.local
+    Waiting for: 3802659.mualhpcp01.local
+    Waiting for: 3802660.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802671.mualhpcp01.local 3802672.mualhpcp01.local 3802673.mualhpcp01.local 3802674.mualhpcp01.local 3802675.mualhpcp01.local 3802676.mualhpcp01.local 3802677.mualhpcp01.local 3802678.mualhpcp01.local 3802679.mualhpcp01.local 3802680.mualhpcp01.local
+    Waiting for: 3802671.mualhpcp01.local
+    Waiting for: 3802672.mualhpcp01.local
+    Waiting for: 3802673.mualhpcp01.local
+    Waiting for: 3802674.mualhpcp01.local
+    Waiting for: 3802675.mualhpcp01.local
+    Waiting for: 3802676.mualhpcp01.local
+    Waiting for: 3802677.mualhpcp01.local
+    Waiting for: 3802678.mualhpcp01.local
+    Waiting for: 3802679.mualhpcp01.local
+    Waiting for: 3802680.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802721.mualhpcp01.local 3802722.mualhpcp01.local 3802723.mualhpcp01.local 3802724.mualhpcp01.local 3802725.mualhpcp01.local 3802726.mualhpcp01.local 3802727.mualhpcp01.local 3802728.mualhpcp01.local 3802729.mualhpcp01.local 3802730.mualhpcp01.local
+    Waiting for: 3802721.mualhpcp01.local
+    Waiting for: 3802722.mualhpcp01.local
+    Waiting for: 3802723.mualhpcp01.local
+    Waiting for: 3802724.mualhpcp01.local
+    Waiting for: 3802725.mualhpcp01.local
+    Waiting for: 3802726.mualhpcp01.local
+    Waiting for: 3802727.mualhpcp01.local
+    Waiting for: 3802728.mualhpcp01.local
+    Waiting for: 3802729.mualhpcp01.local
+    Waiting for: 3802730.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802771.mualhpcp01.local 3802772.mualhpcp01.local 3802773.mualhpcp01.local 3802774.mualhpcp01.local 3802775.mualhpcp01.local 3802776.mualhpcp01.local 3802777.mualhpcp01.local 3802778.mualhpcp01.local 3802779.mualhpcp01.local 3802780.mualhpcp01.local
+    Waiting for: 3802771.mualhpcp01.local
+    Waiting for: 3802772.mualhpcp01.local
+    Waiting for: 3802773.mualhpcp01.local
+    Waiting for: 3802774.mualhpcp01.local
+    Waiting for: 3802775.mualhpcp01.local
+    Waiting for: 3802776.mualhpcp01.local
+    Waiting for: 3802777.mualhpcp01.local
+    Waiting for: 3802778.mualhpcp01.local
+    Waiting for: 3802779.mualhpcp01.local
+    Waiting for: 3802780.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3802821.mualhpcp01.local 3802822.mualhpcp01.local 3802823.mualhpcp01.local 3802824.mualhpcp01.local 3802825.mualhpcp01.local 3802826.mualhpcp01.local 3802827.mualhpcp01.local 3802828.mualhpcp01.local 3802829.mualhpcp01.local 3802830.mualhpcp01.local
+    Waiting for: 3802821.mualhpcp01.local
+    Waiting for: 3802822.mualhpcp01.local
+    Waiting for: 3802823.mualhpcp01.local
+    Waiting for: 3802824.mualhpcp01.local
+    Waiting for: 3802825.mualhpcp01.local
+    Waiting for: 3802826.mualhpcp01.local
+    Waiting for: 3802827.mualhpcp01.local
+    Waiting for: 3802828.mualhpcp01.local
+    Waiting for: 3802829.mualhpcp01.local
+    Waiting for: 3802830.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3802911.mualhpcp01.local 3802912.mualhpcp01.local 3802913.mualhpcp01.local 3802914.mualhpcp01.local 3802915.mualhpcp01.local 3802916.mualhpcp01.local 3802917.mualhpcp01.local 3802918.mualhpcp01.local 3802919.mualhpcp01.local 3802920.mualhpcp01.local
+    Waiting for: 3802911.mualhpcp01.local
+    Waiting for: 3802912.mualhpcp01.local
+    Waiting for: 3802913.mualhpcp01.local
+    Waiting for: 3802914.mualhpcp01.local
+    Waiting for: 3802915.mualhpcp01.local
+    Waiting for: 3802916.mualhpcp01.local
+    Waiting for: 3802917.mualhpcp01.local
+    Waiting for: 3802918.mualhpcp01.local
+    Waiting for: 3802919.mualhpcp01.local
+    Waiting for: 3802920.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3802931.mualhpcp01.local 3802932.mualhpcp01.local 3802933.mualhpcp01.local 3802934.mualhpcp01.local 3802935.mualhpcp01.local 3802936.mualhpcp01.local 3802937.mualhpcp01.local 3802938.mualhpcp01.local 3802939.mualhpcp01.local 3802940.mualhpcp01.local
+    Waiting for: 3802931.mualhpcp01.local
+    Waiting for: 3802932.mualhpcp01.local
+    Waiting for: 3802933.mualhpcp01.local
+    Waiting for: 3802934.mualhpcp01.local
+    Waiting for: 3802935.mualhpcp01.local
+    Waiting for: 3802936.mualhpcp01.local
+    Waiting for: 3802937.mualhpcp01.local
+    Waiting for: 3802938.mualhpcp01.local
+    Waiting for: 3802939.mualhpcp01.local
+    Waiting for: 3802940.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3802971.mualhpcp01.local 3802972.mualhpcp01.local 3802973.mualhpcp01.local 3802974.mualhpcp01.local 3802975.mualhpcp01.local 3802976.mualhpcp01.local 3802977.mualhpcp01.local 3802978.mualhpcp01.local 3802979.mualhpcp01.local 3802980.mualhpcp01.local
+    Waiting for: 3802971.mualhpcp01.local
+    Waiting for: 3802972.mualhpcp01.local
+    Waiting for: 3802973.mualhpcp01.local
+    Waiting for: 3802974.mualhpcp01.local
+    Waiting for: 3802975.mualhpcp01.local
+    Waiting for: 3802976.mualhpcp01.local
+    Waiting for: 3802977.mualhpcp01.local
+    Waiting for: 3802978.mualhpcp01.local
+    Waiting for: 3802979.mualhpcp01.local
+    Waiting for: 3802980.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803021.mualhpcp01.local 3803022.mualhpcp01.local 3803023.mualhpcp01.local 3803024.mualhpcp01.local 3803025.mualhpcp01.local 3803026.mualhpcp01.local 3803027.mualhpcp01.local 3803028.mualhpcp01.local 3803029.mualhpcp01.local 3803030.mualhpcp01.local
+    Waiting for: 3803021.mualhpcp01.local
+    Waiting for: 3803022.mualhpcp01.local
+    Waiting for: 3803023.mualhpcp01.local
+    Waiting for: 3803024.mualhpcp01.local
+    Waiting for: 3803025.mualhpcp01.local
+    Waiting for: 3803026.mualhpcp01.local
+    Waiting for: 3803027.mualhpcp01.local
+    Waiting for: 3803028.mualhpcp01.local
+    Waiting for: 3803029.mualhpcp01.local
+    Waiting for: 3803030.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803071.mualhpcp01.local 3803072.mualhpcp01.local 3803073.mualhpcp01.local 3803074.mualhpcp01.local 3803075.mualhpcp01.local 3803076.mualhpcp01.local 3803077.mualhpcp01.local 3803078.mualhpcp01.local 3803079.mualhpcp01.local 3803080.mualhpcp01.local
+    Waiting for: 3803071.mualhpcp01.local
+    Waiting for: 3803072.mualhpcp01.local
+    Waiting for: 3803073.mualhpcp01.local
+    Waiting for: 3803074.mualhpcp01.local
+    Waiting for: 3803075.mualhpcp01.local
+    Waiting for: 3803076.mualhpcp01.local
+    Waiting for: 3803077.mualhpcp01.local
+    Waiting for: 3803078.mualhpcp01.local
+    Waiting for: 3803079.mualhpcp01.local
+    Waiting for: 3803080.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803121.mualhpcp01.local 3803122.mualhpcp01.local 3803123.mualhpcp01.local 3803124.mualhpcp01.local 3803125.mualhpcp01.local 3803126.mualhpcp01.local 3803127.mualhpcp01.local 3803128.mualhpcp01.local 3803129.mualhpcp01.local 3803130.mualhpcp01.local
+    Waiting for: 3803121.mualhpcp01.local
+    Waiting for: 3803122.mualhpcp01.local
+    Waiting for: 3803123.mualhpcp01.local
+    Waiting for: 3803124.mualhpcp01.local
+    Waiting for: 3803125.mualhpcp01.local
+    Waiting for: 3803126.mualhpcp01.local
+    Waiting for: 3803127.mualhpcp01.local
+    Waiting for: 3803128.mualhpcp01.local
+    Waiting for: 3803129.mualhpcp01.local
+    Waiting for: 3803130.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803211.mualhpcp01.local 3803212.mualhpcp01.local 3803213.mualhpcp01.local 3803214.mualhpcp01.local 3803215.mualhpcp01.local 3803216.mualhpcp01.local 3803217.mualhpcp01.local 3803218.mualhpcp01.local 3803219.mualhpcp01.local 3803220.mualhpcp01.local
+    Waiting for: 3803211.mualhpcp01.local
+    Waiting for: 3803212.mualhpcp01.local
+    Waiting for: 3803213.mualhpcp01.local
+    Waiting for: 3803214.mualhpcp01.local
+    Waiting for: 3803215.mualhpcp01.local
+    Waiting for: 3803216.mualhpcp01.local
+    Waiting for: 3803217.mualhpcp01.local
+    Waiting for: 3803218.mualhpcp01.local
+    Waiting for: 3803219.mualhpcp01.local
+    Waiting for: 3803220.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803241.mualhpcp01.local 3803242.mualhpcp01.local 3803243.mualhpcp01.local 3803244.mualhpcp01.local 3803245.mualhpcp01.local 3803246.mualhpcp01.local 3803247.mualhpcp01.local 3803248.mualhpcp01.local 3803249.mualhpcp01.local 3803250.mualhpcp01.local
+    Waiting for: 3803241.mualhpcp01.local
+    Waiting for: 3803242.mualhpcp01.local
+    Waiting for: 3803243.mualhpcp01.local
+    Waiting for: 3803244.mualhpcp01.local
+    Waiting for: 3803245.mualhpcp01.local
+    Waiting for: 3803246.mualhpcp01.local
+    Waiting for: 3803247.mualhpcp01.local
+    Waiting for: 3803248.mualhpcp01.local
+    Waiting for: 3803249.mualhpcp01.local
+    Waiting for: 3803250.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803271.mualhpcp01.local 3803272.mualhpcp01.local 3803273.mualhpcp01.local 3803274.mualhpcp01.local 3803275.mualhpcp01.local 3803276.mualhpcp01.local 3803277.mualhpcp01.local 3803278.mualhpcp01.local 3803279.mualhpcp01.local 3803280.mualhpcp01.local
+    Waiting for: 3803271.mualhpcp01.local
+    Waiting for: 3803272.mualhpcp01.local
+    Waiting for: 3803273.mualhpcp01.local
+    Waiting for: 3803274.mualhpcp01.local
+    Waiting for: 3803275.mualhpcp01.local
+    Waiting for: 3803276.mualhpcp01.local
+    Waiting for: 3803277.mualhpcp01.local
+    Waiting for: 3803278.mualhpcp01.local
+    Waiting for: 3803279.mualhpcp01.local
+    Waiting for: 3803280.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803331.mualhpcp01.local 3803332.mualhpcp01.local 3803333.mualhpcp01.local 3803334.mualhpcp01.local 3803335.mualhpcp01.local 3803336.mualhpcp01.local 3803337.mualhpcp01.local 3803338.mualhpcp01.local 3803339.mualhpcp01.local 3803340.mualhpcp01.local
+    Waiting for: 3803331.mualhpcp01.local
+    Waiting for: 3803332.mualhpcp01.local
+    Waiting for: 3803333.mualhpcp01.local
+    Waiting for: 3803334.mualhpcp01.local
+    Waiting for: 3803335.mualhpcp01.local
+    Waiting for: 3803336.mualhpcp01.local
+    Waiting for: 3803337.mualhpcp01.local
+    Waiting for: 3803338.mualhpcp01.local
+    Waiting for: 3803339.mualhpcp01.local
+    Waiting for: 3803340.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803401.mualhpcp01.local 3803402.mualhpcp01.local 3803403.mualhpcp01.local 3803404.mualhpcp01.local 3803405.mualhpcp01.local 3803406.mualhpcp01.local 3803407.mualhpcp01.local 3803408.mualhpcp01.local 3803409.mualhpcp01.local 3803410.mualhpcp01.local
+    Waiting for: 3803401.mualhpcp01.local
+    Waiting for: 3803402.mualhpcp01.local
+    Waiting for: 3803403.mualhpcp01.local
+    Waiting for: 3803404.mualhpcp01.local
+    Waiting for: 3803405.mualhpcp01.local
+    Waiting for: 3803406.mualhpcp01.local
+    Waiting for: 3803407.mualhpcp01.local
+    Waiting for: 3803408.mualhpcp01.local
+    Waiting for: 3803409.mualhpcp01.local
+    Waiting for: 3803410.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803451.mualhpcp01.local 3803452.mualhpcp01.local 3803453.mualhpcp01.local 3803454.mualhpcp01.local 3803455.mualhpcp01.local 3803456.mualhpcp01.local 3803457.mualhpcp01.local 3803458.mualhpcp01.local 3803459.mualhpcp01.local 3803460.mualhpcp01.local
+    Waiting for: 3803451.mualhpcp01.local
+    Waiting for: 3803452.mualhpcp01.local
+    Waiting for: 3803453.mualhpcp01.local
+    Waiting for: 3803454.mualhpcp01.local
+    Waiting for: 3803455.mualhpcp01.local
+    Waiting for: 3803456.mualhpcp01.local
+    Waiting for: 3803457.mualhpcp01.local
+    Waiting for: 3803458.mualhpcp01.local
+    Waiting for: 3803459.mualhpcp01.local
+    Waiting for: 3803460.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803501.mualhpcp01.local 3803502.mualhpcp01.local 3803503.mualhpcp01.local 3803504.mualhpcp01.local 3803505.mualhpcp01.local 3803506.mualhpcp01.local 3803507.mualhpcp01.local 3803508.mualhpcp01.local 3803509.mualhpcp01.local 3803510.mualhpcp01.local
+    Waiting for: 3803501.mualhpcp01.local
+    Waiting for: 3803502.mualhpcp01.local
+    Waiting for: 3803503.mualhpcp01.local
+    Waiting for: 3803504.mualhpcp01.local
+    Waiting for: 3803505.mualhpcp01.local
+    Waiting for: 3803506.mualhpcp01.local
+    Waiting for: 3803507.mualhpcp01.local
+    Waiting for: 3803508.mualhpcp01.local
+    Waiting for: 3803509.mualhpcp01.local
+    Waiting for: 3803510.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803531.mualhpcp01.local 3803532.mualhpcp01.local 3803533.mualhpcp01.local 3803534.mualhpcp01.local 3803535.mualhpcp01.local 3803536.mualhpcp01.local 3803537.mualhpcp01.local 3803538.mualhpcp01.local 3803539.mualhpcp01.local 3803540.mualhpcp01.local
+    Waiting for: 3803531.mualhpcp01.local
+    Waiting for: 3803532.mualhpcp01.local
+    Waiting for: 3803533.mualhpcp01.local
+    Waiting for: 3803534.mualhpcp01.local
+    Waiting for: 3803535.mualhpcp01.local
+    Waiting for: 3803536.mualhpcp01.local
+    Waiting for: 3803537.mualhpcp01.local
+    Waiting for: 3803538.mualhpcp01.local
+    Waiting for: 3803539.mualhpcp01.local
+    Waiting for: 3803540.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3803581.mualhpcp01.local 3803582.mualhpcp01.local 3803583.mualhpcp01.local 3803584.mualhpcp01.local 3803585.mualhpcp01.local 3803586.mualhpcp01.local 3803587.mualhpcp01.local 3803588.mualhpcp01.local 3803589.mualhpcp01.local 3803590.mualhpcp01.local
+    Waiting for: 3803581.mualhpcp01.local
+    Waiting for: 3803582.mualhpcp01.local
+    Waiting for: 3803583.mualhpcp01.local
+    Waiting for: 3803584.mualhpcp01.local
+    Waiting for: 3803585.mualhpcp01.local
+    Waiting for: 3803586.mualhpcp01.local
+    Waiting for: 3803587.mualhpcp01.local
+    Waiting for: 3803588.mualhpcp01.local
+    Waiting for: 3803589.mualhpcp01.local
+    Waiting for: 3803590.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803631.mualhpcp01.local 3803632.mualhpcp01.local 3803633.mualhpcp01.local 3803634.mualhpcp01.local 3803635.mualhpcp01.local 3803636.mualhpcp01.local 3803637.mualhpcp01.local 3803638.mualhpcp01.local 3803639.mualhpcp01.local 3803640.mualhpcp01.local
+    Waiting for: 3803631.mualhpcp01.local
+    Waiting for: 3803632.mualhpcp01.local
+    Waiting for: 3803633.mualhpcp01.local
+    Waiting for: 3803634.mualhpcp01.local
+    Waiting for: 3803635.mualhpcp01.local
+    Waiting for: 3803636.mualhpcp01.local
+    Waiting for: 3803637.mualhpcp01.local
+    Waiting for: 3803638.mualhpcp01.local
+    Waiting for: 3803639.mualhpcp01.local
+    Waiting for: 3803640.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803711.mualhpcp01.local 3803712.mualhpcp01.local 3803713.mualhpcp01.local 3803714.mualhpcp01.local 3803715.mualhpcp01.local 3803717.mualhpcp01.local 3803719.mualhpcp01.local 3803721.mualhpcp01.local 3803723.mualhpcp01.local 3803725.mualhpcp01.local
+    Waiting for: 3803711.mualhpcp01.local
+    Waiting for: 3803712.mualhpcp01.local
+    Waiting for: 3803713.mualhpcp01.local
+    Waiting for: 3803714.mualhpcp01.local
+    Waiting for: 3803715.mualhpcp01.local
+    Waiting for: 3803717.mualhpcp01.local
+    Waiting for: 3803719.mualhpcp01.local
+    Waiting for: 3803721.mualhpcp01.local
+    Waiting for: 3803723.mualhpcp01.local
+    Waiting for: 3803725.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803761.mualhpcp01.local 3803762.mualhpcp01.local 3803763.mualhpcp01.local 3803764.mualhpcp01.local 3803765.mualhpcp01.local 3803766.mualhpcp01.local 3803767.mualhpcp01.local 3803768.mualhpcp01.local 3803769.mualhpcp01.local 3803770.mualhpcp01.local
+    Waiting for: 3803761.mualhpcp01.local
+    Waiting for: 3803762.mualhpcp01.local
+    Waiting for: 3803763.mualhpcp01.local
+    Waiting for: 3803764.mualhpcp01.local
+    Waiting for: 3803765.mualhpcp01.local
+    Waiting for: 3803766.mualhpcp01.local
+    Waiting for: 3803767.mualhpcp01.local
+    Waiting for: 3803768.mualhpcp01.local
+    Waiting for: 3803769.mualhpcp01.local
+    Waiting for: 3803770.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803801.mualhpcp01.local 3803802.mualhpcp01.local 3803803.mualhpcp01.local 3803804.mualhpcp01.local 3803805.mualhpcp01.local 3803806.mualhpcp01.local 3803807.mualhpcp01.local 3803808.mualhpcp01.local 3803809.mualhpcp01.local 3803810.mualhpcp01.local
+    Waiting for: 3803801.mualhpcp01.local
+    Waiting for: 3803802.mualhpcp01.local
+    Waiting for: 3803803.mualhpcp01.local
+    Waiting for: 3803804.mualhpcp01.local
+    Waiting for: 3803805.mualhpcp01.local
+    Waiting for: 3803806.mualhpcp01.local
+    Waiting for: 3803807.mualhpcp01.local
+    Waiting for: 3803808.mualhpcp01.local
+    Waiting for: 3803809.mualhpcp01.local
+    Waiting for: 3803810.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803831.mualhpcp01.local 3803832.mualhpcp01.local 3803833.mualhpcp01.local 3803834.mualhpcp01.local 3803835.mualhpcp01.local 3803836.mualhpcp01.local 3803837.mualhpcp01.local 3803838.mualhpcp01.local 3803839.mualhpcp01.local 3803840.mualhpcp01.local
+    Waiting for: 3803831.mualhpcp01.local
+    Waiting for: 3803832.mualhpcp01.local
+    Waiting for: 3803833.mualhpcp01.local
+    Waiting for: 3803834.mualhpcp01.local
+    Waiting for: 3803835.mualhpcp01.local
+    Waiting for: 3803836.mualhpcp01.local
+    Waiting for: 3803837.mualhpcp01.local
+    Waiting for: 3803838.mualhpcp01.local
+    Waiting for: 3803839.mualhpcp01.local
+    Waiting for: 3803840.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803881.mualhpcp01.local 3803882.mualhpcp01.local 3803883.mualhpcp01.local 3803884.mualhpcp01.local 3803885.mualhpcp01.local 3803886.mualhpcp01.local 3803887.mualhpcp01.local 3803888.mualhpcp01.local 3803889.mualhpcp01.local 3803890.mualhpcp01.local
+    Waiting for: 3803881.mualhpcp01.local
+    Waiting for: 3803882.mualhpcp01.local
+    Waiting for: 3803883.mualhpcp01.local
+    Waiting for: 3803884.mualhpcp01.local
+    Waiting for: 3803885.mualhpcp01.local
+    Waiting for: 3803886.mualhpcp01.local
+    Waiting for: 3803887.mualhpcp01.local
+    Waiting for: 3803888.mualhpcp01.local
+    Waiting for: 3803889.mualhpcp01.local
+    Waiting for: 3803890.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803931.mualhpcp01.local 3803932.mualhpcp01.local 3803933.mualhpcp01.local 3803934.mualhpcp01.local 3803935.mualhpcp01.local 3803936.mualhpcp01.local 3803937.mualhpcp01.local 3803938.mualhpcp01.local 3803939.mualhpcp01.local 3803940.mualhpcp01.local
+    Waiting for: 3803931.mualhpcp01.local
+    Waiting for: 3803932.mualhpcp01.local
+    Waiting for: 3803933.mualhpcp01.local
+    Waiting for: 3803934.mualhpcp01.local
+    Waiting for: 3803935.mualhpcp01.local
+    Waiting for: 3803936.mualhpcp01.local
+    Waiting for: 3803937.mualhpcp01.local
+    Waiting for: 3803938.mualhpcp01.local
+    Waiting for: 3803939.mualhpcp01.local
+    Waiting for: 3803940.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3803981.mualhpcp01.local 3803982.mualhpcp01.local 3803983.mualhpcp01.local 3803984.mualhpcp01.local 3803985.mualhpcp01.local 3803986.mualhpcp01.local 3803987.mualhpcp01.local 3803988.mualhpcp01.local 3803989.mualhpcp01.local 3803990.mualhpcp01.local
+    Waiting for: 3803981.mualhpcp01.local
+    Waiting for: 3803982.mualhpcp01.local
+    Waiting for: 3803983.mualhpcp01.local
+    Waiting for: 3803984.mualhpcp01.local
+    Waiting for: 3803985.mualhpcp01.local
+    Waiting for: 3803986.mualhpcp01.local
+    Waiting for: 3803987.mualhpcp01.local
+    Waiting for: 3803988.mualhpcp01.local
+    Waiting for: 3803989.mualhpcp01.local
+    Waiting for: 3803990.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804031.mualhpcp01.local 3804032.mualhpcp01.local 3804033.mualhpcp01.local 3804034.mualhpcp01.local 3804035.mualhpcp01.local 3804036.mualhpcp01.local 3804037.mualhpcp01.local 3804038.mualhpcp01.local 3804039.mualhpcp01.local 3804040.mualhpcp01.local
+    Waiting for: 3804031.mualhpcp01.local
+    Waiting for: 3804032.mualhpcp01.local
+    Waiting for: 3804033.mualhpcp01.local
+    Waiting for: 3804034.mualhpcp01.local
+    Waiting for: 3804035.mualhpcp01.local
+    Waiting for: 3804036.mualhpcp01.local
+    Waiting for: 3804037.mualhpcp01.local
+    Waiting for: 3804038.mualhpcp01.local
+    Waiting for: 3804039.mualhpcp01.local
+    Waiting for: 3804040.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804091.mualhpcp01.local 3804092.mualhpcp01.local 3804093.mualhpcp01.local 3804094.mualhpcp01.local 3804095.mualhpcp01.local 3804096.mualhpcp01.local 3804097.mualhpcp01.local 3804098.mualhpcp01.local 3804099.mualhpcp01.local 3804100.mualhpcp01.local
+    Waiting for: 3804091.mualhpcp01.local
+    Waiting for: 3804092.mualhpcp01.local
+    Waiting for: 3804093.mualhpcp01.local
+    Waiting for: 3804094.mualhpcp01.local
+    Waiting for: 3804095.mualhpcp01.local
+    Waiting for: 3804096.mualhpcp01.local
+    Waiting for: 3804097.mualhpcp01.local
+    Waiting for: 3804098.mualhpcp01.local
+    Waiting for: 3804099.mualhpcp01.local
+    Waiting for: 3804100.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804141.mualhpcp01.local 3804142.mualhpcp01.local 3804143.mualhpcp01.local 3804144.mualhpcp01.local 3804145.mualhpcp01.local 3804146.mualhpcp01.local 3804147.mualhpcp01.local 3804148.mualhpcp01.local 3804149.mualhpcp01.local 3804150.mualhpcp01.local
+    Waiting for: 3804141.mualhpcp01.local
+    Waiting for: 3804142.mualhpcp01.local
+    Waiting for: 3804143.mualhpcp01.local
+    Waiting for: 3804144.mualhpcp01.local
+    Waiting for: 3804145.mualhpcp01.local
+    Waiting for: 3804146.mualhpcp01.local
+    Waiting for: 3804147.mualhpcp01.local
+    Waiting for: 3804148.mualhpcp01.local
+    Waiting for: 3804149.mualhpcp01.local
+    Waiting for: 3804150.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804191.mualhpcp01.local 3804192.mualhpcp01.local 3804193.mualhpcp01.local 3804194.mualhpcp01.local 3804195.mualhpcp01.local 3804196.mualhpcp01.local 3804197.mualhpcp01.local 3804198.mualhpcp01.local 3804199.mualhpcp01.local 3804200.mualhpcp01.local
+    Waiting for: 3804191.mualhpcp01.local
+    Waiting for: 3804192.mualhpcp01.local
+    Waiting for: 3804193.mualhpcp01.local
+    Waiting for: 3804194.mualhpcp01.local
+    Waiting for: 3804195.mualhpcp01.local
+    Waiting for: 3804196.mualhpcp01.local
+    Waiting for: 3804197.mualhpcp01.local
+    Waiting for: 3804198.mualhpcp01.local
+    Waiting for: 3804199.mualhpcp01.local
+    Waiting for: 3804200.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804241.mualhpcp01.local 3804242.mualhpcp01.local 3804243.mualhpcp01.local 3804244.mualhpcp01.local 3804245.mualhpcp01.local 3804246.mualhpcp01.local 3804247.mualhpcp01.local 3804248.mualhpcp01.local 3804249.mualhpcp01.local 3804250.mualhpcp01.local
+    Waiting for: 3804241.mualhpcp01.local
+    Waiting for: 3804242.mualhpcp01.local
+    Waiting for: 3804243.mualhpcp01.local
+    Waiting for: 3804244.mualhpcp01.local
+    Waiting for: 3804245.mualhpcp01.local
+    Waiting for: 3804246.mualhpcp01.local
+    Waiting for: 3804247.mualhpcp01.local
+    Waiting for: 3804248.mualhpcp01.local
+    Waiting for: 3804249.mualhpcp01.local
+    Waiting for: 3804250.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804291.mualhpcp01.local 3804292.mualhpcp01.local 3804293.mualhpcp01.local 3804294.mualhpcp01.local 3804295.mualhpcp01.local 3804296.mualhpcp01.local 3804297.mualhpcp01.local 3804298.mualhpcp01.local 3804299.mualhpcp01.local 3804300.mualhpcp01.local
+    Waiting for: 3804291.mualhpcp01.local
+    Waiting for: 3804292.mualhpcp01.local
+    Waiting for: 3804293.mualhpcp01.local
+    Waiting for: 3804294.mualhpcp01.local
+    Waiting for: 3804295.mualhpcp01.local
+    Waiting for: 3804296.mualhpcp01.local
+    Waiting for: 3804297.mualhpcp01.local
+    Waiting for: 3804298.mualhpcp01.local
+    Waiting for: 3804299.mualhpcp01.local
+    Waiting for: 3804300.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3804331.mualhpcp01.local 3804332.mualhpcp01.local 3804333.mualhpcp01.local 3804334.mualhpcp01.local 3804335.mualhpcp01.local 3804336.mualhpcp01.local 3804337.mualhpcp01.local 3804338.mualhpcp01.local 3804339.mualhpcp01.local 3804340.mualhpcp01.local
+    Waiting for: 3804331.mualhpcp01.local
+    Waiting for: 3804332.mualhpcp01.local
+    Waiting for: 3804333.mualhpcp01.local
+    Waiting for: 3804334.mualhpcp01.local
+    Waiting for: 3804335.mualhpcp01.local
+    Waiting for: 3804336.mualhpcp01.local
+    Waiting for: 3804337.mualhpcp01.local
+    Waiting for: 3804338.mualhpcp01.local
+    Waiting for: 3804339.mualhpcp01.local
+    Waiting for: 3804340.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804381.mualhpcp01.local 3804382.mualhpcp01.local 3804383.mualhpcp01.local 3804384.mualhpcp01.local 3804385.mualhpcp01.local 3804386.mualhpcp01.local 3804387.mualhpcp01.local 3804388.mualhpcp01.local 3804389.mualhpcp01.local 3804390.mualhpcp01.local
+    Waiting for: 3804381.mualhpcp01.local
+    Waiting for: 3804382.mualhpcp01.local
+    Waiting for: 3804383.mualhpcp01.local
+    Waiting for: 3804384.mualhpcp01.local
+    Waiting for: 3804385.mualhpcp01.local
+    Waiting for: 3804386.mualhpcp01.local
+    Waiting for: 3804387.mualhpcp01.local
+    Waiting for: 3804388.mualhpcp01.local
+    Waiting for: 3804389.mualhpcp01.local
+    Waiting for: 3804390.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804471.mualhpcp01.local 3804472.mualhpcp01.local 3804473.mualhpcp01.local 3804474.mualhpcp01.local 3804475.mualhpcp01.local 3804476.mualhpcp01.local 3804477.mualhpcp01.local 3804478.mualhpcp01.local 3804479.mualhpcp01.local 3804480.mualhpcp01.local
+    Waiting for: 3804471.mualhpcp01.local
+    Waiting for: 3804472.mualhpcp01.local
+    Waiting for: 3804473.mualhpcp01.local
+    Waiting for: 3804474.mualhpcp01.local
+    Waiting for: 3804475.mualhpcp01.local
+    Waiting for: 3804476.mualhpcp01.local
+    Waiting for: 3804477.mualhpcp01.local
+    Waiting for: 3804478.mualhpcp01.local
+    Waiting for: 3804479.mualhpcp01.local
+    Waiting for: 3804480.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804511.mualhpcp01.local 3804512.mualhpcp01.local 3804513.mualhpcp01.local 3804514.mualhpcp01.local 3804515.mualhpcp01.local 3804516.mualhpcp01.local 3804517.mualhpcp01.local 3804518.mualhpcp01.local 3804519.mualhpcp01.local 3804520.mualhpcp01.local
+    Waiting for: 3804511.mualhpcp01.local
+    Waiting for: 3804512.mualhpcp01.local
+    Waiting for: 3804513.mualhpcp01.local
+    Waiting for: 3804514.mualhpcp01.local
+    Waiting for: 3804515.mualhpcp01.local
+    Waiting for: 3804516.mualhpcp01.local
+    Waiting for: 3804517.mualhpcp01.local
+    Waiting for: 3804518.mualhpcp01.local
+    Waiting for: 3804519.mualhpcp01.local
+    Waiting for: 3804520.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804561.mualhpcp01.local 3804562.mualhpcp01.local 3804563.mualhpcp01.local 3804564.mualhpcp01.local 3804565.mualhpcp01.local 3804566.mualhpcp01.local 3804567.mualhpcp01.local 3804568.mualhpcp01.local 3804569.mualhpcp01.local 3804570.mualhpcp01.local
+    Waiting for: 3804561.mualhpcp01.local
+    Waiting for: 3804562.mualhpcp01.local
+    Waiting for: 3804563.mualhpcp01.local
+    Waiting for: 3804564.mualhpcp01.local
+    Waiting for: 3804565.mualhpcp01.local
+    Waiting for: 3804566.mualhpcp01.local
+    Waiting for: 3804567.mualhpcp01.local
+    Waiting for: 3804568.mualhpcp01.local
+    Waiting for: 3804569.mualhpcp01.local
+    Waiting for: 3804570.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804611.mualhpcp01.local 3804612.mualhpcp01.local 3804613.mualhpcp01.local 3804614.mualhpcp01.local 3804615.mualhpcp01.local 3804616.mualhpcp01.local 3804617.mualhpcp01.local 3804618.mualhpcp01.local 3804619.mualhpcp01.local 3804620.mualhpcp01.local
+    Waiting for: 3804611.mualhpcp01.local
+    Waiting for: 3804612.mualhpcp01.local
+    Waiting for: 3804613.mualhpcp01.local
+    Waiting for: 3804614.mualhpcp01.local
+    Waiting for: 3804615.mualhpcp01.local
+    Waiting for: 3804616.mualhpcp01.local
+    Waiting for: 3804617.mualhpcp01.local
+    Waiting for: 3804618.mualhpcp01.local
+    Waiting for: 3804619.mualhpcp01.local
+    Waiting for: 3804620.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804661.mualhpcp01.local 3804662.mualhpcp01.local 3804663.mualhpcp01.local 3804664.mualhpcp01.local 3804665.mualhpcp01.local 3804666.mualhpcp01.local 3804667.mualhpcp01.local 3804668.mualhpcp01.local 3804669.mualhpcp01.local 3804670.mualhpcp01.local
+    Waiting for: 3804661.mualhpcp01.local
+    Waiting for: 3804662.mualhpcp01.local
+    Waiting for: 3804663.mualhpcp01.local
+    Waiting for: 3804664.mualhpcp01.local
+    Waiting for: 3804665.mualhpcp01.local
+    Waiting for: 3804666.mualhpcp01.local
+    Waiting for: 3804667.mualhpcp01.local
+    Waiting for: 3804668.mualhpcp01.local
+    Waiting for: 3804669.mualhpcp01.local
+    Waiting for: 3804670.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804711.mualhpcp01.local 3804712.mualhpcp01.local 3804713.mualhpcp01.local 3804714.mualhpcp01.local 3804715.mualhpcp01.local 3804716.mualhpcp01.local 3804717.mualhpcp01.local 3804718.mualhpcp01.local 3804719.mualhpcp01.local 3804720.mualhpcp01.local
+    Waiting for: 3804711.mualhpcp01.local
+    Waiting for: 3804712.mualhpcp01.local
+    Waiting for: 3804713.mualhpcp01.local
+    Waiting for: 3804714.mualhpcp01.local
+    Waiting for: 3804715.mualhpcp01.local
+    Waiting for: 3804716.mualhpcp01.local
+    Waiting for: 3804717.mualhpcp01.local
+    Waiting for: 3804718.mualhpcp01.local
+    Waiting for: 3804719.mualhpcp01.local
+    Waiting for: 3804720.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804761.mualhpcp01.local 3804762.mualhpcp01.local 3804763.mualhpcp01.local 3804764.mualhpcp01.local 3804765.mualhpcp01.local 3804766.mualhpcp01.local 3804767.mualhpcp01.local 3804768.mualhpcp01.local 3804769.mualhpcp01.local 3804770.mualhpcp01.local
+    Waiting for: 3804761.mualhpcp01.local
+    Waiting for: 3804762.mualhpcp01.local
+    Waiting for: 3804763.mualhpcp01.local
+    Waiting for: 3804764.mualhpcp01.local
+    Waiting for: 3804765.mualhpcp01.local
+    Waiting for: 3804766.mualhpcp01.local
+    Waiting for: 3804767.mualhpcp01.local
+    Waiting for: 3804768.mualhpcp01.local
+    Waiting for: 3804769.mualhpcp01.local
+    Waiting for: 3804770.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804811.mualhpcp01.local 3804812.mualhpcp01.local 3804813.mualhpcp01.local 3804814.mualhpcp01.local 3804815.mualhpcp01.local 3804816.mualhpcp01.local 3804817.mualhpcp01.local 3804818.mualhpcp01.local 3804819.mualhpcp01.local 3804820.mualhpcp01.local
+    Waiting for: 3804811.mualhpcp01.local
+    Waiting for: 3804812.mualhpcp01.local
+    Waiting for: 3804813.mualhpcp01.local
+    Waiting for: 3804814.mualhpcp01.local
+    Waiting for: 3804815.mualhpcp01.local
+    Waiting for: 3804816.mualhpcp01.local
+    Waiting for: 3804817.mualhpcp01.local
+    Waiting for: 3804818.mualhpcp01.local
+    Waiting for: 3804819.mualhpcp01.local
+    Waiting for: 3804820.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804821.mualhpcp01.local 3804822.mualhpcp01.local 3804823.mualhpcp01.local 3804824.mualhpcp01.local 3804825.mualhpcp01.local 3804826.mualhpcp01.local 3804827.mualhpcp01.local 3804828.mualhpcp01.local 3804829.mualhpcp01.local 3804830.mualhpcp01.local
+    Waiting for: 3804821.mualhpcp01.local
+    Waiting for: 3804822.mualhpcp01.local
+    Waiting for: 3804823.mualhpcp01.local
+    Waiting for: 3804824.mualhpcp01.local
+    Waiting for: 3804825.mualhpcp01.local
+    Waiting for: 3804826.mualhpcp01.local
+    Waiting for: 3804827.mualhpcp01.local
+    Waiting for: 3804828.mualhpcp01.local
+    Waiting for: 3804829.mualhpcp01.local
+    Waiting for: 3804830.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804881.mualhpcp01.local 3804882.mualhpcp01.local 3804883.mualhpcp01.local 3804884.mualhpcp01.local 3804885.mualhpcp01.local 3804886.mualhpcp01.local 3804887.mualhpcp01.local 3804888.mualhpcp01.local 3804889.mualhpcp01.local 3804890.mualhpcp01.local
+    Waiting for: 3804881.mualhpcp01.local
+    Waiting for: 3804882.mualhpcp01.local
+    Waiting for: 3804883.mualhpcp01.local
+    Waiting for: 3804884.mualhpcp01.local
+    Waiting for: 3804885.mualhpcp01.local
+    Waiting for: 3804886.mualhpcp01.local
+    Waiting for: 3804887.mualhpcp01.local
+    Waiting for: 3804888.mualhpcp01.local
+    Waiting for: 3804889.mualhpcp01.local
+    Waiting for: 3804890.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804931.mualhpcp01.local 3804932.mualhpcp01.local 3804933.mualhpcp01.local 3804934.mualhpcp01.local 3804935.mualhpcp01.local 3804936.mualhpcp01.local 3804937.mualhpcp01.local 3804938.mualhpcp01.local 3804939.mualhpcp01.local 3804940.mualhpcp01.local
+    Waiting for: 3804931.mualhpcp01.local
+    Waiting for: 3804932.mualhpcp01.local
+    Waiting for: 3804933.mualhpcp01.local
+    Waiting for: 3804934.mualhpcp01.local
+    Waiting for: 3804935.mualhpcp01.local
+    Waiting for: 3804936.mualhpcp01.local
+    Waiting for: 3804937.mualhpcp01.local
+    Waiting for: 3804938.mualhpcp01.local
+    Waiting for: 3804939.mualhpcp01.local
+    Waiting for: 3804940.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3804981.mualhpcp01.local 3804982.mualhpcp01.local 3804983.mualhpcp01.local 3804984.mualhpcp01.local 3804985.mualhpcp01.local 3804986.mualhpcp01.local 3804987.mualhpcp01.local 3804988.mualhpcp01.local 3804989.mualhpcp01.local 3804990.mualhpcp01.local
+    Waiting for: 3804981.mualhpcp01.local
+    Waiting for: 3804982.mualhpcp01.local
+    Waiting for: 3804983.mualhpcp01.local
+    Waiting for: 3804984.mualhpcp01.local
+    Waiting for: 3804985.mualhpcp01.local
+    Waiting for: 3804986.mualhpcp01.local
+    Waiting for: 3804987.mualhpcp01.local
+    Waiting for: 3804988.mualhpcp01.local
+    Waiting for: 3804989.mualhpcp01.local
+    Waiting for: 3804990.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3805031.mualhpcp01.local 3805032.mualhpcp01.local 3805033.mualhpcp01.local 3805034.mualhpcp01.local 3805035.mualhpcp01.local 3805036.mualhpcp01.local 3805037.mualhpcp01.local 3805038.mualhpcp01.local 3805039.mualhpcp01.local 3805040.mualhpcp01.local
+    Waiting for: 3805031.mualhpcp01.local
+    Waiting for: 3805032.mualhpcp01.local
+    Waiting for: 3805033.mualhpcp01.local
+    Waiting for: 3805034.mualhpcp01.local
+    Waiting for: 3805035.mualhpcp01.local
+    Waiting for: 3805036.mualhpcp01.local
+    Waiting for: 3805037.mualhpcp01.local
+    Waiting for: 3805038.mualhpcp01.local
+    Waiting for: 3805039.mualhpcp01.local
+    Waiting for: 3805040.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3805096.mualhpcp01.local 3805098.mualhpcp01.local 3805100.mualhpcp01.local 3805102.mualhpcp01.local 3805105.mualhpcp01.local 3805106.mualhpcp01.local 3805107.mualhpcp01.local 3805108.mualhpcp01.local 3805110.mualhpcp01.local 3805112.mualhpcp01.local
+    Waiting for: 3805096.mualhpcp01.local
+    Waiting for: 3805098.mualhpcp01.local
+    Waiting for: 3805100.mualhpcp01.local
+    Waiting for: 3805102.mualhpcp01.local
+    Waiting for: 3805105.mualhpcp01.local
+    Waiting for: 3805106.mualhpcp01.local
+    Waiting for: 3805107.mualhpcp01.local
+    Waiting for: 3805108.mualhpcp01.local
+    Waiting for: 3805110.mualhpcp01.local
+    Waiting for: 3805112.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805161.mualhpcp01.local 3805162.mualhpcp01.local 3805163.mualhpcp01.local 3805164.mualhpcp01.local 3805165.mualhpcp01.local 3805166.mualhpcp01.local 3805167.mualhpcp01.local 3805168.mualhpcp01.local 3805169.mualhpcp01.local 3805170.mualhpcp01.local
+    Waiting for: 3805161.mualhpcp01.local
+    Waiting for: 3805162.mualhpcp01.local
+    Waiting for: 3805163.mualhpcp01.local
+    Waiting for: 3805164.mualhpcp01.local
+    Waiting for: 3805165.mualhpcp01.local
+    Waiting for: 3805166.mualhpcp01.local
+    Waiting for: 3805167.mualhpcp01.local
+    Waiting for: 3805168.mualhpcp01.local
+    Waiting for: 3805169.mualhpcp01.local
+    Waiting for: 3805170.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805211.mualhpcp01.local 3805212.mualhpcp01.local 3805213.mualhpcp01.local 3805214.mualhpcp01.local 3805215.mualhpcp01.local 3805216.mualhpcp01.local 3805217.mualhpcp01.local 3805218.mualhpcp01.local 3805219.mualhpcp01.local 3805220.mualhpcp01.local
+    Waiting for: 3805211.mualhpcp01.local
+    Waiting for: 3805212.mualhpcp01.local
+    Waiting for: 3805213.mualhpcp01.local
+    Waiting for: 3805214.mualhpcp01.local
+    Waiting for: 3805215.mualhpcp01.local
+    Waiting for: 3805216.mualhpcp01.local
+    Waiting for: 3805217.mualhpcp01.local
+    Waiting for: 3805218.mualhpcp01.local
+    Waiting for: 3805219.mualhpcp01.local
+    Waiting for: 3805220.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805261.mualhpcp01.local 3805262.mualhpcp01.local 3805263.mualhpcp01.local 3805264.mualhpcp01.local 3805265.mualhpcp01.local 3805266.mualhpcp01.local 3805267.mualhpcp01.local 3805268.mualhpcp01.local 3805269.mualhpcp01.local 3805270.mualhpcp01.local
+    Waiting for: 3805261.mualhpcp01.local
+    Waiting for: 3805262.mualhpcp01.local
+    Waiting for: 3805263.mualhpcp01.local
+    Waiting for: 3805264.mualhpcp01.local
+    Waiting for: 3805265.mualhpcp01.local
+    Waiting for: 3805266.mualhpcp01.local
+    Waiting for: 3805267.mualhpcp01.local
+    Waiting for: 3805268.mualhpcp01.local
+    Waiting for: 3805269.mualhpcp01.local
+    Waiting for: 3805270.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805311.mualhpcp01.local 3805312.mualhpcp01.local 3805313.mualhpcp01.local 3805314.mualhpcp01.local 3805315.mualhpcp01.local 3805316.mualhpcp01.local 3805317.mualhpcp01.local 3805318.mualhpcp01.local 3805319.mualhpcp01.local 3805320.mualhpcp01.local
+    Waiting for: 3805311.mualhpcp01.local
+    Waiting for: 3805312.mualhpcp01.local
+    Waiting for: 3805313.mualhpcp01.local
+    Waiting for: 3805314.mualhpcp01.local
+    Waiting for: 3805315.mualhpcp01.local
+    Waiting for: 3805316.mualhpcp01.local
+    Waiting for: 3805317.mualhpcp01.local
+    Waiting for: 3805318.mualhpcp01.local
+    Waiting for: 3805319.mualhpcp01.local
+    Waiting for: 3805320.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805351.mualhpcp01.local 3805352.mualhpcp01.local 3805353.mualhpcp01.local 3805354.mualhpcp01.local 3805355.mualhpcp01.local 3805356.mualhpcp01.local 3805357.mualhpcp01.local 3805358.mualhpcp01.local 3805359.mualhpcp01.local 3805360.mualhpcp01.local
+    Waiting for: 3805351.mualhpcp01.local
+    Waiting for: 3805352.mualhpcp01.local
+    Waiting for: 3805353.mualhpcp01.local
+    Waiting for: 3805354.mualhpcp01.local
+    Waiting for: 3805355.mualhpcp01.local
+    Waiting for: 3805356.mualhpcp01.local
+    Waiting for: 3805357.mualhpcp01.local
+    Waiting for: 3805358.mualhpcp01.local
+    Waiting for: 3805359.mualhpcp01.local
+    Waiting for: 3805360.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805401.mualhpcp01.local 3805402.mualhpcp01.local 3805403.mualhpcp01.local 3805404.mualhpcp01.local 3805405.mualhpcp01.local 3805406.mualhpcp01.local 3805407.mualhpcp01.local 3805408.mualhpcp01.local 3805409.mualhpcp01.local 3805410.mualhpcp01.local
+    Waiting for: 3805401.mualhpcp01.local
+    Waiting for: 3805402.mualhpcp01.local
+    Waiting for: 3805403.mualhpcp01.local
+    Waiting for: 3805404.mualhpcp01.local
+    Waiting for: 3805405.mualhpcp01.local
+    Waiting for: 3805406.mualhpcp01.local
+    Waiting for: 3805407.mualhpcp01.local
+    Waiting for: 3805408.mualhpcp01.local
+    Waiting for: 3805409.mualhpcp01.local
+    Waiting for: 3805410.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805431.mualhpcp01.local 3805432.mualhpcp01.local 3805433.mualhpcp01.local 3805434.mualhpcp01.local 3805435.mualhpcp01.local 3805436.mualhpcp01.local 3805437.mualhpcp01.local 3805438.mualhpcp01.local 3805439.mualhpcp01.local 3805440.mualhpcp01.local
+    Waiting for: 3805431.mualhpcp01.local
+    Waiting for: 3805432.mualhpcp01.local
+    Waiting for: 3805433.mualhpcp01.local
+    Waiting for: 3805434.mualhpcp01.local
+    Waiting for: 3805435.mualhpcp01.local
+    Waiting for: 3805436.mualhpcp01.local
+    Waiting for: 3805437.mualhpcp01.local
+    Waiting for: 3805438.mualhpcp01.local
+    Waiting for: 3805439.mualhpcp01.local
+    Waiting for: 3805440.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805471.mualhpcp01.local 3805472.mualhpcp01.local 3805473.mualhpcp01.local 3805474.mualhpcp01.local 3805475.mualhpcp01.local 3805476.mualhpcp01.local 3805477.mualhpcp01.local 3805478.mualhpcp01.local 3805479.mualhpcp01.local 3805480.mualhpcp01.local
+    Waiting for: 3805471.mualhpcp01.local
+    Waiting for: 3805472.mualhpcp01.local
+    Waiting for: 3805473.mualhpcp01.local
+    Waiting for: 3805474.mualhpcp01.local
+    Waiting for: 3805475.mualhpcp01.local
+    Waiting for: 3805476.mualhpcp01.local
+    Waiting for: 3805477.mualhpcp01.local
+    Waiting for: 3805478.mualhpcp01.local
+    Waiting for: 3805479.mualhpcp01.local
+    Waiting for: 3805480.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805521.mualhpcp01.local 3805522.mualhpcp01.local 3805523.mualhpcp01.local 3805524.mualhpcp01.local 3805525.mualhpcp01.local 3805526.mualhpcp01.local 3805527.mualhpcp01.local 3805528.mualhpcp01.local 3805529.mualhpcp01.local 3805530.mualhpcp01.local
+    Waiting for: 3805521.mualhpcp01.local
+    Waiting for: 3805522.mualhpcp01.local
+    Waiting for: 3805523.mualhpcp01.local
+    Waiting for: 3805524.mualhpcp01.local
+    Waiting for: 3805525.mualhpcp01.local
+    Waiting for: 3805526.mualhpcp01.local
+    Waiting for: 3805527.mualhpcp01.local
+    Waiting for: 3805528.mualhpcp01.local
+    Waiting for: 3805529.mualhpcp01.local
+    Waiting for: 3805530.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805601.mualhpcp01.local 3805602.mualhpcp01.local 3805603.mualhpcp01.local 3805604.mualhpcp01.local 3805605.mualhpcp01.local 3805606.mualhpcp01.local 3805607.mualhpcp01.local 3805608.mualhpcp01.local 3805609.mualhpcp01.local 3805610.mualhpcp01.local
+    Waiting for: 3805601.mualhpcp01.local
+    Waiting for: 3805602.mualhpcp01.local
+    Waiting for: 3805603.mualhpcp01.local
+    Waiting for: 3805604.mualhpcp01.local
+    Waiting for: 3805605.mualhpcp01.local
+    Waiting for: 3805606.mualhpcp01.local
+    Waiting for: 3805607.mualhpcp01.local
+    Waiting for: 3805608.mualhpcp01.local
+    Waiting for: 3805609.mualhpcp01.local
+    Waiting for: 3805610.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805641.mualhpcp01.local 3805642.mualhpcp01.local 3805643.mualhpcp01.local 3805644.mualhpcp01.local 3805645.mualhpcp01.local 3805646.mualhpcp01.local 3805647.mualhpcp01.local 3805648.mualhpcp01.local 3805649.mualhpcp01.local 3805650.mualhpcp01.local
+    Waiting for: 3805641.mualhpcp01.local
+    Waiting for: 3805642.mualhpcp01.local
+    Waiting for: 3805643.mualhpcp01.local
+    Waiting for: 3805644.mualhpcp01.local
+    Waiting for: 3805645.mualhpcp01.local
+    Waiting for: 3805646.mualhpcp01.local
+    Waiting for: 3805647.mualhpcp01.local
+    Waiting for: 3805648.mualhpcp01.local
+    Waiting for: 3805649.mualhpcp01.local
+    Waiting for: 3805650.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805681.mualhpcp01.local 3805682.mualhpcp01.local 3805683.mualhpcp01.local 3805684.mualhpcp01.local 3805685.mualhpcp01.local 3805686.mualhpcp01.local 3805687.mualhpcp01.local 3805688.mualhpcp01.local 3805689.mualhpcp01.local 3805690.mualhpcp01.local
+    Waiting for: 3805681.mualhpcp01.local
+    Waiting for: 3805682.mualhpcp01.local
+    Waiting for: 3805683.mualhpcp01.local
+    Waiting for: 3805684.mualhpcp01.local
+    Waiting for: 3805685.mualhpcp01.local
+    Waiting for: 3805686.mualhpcp01.local
+    Waiting for: 3805687.mualhpcp01.local
+    Waiting for: 3805688.mualhpcp01.local
+    Waiting for: 3805689.mualhpcp01.local
+    Waiting for: 3805690.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805731.mualhpcp01.local 3805732.mualhpcp01.local 3805733.mualhpcp01.local 3805734.mualhpcp01.local 3805735.mualhpcp01.local 3805736.mualhpcp01.local 3805737.mualhpcp01.local 3805738.mualhpcp01.local 3805739.mualhpcp01.local 3805740.mualhpcp01.local
+    Waiting for: 3805731.mualhpcp01.local
+    Waiting for: 3805732.mualhpcp01.local
+    Waiting for: 3805733.mualhpcp01.local
+    Waiting for: 3805734.mualhpcp01.local
+    Waiting for: 3805735.mualhpcp01.local
+    Waiting for: 3805736.mualhpcp01.local
+    Waiting for: 3805737.mualhpcp01.local
+    Waiting for: 3805738.mualhpcp01.local
+    Waiting for: 3805739.mualhpcp01.local
+    Waiting for: 3805740.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805771.mualhpcp01.local 3805772.mualhpcp01.local 3805773.mualhpcp01.local 3805774.mualhpcp01.local 3805775.mualhpcp01.local 3805776.mualhpcp01.local 3805777.mualhpcp01.local 3805778.mualhpcp01.local 3805779.mualhpcp01.local 3805780.mualhpcp01.local
+    Waiting for: 3805771.mualhpcp01.local
+    Waiting for: 3805772.mualhpcp01.local
+    Waiting for: 3805773.mualhpcp01.local
+    Waiting for: 3805774.mualhpcp01.local
+    Waiting for: 3805775.mualhpcp01.local
+    Waiting for: 3805776.mualhpcp01.local
+    Waiting for: 3805777.mualhpcp01.local
+    Waiting for: 3805778.mualhpcp01.local
+    Waiting for: 3805779.mualhpcp01.local
+    Waiting for: 3805780.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3805821.mualhpcp01.local 3805822.mualhpcp01.local 3805823.mualhpcp01.local 3805824.mualhpcp01.local 3805825.mualhpcp01.local 3805826.mualhpcp01.local 3805827.mualhpcp01.local 3805828.mualhpcp01.local 3805829.mualhpcp01.local 3805830.mualhpcp01.local
+    Waiting for: 3805821.mualhpcp01.local
+    Waiting for: 3805822.mualhpcp01.local
+    Waiting for: 3805823.mualhpcp01.local
+    Waiting for: 3805824.mualhpcp01.local
+    Waiting for: 3805825.mualhpcp01.local
+    Waiting for: 3805826.mualhpcp01.local
+    Waiting for: 3805827.mualhpcp01.local
+    Waiting for: 3805828.mualhpcp01.local
+    Waiting for: 3805829.mualhpcp01.local
+    Waiting for: 3805830.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3805881.mualhpcp01.local 3805882.mualhpcp01.local 3805883.mualhpcp01.local 3805884.mualhpcp01.local 3805885.mualhpcp01.local 3805886.mualhpcp01.local 3805887.mualhpcp01.local 3805888.mualhpcp01.local 3805889.mualhpcp01.local 3805890.mualhpcp01.local
+    Waiting for: 3805881.mualhpcp01.local
+    Waiting for: 3805882.mualhpcp01.local
+    Waiting for: 3805883.mualhpcp01.local
+    Waiting for: 3805884.mualhpcp01.local
+    Waiting for: 3805885.mualhpcp01.local
+    Waiting for: 3805886.mualhpcp01.local
+    Waiting for: 3805887.mualhpcp01.local
+    Waiting for: 3805888.mualhpcp01.local
+    Waiting for: 3805889.mualhpcp01.local
+    Waiting for: 3805890.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3805921.mualhpcp01.local 3805922.mualhpcp01.local 3805923.mualhpcp01.local 3805924.mualhpcp01.local 3805925.mualhpcp01.local 3805926.mualhpcp01.local 3805927.mualhpcp01.local 3805928.mualhpcp01.local 3805929.mualhpcp01.local 3805930.mualhpcp01.local
+    Waiting for: 3805921.mualhpcp01.local
+    Waiting for: 3805922.mualhpcp01.local
+    Waiting for: 3805923.mualhpcp01.local
+    Waiting for: 3805924.mualhpcp01.local
+    Waiting for: 3805925.mualhpcp01.local
+    Waiting for: 3805926.mualhpcp01.local
+    Waiting for: 3805927.mualhpcp01.local
+    Waiting for: 3805928.mualhpcp01.local
+    Waiting for: 3805929.mualhpcp01.local
+    Waiting for: 3805930.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3805981.mualhpcp01.local 3805982.mualhpcp01.local 3805983.mualhpcp01.local 3805984.mualhpcp01.local 3805985.mualhpcp01.local 3805986.mualhpcp01.local 3805987.mualhpcp01.local 3805988.mualhpcp01.local 3805989.mualhpcp01.local 3805990.mualhpcp01.local
+    Waiting for: 3805981.mualhpcp01.local
+    Waiting for: 3805982.mualhpcp01.local
+    Waiting for: 3805983.mualhpcp01.local
+    Waiting for: 3805984.mualhpcp01.local
+    Waiting for: 3805985.mualhpcp01.local
+    Waiting for: 3805986.mualhpcp01.local
+    Waiting for: 3805987.mualhpcp01.local
+    Waiting for: 3805988.mualhpcp01.local
+    Waiting for: 3805989.mualhpcp01.local
+    Waiting for: 3805990.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806031.mualhpcp01.local 3806032.mualhpcp01.local 3806033.mualhpcp01.local 3806034.mualhpcp01.local 3806035.mualhpcp01.local 3806036.mualhpcp01.local 3806037.mualhpcp01.local 3806038.mualhpcp01.local 3806039.mualhpcp01.local 3806040.mualhpcp01.local
+    Waiting for: 3806031.mualhpcp01.local
+    Waiting for: 3806032.mualhpcp01.local
+    Waiting for: 3806033.mualhpcp01.local
+    Waiting for: 3806034.mualhpcp01.local
+    Waiting for: 3806035.mualhpcp01.local
+    Waiting for: 3806036.mualhpcp01.local
+    Waiting for: 3806037.mualhpcp01.local
+    Waiting for: 3806038.mualhpcp01.local
+    Waiting for: 3806039.mualhpcp01.local
+    Waiting for: 3806040.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806110.mualhpcp01.local 3806112.mualhpcp01.local 3806113.mualhpcp01.local 3806114.mualhpcp01.local 3806115.mualhpcp01.local 3806116.mualhpcp01.local 3806117.mualhpcp01.local 3806118.mualhpcp01.local 3806119.mualhpcp01.local 3806120.mualhpcp01.local
+    Waiting for: 3806110.mualhpcp01.local
+    Waiting for: 3806112.mualhpcp01.local
+    Waiting for: 3806113.mualhpcp01.local
+    Waiting for: 3806114.mualhpcp01.local
+    Waiting for: 3806115.mualhpcp01.local
+    Waiting for: 3806116.mualhpcp01.local
+    Waiting for: 3806117.mualhpcp01.local
+    Waiting for: 3806118.mualhpcp01.local
+    Waiting for: 3806119.mualhpcp01.local
+    Waiting for: 3806120.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806151.mualhpcp01.local 3806152.mualhpcp01.local 3806153.mualhpcp01.local 3806154.mualhpcp01.local 3806155.mualhpcp01.local 3806156.mualhpcp01.local 3806157.mualhpcp01.local 3806158.mualhpcp01.local 3806159.mualhpcp01.local 3806160.mualhpcp01.local
+    Waiting for: 3806151.mualhpcp01.local
+    Waiting for: 3806152.mualhpcp01.local
+    Waiting for: 3806153.mualhpcp01.local
+    Waiting for: 3806154.mualhpcp01.local
+    Waiting for: 3806155.mualhpcp01.local
+    Waiting for: 3806156.mualhpcp01.local
+    Waiting for: 3806157.mualhpcp01.local
+    Waiting for: 3806158.mualhpcp01.local
+    Waiting for: 3806159.mualhpcp01.local
+    Waiting for: 3806160.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806181.mualhpcp01.local 3806182.mualhpcp01.local 3806183.mualhpcp01.local 3806184.mualhpcp01.local 3806185.mualhpcp01.local 3806186.mualhpcp01.local 3806187.mualhpcp01.local 3806188.mualhpcp01.local 3806189.mualhpcp01.local 3806190.mualhpcp01.local
+    Waiting for: 3806181.mualhpcp01.local
+    Waiting for: 3806182.mualhpcp01.local
+    Waiting for: 3806183.mualhpcp01.local
+    Waiting for: 3806184.mualhpcp01.local
+    Waiting for: 3806185.mualhpcp01.local
+    Waiting for: 3806186.mualhpcp01.local
+    Waiting for: 3806187.mualhpcp01.local
+    Waiting for: 3806188.mualhpcp01.local
+    Waiting for: 3806189.mualhpcp01.local
+    Waiting for: 3806190.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806221.mualhpcp01.local 3806222.mualhpcp01.local 3806223.mualhpcp01.local 3806224.mualhpcp01.local 3806225.mualhpcp01.local 3806226.mualhpcp01.local 3806227.mualhpcp01.local 3806228.mualhpcp01.local 3806229.mualhpcp01.local 3806230.mualhpcp01.local
+    Waiting for: 3806221.mualhpcp01.local
+    Waiting for: 3806222.mualhpcp01.local
+    Waiting for: 3806223.mualhpcp01.local
+    Waiting for: 3806224.mualhpcp01.local
+    Waiting for: 3806225.mualhpcp01.local
+    Waiting for: 3806226.mualhpcp01.local
+    Waiting for: 3806227.mualhpcp01.local
+    Waiting for: 3806228.mualhpcp01.local
+    Waiting for: 3806229.mualhpcp01.local
+    Waiting for: 3806230.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806271.mualhpcp01.local 3806272.mualhpcp01.local 3806273.mualhpcp01.local 3806274.mualhpcp01.local 3806275.mualhpcp01.local 3806276.mualhpcp01.local 3806277.mualhpcp01.local 3806278.mualhpcp01.local 3806279.mualhpcp01.local 3806280.mualhpcp01.local
+    Waiting for: 3806271.mualhpcp01.local
+    Waiting for: 3806272.mualhpcp01.local
+    Waiting for: 3806273.mualhpcp01.local
+    Waiting for: 3806274.mualhpcp01.local
+    Waiting for: 3806275.mualhpcp01.local
+    Waiting for: 3806276.mualhpcp01.local
+    Waiting for: 3806277.mualhpcp01.local
+    Waiting for: 3806278.mualhpcp01.local
+    Waiting for: 3806279.mualhpcp01.local
+    Waiting for: 3806280.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806351.mualhpcp01.local 3806352.mualhpcp01.local 3806353.mualhpcp01.local 3806354.mualhpcp01.local 3806355.mualhpcp01.local 3806356.mualhpcp01.local 3806357.mualhpcp01.local 3806358.mualhpcp01.local 3806359.mualhpcp01.local 3806360.mualhpcp01.local
+    Waiting for: 3806351.mualhpcp01.local
+    Waiting for: 3806352.mualhpcp01.local
+    Waiting for: 3806353.mualhpcp01.local
+    Waiting for: 3806354.mualhpcp01.local
+    Waiting for: 3806355.mualhpcp01.local
+    Waiting for: 3806356.mualhpcp01.local
+    Waiting for: 3806357.mualhpcp01.local
+    Waiting for: 3806358.mualhpcp01.local
+    Waiting for: 3806359.mualhpcp01.local
+    Waiting for: 3806360.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806401.mualhpcp01.local 3806402.mualhpcp01.local 3806403.mualhpcp01.local 3806404.mualhpcp01.local 3806405.mualhpcp01.local 3806406.mualhpcp01.local 3806407.mualhpcp01.local 3806408.mualhpcp01.local 3806409.mualhpcp01.local 3806410.mualhpcp01.local
+    Waiting for: 3806401.mualhpcp01.local
+    Waiting for: 3806402.mualhpcp01.local
+    Waiting for: 3806403.mualhpcp01.local
+    Waiting for: 3806404.mualhpcp01.local
+    Waiting for: 3806405.mualhpcp01.local
+    Waiting for: 3806406.mualhpcp01.local
+    Waiting for: 3806407.mualhpcp01.local
+    Waiting for: 3806408.mualhpcp01.local
+    Waiting for: 3806409.mualhpcp01.local
+    Waiting for: 3806410.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806421.mualhpcp01.local 3806422.mualhpcp01.local 3806423.mualhpcp01.local 3806424.mualhpcp01.local 3806425.mualhpcp01.local 3806426.mualhpcp01.local 3806427.mualhpcp01.local 3806428.mualhpcp01.local 3806429.mualhpcp01.local 3806430.mualhpcp01.local
+    Waiting for: 3806421.mualhpcp01.local
+    Waiting for: 3806422.mualhpcp01.local
+    Waiting for: 3806423.mualhpcp01.local
+    Waiting for: 3806424.mualhpcp01.local
+    Waiting for: 3806425.mualhpcp01.local
+    Waiting for: 3806426.mualhpcp01.local
+    Waiting for: 3806427.mualhpcp01.local
+    Waiting for: 3806428.mualhpcp01.local
+    Waiting for: 3806429.mualhpcp01.local
+    Waiting for: 3806430.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806481.mualhpcp01.local 3806482.mualhpcp01.local 3806483.mualhpcp01.local 3806484.mualhpcp01.local 3806485.mualhpcp01.local 3806486.mualhpcp01.local 3806487.mualhpcp01.local 3806488.mualhpcp01.local 3806489.mualhpcp01.local 3806490.mualhpcp01.local
+    Waiting for: 3806481.mualhpcp01.local
+    Waiting for: 3806482.mualhpcp01.local
+    Waiting for: 3806483.mualhpcp01.local
+    Waiting for: 3806484.mualhpcp01.local
+    Waiting for: 3806485.mualhpcp01.local
+    Waiting for: 3806486.mualhpcp01.local
+    Waiting for: 3806487.mualhpcp01.local
+    Waiting for: 3806488.mualhpcp01.local
+    Waiting for: 3806489.mualhpcp01.local
+    Waiting for: 3806490.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806541.mualhpcp01.local 3806542.mualhpcp01.local 3806543.mualhpcp01.local 3806544.mualhpcp01.local 3806545.mualhpcp01.local 3806546.mualhpcp01.local 3806547.mualhpcp01.local 3806548.mualhpcp01.local 3806549.mualhpcp01.local 3806550.mualhpcp01.local
+    Waiting for: 3806541.mualhpcp01.local
+    Waiting for: 3806542.mualhpcp01.local
+    Waiting for: 3806543.mualhpcp01.local
+    Waiting for: 3806544.mualhpcp01.local
+    Waiting for: 3806545.mualhpcp01.local
+    Waiting for: 3806546.mualhpcp01.local
+    Waiting for: 3806547.mualhpcp01.local
+    Waiting for: 3806548.mualhpcp01.local
+    Waiting for: 3806549.mualhpcp01.local
+    Waiting for: 3806550.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3806581.mualhpcp01.local 3806582.mualhpcp01.local 3806583.mualhpcp01.local 3806584.mualhpcp01.local 3806585.mualhpcp01.local 3806586.mualhpcp01.local 3806587.mualhpcp01.local 3806588.mualhpcp01.local 3806589.mualhpcp01.local 3806590.mualhpcp01.local
+    Waiting for: 3806581.mualhpcp01.local
+    Waiting for: 3806582.mualhpcp01.local
+    Waiting for: 3806583.mualhpcp01.local
+    Waiting for: 3806584.mualhpcp01.local
+    Waiting for: 3806585.mualhpcp01.local
+    Waiting for: 3806586.mualhpcp01.local
+    Waiting for: 3806587.mualhpcp01.local
+    Waiting for: 3806588.mualhpcp01.local
+    Waiting for: 3806589.mualhpcp01.local
+    Waiting for: 3806590.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806648.mualhpcp01.local 3806651.mualhpcp01.local 3806653.mualhpcp01.local 3806654.mualhpcp01.local 3806655.mualhpcp01.local 3806656.mualhpcp01.local 3806657.mualhpcp01.local 3806658.mualhpcp01.local 3806659.mualhpcp01.local 3806660.mualhpcp01.local
+    Waiting for: 3806648.mualhpcp01.local
+    Waiting for: 3806651.mualhpcp01.local
+    Waiting for: 3806653.mualhpcp01.local
+    Waiting for: 3806654.mualhpcp01.local
+    Waiting for: 3806655.mualhpcp01.local
+    Waiting for: 3806656.mualhpcp01.local
+    Waiting for: 3806657.mualhpcp01.local
+    Waiting for: 3806658.mualhpcp01.local
+    Waiting for: 3806659.mualhpcp01.local
+    Waiting for: 3806660.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806691.mualhpcp01.local 3806692.mualhpcp01.local 3806693.mualhpcp01.local 3806694.mualhpcp01.local 3806695.mualhpcp01.local 3806696.mualhpcp01.local 3806697.mualhpcp01.local 3806698.mualhpcp01.local 3806699.mualhpcp01.local 3806700.mualhpcp01.local
+    Waiting for: 3806691.mualhpcp01.local
+    Waiting for: 3806692.mualhpcp01.local
+    Waiting for: 3806693.mualhpcp01.local
+    Waiting for: 3806694.mualhpcp01.local
+    Waiting for: 3806695.mualhpcp01.local
+    Waiting for: 3806696.mualhpcp01.local
+    Waiting for: 3806697.mualhpcp01.local
+    Waiting for: 3806698.mualhpcp01.local
+    Waiting for: 3806699.mualhpcp01.local
+    Waiting for: 3806700.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806741.mualhpcp01.local 3806742.mualhpcp01.local 3806743.mualhpcp01.local 3806744.mualhpcp01.local 3806745.mualhpcp01.local 3806746.mualhpcp01.local 3806747.mualhpcp01.local 3806748.mualhpcp01.local 3806749.mualhpcp01.local 3806750.mualhpcp01.local
+    Waiting for: 3806741.mualhpcp01.local
+    Waiting for: 3806742.mualhpcp01.local
+    Waiting for: 3806743.mualhpcp01.local
+    Waiting for: 3806744.mualhpcp01.local
+    Waiting for: 3806745.mualhpcp01.local
+    Waiting for: 3806746.mualhpcp01.local
+    Waiting for: 3806747.mualhpcp01.local
+    Waiting for: 3806748.mualhpcp01.local
+    Waiting for: 3806749.mualhpcp01.local
+    Waiting for: 3806750.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806791.mualhpcp01.local 3806792.mualhpcp01.local 3806793.mualhpcp01.local 3806794.mualhpcp01.local 3806795.mualhpcp01.local 3806796.mualhpcp01.local 3806797.mualhpcp01.local 3806798.mualhpcp01.local 3806799.mualhpcp01.local 3806800.mualhpcp01.local
+    Waiting for: 3806791.mualhpcp01.local
+    Waiting for: 3806792.mualhpcp01.local
+    Waiting for: 3806793.mualhpcp01.local
+    Waiting for: 3806794.mualhpcp01.local
+    Waiting for: 3806795.mualhpcp01.local
+    Waiting for: 3806796.mualhpcp01.local
+    Waiting for: 3806797.mualhpcp01.local
+    Waiting for: 3806798.mualhpcp01.local
+    Waiting for: 3806799.mualhpcp01.local
+    Waiting for: 3806800.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806851.mualhpcp01.local 3806852.mualhpcp01.local 3806853.mualhpcp01.local 3806854.mualhpcp01.local 3806855.mualhpcp01.local 3806856.mualhpcp01.local 3806857.mualhpcp01.local 3806858.mualhpcp01.local 3806859.mualhpcp01.local 3806860.mualhpcp01.local
+    Waiting for: 3806851.mualhpcp01.local
+    Waiting for: 3806852.mualhpcp01.local
+    Waiting for: 3806853.mualhpcp01.local
+    Waiting for: 3806854.mualhpcp01.local
+    Waiting for: 3806855.mualhpcp01.local
+    Waiting for: 3806856.mualhpcp01.local
+    Waiting for: 3806857.mualhpcp01.local
+    Waiting for: 3806858.mualhpcp01.local
+    Waiting for: 3806859.mualhpcp01.local
+    Waiting for: 3806860.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806901.mualhpcp01.local 3806902.mualhpcp01.local 3806903.mualhpcp01.local 3806904.mualhpcp01.local 3806905.mualhpcp01.local 3806906.mualhpcp01.local 3806907.mualhpcp01.local 3806908.mualhpcp01.local 3806909.mualhpcp01.local 3806910.mualhpcp01.local
+    Waiting for: 3806901.mualhpcp01.local
+    Waiting for: 3806902.mualhpcp01.local
+    Waiting for: 3806903.mualhpcp01.local
+    Waiting for: 3806904.mualhpcp01.local
+    Waiting for: 3806905.mualhpcp01.local
+    Waiting for: 3806906.mualhpcp01.local
+    Waiting for: 3806907.mualhpcp01.local
+    Waiting for: 3806908.mualhpcp01.local
+    Waiting for: 3806909.mualhpcp01.local
+    Waiting for: 3806910.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3806961.mualhpcp01.local 3806962.mualhpcp01.local 3806963.mualhpcp01.local 3806964.mualhpcp01.local 3806965.mualhpcp01.local 3806966.mualhpcp01.local 3806967.mualhpcp01.local 3806968.mualhpcp01.local 3806969.mualhpcp01.local 3806970.mualhpcp01.local
+    Waiting for: 3806961.mualhpcp01.local
+    Waiting for: 3806962.mualhpcp01.local
+    Waiting for: 3806963.mualhpcp01.local
+    Waiting for: 3806964.mualhpcp01.local
+    Waiting for: 3806965.mualhpcp01.local
+    Waiting for: 3806966.mualhpcp01.local
+    Waiting for: 3806967.mualhpcp01.local
+    Waiting for: 3806968.mualhpcp01.local
+    Waiting for: 3806969.mualhpcp01.local
+    Waiting for: 3806970.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807001.mualhpcp01.local 3807002.mualhpcp01.local 3807003.mualhpcp01.local 3807004.mualhpcp01.local 3807005.mualhpcp01.local 3807006.mualhpcp01.local 3807007.mualhpcp01.local 3807008.mualhpcp01.local 3807009.mualhpcp01.local 3807010.mualhpcp01.local
+    Waiting for: 3807001.mualhpcp01.local
+    Waiting for: 3807002.mualhpcp01.local
+    Waiting for: 3807003.mualhpcp01.local
+    Waiting for: 3807004.mualhpcp01.local
+    Waiting for: 3807005.mualhpcp01.local
+    Waiting for: 3807006.mualhpcp01.local
+    Waiting for: 3807007.mualhpcp01.local
+    Waiting for: 3807008.mualhpcp01.local
+    Waiting for: 3807009.mualhpcp01.local
+    Waiting for: 3807010.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807041.mualhpcp01.local 3807042.mualhpcp01.local 3807043.mualhpcp01.local 3807044.mualhpcp01.local 3807045.mualhpcp01.local 3807046.mualhpcp01.local 3807047.mualhpcp01.local 3807048.mualhpcp01.local 3807049.mualhpcp01.local 3807050.mualhpcp01.local
+    Waiting for: 3807041.mualhpcp01.local
+    Waiting for: 3807042.mualhpcp01.local
+    Waiting for: 3807043.mualhpcp01.local
+    Waiting for: 3807044.mualhpcp01.local
+    Waiting for: 3807045.mualhpcp01.local
+    Waiting for: 3807046.mualhpcp01.local
+    Waiting for: 3807047.mualhpcp01.local
+    Waiting for: 3807048.mualhpcp01.local
+    Waiting for: 3807049.mualhpcp01.local
+    Waiting for: 3807050.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807091.mualhpcp01.local 3807092.mualhpcp01.local 3807093.mualhpcp01.local 3807094.mualhpcp01.local 3807095.mualhpcp01.local 3807096.mualhpcp01.local 3807097.mualhpcp01.local 3807098.mualhpcp01.local 3807099.mualhpcp01.local 3807100.mualhpcp01.local
+    Waiting for: 3807091.mualhpcp01.local
+    Waiting for: 3807092.mualhpcp01.local
+    Waiting for: 3807093.mualhpcp01.local
+    Waiting for: 3807094.mualhpcp01.local
+    Waiting for: 3807095.mualhpcp01.local
+    Waiting for: 3807096.mualhpcp01.local
+    Waiting for: 3807097.mualhpcp01.local
+    Waiting for: 3807098.mualhpcp01.local
+    Waiting for: 3807099.mualhpcp01.local
+    Waiting for: 3807100.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807151.mualhpcp01.local 3807152.mualhpcp01.local 3807153.mualhpcp01.local 3807154.mualhpcp01.local 3807155.mualhpcp01.local 3807156.mualhpcp01.local 3807157.mualhpcp01.local 3807158.mualhpcp01.local 3807159.mualhpcp01.local 3807160.mualhpcp01.local
+    Waiting for: 3807151.mualhpcp01.local
+    Waiting for: 3807152.mualhpcp01.local
+    Waiting for: 3807153.mualhpcp01.local
+    Waiting for: 3807154.mualhpcp01.local
+    Waiting for: 3807155.mualhpcp01.local
+    Waiting for: 3807156.mualhpcp01.local
+    Waiting for: 3807157.mualhpcp01.local
+    Waiting for: 3807158.mualhpcp01.local
+    Waiting for: 3807159.mualhpcp01.local
+    Waiting for: 3807160.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807191.mualhpcp01.local 3807192.mualhpcp01.local 3807193.mualhpcp01.local 3807194.mualhpcp01.local 3807195.mualhpcp01.local 3807196.mualhpcp01.local 3807197.mualhpcp01.local 3807198.mualhpcp01.local 3807199.mualhpcp01.local 3807200.mualhpcp01.local
+    Waiting for: 3807191.mualhpcp01.local
+    Waiting for: 3807192.mualhpcp01.local
+    Waiting for: 3807193.mualhpcp01.local
+    Waiting for: 3807194.mualhpcp01.local
+    Waiting for: 3807195.mualhpcp01.local
+    Waiting for: 3807196.mualhpcp01.local
+    Waiting for: 3807197.mualhpcp01.local
+    Waiting for: 3807198.mualhpcp01.local
+    Waiting for: 3807199.mualhpcp01.local
+    Waiting for: 3807200.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807241.mualhpcp01.local 3807242.mualhpcp01.local 3807243.mualhpcp01.local 3807244.mualhpcp01.local 3807245.mualhpcp01.local 3807246.mualhpcp01.local 3807247.mualhpcp01.local 3807248.mualhpcp01.local 3807249.mualhpcp01.local 3807250.mualhpcp01.local
+    Waiting for: 3807241.mualhpcp01.local
+    Waiting for: 3807242.mualhpcp01.local
+    Waiting for: 3807243.mualhpcp01.local
+    Waiting for: 3807244.mualhpcp01.local
+    Waiting for: 3807245.mualhpcp01.local
+    Waiting for: 3807246.mualhpcp01.local
+    Waiting for: 3807247.mualhpcp01.local
+    Waiting for: 3807248.mualhpcp01.local
+    Waiting for: 3807249.mualhpcp01.local
+    Waiting for: 3807250.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807291.mualhpcp01.local 3807292.mualhpcp01.local 3807293.mualhpcp01.local 3807294.mualhpcp01.local 3807295.mualhpcp01.local 3807296.mualhpcp01.local 3807297.mualhpcp01.local 3807298.mualhpcp01.local 3807299.mualhpcp01.local 3807300.mualhpcp01.local
+    Waiting for: 3807291.mualhpcp01.local
+    Waiting for: 3807292.mualhpcp01.local
+    Waiting for: 3807293.mualhpcp01.local
+    Waiting for: 3807294.mualhpcp01.local
+    Waiting for: 3807295.mualhpcp01.local
+    Waiting for: 3807296.mualhpcp01.local
+    Waiting for: 3807297.mualhpcp01.local
+    Waiting for: 3807298.mualhpcp01.local
+    Waiting for: 3807299.mualhpcp01.local
+    Waiting for: 3807300.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3807361.mualhpcp01.local 3807362.mualhpcp01.local 3807363.mualhpcp01.local 3807364.mualhpcp01.local 3807365.mualhpcp01.local 3807366.mualhpcp01.local 3807367.mualhpcp01.local 3807368.mualhpcp01.local 3807369.mualhpcp01.local 3807370.mualhpcp01.local
+    Waiting for: 3807361.mualhpcp01.local
+    Waiting for: 3807362.mualhpcp01.local
+    Waiting for: 3807363.mualhpcp01.local
+    Waiting for: 3807364.mualhpcp01.local
+    Waiting for: 3807365.mualhpcp01.local
+    Waiting for: 3807366.mualhpcp01.local
+    Waiting for: 3807367.mualhpcp01.local
+    Waiting for: 3807368.mualhpcp01.local
+    Waiting for: 3807369.mualhpcp01.local
+    Waiting for: 3807370.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807391.mualhpcp01.local 3807392.mualhpcp01.local 3807393.mualhpcp01.local 3807394.mualhpcp01.local 3807395.mualhpcp01.local 3807396.mualhpcp01.local 3807397.mualhpcp01.local 3807399.mualhpcp01.local 3807401.mualhpcp01.local 3807403.mualhpcp01.local
+    Waiting for: 3807391.mualhpcp01.local
+    Waiting for: 3807392.mualhpcp01.local
+    Waiting for: 3807393.mualhpcp01.local
+    Waiting for: 3807394.mualhpcp01.local
+    Waiting for: 3807395.mualhpcp01.local
+    Waiting for: 3807396.mualhpcp01.local
+    Waiting for: 3807397.mualhpcp01.local
+    Waiting for: 3807399.mualhpcp01.local
+    Waiting for: 3807401.mualhpcp01.local
+    Waiting for: 3807403.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807461.mualhpcp01.local 3807462.mualhpcp01.local 3807463.mualhpcp01.local 3807464.mualhpcp01.local 3807465.mualhpcp01.local 3807466.mualhpcp01.local 3807467.mualhpcp01.local 3807468.mualhpcp01.local 3807469.mualhpcp01.local 3807470.mualhpcp01.local
+    Waiting for: 3807461.mualhpcp01.local
+    Waiting for: 3807462.mualhpcp01.local
+    Waiting for: 3807463.mualhpcp01.local
+    Waiting for: 3807464.mualhpcp01.local
+    Waiting for: 3807465.mualhpcp01.local
+    Waiting for: 3807466.mualhpcp01.local
+    Waiting for: 3807467.mualhpcp01.local
+    Waiting for: 3807468.mualhpcp01.local
+    Waiting for: 3807469.mualhpcp01.local
+    Waiting for: 3807470.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807481.mualhpcp01.local 3807482.mualhpcp01.local 3807483.mualhpcp01.local 3807484.mualhpcp01.local 3807485.mualhpcp01.local 3807486.mualhpcp01.local 3807487.mualhpcp01.local 3807488.mualhpcp01.local 3807489.mualhpcp01.local 3807490.mualhpcp01.local
+    Waiting for: 3807481.mualhpcp01.local
+    Waiting for: 3807482.mualhpcp01.local
+    Waiting for: 3807483.mualhpcp01.local
+    Waiting for: 3807484.mualhpcp01.local
+    Waiting for: 3807485.mualhpcp01.local
+    Waiting for: 3807486.mualhpcp01.local
+    Waiting for: 3807487.mualhpcp01.local
+    Waiting for: 3807488.mualhpcp01.local
+    Waiting for: 3807489.mualhpcp01.local
+    Waiting for: 3807490.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807531.mualhpcp01.local 3807532.mualhpcp01.local 3807533.mualhpcp01.local 3807534.mualhpcp01.local 3807535.mualhpcp01.local 3807536.mualhpcp01.local 3807537.mualhpcp01.local 3807538.mualhpcp01.local 3807539.mualhpcp01.local 3807540.mualhpcp01.local
+    Waiting for: 3807531.mualhpcp01.local
+    Waiting for: 3807532.mualhpcp01.local
+    Waiting for: 3807533.mualhpcp01.local
+    Waiting for: 3807534.mualhpcp01.local
+    Waiting for: 3807535.mualhpcp01.local
+    Waiting for: 3807536.mualhpcp01.local
+    Waiting for: 3807537.mualhpcp01.local
+    Waiting for: 3807538.mualhpcp01.local
+    Waiting for: 3807539.mualhpcp01.local
+    Waiting for: 3807540.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807621.mualhpcp01.local 3807622.mualhpcp01.local 3807623.mualhpcp01.local 3807624.mualhpcp01.local 3807625.mualhpcp01.local 3807626.mualhpcp01.local 3807627.mualhpcp01.local 3807628.mualhpcp01.local 3807629.mualhpcp01.local 3807630.mualhpcp01.local
+    Waiting for: 3807621.mualhpcp01.local
+    Waiting for: 3807622.mualhpcp01.local
+    Waiting for: 3807623.mualhpcp01.local
+    Waiting for: 3807624.mualhpcp01.local
+    Waiting for: 3807625.mualhpcp01.local
+    Waiting for: 3807626.mualhpcp01.local
+    Waiting for: 3807627.mualhpcp01.local
+    Waiting for: 3807628.mualhpcp01.local
+    Waiting for: 3807629.mualhpcp01.local
+    Waiting for: 3807630.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807701.mualhpcp01.local 3807702.mualhpcp01.local 3807703.mualhpcp01.local 3807704.mualhpcp01.local 3807705.mualhpcp01.local 3807706.mualhpcp01.local 3807707.mualhpcp01.local 3807708.mualhpcp01.local 3807709.mualhpcp01.local 3807710.mualhpcp01.local
+    Waiting for: 3807701.mualhpcp01.local
+    Waiting for: 3807702.mualhpcp01.local
+    Waiting for: 3807703.mualhpcp01.local
+    Waiting for: 3807704.mualhpcp01.local
+    Waiting for: 3807705.mualhpcp01.local
+    Waiting for: 3807706.mualhpcp01.local
+    Waiting for: 3807707.mualhpcp01.local
+    Waiting for: 3807708.mualhpcp01.local
+    Waiting for: 3807709.mualhpcp01.local
+    Waiting for: 3807710.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807741.mualhpcp01.local 3807742.mualhpcp01.local 3807743.mualhpcp01.local 3807744.mualhpcp01.local 3807745.mualhpcp01.local 3807746.mualhpcp01.local 3807747.mualhpcp01.local 3807748.mualhpcp01.local 3807749.mualhpcp01.local 3807750.mualhpcp01.local
+    Waiting for: 3807741.mualhpcp01.local
+    Waiting for: 3807742.mualhpcp01.local
+    Waiting for: 3807743.mualhpcp01.local
+    Waiting for: 3807744.mualhpcp01.local
+    Waiting for: 3807745.mualhpcp01.local
+    Waiting for: 3807746.mualhpcp01.local
+    Waiting for: 3807747.mualhpcp01.local
+    Waiting for: 3807748.mualhpcp01.local
+    Waiting for: 3807749.mualhpcp01.local
+    Waiting for: 3807750.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807771.mualhpcp01.local 3807772.mualhpcp01.local 3807773.mualhpcp01.local 3807774.mualhpcp01.local 3807775.mualhpcp01.local 3807776.mualhpcp01.local 3807777.mualhpcp01.local 3807778.mualhpcp01.local 3807779.mualhpcp01.local 3807780.mualhpcp01.local
+    Waiting for: 3807771.mualhpcp01.local
+    Waiting for: 3807772.mualhpcp01.local
+    Waiting for: 3807773.mualhpcp01.local
+    Waiting for: 3807774.mualhpcp01.local
+    Waiting for: 3807775.mualhpcp01.local
+    Waiting for: 3807776.mualhpcp01.local
+    Waiting for: 3807777.mualhpcp01.local
+    Waiting for: 3807778.mualhpcp01.local
+    Waiting for: 3807779.mualhpcp01.local
+    Waiting for: 3807780.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807821.mualhpcp01.local 3807822.mualhpcp01.local 3807823.mualhpcp01.local 3807824.mualhpcp01.local 3807825.mualhpcp01.local 3807826.mualhpcp01.local 3807827.mualhpcp01.local 3807828.mualhpcp01.local 3807829.mualhpcp01.local 3807830.mualhpcp01.local
+    Waiting for: 3807821.mualhpcp01.local
+    Waiting for: 3807822.mualhpcp01.local
+    Waiting for: 3807823.mualhpcp01.local
+    Waiting for: 3807824.mualhpcp01.local
+    Waiting for: 3807825.mualhpcp01.local
+    Waiting for: 3807826.mualhpcp01.local
+    Waiting for: 3807827.mualhpcp01.local
+    Waiting for: 3807828.mualhpcp01.local
+    Waiting for: 3807829.mualhpcp01.local
+    Waiting for: 3807830.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807901.mualhpcp01.local 3807902.mualhpcp01.local 3807903.mualhpcp01.local 3807904.mualhpcp01.local 3807905.mualhpcp01.local 3807906.mualhpcp01.local 3807907.mualhpcp01.local 3807908.mualhpcp01.local 3807909.mualhpcp01.local 3807910.mualhpcp01.local
+    Waiting for: 3807901.mualhpcp01.local
+    Waiting for: 3807902.mualhpcp01.local
+    Waiting for: 3807903.mualhpcp01.local
+    Waiting for: 3807904.mualhpcp01.local
+    Waiting for: 3807905.mualhpcp01.local
+    Waiting for: 3807906.mualhpcp01.local
+    Waiting for: 3807907.mualhpcp01.local
+    Waiting for: 3807908.mualhpcp01.local
+    Waiting for: 3807909.mualhpcp01.local
+    Waiting for: 3807910.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 0 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3807951.mualhpcp01.local 3807952.mualhpcp01.local 3807953.mualhpcp01.local 3807954.mualhpcp01.local 3807955.mualhpcp01.local 3807956.mualhpcp01.local 3807957.mualhpcp01.local 3807958.mualhpcp01.local 3807959.mualhpcp01.local 3807960.mualhpcp01.local
+    Waiting for: 3807951.mualhpcp01.local
+    Waiting for: 3807952.mualhpcp01.local
+    Waiting for: 3807953.mualhpcp01.local
+    Waiting for: 3807954.mualhpcp01.local
+    Waiting for: 3807955.mualhpcp01.local
+    Waiting for: 3807956.mualhpcp01.local
+    Waiting for: 3807957.mualhpcp01.local
+    Waiting for: 3807958.mualhpcp01.local
+    Waiting for: 3807959.mualhpcp01.local
+    Waiting for: 3807960.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 1 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3808011.mualhpcp01.local 3808012.mualhpcp01.local 3808013.mualhpcp01.local 3808014.mualhpcp01.local 3808015.mualhpcp01.local 3808016.mualhpcp01.local 3808017.mualhpcp01.local 3808018.mualhpcp01.local 3808019.mualhpcp01.local 3808020.mualhpcp01.local
+    Waiting for: 3808011.mualhpcp01.local
+    Waiting for: 3808012.mualhpcp01.local
+    Waiting for: 3808013.mualhpcp01.local
+    Waiting for: 3808014.mualhpcp01.local
+    Waiting for: 3808015.mualhpcp01.local
+    Waiting for: 3808016.mualhpcp01.local
+    Waiting for: 3808017.mualhpcp01.local
+    Waiting for: 3808018.mualhpcp01.local
+    Waiting for: 3808019.mualhpcp01.local
+    Waiting for: 3808020.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 2 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3808031.mualhpcp01.local 3808032.mualhpcp01.local 3808033.mualhpcp01.local 3808034.mualhpcp01.local 3808035.mualhpcp01.local 3808036.mualhpcp01.local 3808037.mualhpcp01.local 3808038.mualhpcp01.local 3808039.mualhpcp01.local 3808040.mualhpcp01.local
+    Waiting for: 3808031.mualhpcp01.local
+    Waiting for: 3808032.mualhpcp01.local
+    Waiting for: 3808033.mualhpcp01.local
+    Waiting for: 3808034.mualhpcp01.local
+    Waiting for: 3808035.mualhpcp01.local
+    Waiting for: 3808036.mualhpcp01.local
+    Waiting for: 3808037.mualhpcp01.local
+    Waiting for: 3808038.mualhpcp01.local
+    Waiting for: 3808039.mualhpcp01.local
+    Waiting for: 3808040.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 4 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3808071.mualhpcp01.local 3808072.mualhpcp01.local 3808073.mualhpcp01.local 3808074.mualhpcp01.local 3808075.mualhpcp01.local 3808076.mualhpcp01.local 3808077.mualhpcp01.local 3808078.mualhpcp01.local 3808079.mualhpcp01.local 3808080.mualhpcp01.local
+    Waiting for: 3808071.mualhpcp01.local
+    Waiting for: 3808072.mualhpcp01.local
+    Waiting for: 3808073.mualhpcp01.local
+    Waiting for: 3808074.mualhpcp01.local
+    Waiting for: 3808075.mualhpcp01.local
+    Waiting for: 3808076.mualhpcp01.local
+    Waiting for: 3808077.mualhpcp01.local
+    Waiting for: 3808078.mualhpcp01.local
+    Waiting for: 3808079.mualhpcp01.local
+    Waiting for: 3808080.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 10 --simEndTime 500 --scheduler-queue heap2tQ --delay 8 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3808101.mualhpcp01.local 3808102.mualhpcp01.local 3808103.mualhpcp01.local 3808104.mualhpcp01.local 3808105.mualhpcp01.local 3808106.mualhpcp01.local 3808107.mualhpcp01.local 3808108.mualhpcp01.local 3808109.mualhpcp01.local 3808110.mualhpcp01.local
+    Waiting for: 3808101.mualhpcp01.local
+    Waiting for: 3808102.mualhpcp01.local
+    Waiting for: 3808103.mualhpcp01.local
+    Waiting for: 3808104.mualhpcp01.local
+    Waiting for: 3808105.mualhpcp01.local
+    Waiting for: 3808106.mualhpcp01.local
+    Waiting for: 3808107.mualhpcp01.local
+    Waiting for: 3808108.mualhpcp01.local
+    Waiting for: 3808109.mualhpcp01.local
+    Waiting for: 3808110.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_26989/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_20.txt
