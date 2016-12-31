@@ -97,9 +97,10 @@ Scheduler::processNextAgentEvents() {
     }
     // Have the next agent (with lowest receive timestamp events) to
     // process its batch of events.
-    muse::EventContainer events;
+    static muse::EventContainer events;
     agentPQ->dequeueNextAgentEvents(events);
     agent->processNextEvents(events);
+    events.clear();
     // Processed some events
     return true;
 }
