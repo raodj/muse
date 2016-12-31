@@ -1,0 +1,1766 @@
+Using temproary directory: ./tmp_16253
+--delay 0 1 2 4 8
+--selfEvents% 0 25 50
+--eventsPerAgent 1 2 4 6 8 10 15 20
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795778.mualhpcp01.local 3795779.mualhpcp01.local 3795780.mualhpcp01.local 3795781.mualhpcp01.local 3795782.mualhpcp01.local 3795783.mualhpcp01.local 3795784.mualhpcp01.local 3795785.mualhpcp01.local 3795786.mualhpcp01.local 3795787.mualhpcp01.local
+    Waiting for: 3795778.mualhpcp01.local
+    Waiting for: 3795779.mualhpcp01.local
+    Waiting for: 3795780.mualhpcp01.local
+    Waiting for: 3795781.mualhpcp01.local
+    Waiting for: 3795782.mualhpcp01.local
+    Waiting for: 3795783.mualhpcp01.local
+    Waiting for: 3795784.mualhpcp01.local
+    Waiting for: 3795785.mualhpcp01.local
+    Waiting for: 3795786.mualhpcp01.local
+    Waiting for: 3795787.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795788.mualhpcp01.local 3795789.mualhpcp01.local 3795790.mualhpcp01.local 3795791.mualhpcp01.local 3795792.mualhpcp01.local 3795793.mualhpcp01.local 3795794.mualhpcp01.local 3795795.mualhpcp01.local 3795796.mualhpcp01.local 3795797.mualhpcp01.local
+    Waiting for: 3795788.mualhpcp01.local
+    Waiting for: 3795789.mualhpcp01.local
+    Waiting for: 3795790.mualhpcp01.local
+    Waiting for: 3795791.mualhpcp01.local
+    Waiting for: 3795792.mualhpcp01.local
+    Waiting for: 3795793.mualhpcp01.local
+    Waiting for: 3795794.mualhpcp01.local
+    Waiting for: 3795795.mualhpcp01.local
+    Waiting for: 3795796.mualhpcp01.local
+    Waiting for: 3795797.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795808.mualhpcp01.local 3795809.mualhpcp01.local 3795810.mualhpcp01.local 3795811.mualhpcp01.local 3795812.mualhpcp01.local 3795813.mualhpcp01.local 3795814.mualhpcp01.local 3795815.mualhpcp01.local 3795816.mualhpcp01.local 3795817.mualhpcp01.local
+    Waiting for: 3795808.mualhpcp01.local
+    Waiting for: 3795809.mualhpcp01.local
+    Waiting for: 3795810.mualhpcp01.local
+    Waiting for: 3795811.mualhpcp01.local
+    Waiting for: 3795812.mualhpcp01.local
+    Waiting for: 3795813.mualhpcp01.local
+    Waiting for: 3795814.mualhpcp01.local
+    Waiting for: 3795815.mualhpcp01.local
+    Waiting for: 3795816.mualhpcp01.local
+    Waiting for: 3795817.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795818.mualhpcp01.local 3795819.mualhpcp01.local 3795820.mualhpcp01.local 3795821.mualhpcp01.local 3795822.mualhpcp01.local 3795823.mualhpcp01.local 3795824.mualhpcp01.local 3795825.mualhpcp01.local 3795826.mualhpcp01.local 3795827.mualhpcp01.local
+    Waiting for: 3795818.mualhpcp01.local
+    Waiting for: 3795819.mualhpcp01.local
+    Waiting for: 3795820.mualhpcp01.local
+    Waiting for: 3795821.mualhpcp01.local
+    Waiting for: 3795822.mualhpcp01.local
+    Waiting for: 3795823.mualhpcp01.local
+    Waiting for: 3795824.mualhpcp01.local
+    Waiting for: 3795825.mualhpcp01.local
+    Waiting for: 3795826.mualhpcp01.local
+    Waiting for: 3795827.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795828.mualhpcp01.local 3795829.mualhpcp01.local 3795830.mualhpcp01.local 3795831.mualhpcp01.local 3795832.mualhpcp01.local 3795833.mualhpcp01.local 3795834.mualhpcp01.local 3795835.mualhpcp01.local 3795836.mualhpcp01.local 3795837.mualhpcp01.local
+    Waiting for: 3795828.mualhpcp01.local
+    Waiting for: 3795829.mualhpcp01.local
+    Waiting for: 3795830.mualhpcp01.local
+    Waiting for: 3795831.mualhpcp01.local
+    Waiting for: 3795832.mualhpcp01.local
+    Waiting for: 3795833.mualhpcp01.local
+    Waiting for: 3795834.mualhpcp01.local
+    Waiting for: 3795835.mualhpcp01.local
+    Waiting for: 3795836.mualhpcp01.local
+    Waiting for: 3795837.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795848.mualhpcp01.local 3795849.mualhpcp01.local 3795850.mualhpcp01.local 3795851.mualhpcp01.local 3795852.mualhpcp01.local 3795853.mualhpcp01.local 3795854.mualhpcp01.local 3795855.mualhpcp01.local 3795856.mualhpcp01.local 3795857.mualhpcp01.local
+    Waiting for: 3795848.mualhpcp01.local
+    Waiting for: 3795849.mualhpcp01.local
+    Waiting for: 3795850.mualhpcp01.local
+    Waiting for: 3795851.mualhpcp01.local
+    Waiting for: 3795852.mualhpcp01.local
+    Waiting for: 3795853.mualhpcp01.local
+    Waiting for: 3795854.mualhpcp01.local
+    Waiting for: 3795855.mualhpcp01.local
+    Waiting for: 3795856.mualhpcp01.local
+    Waiting for: 3795857.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795858.mualhpcp01.local 3795859.mualhpcp01.local 3795860.mualhpcp01.local 3795861.mualhpcp01.local 3795862.mualhpcp01.local 3795863.mualhpcp01.local 3795864.mualhpcp01.local 3795865.mualhpcp01.local 3795866.mualhpcp01.local 3795867.mualhpcp01.local
+    Waiting for: 3795858.mualhpcp01.local
+    Waiting for: 3795859.mualhpcp01.local
+    Waiting for: 3795860.mualhpcp01.local
+    Waiting for: 3795861.mualhpcp01.local
+    Waiting for: 3795862.mualhpcp01.local
+    Waiting for: 3795863.mualhpcp01.local
+    Waiting for: 3795864.mualhpcp01.local
+    Waiting for: 3795865.mualhpcp01.local
+    Waiting for: 3795866.mualhpcp01.local
+    Waiting for: 3795867.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795878.mualhpcp01.local 3795879.mualhpcp01.local 3795880.mualhpcp01.local 3795881.mualhpcp01.local 3795882.mualhpcp01.local 3795883.mualhpcp01.local 3795884.mualhpcp01.local 3795885.mualhpcp01.local 3795886.mualhpcp01.local 3795887.mualhpcp01.local
+    Waiting for: 3795878.mualhpcp01.local
+    Waiting for: 3795879.mualhpcp01.local
+    Waiting for: 3795880.mualhpcp01.local
+    Waiting for: 3795881.mualhpcp01.local
+    Waiting for: 3795882.mualhpcp01.local
+    Waiting for: 3795883.mualhpcp01.local
+    Waiting for: 3795884.mualhpcp01.local
+    Waiting for: 3795885.mualhpcp01.local
+    Waiting for: 3795886.mualhpcp01.local
+    Waiting for: 3795887.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.49012e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795898.mualhpcp01.local 3795899.mualhpcp01.local 3795900.mualhpcp01.local 3795901.mualhpcp01.local 3795902.mualhpcp01.local 3795903.mualhpcp01.local 3795904.mualhpcp01.local 3795905.mualhpcp01.local 3795906.mualhpcp01.local 3795907.mualhpcp01.local
+    Waiting for: 3795898.mualhpcp01.local
+    Waiting for: 3795899.mualhpcp01.local
+    Waiting for: 3795900.mualhpcp01.local
+    Waiting for: 3795901.mualhpcp01.local
+    Waiting for: 3795902.mualhpcp01.local
+    Waiting for: 3795903.mualhpcp01.local
+    Waiting for: 3795904.mualhpcp01.local
+    Waiting for: 3795905.mualhpcp01.local
+    Waiting for: 3795906.mualhpcp01.local
+    Waiting for: 3795907.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795918.mualhpcp01.local 3795919.mualhpcp01.local 3795920.mualhpcp01.local 3795921.mualhpcp01.local 3795922.mualhpcp01.local 3795923.mualhpcp01.local 3795924.mualhpcp01.local 3795925.mualhpcp01.local 3795926.mualhpcp01.local 3795927.mualhpcp01.local
+    Waiting for: 3795918.mualhpcp01.local
+    Waiting for: 3795919.mualhpcp01.local
+    Waiting for: 3795920.mualhpcp01.local
+    Waiting for: 3795921.mualhpcp01.local
+    Waiting for: 3795922.mualhpcp01.local
+    Waiting for: 3795923.mualhpcp01.local
+    Waiting for: 3795924.mualhpcp01.local
+    Waiting for: 3795925.mualhpcp01.local
+    Waiting for: 3795926.mualhpcp01.local
+    Waiting for: 3795927.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.47035e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795938.mualhpcp01.local 3795939.mualhpcp01.local 3795940.mualhpcp01.local 3795941.mualhpcp01.local 3795942.mualhpcp01.local 3795943.mualhpcp01.local 3795944.mualhpcp01.local 3795945.mualhpcp01.local 3795946.mualhpcp01.local 3795947.mualhpcp01.local
+    Waiting for: 3795938.mualhpcp01.local
+    Waiting for: 3795939.mualhpcp01.local
+    Waiting for: 3795940.mualhpcp01.local
+    Waiting for: 3795941.mualhpcp01.local
+    Waiting for: 3795942.mualhpcp01.local
+    Waiting for: 3795943.mualhpcp01.local
+    Waiting for: 3795944.mualhpcp01.local
+    Waiting for: 3795945.mualhpcp01.local
+    Waiting for: 3795946.mualhpcp01.local
+    Waiting for: 3795947.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795958.mualhpcp01.local 3795959.mualhpcp01.local 3795960.mualhpcp01.local 3795961.mualhpcp01.local 3795962.mualhpcp01.local 3795963.mualhpcp01.local 3795964.mualhpcp01.local 3795965.mualhpcp01.local 3795966.mualhpcp01.local 3795967.mualhpcp01.local
+    Waiting for: 3795958.mualhpcp01.local
+    Waiting for: 3795959.mualhpcp01.local
+    Waiting for: 3795960.mualhpcp01.local
+    Waiting for: 3795961.mualhpcp01.local
+    Waiting for: 3795962.mualhpcp01.local
+    Waiting for: 3795963.mualhpcp01.local
+    Waiting for: 3795964.mualhpcp01.local
+    Waiting for: 3795965.mualhpcp01.local
+    Waiting for: 3795966.mualhpcp01.local
+    Waiting for: 3795967.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -3.72529e-09
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3795978.mualhpcp01.local 3795979.mualhpcp01.local 3795980.mualhpcp01.local 3795981.mualhpcp01.local 3795982.mualhpcp01.local 3795983.mualhpcp01.local 3795984.mualhpcp01.local 3795985.mualhpcp01.local 3795986.mualhpcp01.local 3795987.mualhpcp01.local
+    Waiting for: 3795978.mualhpcp01.local
+    Waiting for: 3795979.mualhpcp01.local
+    Waiting for: 3795980.mualhpcp01.local
+    Waiting for: 3795981.mualhpcp01.local
+    Waiting for: 3795982.mualhpcp01.local
+    Waiting for: 3795983.mualhpcp01.local
+    Waiting for: 3795984.mualhpcp01.local
+    Waiting for: 3795985.mualhpcp01.local
+    Waiting for: 3795986.mualhpcp01.local
+    Waiting for: 3795987.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.23517e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3796008.mualhpcp01.local 3796009.mualhpcp01.local 3796010.mualhpcp01.local 3796011.mualhpcp01.local 3796012.mualhpcp01.local 3796013.mualhpcp01.local 3796014.mualhpcp01.local 3796015.mualhpcp01.local 3796016.mualhpcp01.local 3796017.mualhpcp01.local
+    Waiting for: 3796008.mualhpcp01.local
+    Waiting for: 3796009.mualhpcp01.local
+    Waiting for: 3796010.mualhpcp01.local
+    Waiting for: 3796011.mualhpcp01.local
+    Waiting for: 3796012.mualhpcp01.local
+    Waiting for: 3796013.mualhpcp01.local
+    Waiting for: 3796014.mualhpcp01.local
+    Waiting for: 3796015.mualhpcp01.local
+    Waiting for: 3796016.mualhpcp01.local
+    Waiting for: 3796017.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 1
+Waiting for following jobs to finish: 3796038.mualhpcp01.local 3796039.mualhpcp01.local 3796040.mualhpcp01.local 3796041.mualhpcp01.local 3796042.mualhpcp01.local 3796043.mualhpcp01.local 3796044.mualhpcp01.local 3796045.mualhpcp01.local 3796046.mualhpcp01.local 3796047.mualhpcp01.local
+    Waiting for: 3796038.mualhpcp01.local
+    Waiting for: 3796039.mualhpcp01.local
+    Waiting for: 3796040.mualhpcp01.local
+    Waiting for: 3796041.mualhpcp01.local
+    Waiting for: 3796042.mualhpcp01.local
+    Waiting for: 3796043.mualhpcp01.local
+    Waiting for: 3796044.mualhpcp01.local
+    Waiting for: 3796045.mualhpcp01.local
+    Waiting for: 3796046.mualhpcp01.local
+    Waiting for: 3796047.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796058.mualhpcp01.local 3796059.mualhpcp01.local 3796060.mualhpcp01.local 3796061.mualhpcp01.local 3796062.mualhpcp01.local 3796063.mualhpcp01.local 3796064.mualhpcp01.local 3796065.mualhpcp01.local 3796066.mualhpcp01.local 3796067.mualhpcp01.local
+    Waiting for: 3796058.mualhpcp01.local
+    Waiting for: 3796059.mualhpcp01.local
+    Waiting for: 3796060.mualhpcp01.local
+    Waiting for: 3796061.mualhpcp01.local
+    Waiting for: 3796062.mualhpcp01.local
+    Waiting for: 3796063.mualhpcp01.local
+    Waiting for: 3796064.mualhpcp01.local
+    Waiting for: 3796065.mualhpcp01.local
+    Waiting for: 3796066.mualhpcp01.local
+    Waiting for: 3796067.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796078.mualhpcp01.local 3796079.mualhpcp01.local 3796080.mualhpcp01.local 3796081.mualhpcp01.local 3796082.mualhpcp01.local 3796083.mualhpcp01.local 3796084.mualhpcp01.local 3796085.mualhpcp01.local 3796086.mualhpcp01.local 3796087.mualhpcp01.local
+    Waiting for: 3796078.mualhpcp01.local
+    Waiting for: 3796079.mualhpcp01.local
+    Waiting for: 3796080.mualhpcp01.local
+    Waiting for: 3796081.mualhpcp01.local
+    Waiting for: 3796082.mualhpcp01.local
+    Waiting for: 3796083.mualhpcp01.local
+    Waiting for: 3796084.mualhpcp01.local
+    Waiting for: 3796085.mualhpcp01.local
+    Waiting for: 3796086.mualhpcp01.local
+    Waiting for: 3796087.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796088.mualhpcp01.local 3796089.mualhpcp01.local 3796090.mualhpcp01.local 3796091.mualhpcp01.local 3796092.mualhpcp01.local 3796093.mualhpcp01.local 3796094.mualhpcp01.local 3796095.mualhpcp01.local 3796096.mualhpcp01.local 3796097.mualhpcp01.local
+    Waiting for: 3796088.mualhpcp01.local
+    Waiting for: 3796089.mualhpcp01.local
+    Waiting for: 3796090.mualhpcp01.local
+    Waiting for: 3796091.mualhpcp01.local
+    Waiting for: 3796092.mualhpcp01.local
+    Waiting for: 3796093.mualhpcp01.local
+    Waiting for: 3796094.mualhpcp01.local
+    Waiting for: 3796095.mualhpcp01.local
+    Waiting for: 3796096.mualhpcp01.local
+    Waiting for: 3796097.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.98023e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796098.mualhpcp01.local 3796099.mualhpcp01.local 3796100.mualhpcp01.local 3796101.mualhpcp01.local 3796102.mualhpcp01.local 3796103.mualhpcp01.local 3796104.mualhpcp01.local 3796105.mualhpcp01.local 3796106.mualhpcp01.local 3796107.mualhpcp01.local
+    Waiting for: 3796098.mualhpcp01.local
+    Waiting for: 3796099.mualhpcp01.local
+    Waiting for: 3796100.mualhpcp01.local
+    Waiting for: 3796101.mualhpcp01.local
+    Waiting for: 3796102.mualhpcp01.local
+    Waiting for: 3796103.mualhpcp01.local
+    Waiting for: 3796104.mualhpcp01.local
+    Waiting for: 3796105.mualhpcp01.local
+    Waiting for: 3796106.mualhpcp01.local
+    Waiting for: 3796107.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796108.mualhpcp01.local 3796109.mualhpcp01.local 3796110.mualhpcp01.local 3796111.mualhpcp01.local 3796112.mualhpcp01.local 3796113.mualhpcp01.local 3796114.mualhpcp01.local 3796115.mualhpcp01.local 3796116.mualhpcp01.local 3796117.mualhpcp01.local
+    Waiting for: 3796108.mualhpcp01.local
+    Waiting for: 3796109.mualhpcp01.local
+    Waiting for: 3796110.mualhpcp01.local
+    Waiting for: 3796111.mualhpcp01.local
+    Waiting for: 3796112.mualhpcp01.local
+    Waiting for: 3796113.mualhpcp01.local
+    Waiting for: 3796114.mualhpcp01.local
+    Waiting for: 3796115.mualhpcp01.local
+    Waiting for: 3796116.mualhpcp01.local
+    Waiting for: 3796117.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796118.mualhpcp01.local 3796119.mualhpcp01.local 3796120.mualhpcp01.local 3796121.mualhpcp01.local 3796122.mualhpcp01.local 3796123.mualhpcp01.local 3796124.mualhpcp01.local 3796125.mualhpcp01.local 3796126.mualhpcp01.local 3796127.mualhpcp01.local
+    Waiting for: 3796118.mualhpcp01.local
+    Waiting for: 3796119.mualhpcp01.local
+    Waiting for: 3796120.mualhpcp01.local
+    Waiting for: 3796121.mualhpcp01.local
+    Waiting for: 3796122.mualhpcp01.local
+    Waiting for: 3796123.mualhpcp01.local
+    Waiting for: 3796124.mualhpcp01.local
+    Waiting for: 3796125.mualhpcp01.local
+    Waiting for: 3796126.mualhpcp01.local
+    Waiting for: 3796127.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796128.mualhpcp01.local 3796129.mualhpcp01.local 3796130.mualhpcp01.local 3796131.mualhpcp01.local 3796132.mualhpcp01.local 3796133.mualhpcp01.local 3796134.mualhpcp01.local 3796135.mualhpcp01.local 3796136.mualhpcp01.local 3796137.mualhpcp01.local
+    Waiting for: 3796128.mualhpcp01.local
+    Waiting for: 3796129.mualhpcp01.local
+    Waiting for: 3796130.mualhpcp01.local
+    Waiting for: 3796131.mualhpcp01.local
+    Waiting for: 3796132.mualhpcp01.local
+    Waiting for: 3796133.mualhpcp01.local
+    Waiting for: 3796134.mualhpcp01.local
+    Waiting for: 3796135.mualhpcp01.local
+    Waiting for: 3796136.mualhpcp01.local
+    Waiting for: 3796137.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796138.mualhpcp01.local 3796139.mualhpcp01.local 3796140.mualhpcp01.local 3796141.mualhpcp01.local 3796142.mualhpcp01.local 3796143.mualhpcp01.local 3796144.mualhpcp01.local 3796145.mualhpcp01.local 3796146.mualhpcp01.local 3796147.mualhpcp01.local
+    Waiting for: 3796138.mualhpcp01.local
+    Waiting for: 3796139.mualhpcp01.local
+    Waiting for: 3796140.mualhpcp01.local
+    Waiting for: 3796141.mualhpcp01.local
+    Waiting for: 3796142.mualhpcp01.local
+    Waiting for: 3796143.mualhpcp01.local
+    Waiting for: 3796144.mualhpcp01.local
+    Waiting for: 3796145.mualhpcp01.local
+    Waiting for: 3796146.mualhpcp01.local
+    Waiting for: 3796147.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -5.96046e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796148.mualhpcp01.local 3796149.mualhpcp01.local 3796150.mualhpcp01.local 3796151.mualhpcp01.local 3796152.mualhpcp01.local 3796153.mualhpcp01.local 3796154.mualhpcp01.local 3796155.mualhpcp01.local 3796156.mualhpcp01.local 3796157.mualhpcp01.local
+    Waiting for: 3796148.mualhpcp01.local
+    Waiting for: 3796149.mualhpcp01.local
+    Waiting for: 3796150.mualhpcp01.local
+    Waiting for: 3796151.mualhpcp01.local
+    Waiting for: 3796152.mualhpcp01.local
+    Waiting for: 3796153.mualhpcp01.local
+    Waiting for: 3796154.mualhpcp01.local
+    Waiting for: 3796155.mualhpcp01.local
+    Waiting for: 3796156.mualhpcp01.local
+    Waiting for: 3796157.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.78814e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796158.mualhpcp01.local 3796159.mualhpcp01.local 3796160.mualhpcp01.local 3796161.mualhpcp01.local 3796162.mualhpcp01.local 3796163.mualhpcp01.local 3796164.mualhpcp01.local 3796165.mualhpcp01.local 3796166.mualhpcp01.local 3796167.mualhpcp01.local
+    Waiting for: 3796158.mualhpcp01.local
+    Waiting for: 3796159.mualhpcp01.local
+    Waiting for: 3796160.mualhpcp01.local
+    Waiting for: 3796161.mualhpcp01.local
+    Waiting for: 3796162.mualhpcp01.local
+    Waiting for: 3796163.mualhpcp01.local
+    Waiting for: 3796164.mualhpcp01.local
+    Waiting for: 3796165.mualhpcp01.local
+    Waiting for: 3796166.mualhpcp01.local
+    Waiting for: 3796167.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796168.mualhpcp01.local 3796169.mualhpcp01.local 3796170.mualhpcp01.local 3796171.mualhpcp01.local 3796172.mualhpcp01.local 3796173.mualhpcp01.local 3796174.mualhpcp01.local 3796175.mualhpcp01.local 3796176.mualhpcp01.local 3796177.mualhpcp01.local
+    Waiting for: 3796168.mualhpcp01.local
+    Waiting for: 3796169.mualhpcp01.local
+    Waiting for: 3796170.mualhpcp01.local
+    Waiting for: 3796171.mualhpcp01.local
+    Waiting for: 3796172.mualhpcp01.local
+    Waiting for: 3796173.mualhpcp01.local
+    Waiting for: 3796174.mualhpcp01.local
+    Waiting for: 3796175.mualhpcp01.local
+    Waiting for: 3796176.mualhpcp01.local
+    Waiting for: 3796177.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796178.mualhpcp01.local 3796179.mualhpcp01.local 3796180.mualhpcp01.local 3796181.mualhpcp01.local 3796182.mualhpcp01.local 3796183.mualhpcp01.local 3796184.mualhpcp01.local 3796185.mualhpcp01.local 3796186.mualhpcp01.local 3796187.mualhpcp01.local
+    Waiting for: 3796178.mualhpcp01.local
+    Waiting for: 3796179.mualhpcp01.local
+    Waiting for: 3796180.mualhpcp01.local
+    Waiting for: 3796181.mualhpcp01.local
+    Waiting for: 3796182.mualhpcp01.local
+    Waiting for: 3796183.mualhpcp01.local
+    Waiting for: 3796184.mualhpcp01.local
+    Waiting for: 3796185.mualhpcp01.local
+    Waiting for: 3796186.mualhpcp01.local
+    Waiting for: 3796187.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.23517e-08
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796188.mualhpcp01.local 3796189.mualhpcp01.local 3796190.mualhpcp01.local 3796191.mualhpcp01.local 3796192.mualhpcp01.local 3796193.mualhpcp01.local 3796194.mualhpcp01.local 3796195.mualhpcp01.local 3796196.mualhpcp01.local 3796197.mualhpcp01.local
+    Waiting for: 3796188.mualhpcp01.local
+    Waiting for: 3796189.mualhpcp01.local
+    Waiting for: 3796190.mualhpcp01.local
+    Waiting for: 3796191.mualhpcp01.local
+    Waiting for: 3796192.mualhpcp01.local
+    Waiting for: 3796193.mualhpcp01.local
+    Waiting for: 3796194.mualhpcp01.local
+    Waiting for: 3796195.mualhpcp01.local
+    Waiting for: 3796196.mualhpcp01.local
+    Waiting for: 3796197.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796198.mualhpcp01.local 3796199.mualhpcp01.local 3796200.mualhpcp01.local 3796201.mualhpcp01.local 3796202.mualhpcp01.local 3796203.mualhpcp01.local 3796204.mualhpcp01.local 3796205.mualhpcp01.local 3796206.mualhpcp01.local 3796207.mualhpcp01.local
+    Waiting for: 3796198.mualhpcp01.local
+    Waiting for: 3796199.mualhpcp01.local
+    Waiting for: 3796200.mualhpcp01.local
+    Waiting for: 3796201.mualhpcp01.local
+    Waiting for: 3796202.mualhpcp01.local
+    Waiting for: 3796203.mualhpcp01.local
+    Waiting for: 3796204.mualhpcp01.local
+    Waiting for: 3796205.mualhpcp01.local
+    Waiting for: 3796206.mualhpcp01.local
+    Waiting for: 3796207.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 2
+Waiting for following jobs to finish: 3796208.mualhpcp01.local 3796209.mualhpcp01.local 3796210.mualhpcp01.local 3796211.mualhpcp01.local 3796212.mualhpcp01.local 3796213.mualhpcp01.local 3796214.mualhpcp01.local 3796215.mualhpcp01.local 3796216.mualhpcp01.local 3796217.mualhpcp01.local
+    Waiting for: 3796208.mualhpcp01.local
+    Waiting for: 3796209.mualhpcp01.local
+    Waiting for: 3796210.mualhpcp01.local
+    Waiting for: 3796211.mualhpcp01.local
+    Waiting for: 3796212.mualhpcp01.local
+    Waiting for: 3796213.mualhpcp01.local
+    Waiting for: 3796214.mualhpcp01.local
+    Waiting for: 3796215.mualhpcp01.local
+    Waiting for: 3796216.mualhpcp01.local
+    Waiting for: 3796217.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.78814e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796218.mualhpcp01.local 3796219.mualhpcp01.local 3796220.mualhpcp01.local 3796221.mualhpcp01.local 3796222.mualhpcp01.local 3796223.mualhpcp01.local 3796224.mualhpcp01.local 3796225.mualhpcp01.local 3796226.mualhpcp01.local 3796227.mualhpcp01.local
+    Waiting for: 3796218.mualhpcp01.local
+    Waiting for: 3796219.mualhpcp01.local
+    Waiting for: 3796220.mualhpcp01.local
+    Waiting for: 3796221.mualhpcp01.local
+    Waiting for: 3796222.mualhpcp01.local
+    Waiting for: 3796223.mualhpcp01.local
+    Waiting for: 3796224.mualhpcp01.local
+    Waiting for: 3796225.mualhpcp01.local
+    Waiting for: 3796226.mualhpcp01.local
+    Waiting for: 3796227.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796228.mualhpcp01.local 3796229.mualhpcp01.local 3796230.mualhpcp01.local 3796231.mualhpcp01.local 3796232.mualhpcp01.local 3796233.mualhpcp01.local 3796234.mualhpcp01.local 3796235.mualhpcp01.local 3796236.mualhpcp01.local 3796237.mualhpcp01.local
+    Waiting for: 3796228.mualhpcp01.local
+    Waiting for: 3796229.mualhpcp01.local
+    Waiting for: 3796230.mualhpcp01.local
+    Waiting for: 3796231.mualhpcp01.local
+    Waiting for: 3796232.mualhpcp01.local
+    Waiting for: 3796233.mualhpcp01.local
+    Waiting for: 3796234.mualhpcp01.local
+    Waiting for: 3796235.mualhpcp01.local
+    Waiting for: 3796236.mualhpcp01.local
+    Waiting for: 3796237.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796238.mualhpcp01.local 3796239.mualhpcp01.local 3796240.mualhpcp01.local 3796241.mualhpcp01.local 3796242.mualhpcp01.local 3796243.mualhpcp01.local 3796244.mualhpcp01.local 3796245.mualhpcp01.local 3796246.mualhpcp01.local 3796247.mualhpcp01.local
+    Waiting for: 3796238.mualhpcp01.local
+    Waiting for: 3796239.mualhpcp01.local
+    Waiting for: 3796240.mualhpcp01.local
+    Waiting for: 3796241.mualhpcp01.local
+    Waiting for: 3796242.mualhpcp01.local
+    Waiting for: 3796243.mualhpcp01.local
+    Waiting for: 3796244.mualhpcp01.local
+    Waiting for: 3796245.mualhpcp01.local
+    Waiting for: 3796246.mualhpcp01.local
+    Waiting for: 3796247.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796248.mualhpcp01.local 3796249.mualhpcp01.local 3796250.mualhpcp01.local 3796251.mualhpcp01.local 3796252.mualhpcp01.local 3796253.mualhpcp01.local 3796254.mualhpcp01.local 3796255.mualhpcp01.local 3796256.mualhpcp01.local 3796257.mualhpcp01.local
+    Waiting for: 3796248.mualhpcp01.local
+    Waiting for: 3796249.mualhpcp01.local
+    Waiting for: 3796250.mualhpcp01.local
+    Waiting for: 3796251.mualhpcp01.local
+    Waiting for: 3796252.mualhpcp01.local
+    Waiting for: 3796253.mualhpcp01.local
+    Waiting for: 3796254.mualhpcp01.local
+    Waiting for: 3796255.mualhpcp01.local
+    Waiting for: 3796256.mualhpcp01.local
+    Waiting for: 3796257.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.76837e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796258.mualhpcp01.local 3796259.mualhpcp01.local 3796260.mualhpcp01.local 3796261.mualhpcp01.local 3796262.mualhpcp01.local 3796263.mualhpcp01.local 3796264.mualhpcp01.local 3796265.mualhpcp01.local 3796266.mualhpcp01.local 3796267.mualhpcp01.local
+    Waiting for: 3796258.mualhpcp01.local
+    Waiting for: 3796259.mualhpcp01.local
+    Waiting for: 3796260.mualhpcp01.local
+    Waiting for: 3796261.mualhpcp01.local
+    Waiting for: 3796262.mualhpcp01.local
+    Waiting for: 3796263.mualhpcp01.local
+    Waiting for: 3796264.mualhpcp01.local
+    Waiting for: 3796265.mualhpcp01.local
+    Waiting for: 3796266.mualhpcp01.local
+    Waiting for: 3796267.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796268.mualhpcp01.local 3796269.mualhpcp01.local 3796270.mualhpcp01.local 3796271.mualhpcp01.local 3796272.mualhpcp01.local 3796273.mualhpcp01.local 3796274.mualhpcp01.local 3796275.mualhpcp01.local 3796276.mualhpcp01.local 3796277.mualhpcp01.local
+    Waiting for: 3796268.mualhpcp01.local
+    Waiting for: 3796269.mualhpcp01.local
+    Waiting for: 3796270.mualhpcp01.local
+    Waiting for: 3796271.mualhpcp01.local
+    Waiting for: 3796272.mualhpcp01.local
+    Waiting for: 3796273.mualhpcp01.local
+    Waiting for: 3796274.mualhpcp01.local
+    Waiting for: 3796275.mualhpcp01.local
+    Waiting for: 3796276.mualhpcp01.local
+    Waiting for: 3796277.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796278.mualhpcp01.local 3796279.mualhpcp01.local 3796280.mualhpcp01.local 3796281.mualhpcp01.local 3796282.mualhpcp01.local 3796283.mualhpcp01.local 3796284.mualhpcp01.local 3796285.mualhpcp01.local 3796286.mualhpcp01.local 3796287.mualhpcp01.local
+    Waiting for: 3796278.mualhpcp01.local
+    Waiting for: 3796279.mualhpcp01.local
+    Waiting for: 3796280.mualhpcp01.local
+    Waiting for: 3796281.mualhpcp01.local
+    Waiting for: 3796282.mualhpcp01.local
+    Waiting for: 3796283.mualhpcp01.local
+    Waiting for: 3796284.mualhpcp01.local
+    Waiting for: 3796285.mualhpcp01.local
+    Waiting for: 3796286.mualhpcp01.local
+    Waiting for: 3796287.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796288.mualhpcp01.local 3796289.mualhpcp01.local 3796290.mualhpcp01.local 3796291.mualhpcp01.local 3796292.mualhpcp01.local 3796293.mualhpcp01.local 3796294.mualhpcp01.local 3796295.mualhpcp01.local 3796296.mualhpcp01.local 3796297.mualhpcp01.local
+    Waiting for: 3796288.mualhpcp01.local
+    Waiting for: 3796289.mualhpcp01.local
+    Waiting for: 3796290.mualhpcp01.local
+    Waiting for: 3796291.mualhpcp01.local
+    Waiting for: 3796292.mualhpcp01.local
+    Waiting for: 3796293.mualhpcp01.local
+    Waiting for: 3796294.mualhpcp01.local
+    Waiting for: 3796295.mualhpcp01.local
+    Waiting for: 3796296.mualhpcp01.local
+    Waiting for: 3796297.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796318.mualhpcp01.local 3796319.mualhpcp01.local 3796320.mualhpcp01.local 3796321.mualhpcp01.local 3796322.mualhpcp01.local 3796323.mualhpcp01.local 3796324.mualhpcp01.local 3796325.mualhpcp01.local 3796326.mualhpcp01.local 3796327.mualhpcp01.local
+    Waiting for: 3796318.mualhpcp01.local
+    Waiting for: 3796319.mualhpcp01.local
+    Waiting for: 3796320.mualhpcp01.local
+    Waiting for: 3796321.mualhpcp01.local
+    Waiting for: 3796322.mualhpcp01.local
+    Waiting for: 3796323.mualhpcp01.local
+    Waiting for: 3796324.mualhpcp01.local
+    Waiting for: 3796325.mualhpcp01.local
+    Waiting for: 3796326.mualhpcp01.local
+    Waiting for: 3796327.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796338.mualhpcp01.local 3796339.mualhpcp01.local 3796340.mualhpcp01.local 3796341.mualhpcp01.local 3796342.mualhpcp01.local 3796343.mualhpcp01.local 3796344.mualhpcp01.local 3796345.mualhpcp01.local 3796346.mualhpcp01.local 3796347.mualhpcp01.local
+    Waiting for: 3796338.mualhpcp01.local
+    Waiting for: 3796339.mualhpcp01.local
+    Waiting for: 3796340.mualhpcp01.local
+    Waiting for: 3796341.mualhpcp01.local
+    Waiting for: 3796342.mualhpcp01.local
+    Waiting for: 3796343.mualhpcp01.local
+    Waiting for: 3796344.mualhpcp01.local
+    Waiting for: 3796345.mualhpcp01.local
+    Waiting for: 3796346.mualhpcp01.local
+    Waiting for: 3796347.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -9.53674e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796358.mualhpcp01.local 3796359.mualhpcp01.local 3796360.mualhpcp01.local 3796361.mualhpcp01.local 3796362.mualhpcp01.local 3796363.mualhpcp01.local 3796364.mualhpcp01.local 3796365.mualhpcp01.local 3796366.mualhpcp01.local 3796367.mualhpcp01.local
+    Waiting for: 3796358.mualhpcp01.local
+    Waiting for: 3796359.mualhpcp01.local
+    Waiting for: 3796360.mualhpcp01.local
+    Waiting for: 3796361.mualhpcp01.local
+    Waiting for: 3796362.mualhpcp01.local
+    Waiting for: 3796363.mualhpcp01.local
+    Waiting for: 3796364.mualhpcp01.local
+    Waiting for: 3796365.mualhpcp01.local
+    Waiting for: 3796366.mualhpcp01.local
+    Waiting for: 3796367.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796378.mualhpcp01.local 3796379.mualhpcp01.local 3796380.mualhpcp01.local 3796381.mualhpcp01.local 3796382.mualhpcp01.local 3796383.mualhpcp01.local 3796384.mualhpcp01.local 3796385.mualhpcp01.local 3796386.mualhpcp01.local 3796387.mualhpcp01.local
+    Waiting for: 3796378.mualhpcp01.local
+    Waiting for: 3796379.mualhpcp01.local
+    Waiting for: 3796380.mualhpcp01.local
+    Waiting for: 3796381.mualhpcp01.local
+    Waiting for: 3796382.mualhpcp01.local
+    Waiting for: 3796383.mualhpcp01.local
+    Waiting for: 3796384.mualhpcp01.local
+    Waiting for: 3796385.mualhpcp01.local
+    Waiting for: 3796386.mualhpcp01.local
+    Waiting for: 3796387.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796398.mualhpcp01.local 3796399.mualhpcp01.local 3796400.mualhpcp01.local 3796401.mualhpcp01.local 3796402.mualhpcp01.local 3796403.mualhpcp01.local 3796404.mualhpcp01.local 3796405.mualhpcp01.local 3796406.mualhpcp01.local 3796407.mualhpcp01.local
+    Waiting for: 3796398.mualhpcp01.local
+    Waiting for: 3796399.mualhpcp01.local
+    Waiting for: 3796400.mualhpcp01.local
+    Waiting for: 3796401.mualhpcp01.local
+    Waiting for: 3796402.mualhpcp01.local
+    Waiting for: 3796403.mualhpcp01.local
+    Waiting for: 3796404.mualhpcp01.local
+    Waiting for: 3796405.mualhpcp01.local
+    Waiting for: 3796406.mualhpcp01.local
+    Waiting for: 3796407.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796418.mualhpcp01.local 3796419.mualhpcp01.local 3796420.mualhpcp01.local 3796421.mualhpcp01.local 3796422.mualhpcp01.local 3796423.mualhpcp01.local 3796424.mualhpcp01.local 3796425.mualhpcp01.local 3796426.mualhpcp01.local 3796427.mualhpcp01.local
+    Waiting for: 3796418.mualhpcp01.local
+    Waiting for: 3796419.mualhpcp01.local
+    Waiting for: 3796420.mualhpcp01.local
+    Waiting for: 3796421.mualhpcp01.local
+    Waiting for: 3796422.mualhpcp01.local
+    Waiting for: 3796423.mualhpcp01.local
+    Waiting for: 3796424.mualhpcp01.local
+    Waiting for: 3796425.mualhpcp01.local
+    Waiting for: 3796426.mualhpcp01.local
+    Waiting for: 3796427.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 4
+Waiting for following jobs to finish: 3796438.mualhpcp01.local 3796439.mualhpcp01.local 3796440.mualhpcp01.local 3796441.mualhpcp01.local 3796442.mualhpcp01.local 3796443.mualhpcp01.local 3796444.mualhpcp01.local 3796445.mualhpcp01.local 3796446.mualhpcp01.local 3796447.mualhpcp01.local
+    Waiting for: 3796438.mualhpcp01.local
+    Waiting for: 3796439.mualhpcp01.local
+    Waiting for: 3796440.mualhpcp01.local
+    Waiting for: 3796441.mualhpcp01.local
+    Waiting for: 3796442.mualhpcp01.local
+    Waiting for: 3796443.mualhpcp01.local
+    Waiting for: 3796444.mualhpcp01.local
+    Waiting for: 3796445.mualhpcp01.local
+    Waiting for: 3796446.mualhpcp01.local
+    Waiting for: 3796447.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -9.53674e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_4.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796458.mualhpcp01.local 3796459.mualhpcp01.local 3796460.mualhpcp01.local 3796461.mualhpcp01.local 3796462.mualhpcp01.local 3796463.mualhpcp01.local 3796464.mualhpcp01.local 3796465.mualhpcp01.local 3796466.mualhpcp01.local 3796467.mualhpcp01.local
+    Waiting for: 3796458.mualhpcp01.local
+    Waiting for: 3796459.mualhpcp01.local
+    Waiting for: 3796460.mualhpcp01.local
+    Waiting for: 3796461.mualhpcp01.local
+    Waiting for: 3796462.mualhpcp01.local
+    Waiting for: 3796463.mualhpcp01.local
+    Waiting for: 3796464.mualhpcp01.local
+    Waiting for: 3796465.mualhpcp01.local
+    Waiting for: 3796466.mualhpcp01.local
+    Waiting for: 3796467.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796468.mualhpcp01.local 3796469.mualhpcp01.local 3796470.mualhpcp01.local 3796471.mualhpcp01.local 3796472.mualhpcp01.local 3796473.mualhpcp01.local 3796474.mualhpcp01.local 3796475.mualhpcp01.local 3796476.mualhpcp01.local 3796477.mualhpcp01.local
+    Waiting for: 3796468.mualhpcp01.local
+    Waiting for: 3796469.mualhpcp01.local
+    Waiting for: 3796470.mualhpcp01.local
+    Waiting for: 3796471.mualhpcp01.local
+    Waiting for: 3796472.mualhpcp01.local
+    Waiting for: 3796473.mualhpcp01.local
+    Waiting for: 3796474.mualhpcp01.local
+    Waiting for: 3796475.mualhpcp01.local
+    Waiting for: 3796476.mualhpcp01.local
+    Waiting for: 3796477.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.38419e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796498.mualhpcp01.local 3796499.mualhpcp01.local 3796500.mualhpcp01.local 3796501.mualhpcp01.local 3796502.mualhpcp01.local 3796503.mualhpcp01.local 3796504.mualhpcp01.local 3796505.mualhpcp01.local 3796506.mualhpcp01.local 3796507.mualhpcp01.local
+    Waiting for: 3796498.mualhpcp01.local
+    Waiting for: 3796499.mualhpcp01.local
+    Waiting for: 3796500.mualhpcp01.local
+    Waiting for: 3796501.mualhpcp01.local
+    Waiting for: 3796502.mualhpcp01.local
+    Waiting for: 3796503.mualhpcp01.local
+    Waiting for: 3796504.mualhpcp01.local
+    Waiting for: 3796505.mualhpcp01.local
+    Waiting for: 3796506.mualhpcp01.local
+    Waiting for: 3796507.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796528.mualhpcp01.local 3796529.mualhpcp01.local 3796530.mualhpcp01.local 3796531.mualhpcp01.local 3796532.mualhpcp01.local 3796533.mualhpcp01.local 3796534.mualhpcp01.local 3796535.mualhpcp01.local 3796536.mualhpcp01.local 3796537.mualhpcp01.local
+    Waiting for: 3796528.mualhpcp01.local
+    Waiting for: 3796529.mualhpcp01.local
+    Waiting for: 3796530.mualhpcp01.local
+    Waiting for: 3796531.mualhpcp01.local
+    Waiting for: 3796532.mualhpcp01.local
+    Waiting for: 3796533.mualhpcp01.local
+    Waiting for: 3796534.mualhpcp01.local
+    Waiting for: 3796535.mualhpcp01.local
+    Waiting for: 3796536.mualhpcp01.local
+    Waiting for: 3796537.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796558.mualhpcp01.local 3796559.mualhpcp01.local 3796560.mualhpcp01.local 3796561.mualhpcp01.local 3796562.mualhpcp01.local 3796563.mualhpcp01.local 3796564.mualhpcp01.local 3796565.mualhpcp01.local 3796566.mualhpcp01.local 3796567.mualhpcp01.local
+    Waiting for: 3796558.mualhpcp01.local
+    Waiting for: 3796559.mualhpcp01.local
+    Waiting for: 3796560.mualhpcp01.local
+    Waiting for: 3796561.mualhpcp01.local
+    Waiting for: 3796562.mualhpcp01.local
+    Waiting for: 3796563.mualhpcp01.local
+    Waiting for: 3796564.mualhpcp01.local
+    Waiting for: 3796565.mualhpcp01.local
+    Waiting for: 3796566.mualhpcp01.local
+    Waiting for: 3796567.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.43051e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796588.mualhpcp01.local 3796589.mualhpcp01.local 3796590.mualhpcp01.local 3796591.mualhpcp01.local 3796592.mualhpcp01.local 3796593.mualhpcp01.local 3796594.mualhpcp01.local 3796595.mualhpcp01.local 3796596.mualhpcp01.local 3796597.mualhpcp01.local
+    Waiting for: 3796588.mualhpcp01.local
+    Waiting for: 3796589.mualhpcp01.local
+    Waiting for: 3796590.mualhpcp01.local
+    Waiting for: 3796591.mualhpcp01.local
+    Waiting for: 3796592.mualhpcp01.local
+    Waiting for: 3796593.mualhpcp01.local
+    Waiting for: 3796594.mualhpcp01.local
+    Waiting for: 3796595.mualhpcp01.local
+    Waiting for: 3796596.mualhpcp01.local
+    Waiting for: 3796597.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796622.mualhpcp01.local 3796623.mualhpcp01.local 3796624.mualhpcp01.local 3796625.mualhpcp01.local 3796626.mualhpcp01.local 3796627.mualhpcp01.local 3796628.mualhpcp01.local 3796630.mualhpcp01.local 3796631.mualhpcp01.local 3796632.mualhpcp01.local
+    Waiting for: 3796622.mualhpcp01.local
+    Waiting for: 3796623.mualhpcp01.local
+    Waiting for: 3796624.mualhpcp01.local
+    Waiting for: 3796625.mualhpcp01.local
+    Waiting for: 3796626.mualhpcp01.local
+    Waiting for: 3796627.mualhpcp01.local
+    Waiting for: 3796628.mualhpcp01.local
+    Waiting for: 3796630.mualhpcp01.local
+    Waiting for: 3796631.mualhpcp01.local
+    Waiting for: 3796632.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796668.mualhpcp01.local 3796669.mualhpcp01.local 3796670.mualhpcp01.local 3796671.mualhpcp01.local 3796672.mualhpcp01.local 3796673.mualhpcp01.local 3796674.mualhpcp01.local 3796675.mualhpcp01.local 3796676.mualhpcp01.local 3796677.mualhpcp01.local
+    Waiting for: 3796668.mualhpcp01.local
+    Waiting for: 3796669.mualhpcp01.local
+    Waiting for: 3796670.mualhpcp01.local
+    Waiting for: 3796671.mualhpcp01.local
+    Waiting for: 3796672.mualhpcp01.local
+    Waiting for: 3796673.mualhpcp01.local
+    Waiting for: 3796674.mualhpcp01.local
+    Waiting for: 3796675.mualhpcp01.local
+    Waiting for: 3796676.mualhpcp01.local
+    Waiting for: 3796677.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796728.mualhpcp01.local 3796729.mualhpcp01.local 3796730.mualhpcp01.local 3796731.mualhpcp01.local 3796732.mualhpcp01.local 3796733.mualhpcp01.local 3796734.mualhpcp01.local 3796735.mualhpcp01.local 3796736.mualhpcp01.local 3796737.mualhpcp01.local
+    Waiting for: 3796728.mualhpcp01.local
+    Waiting for: 3796729.mualhpcp01.local
+    Waiting for: 3796730.mualhpcp01.local
+    Waiting for: 3796731.mualhpcp01.local
+    Waiting for: 3796732.mualhpcp01.local
+    Waiting for: 3796733.mualhpcp01.local
+    Waiting for: 3796734.mualhpcp01.local
+    Waiting for: 3796735.mualhpcp01.local
+    Waiting for: 3796736.mualhpcp01.local
+    Waiting for: 3796737.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -9.53674e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796778.mualhpcp01.local 3796779.mualhpcp01.local 3796780.mualhpcp01.local 3796781.mualhpcp01.local 3796782.mualhpcp01.local 3796783.mualhpcp01.local 3796784.mualhpcp01.local 3796785.mualhpcp01.local 3796786.mualhpcp01.local 3796787.mualhpcp01.local
+    Waiting for: 3796778.mualhpcp01.local
+    Waiting for: 3796779.mualhpcp01.local
+    Waiting for: 3796780.mualhpcp01.local
+    Waiting for: 3796781.mualhpcp01.local
+    Waiting for: 3796782.mualhpcp01.local
+    Waiting for: 3796783.mualhpcp01.local
+    Waiting for: 3796784.mualhpcp01.local
+    Waiting for: 3796785.mualhpcp01.local
+    Waiting for: 3796786.mualhpcp01.local
+    Waiting for: 3796787.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796828.mualhpcp01.local 3796829.mualhpcp01.local 3796830.mualhpcp01.local 3796831.mualhpcp01.local 3796832.mualhpcp01.local 3796833.mualhpcp01.local 3796834.mualhpcp01.local 3796835.mualhpcp01.local 3796836.mualhpcp01.local 3796837.mualhpcp01.local
+    Waiting for: 3796828.mualhpcp01.local
+    Waiting for: 3796829.mualhpcp01.local
+    Waiting for: 3796830.mualhpcp01.local
+    Waiting for: 3796831.mualhpcp01.local
+    Waiting for: 3796832.mualhpcp01.local
+    Waiting for: 3796833.mualhpcp01.local
+    Waiting for: 3796834.mualhpcp01.local
+    Waiting for: 3796835.mualhpcp01.local
+    Waiting for: 3796836.mualhpcp01.local
+    Waiting for: 3796837.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796878.mualhpcp01.local 3796879.mualhpcp01.local 3796880.mualhpcp01.local 3796881.mualhpcp01.local 3796882.mualhpcp01.local 3796883.mualhpcp01.local 3796884.mualhpcp01.local 3796885.mualhpcp01.local 3796886.mualhpcp01.local 3796887.mualhpcp01.local
+    Waiting for: 3796878.mualhpcp01.local
+    Waiting for: 3796879.mualhpcp01.local
+    Waiting for: 3796880.mualhpcp01.local
+    Waiting for: 3796881.mualhpcp01.local
+    Waiting for: 3796882.mualhpcp01.local
+    Waiting for: 3796883.mualhpcp01.local
+    Waiting for: 3796884.mualhpcp01.local
+    Waiting for: 3796885.mualhpcp01.local
+    Waiting for: 3796886.mualhpcp01.local
+    Waiting for: 3796887.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796928.mualhpcp01.local 3796929.mualhpcp01.local 3796930.mualhpcp01.local 3796931.mualhpcp01.local 3796932.mualhpcp01.local 3796933.mualhpcp01.local 3796934.mualhpcp01.local 3796935.mualhpcp01.local 3796936.mualhpcp01.local 3796937.mualhpcp01.local
+    Waiting for: 3796928.mualhpcp01.local
+    Waiting for: 3796929.mualhpcp01.local
+    Waiting for: 3796930.mualhpcp01.local
+    Waiting for: 3796931.mualhpcp01.local
+    Waiting for: 3796932.mualhpcp01.local
+    Waiting for: 3796933.mualhpcp01.local
+    Waiting for: 3796934.mualhpcp01.local
+    Waiting for: 3796935.mualhpcp01.local
+    Waiting for: 3796936.mualhpcp01.local
+    Waiting for: 3796937.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3796978.mualhpcp01.local 3796979.mualhpcp01.local 3796980.mualhpcp01.local 3796981.mualhpcp01.local 3796982.mualhpcp01.local 3796983.mualhpcp01.local 3796984.mualhpcp01.local 3796985.mualhpcp01.local 3796986.mualhpcp01.local 3796987.mualhpcp01.local
+    Waiting for: 3796978.mualhpcp01.local
+    Waiting for: 3796979.mualhpcp01.local
+    Waiting for: 3796980.mualhpcp01.local
+    Waiting for: 3796981.mualhpcp01.local
+    Waiting for: 3796982.mualhpcp01.local
+    Waiting for: 3796983.mualhpcp01.local
+    Waiting for: 3796984.mualhpcp01.local
+    Waiting for: 3796985.mualhpcp01.local
+    Waiting for: 3796986.mualhpcp01.local
+    Waiting for: 3796987.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.76837e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 6
+Waiting for following jobs to finish: 3797028.mualhpcp01.local 3797029.mualhpcp01.local 3797030.mualhpcp01.local 3797031.mualhpcp01.local 3797032.mualhpcp01.local 3797033.mualhpcp01.local 3797034.mualhpcp01.local 3797035.mualhpcp01.local 3797036.mualhpcp01.local 3797037.mualhpcp01.local
+    Waiting for: 3797028.mualhpcp01.local
+    Waiting for: 3797029.mualhpcp01.local
+    Waiting for: 3797030.mualhpcp01.local
+    Waiting for: 3797031.mualhpcp01.local
+    Waiting for: 3797032.mualhpcp01.local
+    Waiting for: 3797033.mualhpcp01.local
+    Waiting for: 3797034.mualhpcp01.local
+    Waiting for: 3797035.mualhpcp01.local
+    Waiting for: 3797036.mualhpcp01.local
+    Waiting for: 3797037.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.43051e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_6.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797078.mualhpcp01.local 3797079.mualhpcp01.local 3797080.mualhpcp01.local 3797081.mualhpcp01.local 3797082.mualhpcp01.local 3797083.mualhpcp01.local 3797084.mualhpcp01.local 3797085.mualhpcp01.local 3797086.mualhpcp01.local 3797087.mualhpcp01.local
+    Waiting for: 3797078.mualhpcp01.local
+    Waiting for: 3797079.mualhpcp01.local
+    Waiting for: 3797080.mualhpcp01.local
+    Waiting for: 3797081.mualhpcp01.local
+    Waiting for: 3797082.mualhpcp01.local
+    Waiting for: 3797083.mualhpcp01.local
+    Waiting for: 3797084.mualhpcp01.local
+    Waiting for: 3797085.mualhpcp01.local
+    Waiting for: 3797086.mualhpcp01.local
+    Waiting for: 3797087.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797128.mualhpcp01.local 3797129.mualhpcp01.local 3797130.mualhpcp01.local 3797131.mualhpcp01.local 3797132.mualhpcp01.local 3797133.mualhpcp01.local 3797134.mualhpcp01.local 3797135.mualhpcp01.local 3797136.mualhpcp01.local 3797137.mualhpcp01.local
+    Waiting for: 3797128.mualhpcp01.local
+    Waiting for: 3797129.mualhpcp01.local
+    Waiting for: 3797130.mualhpcp01.local
+    Waiting for: 3797131.mualhpcp01.local
+    Waiting for: 3797132.mualhpcp01.local
+    Waiting for: 3797133.mualhpcp01.local
+    Waiting for: 3797134.mualhpcp01.local
+    Waiting for: 3797135.mualhpcp01.local
+    Waiting for: 3797136.mualhpcp01.local
+    Waiting for: 3797137.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.19209e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797208.mualhpcp01.local 3797209.mualhpcp01.local 3797210.mualhpcp01.local 3797211.mualhpcp01.local 3797212.mualhpcp01.local 3797213.mualhpcp01.local 3797214.mualhpcp01.local 3797215.mualhpcp01.local 3797216.mualhpcp01.local 3797217.mualhpcp01.local
+    Waiting for: 3797208.mualhpcp01.local
+    Waiting for: 3797209.mualhpcp01.local
+    Waiting for: 3797210.mualhpcp01.local
+    Waiting for: 3797211.mualhpcp01.local
+    Waiting for: 3797212.mualhpcp01.local
+    Waiting for: 3797213.mualhpcp01.local
+    Waiting for: 3797214.mualhpcp01.local
+    Waiting for: 3797215.mualhpcp01.local
+    Waiting for: 3797216.mualhpcp01.local
+    Waiting for: 3797217.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.76837e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797268.mualhpcp01.local 3797269.mualhpcp01.local 3797270.mualhpcp01.local 3797271.mualhpcp01.local 3797272.mualhpcp01.local 3797273.mualhpcp01.local 3797274.mualhpcp01.local 3797275.mualhpcp01.local 3797276.mualhpcp01.local 3797277.mualhpcp01.local
+    Waiting for: 3797268.mualhpcp01.local
+    Waiting for: 3797269.mualhpcp01.local
+    Waiting for: 3797270.mualhpcp01.local
+    Waiting for: 3797271.mualhpcp01.local
+    Waiting for: 3797272.mualhpcp01.local
+    Waiting for: 3797273.mualhpcp01.local
+    Waiting for: 3797274.mualhpcp01.local
+    Waiting for: 3797275.mualhpcp01.local
+    Waiting for: 3797276.mualhpcp01.local
+    Waiting for: 3797277.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797318.mualhpcp01.local 3797319.mualhpcp01.local 3797320.mualhpcp01.local 3797321.mualhpcp01.local 3797322.mualhpcp01.local 3797323.mualhpcp01.local 3797324.mualhpcp01.local 3797325.mualhpcp01.local 3797326.mualhpcp01.local 3797327.mualhpcp01.local
+    Waiting for: 3797318.mualhpcp01.local
+    Waiting for: 3797319.mualhpcp01.local
+    Waiting for: 3797320.mualhpcp01.local
+    Waiting for: 3797321.mualhpcp01.local
+    Waiting for: 3797322.mualhpcp01.local
+    Waiting for: 3797323.mualhpcp01.local
+    Waiting for: 3797324.mualhpcp01.local
+    Waiting for: 3797325.mualhpcp01.local
+    Waiting for: 3797326.mualhpcp01.local
+    Waiting for: 3797327.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797408.mualhpcp01.local 3797409.mualhpcp01.local 3797410.mualhpcp01.local 3797411.mualhpcp01.local 3797412.mualhpcp01.local 3797413.mualhpcp01.local 3797414.mualhpcp01.local 3797415.mualhpcp01.local 3797416.mualhpcp01.local 3797417.mualhpcp01.local
+    Waiting for: 3797408.mualhpcp01.local
+    Waiting for: 3797409.mualhpcp01.local
+    Waiting for: 3797410.mualhpcp01.local
+    Waiting for: 3797411.mualhpcp01.local
+    Waiting for: 3797412.mualhpcp01.local
+    Waiting for: 3797413.mualhpcp01.local
+    Waiting for: 3797414.mualhpcp01.local
+    Waiting for: 3797415.mualhpcp01.local
+    Waiting for: 3797416.mualhpcp01.local
+    Waiting for: 3797417.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797498.mualhpcp01.local 3797499.mualhpcp01.local 3797500.mualhpcp01.local 3797501.mualhpcp01.local 3797502.mualhpcp01.local 3797503.mualhpcp01.local 3797504.mualhpcp01.local 3797505.mualhpcp01.local 3797506.mualhpcp01.local 3797507.mualhpcp01.local
+    Waiting for: 3797498.mualhpcp01.local
+    Waiting for: 3797499.mualhpcp01.local
+    Waiting for: 3797500.mualhpcp01.local
+    Waiting for: 3797501.mualhpcp01.local
+    Waiting for: 3797502.mualhpcp01.local
+    Waiting for: 3797503.mualhpcp01.local
+    Waiting for: 3797504.mualhpcp01.local
+    Waiting for: 3797505.mualhpcp01.local
+    Waiting for: 3797506.mualhpcp01.local
+    Waiting for: 3797507.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -3.57628e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797548.mualhpcp01.local 3797549.mualhpcp01.local 3797550.mualhpcp01.local 3797551.mualhpcp01.local 3797552.mualhpcp01.local 3797553.mualhpcp01.local 3797554.mualhpcp01.local 3797555.mualhpcp01.local 3797556.mualhpcp01.local 3797557.mualhpcp01.local
+    Waiting for: 3797548.mualhpcp01.local
+    Waiting for: 3797549.mualhpcp01.local
+    Waiting for: 3797550.mualhpcp01.local
+    Waiting for: 3797551.mualhpcp01.local
+    Waiting for: 3797552.mualhpcp01.local
+    Waiting for: 3797553.mualhpcp01.local
+    Waiting for: 3797554.mualhpcp01.local
+    Waiting for: 3797555.mualhpcp01.local
+    Waiting for: 3797556.mualhpcp01.local
+    Waiting for: 3797557.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797598.mualhpcp01.local 3797599.mualhpcp01.local 3797600.mualhpcp01.local 3797601.mualhpcp01.local 3797602.mualhpcp01.local 3797603.mualhpcp01.local 3797604.mualhpcp01.local 3797605.mualhpcp01.local 3797606.mualhpcp01.local 3797607.mualhpcp01.local
+    Waiting for: 3797598.mualhpcp01.local
+    Waiting for: 3797599.mualhpcp01.local
+    Waiting for: 3797600.mualhpcp01.local
+    Waiting for: 3797601.mualhpcp01.local
+    Waiting for: 3797602.mualhpcp01.local
+    Waiting for: 3797603.mualhpcp01.local
+    Waiting for: 3797604.mualhpcp01.local
+    Waiting for: 3797605.mualhpcp01.local
+    Waiting for: 3797606.mualhpcp01.local
+    Waiting for: 3797607.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797638.mualhpcp01.local 3797639.mualhpcp01.local 3797640.mualhpcp01.local 3797641.mualhpcp01.local 3797642.mualhpcp01.local 3797643.mualhpcp01.local 3797644.mualhpcp01.local 3797645.mualhpcp01.local 3797646.mualhpcp01.local 3797647.mualhpcp01.local
+    Waiting for: 3797638.mualhpcp01.local
+    Waiting for: 3797639.mualhpcp01.local
+    Waiting for: 3797640.mualhpcp01.local
+    Waiting for: 3797641.mualhpcp01.local
+    Waiting for: 3797642.mualhpcp01.local
+    Waiting for: 3797643.mualhpcp01.local
+    Waiting for: 3797644.mualhpcp01.local
+    Waiting for: 3797645.mualhpcp01.local
+    Waiting for: 3797646.mualhpcp01.local
+    Waiting for: 3797647.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -3.8147e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797688.mualhpcp01.local 3797689.mualhpcp01.local 3797690.mualhpcp01.local 3797691.mualhpcp01.local 3797692.mualhpcp01.local 3797693.mualhpcp01.local 3797694.mualhpcp01.local 3797695.mualhpcp01.local 3797696.mualhpcp01.local 3797697.mualhpcp01.local
+    Waiting for: 3797688.mualhpcp01.local
+    Waiting for: 3797689.mualhpcp01.local
+    Waiting for: 3797690.mualhpcp01.local
+    Waiting for: 3797691.mualhpcp01.local
+    Waiting for: 3797692.mualhpcp01.local
+    Waiting for: 3797693.mualhpcp01.local
+    Waiting for: 3797694.mualhpcp01.local
+    Waiting for: 3797695.mualhpcp01.local
+    Waiting for: 3797696.mualhpcp01.local
+    Waiting for: 3797697.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797798.mualhpcp01.local 3797799.mualhpcp01.local 3797800.mualhpcp01.local 3797801.mualhpcp01.local 3797802.mualhpcp01.local 3797803.mualhpcp01.local 3797804.mualhpcp01.local 3797805.mualhpcp01.local 3797806.mualhpcp01.local 3797807.mualhpcp01.local
+    Waiting for: 3797798.mualhpcp01.local
+    Waiting for: 3797799.mualhpcp01.local
+    Waiting for: 3797800.mualhpcp01.local
+    Waiting for: 3797801.mualhpcp01.local
+    Waiting for: 3797802.mualhpcp01.local
+    Waiting for: 3797803.mualhpcp01.local
+    Waiting for: 3797804.mualhpcp01.local
+    Waiting for: 3797805.mualhpcp01.local
+    Waiting for: 3797806.mualhpcp01.local
+    Waiting for: 3797807.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.19209e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797858.mualhpcp01.local 3797859.mualhpcp01.local 3797860.mualhpcp01.local 3797861.mualhpcp01.local 3797862.mualhpcp01.local 3797863.mualhpcp01.local 3797864.mualhpcp01.local 3797865.mualhpcp01.local 3797866.mualhpcp01.local 3797867.mualhpcp01.local
+    Waiting for: 3797858.mualhpcp01.local
+    Waiting for: 3797859.mualhpcp01.local
+    Waiting for: 3797860.mualhpcp01.local
+    Waiting for: 3797861.mualhpcp01.local
+    Waiting for: 3797862.mualhpcp01.local
+    Waiting for: 3797863.mualhpcp01.local
+    Waiting for: 3797864.mualhpcp01.local
+    Waiting for: 3797865.mualhpcp01.local
+    Waiting for: 3797866.mualhpcp01.local
+    Waiting for: 3797867.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797908.mualhpcp01.local 3797909.mualhpcp01.local 3797910.mualhpcp01.local 3797911.mualhpcp01.local 3797912.mualhpcp01.local 3797913.mualhpcp01.local 3797914.mualhpcp01.local 3797915.mualhpcp01.local 3797916.mualhpcp01.local 3797917.mualhpcp01.local
+    Waiting for: 3797908.mualhpcp01.local
+    Waiting for: 3797909.mualhpcp01.local
+    Waiting for: 3797910.mualhpcp01.local
+    Waiting for: 3797911.mualhpcp01.local
+    Waiting for: 3797912.mualhpcp01.local
+    Waiting for: 3797913.mualhpcp01.local
+    Waiting for: 3797914.mualhpcp01.local
+    Waiting for: 3797915.mualhpcp01.local
+    Waiting for: 3797916.mualhpcp01.local
+    Waiting for: 3797917.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.86102e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 8
+Waiting for following jobs to finish: 3797958.mualhpcp01.local 3797959.mualhpcp01.local 3797960.mualhpcp01.local 3797961.mualhpcp01.local 3797962.mualhpcp01.local 3797963.mualhpcp01.local 3797964.mualhpcp01.local 3797965.mualhpcp01.local 3797966.mualhpcp01.local 3797967.mualhpcp01.local
+    Waiting for: 3797958.mualhpcp01.local
+    Waiting for: 3797959.mualhpcp01.local
+    Waiting for: 3797960.mualhpcp01.local
+    Waiting for: 3797961.mualhpcp01.local
+    Waiting for: 3797962.mualhpcp01.local
+    Waiting for: 3797963.mualhpcp01.local
+    Waiting for: 3797964.mualhpcp01.local
+    Waiting for: 3797965.mualhpcp01.local
+    Waiting for: 3797966.mualhpcp01.local
+    Waiting for: 3797967.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_8.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798048.mualhpcp01.local 3798049.mualhpcp01.local 3798050.mualhpcp01.local 3798051.mualhpcp01.local 3798052.mualhpcp01.local 3798053.mualhpcp01.local 3798054.mualhpcp01.local 3798055.mualhpcp01.local 3798056.mualhpcp01.local 3798057.mualhpcp01.local
+    Waiting for: 3798048.mualhpcp01.local
+    Waiting for: 3798049.mualhpcp01.local
+    Waiting for: 3798050.mualhpcp01.local
+    Waiting for: 3798051.mualhpcp01.local
+    Waiting for: 3798052.mualhpcp01.local
+    Waiting for: 3798053.mualhpcp01.local
+    Waiting for: 3798054.mualhpcp01.local
+    Waiting for: 3798055.mualhpcp01.local
+    Waiting for: 3798056.mualhpcp01.local
+    Waiting for: 3798057.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798138.mualhpcp01.local 3798139.mualhpcp01.local 3798140.mualhpcp01.local 3798141.mualhpcp01.local 3798142.mualhpcp01.local 3798143.mualhpcp01.local 3798144.mualhpcp01.local 3798145.mualhpcp01.local 3798146.mualhpcp01.local 3798147.mualhpcp01.local
+    Waiting for: 3798138.mualhpcp01.local
+    Waiting for: 3798139.mualhpcp01.local
+    Waiting for: 3798140.mualhpcp01.local
+    Waiting for: 3798141.mualhpcp01.local
+    Waiting for: 3798142.mualhpcp01.local
+    Waiting for: 3798143.mualhpcp01.local
+    Waiting for: 3798144.mualhpcp01.local
+    Waiting for: 3798145.mualhpcp01.local
+    Waiting for: 3798146.mualhpcp01.local
+    Waiting for: 3798147.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798218.mualhpcp01.local 3798219.mualhpcp01.local 3798220.mualhpcp01.local 3798221.mualhpcp01.local 3798222.mualhpcp01.local 3798223.mualhpcp01.local 3798224.mualhpcp01.local 3798225.mualhpcp01.local 3798226.mualhpcp01.local 3798227.mualhpcp01.local
+    Waiting for: 3798218.mualhpcp01.local
+    Waiting for: 3798219.mualhpcp01.local
+    Waiting for: 3798220.mualhpcp01.local
+    Waiting for: 3798221.mualhpcp01.local
+    Waiting for: 3798222.mualhpcp01.local
+    Waiting for: 3798223.mualhpcp01.local
+    Waiting for: 3798224.mualhpcp01.local
+    Waiting for: 3798225.mualhpcp01.local
+    Waiting for: 3798226.mualhpcp01.local
+    Waiting for: 3798227.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798278.mualhpcp01.local 3798279.mualhpcp01.local 3798280.mualhpcp01.local 3798281.mualhpcp01.local 3798282.mualhpcp01.local 3798283.mualhpcp01.local 3798284.mualhpcp01.local 3798285.mualhpcp01.local 3798286.mualhpcp01.local 3798287.mualhpcp01.local
+    Waiting for: 3798278.mualhpcp01.local
+    Waiting for: 3798279.mualhpcp01.local
+    Waiting for: 3798280.mualhpcp01.local
+    Waiting for: 3798281.mualhpcp01.local
+    Waiting for: 3798282.mualhpcp01.local
+    Waiting for: 3798283.mualhpcp01.local
+    Waiting for: 3798284.mualhpcp01.local
+    Waiting for: 3798285.mualhpcp01.local
+    Waiting for: 3798286.mualhpcp01.local
+    Waiting for: 3798287.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798368.mualhpcp01.local 3798369.mualhpcp01.local 3798370.mualhpcp01.local 3798371.mualhpcp01.local 3798372.mualhpcp01.local 3798373.mualhpcp01.local 3798374.mualhpcp01.local 3798375.mualhpcp01.local 3798376.mualhpcp01.local 3798377.mualhpcp01.local
+    Waiting for: 3798368.mualhpcp01.local
+    Waiting for: 3798369.mualhpcp01.local
+    Waiting for: 3798370.mualhpcp01.local
+    Waiting for: 3798371.mualhpcp01.local
+    Waiting for: 3798372.mualhpcp01.local
+    Waiting for: 3798373.mualhpcp01.local
+    Waiting for: 3798374.mualhpcp01.local
+    Waiting for: 3798375.mualhpcp01.local
+    Waiting for: 3798376.mualhpcp01.local
+    Waiting for: 3798377.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.90735e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798458.mualhpcp01.local 3798459.mualhpcp01.local 3798460.mualhpcp01.local 3798461.mualhpcp01.local 3798462.mualhpcp01.local 3798463.mualhpcp01.local 3798464.mualhpcp01.local 3798465.mualhpcp01.local 3798466.mualhpcp01.local 3798467.mualhpcp01.local
+    Waiting for: 3798458.mualhpcp01.local
+    Waiting for: 3798459.mualhpcp01.local
+    Waiting for: 3798460.mualhpcp01.local
+    Waiting for: 3798461.mualhpcp01.local
+    Waiting for: 3798462.mualhpcp01.local
+    Waiting for: 3798463.mualhpcp01.local
+    Waiting for: 3798464.mualhpcp01.local
+    Waiting for: 3798465.mualhpcp01.local
+    Waiting for: 3798466.mualhpcp01.local
+    Waiting for: 3798467.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798548.mualhpcp01.local 3798549.mualhpcp01.local 3798550.mualhpcp01.local 3798551.mualhpcp01.local 3798552.mualhpcp01.local 3798553.mualhpcp01.local 3798554.mualhpcp01.local 3798555.mualhpcp01.local 3798556.mualhpcp01.local 3798557.mualhpcp01.local
+    Waiting for: 3798548.mualhpcp01.local
+    Waiting for: 3798549.mualhpcp01.local
+    Waiting for: 3798550.mualhpcp01.local
+    Waiting for: 3798551.mualhpcp01.local
+    Waiting for: 3798552.mualhpcp01.local
+    Waiting for: 3798553.mualhpcp01.local
+    Waiting for: 3798554.mualhpcp01.local
+    Waiting for: 3798555.mualhpcp01.local
+    Waiting for: 3798556.mualhpcp01.local
+    Waiting for: 3798557.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -9.53674e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798608.mualhpcp01.local 3798609.mualhpcp01.local 3798610.mualhpcp01.local 3798611.mualhpcp01.local 3798612.mualhpcp01.local 3798613.mualhpcp01.local 3798614.mualhpcp01.local 3798615.mualhpcp01.local 3798616.mualhpcp01.local 3798617.mualhpcp01.local
+    Waiting for: 3798608.mualhpcp01.local
+    Waiting for: 3798609.mualhpcp01.local
+    Waiting for: 3798610.mualhpcp01.local
+    Waiting for: 3798611.mualhpcp01.local
+    Waiting for: 3798612.mualhpcp01.local
+    Waiting for: 3798613.mualhpcp01.local
+    Waiting for: 3798614.mualhpcp01.local
+    Waiting for: 3798615.mualhpcp01.local
+    Waiting for: 3798616.mualhpcp01.local
+    Waiting for: 3798617.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.76837e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798688.mualhpcp01.local 3798689.mualhpcp01.local 3798690.mualhpcp01.local 3798691.mualhpcp01.local 3798692.mualhpcp01.local 3798693.mualhpcp01.local 3798694.mualhpcp01.local 3798695.mualhpcp01.local 3798696.mualhpcp01.local 3798697.mualhpcp01.local
+    Waiting for: 3798688.mualhpcp01.local
+    Waiting for: 3798689.mualhpcp01.local
+    Waiting for: 3798690.mualhpcp01.local
+    Waiting for: 3798691.mualhpcp01.local
+    Waiting for: 3798692.mualhpcp01.local
+    Waiting for: 3798693.mualhpcp01.local
+    Waiting for: 3798694.mualhpcp01.local
+    Waiting for: 3798695.mualhpcp01.local
+    Waiting for: 3798696.mualhpcp01.local
+    Waiting for: 3798697.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798778.mualhpcp01.local 3798779.mualhpcp01.local 3798780.mualhpcp01.local 3798781.mualhpcp01.local 3798782.mualhpcp01.local 3798783.mualhpcp01.local 3798784.mualhpcp01.local 3798785.mualhpcp01.local 3798786.mualhpcp01.local 3798787.mualhpcp01.local
+    Waiting for: 3798778.mualhpcp01.local
+    Waiting for: 3798779.mualhpcp01.local
+    Waiting for: 3798780.mualhpcp01.local
+    Waiting for: 3798781.mualhpcp01.local
+    Waiting for: 3798782.mualhpcp01.local
+    Waiting for: 3798783.mualhpcp01.local
+    Waiting for: 3798784.mualhpcp01.local
+    Waiting for: 3798785.mualhpcp01.local
+    Waiting for: 3798786.mualhpcp01.local
+    Waiting for: 3798787.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.90735e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798868.mualhpcp01.local 3798869.mualhpcp01.local 3798870.mualhpcp01.local 3798871.mualhpcp01.local 3798872.mualhpcp01.local 3798873.mualhpcp01.local 3798874.mualhpcp01.local 3798875.mualhpcp01.local 3798876.mualhpcp01.local 3798877.mualhpcp01.local
+    Waiting for: 3798868.mualhpcp01.local
+    Waiting for: 3798869.mualhpcp01.local
+    Waiting for: 3798870.mualhpcp01.local
+    Waiting for: 3798871.mualhpcp01.local
+    Waiting for: 3798872.mualhpcp01.local
+    Waiting for: 3798873.mualhpcp01.local
+    Waiting for: 3798874.mualhpcp01.local
+    Waiting for: 3798875.mualhpcp01.local
+    Waiting for: 3798876.mualhpcp01.local
+    Waiting for: 3798877.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3798958.mualhpcp01.local 3798959.mualhpcp01.local 3798960.mualhpcp01.local 3798961.mualhpcp01.local 3798962.mualhpcp01.local 3798963.mualhpcp01.local 3798964.mualhpcp01.local 3798965.mualhpcp01.local 3798966.mualhpcp01.local 3798967.mualhpcp01.local
+    Waiting for: 3798958.mualhpcp01.local
+    Waiting for: 3798959.mualhpcp01.local
+    Waiting for: 3798960.mualhpcp01.local
+    Waiting for: 3798961.mualhpcp01.local
+    Waiting for: 3798962.mualhpcp01.local
+    Waiting for: 3798963.mualhpcp01.local
+    Waiting for: 3798964.mualhpcp01.local
+    Waiting for: 3798965.mualhpcp01.local
+    Waiting for: 3798966.mualhpcp01.local
+    Waiting for: 3798967.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3799018.mualhpcp01.local 3799019.mualhpcp01.local 3799020.mualhpcp01.local 3799021.mualhpcp01.local 3799022.mualhpcp01.local 3799023.mualhpcp01.local 3799024.mualhpcp01.local 3799025.mualhpcp01.local 3799026.mualhpcp01.local 3799027.mualhpcp01.local
+    Waiting for: 3799018.mualhpcp01.local
+    Waiting for: 3799019.mualhpcp01.local
+    Waiting for: 3799020.mualhpcp01.local
+    Waiting for: 3799021.mualhpcp01.local
+    Waiting for: 3799022.mualhpcp01.local
+    Waiting for: 3799023.mualhpcp01.local
+    Waiting for: 3799024.mualhpcp01.local
+    Waiting for: 3799025.mualhpcp01.local
+    Waiting for: 3799026.mualhpcp01.local
+    Waiting for: 3799027.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.76837e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3799098.mualhpcp01.local 3799099.mualhpcp01.local 3799100.mualhpcp01.local 3799101.mualhpcp01.local 3799102.mualhpcp01.local 3799103.mualhpcp01.local 3799104.mualhpcp01.local 3799105.mualhpcp01.local 3799106.mualhpcp01.local 3799107.mualhpcp01.local
+    Waiting for: 3799098.mualhpcp01.local
+    Waiting for: 3799099.mualhpcp01.local
+    Waiting for: 3799100.mualhpcp01.local
+    Waiting for: 3799101.mualhpcp01.local
+    Waiting for: 3799102.mualhpcp01.local
+    Waiting for: 3799103.mualhpcp01.local
+    Waiting for: 3799104.mualhpcp01.local
+    Waiting for: 3799105.mualhpcp01.local
+    Waiting for: 3799106.mualhpcp01.local
+    Waiting for: 3799107.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 10
+Waiting for following jobs to finish: 3799188.mualhpcp01.local 3799189.mualhpcp01.local 3799190.mualhpcp01.local 3799191.mualhpcp01.local 3799192.mualhpcp01.local 3799193.mualhpcp01.local 3799194.mualhpcp01.local 3799195.mualhpcp01.local 3799196.mualhpcp01.local 3799197.mualhpcp01.local
+    Waiting for: 3799188.mualhpcp01.local
+    Waiting for: 3799189.mualhpcp01.local
+    Waiting for: 3799190.mualhpcp01.local
+    Waiting for: 3799191.mualhpcp01.local
+    Waiting for: 3799192.mualhpcp01.local
+    Waiting for: 3799193.mualhpcp01.local
+    Waiting for: 3799194.mualhpcp01.local
+    Waiting for: 3799195.mualhpcp01.local
+    Waiting for: 3799196.mualhpcp01.local
+    Waiting for: 3799197.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799278.mualhpcp01.local 3799279.mualhpcp01.local 3799280.mualhpcp01.local 3799281.mualhpcp01.local 3799282.mualhpcp01.local 3799283.mualhpcp01.local 3799284.mualhpcp01.local 3799285.mualhpcp01.local 3799286.mualhpcp01.local 3799287.mualhpcp01.local
+    Waiting for: 3799278.mualhpcp01.local
+    Waiting for: 3799279.mualhpcp01.local
+    Waiting for: 3799280.mualhpcp01.local
+    Waiting for: 3799281.mualhpcp01.local
+    Waiting for: 3799282.mualhpcp01.local
+    Waiting for: 3799283.mualhpcp01.local
+    Waiting for: 3799284.mualhpcp01.local
+    Waiting for: 3799285.mualhpcp01.local
+    Waiting for: 3799286.mualhpcp01.local
+    Waiting for: 3799287.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799378.mualhpcp01.local 3799379.mualhpcp01.local 3799380.mualhpcp01.local 3799381.mualhpcp01.local 3799382.mualhpcp01.local 3799383.mualhpcp01.local 3799384.mualhpcp01.local 3799385.mualhpcp01.local 3799386.mualhpcp01.local 3799387.mualhpcp01.local
+    Waiting for: 3799378.mualhpcp01.local
+    Waiting for: 3799379.mualhpcp01.local
+    Waiting for: 3799380.mualhpcp01.local
+    Waiting for: 3799381.mualhpcp01.local
+    Waiting for: 3799382.mualhpcp01.local
+    Waiting for: 3799383.mualhpcp01.local
+    Waiting for: 3799384.mualhpcp01.local
+    Waiting for: 3799385.mualhpcp01.local
+    Waiting for: 3799386.mualhpcp01.local
+    Waiting for: 3799387.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799448.mualhpcp01.local 3799449.mualhpcp01.local 3799450.mualhpcp01.local 3799451.mualhpcp01.local 3799452.mualhpcp01.local 3799453.mualhpcp01.local 3799454.mualhpcp01.local 3799455.mualhpcp01.local 3799456.mualhpcp01.local 3799457.mualhpcp01.local
+    Waiting for: 3799448.mualhpcp01.local
+    Waiting for: 3799449.mualhpcp01.local
+    Waiting for: 3799450.mualhpcp01.local
+    Waiting for: 3799451.mualhpcp01.local
+    Waiting for: 3799452.mualhpcp01.local
+    Waiting for: 3799453.mualhpcp01.local
+    Waiting for: 3799454.mualhpcp01.local
+    Waiting for: 3799455.mualhpcp01.local
+    Waiting for: 3799456.mualhpcp01.local
+    Waiting for: 3799457.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799498.mualhpcp01.local 3799499.mualhpcp01.local 3799500.mualhpcp01.local 3799501.mualhpcp01.local 3799502.mualhpcp01.local 3799503.mualhpcp01.local 3799504.mualhpcp01.local 3799505.mualhpcp01.local 3799506.mualhpcp01.local 3799507.mualhpcp01.local
+    Waiting for: 3799498.mualhpcp01.local
+    Waiting for: 3799499.mualhpcp01.local
+    Waiting for: 3799500.mualhpcp01.local
+    Waiting for: 3799501.mualhpcp01.local
+    Waiting for: 3799502.mualhpcp01.local
+    Waiting for: 3799503.mualhpcp01.local
+    Waiting for: 3799504.mualhpcp01.local
+    Waiting for: 3799505.mualhpcp01.local
+    Waiting for: 3799506.mualhpcp01.local
+    Waiting for: 3799507.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.5
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799618.mualhpcp01.local 3799619.mualhpcp01.local 3799620.mualhpcp01.local 3799621.mualhpcp01.local 3799622.mualhpcp01.local 3799623.mualhpcp01.local 3799624.mualhpcp01.local 3799625.mualhpcp01.local 3799626.mualhpcp01.local 3799627.mualhpcp01.local
+    Waiting for: 3799618.mualhpcp01.local
+    Waiting for: 3799619.mualhpcp01.local
+    Waiting for: 3799620.mualhpcp01.local
+    Waiting for: 3799621.mualhpcp01.local
+    Waiting for: 3799622.mualhpcp01.local
+    Waiting for: 3799623.mualhpcp01.local
+    Waiting for: 3799624.mualhpcp01.local
+    Waiting for: 3799625.mualhpcp01.local
+    Waiting for: 3799626.mualhpcp01.local
+    Waiting for: 3799627.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799708.mualhpcp01.local 3799709.mualhpcp01.local 3799710.mualhpcp01.local 3799711.mualhpcp01.local 3799712.mualhpcp01.local 3799713.mualhpcp01.local 3799714.mualhpcp01.local 3799715.mualhpcp01.local 3799716.mualhpcp01.local 3799717.mualhpcp01.local
+    Waiting for: 3799708.mualhpcp01.local
+    Waiting for: 3799709.mualhpcp01.local
+    Waiting for: 3799710.mualhpcp01.local
+    Waiting for: 3799711.mualhpcp01.local
+    Waiting for: 3799712.mualhpcp01.local
+    Waiting for: 3799713.mualhpcp01.local
+    Waiting for: 3799714.mualhpcp01.local
+    Waiting for: 3799715.mualhpcp01.local
+    Waiting for: 3799716.mualhpcp01.local
+    Waiting for: 3799717.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799798.mualhpcp01.local 3799799.mualhpcp01.local 3799800.mualhpcp01.local 3799801.mualhpcp01.local 3799802.mualhpcp01.local 3799803.mualhpcp01.local 3799804.mualhpcp01.local 3799805.mualhpcp01.local 3799806.mualhpcp01.local 3799807.mualhpcp01.local
+    Waiting for: 3799798.mualhpcp01.local
+    Waiting for: 3799799.mualhpcp01.local
+    Waiting for: 3799800.mualhpcp01.local
+    Waiting for: 3799801.mualhpcp01.local
+    Waiting for: 3799802.mualhpcp01.local
+    Waiting for: 3799803.mualhpcp01.local
+    Waiting for: 3799804.mualhpcp01.local
+    Waiting for: 3799805.mualhpcp01.local
+    Waiting for: 3799806.mualhpcp01.local
+    Waiting for: 3799807.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.43051e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799858.mualhpcp01.local 3799859.mualhpcp01.local 3799860.mualhpcp01.local 3799861.mualhpcp01.local 3799862.mualhpcp01.local 3799863.mualhpcp01.local 3799864.mualhpcp01.local 3799865.mualhpcp01.local 3799866.mualhpcp01.local 3799867.mualhpcp01.local
+    Waiting for: 3799858.mualhpcp01.local
+    Waiting for: 3799859.mualhpcp01.local
+    Waiting for: 3799860.mualhpcp01.local
+    Waiting for: 3799861.mualhpcp01.local
+    Waiting for: 3799862.mualhpcp01.local
+    Waiting for: 3799863.mualhpcp01.local
+    Waiting for: 3799864.mualhpcp01.local
+    Waiting for: 3799865.mualhpcp01.local
+    Waiting for: 3799866.mualhpcp01.local
+    Waiting for: 3799867.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.90735e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3799948.mualhpcp01.local 3799949.mualhpcp01.local 3799950.mualhpcp01.local 3799951.mualhpcp01.local 3799952.mualhpcp01.local 3799953.mualhpcp01.local 3799954.mualhpcp01.local 3799955.mualhpcp01.local 3799956.mualhpcp01.local 3799957.mualhpcp01.local
+    Waiting for: 3799948.mualhpcp01.local
+    Waiting for: 3799949.mualhpcp01.local
+    Waiting for: 3799950.mualhpcp01.local
+    Waiting for: 3799951.mualhpcp01.local
+    Waiting for: 3799952.mualhpcp01.local
+    Waiting for: 3799953.mualhpcp01.local
+    Waiting for: 3799954.mualhpcp01.local
+    Waiting for: 3799955.mualhpcp01.local
+    Waiting for: 3799956.mualhpcp01.local
+    Waiting for: 3799957.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800048.mualhpcp01.local 3800049.mualhpcp01.local 3800050.mualhpcp01.local 3800051.mualhpcp01.local 3800052.mualhpcp01.local 3800053.mualhpcp01.local 3800054.mualhpcp01.local 3800055.mualhpcp01.local 3800056.mualhpcp01.local 3800057.mualhpcp01.local
+    Waiting for: 3800048.mualhpcp01.local
+    Waiting for: 3800049.mualhpcp01.local
+    Waiting for: 3800050.mualhpcp01.local
+    Waiting for: 3800051.mualhpcp01.local
+    Waiting for: 3800052.mualhpcp01.local
+    Waiting for: 3800053.mualhpcp01.local
+    Waiting for: 3800054.mualhpcp01.local
+    Waiting for: 3800055.mualhpcp01.local
+    Waiting for: 3800056.mualhpcp01.local
+    Waiting for: 3800057.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800128.mualhpcp01.local 3800129.mualhpcp01.local 3800130.mualhpcp01.local 3800131.mualhpcp01.local 3800132.mualhpcp01.local 3800133.mualhpcp01.local 3800134.mualhpcp01.local 3800135.mualhpcp01.local 3800136.mualhpcp01.local 3800137.mualhpcp01.local
+    Waiting for: 3800128.mualhpcp01.local
+    Waiting for: 3800129.mualhpcp01.local
+    Waiting for: 3800130.mualhpcp01.local
+    Waiting for: 3800131.mualhpcp01.local
+    Waiting for: 3800132.mualhpcp01.local
+    Waiting for: 3800133.mualhpcp01.local
+    Waiting for: 3800134.mualhpcp01.local
+    Waiting for: 3800135.mualhpcp01.local
+    Waiting for: 3800136.mualhpcp01.local
+    Waiting for: 3800137.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800188.mualhpcp01.local 3800189.mualhpcp01.local 3800190.mualhpcp01.local 3800191.mualhpcp01.local 3800192.mualhpcp01.local 3800193.mualhpcp01.local 3800194.mualhpcp01.local 3800195.mualhpcp01.local 3800196.mualhpcp01.local 3800197.mualhpcp01.local
+    Waiting for: 3800188.mualhpcp01.local
+    Waiting for: 3800189.mualhpcp01.local
+    Waiting for: 3800190.mualhpcp01.local
+    Waiting for: 3800191.mualhpcp01.local
+    Waiting for: 3800192.mualhpcp01.local
+    Waiting for: 3800193.mualhpcp01.local
+    Waiting for: 3800194.mualhpcp01.local
+    Waiting for: 3800195.mualhpcp01.local
+    Waiting for: 3800196.mualhpcp01.local
+    Waiting for: 3800197.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800258.mualhpcp01.local 3800259.mualhpcp01.local 3800260.mualhpcp01.local 3800261.mualhpcp01.local 3800262.mualhpcp01.local 3800263.mualhpcp01.local 3800264.mualhpcp01.local 3800265.mualhpcp01.local 3800266.mualhpcp01.local 3800267.mualhpcp01.local
+    Waiting for: 3800258.mualhpcp01.local
+    Waiting for: 3800259.mualhpcp01.local
+    Waiting for: 3800260.mualhpcp01.local
+    Waiting for: 3800261.mualhpcp01.local
+    Waiting for: 3800262.mualhpcp01.local
+    Waiting for: 3800263.mualhpcp01.local
+    Waiting for: 3800264.mualhpcp01.local
+    Waiting for: 3800265.mualhpcp01.local
+    Waiting for: 3800266.mualhpcp01.local
+    Waiting for: 3800267.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800328.mualhpcp01.local 3800329.mualhpcp01.local 3800330.mualhpcp01.local 3800331.mualhpcp01.local 3800332.mualhpcp01.local 3800333.mualhpcp01.local 3800334.mualhpcp01.local 3800335.mualhpcp01.local 3800336.mualhpcp01.local 3800337.mualhpcp01.local
+    Waiting for: 3800328.mualhpcp01.local
+    Waiting for: 3800329.mualhpcp01.local
+    Waiting for: 3800330.mualhpcp01.local
+    Waiting for: 3800331.mualhpcp01.local
+    Waiting for: 3800332.mualhpcp01.local
+    Waiting for: 3800333.mualhpcp01.local
+    Waiting for: 3800334.mualhpcp01.local
+    Waiting for: 3800335.mualhpcp01.local
+    Waiting for: 3800336.mualhpcp01.local
+    Waiting for: 3800337.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.5
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 15
+Waiting for following jobs to finish: 3800398.mualhpcp01.local 3800399.mualhpcp01.local 3800400.mualhpcp01.local 3800401.mualhpcp01.local 3800402.mualhpcp01.local 3800403.mualhpcp01.local 3800404.mualhpcp01.local 3800405.mualhpcp01.local 3800406.mualhpcp01.local 3800407.mualhpcp01.local
+    Waiting for: 3800398.mualhpcp01.local
+    Waiting for: 3800399.mualhpcp01.local
+    Waiting for: 3800400.mualhpcp01.local
+    Waiting for: 3800401.mualhpcp01.local
+    Waiting for: 3800402.mualhpcp01.local
+    Waiting for: 3800403.mualhpcp01.local
+    Waiting for: 3800404.mualhpcp01.local
+    Waiting for: 3800405.mualhpcp01.local
+    Waiting for: 3800406.mualhpcp01.local
+    Waiting for: 3800407.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800458.mualhpcp01.local 3800459.mualhpcp01.local 3800460.mualhpcp01.local 3800461.mualhpcp01.local 3800462.mualhpcp01.local 3800463.mualhpcp01.local 3800464.mualhpcp01.local 3800465.mualhpcp01.local 3800466.mualhpcp01.local 3800467.mualhpcp01.local
+    Waiting for: 3800458.mualhpcp01.local
+    Waiting for: 3800459.mualhpcp01.local
+    Waiting for: 3800460.mualhpcp01.local
+    Waiting for: 3800461.mualhpcp01.local
+    Waiting for: 3800462.mualhpcp01.local
+    Waiting for: 3800463.mualhpcp01.local
+    Waiting for: 3800464.mualhpcp01.local
+    Waiting for: 3800465.mualhpcp01.local
+    Waiting for: 3800466.mualhpcp01.local
+    Waiting for: 3800467.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800578.mualhpcp01.local 3800579.mualhpcp01.local 3800580.mualhpcp01.local 3800581.mualhpcp01.local 3800582.mualhpcp01.local 3800583.mualhpcp01.local 3800584.mualhpcp01.local 3800585.mualhpcp01.local 3800586.mualhpcp01.local 3800587.mualhpcp01.local
+    Waiting for: 3800578.mualhpcp01.local
+    Waiting for: 3800579.mualhpcp01.local
+    Waiting for: 3800580.mualhpcp01.local
+    Waiting for: 3800581.mualhpcp01.local
+    Waiting for: 3800582.mualhpcp01.local
+    Waiting for: 3800583.mualhpcp01.local
+    Waiting for: 3800584.mualhpcp01.local
+    Waiting for: 3800585.mualhpcp01.local
+    Waiting for: 3800586.mualhpcp01.local
+    Waiting for: 3800587.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1.90735e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800628.mualhpcp01.local 3800629.mualhpcp01.local 3800630.mualhpcp01.local 3800631.mualhpcp01.local 3800632.mualhpcp01.local 3800633.mualhpcp01.local 3800634.mualhpcp01.local 3800635.mualhpcp01.local 3800636.mualhpcp01.local 3800637.mualhpcp01.local
+    Waiting for: 3800628.mualhpcp01.local
+    Waiting for: 3800629.mualhpcp01.local
+    Waiting for: 3800630.mualhpcp01.local
+    Waiting for: 3800631.mualhpcp01.local
+    Waiting for: 3800632.mualhpcp01.local
+    Waiting for: 3800633.mualhpcp01.local
+    Waiting for: 3800634.mualhpcp01.local
+    Waiting for: 3800635.mualhpcp01.local
+    Waiting for: 3800636.mualhpcp01.local
+    Waiting for: 3800637.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.5
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -6.66134e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800688.mualhpcp01.local 3800689.mualhpcp01.local 3800690.mualhpcp01.local 3800691.mualhpcp01.local 3800692.mualhpcp01.local 3800693.mualhpcp01.local 3800694.mualhpcp01.local 3800695.mualhpcp01.local 3800696.mualhpcp01.local 3800697.mualhpcp01.local
+    Waiting for: 3800688.mualhpcp01.local
+    Waiting for: 3800689.mualhpcp01.local
+    Waiting for: 3800690.mualhpcp01.local
+    Waiting for: 3800691.mualhpcp01.local
+    Waiting for: 3800692.mualhpcp01.local
+    Waiting for: 3800693.mualhpcp01.local
+    Waiting for: 3800694.mualhpcp01.local
+    Waiting for: 3800695.mualhpcp01.local
+    Waiting for: 3800696.mualhpcp01.local
+    Waiting for: 3800697.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -1
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -4.44089e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.000 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800808.mualhpcp01.local 3800809.mualhpcp01.local 3800810.mualhpcp01.local 3800811.mualhpcp01.local 3800812.mualhpcp01.local 3800813.mualhpcp01.local 3800814.mualhpcp01.local 3800815.mualhpcp01.local 3800816.mualhpcp01.local 3800817.mualhpcp01.local
+    Waiting for: 3800808.mualhpcp01.local
+    Waiting for: 3800809.mualhpcp01.local
+    Waiting for: 3800810.mualhpcp01.local
+    Waiting for: 3800811.mualhpcp01.local
+    Waiting for: 3800812.mualhpcp01.local
+    Waiting for: 3800813.mualhpcp01.local
+    Waiting for: 3800814.mualhpcp01.local
+    Waiting for: 3800815.mualhpcp01.local
+    Waiting for: 3800816.mualhpcp01.local
+    Waiting for: 3800817.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.000_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800888.mualhpcp01.local 3800889.mualhpcp01.local 3800890.mualhpcp01.local 3800891.mualhpcp01.local 3800892.mualhpcp01.local 3800893.mualhpcp01.local 3800894.mualhpcp01.local 3800895.mualhpcp01.local 3800896.mualhpcp01.local 3800897.mualhpcp01.local
+    Waiting for: 3800888.mualhpcp01.local
+    Waiting for: 3800889.mualhpcp01.local
+    Waiting for: 3800890.mualhpcp01.local
+    Waiting for: 3800891.mualhpcp01.local
+    Waiting for: 3800892.mualhpcp01.local
+    Waiting for: 3800893.mualhpcp01.local
+    Waiting for: 3800894.mualhpcp01.local
+    Waiting for: 3800895.mualhpcp01.local
+    Waiting for: 3800896.mualhpcp01.local
+    Waiting for: 3800897.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3800968.mualhpcp01.local 3800969.mualhpcp01.local 3800970.mualhpcp01.local 3800971.mualhpcp01.local 3800972.mualhpcp01.local 3800973.mualhpcp01.local 3800974.mualhpcp01.local 3800975.mualhpcp01.local 3800976.mualhpcp01.local 3800977.mualhpcp01.local
+    Waiting for: 3800968.mualhpcp01.local
+    Waiting for: 3800969.mualhpcp01.local
+    Waiting for: 3800970.mualhpcp01.local
+    Waiting for: 3800971.mualhpcp01.local
+    Waiting for: 3800972.mualhpcp01.local
+    Waiting for: 3800973.mualhpcp01.local
+    Waiting for: 3800974.mualhpcp01.local
+    Waiting for: 3800975.mualhpcp01.local
+    Waiting for: 3800976.mualhpcp01.local
+    Waiting for: 3800977.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -9.53674e-07
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801028.mualhpcp01.local 3801029.mualhpcp01.local 3801030.mualhpcp01.local 3801031.mualhpcp01.local 3801032.mualhpcp01.local 3801033.mualhpcp01.local 3801034.mualhpcp01.local 3801035.mualhpcp01.local 3801036.mualhpcp01.local 3801037.mualhpcp01.local
+    Waiting for: 3801028.mualhpcp01.local
+    Waiting for: 3801029.mualhpcp01.local
+    Waiting for: 3801030.mualhpcp01.local
+    Waiting for: 3801031.mualhpcp01.local
+    Waiting for: 3801032.mualhpcp01.local
+    Waiting for: 3801033.mualhpcp01.local
+    Waiting for: 3801034.mualhpcp01.local
+    Waiting for: 3801035.mualhpcp01.local
+    Waiting for: 3801036.mualhpcp01.local
+    Waiting for: 3801037.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801098.mualhpcp01.local 3801099.mualhpcp01.local 3801100.mualhpcp01.local 3801101.mualhpcp01.local 3801102.mualhpcp01.local 3801103.mualhpcp01.local 3801104.mualhpcp01.local 3801105.mualhpcp01.local 3801106.mualhpcp01.local 3801107.mualhpcp01.local
+    Waiting for: 3801098.mualhpcp01.local
+    Waiting for: 3801099.mualhpcp01.local
+    Waiting for: 3801100.mualhpcp01.local
+    Waiting for: 3801101.mualhpcp01.local
+    Waiting for: 3801102.mualhpcp01.local
+    Waiting for: 3801103.mualhpcp01.local
+    Waiting for: 3801104.mualhpcp01.local
+    Waiting for: 3801105.mualhpcp01.local
+    Waiting for: 3801106.mualhpcp01.local
+    Waiting for: 3801107.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.22045e-16
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.250 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801188.mualhpcp01.local 3801189.mualhpcp01.local 3801190.mualhpcp01.local 3801191.mualhpcp01.local 3801192.mualhpcp01.local 3801193.mualhpcp01.local 3801194.mualhpcp01.local 3801195.mualhpcp01.local 3801196.mualhpcp01.local 3801197.mualhpcp01.local
+    Waiting for: 3801188.mualhpcp01.local
+    Waiting for: 3801189.mualhpcp01.local
+    Waiting for: 3801190.mualhpcp01.local
+    Waiting for: 3801191.mualhpcp01.local
+    Waiting for: 3801192.mualhpcp01.local
+    Waiting for: 3801193.mualhpcp01.local
+    Waiting for: 3801194.mualhpcp01.local
+    Waiting for: 3801195.mualhpcp01.local
+    Waiting for: 3801196.mualhpcp01.local
+    Waiting for: 3801197.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 0 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801288.mualhpcp01.local 3801289.mualhpcp01.local 3801290.mualhpcp01.local 3801291.mualhpcp01.local 3801292.mualhpcp01.local 3801293.mualhpcp01.local 3801294.mualhpcp01.local 3801295.mualhpcp01.local 3801296.mualhpcp01.local 3801297.mualhpcp01.local
+    Waiting for: 3801288.mualhpcp01.local
+    Waiting for: 3801289.mualhpcp01.local
+    Waiting for: 3801290.mualhpcp01.local
+    Waiting for: 3801291.mualhpcp01.local
+    Waiting for: 3801292.mualhpcp01.local
+    Waiting for: 3801293.mualhpcp01.local
+    Waiting for: 3801294.mualhpcp01.local
+    Waiting for: 3801295.mualhpcp01.local
+    Waiting for: 3801296.mualhpcp01.local
+    Waiting for: 3801297.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_0_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 1 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801348.mualhpcp01.local 3801349.mualhpcp01.local 3801350.mualhpcp01.local 3801351.mualhpcp01.local 3801352.mualhpcp01.local 3801353.mualhpcp01.local 3801354.mualhpcp01.local 3801355.mualhpcp01.local 3801356.mualhpcp01.local 3801357.mualhpcp01.local
+    Waiting for: 3801348.mualhpcp01.local
+    Waiting for: 3801349.mualhpcp01.local
+    Waiting for: 3801350.mualhpcp01.local
+    Waiting for: 3801351.mualhpcp01.local
+    Waiting for: 3801352.mualhpcp01.local
+    Waiting for: 3801353.mualhpcp01.local
+    Waiting for: 3801354.mualhpcp01.local
+    Waiting for: 3801355.mualhpcp01.local
+    Waiting for: 3801356.mualhpcp01.local
+    Waiting for: 3801357.mualhpcp01.local
+    Waiting for: 
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -0.25
+awk: (FILENAME=- FNR=10) warning: sqrt: called with negative argument -2.86102e-06
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_1_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 2 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801408.mualhpcp01.local 3801409.mualhpcp01.local 3801410.mualhpcp01.local 3801411.mualhpcp01.local 3801412.mualhpcp01.local 3801413.mualhpcp01.local 3801414.mualhpcp01.local 3801415.mualhpcp01.local 3801416.mualhpcp01.local 3801417.mualhpcp01.local
+    Waiting for: 3801408.mualhpcp01.local
+    Waiting for: 3801409.mualhpcp01.local
+    Waiting for: 3801410.mualhpcp01.local
+    Waiting for: 3801411.mualhpcp01.local
+    Waiting for: 3801412.mualhpcp01.local
+    Waiting for: 3801413.mualhpcp01.local
+    Waiting for: 3801414.mualhpcp01.local
+    Waiting for: 3801415.mualhpcp01.local
+    Waiting for: 3801416.mualhpcp01.local
+    Waiting for: 3801417.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_2_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 4 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801478.mualhpcp01.local 3801479.mualhpcp01.local 3801480.mualhpcp01.local 3801481.mualhpcp01.local 3801482.mualhpcp01.local 3801483.mualhpcp01.local 3801484.mualhpcp01.local 3801485.mualhpcp01.local 3801486.mualhpcp01.local 3801487.mualhpcp01.local
+    Waiting for: 3801478.mualhpcp01.local
+    Waiting for: 3801479.mualhpcp01.local
+    Waiting for: 3801480.mualhpcp01.local
+    Waiting for: 3801481.mualhpcp01.local
+    Waiting for: 3801482.mualhpcp01.local
+    Waiting for: 3801483.mualhpcp01.local
+    Waiting for: 3801484.mualhpcp01.local
+    Waiting for: 3801485.mualhpcp01.local
+    Waiting for: 3801486.mualhpcp01.local
+    Waiting for: 3801487.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_4_selfEvents_0.500_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --simEndTime 500 --scheduler-queue ladderQ --delay 8 --selfEvents 0.500 --eventsPerAgent 20
+Waiting for following jobs to finish: 3801548.mualhpcp01.local 3801549.mualhpcp01.local 3801550.mualhpcp01.local 3801551.mualhpcp01.local 3801552.mualhpcp01.local 3801553.mualhpcp01.local 3801554.mualhpcp01.local 3801555.mualhpcp01.local 3801556.mualhpcp01.local 3801557.mualhpcp01.local
+    Waiting for: 3801548.mualhpcp01.local
+    Waiting for: 3801549.mualhpcp01.local
+    Waiting for: 3801550.mualhpcp01.local
+    Waiting for: 3801551.mualhpcp01.local
+    Waiting for: 3801552.mualhpcp01.local
+    Waiting for: 3801553.mualhpcp01.local
+    Waiting for: 3801554.mualhpcp01.local
+    Waiting for: 3801555.mualhpcp01.local
+    Waiting for: 3801556.mualhpcp01.local
+    Waiting for: 3801557.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_16253/aggr_out/aggr_out_delay_8_selfEvents_0.500_eventsPerAgent_20.txt
