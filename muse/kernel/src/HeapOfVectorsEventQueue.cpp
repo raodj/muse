@@ -28,7 +28,8 @@
 BEGIN_NAMESPACE(muse)
 
 // A convenience shortcut used just in this source file
-using Tier2List = std::deque<Tier2Entry>;
+using Tier2List = std::deque<HOETier2Entry*>;
+// using Tier2List = std::vector<Tier2Entry>;
 
 HeapOfVectorsEventQueue::HeapOfVectorsEventQueue() :
     EventQueue("HeapOfVectorsEventQueue") {
@@ -36,7 +37,10 @@ HeapOfVectorsEventQueue::HeapOfVectorsEventQueue() :
 }
 
 HeapOfVectorsEventQueue::~HeapOfVectorsEventQueue() {
-    // Nothing else to be done.
+    // Clear up memory allocated for HOETier2Entry
+    for (HOETier2Entry* entry : tier2Recycler) {
+        delete entry;
+    }
 }
 
 void*
@@ -56,10 +60,12 @@ HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent->tier2 != NULL );
     // Logically remove events in this agent's tier2 queues/buckets
     Tier2List& tier2eventPQ = *agent->tier2;
-    for (muse::Tier2Entry& bucket : tier2eventPQ) {
-        for (Event* evt : bucket.getEventList()) {
+    for (muse::HOETier2Entry* bucket : tier2eventPQ) {
+        for (Event* evt : bucket->getEventList()) {
             evt->decreaseReference();  // logically remove event
         }
+        // Free the memory reserved fro this bucket
+        delete bucket;
     }
     // Clear out tier2 queue (so this agent's time becomes PINFINITY)
     agent->tier2->clear();
@@ -69,7 +75,7 @@ HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
 
 muse::Event*
 HeapOfVectorsEventQueue::front() {
-    return (!top()->tier2->empty()) ? top()->tier2->front().getEvent() : NULL;
+    return (!top()->tier2->empty()) ? top()->tier2->front()->getEvent() : NULL;
 }
 
 void
@@ -77,22 +83,29 @@ HeapOfVectorsEventQueue::pop_front(muse::Agent* agent) {
     // Decrease reference count for all events in the front of the
     // agent event queue before the list of events is removed from the
     // event queue.
-    EventContainer& eventList = agent->tier2->front().getEventList();
+    std::vector<muse::Event*>& eventList =
+        agent->tier2->front()->getEventList();
     for (Event* evt: eventList) {
         evt->decreaseReference();
     }
-    agent->tier2->erase(agent->tier2->begin()); 
+    // agent->tier2->erase(agent->tier2->begin());
+    tier2Recycler.emplace_back(agent->tier2->front());
+    agent->tier2->pop_front();
 }
 
 void
 HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
                                        EventContainer& container) {
     ASSERT(container.empty());
-    ASSERT(agent->tier2->front().getEvent() != NULL);
+    ASSERT(agent->tier2 != NULL);
+    Tier2List& tier2 = *agent->tier2;
+    ASSERT(tier2.front()->getEvent() != NULL);
     // All events in tier2 front should have same receive times
-    const muse::Time eventTime = agent->tier2->front().getReceiveTime();
-    // Move all the events out of the tier2 front into the return contianer
-    container = std::move(agent->tier2->front().getEventList());
+    const muse::Time eventTime = tier2.front()->getReceiveTime();
+    // Copy all the events out of the tier2 front into the return contianer
+    // container = std::move(agent->tier2->front().getEventList());
+    std::vector<muse::Event*>& evtList = tier2.front()->getEventList();
+    container.assign(evtList.begin(), evtList.end());
     // Do validation checks on the events in tier2
     for (const Event* event : container) {
         //  All events must have the same receive time
@@ -119,8 +132,11 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
         ASSERT(event->getReferenceCount() < 3);
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     }
-    // Remove the entry at the beginning of the queue.
-    pop_front(agent);
+    // Recycle the entry at the beginning of the queue.
+    tier2Recycler.emplace_back(tier2.front());
+    tier2.pop_front();
+    // std::rotate(tier2.begin(), tier2.begin() + 1, tier2.end());
+    // tier2.pop_back();
     // Track bucket/block size statistics
     avgSchedBktSize += container.size();
 }
@@ -146,12 +162,12 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     // the queue.  First Increase event reference count for every
     // event added to the event queue.
     event->increaseReference();
-    enqueue(agent, event, true);
+    enqueueEvent(agent, event);
+    updateHeap(agent);    
 }
 
 void
-HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
-                                 const bool fixHeap) {
+HeapOfVectorsEventQueue::enqueueEvent(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL); 
     ASSERT( agent->tier2 != NULL );   
@@ -160,28 +176,24 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event,
     Tier2List& tier2 = *agent->tier2;
     // Use binary search O(log n) to find match or insert position
     agentBktCount += tier2.size();
-    Tier2List::iterator iter = 
-        std::lower_bound(tier2.begin(), tier2.end(), event, lessThan);
+    Tier2List::iterator iter =
+        std::lower_bound(tier2.begin(), tier2.end(), event, lessThanPtr);
     // There are 3 cases: 1. we found matching bucket, 2: iterator
     // to bucket with higher recvTime, or 3: tier2.end().
     if (iter == tier2.end()) {
-        tier2.push_back(Tier2Entry(event));  // add new entry to end.
-    } else if (iter->getReceiveTime() == event->getReceiveTime()) {
+        tier2.emplace_back(makeTier2Entry(event));  // add new entry to end.
+    } else if ((*iter)->getReceiveTime() == event->getReceiveTime()) {
         // We found an existing bucket. Append this event to this
         // existing bucket.
-        iter->updateContainer(event);
+        (*iter)->updateContainer(event);
     } else {
         // If there is no bucket with a matching receive time in Tier2
-        // vector, then insert an instance of Tier2Entry (aka bucket)
-        // into the vector at the appropriate position.
-        ASSERT(iter->getReceiveTime() > event->getReceiveTime());
-        tier2.insert(iter, Tier2Entry(event));
+        // vector, then insert an instance of HOETier2Entry (aka
+        // bucket) into the vector at the appropriate position.
+        ASSERT((*iter)->getReceiveTime() > event->getReceiveTime());
+        tier2.emplace(iter, makeTier2Entry(event));
     }
     // ASSERT(std::is_sorted(tier2.begin(), tier2.end()));
-    // Fix the position of this agent in the scheduler's heap.
-    if (fixHeap) {
-        updateHeap(agent);
-    }
 }
 
 void
@@ -196,7 +208,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
         // this agent.  We will do it at the end after all events are
         // added.  However, we don't increase reference counts in this
         // API.
-        enqueue(agent, event, false);
+        enqueue(agent, event);
     }
     // Clear out all the events in the incoming container
     events.clear();
@@ -213,8 +225,9 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
     Tier2List& tier2eventPQ = *dest->tier2;
     long currIdx = tier2eventPQ.size() - 1;
     while (!tier2eventPQ.empty() && (currIdx >= 0)) {
-        if (tier2eventPQ[currIdx].getReceiveTime() > sentTime) {
-            EventContainer& eventList = tier2eventPQ[currIdx].getEventList();
+        if (tier2eventPQ[currIdx]->getReceiveTime() > sentTime) {
+            std::vector<muse::Event*>& eventList =
+                tier2eventPQ[currIdx]->getEventList();
             size_t index = 0;
             while (!eventList.empty() && (index < eventList.size())) {
                 Event* const evt = eventList[index];

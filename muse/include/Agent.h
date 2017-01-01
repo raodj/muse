@@ -47,6 +47,7 @@ template<typename T, typename Compare>
 class BinaryHeap;
 class EventQueue;
 class Tier2Entry;
+class HOETier2Entry;
 class EventComp;
 class TwoTierHeapAdapter;
 
@@ -551,7 +552,8 @@ private:
     */
     State* myState;
     
-    std::deque<Tier2Entry>* tier2;
+    std::deque<HOETier2Entry*>* tier2;
+	// std::vector<Tier2Entry>* tier2;
         
     union {
         /** The TwoTierHeapAdapter for TwoTierHeapEventQueue.
