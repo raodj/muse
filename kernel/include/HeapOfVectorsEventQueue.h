@@ -23,12 +23,105 @@
 //---------------------------------------------------------------------------
 
 #include <vector>
+#include <stack>
 #include <algorithm>
 #include "Avg.h"
 #include "EventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
 
 BEGIN_NAMESPACE(muse)
+
+/** Class to encapsulate information for Tier2 entries/buckets.
+
+	This is a simple class that encapsulates a list of events (in
+	eventList) all with exactly the same receive time to a given
+	agent.  These objects are cached/reused by the scheduler queue to
+	reduce memory allocation operations, particularly for the
+	eventList because memory management turns out to be he most
+	expensive operation.
+*/
+class HOETier2Entry {
+private:
+    /** The receive time of events in this tier2 entry. Note that all
+        the events in this entry are must/are concurrent -- that is,
+        destined for the same agent at the same time.
+     */
+    Time recvTime;
+
+    /** The list of entities in this HOE entry class */
+    std::vector<muse::Event*> eventList;
+
+public:
+    /** Constructor to create a tier2 entry with 1 initial event in
+        it.
+
+        \param[in] event The event to be added to this tier2 entry.
+        The receive time of the event is used as the receive time
+        value.
+    */
+    HOETier2Entry(muse::Event* event) : recvTime(event->getReceiveTime()),
+                                        eventList(1, event) {}
+
+    /** Reset the information in this tier2 entry.
+
+        This method is synonymous to the constructor except, it is
+        used to reset/recycle an existing tier2 entry.
+
+        \param[in] event The event to be added to this tier2 entry.
+        The receive time of the event is used as the receive time
+        value.
+    */
+    void reset(muse::Event* event) {
+        recvTime = event->getReceiveTime();
+        eventList.clear();
+        eventList.emplace_back(event);
+    }
+
+    /** Appends events to the EventContainer list.
+     *
+     *  The method is used to append concurrent events to their respective
+     *  position in the tier2 container.
+     */
+    void updateContainer(muse::Event* event){
+        eventList.emplace_back(event);
+    }
+
+    /** Obtain pointer to the first event in this list.
+
+        \return Pointer to the first event in this list. This return
+        value cannot/should-not be NULL.
+    */
+    inline muse::Event* getEvent() const {
+        return eventList.front();
+    }
+  
+    /** \brief compares the receive times of events
+        
+        The method is used to determine whether or not an event
+        already exists in the tier2 container.
+        
+        \returns True if lhs receiveTime is equal to rhs receiveTime
+    */
+    inline bool operator==(const HOETier2Entry &rhs) {
+        return (this->recvTime == rhs.recvTime);
+    }
+
+    inline bool operator<(const HOETier2Entry &rhs) {
+        return (this->recvTime < rhs.recvTime);
+    }
+    
+    inline Time getReceiveTime() const {
+        return recvTime;
+    }
+    
+    inline const std::vector<muse::Event*>& getEventList() const {
+        return eventList;
+    }
+
+    inline std::vector<muse::Event*>& getEventList() {
+        return eventList;
+    }
+};
 
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.
@@ -261,12 +354,8 @@ protected:
         
         \param[in] event The event to be enqueued.  This parameter can
         never be NULL.
-
-        \param[in] fixHeap If this flag is true, then position of the
-        specified agent in the heap is updated.
     */
-    virtual void enqueue(muse::Agent* agent, muse::Event* event,
-                         const bool fixHeap = false);
+    virtual void enqueueEvent(muse::Agent* agent, muse::Event* event);
     
     /** Convenience method to remove events.
 
@@ -299,7 +388,7 @@ protected:
     */
     inline muse::Time getTopTime(const muse::Agent* const agent) const {
         return agent->tier2->empty() ? TIME_INFINITY :
-            agent->tier2->front().getReceiveTime();
+            agent->tier2->front()->getReceiveTime();
     }
     
     /** Comparator method to sort events in the heap.
@@ -322,6 +411,28 @@ protected:
     inline bool compare(const Agent *lhs, const Agent * rhs) const {
         return getTopTime(lhs) >= getTopTime(rhs);
     }
+    
+    /** Comparator method to sort events in the heap.
+
+        This is the comparator method that is passed to various
+        standard C++ algorithms to organize events as a heap.  This
+        comparator method gives first preference to receive time of
+        events.  Tie between two events with the same recieve time is
+        broken based on the receiver agent ID.
+
+        \param[in] lhs The left-hand-side event to be used for
+        comparison.  This parameter cannot be NULL.
+
+        \param[in] rhs The right-hand-side event to be used for
+        comparison. This parameter cannot be NULL.
+
+        \return This method returns if lhs < rhs, i.e., the lhs event
+        should be scheduled before the rhs event.
+    */
+    inline static bool lessThan(const HOETier2Entry& lhs,
+                                const muse::Event* const event) {
+        return (lhs.getReceiveTime() < event->getReceiveTime());
+    }
 
     /** Comparator method to sort events in the heap.
 
@@ -340,11 +451,11 @@ protected:
         \return This method returns if lhs < rhs, i.e., the lhs event
         should be scheduled before the rhs event.
     */
-    inline static bool lessThan(const Tier2Entry& lhs,
-                                const muse::Event* const event) {
-        return (lhs.getReceiveTime() < event->getReceiveTime());
+    inline static bool lessThanPtr(const HOETier2Entry* const lhs,
+                                   const muse::Event* const event) {
+        return (lhs->getReceiveTime() < event->getReceiveTime());
     }
-
+    
     /** The getNextEvents method.
 
         This method is a helper that will grab the next set of events
@@ -434,9 +545,30 @@ protected:
         return ((evt->getSenderAgentID() == sender) &&
                 (evt->getSentTime() >= sentTime));
     }
+
+    /** Helper method to reuse tier2 entries or create a new one.
+
+        This method is a convenience method to recycle tier2 entry
+        object is available.  If the recycle bin is empty, then this
+        method creates a new object.
+        
+        \param[in] event The event to be used to initialize and to be
+        contained in the newly created tier2 entry.
+        
+        \return A tier2 entry initialized and containing the given
+        event.
+     */
+    HOETier2Entry* makeTier2Entry(muse::Event* event) {
+        if (!tier2Recycler.empty()) {
+            HOETier2Entry* entry = tier2Recycler.back();
+            tier2Recycler.pop_back();
+            entry->reset(event);
+            return entry;
+        }
+        return new HOETier2Entry(event);
+    }
     
 private:
-    
     /** The backing storage for events managed by this class.
 
         This vector contains the list of agents being managed by the
@@ -468,6 +600,11 @@ private:
         inserted.
     */
     Avg agentBktCount;
+
+	/** A stack to recycle Tier2 entries to minimize memory allocation
+		calls for these small blocks used in this queue.
+	 */
+	std::deque<HOETier2Entry*> tier2Recycler;
 };
 
 END_NAMESPACE(muse)
