@@ -263,7 +263,8 @@ function runPBSjobs {
 		# echo qsub ${params} -N $name -o $outFile $script
 		jobid=`qsub ${params} -N $name -o $outFile $script`
 		if [ $? -ne 0 ]; then
-			echo "Error submitting PBS job."
+			echo "Error submitting PBS job using following config:"
+			echo "qsub ${params} -N $name -o $outFile $script"
 			exit 1
 		fi
 		# Track jobid
@@ -309,6 +310,7 @@ function extractStats {
 # RunTimeStatsInfo array.
 function recordAllStats {
 	local statInfo=`date`
+	statInfo="$statInfo, $PROCS"
     # Convert each parameter value to command-line argument
     for param in "${!CmdLineParams[@]}"
     do
@@ -345,7 +347,7 @@ function recordAllStats {
 # Helper function to print column titles for the different values
 # recorded in the given CSV file.
 function printHeader {
-	local header="# Timestamp"
+	local header="# Timestamp, procs"
 	# First list names of the parameters
     for param in "${!CmdLineParams[@]}"
     do
@@ -382,7 +384,7 @@ function printHeader {
 function saveOutputFiles {
 	local pbsScript="$1"
 	# Check and create temporary-subdirectory
-	local dir="$TMPDIR/aggr_out"
+	local dir="$TMPDIR/aggr_out_proc_${PROCS}"
 	mkdir -p "$dir"
 	# Create file name with parameter values in the file name.
 	local aggrFileName="aggr_out"
