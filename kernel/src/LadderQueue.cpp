@@ -111,9 +111,13 @@ muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
         muse::Event* const event = list[curr];
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
-            list.erase(list.begin() + curr);
+            // Free-up event.
             event->decreaseReference();
             removedCount++;
+            // To minimize removal time replace entry with last one
+            // and pop the last entry off.
+            list[curr] = list.back();
+            list.pop_back();
         } else {
             curr++;
         }
