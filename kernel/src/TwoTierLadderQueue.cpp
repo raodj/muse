@@ -29,6 +29,9 @@
 #define MAX_BUCKETS 100
 #define MIN_BUCKET_WIDTH 1.0
 
+/** The number of sub-buckets to be used in each 2-tier bucket */
+int muse::TwoTierBucket::t2k = 32;
+
 // ----------------------[ TwoTierBucket methods ]-----------------------
 
 muse::TwoTierBucket::~TwoTierBucket() {
@@ -41,7 +44,7 @@ muse::TwoTierBucket::~TwoTierBucket() {
 
 void
 muse::TwoTierBucket::push_back(TwoTierBucket&& srcBkt) {
-    ASSERT(srcBkt.2tk == 2tk);
+    ASSERT(srcBkt.subBuckets.size() == t2k);
     ASSERT(srcBkt.subBuckets.size() == subBuckets.size());
     // Move evens from srcBkt into corresponding sub-buckets
     for (int idx = 0; (idx < t2k); idx++) {
@@ -58,6 +61,7 @@ muse::TwoTierBucket::push_back(TwoTierBucket&& srcBkt) {
     }
 }
 
+// Helper method to remove events from a sub-bucket.
 int
 muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
                                   const Time sendTime) {
@@ -130,5 +134,25 @@ muse::TwoTierBucket::getEventCount() const {
     }
     return sum;  // total number of events
 }
+
+// -------------------------[ TwoTierTop methods ]-------------------------
+
+// Helper method called from constructor and when events are moved
+// from top into ladder.
+void
+muse::TwoTierTop::reset(const Time startTime) {
+    minTS    = TIME_INFINITY;
+    maxTS    = 0;
+    topStart = startTime;
+}
+
+void
+muse::TwoTierTop::add(muse::Event* event) {
+    push_back(event);   // Call base-class method.
+    // Update running timestamps.
+    minTS = std::min(minTS, event->getReceiveTime());
+    maxTS = std::max(maxTS, event->getReceiveTime());
+}
+
 
 #endif
