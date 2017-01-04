@@ -104,12 +104,17 @@ using SubBucketList = std::vector<BktEventList>;
 */  
 class TwoTierBucket {
 public:
+    /** The shared parameter indicating the number of sub-buckets to
+        be used in each 2-tier bucket.  This value defaults to 32.  It
+        is overriden by by command-line argument when ladder queue is
+        used.
+    */
+    static int t2k;
+    
     /** Constructor to create a bucket with fixed number (i.e., t2k)
         of tier-2 lists.
-        
-        \param[in] t2k The number tier-2 sub-buckets to create.
     */
-    TwoTierBucket(const int t2k) : t2k(t2k), count(0) {}
+    TwoTierBucket() : count(0) {}
 
     /** A move constructor to facilitate moving objects (if needed).
 
@@ -118,7 +123,6 @@ public:
         information after the move is complete.
     */
     TwoTierBucket(TwoTierBucket&& src) : subBuckets(std::move(src.subBuckets)),
-                                         t2k(src.t2k),
                                          count(std::move(src.count)) {
         // Reset count in source to aid debugging.
         src.count = 0;
@@ -135,13 +139,10 @@ public:
 
         \param[in] sender The sender's ID to be hashed.
 
-        \param[in] t2k The maximum number of sub-buckets to choose
-        from.
-
         \return The hash value based on sender ID.  The return value,
         say hash, must be in the range 0 <= hash < t2k.
     */
-    inline int hash(const muse::AgentID sender, const int t2k) const {
+    inline int hash(const muse::AgentID sender) const {
         // Use a simple hashing function for now.
         return (sender % t2k);
     }
@@ -157,7 +158,7 @@ public:
         management).
     */
     void push_back(muse::Event* event) {
-        const size_t subBktIdx = hash(event->getSenderAgentID(), t2k);
+        const size_t subBktIdx = hash(event->getSenderAgentID());
         subBuckets[subBktIdx].push_back(event);
         count++;
     }
@@ -209,7 +210,7 @@ public:
         removed.
     */
     int remove_after(muse::AgentID sender, const Time sendTime) {
-        const size_t subBktIdx = hash(sender, t2k);
+        const size_t subBktIdx = hash(sender);
         return remove_after(subBuckets[subBktIdx], sender, sendTime);
     }
     
@@ -286,19 +287,130 @@ private:
         based on the hash of the receiver's ID.
     */
     SubBucketList subBuckets;
-
-    /** The number of sub-buckets into whcih this TwoTierBucket is to
-        be organized.  This value is set once in the constructor and
-        does not change during the lifetime of this object.
-    */
-    int t2k;
-
     
     /** The total number of events in all of the sub-buckets.  This
         information is primary used to quickly respond to the size()
         method calls
     */
     size_t count;
+};
+
+/** The class that forms the Top rung of a 2-tier ladder queue.
+
+    The top-rung of the 2-tier ladder queue behaves similar to the
+    ladder queue with respect to managing time stamps.  However, the
+    organization is different -- events are not stored in a linear
+    list.  Instead they are stored in sub-buckets based on a hash of
+    the sender agent's ID.
+
+    \note Do not call push_back directly.  Instead use the add method
+    in this class to add events.
+*/
+class TwoTierTop : public TwoTierBucket {
+    friend class TwoTierRung;
+    friend class TwoTierLadderQueue;
+public:
+    /** Construct and initialize top to empty state.
+
+        The constructor uses a convenience method in this class to
+        reset the timestamps to zero.
+    */
+    TwoTierTop() {
+        reset();
+    }
+
+    /** The destructor
+
+        Currently the destructor has nothing much to do as the base
+        class does all of the necessary clean-ups.
+     */
+    ~TwoTierTop() {}
+
+    /** Method to add events to top and update current minimum and
+        maximum time stamp values.
+
+        \param[in] event The event to be added to the top.  This
+        pointer cannot be NULL.
+    */
+    void add(muse::Event* event);
+
+    /** Return the current start-time for top.
+
+        \note This value changes when events are added/removed. So
+        don't think about caching this value.
+        
+        \return The current start time. This value is used for
+        scheduling events and creating rungs.
+    */
+    Time getStartTime() const { return topStart; }
+
+    /** Returns the minimum timestamp of events in this rung.
+
+        \note This value changes when events are added/removed. So
+        don't think about caching this value.
+        
+        \return The minimum timestamp of events in this rung.
+    */
+    Time getMinTime() const { return minTS; }
+
+    /** Returns the maximum timestamp of events in this rung.
+
+        \note This value changes when events are added/removed. So
+        don't think about caching this value.
+        
+        \return The maximum event timestamp in this rung.
+    */
+    Time getMaxTime() const { return maxTS; }
+
+    /** Convenience method to determine if given time is within the
+        <i>current</i> minmum and maximum time.
+
+        \param[in] ts The timestamp value to be checked.
+        
+        \return This method returns true if getMinTime() <= ts <=
+        getMaxTime().  Otherwise it returns false.
+     */
+    bool contains(const Time ts) const {
+        return (ts >= minTS) && (ts <= maxTS);
+    }
+
+    /** Convenience method compute the bucket size for the top-level
+        rung of the TwoTierLadder queue.
+
+        \return The suggested bucket width (in terms of time) for the
+        top-level rung of the TwoTierLadder.
+    */
+    double getBucketWidth() const {
+        DEBUG(std::cout << "minTS=" << minTS << ", maxTS=" << maxTS
+              << ", size=" << size() << std::endl);
+        return (maxTS - minTS + size() - 1.0) / size();
+    }
+
+protected:
+    /** Helper method to reset top either during construction or
+        whenever it is emptied to move events into the ladder.
+
+        \param[in] topStart An optional start time for the top rung.
+    */
+    void reset(const Time topStart = 0);
+
+private:
+    /** Instsance variable to track the current minimum timestamp of
+        events in top.  This value changes each time a new event is
+        added to the top via the add emthod.
+    */
+    muse::Time minTS;
+
+    /** Instsance variable to track the current maximum timestamp of
+        events in top.  This value changes each time a new event is
+        added to the top via the add emthod.
+    */    
+    muse::Time maxTS;
+
+    /** Instsance variable to track the last time top was reset.  This
+        is used for debugging/troubleshooting purposes.
+    */    
+    muse::Time topStart;
 };
 
 END_NAMESPACE(muse)
