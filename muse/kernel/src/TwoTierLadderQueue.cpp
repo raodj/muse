@@ -35,11 +35,17 @@ int muse::TwoTierBucket::t2k = 32;
 // ----------------------[ TwoTierBucket methods ]-----------------------
 
 muse::TwoTierBucket::~TwoTierBucket() {
+    clear();
+}
+
+void
+muse::TwoTierBucket::clear() {
     for (BktEventList& subBkt : subBuckets) {
         for (muse::Event* event : subBkt) {
             event->decreaseReference();
         }
     }
+    count = 0;
 }
 
 void
@@ -59,6 +65,23 @@ muse::TwoTierBucket::push_back(TwoTierBucket&& srcBkt) {
         // out of it.
         src.clear();
     }
+}
+
+void
+muse::TwoTierBucket::push_back(BktEventList& dest, TwoTierBucket&& srcBkt) {
+    for (BktEventList& subBkt : srcBkt.subBuckets) {
+        dest.insert(dest.end(), subBkt.begin(), subBkt.end());
+        subBkt.clear();
+    }
+    srcBkt.count = 0;
+}
+
+int
+muse::TwoTierBucket::remove_after(muse::AgentID sender, const Time sendTime) {
+    const size_t subBktIdx = hash(sender);
+    int removedCount = remove_after(subBuckets[subBktIdx], sender, sendTime);
+    count -= removedCount;  // Track remaining events
+    return removedCount;
 }
 
 // Helper method to remove events from a sub-bucket.
@@ -82,7 +105,6 @@ muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
             curr++;
         }
     }
-    count -= removedCount;  // Track remaining events
     return removedCount;
 }
 
@@ -93,20 +115,31 @@ muse::TwoTierBucket::remove(muse::AgentID receiver) {
     size_t removedCount = 0;
     // Remove events from each sub-bucket.
     for (BktEventList& list : subBuckets) {
-        // Linear scan through events in a given sub-bucket
-        BktEventList::iterator curr = list.begin();
-        while (curr != list.end()) {
-            if ((*curr)->getReceiverAgentID() == receiver) {
-                (*curr)->decreaseReference();
-                curr = list.erase(curr);                
-                removedCount++;
-            } else {
-                curr++;
-            }
-        }
+        // Use helper method to remove events.
+        removedCount += remove(list, receiver);
     }
     count -= removedCount;  // Track remaining events
     return removedCount;
+}
+
+// static helper method also used by TwoTierBottom.  This is called
+// few times at the end of simulation.  So it is not performance
+// critical.
+int
+muse::TwoTierBucket::remove(BktEventList& list, muse::AgentID receiver) {
+    int removedCount = 0;  // statistics tracking
+    // Linear scan through events in a given sub-bucket
+    BktEventList::iterator curr = list.begin();
+    while (curr != list.end()) {
+        if ((*curr)->getReceiverAgentID() == receiver) {
+            (*curr)->decreaseReference();
+            curr = list.erase(curr);                
+            removedCount++;
+        } else {
+            curr++;
+        }
+    }
+    return removedCount;  // let caller know the events removed
 }
 
 // This method is not performance critical.  It is used only for
@@ -154,5 +187,65 @@ muse::TwoTierTop::add(muse::Event* event) {
     maxTS = std::max(maxTS, event->getReceiveTime());
 }
 
+// -------------------------[ TwoTierBottom methods ]-------------------------
+
+void
+muse::TwoTierBottom::enqueue(muse::TwoTierBucket&& bucket) {
+    // Move events from bucket into the bottom.
+    TwoTierBucket::push_back(*this, std::move(bucket));
+    // Now sort the whole bottom O(n*log(n)) operation
+    std::sort(begin(), end(), TwoTierBottom::compare);
+}
+
+void
+muse::TwoTierBottom::enqueue(muse::Event* event) {
+    BktEventList::iterator iter =
+        std::lower_bound(begin(), end(), event, compare);
+    insert(iter, event);  // base class method.
+}
+
+void
+muse::TwoTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
+    if (empty()) {
+        return;  // no events to provide
+    }
+    // Reference information used for checking in the loop below.
+    const muse::Event*  nextEvt  = front();
+    const muse::AgentID receiver = nextEvt->getReceiverAgentID();
+    const muse::Time    currTime = nextEvt->getReceiveTime();
+    // Move all events from bottom to the events-container for scheduling.
+    do {
+        // Front event is the lowest timestamp (or highest priority).
+        muse::Event* event = front();
+        events.push_back(event);
+        pop_front();   // remove from bottom.
+        // Check and work with the next event.
+        nextEvt = (!empty() ? front() : NULL);
+        DEBUG(std::cout << "Delivering: " << *event << std::endl);
+    } while (!empty() && (nextEvt->getReceiverAgentID() == receiver) &&
+             TIME_EQUALS(nextEvt->getReceiveTime(), currTime));
+    DEBUG(validate());
+}
+
+// This method is used only for debugging. So it is not performance
+// critical.
+void
+muse::TwoTierBottom::validate() const {
+    if (empty()) {
+        return;  // yes. bottom is valid.
+    }
+    // Ensure events are sorted in timestamp order.
+    BktEventList::const_iterator next = cbegin();
+    BktEventList::const_iterator prev = next++;
+    while ((next != cend()) &&
+           ((*next)->getReceiveTime() >= (*prev)->getReceiveTime())) {
+        prev = next++;
+    }
+    if (next != cend()) {
+        std::cout << "Error in LadderQueue.Bottom: Event " << **next
+                  << " was found after " << **prev << std::endl;
+    }
+    ASSERT( next == cend() );
+}
 
 #endif

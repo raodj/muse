@@ -173,6 +173,22 @@ public:
         be moved into this bucket.
     */
     void push_back(TwoTierBucket&& srcBkt);
+
+    /** Helper method to move all events from a 2-tier bucket into a
+        single list of events.
+
+        This method is a convenience method that is used by the bottom
+        tier to combine all the events from various sub-buckets into a
+        single list of events.
+
+        \param[out] dest The destination event list to which all the
+        events are to added.
+
+        \param[in,out] srcBkt The bucket from where the events are to
+        be moved.  After this call the srcBkt will not have any events
+        in it.
+    */
+    static void push_back(BktEventList& dest, TwoTierBucket&& srcBkt);
     
     /** Obtain the count of events which includes the events in sub-buckets.
 
@@ -209,10 +225,7 @@ public:
         \return This method returns the number of events that were
         removed.
     */
-    int remove_after(muse::AgentID sender, const Time sendTime) {
-        const size_t subBktIdx = hash(sender);
-        return remove_after(subBuckets[subBktIdx], sender, sendTime);
-    }
+    int remove_after(muse::AgentID sender, const Time sendTime);
     
     /** Remove all events in this bucket for a given receiver agent
         ID.
@@ -243,18 +256,6 @@ public:
     */
     bool haveBefore(const Time recvTime) const;
 
-protected:
-    /** Return sum of events in each sub-bucket.
-
-        This method is used purely for validation/debugging.  This
-        method iterates over each sub-bucket in the list and returns
-        the actual count of events.  This value must be consistent
-        with the value in the count instance variable.
-
-        \return The actual sum of events in various sub-buckets.
-    */
-    size_t getEventCount() const;
-
     /** Convenience method to remove all events from a given sender
         that were sent at-or-after the given sendTime.
 
@@ -279,8 +280,48 @@ protected:
         \return This method returns the number of events that were
         removed.
     */
-    int remove_after(BktEventList& list, muse::AgentID sender,
-                     const muse::Time sendTime);
+    static int remove_after(BktEventList& list, muse::AgentID sender,
+                            const muse::Time sendTime);
+
+    /** Remove all events in a given event list for a given receiver
+        agent ID.
+
+        This is a convenience/helper method that removes all events
+        for a given receiver agent in a given sub-bucket/list.  This
+        method is used to remove events scheduled for an agent, when
+        an agent is removed from the scheduler.  This method has to
+        search through all the events in the list to remove them.
+
+        \param[in] subBkt The sub-bucket or list from where events are
+        to be removed.
+        
+        \param[in] receiver The receier ID whose events are to be
+        removed from the sub-buckets.
+        
+        \return This method returns the number of events removed.
+    */
+    static int remove(BktEventList& list, muse::AgentID receiver);
+    
+protected:
+    /** Return sum of events in each sub-bucket.
+
+        This method is used purely for validation/debugging.  This
+        method iterates over each sub-bucket in the list and returns
+        the actual count of events.  This value must be consistent
+        with the value in the count instance variable.
+
+        \return The actual sum of events in various sub-buckets.
+    */
+    size_t getEventCount() const;
+
+    /** Clear out all the events in this bucket.
+
+        This method clears out all the events in various sub-buckets
+        in this 2-tier bucket.  It also sets count to zero.
+        
+        \note This method decreases references on any pending events.
+    */
+    void clear();
     
 private:
     /** The list of tier-2 sub-buckets that contain events distributed
@@ -411,6 +452,151 @@ private:
         is used for debugging/troubleshooting purposes.
     */    
     muse::Time topStart;
+};
+
+/** The bottom most rung of the TwoTierLadder queue.  The bottom rung
+    is the same as that of the standard ladder queue.  However, in
+    2-tier ladder queue, the size of the bottom has been relaxed.  So
+    bottom can be pretty long.  This implies that 2-tier ladder queue
+    will not be O(1).  It will be O(n log n).  However, it should
+    perform just fine as the ladder queue.
+
+    \note In MUSE we have an API requirement/guarantee that all the
+    concurrent events we have will be scheduled simultaneously.  This
+    eases agent development in many applications.  Consequently, it is
+    imperative that bottom be allowed to be long to contain all
+    concurrent events.
+*/
+class TwoTierBottom : public BktEventList {
+public:
+    /** The default and only constructor.  It does not have any
+        special work to do as the base class handles most of the
+        tasks.
+    */
+    TwoTierBottom() {}
+
+    /** Add events from a TwoTierBucket into the bottom.
+
+        This method is used to bulk move events from a rung of the
+        ladder (or top) into the bottom.  The events are added and
+        sorted in preparation for scheduling.
+
+        \param bucket The 2-tier bucket from where events are to be
+        moved into the bottom rung.
+    */
+    void enqueue(TwoTierBucket&& bucket);
+
+    /** Add a single event to the bottom rung.
+
+        This method uses binary-search (O(log n)) to insert an event
+        into the bottom.
+        
+        \param[in] event The event to be added to the bottom rung.
+        This pointer cannot be NULL.  No operations are done on the
+        reference-counters in this method.
+    */
+    void enqueue(muse::Event* event);
+
+    /** Convenience method to dequeue events after a given time.
+
+        \param[in] sender The sender agent whose events are to be
+        removed.
+
+        \param[in] sendTime The time at-or-after which events from the
+        sender are to be removed from the given list.        
+    */
+    int remove_after(muse::AgentID sender, const Time sendTime) {
+        // Use static convenience method do to this task.
+        return TwoTierBucket::remove_after(*this, sender, sendTime);
+    }
+    
+    /** Remove all events for a given receiver agent in the bucket
+        encapsulated by this object.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this object.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+    */
+    int remove(muse::AgentID receiver) {
+        // Use static convenience method do to this task.
+        return TwoTierBucket::remove(*this, receiver);        
+    }
+
+    /** Convenience method used to dequee the next set of events for
+        scheduling.
+
+        This method is used to provide necessary implemntation to
+        interface with the MUSE scheduler.  This method dequeues the
+        next batch of the concurrent events for processing by a given
+        agent.
+
+        \param[out] events The container to which all the events to be
+        processed is to be added.
+    */
+    void dequeueNextAgentEvents(muse::EventContainer& events);
+
+    /** Convenience method for debugging/troubleshooting.
+
+        \return The highest timestamp from the events in the bottom.
+        If no events are present this method returns TIME_INFINITY.
+    */
+    muse::Time maxTime() const;  // purely for debugging
+
+    /** Convenience method for debugging/troubleshooting.
+
+        \return The minimum timestamp from the events in the bottom.
+        If no events are present this method returns TIME_INFINITY.
+    */
+    muse::Time findMinTime() const {
+        // purely for debugging
+        return (!empty() ? front()->getReceiveTime() : TIME_INFINITY);
+    }
+
+    /** Convenience method to check if the entries in the bottom are
+        sorted correctly.  This method is purely used for
+        troubleshooting/debugging.
+    */
+    void validate() const;
+
+    /** Event comparison function used by various structures in ladder
+        queue.
+
+        \param[in] lhs The left-hand-side event for comparison.  The
+        pointer cannot be NULL.
+
+        \param[in] lhs The right-hand-side event for comparison.  The
+        pointer cannot be NULL.
+        
+        \return This method returns true if lhs is greater than rhs.
+        That is, lhs should be scheduled after rhs.
+    */
+    static inline bool compare(const muse::Event* const lhs,
+                               const muse::Event* const rhs) {
+        return ((lhs->getReceiveTime() > rhs->getReceiveTime()) ||
+                ((lhs->getReceiveTime() == rhs->getReceiveTime() &&
+                  (lhs->getReceiverAgentID() > rhs->getReceiverAgentID()))));
+    }
+
+    /** Convenience method to check to see if bottom has events before
+        the specified receive time.
+
+        This method is used for troubleshooting/debugging only.
+        
+        \param[in] recvTime The receive time for checking.
+
+        \return Returns true if an event before this receiveTime (for
+        any agent) is pending in the bottom rung.        
+    */
+    bool haveBefore(const Time recvTime) const {
+        return (findMinTime() <= recvTime);
+    }
+    
+protected:
+    // Currently this class does not have any protected members.
+
+private:
+    // Currently this class does not have any private members
 };
 
 END_NAMESPACE(muse)
