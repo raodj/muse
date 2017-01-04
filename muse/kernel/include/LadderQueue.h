@@ -84,6 +84,7 @@ public:
     ~ListBucket();
 
     using iterator = EventList::iterator;
+    using const_iterator = EventList::const_iterator;
 
     void push_front(muse::Event* event) {
         list.push_front(event);
@@ -111,10 +112,13 @@ public:
     bool empty() const { return list.empty(); }
 
     ListBucket::iterator begin() { return list.begin(); }
+    ListBucket::const_iterator cbegin() { return list.cbegin(); }
 
     ListBucket::iterator end() { return list.end(); }
-
-    int remove_after(muse::AgentID sender, const Time sendTime);
+    ListBucket::const_iterator cend() { return list.cend(); }
+    
+    int remove_after(muse::AgentID sender, const Time sendTime,
+                     const bool sorted = false);
 
     /** Remove all events for a given receiver agent ID.
 
@@ -145,6 +149,8 @@ public:
     ~VectorBucket();
 
     using iterator = EventVector::iterator;
+    using const_iterator = EventVector::const_iterator;
+    using reverse_iterator = EventVector::reverse_iterator;
 
     void push_front(muse::Event* event) {
         list.push_back(event);
@@ -162,20 +168,34 @@ public:
         return retVal;
     }
 
+    void push_back(VectorBucket&& bucket);
+    
     void insert_after(VectorBucket::iterator pos, muse::Event* event) {
         list.insert(pos + 1, event);
         count++;
     }
 
+    void insert_after(VectorBucket::reverse_iterator pos, muse::Event* event) {
+        const size_t idx = list.size() - (pos - rbegin());
+        list.insert(list.begin() + idx, event);
+        count++;
+    }
+    
     size_t size() const { return count; }
 
     bool empty() const { return list.empty(); }
 
     VectorBucket::iterator begin() { return list.begin(); }
+    VectorBucket::const_iterator cbegin() const { return list.cbegin(); }
+    VectorBucket::reverse_iterator rbegin() { return list.rbegin(); }
 
     VectorBucket::iterator end() { return list.end(); }
+    VectorBucket::const_iterator cend() const { return list.cend(); }
+    VectorBucket::reverse_iterator rend() { return list.rend(); }
 
-    int remove_after(muse::AgentID sender, const Time sendTime);
+    
+    int remove_after(muse::AgentID sender, const Time sendTime,
+                     const bool sorted = false);
 
     /** Remove all events in thisd vector bucket for a given receiver
         agent ID.
@@ -256,8 +276,16 @@ private:
 class Bottom {
     friend class LadderQueue;   // NOTE: uses sel directly
 public:
-    void enqueue(Bucket&& bucket);
-    void enqueue(muse::Event* event);
+    void enqueue(Bucket&& bucket) {
+        // Delegate to overloaded method to handle different scenarios
+        // depending on whether linked-list or vector is used for Buckets
+        enqueue(std::move(bucket), sel);
+    }
+    void enqueue(muse::Event* event) {
+        // Delegate to overloaded method to handle different scenarios
+        // depending on whether linked-list or vector is used for Buckets
+        enqueue(event, sel);        
+    }
 
     muse::Event* pop_front() { return sel.pop_front(); }
     muse::Event* front() const { return sel.front(); }
@@ -279,12 +307,19 @@ public:
     int remove(muse::AgentID receiver);
     
     void dequeueNextAgentEvents(muse::EventContainer& events);
-    muse::Time maxTime();  // purely for debugging
-
+    muse::Time maxTime() const;  // purely for debugging
+    muse::Time findMinTime() const; // purely for debugging
+    
     void validate();
 
     inline size_t size() const { return sel.size(); }
 
+    /** Event comparison function used by various structures in ladder
+        queue.
+
+        \return This method returns true if lhs is greater than rhs.
+        That is, lhs should be scheduled after rhs.
+     */
     static inline bool compare(const muse::Event* const lhs,
                                const muse::Event* const rhs) {
         return ((lhs->getReceiveTime() > rhs->getReceiveTime()) ||
@@ -292,13 +327,35 @@ public:
                   (lhs->getReceiverAgentID() > rhs->getReceiverAgentID()))));
     }
 
+   /** Event comparison function used by various structures in ladder
+        queue.  This comparsion reverses the sort order -- it places
+        lowest timestamp towards end of the vector.  This make it more
+        efficient for popping element off the end of the vector using
+        the pop_front() method in this class.
+
+        \return This method returns true if lhs is greater than rhs.
+        That is, lhs should be scheduled after rhs.
+     */
+    static inline bool revCompare(const muse::Event* const lhs,
+                               const muse::Event* const rhs) {
+        return compare(rhs, lhs);
+    }
+ 
     bool haveBefore(const Time recvTime) const {
         return sel.haveBefore(recvTime);
     }
     
 protected:
-    // Currently no protected members in this class
+    // Two different strategies based on the type of bucket used -->
+    // linked-list vs. vector
+    void enqueue(ListBucket&& bucket, ListBucket& botList);
+    void enqueue(VectorBucket&& bucket, VectorBucket& botList);
 
+    // Two different strategies based on the type of bucket used -->
+    // linked-list vs. vector
+    void enqueue(muse::Event* event, ListBucket& botList);
+    void enqueue(muse::Event* event, VectorBucket& botList);
+    
 private:
     Bucket sel;
 };
@@ -525,7 +582,8 @@ private:
     Top top;
     std::vector<Rung> ladder;
     int ladderEventCount;
-    HeapBottom bottom;
+    Bottom bottom;
+    // HeapBottom bottom;
     // MultiSetBottom bottom;
 
     LQ_STATS(Avg ceTop);
