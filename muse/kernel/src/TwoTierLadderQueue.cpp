@@ -26,8 +26,8 @@
 #include <functional>
 #include "TwoTierLadderQueue.h"
 
+// The maximum number of buckets 1 rung can have.
 #define MAX_BUCKETS 100
-#define MIN_BUCKET_WIDTH 1.0
 
 /** The number of sub-buckets to be used in each 2-tier bucket */
 int muse::TwoTierBucket::t2k = 32;
@@ -246,6 +246,161 @@ muse::TwoTierBottom::validate() const {
                   << " was found after " << **prev << std::endl;
     }
     ASSERT( next == cend() );
+}
+
+// -------------------------[ TwoTierRung methods ]-------------------------
+
+muse::TwoTierRung::TwoTierRung(TwoTierBucket&& bkt, const Time minTS,
+                               const double bktWidth) :
+    rStartTS(minTS), rCurrTS(minTS), bucketWidth(bktWidth), currBucket(0),
+    rungEventCount(0) {
+    // Initialize variable to track maximum bucket count
+    LQ_STATS(maxBkts = 0);
+    // Ensure bucket width is not ridiculously small
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
+    DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
+    ASSERT(bucketWidth > 0);
+    ASSERT(rungEventCount == 0);
+    // Move events from given bucket into buckets in this Rung.
+    DEBUG(std::cout << "Adding " << bkt.size() << " events to rung\n");
+    for (BktEventList& list : bkt.getSubBuckets()) {
+        // Add all events from sub-buckets to various buckets in this rung.
+        while (!list.empty()) {
+            // Remove event from the top linked list.
+            muse::Event* event = list.front();
+            list.pop_front();
+            // Add to the appropriate bucket in this rung using a
+            // helper method in this class.
+            enqueue(event);
+        }
+    }
+    DEBUG(validateEventCounts());
+}
+
+void
+muse::TwoTierRung::enqueue(muse::Event* event) {
+    ASSERT(event != NULL);
+    ASSERT(event->getReceiveTime() >= getCurrTime());
+    // Compute bucket for this event based on equation #2 in LQ paper.
+    size_t bucketNum = (event->getReceiveTime() - rStartTS) / bucketWidth;
+    ASSERT(bucketNum >= currBucket);
+    if (bucketNum >= bucketList.size()) {
+        // Ensure bucket list of sufficient size
+        bucketList.resize(bucketNum + 1);
+        // update variable to track maximum bucket count
+        LQ_STATS(maxBkts = std::max(maxBkts, bucketList.size()));
+    }
+    ASSERT(bucketNum < bucketList.size());
+    // Add event into appropriate bucket
+    bucketList[bucketNum].push_back(event);
+    // Track number of events added to this Rung
+    rungEventCount++;
+}
+
+muse::TwoTierBucket&&
+muse::TwoTierRung::removeNextBucket(muse::Time& bktTime) {
+    ASSERT(!empty());
+    ASSERT(currBucket < bucketList.size());
+    // Find next non-empty bucket in this rung (there has to be one as
+    // the previous asserts passed necessary checks)
+    while ((currBucket < bucketList.size()) && bucketList[currBucket].empty()) {
+        currBucket++;
+    }
+    DEBUG(validateEventCounts());
+    ASSERT(currBucket < bucketList.size());
+    ASSERT(!bucketList[currBucket].empty());
+    // Track events that will be removed when this method returns
+    rungEventCount -= bucketList[currBucket].size();
+    ASSERT(rungEventCount >= 0);
+    // Save information about the bucket to be removed & returned.
+    const int retBkt = currBucket;
+    bktTime = rStartTS + (retBkt * bucketWidth);
+    // Advance current bucket to next time.    
+    currBucket++;
+    rCurrTS = rStartTS + (currBucket * bucketWidth);
+    // Sanity check on counters...
+    if (currBucket >= bucketList.size()) {
+        ASSERT(rungEventCount == 0);
+    }
+    return std::move(bucketList[retBkt]);
+}
+
+int
+muse::TwoTierRung::remove_after(muse::AgentID sender, const Time sendTime
+                                LQ_STATS(COMMA Avg& ceScanRung)) {
+    if (empty() || (sendTime > getMaxRungTime())) {
+        return 0;  // no events removed.
+    }
+    // Check each bucket in this rung and cancel out events.
+    int numRemoved = 0;
+    for (size_t bucketNum = currBucket; (bucketNum < bucketList.size());
+         bucketNum++) {
+        if (!bucketList[bucketNum].empty() &&
+            (rStartTS + (bucketNum + 1) * bucketWidth) >= sendTime) {
+            // This stats here is a bit bogus. We need to pass this
+            // stats object down to the bucket to have it correctly updated.
+            LQ_STATS(ceScanRung += bucketList[bucketNum].size());
+            // Have the bucket remove necessary event(s)
+            numRemoved += bucketList[bucketNum].remove_after(sender, sendTime);
+        }
+    }
+    // Update events left in this rung.
+    rungEventCount -= numRemoved;
+    DEBUG(validateEventCounts());
+    return numRemoved;
+}
+
+int
+muse::TwoTierRung::remove(muse::AgentID receiver
+                          LQ_STATS(COMMA Avg& ceScanRung)) {
+    if (empty()) {
+        return 0;  // no events to be removed.
+    }
+    // Have each bucket in the rung remove events
+    int numRemoved = 0;
+    for (size_t bucketNum = currBucket; (bucketNum < bucketList.size());
+         bucketNum++) {
+        if (!bucketList[bucketNum].empty()) {
+            // This stat needs to be tracked by the bucket and not here.
+            LQ_STATS(ceScanRung += bucketList[bucketNum].size());
+            // Remove appropriate set of events.
+            numRemoved += bucketList[bucketNum].remove(receiver);
+        }
+    }
+    rungEventCount -= numRemoved;
+    DEBUG(validateEventCounts());
+    return numRemoved;
+}
+
+void
+muse::TwoTierRung::validateEventCounts() const {
+    int numEvents = 0;
+    for (const auto& bucket : bucketList)  {
+        numEvents += bucket.size();
+    }
+    if (numEvents != rungEventCount) {
+        DEBUG(std::cout << "Rung event count mismatch! Expecting: "
+                        << rungEventCount << " events, but found: "
+                        << numEvents << "." << std::endl);
+        ASSERT(numEvents == rungEventCount);
+    }
+}
+
+// Method called just before a rung is removed from the ladder queue.
+void
+muse::TwoTierRung::updateStats(Avg& avgBktCnt) const {
+    LQ_STATS(avgBktCnt += maxBkts);
+}
+
+// This method is used only for troubleshooting/debugging purposes.
+bool
+muse::TwoTierRung::haveBefore(const Time recvTime) const {
+    for (size_t i = 0; (i < bucketList.size()); i++) {
+        if (bucketList[i].haveBefore(recvTime)) {
+            return true;
+        }
+    }
+    return false;
 }
 
 #endif

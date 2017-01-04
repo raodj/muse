@@ -68,6 +68,9 @@
 // The maximum number of rungs permitted in the ladder.
 #define MAX_RUNGS 8
 
+// The minimum bucket timestamp
+#define MIN_BUCKET_WIDTH 0.1
+
 /** \def LQ2T_STATS(x)
 
     \brief Define a convenient macro for conditionally compiling
@@ -244,7 +247,7 @@ public:
     */
     int remove(muse::AgentID receiver);
     
-    /** The method below is purely for troubleshooting one scenario
+    /** This method is purely for troubleshooting one scenario
         where an event would get stuck in the ladder and not get
         scheduled correctly.
 
@@ -301,6 +304,13 @@ public:
         \return This method returns the number of events removed.
     */
     static int remove(BktEventList& list, muse::AgentID receiver);
+
+    /** Obtain a reference to the list of sub-buckets in this bucket.
+
+        \return Mutable reference to the list of sub-buckets in this
+        bucket.
+    */
+    SubBucketList& getSubBuckets() { return subBuckets; }
     
 protected:
     /** Return sum of events in each sub-bucket.
@@ -597,6 +607,268 @@ protected:
 
 private:
     // Currently this class does not have any private members
+};
+
+/** Class that represents one rung in the 2-tier ladder queue.
+
+    The 2-tier rung uses the same strategy for receive time-based
+    bucket creation as the regular ladder queue.  However, the
+    organization of each bucket is different -- events are not stored
+    in a linear list.  Instead they are stored in sub-buckets based on
+    a hash of the sender agent's ID.
+*/
+class TwoTierRung {
+public:
+    /** The constructor to create an empty rung.
+
+        The constructor merely initializes all the instance variables
+        to default initial values to create an empty rung.
+    */
+    TwoTierRung() : rStartTS(TIME_INFINITY), rCurrTS(TIME_INFINITY),
+             bucketWidth(0), currBucket(0), rungEventCount(0) {}
+
+    /** Convenience constructor to create a rung using events from the
+        top rung.
+
+        This is a delegating constructor that delegates the actual
+        tasks to the overloaded constructor.
+
+        \param[in] top The top bucket from where the events are to be
+        created.
+    */
+    TwoTierRung(TwoTierTop&& top) :
+        TwoTierRung(std::move(top), top.getMinTime(),
+                    std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
+        // Reset top counters and update the values of topStart for next Epoch
+        top.reset(top.getMaxTime());
+    }
+
+    /** Convenience constructor to create a rung with events from a
+        given bucket.
+        
+        \param[in,out] bkt The bucket from where events are to be
+        moved into this newly created rung.  After this operation data
+        in the bucket is cleared.
+
+        \param[in] rStart The start time for this rung.
+
+        \param[in] bucketWidth The delta in receive time for each
+        bucket in this rung.  The bucketWidth must be > 0.
+    */
+    TwoTierRung(TwoTierBucket&& bkt, const Time rStart,
+                const double bucketWidth);
+
+    /** Remove the next bucket in this rung for moving to another rung
+        in the ladder.
+
+        This method must be used to remove the next bucket from this
+        rung.  The bucket is logically removed (or moved) out of this
+        rung.
+
+        \param[out] bktTime The simulation receive time associated
+        with the bucket being moved out.
+    */
+    TwoTierBucket&& removeNextBucket(muse::Time& bktTime);
+
+    /** Determine if this rung is empty.
+
+        This is a convenience method that is used to determine if this
+        rung contains any events to be processed.
+
+        \return This method returns true if the rung does not have any
+        events -- i.e., when the rung is empty.
+    */
+    bool empty() const { return (rungEventCount == 0); }
+
+    /** Add an event to suitable bucket in this rung.
+
+        This method computes a bucket index (based on equation #2 in
+        LQ paper) using the formula:
+
+        \code
+        size_t bucketNum = (event->getReceiveTime() - rStartTS) / bucketWidth;
+        \endcode
+        
+        \param[in] event The event to be added to a suitable bucket in
+        this rung.
+    */
+    void enqueue(muse::Event* event);
+
+    /** Obtain the start time for this rung.
+
+        This method returns the rung starting time that was set when
+        this rung was created.
+        
+        \return The starting time of this rung that determines the
+        lowest timestamp event that can be added to this rung.
+    */
+    muse::Time getStartTime() const { return rStartTS; }
+
+    /** Obtain the bucket width (i.e., difference in receive times for
+        adjacent buckets) for this rung.
+
+        This method returns the bucket width that was set when this
+        rung was created.
+        
+        \return The bucket with for this rung.
+    */
+    double getBucketWidth() const { return bucketWidth; }
+
+    /** The current bucket value in this ladder queue.
+
+        The current minimum time of events that can be added to this
+        rung of the ladder eueue.
+
+        \return The minimum timestamp of events that can be added to
+        the rung of this ladder queue.
+    */
+    muse::Time getCurrTime() const {
+        return rCurrTS;
+    }
+
+    /** The maximum receive time value of event that can be added to
+        this rung.
+
+        \return The maximum receive time of an event that can be added
+        to a bucket in this rung.
+    */
+    muse::Time getMaxRungTime() const {
+        return rStartTS + (bucketList.size() * bucketWidth);
+    }
+
+    /** Convenience method to determine if a given event can be added
+        to this rung.
+
+        \param[in] event The event whose receive time is to be used to
+        check to see if it can be added to this ladder.
+
+        \return Returns true if the event can be added to this rung.
+        Otherwise it returns false.
+    */
+    bool canContain(muse::Event* event) const;
+
+    /** Remove all events from the given sender sent at-or-after the
+        specified send time from all buckets in this rung.
+
+        This method linearly scans the buckets, checks, and removes
+        all events that were sent by the sender at-or-after the
+        specified send time.
+        
+        \param[in] sender The sender agent whose events are to be
+        removed.
+
+        \param[in] sendTime The time at-or-after which events from the
+        sender are to be removed from the given list.
+
+        \param[out] ceScanRung The stats object to be updated with
+        number of events scanned in the buckets in this rung.
+        
+        \return This method returns the total number of events that
+        were removed from this rung.
+    */
+    int remove_after(muse::AgentID sender, const Time sendTime
+                     LQ_STATS(COMMA Avg& ceScanRung));
+
+    /** Remove all events for a given receiver agent in this rung.
+
+        This is a convenience method that removes all events for a
+        given receiver agent in this rung.  This method is used to
+        remove events scheduled for an agent, when an agent is removed
+        from the scheduler.
+
+        \param[in] receiver The receiving agent ID whose events are to
+        be removed from all the buckets in this rugn.
+
+        \param[out] ceScanRung The stats object to be updated with
+        number of events scanned in the buckets in this rung.
+    */
+    int remove(muse::AgentID receiver
+               LQ_STATS(COMMA Avg& ceScanRung));
+
+    /** Check to ensure that the number of events in various buckets
+        matches the count instance variable.
+
+        This method is used only for troubleshooting/debugging
+        purposes.  If counts don't match then assert fails in this
+        method causing the simulation to abort.
+    */
+    void validateEventCounts() const;
+
+    /** Print a user-friendly version of the events in this queue.
+
+        Currently this method is not implemented.
+    */
+    void prettyPrint(std::ostream& os) const;
+
+    /** Update the statistics object with data from this rung.
+
+        \param[out] avgBktCnt Update the average number of buckets in
+        this rung.
+    */
+    void updateStats(Avg& avgBktCnt) const;
+
+    /** Convenience method to determine if the current bucket in this
+        rung is empty.
+
+        \return This method returns true if the current bucket in this
+        rung is empty.
+    */
+    bool isCurrBucketEmpty() const {
+        return (currBucket >= bucketList.size() ||
+                bucketList[currBucket].empty());
+    }
+
+    /** This method is purely for troubleshooting one scenario where
+        an event would get stuck in the ladder and not get scheduled
+        correctly.
+        
+        \param[in] recvTime The time to be used for checking to see if
+        sub-buckets have an event before this time.
+        
+        \return Returns true if an event before this receiveTime (for
+        any agent) is pending in a sub-bucket.
+    */    
+    bool haveBefore(const Time recvTime) const;
+    
+protected:
+    // Currently this class does not have any protected members.
+private:
+    /** The lowest timestamp event that can be added to this rung.
+        This value is set when a rung is created and is never changed
+        during the lifetime of this rung.
+    */
+    muse::Time rStartTS;
+
+    /** The timestamp of the lowest event that can be currently added
+        to this rung.  This value logically starts with rStartTS and
+        grows to the time stamp of last bucket in this rung as buckets
+        are dequeued from this rung.
+    */
+    muse::Time rCurrTS;
+
+    /** The width of the bucket in simulation receive time
+        differences.  This value can be fractional.
+    */
+    double bucketWidth;
+    
+    /** The index of the current bucket on this rung to which events
+        can be added.  This is also the next bucket that will be
+        dequeued from the rung.
+    */
+    size_t currBucket;
+
+    /** The deque containing the set of vectors in this bucket list.
+     */
+    std::deque<TwoTierBucket> bucketList;
+    
+    /** Total number of events still present in this rung.  This is
+        used to report size and check for empty quickly.
+    */
+    int rungEventCount;
+
+    /** Statistics object to track the maximum number of buckets used
+        in this rung */
+    LQ_STATS(size_t maxBkts);
 };
 
 END_NAMESPACE(muse)
