@@ -30,6 +30,7 @@
 #include "HeapEventQueue.h"
 #include "TwoTierHeapEventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
+#include "TwoTierLadderQueue.h"
 #include "ArgParser.h"
 
 using namespace muse;
@@ -208,6 +209,8 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
          &queueName, ArgParser::STRING},
         {"--time-window", "Time window for scheduler to control optimism",
          &timeWindow, ArgParser::DOUBLE},
+        {"--2t-ladderQ-t2k", "Sub-buckets per bucket in 2-tier ladder queue",
+         &TwoTierBucket::t2k, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the argument parser to parse command-line arguments and
@@ -227,6 +230,8 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new HeapOfVectorsEventQueue();
     } else if (queueName == "fibHeap") {
         agentPQ = new AgentPQ();
+    } else if (queueName == "2tLadderQ") {
+        agentPQ = new TwoTierLadderQueue();
     } else {
         std::cerr << "Invalid scheduler queue name. Valid queue names are:\n"
                   << "\tladderQ fibHeap heap 2tHeap 3tHeap heap2tQ.\n"

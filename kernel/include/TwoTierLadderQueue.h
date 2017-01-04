@@ -71,6 +71,9 @@
 // The minimum bucket timestamp
 #define MIN_BUCKET_WIDTH 0.1
 
+// Bucket size after which new rung is created in ladder
+#define LQ2T_THRESH 100
+
 /** \def LQ2T_STATS(x)
 
     \brief Define a convenient macro for conditionally compiling
@@ -82,8 +85,8 @@
     and remove debugging messages.
 */
 #define COMMA ,
-#define LQ_STATS(x) x
-// #define LQ_STATS(x)
+#define LQ2T_STATS(x) x
+// #define LQ2T_STATS(x)
 
 BEGIN_NAMESPACE(muse)
 
@@ -117,7 +120,7 @@ public:
     /** Constructor to create a bucket with fixed number (i.e., t2k)
         of tier-2 lists.
     */
-    TwoTierBucket() : count(0) {}
+    TwoTierBucket() : subBuckets(t2k), count(0) {}
 
     /** A move constructor to facilitate moving objects (if needed).
 
@@ -551,7 +554,10 @@ public:
         \return The highest timestamp from the events in the bottom.
         If no events are present this method returns TIME_INFINITY.
     */
-    muse::Time maxTime() const;  // purely for debugging
+    muse::Time maxTime() const {
+        // purely for debugging
+        return (!empty() ? back()->getReceiveTime() : TIME_INFINITY);
+    }
 
     /** Convenience method for debugging/troubleshooting.
 
@@ -578,11 +584,11 @@ public:
         \param[in] lhs The right-hand-side event for comparison.  The
         pointer cannot be NULL.
         
-        \return This method returns true if lhs is greater than rhs.
-        That is, lhs should be scheduled after rhs.
+        \return This method returns true if lhs is less than rhs.
+        That is, lhs should be scheduled before rhs.
     */
-    static inline bool compare(const muse::Event* const lhs,
-                               const muse::Event* const rhs) {
+    static inline bool compare(const muse::Event* const rhs,
+                               const muse::Event* const lhs) {
         return ((lhs->getReceiveTime() > rhs->getReceiveTime()) ||
                 ((lhs->getReceiveTime() == rhs->getReceiveTime() &&
                   (lhs->getReceiverAgentID() > rhs->getReceiverAgentID()))));
@@ -625,8 +631,23 @@ public:
         to default initial values to create an empty rung.
     */
     TwoTierRung() : rStartTS(TIME_INFINITY), rCurrTS(TIME_INFINITY),
-             bucketWidth(0), currBucket(0), rungEventCount(0) {}
+                    bucketWidth(0), currBucket(0), rungEventCount(0) {
+        LQ2T_STATS(maxBkts = 0);
+    }
 
+    /** A copy constructor required to pre-allocate rungs for ladder.
+
+        \param[in] src The source rung from where events are to be
+        copied.
+    */
+    TwoTierRung(TwoTierRung&& src) :
+        rStartTS(src.rStartTS), rCurrTS(src.rCurrTS),
+        bucketWidth(src.bucketWidth), currBucket(src.currBucket),
+        bucketList(std::move(src.bucketList)),
+        rungEventCount(src.rungEventCount) {
+        LQ2T_STATS(maxBkts = src.maxBkts);
+    }
+    
     /** Convenience constructor to create a rung using events from the
         top rung.
 
@@ -636,7 +657,7 @@ public:
         \param[in] top The top bucket from where the events are to be
         created.
     */
-    TwoTierRung(TwoTierTop&& top) :
+    explicit TwoTierRung(TwoTierTop&& top) :
         TwoTierRung(std::move(top), top.getMinTime(),
                     std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
         // Reset top counters and update the values of topStart for next Epoch
@@ -767,7 +788,7 @@ public:
         were removed from this rung.
     */
     int remove_after(muse::AgentID sender, const Time sendTime
-                     LQ_STATS(COMMA Avg& ceScanRung));
+                     LQ2T_STATS(COMMA Avg& ceScanRung));
 
     /** Remove all events for a given receiver agent in this rung.
 
@@ -783,7 +804,7 @@ public:
         number of events scanned in the buckets in this rung.
     */
     int remove(muse::AgentID receiver
-               LQ_STATS(COMMA Avg& ceScanRung));
+               LQ2T_STATS(COMMA Avg& ceScanRung));
 
     /** Check to ensure that the number of events in various buckets
         matches the count instance variable.
@@ -868,7 +889,249 @@ private:
 
     /** Statistics object to track the maximum number of buckets used
         in this rung */
-    LQ_STATS(size_t maxBkts);
+    LQ2T_STATS(size_t maxBkts);
+};
+
+/** The top-level 2-tier ladder queue
+
+    <p>This class represents the top-level 2-tier ladder queue class
+    that interfaces with the MUSE scheduler.  This class implements
+    the top-level logic associated with ladder queue to enqueue,
+    dequeue, and cancel events from the ladder queue.</p>
+
+    <p>The logic for most of the operations is consistent with those
+    proposed by the Tang et. al, except for the following:
+
+    <ol>
+
+    <li>The size of the bottom is not restricted.  So events are never
+    moved from bottom back into the ladder.</li>
+
+    <li> The number of buckets in a rung is restricted to 100</li>
+
+    </ol>
+
+    </p>
+*/
+class TwoTierLadderQueue : public EventQueue {
+public:
+    /** The constructor that creates an empty ladder queue.
+
+        The constructor also initializes various statistics variables
+        used by the this queue to report detailed statistics about its
+        operations at the end of simulation.
+     */
+    TwoTierLadderQueue() : EventQueue("LadderQueue"), ladderEventCount(0) {
+        ladder.reserve(MAX_RUNGS);
+        LQ2T_STATS(ceTop    = ceLadder  = ceBot  = 0);
+        LQ2T_STATS(insTop   = insLadder = insBot = 0);
+        LQ2T_STATS(maxRungs = 0);
+    }
+    
+    /** The destructor.
+
+        Currently the destructor does not have anything special to do
+        as the different encapsulated objects handle all the necessary
+        clean-up.
+    */
+    ~TwoTierLadderQueue() {}
+
+    /** Enqueue an event into the laadder queue.
+
+        Depending on the scenario the event is appropriately added to
+        one of: top, ladder rung, or the bottom.
+        
+        \param[in] e The event to be enqueued for scheduling in the
+        ladder queue.
+    */
+    void enqueue(muse::Event* e);
+
+    /** Cancel all events from a given sender that were sent
+        at-or-after the specified send time.
+
+        This method essentially calls the corresponding method(s) in
+        top, rung, and bottom to cancel pending events.
+        
+        \param[in] sender The sender agent whose events are to be
+        removed.
+
+        \param[in] sendTime The time at-or-after which events from the
+        sender are to be removed from the given list.
+
+        \return This method returns the number of events that were
+        removed.
+    */
+    int remove_after(muse::AgentID sender, const Time sendTime);
+
+    /** Determine if the ladder queue is empty.
+
+        Implements the interface method used by MUSE::Scheduler.
+        
+        \return Returns true if top, ladder, and bottom are all empty
+        -- i.e., there are no pending events.
+    */
+    virtual bool empty() {
+        return top.empty() && (ladderEventCount == 0) &&  bottom.empty();
+    }
+
+    /** Implementation for method used by MUSE::Scheduler.
+
+        This method is called by MUSE kernel to inform the scheduler
+        queue about an agent being added during initialization.  The
+        ladder queue does not utilize this information and
+        consequently this method does not have any special operation
+        to perform.
+
+        \param[in] agent The agent being added.  This pointer is not
+        really used.
+        
+        \return This method simply returns nullptr as the ladder queue
+        does not use any cross references in muse::Agent for its
+        operations.
+    */
+    virtual void* addAgent(muse::Agent* agent);
+
+    /** Remove an agent just before simulation completes.
+
+        This method is invoked by the MUSE kernel to inform that an
+        agent is being removed.  This method removes all pending
+        events for the specified agent from the ladder queue.
+
+        \param[in] agent The agent whose sender ID is used to remove
+        all pending events in the top, rungs, and bottom.
+    */
+    virtual void removeAgent(muse::Agent* agent);
+
+    /** Implement interface method to peek at the next event to
+        schedule.
+
+        \note In order to enable peeking of the front event, the
+        bottom may need to get populated.
+        
+        \return A pointer to the next event to schedule (if any).  The
+        event is not dequeued.
+     */
+    virtual muse::Event* front();
+
+    /** This method is used to provide necessary implemntation to
+        interface with the MUSE scheduler.  This method dequeues the
+        next batch of the concurrent events for processing by a given
+        agent.
+
+        \param[out] events The container to which all the events to be
+        processed is to be added.
+    */
+    virtual void dequeueNextAgentEvents(muse::EventContainer& events);
+
+    /** Add an event to be scheduled to this ladder queue.
+
+        This method implements the core API used by agents to schedule
+        events for each other.
+        
+        \param[in] agent The receiver agent for which the event is
+        scheduled.  This pointer is not used.
+
+        \param[in] event The event to be scheduled. This simply calls
+        the overloaded enqueue method.  The reference count on the
+        event is increased by this method to account for this event
+        being present in the ladder queue.
+    */
+    virtual void enqueue(muse::Agent* agent, muse::Event* event);
+
+    /** Enqueue a batch of events
+
+        This API to schedule a block of events.  This API is typically
+        used after a rollback.
+
+        \param[in] agent The receiver agent for which the event is
+        scheduled.  This pointer is not used.
+
+        \param[in] events The list of events to be scheduled. This
+        simply calls the overloaded enqueue method to enqueue one
+        event at a time.
+    */
+    virtual void enqueue(muse::Agent* agent, muse::EventContainer& events);
+
+    /** Implement MUSE kernel API to cancel all events sent by a given
+        agent after a given time.
+
+        \param[in] dest The destination agent whose events are to be
+        cancelled.
+
+        \param[in] sender The sender agent ID whose events are to be
+        cancelled.
+
+        \param[in] sentTime The send time at-or-after which all events
+        from the sender are to be cancelled.
+    */
+    virtual int eraseAfter(muse::Agent* dest, const muse::AgentID sender,
+                           const muse::Time sentTime);
+
+    /** Print a human understandable version of the events in this
+        queue.
+
+        currently this method is not implemented.
+     */
+    virtual void prettyPrint(std::ostream& os) const;
+
+    
+    /** Convenience method to check to see if ladder queue has events
+        before the specified receive time.
+
+        This method is used for troubleshooting/debugging only.
+        
+        \param[in] recvTime The receive time for checking.
+
+        \return Returns true if an event before this receiveTime (for
+        any agent) is pending in the bottom rung.        
+    */    
+    bool haveBefore(const Time recvTime,
+                    const bool checkBottom = false) const;
+    
+    /** Method to report aggregate statistics.
+
+        This method is invoked at the end of simulation after all
+        agents on this rank have been finalized.  This method is meant
+        to report any aggregate statistics from this queue.  This
+        method writes statistics only if LQ2T_STATS macro is enabled.
+        
+        \param[out] os The output stream to which the statistics are
+        to be written.
+    */
+    virtual void reportStats(std::ostream& os);
+    
+protected:
+    /** Check and create rungs in the ladder and return the next
+        bucket of events from the ladder.
+
+        This method implements the corresponding recurseRung method
+        from the LQ paper. Refer to the paper for the details.
+    */
+    TwoTierBucket&& recurseRung();
+
+    void populateBottom();
+    
+private:
+    TwoTierTop top;
+    std::vector<TwoTierRung> ladder;
+    int ladderEventCount;
+    TwoTierBottom bottom;
+
+    LQ2T_STATS(Avg ceTop);
+    LQ2T_STATS(Avg ceBot);
+    LQ2T_STATS(Avg ceLadder);
+
+    LQ2T_STATS(Avg ceScanTop);
+    LQ2T_STATS(Avg ceScanBot);
+    LQ2T_STATS(Avg ceScanLadder);
+    
+    LQ2T_STATS(int insTop);
+    LQ2T_STATS(int insLadder);
+    LQ2T_STATS(int insBot);
+    LQ2T_STATS(size_t maxRungs);
+    LQ2T_STATS(Avg avgBktCnt);
+    LQ2T_STATS(Avg botLen);
+    LQ2T_STATS(Avg avgBktWidth);
 };
 
 END_NAMESPACE(muse)
