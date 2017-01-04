@@ -106,32 +106,37 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
     // container = std::move(agent->tier2->front().getEventList());
     std::vector<muse::Event*>& evtList = tier2.front()->getEventList();
     container.assign(evtList.begin(), evtList.end());
-    // Do validation checks on the events in tier2
-    for (const Event* event : container) {
-        //  All events must have the same receive time
-        ASSERT( event->getReceiveTime() == eventTime );
-        // We should never process an anti-message.
-        if (event->isAntiMessage()) {
-            std::cerr << "Anti-message Processing: " << *event << std::endl;
-            std::cerr << "Trying to process an anti-message event, "
-                      << "please notify MUSE developers of this issue"
-                      << std::endl;
-            abort();
-        }
-        // Ensure that the top event is greater than LVT
-        if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
-            std::cerr << "Agent is being scheduled to process an event ("
-                      << *event << ") that is at or below it LVT (LVT="
-                      << agent->getTime(Agent::LVT) << ", GVT="
-                      << agent->getTime(Agent::GVT)
-                      << "). This is a serious error. Aborting.\n";
-            std::cerr << *agent << std::endl;
-            abort();
-        }
-        // Ensure reference counts are consistent.
-        ASSERT(event->getReferenceCount() < 3);
-        DEBUG(std::cout << "Delivering: " << *event << std::endl);
-    }
+    DEBUG({
+            // Do validation checks on the events in tier2
+            for (const Event* event : container) {
+                //  All events must have the same receive time
+                ASSERT( event->getReceiveTime() == eventTime );
+                
+                // We should never process an anti-message.
+                if (event->isAntiMessage()) {
+                    std::cerr << "Anti-message Processing: " << *event
+                              << std::endl;
+                    std::cerr << "Trying to process an anti-message event, "
+                              << "please notify MUSE developers of this issue"
+                              << std::endl;
+                    abort();
+                }
+                // Ensure that the top event is greater than LVT
+                if (event->getReceiveTime() <= agent->getTime(Agent::LVT)) {
+                    std::cerr << "Agent is being scheduled to process "
+                              << "an event ("
+                              << *event << ") that is at or below it LVT (LVT="
+                              << agent->getTime(Agent::LVT) << ", GVT="
+                              << agent->getTime(Agent::GVT)
+                              << "). This is a serious error. Aborting.\n";
+                    std::cerr << *agent << std::endl;
+                    abort();
+                }
+                // Ensure reference counts are consistent.
+                ASSERT(event->getReferenceCount() < 3);
+                DEBUG(std::cout << "Delivering: " << *event << std::endl);
+            }
+        });
     // Recycle the entry at the beginning of the queue.
     tier2Recycler.emplace_back(tier2.front());
     tier2.pop_front();
@@ -161,6 +166,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     // Use helper method (just below this one) to add event and fix-up
     // the queue.  First Increase event reference count for every
     // event added to the event queue.
+    ASSERT( event->getReferenceCount() < 2 );
     event->increaseReference();
     enqueueEvent(agent, event);
     updateHeap(agent);    
@@ -208,7 +214,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
         // this agent.  We will do it at the end after all events are
         // added.  However, we don't increase reference counts in this
         // API.
-        enqueue(agent, event);
+        enqueueEvent(agent, event);
     }
     // Clear out all the events in the incoming container
     events.clear();

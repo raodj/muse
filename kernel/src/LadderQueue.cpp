@@ -38,7 +38,9 @@ muse::ListBucket::~ListBucket() {
 }
 
 int
-muse::ListBucket::remove_after(muse::AgentID sender, const Time sendTime) {
+muse::ListBucket::remove_after(muse::AgentID sender,
+                               const Time sendTime, const bool sorted) {
+    UNUSED_PARAM(sorted);
     size_t removedCount = 0;
     ListBucket::iterator next = list.before_begin();
     ListBucket::iterator curr = next++;
@@ -103,8 +105,17 @@ muse::VectorBucket::~VectorBucket() {
     }
 }
 
+void
+muse::VectorBucket::push_back(VectorBucket&& bucket) {
+    list.reserve(list.size() + bucket.size());
+    list.insert(list.end(), bucket.list.begin(), bucket.list.end());
+    count += bucket.size();
+    bucket.list.clear();
+}
+
 int
-muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
+muse::VectorBucket::remove_after(muse::AgentID sender,
+                                 const Time sendTime, const bool sorted) {
     size_t removedCount = 0;
     size_t curr = 0;
     while (curr < list.size()) {
@@ -114,10 +125,16 @@ muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
             // Free-up event.
             event->decreaseReference();
             removedCount++;
-            // To minimize removal time replace entry with last one
-            // and pop the last entry off.
-            list[curr] = list.back();
-            list.pop_back();
+            if (!sorted) {
+                // To minimize removal time replace entry with last one
+                // and pop the last entry off.
+                list[curr] = list.back();
+                list.pop_back();
+            } else {
+                // In sorted mode we have to preserve the order. So
+                // cannot swap & pop in this situation
+                list.erase(list.begin() + curr);
+            }
         } else {
             curr++;
         }
@@ -189,7 +206,7 @@ muse::Top::remove(muse::AgentID receiver) {
 // ---------------------------[ Bottom methods ]-----------------------------
 
 void
-muse::Bottom::enqueue(Bucket&& bucket) {
+muse::Bottom::enqueue(ListBucket&& bucket, ListBucket&) {
     // Note that pop_front must be O(1) here -- which it is since
     // bucket is a linked list.
     while (!bucket.empty()) {
@@ -198,28 +215,60 @@ muse::Bottom::enqueue(Bucket&& bucket) {
 }
 
 void
-muse::Bottom::enqueue(muse::Event* event) {
-    if (sel.empty() || !compare(event, sel.front())) {
+muse::Bottom::enqueue(VectorBucket&& bucket, VectorBucket&botList) {
+    // For vector-to-vector copy use different strategy for buckets
+    botList.push_back(std::move(bucket));
+    // Now sort the whole bottom O(n*log(n)) operation
+    std::sort(botList.begin(), botList.end(), Bottom::compare);
+}
+
+void
+muse::Bottom::enqueue(muse::Event* event, ListBucket& botList) {
+    if (botList.empty() || !compare(event, botList.front())) {
         // Empty list or event is smaller than head.  Add event to the
         // front of the list.
-        sel.push_front(event);
+        botList.push_front(event);
     } else {
         // Insert event in sorted list of events. For this we need to
         // search for the correct insertion location.
-        ASSERT(compare(event, sel.front()));
-        Bucket::iterator next = sel.begin();
-        Bucket::iterator prev = next++;
-        while ((next != sel.end()) && compare(event, *next)) {
+        ASSERT(compare(event, botList.front()));
+        ListBucket::iterator next = botList.begin();
+        ListBucket::iterator prev = next++;
+        while ((next != botList.end()) && compare(event, *next)) {
             prev = next++;
         }
-        sel.insert_after(prev, event);
+        botList.insert_after(prev, event);
     }
+    DEBUG(validate());
+}
+
+void
+muse::Bottom::enqueue(muse::Event* event, VectorBucket& botList) {
+    VectorBucket::reverse_iterator iter =
+        std::upper_bound(botList.rbegin(), botList.rend(), event, revCompare);
+    botList.insert_after(iter, event);
+    /*    
+    if (botList.empty() || !compare(event, botList.front())) {
+        // Empty list or event is smaller than head.  Add event to the
+        // front of the list.
+        botList.push_front(event);
+    } else {
+        // Insert event in sorted list of events. For this we need to
+        // search for the correct insertion location.
+        ASSERT(compare(event, botList.front()));
+        VectorBucket::reverse_iterator next = botList.rbegin();
+        while ((next != botList.rend()) && compare(event, *next)) {
+            next++;
+        }
+        botList.insert_after(next, event);
+    }
+    */
     DEBUG(validate());
 }
 
 int
 muse::Bottom::remove_after(muse::AgentID sender, const Time sendTime) {
-    return sel.remove_after(sender, sendTime);
+    return sel.remove_after(sender, sendTime, true);
 }
 
 int
@@ -247,13 +296,21 @@ muse::Bottom::dequeueNextAgentEvents(muse::EventContainer& events) {
 }
 
 muse::Time
-muse::Bottom::maxTime() {
+muse::Bottom::findMinTime() const {
     if (empty()) {
         return TIME_INFINITY;
     }
-    Bucket::iterator next = sel.begin();
-    Bucket::iterator prev = next++;
-    while (next != sel.end()) {
+    return sel.front()->getReceiveTime();
+}
+
+muse::Time
+muse::Bottom::maxTime() const {
+    if (empty()) {
+        return TIME_INFINITY;
+    }
+    Bucket::const_iterator next = sel.cbegin();
+    Bucket::const_iterator prev = next++;
+    while (next != sel.cend()) {
         prev = next++;
     }
     return (*prev)->getReceiveTime();
