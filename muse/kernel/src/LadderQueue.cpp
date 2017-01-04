@@ -939,7 +939,7 @@ muse::LadderQueue::enqueue(muse::Event* event) {
     bottom.enqueue(event);
     DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
     DEBUG(std::cout << "Added to bottom: " << *event << std::endl);
-    LQ_STATS(insLadder++);
+    LQ_STATS(insBot++);
 }
 
 int
