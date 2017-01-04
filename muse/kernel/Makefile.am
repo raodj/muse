@@ -76,6 +76,8 @@ libmuse_a_SOURCES = \
 	include/TwoTierHeapAdapter.h \
 	src/TwoTierHeapAdapter.cpp \
 	include/HeapOfVectorsEventQueue.h \
-	src/HeapOfVectorsEventQueue.cpp
+	src/HeapOfVectorsEventQueue.cpp \
+	include/TwoTierLadderQueue.h \
+	src/TwoTierLadderQueue.cpp
 
 # end of Makefile.am

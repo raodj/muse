@@ -27,7 +27,7 @@
 #include "LadderQueue.h"
 
 #define MAX_BUCKETS 100
-#define MIN_BUCKET_WIDTH 1.0
+#define MIN_BUCKET_WIDTH 0.1
 
 // ----------------------[ ListBucket methods ]-----------------------
 
