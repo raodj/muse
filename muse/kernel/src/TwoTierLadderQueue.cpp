@@ -69,16 +69,20 @@ muse::TwoTierBucket::push_back(TwoTierBucket&& srcBkt) {
 
 void
 muse::TwoTierBucket::push_back(BktEventList& dest, TwoTierBucket&& srcBkt) {
+    // Move all entries from each sub-bucket in srcBkt to the end of dest.
     for (BktEventList& subBkt : srcBkt.subBuckets) {
         dest.insert(dest.end(), subBkt.begin(), subBkt.end());
         subBkt.clear();
     }
+    // Reset count as part of move semantics
     srcBkt.count = 0;
 }
 
 int
-muse::TwoTierBucket::remove_after(muse::AgentID sender, const Time sendTime) {
+muse::TwoTierBucket::remove_after(muse::AgentID sender, const Time sendTime
+                                  LQ2T_STATS(COMMA Avg& scans)) {
     const size_t subBktIdx = hash(sender);
+    LQ2T_STATS(scans += subBuckets[subBktIdx].size());
     int removedCount = remove_after(subBuckets[subBktIdx], sender, sendTime);
     count -= removedCount;  // Track remaining events
     return removedCount;
@@ -87,7 +91,7 @@ muse::TwoTierBucket::remove_after(muse::AgentID sender, const Time sendTime) {
 // Helper method to remove events from a sub-bucket.
 int
 muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
-                                  const Time sendTime, const bool sorted) {
+                                  const Time sendTime) {
     size_t removedCount = 0;
     size_t curr = 0;
     while (curr < list.size()) {
@@ -97,18 +101,12 @@ muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
             // Free-up event.
             event->decreaseReference();
             removedCount++;
-            if (!sorted) {
-                // To minimize removal time replace entry with last one
-                // and pop the last entry off.
-                list[curr] = list.back();
-                list.pop_back();
-            } else {
-                // In sorted mode we have to preserve the order. So
-                // cannot swap & pop in this situation
-                list.erase(list.begin() + curr);
-            }
+            // To minimize removal time replace entry with last one
+            // and pop the last entry off.
+            list[curr] = list.back();
+            list.pop_back();
         } else {
-            curr++;
+            curr++;  // on to the next event in the list
         }
     }
     return removedCount;
@@ -236,6 +234,27 @@ muse::TwoTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
     DEBUG(validate());
 }
 
+int
+muse::TwoTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
+    size_t removedCount = 0;
+    iterator curr = begin();
+    while (curr != end()) {
+        muse::Event* const event = *curr;
+        if ((event->getSenderAgentID() == sender) &&
+            (event->getSentTime() >= sendTime)) {
+            // Free-up event.
+            event->decreaseReference();
+            removedCount++;
+            // In sorted mode we have to preserve the order. So
+            // cannot swap & pop in this situation
+            curr = erase(curr);
+        } else {
+            curr++;  // onto next event
+        }
+    }
+    return removedCount;
+}
+
 // This method is used only for debugging. So it is not performance
 // critical.
 void
@@ -349,15 +368,13 @@ muse::TwoTierRung::remove_after(muse::AgentID sender, const Time sendTime
     }
     // Check each bucket in this rung and cancel out events.
     int numRemoved = 0;
-    for (size_t bucketNum = currBucket; (bucketNum < bucketList.size());
-         bucketNum++) {
-        if (!bucketList[bucketNum].empty() &&
-            (rStartTS + (bucketNum + 1) * bucketWidth) >= sendTime) {
-            // This stats here is a bit bogus. We need to pass this
-            // stats object down to the bucket to have it correctly updated.
-            LQ2T_STATS(ceScanRung += bucketList[bucketNum].size());
-            // Have the bucket remove necessary event(s)
-            numRemoved += bucketList[bucketNum].remove_after(sender, sendTime);
+    for (size_t bktNum = currBucket; (bktNum < bucketList.size()); bktNum++) {
+        if (!bucketList[bktNum].empty() &&
+            (rStartTS + (bktNum + 1) * bucketWidth) >= sendTime) {
+            // Have the bucket remove necessary event(s) and update stats
+            numRemoved +=
+                bucketList[bktNum].remove_after(sender, sendTime
+                                                LQ2T_STATS(COMMA ceScanRung));
         }
     }
     // Update events left in this rung.
@@ -374,13 +391,12 @@ muse::TwoTierRung::remove(muse::AgentID receiver
     }
     // Have each bucket in the rung remove events
     int numRemoved = 0;
-    for (size_t bucketNum = currBucket; (bucketNum < bucketList.size());
-         bucketNum++) {
-        if (!bucketList[bucketNum].empty()) {
+    for (size_t bktNum = currBucket; (bktNum < bucketList.size()); bktNum++) {
+        if (!bucketList[bktNum].empty()) {
             // This stat needs to be tracked by the bucket and not here.
-            LQ2T_STATS(ceScanRung += bucketList[bucketNum].size());
+            LQ2T_STATS(ceScanRung += bucketList[bktNum].size());
             // Remove appropriate set of events.
-            numRemoved += bucketList[bucketNum].remove(receiver);
+            numRemoved += bucketList[bktNum].remove(receiver);
         }
     }
     rungEventCount -= numRemoved;
@@ -462,6 +478,7 @@ muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
                << "\nEvents scanned from ladder  : " << ceScanLadder
                << "\nEvents cancelled from bottom: " << ceBot
                << "\nEvents scanned from bottom  : " << ceScanBot
+               << "\nNo cancel scans of bottom   : " << ceNoCanScanBot
                << "\nInserts into top            : " << insTop
                << "\nInserts into rungs          : " << insLadder
                << "\nInserts into bottom         : " << insBot
@@ -593,8 +610,9 @@ muse::TwoTierLadderQueue::populateBottom() {
 int
 muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
                                        const Time sendTime) {
-    LQ2T_STATS(ceScanTop += top.size());    
-    int numRemoved = top.remove_after(sender, sendTime);
+    // Check and cancel entries in top rung.
+    int numRemoved = top.remove_after(sender, sendTime
+                                      LQ2T_STATS(COMMA ceScanTop));
     LQ2T_STATS(ceTop += numRemoved);
     // Cancel out events in each rung of the ladder.
     for (auto& rung : ladder) {
@@ -604,10 +622,15 @@ muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
         numRemoved        += rungEvtRemoved;
         LQ2T_STATS(ceLadder += rungEvtRemoved);
     }
-    LQ2T_STATS(ceScanBot += bottom.size());
+    // Save original size of bottom to track stats.
+    LQ2T_STATS(const size_t botSize  = bottom.size());
+    // Cancel events from bottom.
     const int botRemoved  = bottom.remove_after(sender, sendTime);
     numRemoved           += botRemoved;
+    // Update statistics counters
     LQ2T_STATS(ceBot     += botRemoved);
+    LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
+               (ceScanBot += botSize));
     return numRemoved;
 }
 
@@ -662,8 +685,10 @@ muse::TwoTierLadderQueue::removeAgent(muse::Agent* agent) {
         LQ2T_STATS(ceLadder += rungEvtRemoved);
     }
     // Finally remove events from bottom for the agent.
-    LQ2T_STATS(ceScanBot += bottom.size());
+    LQ2T_STATS(const size_t botSize = bottom.size());
     const int botRemoved  = bottom.remove(receiver);
+    LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
+               (ceScanBot += botSize));    
     numRemoved           += botRemoved;
     LQ2T_STATS(ceBot     += botRemoved);
 }
