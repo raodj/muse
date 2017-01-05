@@ -895,6 +895,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nAverage #buckets per rung   : " << avgBktCnt
                << "\nAverage bottom size         : " << botLen
                << "\nAverage bucket width        : " << avgBktWidth
+               << "\nBottom to rung operations   : " << botToRung
                << "\nCompare estimate            : " << comps
                << std::endl;
     });
@@ -926,7 +927,7 @@ muse::LadderQueue::enqueue(muse::Event* event) {
         return;
     }
     // Event does not fit in the ladder. Must go into bottom
-    if ((bottom.size() > THRESH) &&
+    if ((bottom.size() > THRESH) && (ladder.size() < MAX_RUNGS) &&
         (ladder.back().getBucketWidth() > MIN_BUCKET_WIDTH)) {
         // Move events from bottom into ladder rung
         rung = createRungFromBottom();
@@ -969,6 +970,7 @@ muse::LadderQueue::createRungFromBottom() {
                     << ", rStart = " << rStart << ", bucketWidth = "
                     << (bucketWidth / bottom.size()) << std::endl);
     ladderEventCount += bottom.size();  // Update ladder event count
+    LQ_STATS(botToRung += bottom.size());
     const double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
     ladder.push_back(Rung(std::move(bottom.sel), rStart, bktWidth));
     DEBUG(std::cout << "1. Bucket width: " << bktWidth << std::endl);

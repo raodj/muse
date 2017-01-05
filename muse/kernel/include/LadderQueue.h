@@ -608,6 +608,7 @@ private:
     LQ_STATS(Avg avgBktCnt);
     LQ_STATS(Avg botLen);
     LQ_STATS(Avg avgBktWidth);
+    LQ_STATS(Avg botToRung);
 };
 
 END_NAMESPACE(muse)
