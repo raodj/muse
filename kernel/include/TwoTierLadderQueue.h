@@ -228,10 +228,14 @@ public:
         \param[in] sendTime The time at-or-after which events from the
         sender are to be removed from the given list.
 
+        \param[in,out] scans Statistics object (if stats is enabled)
+        to track number of events scanned.
+        
         \return This method returns the number of events that were
         removed.
     */
-    int remove_after(muse::AgentID sender, const Time sendTime);
+    int remove_after(muse::AgentID sender, const Time sendTime
+                     LQ2T_STATS(COMMA Avg& scans));
     
     /** Remove all events in this bucket for a given receiver agent
         ID.
@@ -268,30 +272,28 @@ public:
         This method linearly scans the given event list, checks, and
         removes all events that were sent by the sender at-or-after
         the specified send time.
+
+        \note This method assumes unsorted list of events and does not
+        preserve order of events if an event is cancelled -- this is
+        because Events to be removed are moved to the back and popped
+        to reduce deletion time.
         
         \param[in,out] list The list of events from where all events
         for the sender are to be removed.  This method linearly scans
-        through this list.  If events are removed, the contents of the
-        list is not preserved.
+        through this list.  If events are removed, the order of events
+        in the list is not preserved.
 
         \param[in] sender The sender agent whose events are to be
         removed.
 
         \param[in] sendTime The time at-or-after which events from the
         sender are to be removed from the given list.
-
-        \param[in] sorted If the list is storted then the order of
-        events is preserved.  Otherwise it is assumed that the list is
-        not sorted and does not need to be preserved.  Events to be
-        removed are moved to the back and popped to reduce deletion
-        time.
         
         \return This method returns the number of events that were
         removed.
     */
     static int remove_after(BktEventList& list, muse::AgentID sender,
-                            const muse::Time sendTime,
-                            const bool sorted = false);
+                            const muse::Time sendTime);
 
     /** Remove all events in a given event list for a given receiver
         agent ID.
@@ -522,10 +524,7 @@ public:
         \param[in] sendTime The time at-or-after which events from the
         sender are to be removed from the given list.        
     */
-    int remove_after(muse::AgentID sender, const Time sendTime) {
-        // Use static convenience method do to this task.
-        return TwoTierBucket::remove_after(*this, sender, sendTime, true);
-    }
+    int remove_after(muse::AgentID sender, const Time sendTime);
     
     /** Remove all events for a given receiver agent in the bucket
         encapsulated by this object.
@@ -1126,8 +1125,17 @@ private:
     LQ2T_STATS(Avg ceLadder);
 
     LQ2T_STATS(Avg ceScanTop);
-    LQ2T_STATS(Avg ceScanBot);
     LQ2T_STATS(Avg ceScanLadder);
+
+    /** The ceScanBot statistic tracks size of bottom rung scanned
+        when at one (or more) events were canceled from bottom.
+    */
+    LQ2T_STATS(Avg ceScanBot);
+    
+    /** The ceNoCanScanBot statistic tracks size of bottom rung
+        scanned but did not cancel any events.
+    */
+    LQ2T_STATS(Avg ceNoCanScanBot);
     
     LQ2T_STATS(int insTop);
     LQ2T_STATS(int insLadder);
