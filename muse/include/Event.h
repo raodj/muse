@@ -70,7 +70,9 @@ class Event {
     friend class BinaryHeapWrapper;
     friend class ListBucket;
     friend class VectorBucket;
+    friend class TwoTierBucket;
     friend class LadderQueue;
+    friend class TwoTierLadderQueue;
     friend class HeapBottom;
     friend class MultiSetBottom;
     friend class HeapEventQueue;

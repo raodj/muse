@@ -87,7 +87,7 @@ muse::TwoTierBucket::remove_after(muse::AgentID sender, const Time sendTime) {
 // Helper method to remove events from a sub-bucket.
 int
 muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
-                                  const Time sendTime) {
+                                  const Time sendTime, const bool sorted) {
     size_t removedCount = 0;
     size_t curr = 0;
     while (curr < list.size()) {
@@ -97,10 +97,16 @@ muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
             // Free-up event.
             event->decreaseReference();
             removedCount++;
-            // To minimize removal time replace entry with last one
-            // and pop the last entry off.
-            list[curr] = list.back();
-            list.pop_back();
+            if (!sorted) {
+                // To minimize removal time replace entry with last one
+                // and pop the last entry off.
+                list[curr] = list.back();
+                list.pop_back();
+            } else {
+                // In sorted mode we have to preserve the order. So
+                // cannot swap & pop in this situation
+                list.erase(list.begin() + curr);
+            }
         } else {
             curr++;
         }
@@ -196,6 +202,7 @@ muse::TwoTierBottom::enqueue(muse::TwoTierBucket&& bucket) {
     TwoTierBucket::push_back(*this, std::move(bucket));
     // Now sort the whole bottom O(n*log(n)) operation
     std::sort(begin(), end(), TwoTierBottom::compare);
+    DEBUG(validate());
 }
 
 void
@@ -203,6 +210,7 @@ muse::TwoTierBottom::enqueue(muse::Event* event) {
     BktEventList::iterator iter =
         std::lower_bound(begin(), end(), event, compare);
     insert(iter, event);  // base class method.
+    DEBUG(validate());
 }
 
 void
