@@ -117,8 +117,11 @@ public:
     ListBucket::iterator end() { return list.end(); }
     ListBucket::const_iterator cend() { return list.cend(); }
     
-    int remove_after(muse::AgentID sender, const Time sendTime,
-                     const bool sorted = false);
+    int remove_after(muse::AgentID sender, const Time sendTime);
+    int remove_after_sorted(muse::AgentID sender, const Time sendTime) {
+        // No difference between sorted and unsorted version for ListBucket
+        return remove_after(sender, sendTime);
+    }
 
     /** Remove all events for a given receiver agent ID.
 
@@ -194,9 +197,10 @@ public:
     VectorBucket::reverse_iterator rend() { return list.rend(); }
 
     
-    int remove_after(muse::AgentID sender, const Time sendTime,
-                     const bool sorted = false);
+    int remove_after(muse::AgentID sender, const Time sendTime);
 
+    int remove_after_sorted(muse::AgentID sender, const Time sendTime);
+            
     /** Remove all events in thisd vector bucket for a given receiver
         agent ID.
 
@@ -211,7 +215,7 @@ public:
     // where an event would get stuck in the ladder and not get
     // scheduled correctly.
     bool haveBefore(const Time recvTime) const;
-    
+
 private:
     EventVector list;
     size_t count;
@@ -294,7 +298,9 @@ public:
         return sel.empty();
     }
 
-    int remove_after(muse::AgentID sender, const Time sendTime);
+    int remove_after(muse::AgentID sender, const Time sendTime) {
+        return sel.remove_after_sorted(sender, sendTime);
+    }
     
     /** Remove all events for a given receiver agent in the bucket
         encapsulated by this object.
@@ -357,6 +363,7 @@ protected:
     void enqueue(muse::Event* event, VectorBucket& botList);
     
 private:
+    // Sorted Event List (SEL) for the bottom
     Bucket sel;
 };
 

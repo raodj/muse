@@ -38,9 +38,7 @@ muse::ListBucket::~ListBucket() {
 }
 
 int
-muse::ListBucket::remove_after(muse::AgentID sender,
-                               const Time sendTime, const bool sorted) {
-    UNUSED_PARAM(sorted);
+muse::ListBucket::remove_after(muse::AgentID sender, const Time sendTime) {
     size_t removedCount = 0;
     ListBucket::iterator next = list.before_begin();
     ListBucket::iterator curr = next++;
@@ -114,8 +112,7 @@ muse::VectorBucket::push_back(VectorBucket&& bucket) {
 }
 
 int
-muse::VectorBucket::remove_after(muse::AgentID sender,
-                                 const Time sendTime, const bool sorted) {
+muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
     size_t removedCount = 0;
     size_t curr = 0;
     while (curr < list.size()) {
@@ -125,18 +122,34 @@ muse::VectorBucket::remove_after(muse::AgentID sender,
             // Free-up event.
             event->decreaseReference();
             removedCount++;
-            if (!sorted) {
-                // To minimize removal time replace entry with last one
-                // and pop the last entry off.
-                list[curr] = list.back();
-                list.pop_back();
-            } else {
-                // In sorted mode we have to preserve the order. So
-                // cannot swap & pop in this situation
-                list.erase(list.begin() + curr);
-            }
+            // To minimize removal time replace entry with last one
+            // and pop the last entry off.
+            list[curr] = list.back();
+            list.pop_back();
         } else {
-            curr++;
+            curr++;  // on to the next event in the list
+        }
+    }
+    count -= removedCount;  // Track remaining events
+    return removedCount;
+}
+
+int
+muse::VectorBucket::remove_after_sorted(muse::AgentID sender,
+                                        const Time sendTime) {
+    size_t removedCount = 0;
+    EventVector::iterator curr = list.begin();
+    while (curr != list.end()) {
+        muse::Event* const event = *curr;
+        if ((event->getSenderAgentID() == sender) &&
+            (event->getSentTime() >= sendTime)) {
+            // Free-up event.
+            event->decreaseReference();
+            removedCount++;
+            // To preserved sorted order erase from list correctly.
+            curr = list.erase(curr);
+        } else {
+            curr++;  // on to the next event in the list
         }
     }
     count -= removedCount;  // Track remaining events
@@ -264,11 +277,6 @@ muse::Bottom::enqueue(muse::Event* event, VectorBucket& botList) {
     }
     */
     DEBUG(validate());
-}
-
-int
-muse::Bottom::remove_after(muse::AgentID sender, const Time sendTime) {
-    return sel.remove_after(sender, sendTime, true);
 }
 
 int
