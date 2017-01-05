@@ -236,6 +236,11 @@ muse::TwoTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
 
 int
 muse::TwoTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
+    // Since bucket is sorted we can shortcircuit scan if last event's
+    // time is less-or-equal to sendTime.
+    if (empty() || (sendTime >= back()->getReceiveTime())) {
+        return 0;  // Since bucket does not have events to be cancelled.
+    }
     size_t removedCount = 0;
     iterator curr = begin();
     while (curr != end()) {
