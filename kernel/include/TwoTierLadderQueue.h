@@ -267,10 +267,7 @@ public:
 
         This method linearly scans the given event list, checks, and
         removes all events that were sent by the sender at-or-after
-        the specified send time.  It is assumed that the list is not
-        sorted and does not need to be preserved.  Events to be
-        removed are moved to the back and popped to reduce deletion
-        time.
+        the specified send time.
         
         \param[in,out] list The list of events from where all events
         for the sender are to be removed.  This method linearly scans
@@ -283,11 +280,18 @@ public:
         \param[in] sendTime The time at-or-after which events from the
         sender are to be removed from the given list.
 
+        \param[in] sorted If the list is storted then the order of
+        events is preserved.  Otherwise it is assumed that the list is
+        not sorted and does not need to be preserved.  Events to be
+        removed are moved to the back and popped to reduce deletion
+        time.
+        
         \return This method returns the number of events that were
         removed.
     */
     static int remove_after(BktEventList& list, muse::AgentID sender,
-                            const muse::Time sendTime);
+                            const muse::Time sendTime,
+                            const bool sorted = false);
 
     /** Remove all events in a given event list for a given receiver
         agent ID.
@@ -520,7 +524,7 @@ public:
     */
     int remove_after(muse::AgentID sender, const Time sendTime) {
         // Use static convenience method do to this task.
-        return TwoTierBucket::remove_after(*this, sender, sendTime);
+        return TwoTierBucket::remove_after(*this, sender, sendTime, true);
     }
     
     /** Remove all events for a given receiver agent in the bucket
