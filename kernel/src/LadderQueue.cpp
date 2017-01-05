@@ -137,6 +137,11 @@ muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
 int
 muse::VectorBucket::remove_after_sorted(muse::AgentID sender,
                                         const Time sendTime) {
+    // Since bucket is sorted we can shortcircuit scan if last event's
+    // time is less-or-equal to sendTime.
+    if (list.empty() || (sendTime >= list.back()->getReceiveTime())) {
+        return 0;  // this bucket does not have events to be cancelled.
+    }
     size_t removedCount = 0;
     EventVector::iterator curr = list.begin();
     while (curr != list.end()) {
