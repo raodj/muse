@@ -949,9 +949,8 @@ muse::LadderQueue::enqueue(muse::Event* event) {
         return;
     }
     // Event does not fit in the ladder. Must go into bottom
-    if ((bottom.size() > THRESH) && 
-        (bottom.getTimeRange() > 0) &&
-        (ladder.empty() || (ladder.back().getBucketWidth() > MIN_BUCKET_WIDTH))) {
+    if ((bottom.size() > THRESH) && (bottom.getTimeRange() > 0)) {
+        // (ladder.empty() || (ladder.back().getBucketWidth() > MIN_BUCKET_WIDTH))) {
         // Move events from bottom into ladder rung
         rung = createRungFromBottom();
         ASSERT(rung < ladder.size());
