@@ -72,7 +72,7 @@
 #define MIN_BUCKET_WIDTH 0.1
 
 // Bucket size after which new rung is created in ladder
-#define LQ2T_THRESH 100
+#define LQ2T_THRESH 50
 
 /** \def LQ2T_STATS(x)
 
@@ -572,6 +572,33 @@ public:
         return (!empty() ? front()->getReceiveTime() : TIME_INFINITY);
     }
 
+    /** Method to determine the range of receive time values currently
+        in bottom.  This value is typically used to decide if it is
+        worth moving events from bottom into the ladder.
+        
+        \return The difference in maximum and minimum receive
+        timestamp of events in the bottom.  This value is zero if all
+        events have the same receive time.  If the bottom is empty,
+        then this method also returns zero.
+    */
+    muse::Time getTimeRange() const {
+        if (empty()) {
+            return 0;
+        }
+        return (back()->getReceiveTime() - front()->getReceiveTime());
+    }
+    
+    /** Determine bucket width to move bottom into ladder.
+
+        This method is invoked only when the ladder is empty and the
+        bottom is long and needs to be moved into the ladder.  This
+        method must compute and return the preferred bucket width.
+
+        \note If the bottom is empty this method returns bucket width
+        of 0.
+     */
+    double getBucketWidth() const;
+
     /** Convenience method to check if the entries in the bottom are
         sorted correctly.  This method is purely used for
         troubleshooting/debugging.
@@ -682,6 +709,24 @@ public:
     TwoTierRung(TwoTierBucket&& bkt, const Time rStart,
                 const double bucketWidth);
 
+    /** Convenience constructor to create a rung with events from the
+        bottom rung.
+
+        This operation is used to redistribute bottom to the ladder
+        ensures that the bottom does not get too long.
+        
+        \param[in,out] bottom The bottom rung from where events are to
+        be moved into this newly created rung.  After this operation
+        bottom will be empty.
+
+        \param[in] rStart The start time for this rung.
+
+        \param[in] bucketWidth The delta in receive time for each
+        bucket in this rung.  The bucketWidth must be > 0.
+    */
+    TwoTierRung(TwoTierBottom&& bottom, const Time rStart,
+                const double bucketWidth);
+    
     /** Remove the next bucket in this rung for moving to another rung
         in the ladder.
 
@@ -856,6 +901,7 @@ public:
     
 protected:
     // Currently this class does not have any protected members.
+
 private:
     /** The lowest timestamp event that can be added to this rung.
         This value is set when a rung is created and is never changed
@@ -926,9 +972,9 @@ public:
      */
     TwoTierLadderQueue() : EventQueue("LadderQueue"), ladderEventCount(0) {
         ladder.reserve(MAX_RUNGS);
-        LQ2T_STATS(ceTop    = ceLadder  = ceBot  = 0);
-        LQ2T_STATS(insTop   = insLadder = insBot = 0);
-        LQ2T_STATS(maxRungs = 0);
+        LQ2T_STATS(ceTop    = ceLadder   = ceBot  = 0);
+        LQ2T_STATS(insTop   = insLadder  = insBot = 0);
+        LQ2T_STATS(maxRungs = maxBotSize = 0);
     }
     
     /** The destructor.
@@ -1112,8 +1158,34 @@ protected:
     */
     TwoTierBucket&& recurseRung();
 
+    /** This is a convenience method that is used to move events from
+        the ladder into bottom.
+
+        This method moves events from teh current bucket in the last
+        rung of the ladder into the bottom.  If this method is called
+        when bottom is not empty, it does not perform any operation
+        and returns immediately.  If the ladder does not have any
+        events, but the top has events, then this method first moves
+        events from top-rung into the ladder and then removes events
+        from the last rung into the bottom-rung.
+    */
     void populateBottom();
-    
+
+    /** Method to create a new ladder rung from the current bottom.
+
+        This method should be called only when the following 2
+        conditions are met:
+
+        1. Length of bottom is > LQ2T_THRESH
+        
+        2. The bottom has events that are at different time stamps --
+           that is bottom.getTimeRange() > 0.
+
+        \return This method returns the index of the rung created so
+        that the caller can readily work with that rung.
+    */
+    int createRungFromBottom();
+
 private:
     TwoTierTop top;
     std::vector<TwoTierRung> ladder;
@@ -1144,7 +1216,24 @@ private:
     LQ2T_STATS(Avg avgBktCnt);
     LQ2T_STATS(Avg botLen);
     LQ2T_STATS(Avg avgBktWidth);
-};
+
+    /** Gague to track the number of events and times bottom was
+        redistributed to the last rung of the ladder.
+
+        Redistributing bottom to the ladder ensures that the bottom
+        does not get too long.  But it is an expensive operation
+        because all the sorting that was done is lost.  So it is a
+        balance and we track and report this number for reference.
+    */
+    LQ2T_STATS(Avg botToRung);
+
+    /** Gauge to track the maximum length of bottom.  The length of
+        bottom plays an important role in the overall performance of
+        the ladder queue.
+    */
+    LQ2T_STATS(size_t maxBotSize);
+};    
+
 
 END_NAMESPACE(muse)
 
