@@ -164,6 +164,10 @@ public:
         return (!list.empty() ? list.back() : NULL);
     }
 
+    muse::Event* back() const {
+        return (!list.empty() ? list.front() : NULL);
+    }
+    
     muse::Event* pop_front() {
         muse::Event* retVal = list.back();
         list.pop_back();
@@ -298,6 +302,17 @@ public:
         return sel.empty();
     }
 
+    /** Determine bucket width to move bottom into ladder.
+
+        This method is invoked only when the ladder is empty and the
+        bottom is long and needs to be moved into the ladder.  This
+        method must compute and return the preferred bucket width.
+
+        \note If the bottom is empty this method returns bucket width
+        of 0.
+     */
+    double getBucketWidth() const;
+    
     int remove_after(muse::AgentID sender, const Time sendTime) {
         return sel.remove_after_sorted(sender, sendTime);
     }
@@ -349,6 +364,22 @@ public:
  
     bool haveBefore(const Time recvTime) const {
         return sel.haveBefore(recvTime);
+    }
+
+    /** Method to determine the range of receive time values currently
+        in bottom.  This value is used to decide if it is worth moving
+        events from bottom into the ladder.
+
+        \return The difference in maximum and minimum receive
+        timestamp of events in the bottom.  This value is zero if all
+        events have the same receive time.  If the bottom is empty,
+        then this method also returns zero.
+    */
+    muse::Time getTimeRange() const {
+        if (sel.empty()) {
+            return 0;
+        }
+        return (sel.back()->getReceiveTime() - sel.front()->getReceiveTime());
     }
     
 protected:
@@ -542,9 +573,9 @@ class LadderQueue : public EventQueue {
 public:
     LadderQueue() : EventQueue("LadderQueue"), ladderEventCount(0) {
         ladder.reserve(MAX_RUNGS);
-        LQ_STATS(ceTop    = ceLadder  = ceBot  = 0);
-        LQ_STATS(insTop   = insLadder = insBot = 0);
-        LQ_STATS(maxRungs = 0);
+        LQ_STATS(ceTop    = ceLadder   = ceBot  = 0);
+        LQ_STATS(insTop   = insLadder  = insBot = 0);
+        LQ_STATS(maxRungs = maxBotSize = 0);
     }
     ~LadderQueue();
 
@@ -609,6 +640,7 @@ private:
     LQ_STATS(Avg botLen);
     LQ_STATS(Avg avgBktWidth);
     LQ_STATS(Avg botToRung);
+    LQ_STATS(size_t maxBotSize);
 };
 
 END_NAMESPACE(muse)
