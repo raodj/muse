@@ -654,8 +654,17 @@ private:
     LQ_STATS(Avg ceLadder);
 
     LQ_STATS(Avg ceScanTop);
-    LQ_STATS(Avg ceScanBot);
     LQ_STATS(Avg ceScanLadder);
+
+    /** The ceScanBot statistic tracks size of bottom rung scanned
+        when at one (or more) events were canceled from bottom.
+    */
+    LQ_STATS(Avg ceScanBot);
+    
+    /** The ceNoCanScanBot statistic tracks size of bottom rung
+        scanned but did not cancel any events.
+    */
+    LQ_STATS(Avg ceNoCanScanBot);
     
     LQ_STATS(int insTop);
     LQ_STATS(int insLadder);

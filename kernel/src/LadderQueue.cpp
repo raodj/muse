@@ -138,7 +138,7 @@ muse::VectorBucket::remove_after_sorted(muse::AgentID sender,
     // Since bucket is sorted we can shortcircuit scan if last event's
     // time is less-or-equal to sendTime.
     if (list.empty() || (sendTime >= list.front()->getReceiveTime())) {
-        return 0;  // this bucket does not have events to be cancelled.
+        return -1;  // this bucket does not have events to be cancelled.
     }
     size_t removedCount = 0;
     EventVector::iterator curr = list.begin();
@@ -900,6 +900,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nEvents scanned from ladder  : " << ceScanLadder
                << "\nEvents cancelled from bottom: " << ceBot
                << "\nEvents scanned from bottom  : " << ceScanBot
+               << "\nNo cancel scans of bottom   : " << ceNoCanScanBot
                << "\nInserts into top            : " << insTop
                << "\nInserts into rungs          : " << insLadder
                << "\nInserts into bottom         : " << insBot
@@ -1140,10 +1141,19 @@ muse::LadderQueue::remove_after(muse::AgentID sender, const Time sendTime) {
         numRemoved        += rungEvtRemoved;
         LQ_STATS(ceLadder += rungEvtRemoved);
     }
-    LQ_STATS(ceScanBot  += bottom.size());
+    // Remove events from bottom.  If the return value is -1, the scan
+    // of bottom was quickly short circuited and no events needed to
+    // be canceled.
+    // Save original size of bottom to track stats.
+    LQ_STATS(const size_t botSize  = bottom.size());    
     const int botRemoved = bottom.remove_after(sender, sendTime);
-    numRemoved          += botRemoved;
-    LQ_STATS(ceBot      += botRemoved);
+    if (botRemoved > -1) {
+        numRemoved         += botRemoved;
+        LQ_STATS(ceBot     += botRemoved);
+        LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
+                 (ceScanBot += botSize));
+        
+    }
     return numRemoved;
 }
 
@@ -1188,7 +1198,6 @@ muse::LadderQueue::removeAgent(muse::Agent* agent) {
     LQ_STATS(ceScanTop += top.size());
     int numRemoved    = top.remove(receiver);
     LQ_STATS(ceTop += numRemoved);
-    
     // Next remove events for agent from all the rungs in the ladder
     for (Rung& rung : ladder) {
         int rungEvtRemoved = rung.remove(agent->getAgentID()
@@ -1198,8 +1207,11 @@ muse::LadderQueue::removeAgent(muse::Agent* agent) {
         LQ_STATS(ceLadder += rungEvtRemoved);
     }
     // Finally remove events from bottom for the agent.
-    LQ_STATS(ceScanBot  += bottom.size());
+    // Save original size of bottom to track stats.
+    LQ_STATS(const size_t botSize  = bottom.size());    
     const int botRemoved = bottom.remove(receiver);
+    LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
+             (ceScanBot += botSize));    
     numRemoved          += botRemoved;
     LQ_STATS(ceBot      += botRemoved);
 }
