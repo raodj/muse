@@ -305,7 +305,7 @@ muse::TwoTierRung::move(TwoTierBucket&& bkt, const Time minTS,
     // Setup starting & current timestamp for this rung.
     rStartTS = rCurrTS = minTS;
     // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bktWidth);
+    bucketWidth = bktWidth;
     currBucket  = 0;  // current bucket in this rung.
     // Initialize variable to track maximum bucket count
     LQ2T_STATS(maxBkts = 0);
@@ -335,7 +335,7 @@ muse::TwoTierRung::move(OneTierBottom&& bottom, const Time rStart,
                         const double bktWidth) {
     rStartTS = rCurrTS = rStart;
     // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bktWidth);
+    bucketWidth = bktWidth;
     currBucket  = 0;  // current bucket in this rung.    
     ASSERT(rungEventCount == 0);
     // Initialize variable to track maximum bucket count
@@ -609,10 +609,9 @@ muse::TwoTierLadderQueue::recurseRung() {
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > LQ2T_THRESH) && (nRung < MAX_RUNGS) &&
-        (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
-        // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
-        // that is needed to ensure consistent ladder setup.
+    if ((bkt.size() > LQ2T_THRESH) && (nRung < MAX_RUNGS)) {
+        // Note: Here bucket width can dip a bit low. But that is
+        // needed to ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
                                     1.0) / bkt.size();
         // Create a new rung in the ladder
