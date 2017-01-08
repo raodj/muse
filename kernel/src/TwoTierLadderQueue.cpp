@@ -126,7 +126,7 @@ muse::TwoTierBucket::remove(muse::AgentID receiver) {
     return removedCount;
 }
 
-// static helper method also used by TwoTierBottom.  This is called
+// static helper method also used by OneTierBottom.  This is called
 // few times at the end of simulation.  So it is not performance
 // critical.
 int
@@ -186,25 +186,25 @@ muse::TwoTierTop::reset(const Time startTime) {
 
 void
 muse::TwoTierTop::add(muse::Event* event) {
-    push_back(event);   // Call base-class method.
+    push_back<SenderID>(event);   // Call base-class method.
     // Update running timestamps.
     minTS = std::min(minTS, event->getReceiveTime());
     maxTS = std::max(maxTS, event->getReceiveTime());
 }
 
-// -------------------------[ TwoTierBottom methods ]-------------------------
+// -------------------------[ OneTierBottom methods ]-------------------------
 
 void
-muse::TwoTierBottom::enqueue(muse::TwoTierBucket&& bucket) {
+muse::OneTierBottom::enqueue(muse::TwoTierBucket&& bucket) {
     // Move events from bucket into the bottom.
     TwoTierBucket::push_back(*this, std::move(bucket));
     // Now sort the whole bottom O(n*log(n)) operation
-    std::sort(begin(), end(), TwoTierBottom::compare);
+    std::sort(begin(), end(), OneTierBottom::compare);
     DEBUG(validate());
 }
 
 void
-muse::TwoTierBottom::enqueue(muse::Event* event) {
+muse::OneTierBottom::enqueue(muse::Event* event) {
     BktEventList::iterator iter =
         std::lower_bound(begin(), end(), event, compare);
     insert(iter, event);  // base class method.
@@ -212,22 +212,24 @@ muse::TwoTierBottom::enqueue(muse::Event* event) {
 }
 
 void
-muse::TwoTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
+muse::OneTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (empty()) {
         return;  // no events to provide
     }
     // Reference information used for checking in the loop below.
-    const muse::Event*  nextEvt  = front();
+    const muse::Event*  nextEvt  = back();
     const muse::AgentID receiver = nextEvt->getReceiverAgentID();
     const muse::Time    currTime = nextEvt->getReceiveTime();
     // Move all events from bottom to the events-container for scheduling.
     do {
-        // Front event is the lowest timestamp (or highest priority).
-        muse::Event* event = front();
+        // Back event is the lowest timestamp (or highest priority)
+        // based on sorting order in OneTierBottom::compare()
+        muse::Event* event = back();
         events.push_back(event);
-        pop_front();   // remove from bottom.
+        pop_back();   // remove from bottom.
+        // erase(begin());
         // Check and work with the next event.
-        nextEvt = (!empty() ? front() : NULL);
+        nextEvt = (!empty() ? back() : NULL);
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     } while (!empty() && (nextEvt->getReceiverAgentID() == receiver) &&
              TIME_EQUALS(nextEvt->getReceiveTime(), currTime));
@@ -235,22 +237,24 @@ muse::TwoTierBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
 }
 
 double
-muse::TwoTierBottom::getBucketWidth() const {
+muse::OneTierBottom::getBucketWidth() const {
     if (empty()) {
         return 0;
     }
-    ASSERT(sel.front() != NULL);
-    ASSERT(sel.back()  != NULL);
-    const double maxTS = back()->getReceiveTime();
-    const double minTS = front()->getReceiveTime();
+    ASSERT(front() != NULL);
+    ASSERT(back()  != NULL);
+    // Assumes that bottom is sorted with the lowest timestamp at the
+    // end for fast pop_back
+    const double maxTS = front()->getReceiveTime();
+    const double minTS = back()->getReceiveTime();
     return (maxTS - minTS + size() - 1.0) / size();
 }
 
 int
-muse::TwoTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
+muse::OneTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
     // Since bucket is sorted we can shortcircuit scan if last event's
     // time is less-or-equal to sendTime.
-    if (empty() || (sendTime >= back()->getReceiveTime())) {
+    if (empty() || (sendTime >= front()->getReceiveTime())) {
         return 0;  // Since bucket does not have events to be cancelled.
     }
     size_t removedCount = 0;
@@ -275,7 +279,7 @@ muse::TwoTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
 // This method is used only for debugging. So it is not performance
 // critical.
 void
-muse::TwoTierBottom::validate() const {
+muse::OneTierBottom::validate() const {
     if (empty()) {
         return;  // yes. bottom is valid.
     }
@@ -295,14 +299,16 @@ muse::TwoTierBottom::validate() const {
 
 // -------------------------[ TwoTierRung methods ]-------------------------
 
-muse::TwoTierRung::TwoTierRung(TwoTierBucket&& bkt, const Time minTS,
-                               const double bktWidth) :
-    rStartTS(minTS), rCurrTS(minTS), bucketWidth(bktWidth), currBucket(0),
-    rungEventCount(0) {
+void
+muse::TwoTierRung::move(TwoTierBucket&& bkt, const Time minTS,
+                        const double bktWidth) {
+    // Setup starting & current timestamp for this rung.
+    rStartTS = rCurrTS = minTS;
+    // Ensure bucket width is not ridiculously small
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bktWidth);
+    currBucket  = 0;  // current bucket in this rung.
     // Initialize variable to track maximum bucket count
     LQ2T_STATS(maxBkts = 0);
-    // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -312,24 +318,28 @@ muse::TwoTierRung::TwoTierRung(TwoTierBucket&& bkt, const Time minTS,
         // Add all events from sub-buckets to various buckets in this rung.
         while (!list.empty()) {
             // Remove event from the top linked list.
-            muse::Event* event = list.front();
-            list.pop_front();
+            muse::Event* event = list.back();
+            list.pop_back();
             // Add to the appropriate bucket in this rung using a
             // helper method in this class.
             enqueue(event);
         }
     }
+    // Reset bucket counters as we have moved all the events out
+    bkt.resetCount();
     DEBUG(validateEventCounts());
 }
 
-muse::TwoTierRung::TwoTierRung(TwoTierBottom&& bottom, const Time rStart,
-                               const double bktWidth) :
-    rStartTS(rStart), rCurrTS(rStart), bucketWidth(bktWidth), currBucket(0),
-    rungEventCount(0) {
+void
+muse::TwoTierRung::move(OneTierBottom&& bottom, const Time rStart,
+                        const double bktWidth) {
+    rStartTS = rCurrTS = rStart;
+    // Ensure bucket width is not ridiculously small
+    bucketWidth = std::max(MIN_BUCKET_WIDTH, bktWidth);
+    currBucket  = 0;  // current bucket in this rung.    
+    ASSERT(rungEventCount == 0);
     // Initialize variable to track maximum bucket count
     LQ2T_STATS(maxBkts = 0);
-    // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -368,7 +378,7 @@ muse::TwoTierRung::enqueue(muse::Event* event) {
     }
     ASSERT(bucketNum < bucketList.size());
     // Add event into appropriate bucket
-    bucketList[bucketNum].push_back(event);
+    bucketList[bucketNum].push_back<SenderID>(event);
     // Track number of events added to this Rung
     rungEventCount++;
 }
@@ -505,7 +515,7 @@ muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);    
     LQ2T_STATS({
             // Collect final bucket counts from the ladder
-            for (size_t i = 0; (i < ladder.size()); i++) {
+            for (size_t i = 0; (i < nRung); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
             // Compute net number of compares for ladderQ
@@ -526,11 +536,12 @@ muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
                << "\nMax rung count              : " << maxRungs
                << "\nAverage #buckets per rung   : " << avgBktCnt
                << "\nAverage bottom size         : " << botLen
+               << "\nMax bottom size             : " << maxBotSize
                << "\nAverage bucket width        : " << avgBktWidth
                << "\nBottom to rung operations   : " << botToRung
                << "\nCompare estimate            : " << comps
                << std::endl;
-    });
+        });
 }
 
 void
@@ -541,20 +552,20 @@ muse::TwoTierLadderQueue::enqueue(muse::Event* event) {
         LQ2T_STATS(insTop++);
         return;
     }
-    // Try to see if the event fits in the ladder
+    // Try to see if the event fits in the ladder. nRung is max rung index
     size_t rung = 0;
-    while ((rung < ladder.size()) && !ladder[rung].canContain(event)) {
+    while ((rung < nRung) && !ladder[rung].canContain(event)) {
         ASSERT((rung == 0) || ladder[rung].empty() ||
                (ladder[rung - 1].getCurrTime() >= ladder[rung].getCurrTime()));
         rung++;
     }
-    if (rung < ladder.size()) {
+    if (rung < nRung) {
         DEBUG(ASSERT(bottom.empty() ||
                      (event->getReceiveTime() > bottom.maxTime())));
         ladder[rung].enqueue(event);
         ladderEventCount++;  // Track events added to the ladder
         DEBUG(std::cout << "Added to rung " << rung  << "(max bottom: "
-              << bottom.maxTime() << "): " << *event << "\n");
+                        << bottom.maxTime() << "): " << *event << "\n");
         LQ2T_STATS(insLadder++);
         return;
     }
@@ -563,6 +574,7 @@ muse::TwoTierLadderQueue::enqueue(muse::Event* event) {
     if ((bottom.size() > LQ2T_THRESH) && (bottom.getTimeRange() > 0)) {
         // Move events from bottom into ladder rung
         rung = createRungFromBottom();
+        ASSERT(rung == nRung - 1);
         ASSERT(rung < ladder.size());
         // Due to rollback-reprocessing the event may be even
         // earlier than the last rung we just created!
@@ -577,8 +589,8 @@ muse::TwoTierLadderQueue::enqueue(muse::Event* event) {
     }
     // At this point, event must go into bottom, so enqueue it.
     bottom.enqueue(event);
-    LQ2T_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));    
-    DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
+    LQ2T_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));
+    DEBUG(ASSERT(!haveBefore(bottom.first_event()->getReceiveTime())));
     DEBUG(std::cout << "Added to bottom: " << *event << std::endl);
     LQ2T_STATS(insBot++);
 }
@@ -587,25 +599,33 @@ muse::TwoTierLadderQueue::enqueue(muse::Event* event) {
 muse::TwoTierBucket&&
 muse::TwoTierLadderQueue::recurseRung() {
     ASSERT(!empty());
+    ASSERT(nRung > 0);
     ASSERT(!ladder.empty());    
     // Now the last rung in ladder is the rung that has the next
     // bucket of events.
-    muse::Time bktTime    = 0;
-    TwoTierRung& lastRung = ladder.back();    
+    muse::Time bktTime    = 0;  // set by removeNextBucket call below
+    TwoTierRung& lastRung = ladder[nRung - 1];
     TwoTierBucket&& bkt   = lastRung.removeNextBucket(bktTime);
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > LQ2T_THRESH) && (ladder.size() < MAX_RUNGS) &&
+    if ((bkt.size() > LQ2T_THRESH) && (nRung < MAX_RUNGS) &&
         (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
         // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
         // that is needed to ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
                                     1.0) / bkt.size();
-        ladder.push_back(TwoTierRung(std::move(bkt), bktTime, bucketWidth));
+        // Create a new rung in the ladder
+        nRung++;
+        if (nRung > ladder.size()) {
+            ladder.push_back(TwoTierRung(std::move(bkt), bktTime, bucketWidth));
+            ASSERT(nRung == ladder.size());
+        } else {
+            ladder[nRung - 1].move(std::move(bkt), bktTime, bucketWidth);
+        }
         DEBUG(std::cout << "2. Bucket width: " << bucketWidth << std::endl);
         LQ2T_STATS(avgBktWidth += bucketWidth);
-        LQ2T_STATS(maxRungs = std::max(maxRungs, ladder.size()));
+        LQ2T_STATS(maxRungs = std::max(maxRungs, nRung));
         return recurseRung();  // Recurse now looking at newly added rung
     }
     // Track events being removed from the ladder
@@ -621,17 +641,28 @@ muse::TwoTierLadderQueue::populateBottom() {
     if (!bottom.empty()) {
         return;
     }
-    if (ladderEventCount == 0) {   // NRung == 0
+    if (ladderEventCount == 0) {   // nRung == -1
         if (top.empty()) {
             // There are no events in the ladder queue in this case
             ASSERT(empty());
             return;
         }
         // Move all events from top into buckets in first rung of the ladder!
-        ladder.clear();
+        nRung++;
+        ASSERT(nRung == 1);
         ladderEventCount += top.size();     // Track events in ladder
-        ladder.push_back(TwoTierRung(std::move(top))); // Move events to ladder
-        LQ2T_STATS(maxRungs = std::max(maxRungs, ladder.size()));
+        // Move events to ladder
+        if (nRung > ladder.size()) {
+            ladder.push_back(TwoTierRung(std::move(top)));
+            ASSERT(nRung == ladder.size());
+        } else {
+            ladder[nRung - 1].move(std::move(top), top.getMinTime(),
+                                   top.getBucketWidth());
+        }
+        // Reset top counters and update the values of topStart for
+        // next Epoch
+        top.reset(top.getMaxTime());
+        LQ2T_STATS(maxRungs = std::max(maxRungs, nRung));
         LQ2T_STATS(avgBktWidth += ladder.back().getBucketWidth());
         DEBUG(std::cout << "3. Bucket width: "
                         << ladder.back().getBucketWidth() << std::endl);
@@ -645,12 +676,12 @@ muse::TwoTierLadderQueue::populateBottom() {
     bottom.enqueue(recurseRung());  // Transfer bucket_k into bottom
     ASSERT(!bottom.empty());
     LQ2T_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));
-    DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
+    DEBUG(ASSERT(!haveBefore(bottom.first_event()->getReceiveTime())));
     LQ2T_STATS(botLen += bottom.size());
     // Clear out the rungs if we have used-up the last bucket in the ladder.
-    while (!ladder.empty() && ladder.back().empty()) {
-        LQ2T_STATS(ladder.back().updateStats(avgBktCnt));
-        ladder.pop_back();  // 'NRung--' in paper
+    while (nRung > 0 && ladder[nRung - 1].empty()) {
+        LQ2T_STATS(ladder[nRung - 1].updateStats(avgBktCnt));
+        nRung--;  // Logically remove rung from ladder
     }
 }
 
@@ -664,14 +695,18 @@ muse::TwoTierLadderQueue::createRungFromBottom() {
     // that with rollbacks, ladder can be empty and that situation
     // needs to be handled.
     const double bucketWidth = (ladder.empty() ? bottom.getBucketWidth() :
-                                ladder.back().getBucketWidth());
+                                ladder[nRung - 1].getBucketWidth());
     // The paper computes rStart as RCur[NRung-1].  However, due to
     // rollback-reprocessing the bottom may have events that are below
     // RCur[NRung-1].  Consequently, we use the minimum of the two
     // values as as rstart
-    const Time ladBkTime = (!ladder.empty() ? ladder.back().getCurrTime() :
+    const Time ladBkTime = ((nRung > 0) ? ladder[nRung - 1].getCurrTime() :
                             TIME_INFINITY);
-    const Time rStart = std::min(ladBkTime, bottom.front()->getReceiveTime());
+    const Time rStart = std::min(ladBkTime,
+                                 bottom.first_event()->getReceiveTime()); 
+    ASSERT(rStart < ladBkTime);
+    ASSERT(bottom.maxTime() < ladBkTime);
+    ASSERT(bottom.maxTime() <= top.getStartTime());
     // Create a new rung and add it to the ladder.
     DEBUG(std::cout << "Moving bottom to rung. Events: " << bottom.size()
                     << ", rStart = " << rStart << ", bucketWidth = "
@@ -680,13 +715,19 @@ muse::TwoTierLadderQueue::createRungFromBottom() {
     LQ2T_STATS(botToRung += bottom.size());
     const double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
     DEBUG(std::cout << "bktWidth = " << bktWidth << std::endl);
-    // Move bottom into the last rung of the ladder.
-    ladder.push_back(TwoTierRung(std::move(bottom), rStart, bktWidth));
+    // Add rung and move move bottom into the last rung of the ladder.
+    nRung++;
+    if (nRung > ladder.size()) {
+        ladder.push_back(TwoTierRung(std::move(bottom), rStart, bktWidth));
+        ASSERT(nRung == ladder.size());
+    } else {
+        ladder[nRung - 1].move(std::move(bottom), rStart, bktWidth);
+    }
     DEBUG(std::cout << "1. Bucket width: " << bktWidth << std::endl);
     LQ2T_STATS(avgBktWidth += bktWidth);
-    LQ2T_STATS(maxRungs = std::max(maxRungs, ladder.size())); // Track max rungs
+    LQ2T_STATS(maxRungs = std::max(maxRungs, nRung)); // Track max rungs
     ASSERT(bottom.empty());
-    return ladder.size() - 1;
+    return nRung - 1;
 }
 
 int
@@ -697,9 +738,10 @@ muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
                                       LQ2T_STATS(COMMA ceScanTop));
     LQ2T_STATS(ceTop += numRemoved);
     // Cancel out events in each rung of the ladder.
-    for (auto& rung : ladder) {
+    for (size_t rung = 0; (rung < nRung); rung++) {
         const int rungEvtRemoved =
-            rung.remove_after(sender, sendTime LQ2T_STATS(COMMA ceScanLadder));
+            ladder[rung].remove_after(sender, sendTime
+                                      LQ2T_STATS(COMMA ceScanLadder));
         ladderEventCount  -= rungEvtRemoved;
         numRemoved        += rungEvtRemoved;
         LQ2T_STATS(ceLadder += rungEvtRemoved);
@@ -728,7 +770,7 @@ muse::TwoTierLadderQueue::haveBefore(const Time recvTime,
         return true;
     }
     // Check each rung of the ladder
-    for (size_t rung = 0; (rung < ladder.size()); rung++) {
+    for (size_t rung = 0; (rung < nRung); rung++) {
         if (ladder[rung].haveBefore(recvTime)) {
             std::cout << "Rung #" << rung << " has event that is <= "
                       << recvTime << std::endl;
@@ -793,7 +835,7 @@ muse::TwoTierLadderQueue::front() {
         DEBUG(prettyPrint(std::cout));
     }
     ASSERT(!bottom.empty());
-    return bottom.front();
+    return bottom.first_event();
 }
 
 void
@@ -849,8 +891,9 @@ muse::TwoTierLadderQueue::prettyPrint(std::ostream& os) const {
        << ", minTime="   << top.getMinTime()
        << ", maxTime="   << top.getMaxTime()  << std::endl;
     // Print info on each rung of the ladder
-    std::cout << "Ladder (rungs=" << ladder.size() << "):\n";
-    for (size_t i = 0; (i < ladder.size()); i++) {
+    std::cout << "Ladder (rungs=" << nRung << ", size="
+              << ladder.size() << "):\n";
+    for (size_t i = 0; (i < nRung); i++) {
         os << "[" << i << "]: ";
         ladder[i].prettyPrint(os);
     }

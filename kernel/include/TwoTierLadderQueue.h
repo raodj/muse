@@ -91,12 +91,15 @@
 BEGIN_NAMESPACE(muse)
 
 /** A convenience alias for list of events maintained by a sub-bucket. */
-using BktEventList = std::deque<muse::Event*>;
+using BktEventList = std::vector<muse::Event*>;
     
 /** Alias to the data structure for holding a vector of sub-buckets in
     a TwoTierBucket.
 */
 using SubBucketList = std::vector<BktEventList>;
+
+constexpr bool SenderID   = true;
+constexpr bool ReceiverID = false;
 
 /** A generic two tier bucket that is used for both Top and Rungs of
     the 2-tier ladderQ.
@@ -153,22 +156,42 @@ public:
         return (sender % t2k);
     }
 
-    /** Add an event to this TwoTier bucket.
+    /** Add an event to this TwoTier bucket based on sender's ID
 
-        The event is added to the sub-bucket identified using the hash
-        function in this class.
+        This method is a template specialization to use the sender's
+        ID for hashing to find sub-bucket. The event is added to the
+        sub-bucket identified using the hash function in this class.
         
         \param[in] event The event to be added to this bucket.  This
         method does not alter the refernece counts on events (as the
         top-level TwoTierLadderQueue performs the reference count
         management).
     */
+    template <bool Sendr, typename std::enable_if<Sendr>::type* = nullptr>
     void push_back(muse::Event* event) {
         const size_t subBktIdx = hash(event->getSenderAgentID());
         subBuckets[subBktIdx].push_back(event);
         count++;
     }
 
+    /** Add an event to this TwoTier bucket based on receiver's ID
+
+        This method is a template specialization to use the receiver's
+        ID for hashing to find sub-bucket. The event is added to the
+        sub-bucket identified using the hash function in this class.
+        
+        \param[in] event The event to be added to this bucket.  This
+        method does not alter the refernece counts on events (as the
+        top-level TwoTierLadderQueue performs the reference count
+        management).
+    */
+    template <bool Recvr, typename std::enable_if<!Recvr>::type* = nullptr>
+    void push_back(muse::Event* event) {
+        const size_t subBktIdx = hash(event->getReceiverAgentID());
+        subBuckets[subBktIdx].push_back(event);
+        count++;
+    }
+    
     /** Move all the events from the given two tier bucket into this
         bucket.
 
@@ -320,6 +343,17 @@ public:
         bucket.
     */
     SubBucketList& getSubBuckets() { return subBuckets; }
+
+    /** Convenience method to reset count of events in this bucket to
+        zero.
+
+        This method is used in TwoTierRung operations to reset the
+        events in this bucket to zero, after events have been moved
+        out of this bucket.
+    */
+    void resetCount() {
+        count = 0;
+    }
     
 protected:
     /** Return sum of events in each sub-bucket.
@@ -485,14 +519,17 @@ private:
     eases agent development in many applications.  Consequently, it is
     imperative that bottom be allowed to be long to contain all
     concurrent events.
+
+    \note Do not use front() / back() to access the first event in
+    bottom. Instead use the first_event() method.
 */
-class TwoTierBottom : public BktEventList {
+class OneTierBottom : public BktEventList {
 public:
     /** The default and only constructor.  It does not have any
         special work to do as the base class handles most of the
         tasks.
     */
-    TwoTierBottom() {}
+    OneTierBottom() {}
 
     /** Add events from a TwoTierBucket into the bottom.
 
@@ -559,7 +596,7 @@ public:
     */
     muse::Time maxTime() const {
         // purely for debugging
-        return (!empty() ? back()->getReceiveTime() : TIME_INFINITY);
+        return (!empty() ? front()->getReceiveTime() : TIME_INFINITY);
     }
 
     /** Convenience method for debugging/troubleshooting.
@@ -569,7 +606,7 @@ public:
     */
     muse::Time findMinTime() const {
         // purely for debugging
-        return (!empty() ? front()->getReceiveTime() : TIME_INFINITY);
+        return (!empty() ? back()->getReceiveTime() : TIME_INFINITY);
     }
 
     /** Method to determine the range of receive time values currently
@@ -585,7 +622,7 @@ public:
         if (empty()) {
             return 0;
         }
-        return (back()->getReceiveTime() - front()->getReceiveTime());
+        return (front()->getReceiveTime() - back()->getReceiveTime());
     }
     
     /** Determine bucket width to move bottom into ladder.
@@ -617,8 +654,8 @@ public:
         \return This method returns true if lhs is less than rhs.
         That is, lhs should be scheduled before rhs.
     */
-    static inline bool compare(const muse::Event* const rhs,
-                               const muse::Event* const lhs) {
+    static inline bool compare(const muse::Event* const lhs,
+                               const muse::Event* const rhs) {
         return ((lhs->getReceiveTime() > rhs->getReceiveTime()) ||
                 ((lhs->getReceiveTime() == rhs->getReceiveTime() &&
                   (lhs->getReceiverAgentID() > rhs->getReceiverAgentID()))));
@@ -636,6 +673,18 @@ public:
     */
     bool haveBefore(const Time recvTime) const {
         return (findMinTime() <= recvTime);
+    }
+
+    /** Convenience method to consistently access the first event in
+        the bottom, consistent with the way bottom is sorted.
+
+        \note Calling this method when the bottom is empty has
+        undefined behavior.
+
+        \return The next event with the lowest time stamp.
+    */
+    muse::Event* first_event() {
+        return back();
     }
     
 protected:
@@ -665,7 +714,8 @@ public:
         LQ2T_STATS(maxBkts = 0);
     }
 
-    /** A copy constructor required to pre-allocate rungs for ladder.
+    /** A move constructor required to quickly move rungs in a ladder
+        to shrink/grow it.
 
         \param[in] src The source rung from where events are to be
         copied.
@@ -690,8 +740,8 @@ public:
     explicit TwoTierRung(TwoTierTop&& top) :
         TwoTierRung(std::move(top), top.getMinTime(),
                     std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
-        // Reset top counters and update the values of topStart for next Epoch
-        top.reset(top.getMaxTime());
+            // Reset of top counters etc. is done by caller in
+            // TwoTierLadderQueue::populateBottom()
     }
 
     /** Convenience constructor to create a rung with events from a
@@ -707,8 +757,27 @@ public:
         bucket in this rung.  The bucketWidth must be > 0.
     */
     TwoTierRung(TwoTierBucket&& bkt, const Time rStart,
-                const double bucketWidth);
+                const double bucketWidth) : rungEventCount(0) {
+        move(std::move(bkt), rStart, bucketWidth);
+    }
 
+    /** Convenience method initialize a rung by moving events from a
+        given bucket.
+
+        It is assumed that this rung is empty prior to this operation.
+
+        \param[in,out] bkt The bucket from where events are to be
+        moved into this rung.  After this operation data in the bucket
+        is cleared.
+
+        \param[in] rStart The start time for this rung.
+
+        \param[in] bucketWidth The delta in receive time for each
+        bucket in this rung.  The bucketWidth must be > 0.
+    */
+    void move(TwoTierBucket&& bucket, const Time rStart,
+              const double bucketWidth);
+    
     /** Convenience constructor to create a rung with events from the
         bottom rung.
 
@@ -724,8 +793,29 @@ public:
         \param[in] bucketWidth The delta in receive time for each
         bucket in this rung.  The bucketWidth must be > 0.
     */
-    TwoTierRung(TwoTierBottom&& bottom, const Time rStart,
-                const double bucketWidth);
+    TwoTierRung(OneTierBottom&& bottom, const Time rStart,
+                const double bucketWidth) : rungEventCount(0) {
+        move(std::move(bottom), rStart, bucketWidth);
+    }
+
+    /** Convenience method to create a rung with events from the
+        bottom rung.
+
+        This operation is used to redistribute bottom to the ladder
+        ensures that the bottom does not get too long.  This method
+        assumes that the this rung is empty to begin with.
+        
+        \param[in,out] bottom The bottom rung from where events are to
+        be moved into this newly created rung.  After this operation
+        bottom will be empty.
+
+        \param[in] rStart The start time for this rung.
+
+        \param[in] bucketWidth The delta in receive time for each
+        bucket in this rung.  The bucketWidth must be > 0.
+    */
+    void move(OneTierBottom&& bottom, const Time rStart,
+              const double bucketWidth);
     
     /** Remove the next bucket in this rung for moving to another rung
         in the ladder.
@@ -970,7 +1060,8 @@ public:
         used by the this queue to report detailed statistics about its
         operations at the end of simulation.
      */
-    TwoTierLadderQueue() : EventQueue("LadderQueue"), ladderEventCount(0) {
+    TwoTierLadderQueue() : EventQueue("LadderQueue"), nRung(0),
+                           ladderEventCount(0) {
         ladder.reserve(MAX_RUNGS);
         LQ2T_STATS(ceTop    = ceLadder   = ceBot  = 0);
         LQ2T_STATS(insTop   = insLadder  = insBot = 0);
@@ -1188,9 +1279,30 @@ protected:
 
 private:
     TwoTierTop top;
+
+    /** The ladder in the queue.  The lader consists of a set of
+        rungs.  The currently used rung in the ladder is indicated by
+        the nRung instance variable.  If the ladder is empty, then
+        nRung is (or should be) 0
+    */
     std::vector<TwoTierRung> ladder;
+
+    /** The currently used last rung in the ladder queue.  If the
+        ladder is empty, then nRung is (or should be) 0.  Otherwise
+        this value is (or should be) in the range 0 < nRung <=
+        ladder.size().  Rungs below nRung are not used and they do not
+        contain any events to be scheduled.
+    */
+    size_t nRung;
+
+    /** Instance variable to track the current number of pending
+        events in all the rungs of the ladder.  This is a convenience
+        instance variable to quickly detect pending events in the
+        ladder without having to iterate through each rung.
+    */
     int ladderEventCount;
-    TwoTierBottom bottom;
+
+    OneTierBottom bottom;
 
     LQ2T_STATS(Avg ceTop);
     LQ2T_STATS(Avg ceBot);
