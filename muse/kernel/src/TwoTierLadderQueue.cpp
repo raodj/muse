@@ -255,7 +255,7 @@ muse::OneTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
     // Since bucket is sorted we can shortcircuit scan if last event's
     // time is less-or-equal to sendTime.
     if (empty() || (sendTime >= front()->getReceiveTime())) {
-        return 0;  // Since bucket does not have events to be cancelled.
+        return -1;  // Since bucket does not have events to be cancelled.
     }
     size_t removedCount = 0;
     iterator curr = begin();
@@ -749,11 +749,13 @@ muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
     LQ2T_STATS(const size_t botSize  = bottom.size());
     // Cancel events from bottom.
     const int botRemoved  = bottom.remove_after(sender, sendTime);
-    numRemoved           += botRemoved;
-    // Update statistics counters
-    LQ2T_STATS(ceBot     += botRemoved);
-    LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
-               (ceScanBot += botSize));
+    if (botRemoved > -1) {
+        numRemoved += botRemoved;
+        // Update statistics counters
+        LQ2T_STATS(ceBot += botRemoved);
+        LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
+                   (ceScanBot += botSize));
+    }
     return numRemoved;
 }
 
