@@ -26,9 +26,6 @@
 #include <functional>
 #include "LadderQueue.h"
 
-#define MAX_BUCKETS 100
-#define MIN_BUCKET_WIDTH 0.1
-
 // ----------------------[ ListBucket methods ]-----------------------
 
 muse::ListBucket::~ListBucket() {
@@ -672,10 +669,9 @@ muse::MultiSetBottom::print(std::ostream& os) const {
 // ---------------------------[  Rung methods ]-----------------------------
 
 muse::Rung::Rung(Top& top) : Rung(std::move(top.events), top.minTS,
-                                  std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
+                                  top.getBucketWidth()) {
     // Reset of top counters and update the values of topStart for
     // next Epoch is now done in populateBottom.
-    
 }
 
 muse::Rung::Rung(Bucket&& bkt, const Time minTS, const double bktWidth) :
@@ -683,8 +679,6 @@ muse::Rung::Rung(Bucket&& bkt, const Time minTS, const double bktWidth) :
     rungEventCount(0) {
     // Initialize variable to track maximum bucket count
     LQ_STATS(maxBkts = 0);
-    // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -704,8 +698,6 @@ muse::Rung::Rung(EventVector&& list, const Time minTS, const double bktWidth) :
     rungEventCount(0) {
     // Initialize variable to track maximum bucket count
     LQ_STATS(maxBkts = 0);    
-    // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -725,8 +717,6 @@ muse::Rung::Rung(EventMultiSet&& set, const Time minTS, const double bktWidth) :
     rungEventCount(0) {
     // Initialize variable to track maximum bucket count
     LQ_STATS(maxBkts = 0);    
-    // Ensure bucket width is not ridiculously small
-    bucketWidth = std::max(MIN_BUCKET_WIDTH, bucketWidth);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -951,7 +941,6 @@ muse::LadderQueue::enqueue(muse::Event* event) {
     }
     // Event does not fit in the ladder. Must go into bottom
     if ((bottom.size() > THRESH) && (bottom.getTimeRange() > 0)) {
-        // (ladder.empty() || (ladder.back().getBucketWidth() > MIN_BUCKET_WIDTH))) {
         // Move events from bottom into ladder rung
         rung = createRungFromBottom();
         ASSERT(rung == nRung - 1);        
@@ -1044,10 +1033,9 @@ muse::LadderQueue::recurseRung() {
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > THRESH) && (nRung < MAX_RUNGS) &&
-        (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
-        // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
-        // that is needed to ensure consistent ladder setup.
+    if ((bkt.size() > THRESH) && (nRung < MAX_RUNGS)) {
+        // Note: Here bucket width can dip low. But that is needed to
+        // ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
                                     1.0) / bkt.size();
         // Create a new rung in the ladder

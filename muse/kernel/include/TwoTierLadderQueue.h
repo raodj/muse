@@ -68,9 +68,6 @@
 // The maximum number of rungs permitted in the ladder.
 #define MAX_RUNGS 8
 
-// The minimum bucket timestamp
-#define MIN_BUCKET_WIDTH 0.1
-
 // Bucket size after which new rung is created in ladder
 #define LQ2T_THRESH 50
 
@@ -739,7 +736,7 @@ public:
     */
     explicit TwoTierRung(TwoTierTop&& top) :
         TwoTierRung(std::move(top), top.getMinTime(),
-                    std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
+                    top.getBucketWidth()) {
             // Reset of top counters etc. is done by caller in
             // TwoTierLadderQueue::populateBottom()
     }
