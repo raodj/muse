@@ -504,11 +504,15 @@ private:
 class Rung {
 public:
     Rung() : rStartTS(TIME_INFINITY), rCurrTS(TIME_INFINITY),
-             bucketWidth(0), currBucket(0), rungEventCount(0) {}
+             bucketWidth(0), currBucket(0), rungEventCount(0) {
+        LQ_STATS(maxBkts = 0);
+    }
+
     explicit Rung(Top& top);
     Rung(Bucket&& bkt, const Time rStart, const double bucketWidth);
     Rung(EventVector&& list, const Time rStart, const double bucketWidth);
     Rung(EventMultiSet&& set, const Time rStart, const double bucketWidth);
+
     
     Bucket&& removeNextBucket(muse::Time& bktTime);
     bool empty() const { return (rungEventCount == 0); }
@@ -571,7 +575,7 @@ private:
 
 class LadderQueue : public EventQueue {
 public:
-    LadderQueue() : EventQueue("LadderQueue"), ladderEventCount(0) {
+    LadderQueue() : EventQueue("LadderQueue"), nRung(0), ladderEventCount(0) {
         ladder.reserve(MAX_RUNGS);
         LQ_STATS(ceTop    = ceLadder   = ceBot  = 0);
         LQ_STATS(insTop   = insLadder  = insBot = 0);
@@ -618,8 +622,29 @@ protected:
     
 private:
     Top top;
+    
+    /** The ladder in the queue.  The lader consists of a set of
+        rungs.  The currently used rung in the ladder is indicated by
+        the nRung instance variable.  If the ladder is empty, then
+        nRung is (or should be) 0
+    */
     std::vector<Rung> ladder;
+
+    /** The currently used last rung in the ladder queue.  If the
+        ladder is empty, then nRung is (or should be) 0.  Otherwise
+        this value is (or should be) in the range 0 < nRung <=
+        ladder.size().  Rungs below nRung are not used and they do not
+        contain any events to be scheduled.
+    */
+    size_t nRung;
+
+    /** Instance variable to track the current number of pending
+        events in all the rungs of the ladder.  This is a convenience
+        instance variable to quickly detect pending events in the
+        ladder without having to iterate through each rung.
+    */
     int ladderEventCount;
+    
     Bottom bottom;
     // HeapBottom bottom;
     // MultiSetBottom bottom;
