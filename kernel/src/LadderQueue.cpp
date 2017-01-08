@@ -1044,7 +1044,7 @@ muse::LadderQueue::recurseRung() {
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > THRESH) && (ladder.size() < MAX_RUNGS) &&
+    if ((bkt.size() > THRESH) && (nRung < MAX_RUNGS) &&
         (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
         // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
         // that is needed to ensure consistent ladder setup.
