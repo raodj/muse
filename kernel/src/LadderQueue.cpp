@@ -673,8 +673,9 @@ muse::MultiSetBottom::print(std::ostream& os) const {
 
 muse::Rung::Rung(Top& top) : Rung(std::move(top.events), top.minTS,
                                   std::max(MIN_BUCKET_WIDTH, top.getBucketWidth())) {
-    // Reset top counters and update the values of topStart for next Epoch
-    top.reset(top.maxTS);
+    // Reset of top counters and update the values of topStart for
+    // next Epoch is now done in populateBottom.
+    
 }
 
 muse::Rung::Rung(Bucket&& bkt, const Time minTS, const double bktWidth) :
@@ -895,7 +896,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);    
     LQ_STATS({
             // Collect final bucket counts from the ladder
-            for (size_t i = 0; (i < ladder.size()); i++) {
+            for (size_t i = 0; (i < nRung); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
             // Compute net number of compares for ladderQ
@@ -933,18 +934,18 @@ muse::LadderQueue::enqueue(muse::Event* event) {
     }
     // Try to see if the event fits in the ladder
     size_t rung = 0;
-    while ((rung < ladder.size()) && !ladder[rung].canContain(event)) {
+    while ((rung < nRung) && !ladder[rung].canContain(event)) {
         ASSERT((rung == 0) || ladder[rung].empty() ||
                (ladder[rung - 1].getCurrTime() >= ladder[rung].getCurrTime()));
         rung++;
     }
-    if (rung < ladder.size()) {
+    if (rung < nRung) {
         DEBUG(ASSERT(bottom.empty() ||
                      (event->getReceiveTime() > bottom.maxTime())));
         ladder[rung].enqueue(event);
         ladderEventCount++;  // Track events added to the ladder
         DEBUG(std::cout << "Added to rung " << rung  << "(max bottom: "
-              << bottom.maxTime() << "): " << *event << "\n");
+                        << bottom.maxTime() << "): " << *event << "\n");
         LQ_STATS(insLadder++);
         return;
     }
@@ -953,6 +954,7 @@ muse::LadderQueue::enqueue(muse::Event* event) {
         // (ladder.empty() || (ladder.back().getBucketWidth() > MIN_BUCKET_WIDTH))) {
         // Move events from bottom into ladder rung
         rung = createRungFromBottom();
+        ASSERT(rung == nRung - 1);        
         ASSERT(rung < ladder.size());
         // Due to rollback-reprocessing the event may be even
         // earlier than the last rung we just created!
@@ -968,39 +970,42 @@ muse::LadderQueue::enqueue(muse::Event* event) {
     // At this point bottom must be able to contain the event, so
     // enqueue it.
     bottom.enqueue(event);
-    LQ_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));    
-    if (bottom.size() > 50000) {
-        std::cerr << "Warning: Bottom is very large: size: "
-                  << bottom.size() << ".  Min event timestamp: "
-                  << bottom.findMinTime() 
-                  << ", Max event time: " << bottom.maxTime()
-                  << ", ladder size: " << ladder.size()
-                  << " with events: " << ladderEventCount
-                  << std::endl;
-        prettyPrint(std::cerr);
-        ASSERT(ladder.empty());
-    }
-    
+    LQ_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));
     DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
     DEBUG(std::cout << "Added to bottom: " << *event << std::endl);
     LQ_STATS(insBot++);
+    // Check used only when detailed debugging is enabled.
+    DEBUG({ if (bottom.size() > 50000) {
+                std::cerr << "Warning: Bottom is very large: size: "
+                          << bottom.size() << ".  Min event timestamp: "
+                          << bottom.findMinTime() 
+                          << ", Max event time: " << bottom.maxTime()
+                          << ", ladder size: " << ladder.size()
+                          << " with events: " << ladderEventCount
+                          << std::endl;
+                prettyPrint(std::cerr);
+                ASSERT(ladder.empty());   
+            }
+        });
 }
 
 int
 muse::LadderQueue::createRungFromBottom() {
     ASSERT(!bottom.empty());
+    ASSERT(bottom.getTimeRange() > 0);
+    ASSERT(!ladder.empty() || (nRung > 0));
     DEBUG(std::cout << "Moving events from bottom to a new rung. Bottom has "
-          << bottom.size() << " events." << std::endl);
+                    << bottom.size() << " events." << std::endl);
     // Compute the start time and bucket width for the rung.  Note
     // that with rollbacks, ladder can be empty and that situation
     // needs to be handled.
     const double bucketWidth = (ladder.empty() ? bottom.getBucketWidth() :
-                                ladder.back().getBucketWidth());
+                                ladder[nRung - 1].getBucketWidth());
     // The paper computes rStart as RCur[NRung-1].  However, due to
     // rollback-reprocessing the bottom may have events that are below
     // RCur[NRung-1].  Consequently, we use the minimum of the two
     // values as as rstart
-    const Time ladBkTime = (!ladder.empty() ? ladder.back().getCurrTime() :
+    const Time ladBkTime = ((nRung > 0) ? ladder[nRung - 1].getCurrTime() :
                             TIME_INFINITY);
     const Time rStart = std::min(ladBkTime, bottom.front()->getReceiveTime());
     // Create a new rung and add it to the ladder.
@@ -1010,53 +1015,51 @@ muse::LadderQueue::createRungFromBottom() {
     ladderEventCount += bottom.size();  // Update ladder event count
     LQ_STATS(botToRung += bottom.size());
     const double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
-    // std::cout << "bktWidth = " << bktWidth << std::endl;
-    ladder.push_back(Rung(std::move(bottom.sel), rStart, bktWidth));
+    DEBUG(std::cout << "bktWidth = " << bktWidth << std::endl);
+    // Add rung and move move bottom into the last rung of the ladder.
+    nRung++;
+    if (nRung > ladder.size()) {
+        ladder.push_back(Rung(std::move(bottom.sel), rStart, bktWidth));
+        ASSERT(nRung == ladder.size());
+    } else {
+        ladder[nRung - 1] = Rung(std::move(bottom.sel), rStart, bktWidth);
+    }
     DEBUG(std::cout << "1. Bucket width: " << bktWidth << std::endl);
     LQ_STATS(avgBktWidth += bktWidth);
-    LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));  // Track max rungs
+    LQ_STATS(maxRungs = std::max(maxRungs, nRung));  // Track max rungs
     ASSERT(bottom.empty());
-    return ladder.size() - 1;
+    return nRung - 1;
 }
 
 muse::Bucket&&
 muse::LadderQueue::recurseRung() {
     ASSERT(!empty());
-    // Find the next non-empty bucket across multiple rungs in the
-    // ladder
-    /*
-    LQ_STATS(bool isLastRung = true);
-    while (!ladder.empty() && ladder.back().empty()) {
-        // Track statistics if enabled.
-        LQ_STATS({
-                if (!isLastRung) {
-                    ladder.back().updateStats(avgBktCnt);
-                }
-            });
-        // Remove empty rung (i.e., NRung--) at the end.
-        ladder.pop_back();
-        // In the next iteration the rung to remove (if any) was not
-        // the last rung in the ladder
-        LQ_STATS(isLastRung = false);
-    }
-    */
-    ASSERT(!ladder.empty());
+    ASSERT(nRung > 0);
+    ASSERT(!ladder.empty());    
     // Now the last rung in ladder is the rung that has the next
     // bucket of events.
-    muse::Time bktTime = 0;
-    Rung& lastRung     = ladder.back();    
+    muse::Time bktTime = 0;  // set by removeNextBucket call below
+    Rung& lastRung     = ladder[nRung - 1];
     Bucket&& bkt       = lastRung.removeNextBucket(bktTime);
-
+    ASSERT(!bkt.empty());
+    ASSERT(!ladder.empty());
+    // Check and create new rung in the ladder if the bucket is large.
     if ((bkt.size() > THRESH) && (ladder.size() < MAX_RUNGS) &&
         (lastRung.getBucketWidth() > MIN_BUCKET_WIDTH)) {
         // Note: Here bucket width can dip below MIN_BUCKET_WIDTH. But
         // that is needed to ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
                                     1.0) / bkt.size();
-        ladder.push_back(Rung(std::move(bkt), bktTime, bucketWidth));
+        // Create a new rung in the ladder
+        nRung++;
+        if (nRung > ladder.size()) {
+            ladder.push_back(Rung(std::move(bkt), bktTime, bucketWidth));
+        } else {
+            ladder[nRung - 1] = Rung(std::move(bkt), bktTime, bucketWidth);
+        }
         DEBUG(std::cout << "2. Bucket width: " << bucketWidth << std::endl);
         LQ_STATS(avgBktWidth += bucketWidth);
-        LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));
+        LQ_STATS(maxRungs = std::max(maxRungs, nRung));
         return recurseRung();  // Recurse now looking at newly added rung
     }
     // Track events being removed from the ladder
@@ -1098,10 +1101,20 @@ muse::LadderQueue::populateBottom() {
             return;
         }
         // Move all events from top into buckets in first rung of the ladder!
-        ladder.clear();
+        nRung++;
+        ASSERT(nRung == 1);
         ladderEventCount += top.size();  // Track events in ladder
-        ladder.push_back(Rung(top));     // Move events into ladder
-        LQ_STATS(maxRungs = std::max(maxRungs, ladder.size()));
+        // Move events to ladder
+        if (nRung > ladder.size()) {
+            ladder.push_back(Rung(top));
+            ASSERT(nRung == ladder.size());
+        } else {
+            ladder[nRung - 1] = Rung(top);
+        }
+        // Reset top counters and update the values of topStart for
+        // next Epoch
+        top.reset(top.getMaxTime());
+        LQ_STATS(maxRungs = std::max(maxRungs, nRung));
         LQ_STATS(avgBktWidth += ladder.back().getBucketWidth());
         DEBUG(std::cout << "3. Bucket width: "
                         << ladder.back().getBucketWidth() << std::endl);
@@ -1115,12 +1128,13 @@ muse::LadderQueue::populateBottom() {
     bottom.enqueue(recurseRung());  // Transfer bucket_k into bottom
     LQ_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));
     ASSERT(!bottom.empty());
+    LQ_STATS(maxBotSize = std::max(maxBotSize, bottom.size()));
     DEBUG(ASSERT(!haveBefore(bottom.front()->getReceiveTime())));
     LQ_STATS(botLen += bottom.size());
     // Clear out the rungs if we have used-up the last bucket in the ladder.
-    while (!ladder.empty() && ladder.back().empty()) {
-        LQ_STATS(ladder.back().updateStats(avgBktCnt));
-        ladder.pop_back();  // NRung--
+    while ((nRung > 0) && ladder[nRung - 1].empty()) {
+        LQ_STATS(ladder[nRung - 1].updateStats(avgBktCnt));
+        nRung--;  // Logically remove rung from ladder
     }
 }
 
@@ -1129,10 +1143,11 @@ muse::LadderQueue::remove_after(muse::AgentID sender, const Time sendTime) {
     LQ_STATS(ceScanTop += top.size());    
     int numRemoved = top.remove_after(sender, sendTime);
     LQ_STATS(ceTop += numRemoved);
-
-    for (auto& rung : ladder) {
+    // Cancel out events in each active rung of the ladder.
+    for (size_t rung = 0; (rung < nRung); rung++) {
         const int rungEvtRemoved =
-            rung.remove_after(sender, sendTime LQ_STATS(COMMA ceScanLadder));
+            ladder[rung].remove_after(sender, sendTime
+                                      LQ_STATS(COMMA ceScanLadder));
         ladderEventCount  -= rungEvtRemoved;
         numRemoved        += rungEvtRemoved;
         LQ_STATS(ceLadder += rungEvtRemoved);
@@ -1152,7 +1167,7 @@ muse::LadderQueue::haveBefore(const Time recvTime,
         prettyPrint(std::cout);
         return true;
     }
-    for (size_t rung = 0; (rung < ladder.size()); rung++) {
+    for (size_t rung = 0; (rung < nRung); rung++) {
         if (ladder[rung].haveBefore(recvTime)) {
             std::cout << "Rung #" << rung << " has event that is <= "
                       << recvTime << std::endl;
@@ -1263,8 +1278,9 @@ muse::LadderQueue::prettyPrint(std::ostream& os) const {
        << ", minTime="   << top.getMinTime()
        << ", maxTime="   << top.getMaxTime()  << std::endl;
     // Print info on each rung of the ladder
-    std::cout << "Ladder (rungs=" << ladder.size() << "):\n";
-    for (size_t i = 0; (i < ladder.size()); i++) {
+    std::cout << "Ladder (rungs=" << nRung << ", size="
+              << ladder.size() << "):\n";
+    for (size_t i = 0; (i < nRung); i++) {
         os << "[" << i << "]: ";
         ladder[i].prettyPrint(os);
     }
