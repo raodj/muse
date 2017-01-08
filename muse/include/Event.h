@@ -72,6 +72,7 @@ class Event {
     friend class VectorBucket;
     friend class TwoTierBucket;
     friend class TwoTierBottom;
+    friend class OneTierBottom;
     friend class TwoTierLadderQueue;    
     friend class LadderQueue;
     friend class Bottom;    
