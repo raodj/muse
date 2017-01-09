@@ -27,8 +27,9 @@
 #include "HashMap.h"
 #include "Agent.h"
 #include "AgentPQ.h"
+#include "TwoTierHeapEventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
-#include "HeapOfVectorsEventQueue.h"
+#include "TwoTierHeapOfVectorsEventQueue.h"
 
 BEGIN_NAMESPACE(muse);
      

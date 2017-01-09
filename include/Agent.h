@@ -81,8 +81,8 @@ class Agent {
     friend class Scheduler;
     friend class AgentPQ;
     friend class TwoTierHeapEventQueue;
+    friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
-    friend class HeapOfVectorsEventQueue;
 public:    
     /** enum for return Time.
         when agent ask for time via getTime()

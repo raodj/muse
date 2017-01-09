@@ -1,5 +1,5 @@
-#ifndef HEAP_OF_VECTORS_EVENT_QUEUE_H
-#define HEAP_OF_VECTORS_EVENT_QUEUE_H
+#ifndef THREE_TIER_HEAP_EVENT_QUEUE_H
+#define THREE_TIER_HEAP_EVENT_QUEUE_H
 
 //---------------------------------------------------------------------------
 //
@@ -27,7 +27,7 @@
 #include <algorithm>
 #include "Avg.h"
 #include "EventQueue.h"
-#include "ThreeTierHeapEventQueue.h"
+#include "TwoTierHeapOfVectorsEventQueue.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -145,7 +145,7 @@ public:
     std::push_heap or std::pop_heap methods due to implicit dependence
     in the fixHeap() method.
 */
-class HeapOfVectorsEventQueue : public EventQueue {
+class ThreeTierHeapEventQueue : public EventQueue {
 public:
     /** The constructor for the TwoTierHeapEventQueue.
 
@@ -153,7 +153,7 @@ public:
         constructor does not have any specific task to perform other
         than set a suitable identifier in the base class.
     */    
-    HeapOfVectorsEventQueue();
+    ThreeTierHeapEventQueue();
 
     /** The destructor.
 
@@ -162,7 +162,7 @@ public:
         containers (namely std::vector) that is used internally by
         this class.
     */
-    ~HeapOfVectorsEventQueue();
+    ~ThreeTierHeapEventQueue();
 
     /** Add/register an agent with the event queue.
 

@@ -29,7 +29,7 @@
 #include "LadderQueue.h"
 #include "HeapEventQueue.h"
 #include "TwoTierHeapEventQueue.h"
-#include "ThreeTierHeapEventQueue.h"
+#include "TwoTierHeapOfVectorsEventQueue.h"
 #include "TwoTierLadderQueue.h"
 #include "ArgParser.h"
 
@@ -224,10 +224,10 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new LadderQueue();
     } else if (queueName == "2tHeap") {
         agentPQ = new TwoTierHeapEventQueue(); 
-    } else if (queueName == "3tHeap") {
-        agentPQ = new ThreeTierHeapEventQueue();
     } else if (queueName == "heap2tQ") {
-        agentPQ = new HeapOfVectorsEventQueue();
+        agentPQ = new TwoTierHeapOfVectorsEventQueue();
+    } else if (queueName == "3tHeap") {
+        agentPQ = new ThreeTierHeapEventQueue(); 
     } else if (queueName == "fibHeap") {
         agentPQ = new AgentPQ();
     } else if (queueName == "2tLadderQ") {

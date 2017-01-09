@@ -71,12 +71,12 @@ libmuse_a_SOURCES = \
 	src/HeapEventQueue.cpp \
 	include/TwoTierHeapEventQueue.h \
 	src/TwoTierHeapEventQueue.cpp \
-	include/ThreeTierHeapEventQueue.h \
-	src/ThreeTierHeapEventQueue.cpp \
+	include/TwoTierHeapOfVectorsEventQueue.h \
+	src/TwoTierHeapOfVectorsEventQueue.cpp \
 	include/TwoTierHeapAdapter.h \
 	src/TwoTierHeapAdapter.cpp \
-	include/HeapOfVectorsEventQueue.h \
-	src/HeapOfVectorsEventQueue.cpp \
+	include/ThreeTierHeapEventQueue.h \
+	src/ThreeTierHeapEventQueue.cpp \
 	include/TwoTierLadderQueue.h \
 	src/TwoTierLadderQueue.cpp
 
