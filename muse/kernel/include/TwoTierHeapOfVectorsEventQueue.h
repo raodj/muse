@@ -1,5 +1,5 @@
-#ifndef THREE_TIER_HEAP_EVENT_QUEUE_H
-#define THREE_TIER_HEAP_EVENT_QUEUE_H
+#ifndef TWO_TIER_HEAP_OF_VECTORS_EVENT_QUEUE_H
+#define TWO_TIER_HEAP_OF_VECTORS_EVENT_QUEUE_H
 
 //---------------------------------------------------------------------------
 //
@@ -103,8 +103,7 @@ public:
     }
 };
 
-/** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
-    managing events.
+/** A "heap-of-heap" event queue for managing events.
 
     <p>This class provides a heap-of-heap based event queue for
     managing events for simulation.  The two-tiers are organized as
@@ -125,15 +124,15 @@ public:
     std::push_heap or std::pop_heap methods due to implicit dependence
     in the fixHeap() method.
 */
-class ThreeTierHeapEventQueue : public EventQueue {
+class TwoTierHeapOfVectorsEventQueue : public EventQueue {
 public:
-    /** The constructor for the TwoTierHeapEventQueue.
+    /** The constructor for the TwoTierHeapOfVectorsEventQueue.
 
         The default (and only) constructor for this class.  The
         constructor does not have any specific task to perform other
         than set a suitable identifier in the base class.
     */    
-    ThreeTierHeapEventQueue();
+    TwoTierHeapOfVectorsEventQueue();
 
     /** The destructor.
 
@@ -142,7 +141,7 @@ public:
         containers (namely std::vector) that is used internally by
         this class.
     */
-    ~ThreeTierHeapEventQueue();
+    ~TwoTierHeapOfVectorsEventQueue();
 
     /** Add/register an agent with the event queue.
 
@@ -397,7 +396,7 @@ protected:
         This method is a refactored utility method that has been
         introduced to streamline the code.  This method essentially
         obtains the index position of the given agent in the agentList
-        vector from the agent's fibHeapPtr corss-reference.  This
+        vector from the agent's fibHeapPtr cross-reference.  This
         cross-reference is consistently updated by the various methods
         in this class to enable rapid access to the location of the
         agent.

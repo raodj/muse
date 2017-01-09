@@ -1,5 +1,5 @@
-#ifndef HEAP_OF_VECTORS_EVENT_QUEUE_CPP
-#define HEAP_OF_VECTORS_EVENT_QUEUE_CPP
+#ifndef THREE_TIER_HEAP_EVENT_QUEUE_CPP
+#define THREE_TIER_HEAP_EVENT_QUEUE_CPP
 
 //---------------------------------------------------------------------------
 //
@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "HeapOfVectorsEventQueue.h"
+#include "ThreeTierHeapEventQueue.h"
 #include <algorithm>
 
 BEGIN_NAMESPACE(muse)
@@ -31,12 +31,12 @@ BEGIN_NAMESPACE(muse)
 using Tier2List = std::deque<HOETier2Entry*>;
 // using Tier2List = std::vector<Tier2Entry>;
 
-HeapOfVectorsEventQueue::HeapOfVectorsEventQueue() :
+ThreeTierHeapEventQueue::ThreeTierHeapEventQueue() :
     EventQueue("HeapOfVectorsEventQueue") {
     // Nothing else to be done.
 }
 
-HeapOfVectorsEventQueue::~HeapOfVectorsEventQueue() {
+ThreeTierHeapEventQueue::~ThreeTierHeapEventQueue() {
     // Clear up memory allocated for HOETier2Entry
     for (HOETier2Entry* entry : tier2Recycler) {
         delete entry;
@@ -44,7 +44,7 @@ HeapOfVectorsEventQueue::~HeapOfVectorsEventQueue() {
 }
 
 void*
-HeapOfVectorsEventQueue::addAgent(muse::Agent* agent) {
+ThreeTierHeapEventQueue::addAgent(muse::Agent* agent) {
     agentList.push_back(agent);
     // Create the vector that is used to manage events for the agent.
     agent->tier2 = new Tier2List();
@@ -52,7 +52,7 @@ HeapOfVectorsEventQueue::addAgent(muse::Agent* agent) {
 }
 
 void
-HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
+ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
     ASSERT(!empty());
     // Decrease reference count for all events in the agent event queue
@@ -74,12 +74,12 @@ HeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
 }
 
 muse::Event*
-HeapOfVectorsEventQueue::front() {
+ThreeTierHeapEventQueue::front() {
     return (!top()->tier2->empty()) ? top()->tier2->front()->getEvent() : NULL;
 }
 
 void
-HeapOfVectorsEventQueue::pop_front(muse::Agent* agent) {
+ThreeTierHeapEventQueue::pop_front(muse::Agent* agent) {
     // Decrease reference count for all events in the front of the
     // agent event queue before the list of events is removed from the
     // event queue.
@@ -94,7 +94,7 @@ HeapOfVectorsEventQueue::pop_front(muse::Agent* agent) {
 }
 
 void
-HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
+ThreeTierHeapEventQueue::getNextEvents(Agent* agent,
                                        EventContainer& container) {
     ASSERT(container.empty());
     ASSERT(agent->tier2 != NULL);
@@ -147,7 +147,7 @@ HeapOfVectorsEventQueue::getNextEvents(Agent* agent,
 }
 
 void
-HeapOfVectorsEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
+ThreeTierHeapEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
     if (!empty()) {
         // Get agent and validate.
         muse::Agent* const agent = top();
@@ -162,7 +162,7 @@ HeapOfVectorsEventQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
 }
 
 void
-HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
+ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     // Use helper method (just below this one) to add event and fix-up
     // the queue.  First Increase event reference count for every
     // event added to the event queue.
@@ -173,7 +173,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
 }
 
 void
-HeapOfVectorsEventQueue::enqueueEvent(muse::Agent* agent, muse::Event* event) {
+ThreeTierHeapEventQueue::enqueueEvent(muse::Agent* agent, muse::Event* event) {
     ASSERT(agent != NULL);
     ASSERT(event != NULL); 
     ASSERT( agent->tier2 != NULL );   
@@ -203,7 +203,7 @@ HeapOfVectorsEventQueue::enqueueEvent(muse::Agent* agent, muse::Event* event) {
 }
 
 void
-HeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
+ThreeTierHeapEventQueue::enqueue(muse::Agent* agent,
                                  muse::EventContainer& events) {
     ASSERT(agent != NULL);
     // Note: events container may be empty!
@@ -223,7 +223,7 @@ HeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
 }
 
 int
-HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
+ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
                                     const muse::AgentID sender,
                                     const muse::Time sentTime) {
     int  numRemoved = 0;
@@ -262,7 +262,7 @@ HeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
 }
 
 void
-HeapOfVectorsEventQueue::reportStats(std::ostream& os) {
+ThreeTierHeapEventQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);
     const long comps = std::log2(agentList.size()) *
         avgSchedBktSize.getCount() + fixHeapSwapCount.getSum();
@@ -273,12 +273,12 @@ HeapOfVectorsEventQueue::reportStats(std::ostream& os) {
 }
 
 void
-HeapOfVectorsEventQueue::prettyPrint(std::ostream& os) const {
+ThreeTierHeapEventQueue::prettyPrint(std::ostream& os) const {
     os << "HeapOfVectorsEventQueue::prettyPrint() : not implemented.\n";  
 }
 
 size_t
-HeapOfVectorsEventQueue::getIndex(muse::Agent *agent) const {
+ThreeTierHeapEventQueue::getIndex(muse::Agent *agent) const {
     ASSERT(agent != NULL);
     size_t index = reinterpret_cast<size_t>(agent->fibHeapPtr);
     ASSERT(index < agentList.size());
@@ -287,7 +287,7 @@ HeapOfVectorsEventQueue::getIndex(muse::Agent *agent) const {
 }
 
 size_t
-HeapOfVectorsEventQueue::updateHeap(muse::Agent* agent) {
+ThreeTierHeapEventQueue::updateHeap(muse::Agent* agent) {
     ASSERT(agent != NULL);
     size_t index = getIndex(agent);
     if (agent->oldTopTime != getTopTime(agent)) {
@@ -306,7 +306,7 @@ HeapOfVectorsEventQueue::updateHeap(muse::Agent* agent) {
 }
 
 size_t
-HeapOfVectorsEventQueue::fixHeap(size_t currPos) {
+ThreeTierHeapEventQueue::fixHeap(size_t currPos) {
     ASSERT(currPos < agentList.size());
     muse::Agent* value    = agentList[currPos];
     const size_t len      = (agentList.size() - 1) / 2;
