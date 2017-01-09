@@ -22,10 +22,9 @@
 //
 //---------------------------------------------------------------------------
 
-#include <forward_list>
+#include <list>
 #include <queue>
 #include <vector>
-#include <typeinfo>
 #include <set>
 #include "Avg.h"
 #include "Event.h"
@@ -72,7 +71,7 @@ BEGIN_NAMESPACE(muse)
 using EventVector = std::vector<muse::Event*>;
 
 // The definition for a singly-linked list of Events
-using EventList = std::forward_list<muse::Event*>;
+using EventList = std::list<muse::Event*>;
 
 class ListBucket {
 public:
@@ -95,6 +94,10 @@ public:
         return (!list.empty() ? list.front() : NULL);
     }
 
+    muse::Event* back() const {
+        return (!list.empty() ? list.back() : NULL);
+    }
+    
     muse::Event* pop_front() {
         muse::Event* retVal = list.front();
         list.pop_front();
@@ -103,7 +106,7 @@ public:
     }
 
     void insert_after(ListBucket::iterator pos, muse::Event* event) {
-        list.insert_after(pos, event);
+        list.insert(++pos, event);
         count++;
     }
 
@@ -401,6 +404,7 @@ private:
 class HeapBottom {
     friend class LadderQueue;   // NOTE: uses sel directly
 public:
+    HeapBottom() : maxEvtTime(0) {}
     void enqueue(Bucket&& bucket);
     void enqueue(muse::Event* event);
 
@@ -430,12 +434,45 @@ public:
     inline size_t size() const { return sel.size(); }
 
     bool haveBefore(const Time recvTime) const;
+
+    /** Method to determine the range of receive time values currently
+        in bottom.  This value is used to decide if it is worth moving
+        events from bottom into the ladder.
+
+        \note This method is called often, particularly in parallel
+        simulation.  Consequently, it needs to be quick. To ensure it
+        is quick, we track the maximum event time in the min-heap
+        using the maxEvtTime instance variable.
+        
+        \return The difference in maximum and minimum receive
+        timestamp of events in the bottom.  This value is zero if all
+        events have the same receive time.  If the bottom is empty,
+        then this method also returns zero.
+    */
+    muse::Time getTimeRange() const {
+        if (sel.empty()) {
+            return 0;
+        }
+        return (maxEvtTime - sel.front()->getReceiveTime());
+    }
+
+    /** Determine bucket width to move bottom into ladder.
+
+        This method is invoked only when the ladder is empty and the
+        bottom is long and needs to be moved into the ladder.  This
+        method must compute and return the preferred bucket width.
+
+        \note If the bottom is empty this method returns bucket width
+        of 0.
+     */
+    double getBucketWidth() const;
     
 protected:
     // Currently there are no protected members in this class
     void print(std::ostream& os = std::cout) const;
 private:
     EventVector sel;
+    muse::Time maxEvtTime;
 };
 
 
@@ -493,6 +530,34 @@ public:
     inline size_t size() const { return sel.size(); }
 
     bool haveBefore(const Time recvTime) const;
+
+    /** Method to determine the range of receive time values currently
+        in bottom.  This value is used to decide if it is worth moving
+        events from bottom into the ladder.
+
+        \return The difference in maximum and minimum receive
+        timestamp of events in the bottom.  This value is zero if all
+        events have the same receive time.  If the bottom is empty,
+        then this method also returns zero.
+    */
+    muse::Time getTimeRange() const {
+        if (sel.empty()) {
+            return 0;
+        }
+        return ((*sel.rbegin())->getReceiveTime() -
+                (*sel.begin())->getReceiveTime());
+    }
+
+    /** Determine bucket width to move bottom into ladder.
+
+        This method is invoked only when the ladder is empty and the
+        bottom is long and needs to be moved into the ladder.  This
+        method must compute and return the preferred bucket width.
+
+        \note If the bottom is empty this method returns bucket width
+        of 0.
+     */
+    double getBucketWidth() const;
     
 protected:
     // Currently there are no protected members in this class
