@@ -37,19 +37,15 @@ muse::ListBucket::~ListBucket() {
 int
 muse::ListBucket::remove_after(muse::AgentID sender, const Time sendTime) {
     size_t removedCount = 0;
-    ListBucket::iterator next = list.before_begin();
-    ListBucket::iterator curr = next++;
-    while (next != list.end()) {
-        muse::Event* const event = *next;
+    ListBucket::iterator curr = begin();
+    while (curr != list.end()) {
+        muse::Event* const event = *curr;
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
-            list.erase_after(curr);
             event->decreaseReference();
+            curr = list.erase(curr);            
             removedCount++;
-            next = curr;
-            next++;
         } else {
-            next++;
             curr++;
         }
     }
@@ -73,19 +69,15 @@ muse::ListBucket::haveBefore(const Time recvTime) const {
 int
 muse::ListBucket::remove(muse::AgentID receiver) {
     size_t removedCount = 0;
-    ListBucket::iterator next = list.before_begin();
-    ListBucket::iterator curr = next++;
-    while (next != list.end()) {
-        muse::Event* const event = *next;
+    ListBucket::iterator curr = list.begin();
+    while (curr != list.end()) {
+        muse::Event* const event = *curr;
         if (event->getReceiverAgentID() == receiver) {
-            list.erase_after(curr);
             event->decreaseReference();
+            curr = list.erase(curr);
             removedCount++;
-            next = curr;
-            next++;
         } else {
-            next++;  // on to the next events
-            curr++;  // track both iterators.
+            curr++;  // onto next event.
         }
     }
     count -= removedCount;  // Track remaining events
@@ -263,22 +255,6 @@ muse::Bottom::enqueue(muse::Event* event, VectorBucket& botList) {
     VectorBucket::reverse_iterator iter =
         std::upper_bound(botList.rbegin(), botList.rend(), event, revCompare);
     botList.insert_after(iter, event);
-    /*    
-    if (botList.empty() || !compare(event, botList.front())) {
-        // Empty list or event is smaller than head.  Add event to the
-        // front of the list.
-        botList.push_front(event);
-    } else {
-        // Insert event in sorted list of events. For this we need to
-        // search for the correct insertion location.
-        ASSERT(compare(event, botList.front()));
-        VectorBucket::reverse_iterator next = botList.rbegin();
-        while ((next != botList.rend()) && compare(event, *next)) {
-            next++;
-        }
-        botList.insert_after(next, event);
-    }
-    */
     DEBUG(validate());
 }
 
@@ -370,7 +346,9 @@ muse::HeapBottom::enqueue(Bucket&& bucket) {
     sel.reserve(sel.size() + bucket.size() + 1);
     // Add all the events to the conainer.
     while (!bucket.empty()) {
-        sel.push_back(bucket.pop_front());
+        muse::Event* const event = bucket.pop_front();
+        maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
+        sel.push_back(event);
     }
     // Restore heap properties for the queue.
     std::make_heap(sel.begin(), sel.end(), Bottom::compare);
@@ -379,6 +357,7 @@ muse::HeapBottom::enqueue(Bucket&& bucket) {
 void
 muse::HeapBottom::enqueue(muse::Event* event) {
     ASSERT(sel.empty() || (front()->getReceiveTime() <= findMinTime()));
+    maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
     sel.push_back(event);
     std::push_heap(sel.begin(), sel.end(), Bottom::compare);
 }
@@ -388,6 +367,8 @@ muse::HeapBottom::pop_front() {
     std::pop_heap(sel.begin(), sel.end(), Bottom::compare);
     muse::Event* retVal = sel.back();
     sel.pop_back();
+    maxEvtTime = (sel.empty() ? 0 : std::max(maxEvtTime,
+                                             retVal->getReceiveTime()));
     return retVal;
 }
 
@@ -409,6 +390,7 @@ muse::HeapBottom::remove_after(muse::AgentID sender, const Time sendTime) {
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // This event needs to be removed.
+            maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
             event->decreaseReference();
             removedCount++; 
             // Now it is time to patchup the hole and fix up the heap.
@@ -426,6 +408,8 @@ muse::HeapBottom::remove_after(muse::AgentID sender, const Time sendTime) {
             currIdx--;
         }
     }
+    // If the queue is empty reset the maxEvtTime
+    maxEvtTime = (!sel.empty() ? maxEvtTime : 0);
     // Return number of events canceled to track statistics.
     return removedCount;
 }
@@ -440,6 +424,7 @@ muse::HeapBottom::remove(muse::AgentID receiver) {
     for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
         muse::Event* const event = *curr;
         if (event->getReceiverAgentID() == receiver) {
+            maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
             event->decreaseReference();
             removedCount++;
         } else {
@@ -448,7 +433,11 @@ muse::HeapBottom::remove(muse::AgentID receiver) {
     }
     // Update the sel with list of retained events
     sel.swap(retained);
-    std::make_heap(sel.begin(), sel.end(), Bottom::compare);
+    if (!sel.empty()) {
+        std::make_heap(sel.begin(), sel.end(), Bottom::compare);
+    } else {
+        maxEvtTime = 0;  // empty heap!
+    }
     return removedCount;
 }
 
@@ -469,6 +458,10 @@ muse::HeapBottom::dequeueNextAgentEvents(muse::EventContainer& events) {
         DEBUG(std::cout << "Delivering: " << *event << std::endl);
     } while (!empty() && (nextEvt->getReceiverAgentID() == receiver) &&
              TIME_EQUALS(nextEvt->getReceiveTime(), currTime));
+    // Reset maximum event time if heap is empty
+    if (sel.empty()) {
+        maxEvtTime = 0;
+    }
     DEBUG(validate());
 }
 
@@ -481,6 +474,7 @@ muse::HeapBottom::maxTime() const {
     for (auto curr = sel.begin(); (curr != sel.end()); curr++) {
         maxTime = std::max(maxTime, (*curr)->getReceiveTime());
     }
+    ASSERT( maxTime == maxEvtTime );
     return maxTime;
 }
 
@@ -494,6 +488,15 @@ muse::HeapBottom::findMinTime() const {
     //     minTime = std::min(minTime, (*curr)->getReceiveTime());
     // }
     return minTime;
+}
+
+double
+muse::HeapBottom::getBucketWidth() const {
+    if (empty()) {
+        return 0;
+    }
+    const double minTS = front()->getReceiveTime();
+    return (maxEvtTime - minTS + size() - 1.0) / sel.size();
 }
 
 bool
@@ -511,8 +514,9 @@ muse::HeapBottom::haveBefore(const Time recvTime) const {
 
 void
 muse::HeapBottom::validate() {
-    // Heap's are implemented using standard C++ algorithms and
-    // consequently no special validation is deemed necessary.
+    // Heap's are implemented using standard C++ algorithms and should
+    // be compatible with them.
+    ASSERT(std::is_heap(sel.begin(), sel.end(), Bottom::compare));
 }
 
 void
@@ -636,6 +640,16 @@ muse::MultiSetBottom::findMinTime() const {
     muse::Time minTime = front()->getReceiveTime();
     ASSERT(minTime <= maxTime());
     return minTime;
+}
+
+double
+muse::MultiSetBottom::getBucketWidth() const {
+    if (empty()) {
+        return 0;
+    }
+    const double maxTS = (*sel.rbegin())->getReceiveTime();
+    const double minTS = (*sel.begin())->getReceiveTime();
+    return (maxTS - minTS + size() - 1.0) / sel.size();
 }
 
 bool
