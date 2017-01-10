@@ -753,8 +753,8 @@ muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
         numRemoved += botRemoved;
         // Update statistics counters
         LQ2T_STATS(ceBot += botRemoved);
-        LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
-                   (ceScanBot += botSize));
+        LQ2T_STATS(ceScanBot += botSize);
+        LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) : 0);
     }
     return numRemoved;
 }
@@ -818,8 +818,8 @@ muse::TwoTierLadderQueue::removeAgent(muse::Agent* agent) {
     // Finally remove events from bottom for the agent.
     LQ2T_STATS(const size_t botSize = bottom.size());
     const int botRemoved  = bottom.remove(receiver);
-    LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
-               (ceScanBot += botSize));    
+    LQ2T_STATS(ceScanBot += botSize);
+    LQ2T_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) : 0);
     numRemoved           += botRemoved;
     LQ2T_STATS(ceBot     += botRemoved);
 }
