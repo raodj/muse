@@ -186,7 +186,7 @@ muse::TwoTierTop::reset(const Time startTime) {
 
 void
 muse::TwoTierTop::add(muse::Event* event) {
-    //push_back<SenderID>(event);   // Call base-class method.
+    push_back<SenderID>(event);   // Call base-class method.
     // Update running timestamps.
     minTS = std::min(minTS, event->getReceiveTime());
     maxTS = std::max(maxTS, event->getReceiveTime());
@@ -378,7 +378,7 @@ muse::TwoTierRung::enqueue(muse::Event* event) {
     }
     ASSERT(bucketNum < bucketList.size());
     // Add event into appropriate bucket
-   // bucketList[bucketNum].push_back<SenderID>(event);
+    bucketList[bucketNum].push_back<SenderID>(event);
     // Track number of events added to this Rung
     rungEventCount++;
 }
