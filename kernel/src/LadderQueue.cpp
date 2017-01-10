@@ -1164,9 +1164,8 @@ muse::LadderQueue::remove_after(muse::AgentID sender, const Time sendTime) {
     if (botRemoved > -1) {
         numRemoved         += botRemoved;
         LQ_STATS(ceBot     += botRemoved);
-        LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
-                 (ceScanBot += botSize));
-        
+        LQ_STATS(ceScanBot += botSize);
+        LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) : 0);
     }
     return numRemoved;
 }
@@ -1224,8 +1223,8 @@ muse::LadderQueue::removeAgent(muse::Agent* agent) {
     // Save original size of bottom to track stats.
     LQ_STATS(const size_t botSize  = bottom.size());    
     const int botRemoved = bottom.remove(receiver);
-    LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) :
-             (ceScanBot += botSize));    
+    LQ_STATS(ceScanBot  += botSize);
+    LQ_STATS((botRemoved == 0) ? (ceNoCanScanBot += botSize) : 0);
     numRemoved          += botRemoved;
     LQ_STATS(ceBot      += botRemoved);
 }
