@@ -26,11 +26,6 @@
 #include <cstdlib>
 #include "Scheduler.h"
 #include "Simulation.h"
-#include "LadderQueue.h"
-#include "HeapEventQueue.h"
-#include "TwoTierHeapEventQueue.h"
-#include "TwoTierHeapOfVectorsEventQueue.h"
-#include "TwoTierLadderQueue.h"
 #include "ArgParser.h"
 
 using namespace muse;
