@@ -106,7 +106,7 @@ do for [i=1:MaxVars] {
         set xtics approxTics
         
         # Set title outside chart
-        set title toTitle(word(VarNames, i)) offset 0,-1 font ",12" tc rgb '#0072bd'
+        set title toTitle(word(VarNames, i)) offset 0,-1 font " Bold,12" tc rgb '#0072bd'
         
         # Draw arrows at the max F value (use last line in CSV)
         arrowVals = getMaxF(outFile)
@@ -134,9 +134,9 @@ do for [i=1:MaxVars] {
         # Set label to be to the left and right to ensure readability
         midX = minX + (maxX - minX) / 4
         if (aroX <= midX) {
-            set label 4 maxF at aroX, labY left front tc rgb '#d95319' font "Arial-Bold"
+            set label 4 maxF at aroX, labY center front tc rgb '#d95319' font "Arial-Bold"
         } else {
-            set label 4 maxF at aroX, labY right front tc rgb '#d95319' font "Arial-Bold"
+            set label 4 maxF at aroX, labY center front tc rgb '#d95319' font "Arial-Bold"
         }
         # Plot the data.
         plot outFile using 1:9 axes x1y2 with impulses lw 0.25 lc rgb '#ffdf00' notitle,\

@@ -24,7 +24,7 @@ colNames=( "GVTPeriod" "Imbalance" "Lambda" "SelfEvents%" "SimEndTime"
 declare -A Acronym
 Acronym=( ["GVTPeriod"]="GVT Period"
           ["Imbalance"]="Imbalance"
-          ["Lambda"]="Time Step"
+          ["Lambda"]="Lambda"
           ["SelfEvents%"]="Self Evt.%"
           ["SimEndTime"]="End Time"
           ["Rows"]="Rows"

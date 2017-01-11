@@ -62,9 +62,9 @@ do for[idx=0:MaxVars] {
     labStr= sprintf("%0.3f\n({/Symbol \\261 %0.2f)", fVal, ci)
     # Set label at correct coordinate
     if (fVal < 0.5) {
-        set label labStr center at idx, fVal + 0.11 font " Bold, 8"
+        set label labStr center at idx, fVal + ci + 0.02 font " Bold, 8"
     } else {
-        set label labStr center at idx, fVal + 0.08 font " Bold, 8"
+        set label labStr center at idx, fVal + ci + 0.02 font " Bold, 8"
     }
 }
 
