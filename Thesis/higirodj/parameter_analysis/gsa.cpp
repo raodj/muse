@@ -17,7 +17,7 @@
  * and the other two for timings of two different queues.
  * 2. Identifies unique parameter values from 1st column-number.
  *    2.1. For each unique parameter setting it counts number of
- *         success (time1 <= time2) and failures.
+ *         success (time1 >= time2) and failures.
  *    2.2. It computes percentage success and cumulative percentage success.
  *    2.3. It computes percentage failure and cumulative percentage failure.
  * 3. Reports difference between cumulative success and failure, with
