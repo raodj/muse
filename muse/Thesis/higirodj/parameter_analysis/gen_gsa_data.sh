@@ -29,19 +29,22 @@ QUEUE2_DEFAULT="heap2tQ"
 declare -A CmdLineParams
 CmdLineParams=( ['--rows']="10 100"
                 ['--cols']="10 100"
-                ['--delay']="0 12"
+                ['--delay']="1 10"
                 ['--selfEvents%']="0 100"
                 ['--eventsPerAgent']="1 20"
                 ['--granularity']="0 50"
                 ['--simEndTime']="300 600"
                 ['--imbalance%']="0 100"
-				['--gvt-delay']="100 10000"
+                ['--gvt-delay']="100 10000"
               )
 
 # ------ Typically you should not have to modify values below this line. -----
 
 # The Sobol random number generation program.
 SOBOL_GEN="./Sobol"
+
+# Any additional command-line options to be included.
+ADDL_SIM_CMD_LINE_ARGS="--2t-ladderQ-t2k 1"
 
 # Convenience function print parameters and ranges set
 function printParamRanges() {
@@ -135,14 +138,21 @@ function param2CmdLine() {
     local max=${paramRange[1]}
     local range=$(( max - min ))
     # Scale the rndNum to min and max values
+
     local paramVal=`echo "$min + $rndNum * $range" | bc -l | cut -d'.' -f1`
+	# The above cut command gives empty string for values < 1
+	if [ -z "$paramVal" ]; then
+		paramVal="0"
+	fi
     # If the parameter is a percentage convert it to 0 to 1.0 value
     if [ "${key: -1}" == "%" ]; then
         paramVal=`echo "$paramVal / 100.0" | bc -l`
+		# Round to 3 decimal places
+		paramVal=`printf "%.3f" ${paramVal}`
         # Remove traling % from key.
         # key="${key:0:-1}"
-		local len=$(( ${#key} - 1 ))
-		key=${key:0:len}
+	    local len=$(( ${#key} - 1 ))
+	    key=${key:0:len}
     fi
     # Echo the parameter and its value
     echo "$key $paramVal"
@@ -221,8 +231,8 @@ function compare_queues() {
         local queue1_log="${TMPDIR}/${QUEUE1}_${i}_${suffix}"
         local queue2_log="${TMPDIR}/${QUEUE2}_${i}_${suffix}"
         # Run the two simulation in parallel (assume 2 cores are allocated)
-        /usr/bin/time -p -o "${queue1_log}" $SIM_EXEC $cmdLine --scheduler-queue $QUEUE1 > /dev/null &
-        /usr/bin/time -p -o "${queue2_log}" $SIM_EXEC $cmdLine --scheduler-queue $QUEUE2 > /dev/null &
+        /usr/bin/time -p -o "${queue1_log}" $SIM_EXEC $cmdLine --scheduler-queue $QUEUE1 ${ADDL_SIM_CMD_LINE_ARGS} > /dev/null &
+        /usr/bin/time -p -o "${queue2_log}" $SIM_EXEC $cmdLine --scheduler-queue $QUEUE2 ${ADDL_SIM_CMD_LINE_ARGS} > /dev/null &
     done
     # Wait for all 6 processes to finish
     wait
@@ -286,3 +296,4 @@ function main() {
 main $*
 
 # End of script
+

@@ -20,8 +20,9 @@
 SIM_EXEC="./phold"
 
 # The default values for the two types of queues we are working with
-QUEUE1_DEFAULT="ladderQ"
-QUEUE2_DEFAULT="heap2tQ"
+QUEUE1_DEFAULT="2tLadderQ"
+# QUEUE2_DEFAULT="heap2tQ"
+QUEUE2_DEFAULT="ladderQ"
 
 # The list of command-line parameters to be explored for GSA.  These
 # values change from simulation-to-simulation.  Entries are in the
@@ -43,6 +44,9 @@ CmdLineParams=( ['--rows']="10 100"
 
 # The Sobol random number generation program.
 SOBOL_GEN="./Sobol"
+
+# Any additional command-line options to be included.
+ADDL_SIM_CMD_LINE_ARGS="--2t-ladderQ-t2k 32 --time-window 20"
 
 # Fixed subset of command-line arguments to be passed to PBS
 PBS_PARAMS="-j oe -lnodes=1:ppn=4 -lwalltime=00:05:00 -lmem=4gb -m n"
@@ -143,9 +147,15 @@ function param2CmdLine() {
     local range=$(( max - min ))
     # Scale the rndNum to min and max values
     local paramVal=`echo "$min + $rndNum * $range" | bc -l | cut -d'.' -f1`
+	# The above cut command gives empty string for values < 1
+	if [ -z "$paramVal" ]; then
+		paramVal="0"
+	fi	
     # If the parameter is a percentage convert it to 0 to 1.0 value
     if [ "${key: -1}" == "%" ]; then
         paramVal=`echo "$paramVal / 100.0" | bc -l`
+		# Round to 3 decimal places
+		paramVal=`printf "%.3f" ${paramVal}`		
         # Remove traling % from key.
         # key="${key:0:-1}"
 		local len=$(( ${#key} - 1 ))
@@ -281,9 +291,9 @@ function compare_queues() {
     echo "Running simulations for: $cmdLine..."
 	# Create a couple of PBS scripts with the necessary parameters:
 	echo "cd \$PBS_O_WORKDIR" > "$q1PBS"
-	echo "/usr/bin/time -p -o \$TIME_LOG mpiexec $SIM_EXEC $cmdLine --scheduler-queue $QUEUE1" >> "$q1PBS"
+	echo "/usr/bin/time -p -o \$TIME_LOG mpiexec $SIM_EXEC $cmdLine --scheduler-queue $QUEUE1 ${ADDL_SIM_CMD_LINE_ARGS}" >> "$q1PBS"
 	echo "cd \$PBS_O_WORKDIR" > "$q2PBS"	
-	echo "/usr/bin/time -p -o \$TIME_LOG mpiexec $SIM_EXEC $cmdLine --scheduler-queue $QUEUE2" >> "$q2PBS"
+	echo "/usr/bin/time -p -o \$TIME_LOG mpiexec $SIM_EXEC $cmdLine --scheduler-queue $QUEUE2 ${ADDL_SIM_CMD_LINE_ARGS}" >> "$q2PBS"
     # Submit 3 PBS jobs per queue and save job IDs of PBS jobs
 	local q1Jobs=( x x x )
 	local q2Jobs=( x x x )
