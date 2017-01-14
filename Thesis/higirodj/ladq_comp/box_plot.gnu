@@ -7,7 +7,7 @@
 # Set properties for the chart.
 dataFile="ph3_lq_compare.csv"
 set datafile separator ","
-set terminal pdfcairo enhanced color size 3.5in,2.5in
+set terminal pdfcairo enhanced color size 4in,2.5in
 set output "lq_config_compare.pdf"
 
 # Set properties for the box plot
@@ -24,7 +24,7 @@ set xtics   ("L.List &\nList" 1.00000, "L.List &\nM.Set" 2.00000,\
              "Vector &\nHeap" 5.00000, "Vecor&\nVector"  6.00000 ) font ",10" offset 0,0.5
 
 set xrange[0:6]
-set ytics border in nomirror
+set ytics border in nomirror font ",9"
 set ytics  format "%2.0f%%"
 set grid lc rgb "#cccccc"
 
