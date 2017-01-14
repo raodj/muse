@@ -206,12 +206,16 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
          &timeWindow, ArgParser::DOUBLE},
         {"--2t-ladderQ-t2k", "Sub-buckets per bucket in 2-tier ladder queue",
          &TwoTierBucket::t2k, ArgParser::INTEGER},
+        {"--lq-max-rungs", "Max rungs for ladderQ / 2tLadderQ",
+         &LadderQueue::MaxRungs, ArgParser::INTEGER},        
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the argument parser to parse command-line arguments and
     // update local variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
+    // Set MaxRungs to be the same for 2tLadderQ as well
+    TwoTierLadderQueue::MaxRungs = LadderQueue::MaxRungs;
     // Create a queue based on the name specified.
     if (queueName == "heap") {
         agentPQ = new HeapEventQueue();

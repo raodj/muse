@@ -48,9 +48,6 @@
 // from bottom are placed into a new rung in the ladder.
 #define THRESH 50
 
-// The maximum number of rungs permitted in the ladder.
-#define MAX_RUNGS 8
-
 /** \def LQ_STATS(x)
 
     \brief Define a convenient macro for conditionally compiling
@@ -1553,7 +1550,7 @@ private:
 class LadderQueue : public EventQueue {
 public:
     LadderQueue() : EventQueue("LadderQueue"), nRung(0), ladderEventCount(0) {
-        ladder.reserve(MAX_RUNGS);
+        ladder.reserve(MaxRungs);
         LQ_STATS(ceTop    = ceLadder   = ceBot  = 0);
         LQ_STATS(insTop   = insLadder  = insBot = 0);
         LQ_STATS(maxRungs = maxBotSize = 0);
@@ -1735,6 +1732,16 @@ public:
         to be written.
     */
     virtual void reportStats(std::ostream& os);
+
+    /** The maximum number of rungs that are normally created in the
+        ladder queue.  The default value for this set to 8 based on
+        the value suggested by Tang et. al. in the original Ladder
+        Queue paper.  However, this value can make some difference in
+        the overall performance and possibly fine tuned to suit the
+        application needs based on the concurrency and number of
+        events in the model.
+    */
+    static size_t MaxRungs;
     
 protected:
     /** Check and create rungs in the ladder and return the next
