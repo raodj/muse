@@ -891,6 +891,11 @@ muse::Rung::haveBefore(const Time recvTime) const {
 
 // ------------------------[  LadderQueue methods ]----------------------
 
+// The maximum number of rungs typically allowed in the ladder.  This
+// value is set to 8 by default based on Tang et. al.  It can be set
+// via command-line parameter --lq-max-rungs 8.
+size_t muse::LadderQueue::MaxRungs = 8;
+
 muse::LadderQueue::~LadderQueue() {
     // Nothing else to be dne here.
 }
@@ -1048,7 +1053,7 @@ muse::LadderQueue::recurseRung() {
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > THRESH) && (nRung < MAX_RUNGS)) {
+    if ((bkt.size() > THRESH) && (nRung < MaxRungs)) {
         // Note: Here bucket width can dip low. But that is needed to
         // ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -

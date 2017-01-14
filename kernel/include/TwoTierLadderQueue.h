@@ -65,9 +65,6 @@
     simulation as there are no rollbacks</p>
 */
 
-// The maximum number of rungs permitted in the ladder.
-#define MAX_RUNGS 8
-
 // Bucket size after which new rung is created in ladder
 #define LQ2T_THRESH 50
 
@@ -1059,7 +1056,7 @@ public:
      */
     TwoTierLadderQueue() : EventQueue("LadderQueue"), nRung(0),
                            ladderEventCount(0) {
-        ladder.reserve(MAX_RUNGS);
+        ladder.reserve(MaxRungs);
         LQ2T_STATS(ceTop    = ceLadder   = ceBot  = 0);
         LQ2T_STATS(insTop   = insLadder  = insBot = 0);
         LQ2T_STATS(maxRungs = maxBotSize = 0);
@@ -1236,6 +1233,16 @@ public:
         to be written.
     */
     virtual void reportStats(std::ostream& os);
+
+    /** The maximum number of rungs that are normally created in the
+        ladder queue.  The default value for this set to 8 based on
+        the value suggested by Tang et. al. in the original Ladder
+        Queue paper.  However, this value can make some difference in
+        the overall performance and possibly fine tuned to suit the
+        application needs based on the concurrency and number of
+        events in the model.
+    */
+    static size_t MaxRungs;
     
 protected:
     /** Check and create rungs in the ladder and return the next

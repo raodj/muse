@@ -510,6 +510,11 @@ muse::TwoTierRung::prettyPrint(std::ostream& os) const {
 
 // --------------------[ TwoTierLadderQueue methods ]--------------------
 
+// The maximum number of rungs typically allowed in the ladder.  This
+// value is set to 8 by default based on Tang et. al.  It can be set
+// via command-line parameter --lq-max-rungs 8.
+size_t muse::TwoTierLadderQueue::MaxRungs = 8;
+
 void
 muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
     UNUSED_PARAM(os);    
@@ -609,7 +614,7 @@ muse::TwoTierLadderQueue::recurseRung() {
     ASSERT(!bkt.empty());
     ASSERT(!ladder.empty());
     // Check and create new rung in the ladder if the bucket is large.
-    if ((bkt.size() > LQ2T_THRESH) && (nRung < MAX_RUNGS)) {
+    if ((bkt.size() > LQ2T_THRESH) && (nRung < MaxRungs)) {
         // Note: Here bucket width can dip a bit low. But that is
         // needed to ensure consistent ladder setup.
         const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
