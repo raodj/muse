@@ -471,7 +471,7 @@ public:
     double getBucketWidth() const {
         DEBUG(std::cout << "minTS=" << minTS << ", maxTS=" << maxTS
               << ", size=" << size() << std::endl);
-        return (maxTS - minTS + size() - 1.0) / size();
+        return std::max((maxTS - minTS + size() - 1.0) / size(), 0.01);
     }
 
 protected:
