@@ -64,7 +64,7 @@ ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
         for (Event* evt : bucket->getEventList()) {
             evt->decreaseReference();  // logically remove event
         }
-        // Free the memory reserved fro this bucket
+        // Free the memory reserved for this bucket
         delete bucket;
     }
     // Clear out tier2 queue (so this agent's time becomes PINFINITY)
@@ -250,6 +250,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
             // If all events are canceled then this bucket needs to be
             // removed from the tier2 entry.
             if (eventList.empty()) {
+                tier2Recycler.emplace_back(tier2eventPQ[currIdx]);
                 tier2eventPQ.erase(tier2eventPQ.begin() + currIdx);
             }
         }
