@@ -1160,6 +1160,12 @@ muse::LadderQueue::remove_after(muse::AgentID sender, const Time sendTime) {
         numRemoved        += rungEvtRemoved;
         LQ_STATS(ceLadder += rungEvtRemoved);
     }
+    // Clear out the rungs in ladder that are now empty after event
+    // cancellations.
+    while (nRung > 0 && ladder[nRung - 1].empty()) {
+        LQ_STATS(ladder[nRung - 1].updateStats(avgBktCnt));
+        nRung--;  // Logically remove rung from ladder
+    }
     // Remove events from bottom.  If the return value is -1, the scan
     // of bottom was quickly short circuited and no events needed to
     // be canceled.

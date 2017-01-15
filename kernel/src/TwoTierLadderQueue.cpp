@@ -750,6 +750,12 @@ muse::TwoTierLadderQueue::remove_after(muse::AgentID sender,
         numRemoved        += rungEvtRemoved;
         LQ2T_STATS(ceLadder += rungEvtRemoved);
     }
+    // Clear out the rungs in ladder that are now empty after event
+    // cancellations.
+    while (nRung > 0 && ladder[nRung - 1].empty()) {
+        LQ2T_STATS(ladder[nRung - 1].updateStats(avgBktCnt));
+        nRung--;  // Logically remove rung from ladder
+    }    
     // Save original size of bottom to track stats.
     LQ2T_STATS(const size_t botSize  = bottom.size());
     // Cancel events from bottom.
