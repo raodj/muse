@@ -1,0 +1,16 @@
+# Data was manulally collected using the following command on a
+# compute node on red hawk
+# for i in `seq 1 10`; do time ./phold --rows 100 --cols 10 --eventsPerAgent 4 --delay 1 --simEndTime 5000 --scheduler-queue ladderQ --lq-max-rungs 4 | grep -i "bottom" ; done
+# MaxRungs, InsBot, MeanRunTime, CI, AvgBotLen, Bot2Rung
+1, 220, 28.82, 0.4, 2039, 134525
+2, 220, 29.49, 0.65, 2039, 134525
+3, 220, 30.47, 0.44, 2039, 134525
+4, 220, 41.18, 0.67, 2039, 134525
+5, 124, 26.82, 0.15, 2022.14, 78208
+6, 0, 6.872, 0.137, 1574.75, 0
+7, 0, 7.01, 0.178, 1574.75, 0
+8, 0, 6.98, 0.1, 1574.75, 0
+9, 0, 7.289, 0.07, 1574.75, 0
+10, 0, 7.257, 0.04, 1574.75, 0
+11, 0, 7.49, 0.15, 1574.75, 0
+12, 0, 7.639, 0.03, 1574.75, 0
