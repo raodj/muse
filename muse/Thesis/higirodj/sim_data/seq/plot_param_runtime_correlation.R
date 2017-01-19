@@ -102,7 +102,7 @@ function (R, histogram = TRUE, method=c("pearson", "kendall", "spearman"), ...)
 }
 
 
-saData = read.csv('runtime_heap2tQ_ladderQ_corr.csv', header=TRUE)
-pdf("runtime_heap2tQ_ladderQ_corr.pdf", width=3.5,height=3.5,paper='special', pointsize=10)
+saData = read.csv('runtime_3tHeap_ladderQ_corr.csv', header=TRUE)
+pdf("runtime_3tHeap_ladderQ_corr.pdf", width=3.5,height=3.5,paper='special', pointsize=10)
 plot_correlation(saData)
 dev.off()
