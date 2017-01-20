@@ -8,7 +8,8 @@
 # NOTE: You must compile skew_data.cpp prior to running this script
 
 # Setup output file based on input file by chaning extension
-set terminal pdfcairo enhanced color size 3.5in,3.5in font ", 12"
+# set terminal pdfcairo enhanced color size 3.5in,3.5in font ", 12"
+set terminal pdfcairo enhanced color size 3.5in,1.5in font ", 10"
 set output "skew_data.pdf"
 
 # Set properties of the data and chart
@@ -20,12 +21,12 @@ set boxwidth 0.75
 
 # Setup some general properties for all the charts
 set grid lc rgb "#cccccc" front
-set key top left  maxrows 2
-set yrange [0:115]
+set key top left  maxrows 1 samplen 1 width -1
+set yrange [0:120]
 set xtics
 set xlabel "Imbalance (percentage)" font " Bold"
 set ytics
-set ylabel "LPs per partition (Part.)" font " Bold" offset 1,0
+set ylabel "LPs per partition" font " Bold" offset 1,0
 
 plot '< ./skew_data 100 4' using 2:xtic(1) lc rgb '#f0bc42' title "Part. #1",\
      '' using 3:xtic(1) lc rgb '#b3cde3' title "Part. #2", \

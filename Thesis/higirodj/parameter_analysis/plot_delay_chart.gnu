@@ -6,7 +6,8 @@
 
 
 # Setup output file based on input file by chaning extension
-set terminal pdfcairo enhanced color size 3.5in,2.5in font ", 12"
+# set terminal pdfcairo enhanced color size 3.5in,2.5in font ", 12"
+set terminal pdfcairo enhanced color size 3.5in,1.5in font ", 10"
 set output "exp_delay_chart.pdf"
 
 # Setup some general properties for all the charts

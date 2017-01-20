@@ -5,7 +5,8 @@
 # gnuplot plot_granularity.gnu
 
 # Set output and plot formats
-set terminal pdfcairo enhanced truecolor size 4in,3in font ",12"
+# set terminal pdfcairo enhanced truecolor size 4in,3in font ",12"
+set terminal pdfcairo enhanced truecolor size 4in,1.5in font ",10"
 set output "gran_info.pdf"
 
 set xrange[-1:51]
@@ -18,8 +19,8 @@ ltBlue="#4dbeee"
 red="#a2142f"
 
 set xlabel "Granularity parameter value" font " Bold"
-set ytics  format "%2.0f%%" tc rgb blue
-set ylabel "Percent of simulation time\nspent in model" tc rgb blue font " Bold"
+set ytics  format "%2.0f%%" tc rgb blue nomirror
+set ylabel "Percent of simulation\ntime spent in model" tc rgb blue font " Bold"
 set y2label "Instructions per event" tc rgb red font " Bold"
 set y2tics offset -1.5, 0 rotate by -45 tc rgb red
 
