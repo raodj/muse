@@ -22,17 +22,17 @@ ColorList="#8dd3c7 #b8860b #928bc1 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80
 
 heapClr    = word(ColorList, 8);
 _3tHeapClr = word(ColorList, 2);
-ladderClr  = word(ColorList, 6);
+ladderClr  = word(ColorList, 5);
 
 # Draw box for 3tHeap
-set obj rect from minX, 5 to maxX, 20 fs transparent solid 0.6 noborder fc rgb _3tHeapClr
-set obj rect from minX, 5 to maxX, 20 fs empty border rgb _3tHeapClr
+set obj rect from minX, 8 to maxX, 20 fs transparent solid 0.5 noborder fc rgb _3tHeapClr
+set obj rect from minX, 8 to maxX, 20 fs empty border rgb _3tHeapClr
 
 # Draw box for ladder queue region.
-set obj rect from minX, 1 to maxX, 6 fs transparent solid 0.3 noborder fc rgb ladderClr
-set obj rect from minX, 1 to maxX, 6 fs empty border rgb ladderClr
+set obj rect from minX, 1 to maxX, 10 fs transparent solid 0.5 noborder fc rgb ladderClr
+set obj rect from minX, 1 to maxX, 10 fs empty border rgb ladderClr
 # Draw box for heap color
-set obj rect from minX, 1 to 1000,  2  fs transparent solid 0.6 noborder fc rgb heapClr
+set obj rect from minX, 1 to 1000,  2  fs transparent solid 0.5 noborder fc rgb heapClr
 set obj rect from minX, 1 to 1000,  2  fs empty border rgb heapClr
 set obj rect from maxX-20000, 1 to maxX, 2  fs transparent solid 0.6 noborder fc rgb heapClr
 set obj rect from maxX-20000, 1 to maxX, 2  fs empty border rgb heapClr
@@ -46,9 +46,9 @@ set label "heap:" at graph 0.57, 0.95
 set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb heapClr
 set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs empty border rgb heapClr
 
-set label "ladderQ:" at graph 0.05, 0.85
-set obj rect at graph 0.445, 0.85 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb ladderClr
-set obj rect at graph 0.445, 0.85 size graph 0.075, 0.075 fs empty border rgb ladderClr
+set label "2tLadderQ:" at graph 0.335, 0.85
+set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb ladderClr
+set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs empty border rgb ladderClr
 
 set border front linewidth 0.5
 
