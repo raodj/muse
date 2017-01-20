@@ -74,6 +74,8 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          &delayDistrib, ArgParser::STRING},
         {"--eventsPerAgent", "Initial number of events per agent",
          &events, ArgParser::INTEGER },
+        {"--eventsPerLP", "Same as eventsPerAgent",
+         &events, ArgParser::INTEGER },        
         {"--selfEvents", "Fraction of events agents send to themselves [0, 1]",
          &selfEvents, ArgParser::DOUBLE},
         {"--simEndTime", "The end time for the simulation.", &end_time,
