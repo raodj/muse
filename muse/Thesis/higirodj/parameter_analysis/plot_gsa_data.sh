@@ -37,4 +37,10 @@ echo "Plotting aggregate GSA analysis chart (takes few seconds only)..."
 SUFFIX="${TMP_DIR}/full_gsa"
 gnuplot -e "suffix=\"${SUFFIX}\"" plot_gsa_anal.gnu
 
+# Now plot the overall analysis chart
+echo "Plotting aggregate GSA analysis chart (but shorter version for PADS)..."
+SUFFIX="${TMP_DIR}/full_gsa"
+gnuplot -e "suffix=\"${SUFFIX}\"" plot_gsa_anal_short.gnu
+
+
 # End of script.
