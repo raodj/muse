@@ -1,14 +1,14 @@
-# Gnuplot script to plot line graphs of simulation run times for
-# different queues based on events-per agent.
+# Gnuplot script to plot line graphs of peak memory use for different
+# queues based on events-per agent.
 #
 # Run this script using the following command-line
 #
-# $ gnuplot -e 'config="ph3"' -e 'keyOn=1' plot_run_time_comp
+# $ gnuplot -e 'config="ph3"' -e 'keyOn=1' plot_memory_comp
 
 # Set input / output file names
 csvDir  = config
-outFile = config . "_run_time.pdf"
-# outFile = config . "_full_run_time.pdf"
+outFile = config . "_memory.pdf"
+# outFile = config . "_full_memory.pdf"
 
 # Set the grep search string based on delay & self-Events values.
 delay = "1"
@@ -36,14 +36,14 @@ set xtics (1, 5, 10, 15, 20)
 set grid lc rgb "#dddddd"
 
 set xlabel "Events/LP" font " Bold,8" offset 0,0.5
-set ylabel "Run time (sec)" font " Bold, 8" offset 1,0
+set ylabel "Peak memory used (MB)" font " Bold, 8" offset 2,0
 
 # Set colors to be used
 ColorList="#8dd3c7 #b8860b #928bc1 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5"
 
 # Convenience functions to extract data to be plotted from CSV file(s)
 getCsvFile(queue) = sprintf("%s/%s_%s_runtime_stats.csv", csvDir, config, queue)
-getData(queue) = sprintf("< cut -d',' -f3-9 %s | grep '%s'", getCsvFile(queue), searchStr)
+getData(queue) = sprintf("< cut -d',' -f3-5,15-18 %s | grep '%s'", getCsvFile(queue), searchStr)
 
 # Set queue / file names and color index for each queue to keep colors
 # consistent throughout
@@ -61,11 +61,13 @@ queueColor = "8 2 5 6"
 #     set label queue at 20.5, runtime_max center rotate by 90 font ",6" tc rgb qClr
 # }
 
-# set label config . " (sequential)" at graph 0.5, 0.05 center font " Bold"
+# Set label based on config at bottom center of graph
+set label config at graph 0.5, 0.1 center font " Bold,10"
+# set label config . " (sequential)" at graph 0.5, 0.05 center font " Bold,10"
 
 # Plot line charts for each queue of values.
-plot for [i=1:4] getData(word(queueList, i)) using 3:6:7 with filledcurves lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
-     for [i=1:4] getData(word(queueList, i)) using 3:4:6:7 with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
-     for [i=1:4] getData(word(queueList, i)) using 3:4 with lines lw 2 lc rgb word(ColorList, word(queueColor, i) + 0) title word(queueList, i)
+plot for [i=1:4] getData(word(queueList, i)) using 3:($6/1000):($7/1000) with filledcurves lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
+     for [i=1:4] getData(word(queueList, i)) using 3:($4/1000):($6/1000):($7/1000) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
+     for [i=1:4] getData(word(queueList, i)) using 3:($4/1000) with lines lw 2 lc rgb word(ColorList, word(queueColor, i) + 0) title word(queueList, i)
 
 # End of script
