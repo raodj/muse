@@ -17,7 +17,7 @@ set terminal pdfcairo enhanced truecolor size 4in,3in font ",12"
 set output output
 
 set xtics rotate 270
-set yrange[0:0.9]
+set yrange[0:0.65]
 # set yrange[0:0.55]
 set ylabel "F-measure (and 95% CI)"
 
@@ -62,9 +62,9 @@ do for[idx=0:MaxVars] {
     labStr= sprintf("%0.3f\n({/Symbol \\261 %0.2f)", fVal, ci)
     # Set label at correct coordinate
     if (fVal < 0.5) {
-        set label labStr center at idx, fVal + ci + 0.02 font " Bold, 8"
+        set label labStr center at idx, fVal + ci + 0.06 font " Bold, 8"
     } else {
-        set label labStr center at idx, fVal + ci + 0.02 font " Bold, 8"
+        set label labStr center at idx, fVal + ci + 0.06 font " Bold, 8"
     }
 }
 

@@ -5,8 +5,7 @@
 # $ gnuplot -e 'csv="gsa1"' plot_gsa.gnu
 
 # NOTE: THE ORDER OF COLUMN TITLES BELOW SHOULD MATCH ORDER IN CSV!!!
-# NOTE: Last 2 columns must be timing for ladderQ, heap2tQ!!!
-VarNames = "GVTPeriod Imbalance Lambda SelfEvents% SimEndTime Rows EventsPerAgent Granularity Cols"
+VarNames = "GVTPeriod Imbalance Lambda SelfEvents% SimEndTime Rows EventsPerLP Granularity Cols"
 
 # Ensure you add trailing '/' to dir
 if (!exists('dir')) {

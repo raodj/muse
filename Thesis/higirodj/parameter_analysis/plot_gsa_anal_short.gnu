@@ -22,7 +22,7 @@ set terminal pdfcairo enhanced truecolor size 4in,1.75in font ",10"
 set output output
 
 # set xtics rotate 270
-set yrange[0:0.65]
+set yrange[0:0.95]
 # set yrange[0:0.55]
 set ylabel "F-measure (and 95% CI)" offset 1,0
 
