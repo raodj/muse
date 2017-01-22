@@ -18,7 +18,7 @@ output="$2"
 
 # The following column names are used for analysis 
 colNames=( "GVTPeriod" "Imbalance" "Lambda" "SelfEvents%" "SimEndTime"
-           "Rows" "EventsPerAgent" "Granularity" "Cols" )
+           "Rows" "EventsPerLP" "Granularity" "Cols" )
 
 # Setup associative array to map long EpiParams names to acronyms
 declare -A Acronym
@@ -28,7 +28,7 @@ Acronym=( ["GVTPeriod"]="GVT Period"
           ["SelfEvents%"]="Self Evt.%"
           ["SimEndTime"]="End Time"
           ["Rows"]="Rows"
-          ["EventsPerAgent"]="Evt./Agent"
+          ["EventsPerLP"]="Evt./LP"
           ["Granularity"]="Evt. Gran."
           ["Cols"]="Cols"
         )
