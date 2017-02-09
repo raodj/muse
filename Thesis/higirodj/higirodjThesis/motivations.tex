@@ -1,0 +1,12 @@
+\subsection{Motivations}
+Many investigations have explored the effectiveness of a wide variety of data structures for managing the pending event set as discussed in section 3. Among the various data structures, the Ladder Queue proposed by Tang et al~\cite{tang-05} has show to be the most effective data structure for managing pending events~\cite{dickman-13,franceschini-15}, particularly in sequential DES. Accordingly, we aim to replace the heap-based data structures used in our Time Warp synchronized parallel simulator with the Ladder Queue. Section XX discusses our Ladder Queue implementation and its fine-tuning.
+	The Ladder Queue outperformed our multi-tier heap-based data structures in certain sequential simulations, consistent with observations by other investigators~\cite{franceschini-15,yeom-14}. However, as detailed in section XX, the Ladder Queue was substantially slower in two cases:
+\begin{itemize}
+\item High Concurrency: larger number of concurrent events (i.e. events with same timestamp) per LP.
+\item Time Warp synchronized parallel simulations conducted on a distributed memory computing cluster. Conversely, our multi-tier data structures performed well in parallel simulations.
+\end{itemize}
+
+	To provide a good balance for both sequential and optimistic parallel simulations, we propose a significant change to the design of the Ladder Queue. Our revised data structure, discussed in section XX, is called 2-tier Ladder Queue (2tLadderQ). Various configurations of the standard PHOLD benchmark are used to assess the effectiveness of the multi-tier data structures vs. our fine-tuned implementation of the Ladder Queue. Results from our experiments discussed in section XX shows 2tLadderQ provides comparable performance in sequential simulations but outperforms the Ladder Queue in optimistic parallel simulations. Our 3-tier heap (3tHeap) outperforms our 2tLadderQ in high concurrency scenarios.
+    
+
+    
