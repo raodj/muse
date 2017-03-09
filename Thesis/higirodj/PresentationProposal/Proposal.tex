@@ -29,7 +29,6 @@
 
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
-
 \usepackage{pifont}
 \usepackage[english]{babel}
 \usepackage{amssymb}
@@ -62,12 +61,12 @@ Miami University
 \section{Introduction}
 \section{Research Motivation}
 \section{Research Proposal}
-\section{Related Work}
 \section{Parallel Simulator Overview}
 \section{Simulation Model}
 \section{Scheduler Queues}
 \section{Preliminary Simulation Results}
 \section{Experimental Design}
+\section{Related Work}
 \section{Plan of Action \& Milestones}
 
 \begin{frame}
@@ -75,8 +74,9 @@ Miami University
 \begin{itemize}
 \item \textbf{Discrete Event Simulation (DES)} is used to simulate systems of interacting objects.
 \item The objects in the simulation are referred to as logical processes (LPs) and model objects in the real world.
-\item LPs interact by exchanging time stamped events and process events in priority order with event priorities determined by their time stamp. 
-\item Data structures for handling events that have yet to be processed (pending events) in DES follow a priority queue based implementation.
+\item LPs interact by exchanging time stamped events and process events in priority order with event priorities determined by their time stamp.
+\item Events that have yet to be processed are called "\textbf{pending events}".
+\item Data structures for handling pending events follow a priority queue based implementation.
 
 \end{itemize}
 \end{frame}
@@ -86,7 +86,7 @@ Miami University
 \begin{itemize}
 \item Data structures for managing and prioritizing pending events play a critical role in ensuring efficient sequential and parallel simulations.
 \item The synchronization strategy in PDES can also impact the effectiveness of data structure because of the additional processing required during rollback recovery operations.
-\item A data structure that can effectively handle large number of concurrent events.
+\item A data structure that can effectively handle large number of concurrent events (\textbf{i.e. an average of one million events}).
 \end{itemize}
 \end{frame}
 
@@ -94,31 +94,12 @@ Miami University
 \frametitle{\centerline{Research Proposal}}
 \begin{itemize}
 \item Our research proposes and explores multi-tier data structures for managing event list in sequential and optimistic parallel simulations. \\~\\
-\item We aim to compare the effectiveness of our various data structures against the Ladder Queue pending event data structure.\\~\\
+\item We aim to compare the effectiveness of our various data structures against the Ladder Queue pending event data structure. Ladder Queue has shown to outperform other pending event data structures in sequential DES with amortized O(1) time complexity.\\~\\
 \item \textbf{Research Thesis}: Our multi-tier data structures (\textbf{2tLadderQ} and \textbf{3tHeap}) outperforms all other data structures in sequential and optimistically parallel simulations.
 
 \end{itemize}
 \end{frame}
 
-\begin{frame}
-\frametitle{\centerline{Related Work}}
-\begin{itemize}
-\item Many investigations have explored the effectiveness of a wide variety of data structures for managing the pending event set.
-\item Tang et al., proposed a pending event set data structure named Ladder Queue as a priority queue based implementation of an event list that results in amortized O(1) performance. The authors, presented ladder queue as an improvement on existing priority queue based event lists data structures such as calendar queues. 
-\item  Franceschini et al., compared several priority-queue based pending event data structures to evaluate their performance in the context of sequential DEVS simulations. They found that Ladder Queue outperformed every other priority queue based pending event data structure such as Sorted List, Minimal List, Binary Heap, Splay Tree, and Calendar Queue.
-\end{itemize}
-\end{frame}
-
-\begin{frame}
-\frametitle{\centerline{Related Work}}
-\begin{itemize}
-\item Dickman et al., compared event list data structures that consisted of Splay Tree, STL Multiset and Ladder Queue. However, the focus of their paper was in developing a framework for handling pending event set data structure in shared memory PDES. A central component of their study was the identification of an appropriate data structure and design for the shared pending event set.
-
-\item Gupta et al., extended their implementation of Ladder Queue for shared memory Time Warp based simulation environment, so that it supports lock-free access to events in the shared pending event set. The modification involved the use of an unsorted lock-free queue in the underlying Ladder Queue structure.
-
-\item Marotta et al., have contributed to the study of pending event set data structures in threaded PDES through the design of the Non-Blocking Priority Queue (NBPQ) data structure. A pending event set data structure that is closely related to Calendar Queues with constant time performance.
-\end{itemize}
-\end{frame}
 
 
 \begin{frame}
@@ -133,6 +114,7 @@ Miami University
 \begin{itemize}
 \item Assessment of the data structures will be conducted on MUSE.
 \item MUSE performs sequential and optimistically parallel simulations.
+\item MUSE uses Message Passing Interface (MPI) library for parallel processing.
 \item The kernel handles LP registration, event processing, state saving, synchronization and garbage collection.
 \end{itemize}
 \end{frame}
@@ -146,48 +128,16 @@ A scheduler queue is required to implement four key operations to manage pending
 
 \item[\ding{182}] \textbf{Enqueue one or more future events}. 
 
-\item[\ding{183}] \textbf{Peek next event}.
+\item[\ding{183}] \textbf{Peek next event in priority order}.
 
-\item[\ding{184}] \textbf{Dequeue events for next LP}.
+\item[\ding{184}] \textbf{Dequeue events with the same time stamp for next LP}.
 
-\item[\ding{185}] \textbf{Cancel pending events}.
+\item[\ding{185}] \textbf{Cancel pending events after a given time}.
 
 \end{itemize}   
 
 \end{frame}
 
-\begin{frame}
-\frametitle{\centerline{Simulation Model}}
-
-\begin{table}[!ht]\centering \vspace*{-4mm}
-\textbf{\caption{Parameters in PHOLD benchmark}}
-\begin{tabular}{lp{2.2in}}
-\toprule
-Parameter & Description \\
-\midrule
-
-\textbf{rows} & Total number of rows in model. \\
-
-\textbf{cols} & Total number of columns in model. \#LPs = \textbf{rows} x  \textbf{cols} \\
-
-\textbf{eventsPerLP} & Initial number of events per LP. \\
-
-\textbf{delay} or $\lambda$ & Value used with distribution -- Lambda
-($\lambda$) value for exponential distribution \textit{i.e.,}
-$P(x|\lambda)=\lambda e^{-\lambda x}$. \\
-
-\textbf{\%selfEvents} & Fraction of events LPs send to self \\
-
-\textbf{granularity} & Additional compute load per event. \\
-
-\textbf{imbalance} & Fractional imbalance in partition to have more LPs on a MPI-process. \\
-
-\textbf{simEndTime} & GVT when simulation logically ends.\\
-
-\bottomrule
-\end{tabular}
-\end{table}
-\end{frame}
 
 \begin{frame}
 \frametitle{ \centerline{Scheduler Queues}}
@@ -195,7 +145,8 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \item MUSE contains 6 scheduling queues for managing pending events.
 \item The queues are classified into two categories: single-tier and multi-tier queues.
 \item Single-tier queues use only a single data structure to implement the 4 key operations.
-\item Multi-tier queues organizes events into tiers and each tier is implemented using different data structures.
+\item Multi-tier queues organizes events into tiers.
+\item Each tier is implemented using different data structures.
 \end{itemize}
 \end{frame}
 
@@ -284,16 +235,6 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \end{frame}
 
 \begin{frame}
-\frametitle{\centerline{3-tier Heap (\textbf{3tHeap}) - Enqueue Operation}}
-\begin{figure}
-\begin{minipage}{0.45\textwidth}
-\includegraphics[width=220px, height=220px]{images/3tHeapEnqueueCode.png}
-\end{minipage}
-\end{figure}
-\end{frame}
-
-
-\begin{frame}
 \frametitle{\centerline{Ladder Queue (\textbf{ladderQ})}}
 
 \begin{figure}
@@ -313,17 +254,25 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \end{frame}
 
 \begin{frame}
-\frametitle{\centerline{Ladder Queue (\textbf{ladderQ}) Dequeue Operation}}
+\frametitle{\centerline{Ladder Queue (\textbf{ladderQ - Fine Tuned})}}
+
 \begin{figure}
 \centering
 \begin{minipage}{0.55\textwidth}
-\includegraphics[width=190px, height=105px]{images/dequeueBottomLadderQ.png}
+\includegraphics[width=1\linewidth]{images/lq_config_compare.pdf}
 \end{minipage}
 \centering
 \begin{minipage}{0.45\textwidth}
-\includegraphics[width=190px, height=105px]{images/botDequeueLadderQcode.png}
+\includegraphics[width=1\linewidth]{images/lq_config_memory_compare.pdf}
 \end{minipage}
 \end{figure}
+
+\begin{itemize}{\vspace*{-5mm}}
+\item Comparison of execution time and peak memory using 6 different ladderQ configurations.
+\item L.List-L.List configuration was slowest and performed 85x slower than the Vec-Vec configuration.
+\item The increased performance of Vec-Vec comes at about a 6x increase in peak memory footprint when compared to L.List-L.List.
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}
@@ -347,18 +296,75 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \end{frame}
 
 \begin{frame}
-\frametitle{\centerline{2-tier Ladder Queue (\textbf{2tLadderQ}) Cancel Operation}}
+\frametitle{\centerline{Simulation Model}}
+
+\begin{table}[!ht]\centering \vspace*{-4mm}
+\textbf{\caption{Parameters in PHOLD benchmark}}
+\begin{tabular}{lp{2.2in}}
+\toprule
+Parameter & Description \\
+\midrule
+
+\textbf{rows} & Total number of rows in model. \\
+
+\textbf{cols} & Total number of columns in model. \#LPs = \textbf{rows} x  \textbf{cols} \\
+
+\textbf{eventsPerLP} & Initial number of events per LP. \\
+
+\textbf{delay} or $\lambda$ & Value used with distribution -- Lambda
+($\lambda$) value for exponential distribution \textit{i.e.,}
+$P(x|\lambda)=\lambda e^{-\lambda x}$. \\
+
+\textbf{\%selfEvents} & Fraction of events LPs send to self \\
+
+\textbf{granularity} & Additional compute load per event. \\
+
+\textbf{imbalance} & Fractional imbalance in partition to have more LPs on a MPI-process. \\
+
+\textbf{simEndTime} & GVT when simulation logically ends.\\
+
+\bottomrule
+\end{tabular}
+\end{table}
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{Simulation Model - Key Parameters}}
+
+\begin{figure}[T]
+\begin{minipage}[b]{1\textwidth}
+\includegraphics[width=\textwidth]{images/keyParameters.png}
+\end{minipage}
+\end{figure}
+
+\begin{itemize} 
+\item Imbalance parameters influences the partition.
+\item Granularity impacts the processing time of events.
+\item $\lambda$ impacts the distribution of the time stamp values.
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{Ladder Queue (\textbf{ladderQ - Fine Tuned})}}
 
 \begin{figure}
 \centering
 \begin{minipage}{0.55\textwidth}
-\includegraphics[width=190px, height=35px]{images/eraseAfter2tLadderQcode.png}
+\includegraphics[width=1\linewidth]{images/lq_config_compare.pdf}
 \end{minipage}
 \centering
 \begin{minipage}{0.45\textwidth}
-\includegraphics[width=190px, height=155px]{images/removeAfter2tLadderQcode.png}
+\includegraphics[width=1\linewidth]{images/lq_config_memory_compare.pdf}
 \end{minipage}
 \end{figure}
+
+\begin{itemize}{\vspace*{-5mm}}
+\item Comparison of execution time and peak memory using 6 different ladderQ configurations.
+\item L.List-L.List configuration was slowest and performed 85x slower than the Vec-Vec configuration.
+\item The increased performance of Vec-Vec comes at about a 6x increase in peak memory footprint when compared to L.List-L.List.
+\end{itemize}
+
 \end{frame}
 
 \begin{frame}
@@ -409,9 +415,39 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \item Assessments of the effectiveness of the six scheduler queues will be performed by running different configurations of the PHOLD benchmark in sequential and optimistically parallel simulations.
 \\~\\
 \item Due to a large number of PHOLD parameters and combinations of their values. We will identify the most influential PHOLD parameters that impact performance of the scheduler queues using \textbf{Generalized Sensitivity Analysis}.\\~\\
-\item The data to be collected and assessed consists of \textbf{simulation run time} and \textbf{peak memory usage}.
+\item The data to be collected and assessed consists of the following:
+\end{itemize}
+
+\begin{itemize}
+\setlength{\itemindent}{2em}
+\item[\ding{182}]\textbf{simulation run time.} \item[\ding{183}]\textbf{peak memory usage.} 
+\item[\ding{184}]\textbf{\# rollbacks.} 
+\item[\ding{185}]\textbf{characteristics of key queue operations.}
+\item[\ding{186}]\textbf{\# of network messages exchanged.}
+\end{itemize}
+
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{Related Work}}
+\begin{itemize}
+\item Many investigations have explored the effectiveness of a wide variety of data structures for managing the pending event set.
+\item Tang et al., proposed a pending event set data structure named Ladder Queue as a priority queue based implementation of an event list that results in amortized O(1) performance. The authors, presented ladder queue as an improvement on existing priority queue based event lists data structures such as calendar queues. 
+\item  Franceschini et al., compared several priority-queue based pending event data structures to evaluate their performance in the context of sequential DEVS simulations. They found that Ladder Queue outperformed every other priority queue based pending event data structure such as Sorted List, Minimal List, Binary Heap, Splay Tree, and Calendar Queue.
 \end{itemize}
 \end{frame}
+
+\begin{frame}
+\frametitle{\centerline{Related Work}}
+\begin{itemize}
+\item Dickman et al., compared event list data structures that consisted of Splay Tree, STL Multiset and Ladder Queue. However, the focus of their paper was in developing a framework for handling pending event set data structure in shared memory PDES. A central component of their study was the identification of an appropriate data structure and design for the shared pending event set.
+
+\item Gupta et al., extended their implementation of Ladder Queue for shared memory Time Warp based simulation environment, so that it supports lock-free access to events in the shared pending event set. The modification involved the use of an unsorted lock-free queue in the underlying Ladder Queue structure.
+
+\item Marotta et al., have contributed to the study of pending event set data structures in threaded PDES through the design of the Non-Blocking Priority Queue (NBPQ) data structure. A pending event set data structure that is closely related to Calendar Queues with constant time performance.
+\end{itemize}
+\end{frame}
+
 
 \begin{frame}
 \frametitle{\centerline{Plan of Action \& Milestones}}
@@ -443,7 +479,7 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 
 \bibitem[Franceschini et al., 2015]{p1} Franceschini et al., (2015) A Comparative Study of Pending Event Set Implementations for PDEVS Simulation. \emph{In Proceedings of the Symposium on Theory of Modeling and Simulation} Society for Computer Simulation International San Diego, CA, USA, 77-84.
 
-\bibitem[Gupta et al., 2014]{p1} Wilsey et al., (2014) Lock-free Pending Event Set Management in Time Warp. \emph{In Proceedings of the 2nd ACM SIGSIM Conference on Principles of Advanced Discrete Simulation} ACM, New York, NY, USA, 15-26.
+\bibitem[Gupta et al., 2014]{p1} Gupta et al., (2014) Lock-free Pending Event Set Management in Time Warp. \emph{In Proceedings of the 2nd ACM SIGSIM Conference on Principles of Advanced Discrete Simulation} ACM, New York, NY, USA, 15-26.
 
 \bibitem[Jafer et al., 2013]{p1} Jafer et al., (2013) Synchronization methods in parallel and distributed discrete-event simulation{ Simulation Modeling Practice and Theory} 30(2013), 54-73.
 
@@ -592,6 +628,30 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \includegraphics[width=1\linewidth]{images/LadderQueue1.png}
 \end{minipage}
 \end{figure} 
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{3-tier Heap (\textbf{3tHeap}) - Enqueue Operation}}
+\begin{figure}
+\begin{minipage}{0.45\textwidth}
+\includegraphics[width=220px, height=220px]{images/3tHeapEnqueueCode.png}
+\end{minipage}
+\end{figure}
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{2-tier Ladder Queue (\textbf{2tLadderQ}) Cancel Operation}}
+
+\begin{figure}
+\centering
+\begin{minipage}{0.55\textwidth}
+\includegraphics[width=190px, height=35px]{images/eraseAfter2tLadderQcode.png}
+\end{minipage}
+\centering
+\begin{minipage}{0.45\textwidth}
+\includegraphics[width=190px, height=155px]{images/removeAfter2tLadderQcode.png}
+\end{minipage}
+\end{figure}
 \end{frame}
 
 \end{document}
