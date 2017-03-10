@@ -295,6 +295,41 @@ A scheduler queue is required to implement four key operations to manage pending
 \end{itemize}
 \end{frame}
 
+\frametitle{\centerline{Time Complexity Comparison}}
+\begin{frame}	
+    
+\begin{table}[!h]
+  \caption{Comparison of algorithmic time complexities of different
+    data structures}
+
+  Legend -- $l$: \#LPs, $e$: \#events / LP, $c$: \#concurrent events,
+  
+  $z$: \# canceled events, \textsubscript{t2}\textit{k}: parameter, $1^{*}$: amortized constant
+  
+  \begin{tabular}{lccc}
+    \toprule
+    Name & Enqueue & Dequeue & Cancel \\
+    \midrule
+    \textbf{heap}    & $\log(e\cdot l)$ & $\log(e\cdot l)$ & $z\cdot\log(e\cdot l)$ \\
+
+    \textbf{2tHeap}  & $\log(e) + $ & $\log(e) + $ & $z\cdot\log(e) + $ \\
+                & $\log(l)$ & $ \log(l)$      & $ \log(l)$ \\
+
+    \textbf{fibHeap} & $\log(e) + 1^{*}$ & $\log(e) + 1^{*}$ & $z\cdot\log(e) + 1^{*}$ \\
+
+    \textbf{3tHeap}  & $\log(\frac{e}{c}) + \log(l)$ & $\log(l)$ & $e + \log(l)$ \\
+    
+    \textbf{ladderQ} & $1^{*}$ & $1^{*}$ & $e\cdot l$ \\
+
+    \textbf{2tLadderQ} & $1^{*}$ & $1^{*}$ & $e\cdot l \div$ \textsubscript{t2}\textit{k} \\
+    
+    \bottomrule
+  \end{tabular}
+\end{table}
+    
+    
+\end{frame}
+
 \begin{frame}
 \frametitle{\centerline{Simulation Model}}
 
