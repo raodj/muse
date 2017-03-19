@@ -3,7 +3,7 @@
 # to be the most efficient.
 
 # Set properties for the chart.
-set terminal pdfcairo enhanced color size 1.75in,1.75in font ", 10"
+set terminal pdfcairo enhanced color size 3in,1.5in font ", 10"
 set output "eff_regions.pdf"
 unset key
 
@@ -39,16 +39,27 @@ set obj rect from maxX-20000, 1 to maxX, 2  fs empty border rgb heapClr
 
 # Place some labels for key
 set label "3tHeap:" at graph 0.05, 0.95
-set obj rect at graph 0.445, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb _3tHeapClr
-set obj rect at graph 0.445, 0.95 size graph 0.075, 0.075 fs empty border rgb _3tHeapClr
+set obj rect at graph 0.26, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb _3tHeapClr
+set obj rect at graph 0.26, 0.95 size graph 0.075, 0.075 fs empty border rgb _3tHeapClr
 
-set label "heap:" at graph 0.57, 0.95
+set label "heap:" at graph 0.67, 0.95
 set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb heapClr
 set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs empty border rgb heapClr
 
-set label "2tLadderQ:" at graph 0.335, 0.85
+set label "2tLadderQ:" at graph 0.56, 0.85
 set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb ladderClr
 set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs empty border rgb ladderClr
+
+# set some labels to make the chart more readable.
+labX = 20000
+set arrow from labX, 20 to labX, 10 heads size graph 0.03, 10 filled
+set label "Use 3tHeap" at labX+1800, 15 font " Bold, 8"
+
+set arrow from labX, 10 to labX, 1 heads size graph 0.03, 10 filled
+set label "Use 2tLadderQ" at labX+1800, 5 font " Bold, 8"
+
+# set arrow from 1500, 4 to 1040, 1.5 head size graph 0.03, 10 filled
+# set label "Use heap" at 1550,3.75 font " Bold, 8"
 
 set border front linewidth 0.5
 
