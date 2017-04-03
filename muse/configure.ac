@@ -414,7 +414,8 @@ AC_CONFIG_FILES([Makefile\
 	examples/ClockExample/Makefile\
 	examples/RescueSim/Makefile\
 	examples/BugLife/Makefile \
-	examples/PCS_Simulation/Makefile])
+	examples/PCS_Simulation/Makefile \
+	examples/EpidemicSimulation/Makefile])
 
 AC_OUTPUT
 
