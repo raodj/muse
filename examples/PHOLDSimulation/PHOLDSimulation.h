@@ -214,7 +214,6 @@ private:
         distributions causing a heavy tailed distribution.
     */
     std::string delayDistrib;
-
     
     /** The virtual time when the simulation is deemed to be complete.
         This value is set via the command-line argument --endTime
@@ -226,6 +225,22 @@ private:
 
     /** Flag to indicate if the delay histogram should be printed. */
     bool delayHist;
+
+    /** Command line argument associated with the range to be used to
+        determine the receiver agent ID.  The default value is
+        zero. This value is essentially passed onto the agent objects
+        created.
+    */
+    int receiverRange;
+
+    /** The type of delay distribution to be for generating receiver
+        agent IDs using receiverRange.  Valid delay distributions are:
+        uniform, poisson, exponential, reverse_poisson,
+        reverse_exponential.  The reverse forms of the distribution
+        are mirror images of the regular distributions causing a heavy
+        tailed distribution.
+    */
+    std::string recvrDistrib;
 };
 
 #endif

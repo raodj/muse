@@ -44,8 +44,10 @@
     X = Number of agents per row
     Y = Number of agents per column
     N = Number of initial events each agent starts with
-    Delay = The Delay time for the receive time, this will be max range
-            for a random from [0,1]
+    
+    delay = The delay time for the receive time.  This value is used
+            as part of different random number
+            generators/distributions to model different scenarios.    
 */
 
 #include "PHOLDAgent.h"
@@ -64,42 +66,52 @@ using namespace muse;
 // The static maxDelay value
 int PHOLDAgent::maxDelay = -1;
 
+// The static maximum receiver range vaulue based on receiverDistType
+int PHOLDAgent::maxRecvrRange = -1;
+
 PHOLDAgent::PHOLDAgent(AgentID id, PholdState* state, int x, int y,
                        int n, int d, int lookAhead, double selfEvents,
-                       size_t granularity, DelayType type) : 
-    Agent(id, state), X(x),Y(y), N(n), Delay(d), delayType(type),
+                       size_t granularity, DelayType type,
+                       int recvrRange, DelayType recvrDistType) : 
+    Agent(id, state), X(x),Y(y), N(n), delay(d), delayType(type),
     lookAhead(lookAhead),  selfEvents(selfEvents), rng(id),
-    granularity(granularity) {
+    granularity(granularity), receiverRange(recvrRange),
+    receiverDistType(recvrDistType) {
      // Setup the random seed used for generating self/other events
     seed = id;
     // Setup the maximum random delay value for reverse distributions
-    if ((Delay > 0) && (maxDelay == -1)) {
-        maxDelay = getMaxDelayValue();
+    if ((delay > 0) && (maxDelay == -1)) {
+        maxDelay = getMaxDelayValue(delayType, delay);
         std::cout << "maxDelay = " << maxDelay << std::endl;
     }
+    // Setup the maximum random receiver offset value for offset
+    if ((receiverRange > 0) && (maxRecvrRange == -1)) {
+        maxRecvrRange = getMaxDelayValue(receiverDistType, receiverRange);
+        std::cout << "maxDelay = " << maxDelay << std::endl;
+    }    
 }
 
 int
-PHOLDAgent::getDelay(const DelayType delType) {
+PHOLDAgent::getDelay(const DelayType delType, const int genParam) {
     switch (delType) {
     case UNIFORM: {
-        std::uniform_int_distribution<int> uni(0, Delay);
+        std::uniform_int_distribution<int> uni(0, genParam);
         return uni(rng);
     }
     case POISSON: {
-        std::poisson_distribution<int> poi(Delay);
+        std::poisson_distribution<int> poi(genParam);
         return poi(rng);
     }
     case EXPONENTIAL: {
-        std::exponential_distribution<double> exp(Delay);
+        std::exponential_distribution<double> exp(genParam);
         return 2 * exp(rng);
     }
     case REVERSE_POISSON: {
-        std::poisson_distribution<int> poi(Delay);
+        std::poisson_distribution<int> poi(genParam);
         return maxDelay - (poi(rng) % maxDelay);
     }
     case REVERSE_EXPONENTIAL: {
-        std::exponential_distribution<double> exp(Delay);
+        std::exponential_distribution<double> exp(genParam);
         return maxDelay - ((int) (2 * exp(rng)) % maxDelay);
     }
     case INVALID_DELAY:
@@ -109,24 +121,24 @@ PHOLDAgent::getDelay(const DelayType delType) {
 }
 
 int
-PHOLDAgent::getMaxDelayValue() const {
-    int maxDel = Delay;  // default maximum delay that can be generated.
+PHOLDAgent::getMaxDelayValue(DelayType delType, int delayVal) const {
+    int maxDel = delayVal;  // the default delay value
     std::default_random_engine rnd;
-    if ((delayType == POISSON) || (delayType == REVERSE_POISSON)) {
+    if ((delType == POISSON) || (delType == REVERSE_POISSON)) {
         maxDel = 0;
-        std::poisson_distribution<int> poi(Delay);
+        std::poisson_distribution<int> poi(delayVal);
         for (int i = 0; (i < 100000); i++) {
             maxDel = std::max<int>(maxDel, poi(rnd));
         }
     }
-    if ((delayType == EXPONENTIAL) || (delayType == REVERSE_EXPONENTIAL)) {
+    if ((delType == EXPONENTIAL) || (delType == REVERSE_EXPONENTIAL)) {
         maxDel = 0;
-        std::exponential_distribution<double> poi(Delay);
+        std::exponential_distribution<double> exp(delayVal);
         for (int i = 0; (i < 100000); i++) {
             // The 2 factor is from http://en.cppreference.com/
             // example.  Since exponential distribution is real/double
             // the 2 factor provides a better spread.
-            maxDel = std::max<int>(maxDel, 2 * poi(rnd));
+            maxDel = std::max<int>(maxDel, 2 * exp(rnd));
         }        
     }
     return maxDel;
@@ -136,7 +148,7 @@ void
 PHOLDAgent::initialize() throw (std::exception){
     // We generate N events with random receive times to self
     for (int i = 0; i < N; i++){
-        const int RndDelay = (Delay > 0) ? getDelay(delayType) : 0;
+        const int RndDelay = (delay > 0) ? getDelay(delayType, delay) : 0;
         Time  receive(getTime() + 1 + RndDelay);
         ASSERT( receive > getTime() );
         if ( receive < Simulation::getSimulator()->getStopTime() ){
@@ -159,41 +171,73 @@ PHOLDAgent::simGranularity() {
 }
 #pragma GCC pop_options
 
+muse::AgentID
+PHOLDAgent::getAdjacentAgentID() {
+    PholdState *my_state = dynamic_cast<PholdState*>(getState());
+    ASSERT( my_state != NULL );
+    // Set default as current agent.
+    muse::AgentID receiverAgentID = getAgentID();    
+    // Schedule event to different agent.  We do this with
+    // equal probability to choose 1 of 4 neighbours.
+    const int Change[4] = {-1, -Y, Y, 1};
+    // Compute index into the Change array
+    int index  = my_state->getIndex();
+    // Determine the receiver neighbor
+    int new_index = (index + 1) % 4;
+    // Update the destination agent.
+    receiverAgentID = getAgentID() + Change[index];
+    my_state->setIndex(new_index);
+    // Handle wrap around cases in torroidal
+    if(receiverAgentID < 0) {
+        receiverAgentID += X * Y;
+    }
+    if(receiverAgentID >= (X * Y)) {
+        receiverAgentID -= X * Y;
+    }
+    return receiverAgentID;
+}
+
+muse::AgentID
+PHOLDAgent::getRecvrAgentID() {
+    const int rndVal = getDelay(receiverDistType, receiverRange);
+    // Set default as current agent.
+    muse::AgentID receiverAgentID = getAgentID() + rndVal - (maxRecvrRange / 2);
+    // Handle wrap around cases in torroidal
+    while (receiverAgentID < 0) {
+        receiverAgentID += X * Y;
+    }
+    while (receiverAgentID >= (X * Y)) {
+        receiverAgentID -= X * Y;
+    }
+    return receiverAgentID;
+}
+
 void
 PHOLDAgent::executeTask(const EventContainer* events) {
-    PholdState *my_state = dynamic_cast<PholdState*>(getState());
     // For every event we get we send out one event
     for (size_t i = 0; (i < events->size()); i++) {
         // Simulate some event granularity
         simGranularity();
         // First make a random receive time for the future
-        const int RndDelay = (Delay > 0) ? getDelay(delayType) : 0;
+        const int RndDelay = (delay > 0) ? getDelay(delayType, delay) : 0;
         const Time  receiveTime(getTime() + lookAhead + RndDelay);
 
         if ( receiveTime < Simulation::getSimulator()->getStopTime() ){
             // Now we need to choose the agent to send this event to.
-            int receiverAgentID = getAgentID();
+            muse::AgentID receiverAgentID = getAgentID();
             if (selfEvents < 0) {
                 receiverAgentID = (receiverAgentID + i) % (X * Y);
             }
             if ((selfEvents >= 0) && (selfEvents < 1) &&
                 (((rand_r(&seed) % 1000) / 1000.0) > selfEvents)) {
-                // Schedule event to different agent.  We do this with
-                // equal probability to choose 1 of 4 neighbours.
-                const int Change[4] = {-1, -Y, Y, 1};
-                // Compute index into the Change array
-                int index  = my_state->getIndex();
-                // Determine the receiver neighbor
-                int new_index = (index + 1) % 4;
-                // Update the destination agent.
-                receiverAgentID = getAgentID() + Change[index];
-                my_state->setIndex(new_index);
-                // Handle wrap around cases.
-                if(receiverAgentID < 0) {
-                    receiverAgentID += X * Y;
-                }
-                if(receiverAgentID >= (X * Y)) {
-                    receiverAgentID -= X * Y;
+                if (receiverRange <= 0) {
+                    // Default operation -- randomly choose 1 of 4
+                    // neighboring agents.
+                    receiverAgentID = getAdjacentAgentID();
+                } else {
+                    // Use random distribution to determine receiver
+                    // agent ID
+                    receiverAgentID = getRecvrAgentID();
                 }
             }
             ASSERT((receiverAgentID >= 0) && (receiverAgentID < X * Y));
@@ -234,7 +278,7 @@ PHOLDAgent::printDelayDistrib(std::ostream& os) {
     // Generate occurrences of random delay delay values.
     std::map<int, int> hist;
     for (int n = 0; (n < 10000); ++n) {
-        ++hist[getDelay(delayType)];
+        ++hist[getDelay(delayType, delay)];
     }
     // Determine highest frequency of occurrences to scale histogram.
     int maxFreq = 0;

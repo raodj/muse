@@ -43,17 +43,19 @@
 #include "ArgParser.h"
 
 PHOLDSimulation::PHOLDSimulation() {
-    rows         = 3;
-    cols         = 3;
-    events       = 3;
-    delay        = 0;
-    lookAhead    = 1;
-    imbalance    = 0.0;
-    selfEvents   = 0.0;
-    end_time     = 100;
-    granularity  = 0;
-    delayDistrib = "exponential";
-    delayHist    = false;
+    rows          = 3;
+    cols          = 3;
+    events        = 3;
+    delay         = 0;
+    lookAhead     = 1;
+    imbalance     = 0.0;
+    selfEvents    = 0.0;
+    end_time      = 100;
+    granularity   = 0;
+    delayDistrib  = "exponential";
+    delayHist     = false;
+    receiverRange = 0;
+    recvrDistrib  = "uniform";
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
@@ -84,8 +86,12 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          &imbalance, ArgParser::DOUBLE},
         {"--granularity", "Granularity (no units) per events", &granularity,
          ArgParser::LONG},
-        {"--print-hist", "Print delay histogram", &delayHist,
+        {"--print-hist", "Print delay distribution histogram", &delayHist,
          ArgParser::BOOLEAN},
+        {"--recvr-range", "Receiver agent ID range used with distribution",
+         &receiverRange, ArgParser::INTEGER},
+        {"--recvr-distrib", "Receiver agent ID distribution to be used",
+         &recvrDistrib, ArgParser::STRING},
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -120,6 +126,14 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
                   << "reverse_exponential.\n";
         return false;
     }
+    // Ensure the delay distribution specified is indeed valid.
+    delayType = PHOLDAgent::toDelayType(recvrDistrib);
+    if (delayType == PHOLDAgent::INVALID_DELAY) {
+        std::cerr << "Invalid recvr distribution specified. Valid values are: "
+                  << "uniform, poisson, exponential, reverse_poission, "
+                  << "reverse_exponential.\n";
+        return false;
+    }    
     // Everything went well.
     return true;
 }
@@ -142,15 +156,18 @@ PHOLDSimulation::createAgents() {
     const int agentStartID   = (agentsPerNode * rank) + cumlSum(rank, factor);
     const int agentEndID     = (rank == max_nodes - 1) ? max_agents :
         ((agentsPerNode * (rank + 1)) + cumlSum(rank + 1, factor));
-    // Converte delay type string to suitable enumeration.
+    // Converte distribution types from string to suitable enumeration.
     const PHOLDAgent::DelayType delayType =
         PHOLDAgent::toDelayType(delayDistrib);
+    const PHOLDAgent::DelayType recvrType =
+        PHOLDAgent::toDelayType(recvrDistrib);    
     // Create the agents.
     for (int i = agentStartID; (i < agentEndID); i++) {
         PholdState* state = new PholdState();
         PHOLDAgent* agent = new PHOLDAgent(i, state, rows, cols, events, delay,
                                            lookAhead, selfEvents, granularity,
-                                           delayType);
+                                           delayType, receiverRange,
+                                           recvrType);
         kernel->registerAgent(agent);
         // Have the first agent print the delay histogram
         if (delayHist && (i == agentStartID)) {
