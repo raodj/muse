@@ -53,9 +53,9 @@
 #include <mpi.h>
 
 #ifdef __GNUC__
-
-#endif
 #pragma GCC diagnostic warning "-Wunused-parameter"
+#endif
+
 #endif
 
 /** \def MPI_GET_RANK
