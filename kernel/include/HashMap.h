@@ -58,7 +58,7 @@ struct EqualAgentID {
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains SimulatorID.
 */
-typedef HashMap<muse::AgentID, muse::SimulatorID, Hash<muse::AgentID>, EqualAgentID> AgentIDSimulatorIDMap;
+typedef HashMap<muse::AgentID, muse::SimulatorID, HashFunction<muse::AgentID>, EqualAgentID> AgentIDSimulatorIDMap;
 
 /** \typedef A hash_map<AgentID, muse::Agent*>
 
@@ -67,7 +67,7 @@ typedef HashMap<muse::AgentID, muse::SimulatorID, Hash<muse::AgentID>, EqualAgen
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains Agent*.
 */
-typedef HashMap<muse::AgentID, muse::Agent*, Hash<muse::AgentID>, EqualAgentID> AgentIDAgentPointerMap;
+typedef HashMap<muse::AgentID, muse::Agent*, HashFunction<muse::AgentID>, EqualAgentID> AgentIDAgentPointerMap;
 
 /** \typedef A hash_map<AgentID, bool>
 
@@ -76,6 +76,6 @@ typedef HashMap<muse::AgentID, muse::Agent*, Hash<muse::AgentID>, EqualAgentID> 
     The following typedef provides a short cut for using a hash map
     whose key is a AgentID and contains booleans.
 */
-typedef HashMap<muse::AgentID, bool, Hash<muse::AgentID>, EqualAgentID> AgentIDBoolMap;
+typedef HashMap<muse::AgentID, bool, HashFunction<muse::AgentID>, EqualAgentID> AgentIDBoolMap;
 
 #endif  // HASH_MAP_H
