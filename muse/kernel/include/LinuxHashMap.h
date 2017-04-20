@@ -39,7 +39,7 @@
 #include <unordered_map>
 #define GLIBC_NAMESPACE std
 #define HashMap std::unordered_map
-#define Hash    std::hash
+#define HashFunction    std::hash
 
 #elif defined(HAVE_TR1_UNORDERED_MAP)
 // We must be compiling with gcc 4.2+ in which hash map has been moved
@@ -48,7 +48,7 @@
 #include <tr1/unordered_map>
 #define GLIBC_NAMESPACE std::tr1
 #define HashMap std::tr1::unordered_map
-#define Hash    std::tr1::hash
+#define HashFunction    std::tr1::hash
 
 #elif defined(HAVE_EXT_HASH_MAP)
 // Use standard hash map from the extended name space.  With GCC 3.2
@@ -59,14 +59,14 @@
 #include <ext/hash_map>
 #define GLIBC_NAMESPACE __gnu_cxx
 #define HashMap __gnu_cxx::hash_map
-#define Hash    __gnu_cxx::hash
+#define HashFunction    __gnu_cxx::hash
 
 #else // Default catch-all case. Typically never hit
 // No TR1 and no EXT. Hopefully HAS_HASH_MAP is true
 #include <hash_map>
 #define GLIBC_NAMESPACE std
 #define HashMap std::hash_map
-#define Hash    std::hash
+#define HashFunction    std::hash
 
 #endif
 
