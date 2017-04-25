@@ -229,6 +229,8 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new ThreeTierHeapEventQueue(); 
     } else if (queueName == "fibHeap") {
         agentPQ = new AgentPQ();
+    } else if (queueName == "binomHeap") {
+        agentPQ = new BinomialHeapEventQueue();
     } else if (queueName == "2tLadderQ") {
         agentPQ = new TwoTierLadderQueue();
     } else {

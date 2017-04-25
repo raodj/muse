@@ -79,6 +79,7 @@ class Event {
     friend class HeapBottom;
     friend class MultiSetBottom;
     friend class HeapEventQueue;
+    friend class BinomialHeapEventQueue;
     friend class TwoTierHeapEventQueue;
     friend class ThreeTierHeapEventQueue;
     friend class TwoTierHeapAdapter;

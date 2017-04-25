@@ -69,6 +69,8 @@ libmuse_a_SOURCES = \
 	src/LadderQueue.cpp \
 	include/HeapEventQueue.h \
 	src/HeapEventQueue.cpp \
+	include/BinomialHeapEventQueue.h \
+	src/BinomialHeapEventQueue.cpp \
 	include/TwoTierHeapEventQueue.h \
 	src/TwoTierHeapEventQueue.cpp \
 	include/TwoTierHeapOfVectorsEventQueue.h \
