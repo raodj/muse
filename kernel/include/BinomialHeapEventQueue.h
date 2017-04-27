@@ -26,7 +26,7 @@ struct EventCompare{
     } 
 };
 
-using Handle =  boost::heap::binomial_heap<muse::Event*, boost::heap::compare<EventCompare>>::handle_type;
+using BinomHeap =  boost::heap::binomial_heap<muse::Event*, boost::heap::compare<EventCompare>>;
 
 /** A standard heap-based event queue for managing events.
 
@@ -235,15 +235,6 @@ private:
     */
     boost::heap::binomial_heap<muse::Event*, boost::heap::compare<EventCompare> > binomialHeap;
     
-    /** A vector that is used to store the handle of an object.
-      
-        The vector is used to keep track of the handle of each object
-        inserted into the binomial heap. The handle allows the elements of the 
-        heap to be manipulated (i.e. increase/decrease priority and deletion).
-     
-     */
-    std::vector<Handle> handles;
-
     /** This instance variable tracks to maximum number of events in
         the eventList.
 

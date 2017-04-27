@@ -23,18 +23,17 @@ void
 BinomialHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
     const AgentID id = agent->getAgentID();
-     for (size_t i = 0; i < handles.size(); i++) {
-        Event* const evt = *handles[i];
+     for (auto iter = binomialHeap.begin();
+             iter != binomialHeap.end(); iter++) {
+        Event* const evt = *iter;
         ASSERT(evt != NULL);
         // the antiMessage's and if the event is from same sender
         if (evt->getReceiverAgentID() == id) {
             evt->decreaseReference();
+            // Identify handle for current object on heap
+            auto handle = BinomHeap::s_handle_from_iterator(iter);
             // Remove the event from the binomial heap
-            binomialHeap.erase(handles[i]);
-            // delete current handle from handle container as the associated
-            // data has been removed from the binomial heap.
-            handles[i] = handles.back();
-            handles.pop_back();
+            binomialHeap.erase(handle);
         }
      }
 }
@@ -77,7 +76,7 @@ BinomialHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     UNUSED_PARAM(agent);
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
-    handles.push_back(binomialHeap.push(event));
+    binomialHeap.push(event);
     event->increaseReference();
     maxQsize = std::max(maxQsize, binomialHeap.size());  
 }
@@ -103,20 +102,20 @@ BinomialHeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender
     UNUSED_PARAM(dest);
     ASSERT(dest != NULL);
     int  numRemoved = 0;
-    for (size_t i = 0; i < handles.size(); i++) {
-        Event * const evt = *handles[i];
+     for (auto iter = binomialHeap.begin();
+             iter != binomialHeap.end(); iter++) {
+        Event * const evt = *iter;
         ASSERT(evt != NULL);
         // the antiMessage's and if the event is from same sender
         if ((evt->getSenderAgentID() == sender) &&
                 (evt->getSentTime() >= sentTime)) {
-            // Remove event from the binomial heap using handle.
-            binomialHeap.erase(handles[i]);
+             // Identify handle for current object on heap
+            auto handle = BinomHeap::s_handle_from_iterator(iter);
+            // Remove the event from the binomial heap
+            binomialHeap.erase(handle);
             // This event needs to be canceled.
             evt->decreaseReference();
-            // Delete current handle from handle container as the associated
-            // data has been removed from the binomial heap.
-            handles[i] = handles.back();
-            handles.pop_back();
+
             numRemoved++;
         }
     }
