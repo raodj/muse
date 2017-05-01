@@ -1,0 +1,86 @@
+The following data was calculated via t-test run on the two samples
+performed as unpaired two sample t-test to determine if the averages
+are generally different:
+
+The analysis was performed using Libre office using the last 2 colums
+of timing data in the full_gsa.csv file:
+
+t-test		
+Alpha	0.05	
+	Variable 1	Variable 2
+Mean	52.1778928	43.8711608
+Variance	3848.2717075643	2949.2481020486
+Observations	2500	2500
+Pearson Correlation	0.9957287516	
+Hypothesized Mean Difference	0	
+Observed Mean Difference	8.306732	
+Variance of the Differences	88.4924736208	
+df	2499	
+t Stat	44.151659916	
+P (T<=t) one-tail	1.4552448781289E-315	
+t Critical one-tail	1.645463606	
+P (T<=t) two-tail	2.91048975131715E-315	
+t Critical two-tail	1.9609137249	
+
+The above data shows that t-stat > t-crtical (1.96) and the p-value
+2.91E-315 << 0.5. The result show that the averages of heap and
+binomial heap are statistically different, with heap being lower.
+
+A paired two sample t-test was also conduced using LibreOffice using
+the last 2 colums of timing data in the full_gsa.csv file.  The paired
+t-test [=TTEST(M1:M2500,L1:L2500,2,1)] results in a p-value 2.01E-315
+<< 0.5 and we reject that the null hypothesis (H0: difference between
+samples is zero or "any difference is purely due to random chance")
+and conclude that heap is generally faster than binomial heap.
+
+An F-test between the two sample data is shown below:
+
+F-test		
+Alpha	0.05	
+	Variable 1	Variable 2
+Mean	52.1778928	43.8711608
+Variance	3848.2717075643	2949.2481020486
+Observations	2500	2500
+df	2499	2499
+F	1.3048314602	
+P (F<=f) right-tail	1.56753009794542E-011	
+F Critical right-tail	1.0680342722	
+P (F<=f) left-tail	1	
+F Critical left-tail	0.9362995421	
+P two-tail	3.13506019589083E-011	
+F Critical two-tail	0.9245648025	1.0815899517
+
+The low p-value of 1.56E-011 << 0.05 shows that the variance in the
+two data sets is different -- that is the runtime variance is higher
+in the binomial heap scenario than with the heap.
+
+Runing a Kolmogorov-Smirinov test using R produces a small p-value of
+7.221e-06 << 0.05 which indicates that the two samples are from
+different distributions -- that is their overall runtime
+characteristics are different.
+
+$ Rscript ks_test.R full_gsa.csv 12 13
+
+	Two-sample Kolmogorov-Smirnov test
+
+data:  x and y
+D = 0.0708, p-value = 7.221e-06
+alternative hypothesis: two-sided
+
+Warning message:
+In ks.test(x, y) : p-value will be approximate in the presence of ties
+
+The Generalized Sensitivity Analysis (GSA) data generally shows that
+none of the parameters have any influence at all on the outcomes as
+shown by the dm,n measures of 0.0 for all parameters.  For GSA
+analysis the following 7 outlier data points that show a small
+difference in favor of binomial heap were removed from the data:
+
+5862	0.26	5430	9	0.94	343	89	17	41	98	292.33	286.053	-2.1472308692
+5968	0.66	3194	7	0.93	420	59	18	48	87	234.13	233.247	-0.3771409046
+9134	0.71	5366	5	0.92	517	62	19	19	88	175.563	174.517	-0.59579752
+4861	0.92	8432	9	0.99	519	90	16	47	46	197.103	195.063	-1.034991857
+3933	0.58	621	5	0.71	566	48	2	11	10	1.647	1.62	-1.6393442623
+5559	0.41	7903	8	0.91	573	82	18	14	86	219.807	219.43	-0.171514101
+3607	0.76	4368	5	0.97	485	94	16	29	88	258.493	253.98	-1.7458886701
+
