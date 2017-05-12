@@ -10,12 +10,12 @@
  *
  * Created on August 24, 2016, 12:29 PM
  */
-#include "PCSAgent.h"
-#include "PCS_State.h"
 
 #ifndef PCS_SIMULATION_H
 #define PCS_SIMULATION_H
 
+#include "PCSAgent.h"
+#include "PCS_State.h"
 
 class PCS_Simulation {
 
@@ -188,7 +188,7 @@ private:
         delay).
     */
     int delay;
-
+    
     /** The virtual time when the simulation is deemed to be complete.
         This value is set via the command-line argument --endTime
     */
