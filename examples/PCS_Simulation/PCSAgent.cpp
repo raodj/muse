@@ -1,5 +1,5 @@
-#ifndef _PCSAgent_CPP
-#define _PCSAgent_CPP
+#ifndef PCSAgent_CPP
+#define PCSAgent_CPP
 
 #include "PCSAgent.h"
 #include "MTRandom.h"

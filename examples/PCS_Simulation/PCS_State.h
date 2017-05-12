@@ -65,25 +65,26 @@ private:
 
     int index;
 
-protected:
-
-    /** The number of blocked calls that occur because channels
-     *  are not available.
+    /** 
+     * The number of blocked calls that occur because channels
+     * are not available.
      */
     unsigned int blockedChannels;
 
-    /** The number of calls attempted.
+    /** 
+     * The number of calls attempted.
      */
     unsigned int callAttempts;
 
-    /** The number of blocked calls that occur because channels
-     *  are not available when engaged PCSEvent/Portables are in transit to 
-     *  a new destination PCSAgent/Cell. 
+    /** 
+     * The number of blocked calls that occur because channels
+     * are not available when engaged PCSEvent/Portables are in transit to 
+     * a new destination PCSAgent/Cell. 
      */
     unsigned int handOffBlocks;
 
-    /** The number of channels available
-     * 
+    /**
+     * The number of channels available
      */
     unsigned int idleChannels;
 };
