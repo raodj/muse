@@ -1,0 +1,292 @@
+Using temproary directory: ./tmp_19794
+--delay 1 10
+--selfEvents% 25
+--eventsPerAgent 1 2 5 10 15 20
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 1
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907044.mualhpcp01.local 3907050.mualhpcp01.local 3907056.mualhpcp01.local 3907061.mualhpcp01.local 3907067.mualhpcp01.local 3907072.mualhpcp01.local 3907078.mualhpcp01.local 3907083.mualhpcp01.local 3907087.mualhpcp01.local 3907092.mualhpcp01.local
+    Waiting for: 3907044.mualhpcp01.local
+    Waiting for: 3907050.mualhpcp01.local
+    Waiting for: 3907056.mualhpcp01.local
+    Waiting for: 3907061.mualhpcp01.local
+    Waiting for: 3907067.mualhpcp01.local
+    Waiting for: 3907072.mualhpcp01.local
+    Waiting for: 3907078.mualhpcp01.local
+    Waiting for: 3907083.mualhpcp01.local
+    Waiting for: 3907087.mualhpcp01.local
+    Waiting for: 3907092.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 1
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907122.mualhpcp01.local 3907124.mualhpcp01.local 3907127.mualhpcp01.local 3907130.mualhpcp01.local 3907132.mualhpcp01.local 3907135.mualhpcp01.local 3907139.mualhpcp01.local 3907143.mualhpcp01.local 3907147.mualhpcp01.local 3907151.mualhpcp01.local
+    Waiting for: 3907122.mualhpcp01.local
+    Waiting for: 3907124.mualhpcp01.local
+    Waiting for: 3907127.mualhpcp01.local
+    Waiting for: 3907130.mualhpcp01.local
+    Waiting for: 3907132.mualhpcp01.local
+    Waiting for: 3907135.mualhpcp01.local
+    Waiting for: 3907139.mualhpcp01.local
+    Waiting for: 3907143.mualhpcp01.local
+    Waiting for: 3907147.mualhpcp01.local
+    Waiting for: 3907151.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_1.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 2
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907191.mualhpcp01.local 3907192.mualhpcp01.local 3907194.mualhpcp01.local 3907196.mualhpcp01.local 3907198.mualhpcp01.local 3907200.mualhpcp01.local 3907202.mualhpcp01.local 3907204.mualhpcp01.local 3907207.mualhpcp01.local 3907210.mualhpcp01.local
+    Waiting for: 3907191.mualhpcp01.local
+    Waiting for: 3907192.mualhpcp01.local
+    Waiting for: 3907194.mualhpcp01.local
+    Waiting for: 3907196.mualhpcp01.local
+    Waiting for: 3907198.mualhpcp01.local
+    Waiting for: 3907200.mualhpcp01.local
+    Waiting for: 3907202.mualhpcp01.local
+    Waiting for: 3907204.mualhpcp01.local
+    Waiting for: 3907207.mualhpcp01.local
+    Waiting for: 3907210.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 2
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907251.mualhpcp01.local 3907252.mualhpcp01.local 3907253.mualhpcp01.local 3907255.mualhpcp01.local 3907257.mualhpcp01.local 3907259.mualhpcp01.local 3907261.mualhpcp01.local 3907263.mualhpcp01.local 3907265.mualhpcp01.local 3907268.mualhpcp01.local
+    Waiting for: 3907251.mualhpcp01.local
+    Waiting for: 3907252.mualhpcp01.local
+    Waiting for: 3907253.mualhpcp01.local
+    Waiting for: 3907255.mualhpcp01.local
+    Waiting for: 3907257.mualhpcp01.local
+    Waiting for: 3907259.mualhpcp01.local
+    Waiting for: 3907261.mualhpcp01.local
+    Waiting for: 3907263.mualhpcp01.local
+    Waiting for: 3907265.mualhpcp01.local
+    Waiting for: 3907268.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_2.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 5
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907331.mualhpcp01.local 3907332.mualhpcp01.local 3907333.mualhpcp01.local 3907334.mualhpcp01.local 3907335.mualhpcp01.local 3907336.mualhpcp01.local 3907337.mualhpcp01.local 3907338.mualhpcp01.local 3907339.mualhpcp01.local 3907340.mualhpcp01.local
+    Waiting for: 3907331.mualhpcp01.local
+    Waiting for: 3907332.mualhpcp01.local
+    Waiting for: 3907333.mualhpcp01.local
+    Waiting for: 3907334.mualhpcp01.local
+    Waiting for: 3907335.mualhpcp01.local
+    Waiting for: 3907336.mualhpcp01.local
+    Waiting for: 3907337.mualhpcp01.local
+    Waiting for: 3907338.mualhpcp01.local
+    Waiting for: 3907339.mualhpcp01.local
+    Waiting for: 3907340.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_5.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 5
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907391.mualhpcp01.local 3907392.mualhpcp01.local 3907393.mualhpcp01.local 3907394.mualhpcp01.local 3907395.mualhpcp01.local 3907396.mualhpcp01.local 3907397.mualhpcp01.local 3907398.mualhpcp01.local 3907399.mualhpcp01.local 3907400.mualhpcp01.local
+    Waiting for: 3907391.mualhpcp01.local
+    Waiting for: 3907392.mualhpcp01.local
+    Waiting for: 3907393.mualhpcp01.local
+    Waiting for: 3907394.mualhpcp01.local
+    Waiting for: 3907395.mualhpcp01.local
+    Waiting for: 3907396.mualhpcp01.local
+    Waiting for: 3907397.mualhpcp01.local
+    Waiting for: 3907398.mualhpcp01.local
+    Waiting for: 3907399.mualhpcp01.local
+    Waiting for: 3907400.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_5.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 10
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907471.mualhpcp01.local 3907472.mualhpcp01.local 3907473.mualhpcp01.local 3907474.mualhpcp01.local 3907475.mualhpcp01.local 3907476.mualhpcp01.local 3907477.mualhpcp01.local 3907478.mualhpcp01.local 3907479.mualhpcp01.local 3907480.mualhpcp01.local
+    Waiting for: 3907471.mualhpcp01.local
+    Waiting for: 3907472.mualhpcp01.local
+    Waiting for: 3907473.mualhpcp01.local
+    Waiting for: 3907474.mualhpcp01.local
+    Waiting for: 3907475.mualhpcp01.local
+    Waiting for: 3907476.mualhpcp01.local
+    Waiting for: 3907477.mualhpcp01.local
+    Waiting for: 3907478.mualhpcp01.local
+    Waiting for: 3907479.mualhpcp01.local
+    Waiting for: 3907480.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 10
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907521.mualhpcp01.local 3907522.mualhpcp01.local 3907523.mualhpcp01.local 3907524.mualhpcp01.local 3907525.mualhpcp01.local 3907526.mualhpcp01.local 3907527.mualhpcp01.local 3907528.mualhpcp01.local 3907529.mualhpcp01.local 3907530.mualhpcp01.local
+    Waiting for: 3907521.mualhpcp01.local
+    Waiting for: 3907522.mualhpcp01.local
+    Waiting for: 3907523.mualhpcp01.local
+    Waiting for: 3907524.mualhpcp01.local
+    Waiting for: 3907525.mualhpcp01.local
+    Waiting for: 3907526.mualhpcp01.local
+    Waiting for: 3907527.mualhpcp01.local
+    Waiting for: 3907528.mualhpcp01.local
+    Waiting for: 3907529.mualhpcp01.local
+    Waiting for: 3907530.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_10.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 15
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907601.mualhpcp01.local 3907602.mualhpcp01.local 3907603.mualhpcp01.local 3907604.mualhpcp01.local 3907605.mualhpcp01.local 3907606.mualhpcp01.local 3907607.mualhpcp01.local 3907608.mualhpcp01.local 3907609.mualhpcp01.local 3907610.mualhpcp01.local
+    Waiting for: 3907601.mualhpcp01.local
+    Waiting for: 3907602.mualhpcp01.local
+    Waiting for: 3907603.mualhpcp01.local
+    Waiting for: 3907604.mualhpcp01.local
+    Waiting for: 3907605.mualhpcp01.local
+    Waiting for: 3907606.mualhpcp01.local
+    Waiting for: 3907607.mualhpcp01.local
+    Waiting for: 3907608.mualhpcp01.local
+    Waiting for: 3907609.mualhpcp01.local
+    Waiting for: 3907610.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 15
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907651.mualhpcp01.local 3907652.mualhpcp01.local 3907653.mualhpcp01.local 3907654.mualhpcp01.local 3907655.mualhpcp01.local 3907656.mualhpcp01.local 3907657.mualhpcp01.local 3907658.mualhpcp01.local 3907659.mualhpcp01.local 3907660.mualhpcp01.local
+    Waiting for: 3907651.mualhpcp01.local
+    Waiting for: 3907652.mualhpcp01.local
+    Waiting for: 3907653.mualhpcp01.local
+    Waiting for: 3907654.mualhpcp01.local
+    Waiting for: 3907655.mualhpcp01.local
+    Waiting for: 3907656.mualhpcp01.local
+    Waiting for: 3907657.mualhpcp01.local
+    Waiting for: 3907658.mualhpcp01.local
+    Waiting for: 3907659.mualhpcp01.local
+    Waiting for: 3907660.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_15.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 20
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907721.mualhpcp01.local 3907722.mualhpcp01.local 3907723.mualhpcp01.local 3907724.mualhpcp01.local 3907725.mualhpcp01.local 3907726.mualhpcp01.local 3907727.mualhpcp01.local 3907728.mualhpcp01.local 3907729.mualhpcp01.local 3907730.mualhpcp01.local
+    Waiting for: 3907721.mualhpcp01.local
+    Waiting for: 3907722.mualhpcp01.local
+    Waiting for: 3907723.mualhpcp01.local
+    Waiting for: 3907724.mualhpcp01.local
+    Waiting for: 3907725.mualhpcp01.local
+    Waiting for: 3907726.mualhpcp01.local
+    Waiting for: 3907727.mualhpcp01.local
+    Waiting for: 3907728.mualhpcp01.local
+    Waiting for: 3907729.mualhpcp01.local
+    Waiting for: 3907730.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_20.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 20
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
+Waiting for following jobs to finish: 3907751.mualhpcp01.local 3907752.mualhpcp01.local 3907753.mualhpcp01.local 3907754.mualhpcp01.local 3907755.mualhpcp01.local 3907756.mualhpcp01.local 3907757.mualhpcp01.local 3907758.mualhpcp01.local 3907759.mualhpcp01.local 3907760.mualhpcp01.local
+    Waiting for: 3907751.mualhpcp01.local
+    Waiting for: 3907752.mualhpcp01.local
+    Waiting for: 3907753.mualhpcp01.local
+    Waiting for: 3907754.mualhpcp01.local
+    Waiting for: 3907755.mualhpcp01.local
+    Waiting for: 3907756.mualhpcp01.local
+    Waiting for: 3907757.mualhpcp01.local
+    Waiting for: 3907758.mualhpcp01.local
+    Waiting for: 3907759.mualhpcp01.local
+    Waiting for: 3907760.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_20.txt
