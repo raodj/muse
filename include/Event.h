@@ -138,7 +138,7 @@ protected:
         The constructor is protected to ensure that the user always
         uses the static CREATE method to create events. The AgentID of
         the agent receiving the event and the delivery time is the
-        least amount of information needed to be a vaild Event.
+        least amount of information needed to be a valid Event.
         
         \param receiverID the id of the receiver agent
         
