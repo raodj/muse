@@ -20,7 +20,6 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
@@ -88,13 +87,17 @@ void
 Agent::processNextEvents(muse::EventContainer& events) {
     // The events cannot be empty
     ASSERT(!events.empty());
-    // Add the events to our input queue
-    for (EventContainer::iterator curr = events.begin(); (curr != events.end());
-         curr++) {
-        // Avoiding the following 2 redundant operations:
-        // (*curr)->increaseReference();  // Add to inputQueue
-        // (*curr)->decreaseReference();  // remove from events container
-        inputQueue.push_back(*curr);
+    // Add the events to our input queue only when state saving is
+    // enabled -- that is we have more than 1 process and rollbacks
+    // are possible.
+    if (mustSaveState) {
+        for (EventContainer::iterator curr = events.begin();
+             (curr != events.end()); curr++) {
+            // Avoiding the following 2 redundant operations:
+            // (*curr)->increaseReference();  // Add to inputQueue
+            // (*curr)->decreaseReference();  // remove from events container
+            inputQueue.push_back(*curr);
+        }
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
                     << "events at time: " << events.front()->getReceiveTime());
@@ -102,6 +105,7 @@ Agent::processNextEvents(muse::EventContainer& events) {
     // Set the LVT and timestamp
     setLVT(events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
+    // Let the derived class actually process events that it needs to.
     executeTask(&events);
     
     // Increment the numProcessedEvents and numScheduled counters
@@ -157,8 +161,11 @@ Agent::scheduleEvent(Event* e) {
     }
     if (Simulation::getSimulator()->scheduleEvent(e)) {
         DEBUG(std::cout << "Scheduled: " << *e << std::endl);
-        // Add event to our output queue
-        outputQueue.push_back(e);
+        // Add event to our output queue only when more than 1 process
+        // is used for parallel simulation
+        if (mustSaveState) {
+            outputQueue.push_back(e);
+        }
         // Keep track of event being scheduled.
         numScheduledEvents++;
         // this is to keep track of how many MPI message we use
