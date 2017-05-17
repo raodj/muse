@@ -16,9 +16,12 @@ fi
 suffix="$1"
 output="$2"
 
-# The following column names are used for analysis 
-colNames=( "GVTPeriod" "Imbalance" "Lambda" "SelfEvents%" "SimEndTime"
-           "Rows" "EventsPerLP" "Granularity" "Cols" )
+# The following column names are used for analysis. The order of
+# column names must match the order in the generated parameters file.
+# colNames=( "GVTPeriod" "Imbalance" "Lambda" "SelfEvents%" "SimEndTime"
+#           "Rows" "EventsPerLP" "Granularity" "Cols" )
+colNames=( "GVTPeriod" "Imbalance" "RecvrRange" "Lambda" "SelfEvents%"
+           "SimEndTime" "Rows" "EventsPerLP" "Granularity" "Cols" )
 
 # Setup associative array to map long EpiParams names to acronyms
 declare -A Acronym
@@ -31,6 +34,7 @@ Acronym=( ["GVTPeriod"]="GVT Period"
           ["EventsPerLP"]="Evt./LP"
           ["Granularity"]="Evt. Gran."
           ["Cols"]="Cols"
+          ["RecvrRange"]="Recvr. Range"
         )
 
 # Print header for the output from this script

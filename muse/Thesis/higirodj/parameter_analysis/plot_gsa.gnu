@@ -5,7 +5,7 @@
 # $ gnuplot -e 'csv="gsa1"' plot_gsa.gnu
 
 # NOTE: THE ORDER OF COLUMN TITLES BELOW SHOULD MATCH ORDER IN CSV!!!
-VarNames = "GVTPeriod Imbalance Lambda SelfEvents% SimEndTime Rows EventsPerLP Granularity Cols"
+VarNames = "GVTPeriod Imbalance RecvrRange Lambda SelfEvents% SimEndTime Rows EventsPerLP Granularity Cols"
 
 # Ensure you add trailing '/' to dir
 if (!exists('dir')) {
@@ -36,23 +36,13 @@ round_tics(x) = system(sprintf("./round_tics %f", x)) + 0
 
 # Setup multiplot with/without title
 if (exists("title")) {
-    set multiplot layout 3, 3 title title
+    set multiplot layout 4, 3 title title
 } else {
-    set multiplot layout 3, 3
+    set multiplot layout 4, 3
 }
 set tmargin 1
 set rmargin 1
 set lmargin 4
-
-# Setup MAE scale
-# maeScale = 1.12
-
-# Set the MAE threshold from CSV file
-# maeThresh = system(sprintf("tail -1 %s | cut -d',' -f6", odeFile)) * maeScale
-# maeThresh = (maeThresh < 1) ? 1 : maeThresh
-# maeThresh = (maeThresh < 2) ? 2 : maeThresh
-
-# print "maeThresh set to: ", maeThresh
 
 # Convenience function to extract min and max x-values from a data file.
 getMinX(file) = system("grep -v '^#' ".file." | cut -d',' -f1 | head -1")
