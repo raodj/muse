@@ -16,6 +16,9 @@ set key right top maxrows 6
 set xtics
 set ytics
 
+set xlabel "Event time increment" font " Bold"
+set ylabel "Probability" font " Bold" offset 1, 0
+
 # Colors for the different parameters plotted by this script
 ColorList="#8dd3c7 #b8860b #928bc1 #fb8072 #80b1d3 #fdb462 #b3de69 #f556a8 #4d4dff #bc80bd #ccebc5 #aaaaaa"
 getColor(c) = word(ColorList, int(c))
