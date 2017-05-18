@@ -98,6 +98,12 @@ Agent::processNextEvents(muse::EventContainer& events) {
             // (*curr)->decreaseReference();  // remove from events container
             inputQueue.push_back(*curr);
         }
+    } else {
+        // keep track number of processed events -- this would be
+        // normally done during garbage collection.  However, in 1 LP
+        // mode we do not add events to input queue and consequently
+        // we need to track it here.
+        numCommittedEvents += events.size();
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
                     << "events at time: " << events.front()->getReceiveTime());
@@ -393,9 +399,8 @@ Agent::cleanInputQueue() {
         Event *currentEvent = inputQueue.front();
         currentEvent->decreaseReference();
         inputQueue.pop_front();
-
-        // Remember to keep track number of processed events
-        numProcessedEvents++;
+        // Remember to keep track number of committed events
+        numCommittedEvents++;
     }
 }
 
