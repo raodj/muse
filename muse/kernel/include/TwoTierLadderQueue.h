@@ -1011,9 +1011,14 @@ private:
     */
     size_t currBucket;
 
-    /** The deque containing the set of vectors in this bucket list.
+    /** The vector containing the set of vectors in this bucket list.
+		Earlier we used a std::deque<TwoTierBucket>.  However, with
+		std::deque, the net number of instructions executed (as per
+		callgrind & Linux perf) was higher when compared to
+		std::vector.  Consequently, the following data structure was
+		changed to std::vector (instead of std::deque).
      */
-    std::deque<TwoTierBucket> bucketList;
+	std::vector<TwoTierBucket> bucketList;
     
     /** Total number of events still present in this rung.  This is
         used to report size and check for empty quickly.
