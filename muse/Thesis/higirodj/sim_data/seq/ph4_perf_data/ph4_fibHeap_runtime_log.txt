@@ -1,292 +1,1556 @@
-Using temproary directory: ./tmp_19794
+Using temproary directory: ./tmp_3839
 --delay 1 10
 --selfEvents% 25
 --eventsPerAgent 1 2 5 10 15 20
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 1
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907044.mualhpcp01.local 3907050.mualhpcp01.local 3907056.mualhpcp01.local 3907061.mualhpcp01.local 3907067.mualhpcp01.local 3907072.mualhpcp01.local 3907078.mualhpcp01.local 3907083.mualhpcp01.local 3907087.mualhpcp01.local 3907092.mualhpcp01.local
-    Waiting for: 3907044.mualhpcp01.local
-    Waiting for: 3907050.mualhpcp01.local
-    Waiting for: 3907056.mualhpcp01.local
-    Waiting for: 3907061.mualhpcp01.local
-    Waiting for: 3907067.mualhpcp01.local
-    Waiting for: 3907072.mualhpcp01.local
-    Waiting for: 3907078.mualhpcp01.local
-    Waiting for: 3907083.mualhpcp01.local
-    Waiting for: 3907087.mualhpcp01.local
-    Waiting for: 3907092.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910359.mualhpcp01.local 3910360.mualhpcp01.local 3910361.mualhpcp01.local 3910362.mualhpcp01.local 3910363.mualhpcp01.local 3910364.mualhpcp01.local 3910365.mualhpcp01.local 3910366.mualhpcp01.local 3910367.mualhpcp01.local 3910368.mualhpcp01.local
+    Waiting for: 3910359.mualhpcp01.local
+    Waiting for: 3910360.mualhpcp01.local
+    Waiting for: 3910361.mualhpcp01.local
+    Waiting for: 3910362.mualhpcp01.local
+    Waiting for: 3910363.mualhpcp01.local
+    Waiting for: 3910364.mualhpcp01.local
+    Waiting for: 3910365.mualhpcp01.local
+    Waiting for: 3910366.mualhpcp01.local
+    Waiting for: 3910367.mualhpcp01.local
+    Waiting for: 3910368.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_1.txt
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_1.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 1
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907122.mualhpcp01.local 3907124.mualhpcp01.local 3907127.mualhpcp01.local 3907130.mualhpcp01.local 3907132.mualhpcp01.local 3907135.mualhpcp01.local 3907139.mualhpcp01.local 3907143.mualhpcp01.local 3907147.mualhpcp01.local 3907151.mualhpcp01.local
-    Waiting for: 3907122.mualhpcp01.local
-    Waiting for: 3907124.mualhpcp01.local
-    Waiting for: 3907127.mualhpcp01.local
-    Waiting for: 3907130.mualhpcp01.local
-    Waiting for: 3907132.mualhpcp01.local
-    Waiting for: 3907135.mualhpcp01.local
-    Waiting for: 3907139.mualhpcp01.local
-    Waiting for: 3907143.mualhpcp01.local
-    Waiting for: 3907147.mualhpcp01.local
-    Waiting for: 3907151.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910369.mualhpcp01.local 3910370.mualhpcp01.local 3910371.mualhpcp01.local 3910372.mualhpcp01.local 3910373.mualhpcp01.local 3910374.mualhpcp01.local 3910375.mualhpcp01.local 3910376.mualhpcp01.local 3910377.mualhpcp01.local 3910378.mualhpcp01.local
+    Waiting for: 3910369.mualhpcp01.local
+    Waiting for: 3910370.mualhpcp01.local
+    Waiting for: 3910371.mualhpcp01.local
+    Waiting for: 3910372.mualhpcp01.local
+    Waiting for: 3910373.mualhpcp01.local
+    Waiting for: 3910374.mualhpcp01.local
+    Waiting for: 3910375.mualhpcp01.local
+    Waiting for: 3910376.mualhpcp01.local
+    Waiting for: 3910377.mualhpcp01.local
+    Waiting for: 3910378.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_1.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_1.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 2
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907191.mualhpcp01.local 3907192.mualhpcp01.local 3907194.mualhpcp01.local 3907196.mualhpcp01.local 3907198.mualhpcp01.local 3907200.mualhpcp01.local 3907202.mualhpcp01.local 3907204.mualhpcp01.local 3907207.mualhpcp01.local 3907210.mualhpcp01.local
-    Waiting for: 3907191.mualhpcp01.local
-    Waiting for: 3907192.mualhpcp01.local
-    Waiting for: 3907194.mualhpcp01.local
-    Waiting for: 3907196.mualhpcp01.local
-    Waiting for: 3907198.mualhpcp01.local
-    Waiting for: 3907200.mualhpcp01.local
-    Waiting for: 3907202.mualhpcp01.local
-    Waiting for: 3907204.mualhpcp01.local
-    Waiting for: 3907207.mualhpcp01.local
-    Waiting for: 3907210.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910379.mualhpcp01.local 3910380.mualhpcp01.local 3910381.mualhpcp01.local 3910382.mualhpcp01.local 3910383.mualhpcp01.local 3910384.mualhpcp01.local 3910385.mualhpcp01.local 3910386.mualhpcp01.local 3910387.mualhpcp01.local 3910388.mualhpcp01.local
+    Waiting for: 3910379.mualhpcp01.local
+    Waiting for: 3910380.mualhpcp01.local
+    Waiting for: 3910381.mualhpcp01.local
+    Waiting for: 3910382.mualhpcp01.local
+    Waiting for: 3910383.mualhpcp01.local
+    Waiting for: 3910384.mualhpcp01.local
+    Waiting for: 3910385.mualhpcp01.local
+    Waiting for: 3910386.mualhpcp01.local
+    Waiting for: 3910387.mualhpcp01.local
+    Waiting for: 3910388.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_2.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_2.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 2
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907251.mualhpcp01.local 3907252.mualhpcp01.local 3907253.mualhpcp01.local 3907255.mualhpcp01.local 3907257.mualhpcp01.local 3907259.mualhpcp01.local 3907261.mualhpcp01.local 3907263.mualhpcp01.local 3907265.mualhpcp01.local 3907268.mualhpcp01.local
-    Waiting for: 3907251.mualhpcp01.local
-    Waiting for: 3907252.mualhpcp01.local
-    Waiting for: 3907253.mualhpcp01.local
-    Waiting for: 3907255.mualhpcp01.local
-    Waiting for: 3907257.mualhpcp01.local
-    Waiting for: 3907259.mualhpcp01.local
-    Waiting for: 3907261.mualhpcp01.local
-    Waiting for: 3907263.mualhpcp01.local
-    Waiting for: 3907265.mualhpcp01.local
-    Waiting for: 3907268.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910389.mualhpcp01.local 3910390.mualhpcp01.local 3910391.mualhpcp01.local 3910392.mualhpcp01.local 3910393.mualhpcp01.local 3910394.mualhpcp01.local 3910395.mualhpcp01.local 3910396.mualhpcp01.local 3910397.mualhpcp01.local 3910398.mualhpcp01.local
+    Waiting for: 3910389.mualhpcp01.local
+    Waiting for: 3910390.mualhpcp01.local
+    Waiting for: 3910391.mualhpcp01.local
+    Waiting for: 3910392.mualhpcp01.local
+    Waiting for: 3910393.mualhpcp01.local
+    Waiting for: 3910394.mualhpcp01.local
+    Waiting for: 3910395.mualhpcp01.local
+    Waiting for: 3910396.mualhpcp01.local
+    Waiting for: 3910397.mualhpcp01.local
+    Waiting for: 3910398.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_2.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_2.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 5
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907331.mualhpcp01.local 3907332.mualhpcp01.local 3907333.mualhpcp01.local 3907334.mualhpcp01.local 3907335.mualhpcp01.local 3907336.mualhpcp01.local 3907337.mualhpcp01.local 3907338.mualhpcp01.local 3907339.mualhpcp01.local 3907340.mualhpcp01.local
-    Waiting for: 3907331.mualhpcp01.local
-    Waiting for: 3907332.mualhpcp01.local
-    Waiting for: 3907333.mualhpcp01.local
-    Waiting for: 3907334.mualhpcp01.local
-    Waiting for: 3907335.mualhpcp01.local
-    Waiting for: 3907336.mualhpcp01.local
-    Waiting for: 3907337.mualhpcp01.local
-    Waiting for: 3907338.mualhpcp01.local
-    Waiting for: 3907339.mualhpcp01.local
-    Waiting for: 3907340.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910399.mualhpcp01.local 3910400.mualhpcp01.local 3910401.mualhpcp01.local 3910402.mualhpcp01.local 3910403.mualhpcp01.local 3910404.mualhpcp01.local 3910405.mualhpcp01.local 3910406.mualhpcp01.local 3910407.mualhpcp01.local 3910408.mualhpcp01.local
+    Waiting for: 3910399.mualhpcp01.local
+    Waiting for: 3910400.mualhpcp01.local
+    Waiting for: 3910401.mualhpcp01.local
+    Waiting for: 3910402.mualhpcp01.local
+    Waiting for: 3910403.mualhpcp01.local
+    Waiting for: 3910404.mualhpcp01.local
+    Waiting for: 3910405.mualhpcp01.local
+    Waiting for: 3910406.mualhpcp01.local
+    Waiting for: 3910407.mualhpcp01.local
+    Waiting for: 3910408.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_5.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_5.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 5
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907391.mualhpcp01.local 3907392.mualhpcp01.local 3907393.mualhpcp01.local 3907394.mualhpcp01.local 3907395.mualhpcp01.local 3907396.mualhpcp01.local 3907397.mualhpcp01.local 3907398.mualhpcp01.local 3907399.mualhpcp01.local 3907400.mualhpcp01.local
-    Waiting for: 3907391.mualhpcp01.local
-    Waiting for: 3907392.mualhpcp01.local
-    Waiting for: 3907393.mualhpcp01.local
-    Waiting for: 3907394.mualhpcp01.local
-    Waiting for: 3907395.mualhpcp01.local
-    Waiting for: 3907396.mualhpcp01.local
-    Waiting for: 3907397.mualhpcp01.local
-    Waiting for: 3907398.mualhpcp01.local
-    Waiting for: 3907399.mualhpcp01.local
-    Waiting for: 3907400.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910409.mualhpcp01.local 3910410.mualhpcp01.local 3910411.mualhpcp01.local 3910412.mualhpcp01.local 3910413.mualhpcp01.local 3910414.mualhpcp01.local 3910415.mualhpcp01.local 3910416.mualhpcp01.local 3910417.mualhpcp01.local 3910418.mualhpcp01.local
+    Waiting for: 3910409.mualhpcp01.local
+    Waiting for: 3910410.mualhpcp01.local
+    Waiting for: 3910411.mualhpcp01.local
+    Waiting for: 3910412.mualhpcp01.local
+    Waiting for: 3910413.mualhpcp01.local
+    Waiting for: 3910414.mualhpcp01.local
+    Waiting for: 3910415.mualhpcp01.local
+    Waiting for: 3910416.mualhpcp01.local
+    Waiting for: 3910417.mualhpcp01.local
+    Waiting for: 3910418.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_5.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_5.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 10
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907471.mualhpcp01.local 3907472.mualhpcp01.local 3907473.mualhpcp01.local 3907474.mualhpcp01.local 3907475.mualhpcp01.local 3907476.mualhpcp01.local 3907477.mualhpcp01.local 3907478.mualhpcp01.local 3907479.mualhpcp01.local 3907480.mualhpcp01.local
-    Waiting for: 3907471.mualhpcp01.local
-    Waiting for: 3907472.mualhpcp01.local
-    Waiting for: 3907473.mualhpcp01.local
-    Waiting for: 3907474.mualhpcp01.local
-    Waiting for: 3907475.mualhpcp01.local
-    Waiting for: 3907476.mualhpcp01.local
-    Waiting for: 3907477.mualhpcp01.local
-    Waiting for: 3907478.mualhpcp01.local
-    Waiting for: 3907479.mualhpcp01.local
-    Waiting for: 3907480.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910419.mualhpcp01.local 3910420.mualhpcp01.local 3910421.mualhpcp01.local 3910422.mualhpcp01.local 3910423.mualhpcp01.local 3910424.mualhpcp01.local 3910425.mualhpcp01.local 3910426.mualhpcp01.local 3910427.mualhpcp01.local 3910428.mualhpcp01.local
+    Waiting for: 3910419.mualhpcp01.local
+    Waiting for: 3910420.mualhpcp01.local
+    Waiting for: 3910421.mualhpcp01.local
+    Waiting for: 3910422.mualhpcp01.local
+    Waiting for: 3910423.mualhpcp01.local
+    Waiting for: 3910424.mualhpcp01.local
+    Waiting for: 3910425.mualhpcp01.local
+    Waiting for: 3910426.mualhpcp01.local
+    Waiting for: 3910427.mualhpcp01.local
+    Waiting for: 3910428.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_10.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_10.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 10
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907521.mualhpcp01.local 3907522.mualhpcp01.local 3907523.mualhpcp01.local 3907524.mualhpcp01.local 3907525.mualhpcp01.local 3907526.mualhpcp01.local 3907527.mualhpcp01.local 3907528.mualhpcp01.local 3907529.mualhpcp01.local 3907530.mualhpcp01.local
-    Waiting for: 3907521.mualhpcp01.local
-    Waiting for: 3907522.mualhpcp01.local
-    Waiting for: 3907523.mualhpcp01.local
-    Waiting for: 3907524.mualhpcp01.local
-    Waiting for: 3907525.mualhpcp01.local
-    Waiting for: 3907526.mualhpcp01.local
-    Waiting for: 3907527.mualhpcp01.local
-    Waiting for: 3907528.mualhpcp01.local
-    Waiting for: 3907529.mualhpcp01.local
-    Waiting for: 3907530.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910429.mualhpcp01.local 3910430.mualhpcp01.local 3910431.mualhpcp01.local 3910432.mualhpcp01.local 3910433.mualhpcp01.local 3910434.mualhpcp01.local 3910435.mualhpcp01.local 3910436.mualhpcp01.local 3910437.mualhpcp01.local 3910438.mualhpcp01.local
+    Waiting for: 3910429.mualhpcp01.local
+    Waiting for: 3910430.mualhpcp01.local
+    Waiting for: 3910431.mualhpcp01.local
+    Waiting for: 3910432.mualhpcp01.local
+    Waiting for: 3910433.mualhpcp01.local
+    Waiting for: 3910434.mualhpcp01.local
+    Waiting for: 3910435.mualhpcp01.local
+    Waiting for: 3910436.mualhpcp01.local
+    Waiting for: 3910437.mualhpcp01.local
+    Waiting for: 3910438.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_10.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_10.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 15
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907601.mualhpcp01.local 3907602.mualhpcp01.local 3907603.mualhpcp01.local 3907604.mualhpcp01.local 3907605.mualhpcp01.local 3907606.mualhpcp01.local 3907607.mualhpcp01.local 3907608.mualhpcp01.local 3907609.mualhpcp01.local 3907610.mualhpcp01.local
-    Waiting for: 3907601.mualhpcp01.local
-    Waiting for: 3907602.mualhpcp01.local
-    Waiting for: 3907603.mualhpcp01.local
-    Waiting for: 3907604.mualhpcp01.local
-    Waiting for: 3907605.mualhpcp01.local
-    Waiting for: 3907606.mualhpcp01.local
-    Waiting for: 3907607.mualhpcp01.local
-    Waiting for: 3907608.mualhpcp01.local
-    Waiting for: 3907609.mualhpcp01.local
-    Waiting for: 3907610.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910439.mualhpcp01.local 3910440.mualhpcp01.local 3910441.mualhpcp01.local 3910442.mualhpcp01.local 3910443.mualhpcp01.local 3910444.mualhpcp01.local 3910445.mualhpcp01.local 3910446.mualhpcp01.local 3910447.mualhpcp01.local 3910448.mualhpcp01.local
+    Waiting for: 3910439.mualhpcp01.local
+    Waiting for: 3910440.mualhpcp01.local
+    Waiting for: 3910441.mualhpcp01.local
+    Waiting for: 3910442.mualhpcp01.local
+    Waiting for: 3910443.mualhpcp01.local
+    Waiting for: 3910444.mualhpcp01.local
+    Waiting for: 3910445.mualhpcp01.local
+    Waiting for: 3910446.mualhpcp01.local
+    Waiting for: 3910447.mualhpcp01.local
+    Waiting for: 3910448.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_15.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_15.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 15
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907651.mualhpcp01.local 3907652.mualhpcp01.local 3907653.mualhpcp01.local 3907654.mualhpcp01.local 3907655.mualhpcp01.local 3907656.mualhpcp01.local 3907657.mualhpcp01.local 3907658.mualhpcp01.local 3907659.mualhpcp01.local 3907660.mualhpcp01.local
-    Waiting for: 3907651.mualhpcp01.local
-    Waiting for: 3907652.mualhpcp01.local
-    Waiting for: 3907653.mualhpcp01.local
-    Waiting for: 3907654.mualhpcp01.local
-    Waiting for: 3907655.mualhpcp01.local
-    Waiting for: 3907656.mualhpcp01.local
-    Waiting for: 3907657.mualhpcp01.local
-    Waiting for: 3907658.mualhpcp01.local
-    Waiting for: 3907659.mualhpcp01.local
-    Waiting for: 3907660.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910449.mualhpcp01.local 3910450.mualhpcp01.local 3910451.mualhpcp01.local 3910452.mualhpcp01.local 3910453.mualhpcp01.local 3910454.mualhpcp01.local 3910455.mualhpcp01.local 3910456.mualhpcp01.local 3910457.mualhpcp01.local 3910458.mualhpcp01.local
+    Waiting for: 3910449.mualhpcp01.local
+    Waiting for: 3910450.mualhpcp01.local
+    Waiting for: 3910451.mualhpcp01.local
+    Waiting for: 3910452.mualhpcp01.local
+    Waiting for: 3910453.mualhpcp01.local
+    Waiting for: 3910454.mualhpcp01.local
+    Waiting for: 3910455.mualhpcp01.local
+    Waiting for: 3910456.mualhpcp01.local
+    Waiting for: 3910457.mualhpcp01.local
+    Waiting for: 3910458.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_15.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_15.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 1 --selfEvents 0.250 --eventsPerAgent 20
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907721.mualhpcp01.local 3907722.mualhpcp01.local 3907723.mualhpcp01.local 3907724.mualhpcp01.local 3907725.mualhpcp01.local 3907726.mualhpcp01.local 3907727.mualhpcp01.local 3907728.mualhpcp01.local 3907729.mualhpcp01.local 3907730.mualhpcp01.local
-    Waiting for: 3907721.mualhpcp01.local
-    Waiting for: 3907722.mualhpcp01.local
-    Waiting for: 3907723.mualhpcp01.local
-    Waiting for: 3907724.mualhpcp01.local
-    Waiting for: 3907725.mualhpcp01.local
-    Waiting for: 3907726.mualhpcp01.local
-    Waiting for: 3907727.mualhpcp01.local
-    Waiting for: 3907728.mualhpcp01.local
-    Waiting for: 3907729.mualhpcp01.local
-    Waiting for: 3907730.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910459.mualhpcp01.local 3910460.mualhpcp01.local 3910461.mualhpcp01.local 3910462.mualhpcp01.local 3910463.mualhpcp01.local 3910464.mualhpcp01.local 3910465.mualhpcp01.local 3910466.mualhpcp01.local 3910467.mualhpcp01.local 3910468.mualhpcp01.local
+    Waiting for: 3910459.mualhpcp01.local
+    Waiting for: 3910460.mualhpcp01.local
+    Waiting for: 3910461.mualhpcp01.local
+    Waiting for: 3910462.mualhpcp01.local
+    Waiting for: 3910463.mualhpcp01.local
+    Waiting for: 3910464.mualhpcp01.local
+    Waiting for: 3910465.mualhpcp01.local
+    Waiting for: 3910466.mualhpcp01.local
+    Waiting for: 3910467.mualhpcp01.local
+    Waiting for: 3910468.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_20.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_1_selfEvents_0.250_eventsPerAgent_20.txt
 Creating script for: --rows 100 --cols 100 --scheduler-queue fibHeap --simEndTime 500 --delay 10 --selfEvents 0.250 --eventsPerAgent 20
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_1 -v REP=1 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_2 -v REP=2 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_3 -v REP=3 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_4 -v REP=4 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_5 -v REP=5 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_6 -v REP=6 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_7 -v REP=7 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_8 -v REP=8 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_9 -v REP=9 ./tmp_19794/pbs_job.sh
-qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_19794_10 -v REP=10 ./tmp_19794/pbs_job.sh
-Waiting for following jobs to finish: 3907751.mualhpcp01.local 3907752.mualhpcp01.local 3907753.mualhpcp01.local 3907754.mualhpcp01.local 3907755.mualhpcp01.local 3907756.mualhpcp01.local 3907757.mualhpcp01.local 3907758.mualhpcp01.local 3907759.mualhpcp01.local 3907760.mualhpcp01.local
-    Waiting for: 3907751.mualhpcp01.local
-    Waiting for: 3907752.mualhpcp01.local
-    Waiting for: 3907753.mualhpcp01.local
-    Waiting for: 3907754.mualhpcp01.local
-    Waiting for: 3907755.mualhpcp01.local
-    Waiting for: 3907756.mualhpcp01.local
-    Waiting for: 3907757.mualhpcp01.local
-    Waiting for: 3907758.mualhpcp01.local
-    Waiting for: 3907759.mualhpcp01.local
-    Waiting for: 3907760.mualhpcp01.local
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_1 -v REP=1 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_2 -v REP=2 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_3 -v REP=3 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_4 -v REP=4 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_5 -v REP=5 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_6 -v REP=6 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_7 -v REP=7 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_8 -v REP=8 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_9 -v REP=9 ./tmp_3839/pbs_job.sh
+qsub -lwalltime=01:00:00 -lnodes=1:ppn=1 -N sim_3839_10 -v REP=10 ./tmp_3839/pbs_job.sh
+Waiting for following jobs to finish: 3910469.mualhpcp01.local 3910470.mualhpcp01.local 3910471.mualhpcp01.local 3910472.mualhpcp01.local 3910473.mualhpcp01.local 3910474.mualhpcp01.local 3910475.mualhpcp01.local 3910476.mualhpcp01.local 3910477.mualhpcp01.local 3910478.mualhpcp01.local
+    Waiting for: 3910469.mualhpcp01.local
+    Waiting for: 3910470.mualhpcp01.local
+    Waiting for: 3910471.mualhpcp01.local
+    Waiting for: 3910472.mualhpcp01.local
+    Waiting for: 3910473.mualhpcp01.local
+    Waiting for: 3910474.mualhpcp01.local
+    Waiting for: 3910475.mualhpcp01.local
+    Waiting for: 3910476.mualhpcp01.local
+    Waiting for: 3910477.mualhpcp01.local
+    Waiting for: 3910478.mualhpcp01.local
     Waiting for: 
-aggrFileName = ./tmp_19794/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_20.txt
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'h:mm:ss or m:ss'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Maximum resident set size'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #rollbacks'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total #MPI messages'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total schedules'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'Total Committed Events'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-references'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cache-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'cycles'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'instructions'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branches'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910375_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910377_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910385_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910386_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910395_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910405_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910415_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910425_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910445_.1.0 (extracted only 0 entries): 'branch-misses'
+Unable to extract 1 entries from ./tmp_3839/sim_out_3910455_.1.0 (extracted only 0 entries): 'branch-misses'
+aggrFileName = ./tmp_3839/aggr_out/aggr_out_proc_1_delay_10_selfEvents_0.250_eventsPerAgent_20.txt
