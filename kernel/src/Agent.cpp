@@ -104,6 +104,11 @@ Agent::processNextEvents(muse::EventContainer& events) {
         // mode we do not add events to input queue and consequently
         // we need to track it here.
         numCommittedEvents += events.size();
+        // Decrease reference as we are not adding to input queue
+        for (EventContainer::iterator curr = events.begin();
+             (curr != events.end()); curr++) {
+            (*curr)->decreaseReference();
+        }
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
                     << "events at time: " << events.front()->getReceiveTime());
@@ -171,6 +176,9 @@ Agent::scheduleEvent(Event* e) {
         // is used for parallel simulation
         if (mustSaveState) {
             outputQueue.push_back(e);
+        } else {
+            // We don't add this event to output queue so decrease reference
+            e->decreaseReference();
         }
         // Keep track of event being scheduled.
         numScheduledEvents++;
