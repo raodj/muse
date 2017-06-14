@@ -104,11 +104,6 @@ Agent::processNextEvents(muse::EventContainer& events) {
         // mode we do not add events to input queue and consequently
         // we need to track it here.
         numCommittedEvents += events.size();
-        // Decrease reference as we are not adding to input queue
-        for (EventContainer::iterator curr = events.begin();
-             (curr != events.end()); curr++) {
-            (*curr)->decreaseReference();
-        }
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
                     << "events at time: " << events.front()->getReceiveTime());
@@ -125,6 +120,16 @@ Agent::processNextEvents(muse::EventContainer& events) {
     
     // Save the state (if needed) now that events have been processed.
     saveState();
+
+    if (!mustSaveState) {
+        // Decrease reference and free-up events as we are not adding to 
+        // input queue for handling rollbacks that cannot occur in this case.
+        for (EventContainer::iterator curr = events.begin();
+             (curr != events.end()); curr++) {
+            ASSERT( (*curr)->getReferenceCount() == 1 );
+            (*curr)->decreaseReference();
+        }
+    }
 }
 
 State*
@@ -178,6 +183,7 @@ Agent::scheduleEvent(Event* e) {
             outputQueue.push_back(e);
         } else {
             // We don't add this event to output queue so decrease reference
+            ASSERT( e->getReferenceCount() > 1 );
             e->decreaseReference();
         }
         // Keep track of event being scheduled.
