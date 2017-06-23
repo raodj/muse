@@ -1,26 +1,153 @@
 \chapter{Introduction} 
-	Discrete event simulation (DES) is the simulation of a discrete event system that contains states that operate at discrete time steps~\cite{fishman-13}. At each point in time in a simulation, a virtual time-stamp is assigned to an event and the event precipitates a transition from one state to another state. This change in system state is used to represent the dynamic nature and behavior of a real-world system~\cite{fujimoto-90}. DES has been used in a variety of fields in academia, industry and the public sector as a tool to help inform our knowledge of discrete event systems and to improve decision-making processes~\cite{fishman-13}. DES provides an effective means for analyzing real or artificial systems without the constraint of limited resources such as time, financial costs, or safety. For example, the simulation of a battlefield environment can deliver insightful information to military planners on enemy troop movements, tactics and capabilities during strategic planning efforts~\cite{hill-01}. A discrete event simulation of the battlefield allows military leaders to examine the impacts of decisions without the real-world risks associated with committing forces to dangerous environments. 
-    
-	Parallelism in computing frameworks that support DES increase performance throughput that is needed to construct and execute large scale and complex simulation models. With the growth and prevalence of semiconductor technology, cheaper and powerful multi-processors can be instrumented to achieve greater computing power for parallel discrete event simulations (PDES). However, the speedup achieved using multi-core and multi-processor systems requires efficient parallel programs. 
-    
-    Sequential and parallel DES are designed as a set of logical processes (LPs) that interact with each other by exchanging and processing timestamped events or messages~\cite{jafer-13}. Events that are yet to be processed are called "pending events". Pending events must be processed by LPs in priority order to maintain causality, with event priorities being determined by their timestamps. Consequently, data structures for managing and prioritizing pending events play a critical role in ensuring efficient sequential and parallel simulations~\cite{jones-86,ronngren-97,brown-88,franceschini-15}. The effectiveness of data structures for event management is a conspicuous issue in larger simulations, where thousands or millions of events can be pending~\cite{carothers-2010,yeom-14}. Large pending event sets can arise when a model has many LPs or when each LP generates / processes many events. Overheads in managing pending events is magnified in fine grained simulations where the time taken to process an event is very short. Furthermore, the synchronization strategy used in PDES called, Time Warp can further impact the effectiveness of the data structure due to additional processing required during rollback-based recovery operations.
+
+Discrete event simulation (DES) is a computational methodology for
+modeling and analysis of a wide spectrum of systems.  In DES, the
+system being modeled is logically subdivided into small, independent
+but interacting subsystems with their own independent states.  The
+model and implementation of a subsystem is called a Logical Process
+(LP) which manage the state assocated with them.  Accordingly, a DES
+is essentially designed as a set of logical processes (LPs) that
+interact with each other.  LPs interact by exchanging and processing
+discrete-timestamped events or messages~\cite{jafer-13}.  Processing
+an event essentially introduces a change in an LP's state and causes
+the LP to generate additional events (to itself or other LPs in the
+model).
+
+A key aspect of DES, is that state changes occur at discrete
+times~\cite{fishman-13}.  At each point in time in a simulation, a
+virtual time-stamp is assigned to an event and the event precipitates
+a transition from one state to another state. This change in system
+state is used to represent the dynamic nature and behavior of a
+real-world system~\cite{fujimoto-90}.
+
+DES has been used in a variety of fields in academia, industry and the
+public sector as a tool to help inform our knowledge of discrete event
+systems and to improve decision-making
+processes~\cite{fishman-13}. DES provides an effective means for
+analyzing real or artificial systems without the constraint of limited
+resources such as time, financial costs, or safety. For example, the
+simulation of a battlefield environment can deliver insightful
+information to military planners on enemy troop movements, tactics and
+capabilities during strategic planning efforts~\cite{hill-01}. A
+discrete event simulation of the battlefield allows military leaders
+to examine the impacts of decisions without the real-world risks
+associated with committing forces to dangerous environments.
+
+\section{Parallel Simulation}
+
+Parallelism in computing frameworks that support DES increase
+performance throughput that is needed to construct and execute large
+scale and complex simulation models. With the growth and prevalence of
+semiconductor technology, cheaper and powerful multi-processors can be
+instrumented to achieve greater computing power for parallel discrete
+event simulations (PDES).  In parallel simulations, LPs are subdivided
+or partitioned to operate on different compute units.  However, event
+processing on the different parallel must be synchronized to ensure
+causally consistent event processing.  Consequently, the speedup
+achieved using multi-core and multi-processor systems requires
+efficient parallel simulations by minimizing synchronization costs.
+Currently, two broad types of synchronization methods are used in
+PDES, namely: conservative and optimistic approaches~\cite{jafer-13}.
+Conservative methods tightly coordinate event processing so that
+causal violations do not occur.  Optimistic methods, such as Time
+Warp~\cite{jafer-13}, loosely synchronize LPs -- they permit temporary
+causal violations to occur but detect and recover from causal
+violations.  Recently, optimistic synchronization method have shown to
+outperform conservative methods for certain classes of
+systems~\cite{jafer-13}.
+
+
+\section{Managing Pending Events}
+
+Sequential and parallel DES are designed as a set of logical processes
+(LPs) that interact with each other by exchanging and processing
+timestamped events or messages~\cite{jafer-13}. Events that are yet to
+be processed are called "pending events". Pending events must be
+processed by LPs in priority order to maintain causality, with event
+priorities being determined by their timestamps. Consequently, data
+structures for managing and prioritizing pending events play a
+critical role in ensuring efficient sequential and parallel
+simulations~\cite{jones-86,ronngren-97,brown-88,franceschini-15}. The
+effectiveness of data structures for event management is a conspicuous
+issue in larger simulations, where thousands or millions of events can
+be pending~\cite{carothers-2010,yeom-14}. Large pending event sets can
+arise when a model has many LPs or when each LP generates / processes
+many events. Overheads in managing pending events is magnified in fine
+grained simulations where the time taken to process an event is very
+short. Furthermore, the synchronization strategy used in PDES called,
+Time Warp can further impact the effectiveness of the data structure
+due to additional processing required during rollback-based recovery
+operations.
 
 \section*{Thesis Statement}
-Many investigations have explored the effectiveness of a wide variety of data structures for managing the pending event set. Among the various data structures, the Ladder Queue proposed by Tang,~\cite{tang-05} has shown to be the most effective data structure for managing pending events~\cite{dickman-13,franceschini-15}, particularly in sequential DES. Our research proposes and explorers multi-tier data structures for the improved management of the pending event set in sequential and optimistic parallel simulations. The objective of the research is to develop a data structure that outperforms all other data structures in managing pending events. This task is accomplished by comparing the effectiveness of previous and newly defined data structures against our fine-tuned version of the Ladder Queue~\cite{tang-05} because it has shown to be very efficient for sequential DES.\newline
-\textbf{Thesis:} multi-tiered data structures, especially the novel, \textbf{2tLadderQ} and \textbf{3tHeap} pending event structures outperform all other data structures in sequential and optimistically parallel simulations.
 
-\section*{Related Work}  
-Recently, Franceschini~\cite{franceschini-15} compared several priority-queue based pending event data structures to evaluate their performance in the context of sequential DEVS simulations. They found that Ladder Queue outperformed every other priority queue based pending event data structure such as Sorted List, Minimal List, Binary Heap, Splay Tree, and Calendar Queue. Tang~\cite{tang-05} and Franceschini~\cite{franceschini-15} both use the classic Hold benchmark simulation model used in this research.
+Many investigations have explored the effectiveness of a wide variety
+of data structures for managing the pending event set. Among the
+various data structures, the Ladder Queue proposed by
+Tang,~\cite{tang-05} has shown to be the most effective data structure
+for managing pending events~\cite{dickman-13,franceschini-15},
+particularly in sequential DES. Our research proposes and explorers
+multi-tier data structures for the improved management of the pending
+event set in sequential and optimistic parallel simulations. The
+objective of the research is to develop a data structure that
+outperforms all other data structures in managing pending events. This
+task is accomplished by comparing the effectiveness of previous and
+newly defined data structures against our fine-tuned version of the
+Ladder Queue~\cite{tang-05} because it has shown to be very efficient
+for sequential DES. \newline
 
-In contrast to earlier work, rather than using a linked list based implementation, we propose an alternative implementation using dynamically growing arrays, that is, std::vector from the C(++) library. Furthermore, we trigger \textit{Bottom} to \textit{Ladder} re-bucketing only if the \textit{Bottom} has events at different timestamps to reduce inefficiencies. Our 2-tier Ladder Queue (\textbf{2tLadderQ}) is a novel enhancement to the Ladder Queue to enable its efficient use in optimistic parallel simulations.
+\textbf{Thesis:} multi-tiered data structures, especially the novel,
+\textbf{2tLadderQ} and \textbf{3tHeap} pending event structures
+outperform all other data structures in sequential and optimistic
+parallel simulations.
 
-Dickman~\cite{dickman-13} compare event list data structures that consisted of Splay Tree, STL Multiset and Ladder Queue. However, the focus of their paper was in developing a framework for handling pending event set data structure in shared memory PDES. A central component of their study was the identification of an appropriate data structure and design for the shared pending event set. Gupta~\cite{gupta-14} extended their implementation of Ladder Queue for shared memory Time Warp based simulation environment, so that it supports lock-free access to events in the shared pending event set. The modification involved the use of an unsorted lock-free queue in the underlying Ladder Queue structure. Marotta~\cite{marotta-16} contributed to the study of pending event set data structures in threaded PDES through the design of the Non-Blocking Priority Queue (NBPQ) data structure. A pending event set data structure that is closely related to Calendar Queues with constant time performance.
+\section*{Related Work}
 
-In contrast to aforementioned efforts, our research focuses on distributed memory platforms in which each parallel process is single threaded. Consequently, our implementation does not involve thread synchronization issues. However, our 2-tier design has the ability to further reduce lock contention issues in multithreaded environments and could provide further performance boost. To the best of our knowledge, the Fibonnacci heap (\textbf{fibHeap}) and our 3-tier Heap (\textbf{3tHeap}) are unique data structures that have potential to be effective in simulations with high concurrency.
+Recently, Franceschini~\cite{franceschini-15} compared several
+priority-queue based pending event data structures to evaluate their
+performance in the context of sequential DEVS simulations. They found
+that Ladder Queue outperformed every other priority queue based
+pending event data structure such as Sorted List, Minimal List, Binary
+Heap, Splay Tree, and Calendar Queue. Tang~\cite{tang-05} and
+Franceschini~\cite{franceschini-15} both use the classic Hold
+benchmark simulation model used in this research.
 
+In contrast to earlier work, rather than using a linked list based
+implementation, we propose an alternative implementation using
+dynamically growing arrays, that is, std::vector from the C(++)
+library. Furthermore, we trigger \textit{Bottom} to \textit{Ladder}
+re-bucketing only if the \textit{Bottom} has events at different
+timestamps to reduce inefficiencies. Our 2-tier Ladder Queue
+(\textbf{2tLadderQ}) is a novel enhancement to the Ladder Queue to
+enable its efficient use in optimistic parallel simulations.
 
+Dickman~\cite{dickman-13} compare event list data structures that
+consisted of Splay Tree, STL Multiset and Ladder Queue. However, the
+focus of their paper was in developing a framework for handling
+pending event set data structure in shared memory PDES. A central
+component of their study was the identification of an appropriate data
+structure and design for the shared pending event
+set. Gupta~\cite{gupta-14} extended their implementation of Ladder
+Queue for shared memory Time Warp based simulation environment, so
+that it supports lock-free access to events in the shared pending
+event set. The modification involved the use of an unsorted lock-free
+queue in the underlying Ladder Queue
+structure. Marotta~\cite{marotta-16} contributed to the study of
+pending event set data structures in threaded PDES through the design
+of the Non-Blocking Priority Queue (NBPQ) data structure. A pending
+event set data structure that is closely related to Calendar Queues
+with constant time performance.
 
-    
+In contrast to aforementioned efforts, our research focuses on
+distributed memory platforms in which each parallel process is single
+threaded. Consequently, our implementation does not involve thread
+synchronization issues. However, our 2-tier design has the ability to
+further reduce lock contention issues in multithreaded environments
+and could provide further performance boost. To the best of our
+knowledge, the Fibonnacci heap (\textbf{fibHeap}) and our 3-tier Heap
+(\textbf{3tHeap}) are unique data structures that have potential to be
+effective in simulations with high concurrency.
+
     
 
     
