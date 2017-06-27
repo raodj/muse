@@ -11,12 +11,12 @@ pcs_LDADD = $(STDCPP) -lmuse
 pcs_SOURCES = \
 	PCS_Simulation.cpp\
 	PCS_Simulation.h\
-	PCSAgent.h\
-	PCSAgent.cpp\
+	PCS_Agent.h\
+	PCS_Agent.cpp\
 	PCS_State.h\
 	PCS_State.cpp\
-	PCSEvent.cpp\
-	PCSEvent.h
-	
+	PCS_Event.cpp\
+	PCS_Event.h
+
 
 # end of Makefile.am

@@ -37,18 +37,16 @@
 //---------------------------------------------------------------------
 
 /* 
- * File:   PCSAgent.h
+ * File:   PCS_Agent.h
  * Author: Julius Higiro
  *
  * Created on August 31, 2016, 10:08 AM
  */
 
-#include <limits>
-#include <memory>
 #include <random>
 #include "Agent.h"
 #include "PCS_State.h"
-#include "PCSEvent.h"
+#include "PCS_Event.h"
 
 /** Agent that models a PCS Cell. The Cell represents a cellular
     receiver/transmitter that has some fixed number of "channels"
@@ -56,9 +54,9 @@
     simulation. A "channel" is a wireless channel via which a
     "portable" (or cellular device) can send/receive information from
     a Cell.  Portables are modeled using different values in the
-    PCSEvent.
+    PCS_Event.
 */
-class PCSAgent : public muse::Agent {
+class PCS_Agent : public muse::Agent {
 public:
     /** The only constructor for this class.
 
@@ -66,25 +64,25 @@ public:
         initializes the instance variables to the corresponding
         parameter values.
     */
-    PCSAgent(muse::AgentID, PCS_State*, int x, int y, int n, int d,
-             unsigned int call_interval_mean, unsigned int call_duration_mean,
-             unsigned int move_interval_mean,
+    PCS_Agent(muse::AgentID, PCS_State*, int x, int y, int n,
+             double call_interval_mean, double call_duration_mean,
+             double move_interval_mean,
              int lookAhead = 1, size_t granularity = 0);
 
     /**
      * The initialize method for this object is called only once when the
-     * PCSAgent/Cell object is created. The PCSAgent/Cell initializes
-     * PCSEvents/Portables and their corresponding timestamps
+     * PCS_Agent/Cell object is created. The PCS_Agent/Cell initializes
+     * PCS_Events/Portables and their corresponding timestamps
      * (call completion, next call and move timestamps). Initially, calls are
      * not in progress and the call completion timestamp is set to infinity.
      * The minimum of the three timestamps is used to determine the type and
-     * the destination of the PCSEvent/Portable.
+     * the destination of the PCS_Event/Portable.
      */
     void initialize() throw (std::exception);
     
     /**
-     * This method is called each time the PCSAgent/Cell receives
-     * PCSEvent/Portable that it must process. The PCSAgent/Cell determines
+     * This method is called each time the PCS_Agent/Cell receives
+     * PCS_Event/Portable that it must process. The PCS_Agent/Cell determines
      * the method to be invoked (nextCall, completionCall, moveIn, or moveOut)
      * and the subsequent actions that are taken based on the timestamps. 
      */
@@ -99,50 +97,76 @@ public:
     /**
      * The availability of channels is determined. If channels are not
      * available, the call is recorded as a blocked call. The next
-     * call timestamp of the PCSEvent is incremented. If channels are
+     * call timestamp of the PCS_Event is incremented. If channels are
      * available, the channel is allocated to the
-     * PCSEvent/Portable. The call completion timestamp of the
-     * PCSEvent is incremented. The minimum of the three timestamp
+     * PCS_Event/Portable. The call completion timestamp of the
+     * PCS_Event is incremented. The minimum of the three timestamp
      * fields is computed.
      */
-    void nextCall(PCSEvent& event, unsigned int durationDistrib, 
-                  unsigned int intervalDistrib);
+    PCS_Event* nextCall(const PCS_Event& event);
     
     /**
-     * The move timestamp of the PCSEvent is incremented. The availability of
-     * current PCSEvent/Portable is determined - call in progress? If call is in
-     * progress the channel availability determined. If channel available, the
-     * call is allocated and the minimum of the three timestamp fields is 
-     * computed. If channel not available, the call is labeled a blocked call
-     * (hand-off block). The call completion timestamp is reset to infinity and
-     * the minimum of the three timestamp fields is computed. 
+     * Method to implement actions associated with a portable moving
+     * into the range of this Cell.  The move timestamp of the
+     * PCS_Event is incremented. The availability of current
+     * PCS_Event/Portable is determined - call in progress? If call is
+     * in progress the channel availability determined. If channel
+     * available, the call is allocated and the minimum of the three
+     * timestamp fields is computed. If channel not available, the
+     * call is labeled a blocked call (hand-off block). The call
+     * completion timestamp is reset to infinity and the minimum of
+     * the three timestamp fields is computed.
+     *
+     * \param[in] event The current information associated with the
+     * portable that has moved-in.
+     *
+     * \param[in] moveDistrib The delay to be added to the move time
+     * in the event to determine the next time this portable will
+     * move.
      */
-    void moveIn(PCSEvent& event, unsigned int moveDistrib);
+    PCS_Event* moveIn(const PCS_Event& event);
     
     /**
      * The method is only invoked only when a call is in progress and
-     * a PCSEvent/Portable is moving between PCSAgents/Cells. The
-     * PCSAgent/Cell makes available the channel currently being used
-     * by the PCSEvent/Portable that is departing. Next, the
-     * PCSAgent/Cell sends the PCSEvent/Portable to another
-     * PCSAgent/Cell at the move timestamp.
+     * a PCS_Event/Portable is moving between PCS_Agents/Cells. The
+     * PCS_Agent/Cell makes available the channel currently being used
+     * by the PCS_Event/Portable that is departing. Next, the
+     * PCS_Agent/Cell sends the PCS_Event/Portable to another
+     * PCS_Agent/Cell at the move timestamp.
      */
-    void moveOut(PCSEvent& event);
+    PCS_Event* moveOut(const PCS_Event& event);
     
     /**
-     * The call completion timestamp of the PCSEvent is reset to infinity.
-     * The channel held by the PCSEvent/Portable is made available.
-     * The minimum of the three timestamp fields is computed.
+     * Method to handle logical completion of a call by a portable.
+     * As described in the paper -- "Upon invoking the CompletionCall
+     * method, the Cell resets the call completion timestamp of the
+     * Portable to 00 and frees the channel currently held by the
+     * Portable. Again, the minimum of the three timestamp fields is
+     * computed. The actions are identical to those described for the
+     * Start Up method.  Note that when a call completes, a Portable
+     * will generate its next incoming call."
+     *
+     * \param[in] event The portable (represented by the event) whose
+     * state/method is to be updated by generating a new event.
      */
-    void completionCall(PCSEvent& event);
+    PCS_Event* completionCall(const PCS_Event& event);
     
     /**
-     * Computes the minimum time stamp and returns the next action
+     * Returns the next action/state based on the minimum of the 3
+     * time stamps specified to this method.
      */
-    NextAction minTimeStamp(unsigned int completeCallTime,
-                            unsigned int nextCallTime,
-                            unsigned int moveCallTime);
+    muse::Time minTimeStamp(muse::Time completeCallTime,
+                            muse::Time nextCallTime,
+                            muse::Time moveCallTime) const;
 
+    /**
+     * Returns the next action/state based on the minimum of the 3
+     * time stamps specified to this method.
+     */
+    NextAction getAction(muse::Time completeCallTime,
+                         muse::Time nextCallTime,
+                         muse::Time moveCallTime) const;
+    
 protected:
     /** Simulate some granularity (i.e., CPU usage) for the event.
 
@@ -151,16 +175,23 @@ protected:
         granularity is a fixed value, set when an agent is created.
      */
     void simGranularity();
-    
+
+    PCS_Event* getNextEvent(const uint portableID,
+                           const muse::Time callCompleteTime,
+                           const muse::Time nextCallTime,
+                           const muse::Time moveTime) const;
+
+    void processEvent(PCS_Event* event);
+
 private:
-    int X, Y, N, Delay;
+    const int X, Y, N;
     
     /** Fixed lookahead virtual time delay for generating events.
         
         The virtual time events generated by this agent have this
         fixed look ahead virtual time value added to them.
      */
-    int lookAhead;
+    const int lookAhead;
 
     /** The random seed value that is used to generate random delays.
 
@@ -171,7 +202,7 @@ private:
         cases it would be best to set the \c --delay parameter to 0 to
         ensure repeatable results.
      */
-    unsigned int seed;
+    uint seed;
     
     /** A user-specified granularity -- that is, the number of loops
         to run for each event to add some load/granularity for each
@@ -181,27 +212,27 @@ private:
         or iterations that must be executed by the agent to simulate
         some granularity, i.e., CPU used per event.
      */
-    size_t granularity;
+    const size_t granularity;
     
     /** The mean time between two successive calls to a portable
         associated with this Cell.  This value is essentially the mean
         of an expoential random distribution from where the next call
         timestamp value is determined.
     */
-    const unsigned int callIntervalMean;
+    const double callIntervalMean;
     
     /** The mean call completion time. This value essentially
         represents the mean used for a Poisson distribution used to
         generate the length/duration of a call to a portable.
     */
-    const unsigned int callDurationMean;
+    const double callDurationMean;
     
     /** The mean move time.  This value essentially represents the
         mean used for an expoential random distribution used to
         generate the time when a portable will move to an adjacent
         cell.
     */
-    const unsigned int moveIntervalMean;
+    const double moveIntervalMean;
      
     /** The numeric limit that is used to reset the call completion timestamp
      *  to infinity (the max value of an int).

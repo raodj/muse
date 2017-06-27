@@ -52,17 +52,15 @@ using namespace std;
 PCS_Simulation::PCS_Simulation() {
     rows             = 3;
     cols             = 3;
-    events           = 3;
-    delay            = 0;
+    portables        = 3;
     lookAhead        = 1;
     imbalance        = 0.0;
-    selfEvents       = 0.0;
     end_time         = 100;
     granularity      = 0;
     channels         = 8;
-    callIntervalMean = 5;
-    callDurationMean = 3;
-    moveIntervalMean = 9;   
+    callIntervalMean = 20;   // Call every 20 minutes (exponential)
+    callDurationMean = 2.0;  // Calls are about 2 minutes long (poisson)
+    moveIntervalMean = 120;  // Every 2 hours move to another cell (expo)
 }
 
 PCS_Simulation::~PCS_Simulation() {}
@@ -77,29 +75,25 @@ PCS_Simulation::processArgs(int argc, char** argv) {
          &rows, ArgParser::INTEGER },
         {"--lookahead", "Minimum delay time for events", &lookAhead,
          ArgParser::INTEGER},
-        {"--delay", "The maximum random time added to look ahead [0, 100]",
-         &delay, ArgParser::INTEGER },
-        {"--eventsPerAgent", "Initial number of events per agent",
-         &events, ArgParser::INTEGER },
-        {"--selfEvents", "Fraction of events agents send to themselves [0, 1]",
-         &selfEvents, ArgParser::DOUBLE},
+        {"--portables", "Initial number of portables per Cell",
+         &portables, ArgParser::INTEGER },
         {"--simEndTime", "The end time for the simulation.", &end_time,
          ArgParser::INTEGER },
         {"--imbalance", "Desired imbalance in partitioning [0, 0.99]",
          &imbalance, ArgParser::DOUBLE},
         {"--granularity", "Granularity (no units) per events", &granularity,
          ArgParser::LONG},
-        {"--maxChannels", "Maximum channels assigned to agents", &channels,
-                 ArgParser::INTEGER},
-        {"--callIntervalMean", "Average call interval time",
-                &callIntervalMean, ArgParser::INTEGER},
-        {"--callDurationMean", "Average call duration time",
-                &callDurationMean, ArgParser::INTEGER},
-        {"--moveIntervalMean", "Average move interval time",
-                 &moveIntervalMean, ArgParser::INTEGER},
+        {"--maxChannels", "Maximum channels per Cell", &channels,
+         ArgParser::INTEGER},
+        {"--callIntervalMean", "Mean (> 0, exponential) call interval time",
+         &callIntervalMean, ArgParser::DOUBLE},
+        {"--callDurationMean", "Mean (Poisson) call duration time",
+         &callDurationMean, ArgParser::DOUBLE},
+        {"--moveIntervalMean", "Mean (> 0, exponential) move interval time",
+         &moveIntervalMean, ArgParser::DOUBLE},
         {"", "", NULL, ArgParser::INVALID}
     };
-
+    
     // Let the kernel initialize using any additional command-line
     // arguments.
     muse::Simulation* const kernel = muse::Simulation::getSimulator();
@@ -147,15 +141,16 @@ PCS_Simulation::createAgents() {
         ((agentsPerNode * (rank + 1)) + cumlSum(rank + 1, factor));
     
     for (int i = agentStartID; (i < agentEndID); i++) {
-        PCS_State* state = new PCS_State();
-        PCSAgent* agent = new PCSAgent(i, state, rows, cols, events, delay,
-                channels, callIntervalMean, callDurationMean, moveIntervalMean,
-                lookAhead, selfEvents, granularity);
+        PCS_State* const state = new PCS_State(channels);
+        PCS_Agent* const agent =
+            new PCS_Agent(i, state, rows, cols, portables,
+                          callIntervalMean, callDurationMean,  moveIntervalMean,
+                          lookAhead, granularity);
         kernel->registerAgent(agent);
     }
     std::cout << "Rank " << rank << ": Registered agents from "
               << agentStartID    << " to "
-              << agentEndID      << " agents.\n";
+              << agentEndID - 1  << " agents.\n";
 }
 
 void
