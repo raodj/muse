@@ -46,6 +46,18 @@
 #include "PCSAgent.h"
 #include "PCS_State.h"
 
+/** The main PCS (Personal Communication Service) network simulation
+    model.
+
+    The PCS simulation is an implementation of the model proposed by
+    C. D. Carothers et. al from the following paper:
+
+    C. D. Carothers, R. M. Fujimoto, Y. B. Lin and P. England,
+    "Distributed simulation of large-scale PCS networks," Proceedings
+    of International Workshop on Modeling, Analysis and Simulation of
+    Computer and Telecommunication Systems, Durham, NC, 1994, pp. 2-6.
+    doi: 10.1109/MASCOT.1994.284456
+*/
 class PCS_Simulation {
 public:
     /** Destructor.

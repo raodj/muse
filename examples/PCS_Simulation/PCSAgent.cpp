@@ -1,5 +1,40 @@
-#ifndef PCSAgent_CPP
-#define PCSAgent_CPP
+#ifndef PCS_Agent_CPP
+#define PCS_Agent_CPP
+
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
 
 #include "PCSAgent.h"
 #include "MTRandom.h"
@@ -7,14 +42,15 @@
 #include <cstdlib>
 #include <cstdio>
 
-PCSAgent::PCSAgent(muse::AgentID id, PCS_State* state, int x, int y, int n, int d,
-        int num_channels, unsigned int call_interval_mean,
-        unsigned int call_duration_mean, unsigned int move_interval_mean,
-        int lookAhead, double selfEvents, size_t granularity) :
-Agent(id, state), X(x), Y(y), N(n), Delay(d), lookAhead(lookAhead),
-selfEvents(selfEvents), granularity(granularity), channels(num_channels),
-callIntervalMean(call_interval_mean), callDurationMean(call_duration_mean),
-moveIntervalMean(move_interval_mean), generator(id) {
+PCSAgent::PCSAgent(muse::AgentID id, PCS_State* state, int x, int y, int n,
+                   int d, int num_channels, unsigned int call_interval_mean,
+                   unsigned int call_duration_mean,
+                   unsigned int move_interval_mean,
+                   int lookAhead, double selfEvents, size_t granularity) :
+    Agent(id, state), X(x), Y(y), N(n), Delay(d), lookAhead(lookAhead),
+    granularity(granularity), channels(num_channels),
+    callIntervalMean(call_interval_mean), callDurationMean(call_duration_mean),
+    moveIntervalMean(move_interval_mean), generator(id) {
     // Setup the random seed used for generating random delays.
     seed = id;
     blocked_channels = call_attempts = hand_off_blocks = 0;
@@ -22,7 +58,8 @@ moveIntervalMean(move_interval_mean), generator(id) {
 }
 
 NextAction
-PCSAgent::minTimeStamp(unsigned int completeCallTime, unsigned int nextCallTime, unsigned int moveCallTime) {
+PCSAgent::minTimeStamp(unsigned int completeCallTime, unsigned int nextCallTime,
+                       unsigned int moveCallTime) {
     
     NextAction action;
     if (completeCallTime <= nextCallTime) {
@@ -35,19 +72,22 @@ PCSAgent::minTimeStamp(unsigned int completeCallTime, unsigned int nextCallTime,
 
 void
 PCSAgent::completionCall(PCSEvent& event) {
-    
-    PCS_State * const pcs_state = static_cast<PCS_State*> (getState());
+    // A portable has finished a call. Update necessary state
+    // information and setup the portable for the next operation.
+    PCS_State* const pcs_state = static_cast<PCS_State*> (getState());
     unsigned int complete_call_timeStamp = infinity; // Reset to infinity.
-    pcs_state->setIdleChannels(channels++); // Channel held by Portable is freed.
+    pcs_state->setIdleChannels(channels++); // Channel held by Portable is free.
     unsigned int next_call_timeStamp = event.getNextCallTimeStamp();
     unsigned int move_timeStamp = event.getMoveTimeStamp();
-    action = minTimeStamp(complete_call_timeStamp, next_call_timeStamp, move_timeStamp);
+    // Figure out the next state for this portable.
+    action = minTimeStamp(complete_call_timeStamp, next_call_timeStamp,
+                          move_timeStamp);
     switch (action) {
-        case NEXTCALL: { method = NEXT_CALL; } break;
-        case MOVECALL: { method = MOVE_OUT; } break;
-        default:
-            std::cerr << "Unhandled agent type encountered in PCSAgent.cpp\n";
-            ASSERT(false);
+    case NEXTCALL: method = NEXT_CALL; break;
+    case MOVECALL: method = MOVE_OUT; break;
+    default:
+        std::cerr << "Unhandled agent type encountered in PCSAgent.cpp\n";
+        ASSERT(false);
     }
     // Make random receive time for the future.
     const int RndDelay = (Delay > 0) ? ((int) (rand_r(&seed) % Delay)) : 0;
@@ -188,18 +228,19 @@ PCSAgent::nextCall(PCSEvent& event,
     }
 }
 
+// This method is synoymous to the StartUp method in Carother's
+// MASOCTS paper.
 void
 PCSAgent::initialize() throw (std::exception) {
-    
     std::poisson_distribution<unsigned int> duration_distrib(callDurationMean);
-    std::poisson_distribution<unsigned int> move_distrib(moveIntervalMean);
-    std::poisson_distribution<unsigned int> interval_distrib(callIntervalMean);
+    std::exponential_distribution<muse::Time> move_distrib(moveIntervalMean);
+    std::exponential_distribution<muse::Time> interval_distrib(callIntervalMean);
     /* We generate N PCSEvents/Portables with random receive times to self 
      * and initialize the timestamp fields by exponentials with independent
      * means. The callCompletionTimeStamp is initialized to infinity because the
      * assumption is there are no calls at the start of the simulation.
      */
-    PCS_State * const pcs_state = static_cast<PCS_State*> (getState());
+    PCS_State* const pcs_state = static_cast<PCS_State*> (getState());
     pcs_state->setIdleChannels(channels);
     pcs_state->setBlockedChannels(blocked_channels);
     pcs_state->setCallAttempts(call_attempts);
@@ -208,7 +249,8 @@ PCSAgent::initialize() throw (std::exception) {
         unsigned int complete_call_timeStamp = duration_distrib(generator);
         unsigned int next_call_timeStamp = interval_distrib(generator);
         unsigned int move_timeStamp = move_distrib(generator);
-        action = minTimeStamp(complete_call_timeStamp, next_call_timeStamp, move_timeStamp);
+        action = minTimeStamp(complete_call_timeStamp, next_call_timeStamp,
+                              move_timeStamp);
         switch (action) {
             case NEXTCALL: { method = NEXT_CALL; } break;
             case MOVECALL: { method = MOVE_OUT; } break;
