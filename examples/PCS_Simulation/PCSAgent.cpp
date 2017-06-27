@@ -43,18 +43,16 @@
 #include <cstdio>
 
 PCSAgent::PCSAgent(muse::AgentID id, PCS_State* state, int x, int y, int n,
-                   int d, int num_channels, unsigned int call_interval_mean,
+                   int d, unsigned int call_interval_mean,
                    unsigned int call_duration_mean,
                    unsigned int move_interval_mean,
-                   int lookAhead, double selfEvents, size_t granularity) :
+                   int lookAhead, size_t granularity) :
     Agent(id, state), X(x), Y(y), N(n), Delay(d), lookAhead(lookAhead),
-    granularity(granularity), channels(num_channels),
-    callIntervalMean(call_interval_mean), callDurationMean(call_duration_mean),
+    granularity(granularity), callIntervalMean(call_interval_mean),
+    callDurationMean(call_duration_mean),
     moveIntervalMean(move_interval_mean), generator(id) {
     // Setup the random seed used for generating random delays.
     seed = id;
-    blocked_channels = call_attempts = hand_off_blocks = 0;
-    
 }
 
 NextAction

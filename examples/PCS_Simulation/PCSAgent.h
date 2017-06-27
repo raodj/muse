@@ -67,9 +67,9 @@ public:
         parameter values.
     */
     PCSAgent(muse::AgentID, PCS_State*, int x, int y, int n, int d,
-            int num_channels, unsigned int call_interval_mean,
-            unsigned int call_duration_mean, unsigned int move_interval_mean,
-            int lookAhead = 1, double selfEvents = 0.0, size_t granularity = 0);
+             unsigned int call_interval_mean, unsigned int call_duration_mean,
+             unsigned int move_interval_mean,
+             int lookAhead = 1, size_t granularity = 0);
 
     /**
      * The initialize method for this object is called only once when the
@@ -120,11 +120,12 @@ public:
     void moveIn(PCSEvent& event, unsigned int moveDistrib);
     
     /**
-     * The method is only invoked only when a call is in progress and a
-     * PCSEvent/Portable is moving between PCSAgents/Cells. The PCSAgent/Cell
-     * makes available the channel currently being used by the PCSEvent/Portable
-     * that is departing. Next, the PCSAgent/Cell sends the PCSEvent/Portable to
-     * another PCSAgent/Cell at the move timestamp. 
+     * The method is only invoked only when a call is in progress and
+     * a PCSEvent/Portable is moving between PCSAgents/Cells. The
+     * PCSAgent/Cell makes available the channel currently being used
+     * by the PCSEvent/Portable that is departing. Next, the
+     * PCSAgent/Cell sends the PCSEvent/Portable to another
+     * PCSAgent/Cell at the move timestamp.
      */
     void moveOut(PCSEvent& event);
     
@@ -182,60 +183,35 @@ private:
      */
     size_t granularity;
     
-    /** The maximum number of channels that will assigned to each agent.
+    /** The mean time between two successive calls to a portable
+        associated with this Cell.  This value is essentially the mean
+        of an expoential random distribution from where the next call
+        timestamp value is determined.
     */
-    int channels;
+    const unsigned int callIntervalMean;
     
-    /** The average call duration time.
+    /** The mean call completion time. This value essentially
+        represents the mean used for a Poisson distribution used to
+        generate the length/duration of a call to a portable.
     */
-    unsigned int callIntervalMean;
+    const unsigned int callDurationMean;
     
-    /** The average call completion time. 
+    /** The mean move time.  This value essentially represents the
+        mean used for an expoential random distribution used to
+        generate the time when a portable will move to an adjacent
+        cell.
     */
-    unsigned int callDurationMean;
-    
-    /** The average move time.
-    */
-    unsigned int moveIntervalMean;
+    const unsigned int moveIntervalMean;
      
     /** The numeric limit that is used to reset the call completion timestamp
      *  to infinity (the max value of an int).
      */
-    unsigned int infinity = std::numeric_limits<int>::max();
+    muse::Time infinity = TIME_INFINITY;
         
-    /** The action to be taken which is dependent on the minimum timestamp.
-     */
-    NextAction action;
-    
-    /** The method the Agent/Cell invokes. 
-     */
-    Method method;
-    
-    /** The number of blocked calls that occur because channels
-     *  are not available.
-     */
-    unsigned int blocked_channels;
-    
-    /** The number of calls attempted.
-     */
-    unsigned int call_attempts;
-    
-    /** The number of blocked calls that occur because channels
-     *  are not available when engaged PCSEvent/Portables are in transit to 
-     *  a new destination PCSAgent/Cell. 
-     */
-    unsigned int hand_off_blocks;
-    
-    /** The number of channels available
-     * 
-     */
-    unsigned int idle_channels;
-    
     /** 
      * The engine that generates pseudo-random numbers.
      */
     std::mt19937 generator;
-    
 };
 
 #endif /* PCSAGENT_H */
