@@ -5,11 +5,11 @@
 #include "PCSEvent.h"
 
 PCSEvent::PCSEvent(muse::AgentID receiver_id, muse::Time receive_time,
-        unsigned int moveTime, unsigned int callTime,
-        unsigned int completionTime, Method method_):
+                   muse::Time moveTime, muse::Time callTime,
+                   muse::Time completionTime, Method method):
         Event(receiver_id, receive_time),
         moveTimeStamp(moveTime), nextCallTimeStamp(callTime), 
-        completionTimeStamp(completionTime), method(method_) {        
+        completionTimeStamp(completionTime), method(method) {        
 }
 
 #endif /* PCSEvent_CPP */

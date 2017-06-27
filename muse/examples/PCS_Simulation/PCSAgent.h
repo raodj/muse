@@ -1,12 +1,47 @@
+#ifndef PCS_AGENT_H
+#define PCS_AGENT_H
+
+//---------------------------------------------------------------------
+//    ___
+//   /\__\    This file is part of MUSE    <http://www.muse-tools.org/>
+//  /::L_L_
+// /:/L:\__\  Miami   University  Simulation  Environment    (MUSE)  is
+// \/_/:/  /  free software: you can  redistribute it and/or  modify it
+//   /:/  /   under the terms of the GNU  General Public License  (GPL)
+//   \/__/    as published  by  the   Free  Software Foundation, either
+//            version 3 (GPL v3), or  (at your option) a later version.
+//    ___
+//   /\__\    MUSE  is distributed in the hope that it will  be useful,
+//  /:/ _/_   but   WITHOUT  ANY  WARRANTY;  without  even  the IMPLIED
+// /:/_/\__\  WARRANTY of  MERCHANTABILITY  or FITNESS FOR A PARTICULAR
+// \:\/:/  /  PURPOSE.
+//  \::/  /
+//   \/__/    Miami University  and  the MUSE  development team make no
+//            representations  or  warranties  about the suitability of
+//    ___     the software,  either  express  or implied, including but
+//   /\  \    not limited to the implied warranties of merchantability,
+//  /::\  \   fitness  for a  particular  purpose, or non-infringement.
+// /\:\:\__\  Miami  University and  its affiliates shall not be liable
+// \:\:\/__/  for any damages  suffered by the  licensee as a result of
+//  \::/  /   using, modifying,  or distributing  this software  or its
+//   \/__/    derivatives.
+//
+//    ___     By using or  copying  this  Software,  Licensee  agree to
+//   /\  \    abide  by the intellectual  property laws,  and all other
+//  /::\  \   applicable  laws of  the U.S.,  and the terms of the  GNU
+// /::\:\__\  General  Public  License  (version 3).  You  should  have
+// \:\:\/  /  received a  copy of the  GNU General Public License along
+//  \:\/  /   with MUSE.  If not,  you may  download  copies  of GPL V3
+//   \/__/    from <http://www.gnu.org/licenses/>.
+//
+//---------------------------------------------------------------------
+
 /* 
  * File:   PCSAgent.h
  * Author: Julius Higiro
  *
  * Created on August 31, 2016, 10:08 AM
  */
-
-#ifndef PCSAGENT_H
-#define PCSAGENT_H
 
 #include <limits>
 #include <memory>
@@ -15,12 +50,27 @@
 #include "PCS_State.h"
 #include "PCSEvent.h"
 
+/** Agent that models a PCS Cell. The Cell represents a cellular
+    receiver/transmitter that has some fixed number of "channels"
+    allocated to it and is the central entity (LP) object type for the
+    simulation. A "channel" is a wireless channel via which a
+    "portable" (or cellular device) can send/receive information from
+    a Cell.  Portables are modeled using different values in the
+    PCSEvent.
+*/
 class PCSAgent : public muse::Agent {
 public:
+    /** The only constructor for this class.
+
+        The constructor is relatively straightforward and merely
+        initializes the instance variables to the corresponding
+        parameter values.
+    */
     PCSAgent(muse::AgentID, PCS_State*, int x, int y, int n, int d,
             int num_channels, unsigned int call_interval_mean,
             unsigned int call_duration_mean, unsigned int move_interval_mean,
             int lookAhead = 1, double selfEvents = 0.0, size_t granularity = 0);
+
     /**
      * The initialize method for this object is called only once when the
      * PCSAgent/Cell object is created. The PCSAgent/Cell initializes
@@ -47,16 +97,16 @@ public:
     void finalize();
     
     /**
-     * The availability of channels is determined. If channels are not available,
-     * the call is recorded as a blocked call. The next call timestamp of the 
-     * PCSEvent is incremented. If channels are available, the channel is
-     * allocated to the PCSEvent/Portable. The call completion timestamp of the
-     * PCSEvent is incremented. The minimum of the three timestamp fields is
-     * computed.
+     * The availability of channels is determined. If channels are not
+     * available, the call is recorded as a blocked call. The next
+     * call timestamp of the PCSEvent is incremented. If channels are
+     * available, the channel is allocated to the
+     * PCSEvent/Portable. The call completion timestamp of the
+     * PCSEvent is incremented. The minimum of the three timestamp
+     * fields is computed.
      */
-    void 
-    nextCall(PCSEvent& event, unsigned int durationDistrib, 
-            unsigned int intervalDistrib);
+    void nextCall(PCSEvent& event, unsigned int durationDistrib, 
+                  unsigned int intervalDistrib);
     
     /**
      * The move timestamp of the PCSEvent is incremented. The availability of
@@ -67,8 +117,7 @@ public:
      * (hand-off block). The call completion timestamp is reset to infinity and
      * the minimum of the three timestamp fields is computed. 
      */
-    void 
-    moveIn(PCSEvent& event, unsigned int moveDistrib);
+    void moveIn(PCSEvent& event, unsigned int moveDistrib);
     
     /**
      * The method is only invoked only when a call is in progress and a
@@ -77,23 +126,22 @@ public:
      * that is departing. Next, the PCSAgent/Cell sends the PCSEvent/Portable to
      * another PCSAgent/Cell at the move timestamp. 
      */
-    void
-    moveOut(PCSEvent& event);
+    void moveOut(PCSEvent& event);
     
     /**
      * The call completion timestamp of the PCSEvent is reset to infinity.
      * The channel held by the PCSEvent/Portable is made available.
      * The minimum of the three timestamp fields is computed.
      */
-    void
-    completionCall(PCSEvent& event);
+    void completionCall(PCSEvent& event);
     
     /**
      * Computes the minimum time stamp and returns the next action
      */
-    NextAction
-    minTimeStamp(unsigned int completeCallTime, unsigned int nextCallTime, unsigned int moveCallTime);
-    
+    NextAction minTimeStamp(unsigned int completeCallTime,
+                            unsigned int nextCallTime,
+                            unsigned int moveCallTime);
+
 protected:
     /** Simulate some granularity (i.e., CPU usage) for the event.
 
@@ -112,18 +160,6 @@ private:
         fixed look ahead virtual time value added to them.
      */
     int lookAhead;
-
-    /** Fraction of events that the agent should schedule to itself.
-
-        This value indicates the probability that this agent should
-        schedule events to itself.  This value is in the range 0.0 to
-        0.99 and is used with the boolean expression ((rand() % 1000)
-        / 1000.0) < selfEvents.  If the boolean expression returns
-        true, then this agent schedule events to itself.  Note that at
-        a given virtual time, the maximum number of self-events is
-        limited by events * N.
-     */
-    double selfEvents;
 
     /** The random seed value that is used to generate random delays.
 
