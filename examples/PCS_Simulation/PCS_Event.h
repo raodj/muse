@@ -113,7 +113,20 @@ class PCS_Event : public muse::Event {
     inline uint getPortableID() const {
         return portableID;
     }
+    
+    /** \brief Get the size of this Event
+        
+        This method is used to determine the correct size of each
+        Event so that it can be properly sent across the wire by MPI.
 
+        \note Users should override this method if event class is
+        inherited and return correct size of the inherited event.
+
+        \return The size of the event
+    */
+    virtual int getEventSize() const override { return sizeof(PCS_Event); }
+
+    
     static void deallocate(PCS_Event* delEvent) {
         muse::Event::deallocate(reinterpret_cast<char*>(delEvent),
                                 delEvent->getEventSize());
