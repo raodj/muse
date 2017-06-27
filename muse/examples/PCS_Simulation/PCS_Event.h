@@ -37,7 +37,7 @@
 //---------------------------------------------------------------------
 
 /* 
- * File:   PCSEvent.h
+ * File:   PCS_Event.h
  * Author: Julius Higiro
  *
  * Created on August 31, 2016, 10:09 AM
@@ -59,37 +59,38 @@ enum Method {
 };
 
 /**
- * The PCSEvent class is used to create timestamped events that
+ * The PCS_Event class is used to create timestamped events that
  * represent a Portable in the PCS model.  The Portable represents a
  * mobile phone unit that resides within the Cell for a period of time
  * and then moves to one of the four neighboring Cells. The behavior
  * of a Portable (such as: move, call arrival, and call completion)
- * are modeled by different instance variables in this PCSEvent class
- * In similarity to a Portable, the PCSEvent object has three
+ * are modeled by different instance variables in this PCS_Event class
+ * In similarity to a Portable, the PCS_Event object has three
  * independent exponentially distributed timestamp fields.
  */
-class PCSEvent : public muse::Event {
-public:
-    /** Only method to be used to create a new PCSEvent.
+class PCS_Event : public muse::Event {
+ public:
+    /** Only method to be used to create a new PCS_Event.
 
         Events in MUSE are created as flat arrays to ease transmission
         over MPI without needing any special
         serialization/deserialization.  Accordingly, this method
-        creates a PCSEvent from a flat array.
+        creates a PCS_Event from a flat array.
 
         \note This is the only method that must be used to create a
-        new PCSEvent.
+        new PCS_Event.
     */
-    static PCSEvent* create(const muse::AgentID receiverID,
-                            const muse::Time recvTime,
-                            const muse::Time moveTimeStamp,
-                            const muse::Time callTimeStamp,
-                            const muse::Time completionTimeStamp,
-                            Method method) {
-        PCSEvent* event = reinterpret_cast<PCSEvent*>
-            (new char[sizeof (PCSEvent)]);
-        new (event) PCSEvent(receiverID, recvTime, moveTimeStamp, callTimeStamp,
-                             completionTimeStamp, method);
+    static PCS_Event* create(const muse::AgentID receiverID,
+                             const muse::Time recvTime,
+                             const muse::Time moveTimeStamp,
+                             const muse::Time callTimeStamp,
+                             const muse::Time completionTimeStamp,
+                             Method method, uint portableID) {
+        PCS_Event* const event =
+            reinterpret_cast<PCS_Event*>(allocate(sizeof(PCS_Event)));
+        new (event) PCS_Event(receiverID, recvTime, moveTimeStamp,
+                              callTimeStamp, completionTimeStamp,
+                              method, portableID);
         return event;
     }
     
@@ -108,8 +109,17 @@ public:
     inline Method getMethod() const {
         return method;
     }
+
+    inline uint getPortableID() const {
+        return portableID;
+    }
+
+    static void deallocate(PCS_Event* delEvent) {
+        muse::Event::deallocate(reinterpret_cast<char*>(delEvent),
+                                delEvent->getEventSize());
+    }
     
-protected:
+ protected:
     /** The move timestamp represents the time at which the portable
         will leave the current cell and re- side at one of the
         neighboring cells.  It is initialized by an exponentially
@@ -128,7 +138,7 @@ protected:
         not in progress the call completion timestamp is infinity. We
         assume that no calls are initially in progress.
         
-     */
+    */
     muse::Time completionTimeStamp;
 
     /** This instance variable represents the current state of the
@@ -139,6 +149,13 @@ protected:
     */
     Method method;
 
+    /** A simple identifier associated with a portable.  This value is
+        set the first time a portable is created and is consistently
+        progpagated from event-to-event so that the state transitions
+        of a portable can be tracked (if needed) across the simulation.
+    */
+    uint portableID;
+    
     /** The constructor that merely initializes the instance variables
         to the corresponding parameter values.
 
@@ -147,9 +164,10 @@ protected:
         initializes the instance variables to values specified in the
         parameter.
     */
-    PCSEvent(muse::AgentID receiver_id, muse::Time receive_time,
-             muse::Time moveTimeStamp, muse::Time nextCallTimeStamp,
-             muse::Time completionTimeStamp, Method method);
+    PCS_Event(muse::AgentID receiver_id, muse::Time receive_time,
+              muse::Time moveTimeStamp, muse::Time nextCallTimeStamp,
+              muse::Time completionTimeStamp, Method method,
+              uint portableID);
 };
 
 
