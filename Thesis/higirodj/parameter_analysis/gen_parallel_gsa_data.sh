@@ -17,27 +17,28 @@
 
 # The simulation executable to be used.  Typically it is a symbolic
 # link to the actual executable.
-SIM_EXEC="./phold"
+SIM_EXEC="./pcs"
 
 # The default values for the two types of queues we are working with
 QUEUE1_DEFAULT="2tLadderQ"
-# QUEUE2_DEFAULT="heap2tQ"
-QUEUE2_DEFAULT="ladderQ"
+QUEUE2_DEFAULT="3tHeap"
+# QUEUE2_DEFAULT="ladderQ"
 
 # The list of command-line parameters to be explored for GSA.  These
 # values change from simulation-to-simulation.  Entries are in the
 # form: cmd-line-arg="min max"
 
 declare -A CmdLineParams
-CmdLineParams=( ['--rows']="10 100"
-                ['--cols']="10 100"
-                ['--delay']="0 12"
-                ['--selfEvents%']="0 100"
-                ['--eventsPerAgent']="1 20"
-                ['--granularity']="0 50"
+CmdLineParams=( ['--rows']="10 50"
+                ['--cols']="10 50"
+                ['--portables']="1 20"
                 ['--simEndTime']="300 600"
                 ['--imbalance%']="0 100"
-                ['--gvt-delay']="100 10000"
+                ['--granularity']="0 30"
+                ['--maxChannels']="8 30"
+                ['--callIntervalMean']="20 30"
+                ['--callDurationMean']="2 10"
+                ['--moveIntervalMean']="120 160"
               )
 
 # ------ Typically you should not have to modify values below this line. -----
@@ -49,7 +50,7 @@ SOBOL_GEN="./Sobol"
 ADDL_SIM_CMD_LINE_ARGS="--2t-ladderQ-t2k 32 --time-window 20"
 
 # Fixed subset of command-line arguments to be passed to PBS
-PBS_PARAMS="-j oe -lnodes=1:ppn=4 -lwalltime=00:05:00 -lmem=4gb -m n"
+PBS_PARAMS="-j oe -lnodes=4:ppn=4 -lwalltime=01:00:00 -lmem=4gb -m n"
 
 # The temporary directory to be used by this script
 TMPDIR="$$_par_tmp"
