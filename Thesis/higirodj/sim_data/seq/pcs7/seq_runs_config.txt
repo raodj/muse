@@ -1,0 +1,14 @@
+
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_heap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue heap --simEndTime 1000' > pcs7_heap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_fibHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue fibHeap --simEndTime 1000' > pcs7_fibHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_2tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 2tHeap --simEndTime 1000' > pcs7_2tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 1000' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 1000' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 1 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 1000' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+

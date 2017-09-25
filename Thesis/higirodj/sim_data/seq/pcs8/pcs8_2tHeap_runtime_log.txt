@@ -1,0 +1,72 @@
+Using temproary directory: ./tmp_5312
+--portables 25 50 75 100 125
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tHeap --simEndTime 100 --portables 25
+Waiting for following jobs to finish: 4009539.mualhpcp01.local 4009540.mualhpcp01.local 4009541.mualhpcp01.local 4009542.mualhpcp01.local 4009543.mualhpcp01.local 4009544.mualhpcp01.local 4009545.mualhpcp01.local 4009546.mualhpcp01.local 4009547.mualhpcp01.local 4009548.mualhpcp01.local
+    Waiting for: 4009539.mualhpcp01.local
+    Waiting for: 4009540.mualhpcp01.local
+    Waiting for: 4009541.mualhpcp01.local
+    Waiting for: 4009542.mualhpcp01.local
+    Waiting for: 4009543.mualhpcp01.local
+    Waiting for: 4009544.mualhpcp01.local
+    Waiting for: 4009545.mualhpcp01.local
+    Waiting for: 4009546.mualhpcp01.local
+    Waiting for: 4009547.mualhpcp01.local
+    Waiting for: 4009548.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_5312/aggr_out_proc_1/aggr_out_portables_25.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tHeap --simEndTime 100 --portables 50
+Waiting for following jobs to finish: 4009549.mualhpcp01.local 4009550.mualhpcp01.local 4009551.mualhpcp01.local 4009552.mualhpcp01.local 4009553.mualhpcp01.local 4009554.mualhpcp01.local 4009555.mualhpcp01.local 4009556.mualhpcp01.local 4009557.mualhpcp01.local 4009558.mualhpcp01.local
+    Waiting for: 4009549.mualhpcp01.local
+    Waiting for: 4009550.mualhpcp01.local
+    Waiting for: 4009551.mualhpcp01.local
+    Waiting for: 4009552.mualhpcp01.local
+    Waiting for: 4009553.mualhpcp01.local
+    Waiting for: 4009554.mualhpcp01.local
+    Waiting for: 4009555.mualhpcp01.local
+    Waiting for: 4009556.mualhpcp01.local
+    Waiting for: 4009557.mualhpcp01.local
+    Waiting for: 4009558.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_5312/aggr_out_proc_1/aggr_out_portables_50.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tHeap --simEndTime 100 --portables 75
+Waiting for following jobs to finish: 4009559.mualhpcp01.local 4009560.mualhpcp01.local 4009561.mualhpcp01.local 4009562.mualhpcp01.local 4009563.mualhpcp01.local 4009564.mualhpcp01.local 4009565.mualhpcp01.local 4009566.mualhpcp01.local 4009567.mualhpcp01.local 4009568.mualhpcp01.local
+    Waiting for: 4009559.mualhpcp01.local
+    Waiting for: 4009560.mualhpcp01.local
+    Waiting for: 4009561.mualhpcp01.local
+    Waiting for: 4009562.mualhpcp01.local
+    Waiting for: 4009563.mualhpcp01.local
+    Waiting for: 4009564.mualhpcp01.local
+    Waiting for: 4009565.mualhpcp01.local
+    Waiting for: 4009566.mualhpcp01.local
+    Waiting for: 4009567.mualhpcp01.local
+    Waiting for: 4009568.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_5312/aggr_out_proc_1/aggr_out_portables_75.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tHeap --simEndTime 100 --portables 100
+Waiting for following jobs to finish: 4009569.mualhpcp01.local 4009570.mualhpcp01.local 4009571.mualhpcp01.local 4009572.mualhpcp01.local 4009573.mualhpcp01.local 4009574.mualhpcp01.local 4009575.mualhpcp01.local 4009576.mualhpcp01.local 4009577.mualhpcp01.local 4009578.mualhpcp01.local
+    Waiting for: 4009569.mualhpcp01.local
+    Waiting for: 4009570.mualhpcp01.local
+    Waiting for: 4009571.mualhpcp01.local
+    Waiting for: 4009572.mualhpcp01.local
+    Waiting for: 4009573.mualhpcp01.local
+    Waiting for: 4009574.mualhpcp01.local
+    Waiting for: 4009575.mualhpcp01.local
+    Waiting for: 4009576.mualhpcp01.local
+    Waiting for: 4009577.mualhpcp01.local
+    Waiting for: 4009578.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_5312/aggr_out_proc_1/aggr_out_portables_100.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tHeap --simEndTime 100 --portables 125
+Waiting for following jobs to finish: 4009579.mualhpcp01.local 4009580.mualhpcp01.local 4009581.mualhpcp01.local 4009582.mualhpcp01.local 4009583.mualhpcp01.local 4009584.mualhpcp01.local 4009585.mualhpcp01.local 4009586.mualhpcp01.local 4009587.mualhpcp01.local 4009588.mualhpcp01.local
+    Waiting for: 4009579.mualhpcp01.local
+    Waiting for: 4009580.mualhpcp01.local
+    Waiting for: 4009581.mualhpcp01.local
+    Waiting for: 4009582.mualhpcp01.local
+    Waiting for: 4009583.mualhpcp01.local
+    Waiting for: 4009584.mualhpcp01.local
+    Waiting for: 4009585.mualhpcp01.local
+    Waiting for: 4009586.mualhpcp01.local
+    Waiting for: 4009587.mualhpcp01.local
+    Waiting for: 4009588.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_5312/aggr_out_proc_1/aggr_out_portables_125.txt

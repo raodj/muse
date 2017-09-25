@@ -1,0 +1,80 @@
+Using temproary directory: ./tmp_11092
+--portables 25 50 75 100 125
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 100 --portables 25
+Waiting for following jobs to finish: 4020287.mualhpcp01.local 4020288.mualhpcp01.local 4020289.mualhpcp01.local 4020290.mualhpcp01.local 4020291.mualhpcp01.local 4020292.mualhpcp01.local 4020293.mualhpcp01.local 4020294.mualhpcp01.local 4020295.mualhpcp01.local 4020296.mualhpcp01.local
+    Waiting for: 4020287.mualhpcp01.local
+    Waiting for: 4020288.mualhpcp01.local
+    Waiting for: 4020289.mualhpcp01.local
+    Waiting for: 4020290.mualhpcp01.local
+    Waiting for: 4020291.mualhpcp01.local
+    Waiting for: 4020292.mualhpcp01.local
+    Waiting for: 4020293.mualhpcp01.local
+    Waiting for: 4020294.mualhpcp01.local
+    Waiting for: 4020295.mualhpcp01.local
+    Waiting for: 4020296.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_11092/aggr_out_proc_1/aggr_out_portables_25.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 100 --portables 50
+Waiting for following jobs to finish: 4020298.mualhpcp01.local 4020299.mualhpcp01.local 4020300.mualhpcp01.local 4020301.mualhpcp01.local 4020302.mualhpcp01.local 4020303.mualhpcp01.local 4020304.mualhpcp01.local 4020305.mualhpcp01.local 4020306.mualhpcp01.local 4020307.mualhpcp01.local
+    Waiting for: 4020298.mualhpcp01.local
+    Waiting for: 4020299.mualhpcp01.local
+    Waiting for: 4020300.mualhpcp01.local
+    Waiting for: 4020301.mualhpcp01.local
+    Waiting for: 4020302.mualhpcp01.local
+    Waiting for: 4020303.mualhpcp01.local
+    Waiting for: 4020304.mualhpcp01.local
+qstat: Unknown Job Id Error 4020304.mualhpcp01.local
+    Waiting for: 4020305.mualhpcp01.local
+    Waiting for: 4020306.mualhpcp01.local
+qstat: Unknown Job Id Error 4020306.mualhpcp01.local
+    Waiting for: 4020307.mualhpcp01.local
+qstat: Unknown Job Id Error 4020307.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_11092/aggr_out_proc_1/aggr_out_portables_50.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 100 --portables 75
+Waiting for following jobs to finish: 4020308.mualhpcp01.local 4020309.mualhpcp01.local 4020310.mualhpcp01.local 4020311.mualhpcp01.local 4020312.mualhpcp01.local 4020313.mualhpcp01.local 4020314.mualhpcp01.local 4020315.mualhpcp01.local 4020316.mualhpcp01.local 4020317.mualhpcp01.local
+    Waiting for: 4020308.mualhpcp01.local
+    Waiting for: 4020309.mualhpcp01.local
+    Waiting for: 4020310.mualhpcp01.local
+    Waiting for: 4020311.mualhpcp01.local
+    Waiting for: 4020312.mualhpcp01.local
+    Waiting for: 4020313.mualhpcp01.local
+    Waiting for: 4020314.mualhpcp01.local
+    Waiting for: 4020315.mualhpcp01.local
+qstat: Unknown Job Id Error 4020315.mualhpcp01.local
+    Waiting for: 4020316.mualhpcp01.local
+    Waiting for: 4020317.mualhpcp01.local
+qstat: Unknown Job Id Error 4020317.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_11092/aggr_out_proc_1/aggr_out_portables_75.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 100 --portables 100
+Waiting for following jobs to finish: 4020324.mualhpcp01.local 4020325.mualhpcp01.local 4020326.mualhpcp01.local 4020327.mualhpcp01.local 4020328.mualhpcp01.local 4020329.mualhpcp01.local 4020330.mualhpcp01.local 4020331.mualhpcp01.local 4020332.mualhpcp01.local 4020333.mualhpcp01.local
+    Waiting for: 4020324.mualhpcp01.local
+    Waiting for: 4020325.mualhpcp01.local
+    Waiting for: 4020326.mualhpcp01.local
+    Waiting for: 4020327.mualhpcp01.local
+    Waiting for: 4020328.mualhpcp01.local
+    Waiting for: 4020329.mualhpcp01.local
+    Waiting for: 4020330.mualhpcp01.local
+    Waiting for: 4020331.mualhpcp01.local
+    Waiting for: 4020332.mualhpcp01.local
+    Waiting for: 4020333.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_11092/aggr_out_proc_1/aggr_out_portables_100.txt
+Creating script for: --rows 100 --cols 100 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --simEndTime 100 --portables 125
+Waiting for following jobs to finish: 4020340.mualhpcp01.local 4020341.mualhpcp01.local 4020342.mualhpcp01.local 4020343.mualhpcp01.local 4020344.mualhpcp01.local 4020345.mualhpcp01.local 4020346.mualhpcp01.local 4020347.mualhpcp01.local 4020348.mualhpcp01.local 4020349.mualhpcp01.local
+    Waiting for: 4020340.mualhpcp01.local
+    Waiting for: 4020341.mualhpcp01.local
+    Waiting for: 4020342.mualhpcp01.local
+    Waiting for: 4020343.mualhpcp01.local
+    Waiting for: 4020344.mualhpcp01.local
+    Waiting for: 4020345.mualhpcp01.local
+    Waiting for: 4020346.mualhpcp01.local
+    Waiting for: 4020347.mualhpcp01.local
+qstat: Unknown Job Id Error 4020347.mualhpcp01.local
+    Waiting for: 4020348.mualhpcp01.local
+qstat: Unknown Job Id Error 4020348.mualhpcp01.local
+    Waiting for: 4020349.mualhpcp01.local
+qstat: Unknown Job Id Error 4020349.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_11092/aggr_out_proc_1/aggr_out_portables_125.txt
