@@ -1,0 +1,79 @@
+Using temproary directory: ./tmp_4673
+--portables 1 2 5 10 15
+Creating script for: --rows 1000 --cols 100 --scheduler-queue fibHeap --simEndTime 100 --portables 1
+Waiting for following jobs to finish: 4004928.mualhpcp01.local 4004929.mualhpcp01.local 4004930.mualhpcp01.local 4004931.mualhpcp01.local 4004932.mualhpcp01.local 4004933.mualhpcp01.local 4004934.mualhpcp01.local 4004935.mualhpcp01.local 4004936.mualhpcp01.local 4004937.mualhpcp01.local
+    Waiting for: 4004928.mualhpcp01.local
+    Waiting for: 4004929.mualhpcp01.local
+    Waiting for: 4004930.mualhpcp01.local
+    Waiting for: 4004931.mualhpcp01.local
+    Waiting for: 4004932.mualhpcp01.local
+    Waiting for: 4004933.mualhpcp01.local
+    Waiting for: 4004934.mualhpcp01.local
+    Waiting for: 4004935.mualhpcp01.local
+    Waiting for: 4004936.mualhpcp01.local
+    Waiting for: 4004937.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_4673/aggr_out_proc_1/aggr_out_portables_1.txt
+Creating script for: --rows 1000 --cols 100 --scheduler-queue fibHeap --simEndTime 100 --portables 2
+Waiting for following jobs to finish: 4004938.mualhpcp01.local 4004939.mualhpcp01.local 4004940.mualhpcp01.local 4004941.mualhpcp01.local 4004942.mualhpcp01.local 4004943.mualhpcp01.local 4004944.mualhpcp01.local 4004945.mualhpcp01.local 4004946.mualhpcp01.local 4004947.mualhpcp01.local
+    Waiting for: 4004938.mualhpcp01.local
+    Waiting for: 4004939.mualhpcp01.local
+    Waiting for: 4004940.mualhpcp01.local
+    Waiting for: 4004941.mualhpcp01.local
+    Waiting for: 4004942.mualhpcp01.local
+    Waiting for: 4004943.mualhpcp01.local
+    Waiting for: 4004944.mualhpcp01.local
+    Waiting for: 4004945.mualhpcp01.local
+    Waiting for: 4004946.mualhpcp01.local
+    Waiting for: 4004947.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_4673/aggr_out_proc_1/aggr_out_portables_2.txt
+Creating script for: --rows 1000 --cols 100 --scheduler-queue fibHeap --simEndTime 100 --portables 5
+Waiting for following jobs to finish: 4004948.mualhpcp01.local 4004949.mualhpcp01.local 4004950.mualhpcp01.local 4004951.mualhpcp01.local 4004952.mualhpcp01.local 4004953.mualhpcp01.local 4004954.mualhpcp01.local 4004955.mualhpcp01.local 4004956.mualhpcp01.local 4004957.mualhpcp01.local
+    Waiting for: 4004948.mualhpcp01.local
+    Waiting for: 4004949.mualhpcp01.local
+    Waiting for: 4004950.mualhpcp01.local
+    Waiting for: 4004951.mualhpcp01.local
+    Waiting for: 4004952.mualhpcp01.local
+    Waiting for: 4004953.mualhpcp01.local
+    Waiting for: 4004954.mualhpcp01.local
+    Waiting for: 4004955.mualhpcp01.local
+    Waiting for: 4004956.mualhpcp01.local
+    Waiting for: 4004957.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_4673/aggr_out_proc_1/aggr_out_portables_5.txt
+Creating script for: --rows 1000 --cols 100 --scheduler-queue fibHeap --simEndTime 100 --portables 10
+Waiting for following jobs to finish: 4004958.mualhpcp01.local 4004959.mualhpcp01.local 4004960.mualhpcp01.local 4004961.mualhpcp01.local 4004962.mualhpcp01.local 4004963.mualhpcp01.local 4004964.mualhpcp01.local 4004965.mualhpcp01.local 4004966.mualhpcp01.local 4004967.mualhpcp01.local
+    Waiting for: 4004958.mualhpcp01.local
+    Waiting for: 4004959.mualhpcp01.local
+    Waiting for: 4004960.mualhpcp01.local
+    Waiting for: 4004961.mualhpcp01.local
+    Waiting for: 4004962.mualhpcp01.local
+    Waiting for: 4004963.mualhpcp01.local
+    Waiting for: 4004964.mualhpcp01.local
+    Waiting for: 4004965.mualhpcp01.local
+    Waiting for: 4004966.mualhpcp01.local
+qstat: Unknown Job Id Error 4004966.mualhpcp01.local
+    Waiting for: 4004967.mualhpcp01.local
+qstat: Unknown Job Id Error 4004967.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_4673/aggr_out_proc_1/aggr_out_portables_10.txt
+Creating script for: --rows 1000 --cols 100 --scheduler-queue fibHeap --simEndTime 100 --portables 15
+Waiting for following jobs to finish: 4004968.mualhpcp01.local 4004969.mualhpcp01.local 4004970.mualhpcp01.local 4004971.mualhpcp01.local 4004972.mualhpcp01.local 4004973.mualhpcp01.local 4004974.mualhpcp01.local 4004975.mualhpcp01.local 4004976.mualhpcp01.local 4004977.mualhpcp01.local
+    Waiting for: 4004968.mualhpcp01.local
+    Waiting for: 4004969.mualhpcp01.local
+    Waiting for: 4004970.mualhpcp01.local
+    Waiting for: 4004971.mualhpcp01.local
+    Waiting for: 4004972.mualhpcp01.local
+    Waiting for: 4004973.mualhpcp01.local
+qstat: Unknown Job Id Error 4004973.mualhpcp01.local
+    Waiting for: 4004974.mualhpcp01.local
+qstat: Unknown Job Id Error 4004974.mualhpcp01.local
+    Waiting for: 4004975.mualhpcp01.local
+qstat: Unknown Job Id Error 4004975.mualhpcp01.local
+    Waiting for: 4004976.mualhpcp01.local
+qstat: Unknown Job Id Error 4004976.mualhpcp01.local
+    Waiting for: 4004977.mualhpcp01.local
+qstat: Unknown Job Id Error 4004977.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_4673/aggr_out_proc_1/aggr_out_portables_15.txt
