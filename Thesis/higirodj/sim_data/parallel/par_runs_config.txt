@@ -1,0 +1,91 @@
+./generate_any_queue_stats.sh --procs 2 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 6 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs6_ladderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 50000' > pcs6_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs6_2tLadderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 50000' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs6_2tLadderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 50000' > pcs6_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs6_2tLadderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 50000' > pcs6_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs6_2tLadderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 50000' > pcs6_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs6_2tLadderQ_runtime_stats.csv --params '--rows 10 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 50000' > pcs6_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 4500' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 4500' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 4500' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 4500' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs7_ladderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 4500' > pcs7_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 4500' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 4500' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 4500' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 4500' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs7_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 10  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 4500' > pcs7_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs8_ladderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 200' > pcs8_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 -outfile pcs8_ladderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 200' > pcs8_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs8_ladderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 200' > pcs8_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs8_ladderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 200' > pcs8_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs8_ladderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue ladderQ --lq-max-rungs 2 --simEndTime 200' > pcs8_ladderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs8_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 200' > pcs8_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs8_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 200' > pcs8_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs8_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 200' > pcs8_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs8_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 200' > pcs8_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs8_2tLadderQ_runtime_stats.csv --params '--rows 100 --cols 100  --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 3 --simEndTime 200' > pcs8_2tLadderQ_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs6_3tHeap_runtime_stats.csv --params '--rows 10 --cols 10 --scheduler-queue 3tHeap --simEndTime 50000' > pcs6_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs6_3tHeap_runtime_stats.csv --params '--rows 10 --cols 10 --scheduler-queue 3tHeap --simEndTime 50000' > pcs6_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs6_3tHeap_runtime_stats.csv --params '--rows 10 --cols 10 --scheduler-queue 3tHeap --simEndTime 50000' > pcs6_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs6_3tHeap_runtime_stats.csv --params '--rows 10 --cols 10 --scheduler-queue 3tHeap --simEndTime 50000' > pcs6_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs6_3tHeap_runtime_stats.csv --params '--rows 10 --cols 10 --scheduler-queue 3tHeap --simEndTime 50000' > pcs6_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 4500' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 4500' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 4500' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 4500' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs7_3tHeap_runtime_stats.csv --params '--rows 100 --cols 10 --scheduler-queue 3tHeap --simEndTime 4500' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 2 --outfile pcs8_3tHeap_runtime_stats.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 200' > pcs7_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 4 --outfile pcs8_3tHeap_runtime_stats.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 200' > pcs8_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 8 --outfile pcs8_3tHeap_runtime_stats.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 200' > pcs8_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 16 --outfile pcs8_3tHeap_runtime_stats.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 200' > pcs8_3tHeap_runtime_log.txt 2>&1 &
+
+./generate_any_queue_stats.sh --procs 32 --outfile pcs8_3tHeap_runtime_stats.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 200' > pcs8_3tHeap_runtime_log.txt 2>&1 &

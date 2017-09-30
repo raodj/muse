@@ -1,0 +1,106 @@
+Using temproary directory: ./tmp_2620
+--portables 25 50 75 100 125
+Creating script for: --rows 100 --cols 10 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 128 --simEndTime 4500 --portables 25
+Waiting for following jobs to finish: 4021519.mualhpcp01.local 4021520.mualhpcp01.local 4021521.mualhpcp01.local 4021522.mualhpcp01.local 4021523.mualhpcp01.local 4021524.mualhpcp01.local 4021525.mualhpcp01.local 4021526.mualhpcp01.local 4021527.mualhpcp01.local 4021528.mualhpcp01.local
+    Waiting for: 4021519.mualhpcp01.local
+    Waiting for: 4021520.mualhpcp01.local
+qstat: Unknown Job Id Error 4021520.mualhpcp01.local
+    Waiting for: 4021521.mualhpcp01.local
+qstat: Unknown Job Id Error 4021521.mualhpcp01.local
+    Waiting for: 4021522.mualhpcp01.local
+qstat: Unknown Job Id Error 4021522.mualhpcp01.local
+    Waiting for: 4021523.mualhpcp01.local
+qstat: Unknown Job Id Error 4021523.mualhpcp01.local
+    Waiting for: 4021524.mualhpcp01.local
+qstat: Unknown Job Id Error 4021524.mualhpcp01.local
+    Waiting for: 4021525.mualhpcp01.local
+qstat: Unknown Job Id Error 4021525.mualhpcp01.local
+    Waiting for: 4021526.mualhpcp01.local
+    Waiting for: 4021527.mualhpcp01.local
+qstat: Unknown Job Id Error 4021527.mualhpcp01.local
+    Waiting for: 4021528.mualhpcp01.local
+qstat: Unknown Job Id Error 4021528.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_2620/aggr_out_proc_32/aggr_out_portables_25.txt
+cat: ./tmp_2620/sim_out_1.txt: No such file or directory
+cat: ./tmp_2620/sim_out_8.txt: No such file or directory
+Creating script for: --rows 100 --cols 10 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 128 --simEndTime 4500 --portables 50
+Waiting for following jobs to finish: 4021546.mualhpcp01.local 4021547.mualhpcp01.local 4021548.mualhpcp01.local 4021549.mualhpcp01.local 4021550.mualhpcp01.local 4021551.mualhpcp01.local 4021552.mualhpcp01.local 4021553.mualhpcp01.local 4021554.mualhpcp01.local 4021555.mualhpcp01.local
+    Waiting for: 4021546.mualhpcp01.local
+    Waiting for: 4021547.mualhpcp01.local
+    Waiting for: 4021548.mualhpcp01.local
+    Waiting for: 4021549.mualhpcp01.local
+    Waiting for: 4021550.mualhpcp01.local
+    Waiting for: 4021551.mualhpcp01.local
+    Waiting for: 4021552.mualhpcp01.local
+    Waiting for: 4021553.mualhpcp01.local
+    Waiting for: 4021554.mualhpcp01.local
+    Waiting for: 4021555.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_2620/aggr_out_proc_32/aggr_out_portables_50.txt
+cat: ./tmp_2620/sim_out_1.txt: No such file or directory
+cat: ./tmp_2620/sim_out_8.txt: No such file or directory
+Creating script for: --rows 100 --cols 10 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 128 --simEndTime 4500 --portables 75
+Waiting for following jobs to finish: 4021556.mualhpcp01.local 4021557.mualhpcp01.local 4021558.mualhpcp01.local 4021559.mualhpcp01.local 4021560.mualhpcp01.local 4021561.mualhpcp01.local 4021562.mualhpcp01.local 4021563.mualhpcp01.local 4021564.mualhpcp01.local 4021565.mualhpcp01.local
+    Waiting for: 4021556.mualhpcp01.local
+    Waiting for: 4021557.mualhpcp01.local
+    Waiting for: 4021558.mualhpcp01.local
+    Waiting for: 4021559.mualhpcp01.local
+    Waiting for: 4021560.mualhpcp01.local
+    Waiting for: 4021561.mualhpcp01.local
+    Waiting for: 4021562.mualhpcp01.local
+    Waiting for: 4021563.mualhpcp01.local
+    Waiting for: 4021564.mualhpcp01.local
+    Waiting for: 4021565.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_2620/aggr_out_proc_32/aggr_out_portables_75.txt
+cat: ./tmp_2620/sim_out_1.txt: No such file or directory
+cat: ./tmp_2620/sim_out_8.txt: No such file or directory
+Creating script for: --rows 100 --cols 10 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 128 --simEndTime 4500 --portables 100
+Waiting for following jobs to finish: 4021566.mualhpcp01.local 4021567.mualhpcp01.local 4021568.mualhpcp01.local 4021569.mualhpcp01.local 4021570.mualhpcp01.local 4021571.mualhpcp01.local 4021572.mualhpcp01.local 4021573.mualhpcp01.local 4021574.mualhpcp01.local 4021575.mualhpcp01.local
+    Waiting for: 4021566.mualhpcp01.local
+    Waiting for: 4021567.mualhpcp01.local
+qstat: Unknown Job Id Error 4021567.mualhpcp01.local
+    Waiting for: 4021568.mualhpcp01.local
+qstat: Unknown Job Id Error 4021568.mualhpcp01.local
+    Waiting for: 4021569.mualhpcp01.local
+qstat: Unknown Job Id Error 4021569.mualhpcp01.local
+    Waiting for: 4021570.mualhpcp01.local
+qstat: Unknown Job Id Error 4021570.mualhpcp01.local
+    Waiting for: 4021571.mualhpcp01.local
+qstat: Unknown Job Id Error 4021571.mualhpcp01.local
+    Waiting for: 4021572.mualhpcp01.local
+qstat: Unknown Job Id Error 4021572.mualhpcp01.local
+    Waiting for: 4021573.mualhpcp01.local
+    Waiting for: 4021574.mualhpcp01.local
+qstat: Unknown Job Id Error 4021574.mualhpcp01.local
+    Waiting for: 4021575.mualhpcp01.local
+qstat: Unknown Job Id Error 4021575.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_2620/aggr_out_proc_32/aggr_out_portables_100.txt
+cat: ./tmp_2620/sim_out_1.txt: No such file or directory
+cat: ./tmp_2620/sim_out_8.txt: No such file or directory
+Creating script for: --rows 100 --cols 10 --scheduler-queue 2tLadderQ --lq-max-rungs 2 --2t-ladderQ-t2k 128 --simEndTime 4500 --portables 125
+Waiting for following jobs to finish: 4021576.mualhpcp01.local 4021577.mualhpcp01.local 4021578.mualhpcp01.local 4021579.mualhpcp01.local 4021580.mualhpcp01.local 4021581.mualhpcp01.local 4021582.mualhpcp01.local 4021583.mualhpcp01.local 4021584.mualhpcp01.local 4021585.mualhpcp01.local
+    Waiting for: 4021576.mualhpcp01.local
+    Waiting for: 4021577.mualhpcp01.local
+qstat: Unknown Job Id Error 4021577.mualhpcp01.local
+    Waiting for: 4021578.mualhpcp01.local
+qstat: Unknown Job Id Error 4021578.mualhpcp01.local
+    Waiting for: 4021579.mualhpcp01.local
+qstat: Unknown Job Id Error 4021579.mualhpcp01.local
+    Waiting for: 4021580.mualhpcp01.local
+qstat: Unknown Job Id Error 4021580.mualhpcp01.local
+    Waiting for: 4021581.mualhpcp01.local
+qstat: Unknown Job Id Error 4021581.mualhpcp01.local
+    Waiting for: 4021582.mualhpcp01.local
+qstat: Unknown Job Id Error 4021582.mualhpcp01.local
+    Waiting for: 4021583.mualhpcp01.local
+    Waiting for: 4021584.mualhpcp01.local
+qstat: Unknown Job Id Error 4021584.mualhpcp01.local
+    Waiting for: 4021585.mualhpcp01.local
+qstat: Unknown Job Id Error 4021585.mualhpcp01.local
+    Waiting for: 
+aggrFileName = ./tmp_2620/aggr_out_proc_32/aggr_out_portables_125.txt
+cat: ./tmp_2620/sim_out_1.txt: No such file or directory
+cat: ./tmp_2620/sim_out_8.txt: No such file or directory
