@@ -140,7 +140,7 @@ removed only from the end to ensure amortized constant-time operation.
 The dequeue operations for a bucket require iterating over each sub-bucket.  However, for a small, fixed value of \textsubscript{tk}, the overhead becomes an ammortized constant.  The constant overhead is determined by the value of \textsubscript{tk}. Consequently, dequeue also retains the amortized constant characteristic from regular \textbf{ladderQ} as summarized in Table~\ref{tab:q-comp}. Currently, we do not subdivide \emph{Bottom} but leave it as a possible future optimization.
 
 \begin{figure}\centering
-\includegraphics[width=\linewidth]{images/2tlq_t2k_effect}
+\includegraphics[width=\linewidth, height = 6cm]{images/2tlq_t2k_effect}
 \textbf {\caption{Effect of varying \textbf{tk} }}\label{fig:2tk}
 \end{figure}
 

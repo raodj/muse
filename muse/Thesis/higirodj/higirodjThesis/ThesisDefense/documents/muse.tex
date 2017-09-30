@@ -33,12 +33,9 @@ Dispatching concurrent events in a single batch streamlines modeling broad range
 As previously stated, we compared the effectiveness of our various PES structures to include the novel structures (\textbf{2tLadderQ} and \textbf{3tHeap}) against the fine-tuned version of the Ladder Queue. The assessment of the data structures involved the following metrics: 
 \begin{itemize}
 \item[\ding{182}] \textbf{Raw execution run time}: This is the elapsed time between the start and the end of program execution. In a parallel program, the elapse time requires the end time of the last process to finish program execution. Serial and parallel wall clock timings were collected and used in the performance analysis of the various data structures.
-\item[\ding{183}] \textbf{Speedup}: This is a measure of the performance improvement from serial to parallel program execution. It is measured as the ratio of serial and parallel run times. This was used to compare the realized speedups of our programs using different scheduler queues.   
-\item[\ding{184}] \textbf{Efficiency}: This is a measure of the processing time dedicated to essential program execution activities such as computations at the expense of parallel programming related overhead tasks. 
-\item[\ding{185}] \textbf{Total Parallel Overhead}: The aggregated overhead value associated with a parallel program. 
 \item[\ding{186}] \textbf{Peak Memory Usage}: The total memory used by a serial or parallel program.
 \item[\ding{187}] \textbf{Cache Hits or Misses}: Number of times that accessed data is found or not found to reside in cache memory.
 \end{itemize}
 
-\section{Experimental Platform}
+\section{Experimental Platform}~\label{sec:platform}
 The design of MUSE and the experiments reported were conducted using a distributed-memory compute cluster consisting of 80 compute nodes interconnected by 1 GBPS Ethernet. Each compute node has 8 cores from two quad-core Intel Xeon \textregistered CPUs (E5520) running at 2.27 GHz with hyper-threading disabled. Each compute node has 32 GB of RAM (4 GB per core) in Non-Uniform Memory Access (NUMA) configuration. The cluster has an independent 1 GBPS Ethernet network to support a shared file system. The nodes run Red Hat Enterprise Linux 6, with Linux (kernel ver 2.6.32) and the cluster runs PBS/Torque. The simulation software was compiled using GCC version 4.9.2 (\textbf{-O3} optimization) with OpenMPI 1.6.4. All debug assertions were turned off for maximum performance.
