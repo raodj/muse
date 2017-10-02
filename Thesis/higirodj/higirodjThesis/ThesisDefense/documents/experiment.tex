@@ -228,13 +228,33 @@ of \textbf{heap} is the lowest in most cases. Since \textsubscript{2t}\textit{k}
 \textbf{\caption{Comparison of peak memory usage}\label{fig:pcs-seq-mem}}
 \end{figure}
 
+\begin{figure*}\centering
+\begin{minipage}{0.95\linewidth}
+\includegraphics[width=\linewidth, height = 5cm]{images/pcs6_profile}
+\centerline{(a) \textbf{pcs6}}
+\end{minipage}
+\begin{minipage}{0.95\linewidth}
+\includegraphics[width=\linewidth,  height = 5cm]{images/pcs7_profile}
+\centerline{(b) \textbf{pcs7}}
+\end{minipage} 
+\begin{minipage}{0.95\linewidth}
+\includegraphics[width=\linewidth,  height = 5cm]{images/pcs8_profile}
+\centerline{(c) \textbf{pcs8}}
+\end{minipage}
+
+\textbf{\caption{Profile results from PCS sequential simulation}\label{fig:pcs-profile}}
+\end{figure*}
+
+
 \subsection{\textbf{PCS} sequential simulation results}\label{sec:pcs_seq}
 
 The charts in Figure\ref{fig:pcs-seq-time}(a)-(c) show runtime characteristics as the number of \textbf{portables} is varied using our 3 PCS configurations. As illustrated in the charts, the performance of \textbf{ladderQ} and \textbf{2tLadderQ} (\textsubscript{t2}\textit{k} = 1) is comparable. However, these two data structures were largely outperformed by the other scheduler queues. In fact, mean runtimes of \textbf{ladderQ} and \textbf{2tLadderQ} displayed an order of magnitude that was exceedingly high in comparison with the remaining queues. For the \textbf{pcs8} configuration with 125 \textbf{portables per cell}, the mean runtime values of the \textbf{ladderQ} and \textbf{2tLadderQ} were approximately 500\texttimes\/ higher than the runtime means of the other queues. Similarly to sequential simulation using the \textbf{PHOLD} benchmark, profile data from the \textbf{PCS} configurations showed that overhead of re-bucketing portables from rung-to-rung in both \textbf{ladderQ} and \textbf{2tLadderQ} degraded runtime performance. However, the impact of the overhead was even more pronounced in the \textbf{PCS} simulations.
 
 The charts in Figure\ref{fig:pcs-seq-time2} (a)-(c) provide an illustration of the runtime performance of the scheduler queues without \textbf{ladderQ} and \textbf{2tLadderQ}. For the most part, \textbf{3tHeap} outperformed all of the other scheduler queues for higher number of \textbf{portables per cell}. As previously noted the re-bucketing operation is not a property of \textbf{3tHeap} and its design supports more efficient handling of an increasing number of concurrent events. 
 
-The charts in Figure\ref{fig:pcs-seq-mem} show peak memory usage associated with runtime data displayed in Figures \ref{fig:pcs-seq-time} and \ref{fig:pcs-seq-time2}. The peak memory usage  is the lowest and tends to decrease with increasing number of \textbf{portables per cell} for \textbf{3tHeap} in configurations \textbf{pcs6} and \textbf{pcs7}. On the other hand \textbf{fibHeap} has the lowest memory usage in the \textbf{pcs8} configuration. For sequential simulations using the \textbf{PCS} model, \textbf{3tHeap} is the desired scheduler queue for optimal runtime performance.
+The charts in Figure\ref{fig:pcs-seq-mem} show peak memory usage associated with runtime data displayed in Figures \ref{fig:pcs-seq-time} and \ref{fig:pcs-seq-time2}. The peak memory usage  is the lowest and tends to decrease with increasing number of \textbf{portables per cell} for \textbf{3tHeap} in configurations \textbf{pcs6} and \textbf{pcs7}. On the other hand \textbf{fibHeap} has the lowest memory usage in the \textbf{pcs8} configuration.
+
+The charts in Figure\ref{fig:pcs-profile}(a)-(c) show profile results for the 3 configurations. As illustrated in the charts \textbf{ladderQ} and \textbf{2tLadderQ} displayed more effective use of the CPU data cache in all configurations, which is critical to performance. However, the percentage of instructions was also the highest for the two scheduler queues. This is consistent with the larger runtimes observed for \textbf{ladderQ} and \textbf{2tLadderQ}. On the other hand,\textbf{3tHeap} displayed a comparably higher percentage of cache and branch misses with respect to most of the scheduler queues, however, it also showed the lowest percentage of instructions in each configuration scenario. Thus, for sequential simulations using the \textbf{PCS} model, \textbf{3tHeap} is the desired scheduler queue for optimal runtime performance.
 
 \section{\textbf{Parallel simulation assessments}}\label{sec:par}
 
