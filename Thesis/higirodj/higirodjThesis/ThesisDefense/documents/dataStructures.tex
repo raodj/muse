@@ -27,7 +27,12 @@ Name & Enqueue & Dequeue & Cancel \\
 \end{tabular}
 \end{table}
 \section{Binary Heap (heap)} 
-The binary heap based (\textbf{heap}) is a commonly used data structure for implementing priority queues. It is a single tier-data structure and is implemented using a conventional array-based approach. A \textbf{std::vector} is used as the backing container and algorithms (\textbf{std::push\_heap}, \textbf{std::pop\_heap}) are used to maintain the heap. The heap is prioritized on both time stamp and LP's \emph{ID} (to dequeue batches of events), with the lowest time stamp at the root of the heap. Operations on the heap are logarithmic in time complexity -- given $l$ LPs each with $e$ events/LP, the time complexity of enqueue and dequeue operations is $\log(e\cdot l)$ as shown in Table~\ref{tab:q-comp}. If event cancellation requires $z$ events to be removed from the heap, the time complexity is $z\cdot \log(e\cdot l)$. Consequently, for long or cascading rollbacks the cancellation costs is high.
+The binary heap based (\textbf{heap}) is a commonly used data structure for implementing priority queues. It is a single tier-data structure and is implemented using a conventional array-based approach.  Figure~\ref{fig:heap-uml} shows a collaboration UML diagram for the \texttt{HeapEventQueue} implementation in MUSE.   A \textbf{std::vector} is used as the backing container (\texttt{eventList} in Figure~\ref{fig:heap-uml}) and algorithms (\textbf{std::push\_heap}, \textbf{std::pop\_heap}) are used to maintain the heap. The heap is prioritized on both time stamp and LP's \emph{ID} (to dequeue batches of events), with the lowest time stamp at the root of the heap. Operations on the heap are logarithmic in time complexity -- given $l$ LPs each with $e$ events/LP, the time complexity of enqueue and dequeue operations is $\log(e\cdot l)$ as shown in Table~\ref{tab:q-comp}. If event cancellation requires $z$ events to be removed from the heap, the time complexity is $z\cdot \log(e\cdot l)$. Consequently, for long or cascading rollbacks the cancellation costs is high.
+
+\begin{figure}
+  \centerline{\includegraphics[height=0.85\textheight]{images/collab_diags/HeapEventQueue.pdf}}
+  \textbf{\caption{Collaboration UML diagram for Binary Heap based event queue implementation in MUSE}}\label{fig:heap-uml}
+\end{figure}
 
 \section{Binomial Heap (binomHeap)} 
 The \textbf{binomHeap} is another single-tier data structure that uses Binomial heap from the \textsc{boost} C++ library. In similarity to \textbf{heap}, \textbf{binomHeap} is prioritized on both time stamp and LP's \emph{ID}, with the lowest time stamped event at the root. Additionally, the operations on \textbf{binomHeap} are logarithmic with a time complexity for enqueue and dequeue operations of $\log(e\cdot l)$. A special property of Binomial heap is the ability to merge two heaps into a single heap with a time complexity of $\log(n)$. Given that \textbf{binomHeap} is a single-tier data structure and all of the LPs on an MPI-process share a PES queue, the merge operation is not relevant.
@@ -59,46 +64,49 @@ Due to similarities between Binary and Binomial Heap, we performed a comparison 
 The \textbf{2tHeap} is designed to reduce the time complexity of cancel operations by subdividing events into two distinct tiers as shown in Figure~\ref{fig:heaps}. The first tier has containers for each local LP on an MPI-process. Each of the tier-1 containers contain a heap of events to be processed by a given LP. In \textbf{2tHeap} both tiers are maintained as independent binary heaps. Consequently, given $l$ LPs and $e$ pending events per LP, enqueue and dequeue operates require
 $\log e$ time to insert in tier-2 followed by $\log l$ time to reschedule the LP. Note that the tier-1 heap is updated only if the root event in tier-2 changes after an operation. Consequently, the best case time complexity becomes $\log e$ when compared to $\log e\cdot l$ for the \textbf{heap}. Furthermore, cancellation of events for an anti-message is restricted to just the tier-2 entries of LP \textsubscript{dest}  with utmost 1 tier-1 operation to update schedule position of LP \textsubscript{dest}. A \textbf{std::vector} is used as the backing storage for both tiers and standard algorithms are used to maintain the min-heap property for both tiers after each operation.
 
+\begin{figure}
+  \centerline{\includegraphics[height=0.85\textheight]{images/collab_diags/TwoTierHeapEventQueue.pdf}}
+  \textbf{\caption{Collaboration UML diagram for Two-tier Heap based event queue implementation in MUSE}}\label{fig:heap-uml}
+\end{figure}
+
 \section{2-tier Fibonacci Heap (fibHeap)} 
 The \textbf{fibHeap} is an extension to the previous \textbf{2tHeap} data structure and uses a Fibonacci heap for scheduling LPs. The Fibonacci heap is a slightly modified version from the \textsc{boost} C++ library. The Fibonacci heap has an amortized constant time for changing key values and finding minimum. Consequently, we use it for the first tier which is responsible for scheduling LPs and use a standard binary heap for the second tier.  We do not use Fibonacci heap for the second tier because we found its runtime constants to be higher than a binary heap.  Accordingly, the time complexity for enqueue and dequeue operations is $\log(e) + 1^{*}$.
 
 \section{Three-tier Heap (3tHeap)} 
 The \textbf{3tHeap} builds upon \textbf{2tHeap} by further subdividing the second tier into two tiers as shown in Figure~\ref{fig:heaps}(b). The binary heap implementation for the first tier that manages LPs for scheduling has been retained from \textbf{2tHeap}. However, the 2nd tier is implemented as a list of containers sorted based on receive time of events. Each tier-2 container has a 3rd tier list of concurrent events. Assuming each LP has $c$ concurrent events on an average, there are $\frac{e}{c}$ tier-2 entries with each one having $c$ pending events. Inserting events in the \textbf{3tHeap} is accomplished via binary search at tier-2 with time complexity $\log\frac{e}{c}$ followed by an append to tier-3, a constant time operation. Enqueue to tier-2 is followed by an optional heap fix-up of time complexity $\log l$ as summarized in Table~\ref{tab:q-comp}. Dequeue operation for a LP removes a tier-2 entry in constant time followed by a $\log l$ heap fix-up for scheduling. Event cancellation has time complexity of $e + \log(l)$ as it requires inspecting each event in tier-3 followed by heap fix-up. As an implementation optimization, we recycle tier-2 containers to reduce allocation and deallocation overhead.
 
-\begin{figure}[H] \centering
-\begin{minipage}{0.49\linewidth}
-\includegraphics[width=\linewidth]{images/LadderQueue1.png}
-\centerline{(a) Structure} \\
+\section{Ladder Queue (ladderQ)} 
 
-\includegraphics[width=\linewidth]{images/LadderQueue2.png}
-\centerline{(b) Dequeue Operations}
-\end{minipage}
-\textbf{\caption{Structure of Ladder Queue} Source: Tang et al.~\cite{tang-05}}\label{fig:ladderQ}
+The \textbf{ladderQ} is a widely used priority queue implementation
+that has been used as the reference for experimental assessments.  The
+\texttt{ladderQ} data structure is discussed in detail in
+Section~\ref{sec:ladderQ}.  Similar to the other event queue
+implementation, the \textbf{ladderQ} has been integrated into MUSE by
+suitably implementing the necessary Application Program Interface
+(API) methods in the \texttt{muse::EventQueue} base class.  The
+various sub-data structures such as \emph{Top}, \emph{Rung}, and
+\emph{Bottom} have been implemented using sub-classes as shown in
+Figure~\ref{fig:ladderq-uml}.
+
+\begin{figure}
+  \centerline{\includegraphics[height=0.85\textheight]{images/collab_diags/LadderQueue.pdf}}
+  \textbf{\caption{Collaboration UML diagram for Ladder Queue based event queue implementation in MUSE}}\label{fig:ladderq-uml}
 \end{figure}
 
-\section{Ladder Queue (ladderQ)} 
-The \textbf{ladderQ} is a priority queue implementation proposed by Tang et al~\cite{tang-05} with amortized constant time complexity as summarized in Table~\ref{tab:q-comp}. Several investigators have independently verified that for sequential DES the \textbf{ladderQ} outperforms other priority queues, including: simple sorted list, binary heap, Splay tree, Calendar queue, and other multi-list data structures~\cite{dickman-13,franceschini-15,tang-05}. There are two key ideas underlying the Ladder Queue, namely: minimize the number of events to be sorted and delay sorting of events as much as possible. The multi-tier data structures also aim to minimize the number of events to be sorted. However, in contrast to the \textbf{ladderQ}, the other data structures always fix-up and maintain a minimum heap property. As shown in Figure~\ref{fig:ladderQ}(a), the ladder queue consists of the following 3 substructures:
-\begin{enumerate}[leftmargin=*,topsep=0pt]
-\item \emph{Top}: An unsorted list which contains events scheduled into the distant future or epoch.
 
-\item \emph{Ladder}: Consists of multiple rungs, \textit{i.e.,}list of buckets. Each bucket contains list of events with a finite range of time stamp values. Hence, although events within a bucket are not sorted, the buckets on a rung are organized in a sorted order. The \textbf{ladderQ} minimizes the number of events to be finally sorted by recursively breaking large buckets into smaller buckets in lower rungs of its ladder. Lower rungs in the ladder have smaller buckets with smaller time ranges and the maximum number of rungs in Ladder is 8.
+\subsection{Fine tuning Ladder Queue performance}\label{sec:fine-tune-lq}
 
-\item \emph{Bottom}: This substructure contains a sorted list of events to be processed. Inserts into \emph{Bottom} must preserve sorted order. Hence, the \textbf{ladderQ} strives to maintain a short bottom by moving events back into the ladder, as needed. The default threshold value at which events from Bottom are moved into Ladder is 50~\cite{tang-05}.\end{enumerate} 
+Our implementation closely followed the design in the original paper by Tang et al~\cite{tang-05}. However, to minimize runtime constants, we have explored different configurations for the buckets and the \emph{Bottom} in the \textbf{ladderQ}. Specifically, we have explored the
+following 6 configurations -- \ding{182} \underline{L.List-L.List}: using a doubly-linked list (L.List) implemented by \textbf{std::list}) for buckets and bottom. Events are inserted into bottom via linear search as proposed by Tang et al. \ding{183} \underline{L.List-M.Set}: L.List for buckets and a Multi-set ($\log n$ operations) for bottom, \ding{184} \underline{L.List-Heap}: a L.List and a binary heap (backed by a \textbf{std::vector}) for bottom, \ding{185} \underline{Vec-M.Set}: a dynamically growing array (\textit{i.e.,} \textbf{std::vector}) for buckets and Multi-set bottom, \ding{186} \underline{Vec-Heap}: Vector buckets and binary heap for bottom, and \ding{187} \underline{Vec-Vec}: Vector for buckets and bottom. This configuration enables using quick sort(\textit{i.e.,} \textbf{std::sort}) for sorting buckets and binary search for inserting events into bottom.
 
-At the beginning of a simulation, enqueue operations only involve the insertion of events into \emph{Top}. As the simulation progresses, the insertion of events can occur at any level of the data structure. The insertion of events in \emph{Top} and Ladder is an O(1) operation that involves adding events to a list that remains unsorted. The onset of dequeue operations involves moving unsorted events from \emph{Top} into a newly formed rung in Ladder. The time range or bucket-width of a rung is established by taking the difference between the highest and lowest time stamp and dividing the difference by the total number of events. As shown in Figure~\ref{fig:ladderQ}(b), the bucket-width computed from the time stamp in \emph{Top} is (4.5\textbf{max} - 0.5\textbf{min})/8 = 0.5. In accordance with their timestamps, events from \emph{Top} are placed into the appropriate buckets in Rung-1. Consequently, events with time stamps 0.5 and 0.6 are placed in the 1st bucket of Rung-1. In cases, where the number of events in a bucket exceeds the established threshold, a new rung is generated to store those events. For example, in Figure~\ref{fig:ladderQ}(b), Rung-2 is generated for time stamped events in the range of 3.0 to 3.5. As shown in the Figure, The bucket containing events are sequentially removed from the bottom most rung in Ladder. The events are inserted in sorted LTSF order into \emph{Bottom}, where events are dequeued for further processing. The clearing of events in Ladder and Bottom kickoffs the movement of additional events from \emph{Top} into the two lower substructures. The implementation of Ladder Queue in MUSE adheres to the functionality described in ~\cite{tang-05} with some modifications.   
 
-\begin{figure}[H] \centering
+\begin{figure}\centering
 \includegraphics[width=\linewidth]{images/lq_config_compare}
 \centerline{(a) Comparison sequential runtimes}
 \includegraphics[width=\linewidth]{images/lq_config_memory_compare}
 \centerline{(b) Peak memory used} 
 \textbf{\caption{Comparison of execution time and peak memory for \textbf{PHOLD} benchmark (different parameter settings) using 6 different \textbf{ladderQ} configurations}}\label{fig:lq-configs}
 \end{figure}
-
-\subsection{Fine tuning Ladder Queue performance}\label{sec:fine-tune-lq}
-
-As previously stated, our implementation closely followed the design in the original paper by Tang et al~\cite{tang-05}. However, to minimize runtime constants, we have explored different configurations for the buckets and the \emph{Bottom} in the \textbf{ladderQ}. Specifically, we have explored the
-following 6 configurations -- \ding{182} \underline{L.List-L.List}: using a doubly-linked list (L.List) implemented by \textbf{std::list}) for buckets and bottom. Events are inserted into bottom via linear search as proposed by Tang et al. \ding{183} \underline{L.List-M.Set}: L.List for buckets and a Multi-set ($\log n$ operations) for bottom, \ding{184} \underline{L.List-Heap}: a L.List and a binary heap (backed by a \textbf{std::vector}) for bottom, \ding{185} \underline{Vec-M.Set}: a dynamically growing array (\textit{i.e.,} \textbf{std::vector}) for buckets and Multi-set bottom, \ding{186} \underline{Vec-Heap}: Vector buckets and binary heap for bottom, and \ding{187} \underline{Vec-Vec}: Vector for buckets and bottom. This configuration enables using quick sort(\textit{i.e.,} \textbf{std::sort}) for sorting buckets and binary search for inserting events into bottom.
 
 Runtime comparison of the 6 \textbf{ladderQ} configurations is summarized in Figure~\ref{fig:lq-configs}. The data was obtained using \textbf{PHOLD} with different parameter settings. The \ding{187}$^{th}$ Vec-Vec configuration was the fastest and performance of other configurations are shown relative to it in Figure~\ref{fig:lq-configs}(a). The L.List-L.List configuration was generally the slowest and performed 85 \texttimes (or ~98\%) slower than the Vec-Vec configuration. The peak memory used for simulations is shown in Figure~\ref{fig:lq-configs}(b), in comparison with the Vec-Vec configuration.  As shown by the charts in Figure~\ref{fig:lq-configs}, the increased performance of Vec-Vec comes at about a 6\texttimes increase in peak memory footprint when compared to L.List-L.List configuration. This increased footprint arises because the \textbf{std::vector} internally doubles its capacity as it grows. With many buckets in the \textbf{ladderQ}, each implemented using a \textbf{std::vector}, the overall peak memory footprint is higher. Certainly, the increased capacity is used if the number of events in buckets grow. However, the Vec-M.Set and Vec-Heap configurations consume a bit more memory in some configurations, showing that Vec-Vec is not the worst in memory consumption. Consequently, we use the Vec-Vec configuration as it provides the fastest performance among the 6 configurations.
 
