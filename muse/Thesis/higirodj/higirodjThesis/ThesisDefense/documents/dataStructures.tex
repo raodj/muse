@@ -37,6 +37,10 @@ The binary heap based (\textbf{heap}) is a commonly used data structure for impl
 \section{Binomial Heap (binomHeap)} 
 The \textbf{binomHeap} is another single-tier data structure that uses Binomial heap from the \textsc{boost} C++ library. In similarity to \textbf{heap}, \textbf{binomHeap} is prioritized on both time stamp and LP's \emph{ID}, with the lowest time stamped event at the root. Additionally, the operations on \textbf{binomHeap} are logarithmic with a time complexity for enqueue and dequeue operations of $\log(e\cdot l)$. A special property of Binomial heap is the ability to merge two heaps into a single heap with a time complexity of $\log(n)$. Given that \textbf{binomHeap} is a single-tier data structure and all of the LPs on an MPI-process share a PES queue, the merge operation is not relevant.
 
+\subsection{Run time comparison of heap vs. binomHeap}
+Due to similarities between Binary and Binomial Heap, we performed a comparison of \textbf{heap} and \textbf{binomHeap} to identify which one of the two data structures was the more effective priority queue based implementation of the PES queue. The comparison involved the production of serial run times for 2500 different configurations of PHOLD benchmark for both data structures. As shown in Figure~\ref{fig:heapVbinomHeap}, \textbf{heap} had a lower serial run time than \textbf{binomHeap}. The average run time for \textbf{heap} was 43.87 seconds and the average run time for \textbf{binomHeap} was 52.17 seconds. An unpaired two sample t-test was performed on the two sample run times to determine if averages were generally different. The data showed t-stat () > t-critical (1.96) and the p-value: 2.91E-315 << 0.05. Thus showing the averages were statistically different. A paired two sample t-test was also conducted and the paired t-test resulted in a p-value 2.01E-315
+<< 0.05. Therefore, the null hypothesis (H0: difference between samples is zero) was rejected and we concluded that \textbf{heap} is generally faster than \textbf{binomHeap}. Based on the results, Binomial Heap was not used in any further implementation and assessment of the PES queue. 
+
 \begin{figure}[H] \centering
 \begin{minipage}{0.55\linewidth}
 \includegraphics[width=\linewidth]{images/heap_binomHeap_compare.pdf}
@@ -44,9 +48,8 @@ The \textbf{binomHeap} is another single-tier data structure that uses Binomial 
 \textbf{\caption{Comparison of heap and binomHeap execution time}}\label{fig:heapVbinomHeap}
 \end{figure}
 
-\subsection{Run time comparison of heap vs. binomHeap}
-Due to similarities between Binary and Binomial Heap, we performed a comparison of \textbf{heap} and \textbf{binomHeap} to identify which one of the two data structures was the more effective priority queue based implementation of the PES queue. The comparison involved the production of serial run times for 2500 different configurations of PHOLD benchmark for both data structures. As shown in Figure~\ref{fig:heapVbinomHeap}, \textbf{heap} had a lower serial run time than \textbf{binomHeap}. The average run time for \textbf{heap} was 43.87 seconds and the average run time for \textbf{binomHeap} was 52.17 seconds. An unpaired two sample t-test was performed on the two sample run times to determine if averages were generally different. The data showed t-stat () > t-critical (1.96) and the p-value: 2.91E-315 << 0.05. Thus showing the averages were statistically different. A paired two sample t-test was also conducted and the paired t-test resulted in a p-value 2.01E-315
-<< 0.05. Therefore, the null hypothesis (H0: difference between samples is zero) was rejected and we concluded that \textbf{heap} is generally faster than \textbf{binomHeap}. Based on the results, Binomial Heap was not used in any further implementation and assessment of the PES queue. 
+\section{Two-tier Heap (2tHeap)} 
+The \textbf{2tHeap} is designed to reduce the time complexity of cancel operations by subdividing events into two distinct tiers as shown in Figure~\ref{fig:heaps}. The first tier has containers for each local LP on an MPI-process. Each of the tier-1 containers contain a heap of events to be processed by a given LP.  A standard \texttt{std::vector} is used as the backing container to maintain pointers to the pending events.  Standard heap operations implemented by C++ \texttt{algorithms} library are used to maintain the heap property.  In MUSE, the \textbf{2tHeap} has been implemented in a class called \texttt{TwoTierHeapEventQueue}.  Figure~\ref{fig:2tHeap-uml} shows a collaboration diagram illustrating the relationship between this class and other key classes in MUSE.
 
 \begin{figure}[H] \centering
 \begin{minipage}{0.49\linewidth}
@@ -60,13 +63,13 @@ Due to similarities between Binary and Binomial Heap, we performed a comparison 
 \textbf{\caption{Structure of 2-tier \& 3-tier heap}}\label{fig:heaps}
 \end{figure}
 
-\section{Two-tier Heap (2tHeap)} 
-The \textbf{2tHeap} is designed to reduce the time complexity of cancel operations by subdividing events into two distinct tiers as shown in Figure~\ref{fig:heaps}. The first tier has containers for each local LP on an MPI-process. Each of the tier-1 containers contain a heap of events to be processed by a given LP. In \textbf{2tHeap} both tiers are maintained as independent binary heaps. Consequently, given $l$ LPs and $e$ pending events per LP, enqueue and dequeue operates require
+
+In \textbf{2tHeap} both tiers are maintained as independent binary heaps. Consequently, given $l$ LPs and $e$ pending events per LP, enqueue and dequeue operates require
 $\log e$ time to insert in tier-2 followed by $\log l$ time to reschedule the LP. Note that the tier-1 heap is updated only if the root event in tier-2 changes after an operation. Consequently, the best case time complexity becomes $\log e$ when compared to $\log e\cdot l$ for the \textbf{heap}. Furthermore, cancellation of events for an anti-message is restricted to just the tier-2 entries of LP \textsubscript{dest}  with utmost 1 tier-1 operation to update schedule position of LP \textsubscript{dest}. A \textbf{std::vector} is used as the backing storage for both tiers and standard algorithms are used to maintain the min-heap property for both tiers after each operation.
 
 \begin{figure}
   \centerline{\includegraphics[height=0.85\textheight]{images/collab_diags/TwoTierHeapEventQueue.pdf}}
-  \textbf{\caption{Collaboration UML diagram for Two-tier Heap based event queue implementation in MUSE}}\label{fig:heap-uml}
+  \textbf{\caption{Collaboration UML diagram for Two-tier Heap based event queue implementation in MUSE}}\label{fig:2tHeap-uml}
 \end{figure}
 
 \section{2-tier Fibonacci Heap (fibHeap)} 
@@ -110,15 +113,15 @@ following 6 configurations -- \ding{182} \underline{L.List-L.List}: using a doub
 
 Runtime comparison of the 6 \textbf{ladderQ} configurations is summarized in Figure~\ref{fig:lq-configs}. The data was obtained using \textbf{PHOLD} with different parameter settings. The \ding{187}$^{th}$ Vec-Vec configuration was the fastest and performance of other configurations are shown relative to it in Figure~\ref{fig:lq-configs}(a). The L.List-L.List configuration was generally the slowest and performed 85 \texttimes (or ~98\%) slower than the Vec-Vec configuration. The peak memory used for simulations is shown in Figure~\ref{fig:lq-configs}(b), in comparison with the Vec-Vec configuration.  As shown by the charts in Figure~\ref{fig:lq-configs}, the increased performance of Vec-Vec comes at about a 6\texttimes increase in peak memory footprint when compared to L.List-L.List configuration. This increased footprint arises because the \textbf{std::vector} internally doubles its capacity as it grows. With many buckets in the \textbf{ladderQ}, each implemented using a \textbf{std::vector}, the overall peak memory footprint is higher. Certainly, the increased capacity is used if the number of events in buckets grow. However, the Vec-M.Set and Vec-Heap configurations consume a bit more memory in some configurations, showing that Vec-Vec is not the worst in memory consumption. Consequently, we use the Vec-Vec configuration as it provides the fastest performance among the 6 configurations.
 
-\begin{figure}[H]\centering
-\includegraphics[width=\linewidth]{images/max_rung_effect}
-\textbf{\caption{Impact of limiting rungs in Ladder}}\label{fig:max-rungs}
-\end{figure}
-
 The maximum number of rungs in the \emph{Ladder} also influences the overall performance of the \textbf{ladderQ}~\cite{tang-05}. The chart in Figure~\ref{fig:max-rungs} illustrates the impact of limiting the maximum number of rungs in the \textbf{ladderQ}. When the rungs are too few, the timestamp-based width of buckets is larger and more events with many different timestamps are packed into buckets. This also
 causes the \emph{Bottom} to be longer with events spanning a broader range of timestamps. Consequently, when inserts happen into \emph{Bottom}, many \emph{Bottom}-to-\emph{Ladder} re-bucketing operations are triggered to ensure bottom is short. These re-bucketing operations with many events significantly degrade
 performance. However, once sufficient number of rungs (6 rungs in this case) are permitted the events are better subdivide into smaller timestamp-based bucket widths. Small bucket widths in turn minimize
 inserts into bottom and \emph{Bottom}-to-\emph{Ladder} operations, ensuring good performance.
+
+\begin{figure}[H]\centering
+\includegraphics[width=\linewidth]{images/max_rung_effect}
+\textbf{\caption{Impact of limiting rungs in Ladder}}\label{fig:max-rungs}
+\end{figure}
 
 The chart in Figure~\ref{fig:max-rungs} shows that a minimum of 6 rungs is required. For some select configurations of larger models we observed (data not shown) that 5 rungs would be sufficient. However, the number of rungs cannot exceed beyond a threshold to avoid infinite spawning of rungs~\cite{tang-05}.  Moreover, it limits the overheads involved in re-bucketing events from rung-to-rung~\cite{tang-05}. Accordingly, based on the observations in figure~\ref{fig:max-rungs}, we decided to adopt a maximum of 8 rungs, consistent with the threshold proposed by Tang et al~\cite{tang-05}. Furthermore, we trigger \emph{Bottom}-to-\emph{Ladder} re-bucketing only if the \emph{Bottom} has events at different timestamps to further reduce inefficiencies.
 
@@ -147,15 +150,14 @@ removed only from the end to ensure amortized constant-time operation.
 
 The dequeue operations for a bucket require iterating over each sub-bucket.  However, for a small, fixed value of \textsubscript{tk}, the overhead becomes an ammortized constant.  The constant overhead is determined by the value of \textsubscript{tk}. Consequently, dequeue also retains the amortized constant characteristic from regular \textbf{ladderQ} as summarized in Table~\ref{tab:q-comp}. Currently, we do not subdivide \emph{Bottom} but leave it as a possible future optimization.
 
-\begin{figure}\centering
-\includegraphics[width=\linewidth, height = 6cm]{images/2tlq_t2k_effect}
-\textbf {\caption{Effect of varying \textbf{tk} }}\label{fig:2tk}
-\end{figure}
-
 \subsection{Performance gain of \textbf{2tLadderQ}}
 
 The primary performance gain for \textbf{2tLadderQ} arises from the reduced time complexity for event cancellation. Since each bucket is sub-divided, only $1\div$\textsubscript{tk} fraction of events need to be checked during cancellation. For example, if \textsubscript{t2}\textit{k}=32, only $\frac{1}{32}$ of the pending events are scanned during cancellation. This significantly reduces the time constants in larger simulations enabling rapid rollback recovery.
 
 The value of \textsubscript{t2}\textit{k} is a key parameter that influences the overall constants in \textbf{2tLadderQ}. For sequential simulation, where event cancellations do not occur, we recommend \textsubscript{t2}\textit{k}=1. With this setting the performance of \textbf{2tLadderQ} is very close to that of the regular \textbf{ladderQ}. However, in parallel simulation, the value of \textsubscript{t2}\textit{k} must be greater than 1 to realize benefits of its design. Figure~\ref{fig:2tk} shows the effect of changing the size of \textsubscript{t2}\textit{k} in a parallel simulation with 16 MPI processes. The total rollbacks in the simulations were with 10\% (except for \textsubscript{t2}\textit{k}=512, which for this model experienced fewer rollbacks). Nevertheless, for \textsubscript{t2}\textit{k}=1, the simulation has \emph{much} higher runtime due to event cancellation overheads.  The runtime dramatically decreases as \textsubscript{t2}\textit{k} is increased. The runtime remains comparable for a broad range of values, namely: 64$\le$\textsubscript{t2}\textit{k}\textless512. However, for \textsubscript{t2}\textit{k}$\ge$512, we noticed slow increase in runtime due to overhead of larger sub-buckets. Consequently, we have used a value of \textsubscript{t2}\textit{k}=128 for parallel simulation. We anticipate \textsubscript{t2}\textit{k} value to vary depending on the hardware configuration of the compute cluster used for parallel simulation. 
 
+\begin{figure}\centering
+\includegraphics[width=\linewidth, height = 6cm]{images/2tlq_t2k_effect}
+\textbf {\caption{Effect of varying \textbf{tk} }}\label{fig:2tk}
+\end{figure}
 
