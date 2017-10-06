@@ -29,6 +29,7 @@ bin_PROGRAMS = clockSim
 
 clockSim_LDFLAGS = -L../../kernel
 clockSim_LDADD = $(STDCPP) -lmuse
+clockSim_DEPENDENCIES=../../kernel/libmuse.a
 
 clockSim_SOURCES = \
 	ClockAgent.cpp \

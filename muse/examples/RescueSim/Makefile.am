@@ -29,6 +29,7 @@ bin_PROGRAMS = RescueSim
 
 RescueSim_LDFLAGS = -L../../kernel
 RescueSim_LDADD = $(STDCPP) -lmuse
+RescueSim_DEPENDENCIES=../../kernel/libmuse.a
 
 RescueSim_SOURCES = \
 	agents/include/RescueArea.h\

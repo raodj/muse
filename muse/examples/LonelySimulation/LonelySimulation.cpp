@@ -1,11 +1,13 @@
 /* 
   Author: Meseret Gebre
 
-  This is a Synthetic Simulation done for benchmarking. This is seeing how well
-  MUSE can handle high parallelism. The Lonely Agent simply passes events to itself. 
-  Starting with agent N , creates an event and sends it to agent N. This continues 
-  until end time, hence the name Lonely Agent. We test for scability and efficiency.
- */
+  This is a Synthetic Simulation done for benchmarking. This is seeing
+  how well MUSE can handle high parallelism. The Lonely Agent simply
+  passes events to itself.  Starting with agent N , creates an event
+  and sends it to agent N. This continues until end time, hence the
+  name Lonely Agent. We test for scability and efficiency.
+  
+*/
 
 #include <vector>
 #include <iostream>
@@ -35,20 +37,17 @@ int end_time;
 /*
  */
 int main(int argc, char** argv) {
-    //default values for parameters
-    max_agents    = (argc > 1) ?atoi(argv[1]): 3;   
-    max_nodes     = (argc > 2) ?atoi(argv[2]): 1;   
-    end_time      = (argc > 3) ?atoi(argv[3]): 10;
-    //  arg_parser ap( arg_list );
-    //ap.check_args( argc, argv);
-    
-    
-    //first get simulation kernel instance to work with
-    Simulation * kernel = Simulation::getSimulator();
-    
-    //now lets initialize the kernel
-    kernel->initialize(argc,argv);
+    // first lets initialize the kernel
+    muse::Simulation::initializeSimulation(argc, argv);
 
+    //first get simulation kernel instance to work with
+    muse::Simulation* const kernel = Simulation::getSimulator();
+    
+    //default values for parameters
+    max_agents    = (argc > 1) ? std::stoi(argv[1]) : 3;   
+    max_nodes     = (argc > 2) ? std::stoi(argv[2]) : 1;   
+    end_time      = (argc > 3) ? std::stoi(argv[3]) : 10;
+    
     //variables we need
     int agentsPerNode = max_agents/max_nodes;
     int rank          = kernel->getSimulatorID(); 
@@ -81,7 +80,7 @@ int main(int argc, char** argv) {
     kernel->start();
     
     //now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    muse::Simulation::finalizeSimulation();
     
     return (0);
 }

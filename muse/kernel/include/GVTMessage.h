@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
+#include "Event.h"
 
 BEGIN_NAMESPACE(muse);
 class GVTMessage;
@@ -101,8 +102,14 @@ BEGIN_NAMESPACE(muse);
     completed. </li></a>
     
     </ul>
+
+    \note This class extends muse::Event to streamline operations of
+    managing GVTMessages as events, with all the key values
+    (senderAgentID, receiverAgentID, sentTime, and receiveTime) set to
+    invalid negative values to indicate that the Event is a special
+    one.
 */
-class GVTMessage {
+class GVTMessage : public muse::Event {
     // Let the insertion operator be our friend
     friend std::ostream& ::operator << (std::ostream&, const muse::GVTMessage&);
 public:
@@ -146,9 +153,34 @@ public:
         number of processes in the simulation.  This information is
         used to allocate a vector to carry vector-counter information
         along with the message.
+
+        \param[in] destRank The destination rank of the process/thread
+        to which the message is being sent.  This value is set in the
+        receiverAgentID field.
+        
+        \return A newly created GVT message.
     */
     static GVTMessage* create(const GVTMsgKind kind,
-                              const int numProcesses = 0);
+                              const int numProcesses = 0,
+                              int destRank = -1);
+
+    /** \brief Method to create a clone of a given GVT message.
+
+        This method can be used to create a deep-copy/clone of GVT
+        message. The message is created such that memory is allocated
+        in a serialized form and the message can be readily dispatched
+        to another process.
+
+        \param[in] src The source message to be cloned.
+
+        \param[in] destRank The destination rank of the process/thread
+        to which the message is being sent.  This value is set in the
+        receiverAgentID field.
+        
+        \return A newly created GVT message that is an idential
+        deep-copy or clone of the source message.
+    */
+    static GVTMessage* create(const GVTMessage* src, int destRank);
 
     /** \brief Method to destroy (or delete) a GVT message.
 
@@ -203,6 +235,15 @@ public:
         during the life time of a GVTMessage object.
     */
     inline int getSize() const { return size; }
+
+    /** \brief Get the size of this Event
+        
+        This method is used to determine the correct size of each
+        Event so that it can be properly sent across the wire by MPI.
+
+        \return The size of the event
+    */
+    int getEventSize() const override { return sizeof(Event); }
 
     /** \brief Obtain the Tmin value associated with this event.
 
@@ -275,8 +316,22 @@ public:
 	event are zeros.
     */
     bool areCountersZero(const int numProcesses) const;
+
+    /** Set the destination rank to which this message is intended.
+
+        This information is used in multi-threaded mode to route the
+        message to the appropriate thread on a given MPI process.  See
+        routing at receiving process at
+        MultiThreadedSimulationManager::processMpiMsgs() method.
+
+       \param[in] destRank The destination rank of the process/thread
+       to which the message is being sent.  This value is set in the
+       receiverAgentID.  Typically this value is negative to help
+       identify message.
+    */
+    void setDestRank(int destRank) { receiverAgentID = destRank; }
     
- protected:
+protected:
     /** \brief Constructor.
 
         The constructor has been made protected to ensure that this

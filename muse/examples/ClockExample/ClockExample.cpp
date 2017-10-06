@@ -14,9 +14,11 @@
  */
 int main(int argc, char *argv[]) {
     std::cout << "Clock Example via MUSE API\n\n" << std::endl;
-    //lets get an instance of the simulation kernel
+    // First initialize the simulation.
+    muse::Simulation::initializeSimulation(argc, argv);
+    // next, lets get an instance of the simulation kernel
     Simulation* const kernel = Simulation::getSimulator();
-    kernel->initialize(argc, argv);
+
     
     //Create our clock state
     ClockAgent *cagent = new ClockAgent(0);
@@ -30,7 +32,8 @@ int main(int argc, char *argv[]) {
 
     // finally start the simulation
     kernel->start();
-    kernel->finalize();
+    // Lastly, finalize the simulation.
+    muse::Simulation::finalizeSimulation();
     
     return 0;
 }

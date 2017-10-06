@@ -29,6 +29,7 @@ bin_PROGRAMS = lonelyTest
 
 lonelyTest_LDFLAGS = -L../../kernel
 lonelyTest_LDADD = $(STDCPP) -lmuse
+lonelyTest_DEPENDENCIES=../../kernel/libmuse.a
 
 lonelyTest_SOURCES = \
 	LonelySimulation.cpp\

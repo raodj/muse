@@ -254,6 +254,11 @@ void
 AgentPQ::removeAgent(Agent* agent) {
     const Time oldTopTime = agent->oldTopTime;
     agent->schedRef.eventPQ->clear();
+    // Delete custom 2nd tier binary heap wrapper
+    delete agent->schedRef.eventPQ;
+    // Replace with reference to default/empty one to ease updating
+    // position of agent in the heap.
+    agent->schedRef.eventPQ = &EmptyBHW;
     pointer ptr = reinterpret_cast<pointer>(agent->fibHeapPtr);
     ASSERT( ptr != NULL );
     update(ptr, oldTopTime);
@@ -277,7 +282,8 @@ AgentPQ::getNextEvents(Agent* agent, EventContainer& container) {
     ASSERT(agent->schedRef.eventPQ->top() != NULL);
     ASSERT(container.empty());
     BinaryHeapWrapper* const eventPQ = agent->schedRef.eventPQ;
-    const muse::Time agentLVT = agent->getTime(Agent::LVT);
+    // The following line is compiled only when assertions are enabled.
+    WHEN_ASSERT(const muse::Time agentLVT = agent->getTime(Agent::LVT));
     // Extract next batch of events with same receive time to be processed.
     const Time currTime = eventPQ->top()->getReceiveTime();  
     do {

@@ -152,7 +152,7 @@ PHOLDAgent::initialize() throw (std::exception){
         Time  receive(getTime() + 1 + RndDelay);
         ASSERT( receive > getTime() );
         if ( receive < Simulation::getSimulator()->getStopTime() ){
-            Event * e = Event::create(getAgentID(),receive); 
+            Event * e = Event::create<Event>(getAgentID(), receive); 
             scheduleEvent(e);
         }
     }
@@ -229,7 +229,7 @@ PHOLDAgent::executeTask(const EventContainer* events) {
                 receiverAgentID = (receiverAgentID + i) % (X * Y);
             }
             if ((selfEvents >= 0) && (selfEvents < 1) &&
-                (((rand_r(&seed) % 1000) / 1000.0) > selfEvents)) {
+                (((rand_r(&seed) % 1000) / 1000.0) >= selfEvents)) {
                 if (receiverRange <= 0) {
                     // Default operation -- randomly choose 1 of 4
                     // neighboring agents.

@@ -84,7 +84,9 @@ class Event {
     friend class ThreeTierHeapEventQueue;
     friend class TwoTierHeapAdapter;
     friend class TwoTierHeapOfVectorsEventQueue;
+    // friend class BinomialHeapEventQueue;
     friend class AgentPQ;
+    friend class MultiThreadedSimulation;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.
@@ -131,8 +133,165 @@ public:
         \return True if this event is an anti-message.
     */
     inline bool isAntiMessage() const { return antiMessage; }
+    
+    /** \brief A templatized convenience method for creating an event
+        derived from  muse::Event base class.
+        
+        This is a convenience method that can be used to create an event
+        object with a given set of arguments passed to the constructor.
+        This method can be used in the following manner:
+        
+        \code
+        
+        // ... some code ...
+        muse::Event* event = muse::create<Event>(receiverID, recvTime);
+        // ... more code ...
+        scheduleEvent(event);
+        
+        \endcode
+        
+        @tparam T the type of derived event class to be created.
+        
+        @Args A variadic list of zero or more arguments to be passed to
+        the constructor of the event.  Note that the event must implement
+        the constructor in the order in which arguments are supplied.
+    */
+    template<typename T, typename... Args> 
+    static T* create( Args&&... args ) {
+        T* event = reinterpret_cast<T*>(allocate(sizeof(T)));
+        new (event) T(std::forward<Args>(args)...);
+        return event;
+    }
 
-protected:
+    /** \brief A templatized convenience method for creating an event
+        with a given size.
+        
+        This is a convenience method that can be used to create an
+        event object of given size with a given set of arguments
+        passed to the constructor.  This method can be used in the
+        following manner:
+        
+        \code
+        
+        // ... some code ...
+        muse::Event* const event =
+           muse::create<Event, 0>(bytes, receiverID, recvTime);
+        // ... more code ...
+        scheduleEvent(event);
+        
+        \endcode
+        
+        @tparam T the type of derived event class to be created.
+
+        @tparam dummy A dummy parameter that is ignored but must be
+        specified (typically as literal constant 0).  It is merely
+        used to distinguish the different overload of the static
+        create method in this class.
+        
+        @Args A variadic list of zero or more arguments to be passed to
+        the constructor of the event.  Note that the event must implement
+        the constructor in the order in which arguments are supplied.
+    */
+    template<typename T, size_t dummy = 0, typename... Args> 
+    static T* create(size_t size, Args&&... args) {
+        T* event = reinterpret_cast<T*>(allocate(size));
+        new (event) T(std::forward<Args>(args)...);
+        return event;
+    }
+
+    /** \brief A templatized convenience method for creating
+        clone/deep-copy of this event.
+        
+        This is a convenience method that can be used to create a
+        clone/copy of this event.  This method internall uses the
+        copy-constructor to create a copy.  Consequently, the derived
+        event class must provide a suitable public copy-constructor.
+        
+        \code
+        
+        // ... some code ...
+        muse::Event* event;
+        muse::Event* copy = event->create<muse::Event>();
+        // ... more code ...
+        scheduleEvent(event);
+        
+        \endcode
+        
+        @tparam T the type of derived event class to be created.  This
+        class must provide a public copy constructor of the following
+        form for this method to use:
+
+        \code
+
+        T::T(const T& src) : muse::Event(src.getReceiverAgentID(),
+                                         src.getReceiveTime()) {
+            // Implement code to copy each and every instance member...
+        }
+
+        \endcode
+
+        @param[in] src The source event object that must be cloned.
+        We accept a reference to ensure that the source is not
+        nullptr.  The size of the source object is used to determine
+        the amount of memory to be allocated.
+    */
+    template<typename T> 
+    T* create() const {
+        T* event = reinterpret_cast<T*>(allocate(this->getEventSize()));
+        new (event) T(dynamic_cast<const T&>(*this));
+        return event;
+    }
+
+    /** Convenience method to allocate flat memory for a given event.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events.  This method allows memory
+        recycling for events to be enabled/disabled using compile-time
+        macro RECYCLE_EVENTS.
+
+        <p>If recycling of events is disabled, this method always
+        creates a flat array of characters using new[] operator and
+        returns it.</p>
+
+        <p>On the other hand, if recycling of events is enabled (via
+        compiler flag RECYCLE_EVENTS), then this method operates as
+        follows.  First it checks to see if EventRecycler has an entry
+        of the specified size.  If so it returns it.  Otherwise it
+        creates a new flat array of characters (using new[] operator)
+        and returns it.</p>
+
+        \param[in] size The size of the flat buffer to be allocated
+        for storing event information.
+
+        \return A pointer to a valid/flat buffer. This method always
+        returns a valid event pointer.
+    */
+    static char* allocate(const int size);
+
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events.  This method allows memory
+        recycling for events to be enabled/disabled using compile-time
+        macro RECYCLE_EVENTS.
+
+        <p>If recycling of events is disabled, this method simply
+        deletes the buffer using delete[] operator.</p>
+
+        <p>On the other hand, if recycling of events is enabled (via
+        compiler flag RECYCLE_EVENTS), then this method adds the
+        buffer to the appropriate entry in the EventRecycler map in
+        this class.</p>
+        
+        \param[in] buffer The event buffer previously obtained via
+        call to the allocate method in this class.
+
+        \param[in] size The size of the buffer (in bytes).  The size
+        is used to recycle the buffer in future calls to allocate.
+     */
+    static void deallocate(char* buffer, const int size);
+    
     /** \brief Type-setting constructor
         
         The constructor is protected to ensure that the user always
@@ -149,7 +308,8 @@ protected:
         \see Time
     */
     explicit Event(const AgentID  receiverID, const Time  receiveTime);
-    
+
+protected:    
     /** \brief Get the color of the Event
         
         This method must be used to determine the color value
@@ -289,62 +449,15 @@ protected:
     */
     char color;
 
-    /** Convenience method to allocate flat memory for a given event.
-
-        This method is a convenience method to streamline memory
-        recycling operations for events.  This method allows memory
-        recycling for events to be enabled/disabled using compile-time
-        macro RECYCLE_EVENTS.
-
-        <p>If recycling of events is disabled, this method always
-        creates a flat array of characters using new[] operator and
-        returns it.</p>
-
-        <p>On the other hand, if recycling of events is enabled (via
-        compiler flag RECYCLE_EVENTS), then this method operates as
-        follows.  First it checks to see if EventRecycler has an entry
-        of the specified size.  If so it returns it.  Otherwise it
-        creates a new flat array of characters (using new[] operator)
-        and returns it.</p>
-
-        \param[in] size The size of the flat buffer to be allocated
-        for storing event information.
-
-        \return A pointer to a valid/flat buffer. This method always
-        returns a valid event pointer.
-    */
-    static char* allocate(const int size);
-
-    /** This method is the dual/converse of allocate to recycle events
-        if recycling is enabled.
-
-        This method is a convenience method to streamline memory
-        recycling operations for events.  This method allows memory
-        recycling for events to be enabled/disabled using compile-time
-        macro RECYCLE_EVENTS.
-
-        <p>If recycling of events is disabled, this method simply
-        deletes the buffer using delete[] operator.</p>
-
-        <p>On the other hand, if recycling of events is enabled (via
-        compiler flag RECYCLE_EVENTS), then this method adds the
-        buffer to the appropriate entry in the EventRecycler map in
-        this class.</p>
-        
-        \param[in] buffer The event buffer previously obtained via
-        call to the allocate method in this class.
-
-        \param[in] size The size of the buffer (in bytes).  The size
-        is used to recycle the buffer in future calls to allocate.
-     */
-    static void deallocate(char* buffer, const int size);
     
 private:
     /** An unordered map of stacks to recycle events of different
         sizes.
 
         This map is used only if RECYCLE_EVENTS macro has been enabled
-        at compile time.
+        at compile time.  It has thread local storage so that each
+        thread (in case multi-threaded mode is used) get's its own
+        recycler thereby eliminating contention/locking.
         
         The key into this unordered map is the size of the event being
         recycled.  For each size a stack is maintained to return the
@@ -354,7 +467,7 @@ private:
         this class.  Typically the Event::create method is the one
         that is used by applications to create an event.
     */
-    static std::unordered_map<int, std::stack<char*>> EventRecycler;
+    thread_local static std::unordered_map<int, std::stack<char*>> EventRecycler;
 
     /** Helper method to clear out all events in the recycler.
 

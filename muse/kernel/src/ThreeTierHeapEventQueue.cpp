@@ -27,10 +27,6 @@
 
 BEGIN_NAMESPACE(muse)
 
-// A convenience shortcut used just in this source file
-using Tier2List = std::deque<HOETier2Entry*>;
-// using Tier2List = std::vector<Tier2Entry>;
-
 ThreeTierHeapEventQueue::ThreeTierHeapEventQueue() :
     EventQueue("HeapOfVectorsEventQueue") {
     // Nothing else to be done.
@@ -54,7 +50,6 @@ ThreeTierHeapEventQueue::addAgent(muse::Agent* agent) {
 void
 ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT( agent != NULL );
-    ASSERT(!empty());
     // Decrease reference count for all events in the agent event queue
     // before agent removal.
     ASSERT( agent->tier2 != NULL );
@@ -69,6 +64,12 @@ ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     }
     // Clear out tier2 queue (so this agent's time becomes PINFINITY)
     agent->tier2->clear();
+    // Delete custom 2nd tier binary heap wrapper
+    delete agent->tier2;
+    // Replace with reference to default/empty one to ease updating
+    // position of agent in the heap.
+    agent->tier2 = &EmptyT2List;
+
     // Update the heap to place agent with LTSF
     updateHeap(agent);
 }
@@ -100,13 +101,14 @@ ThreeTierHeapEventQueue::getNextEvents(Agent* agent,
     ASSERT(agent->tier2 != NULL);
     Tier2List& tier2 = *agent->tier2;
     ASSERT(tier2.front()->getEvent() != NULL);
-    // All events in tier2 front should have same receive times
-    const muse::Time eventTime = tier2.front()->getReceiveTime();
     // Copy all the events out of the tier2 front into the return contianer
     // container = std::move(agent->tier2->front().getEventList());
     std::vector<muse::Event*>& evtList = tier2.front()->getEventList();
     container.assign(evtList.begin(), evtList.end());
     DEBUG({
+            // All events in tier2 front should have same receive times
+            WHEN_ASSERT(const muse::Time eventTime =
+                        tier2.front()->getReceiveTime());
             // Do validation checks on the events in tier2
             for (const Event* event : container) {
                 //  All events must have the same receive time

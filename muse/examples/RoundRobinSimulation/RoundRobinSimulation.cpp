@@ -66,8 +66,6 @@ RoundRobinSimulation::processArgs(int argc, char** argv) {
     ArgParser::ArgRecord arg_list[] = {
         { "--agents", "Number of agents in simulation", &max_agents,
 	  ArgParser::INTEGER },
-        { "--nodes", "The  numbers of compute nodes used for simulation.",
-            &max_nodes, ArgParser::INTEGER },
         { "--endTime", "The end time for the simulation.", &end_time,
 	  ArgParser::INTEGER },
         {"", "", NULL, ArgParser::INVALID}
@@ -80,14 +78,15 @@ RoundRobinSimulation::processArgs(int argc, char** argv) {
 
     // Let the kernel initialize using any additional command-line
     // arguments.
-    muse::Simulation* const kernel = muse::Simulation::getSimulator();
-    kernel->initialize(argc, argv);
+    muse::Simulation::initializeSimulation(argc, argv);
 }
 
 void
 RoundRobinSimulation::createAgents() {
     // First compute the number of agents to be created on this node.
     muse::Simulation* const kernel = muse::Simulation::getSimulator();
+    max_nodes = kernel->getNumberOfProcesses();
+    ASSERT( max_nodes > 0 );
     const int rank    = kernel->getSimulatorID();
     int agentsPerNode = max_agents / max_nodes;
     if (rank == (max_nodes - 1)) {
@@ -113,7 +112,7 @@ RoundRobinSimulation::simulate() {
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    muse::Simulation::finalizeSimulation();
 }
 
 void

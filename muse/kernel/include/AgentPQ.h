@@ -255,6 +255,7 @@ public:
 
     virtual void prettyPrint(std::ostream& os) const {
         for (size_t i = 0; (i < m_roots.size()); i++) {
+            std::cout << "m_roots[" << i << "]: " << m_roots[i] << " --- ";
             if (m_roots[i] != 0) {
                 m_roots[i]->ppHelper(os, "-");
             }
@@ -303,6 +304,16 @@ private:
 
     AgentPQ(AgentPQ const&); // deliberately not implemented
     void operator=(AgentPQ const&); // deliberately not implemented
+
+    /** Default, empty binary heap wrapper to handle removal of agents.
+
+        This is a default/empty binary heap wrapper object that is
+        used to streamline removal of agents.  As agents are removed
+        in the removeAgent method, their 2nd tier queue is substituted
+        with this default/empty list.  This enables updating position
+        of agents within this heap without causing memory issues.
+    */
+    BinaryHeapWrapper EmptyBHW;
 };
 
 

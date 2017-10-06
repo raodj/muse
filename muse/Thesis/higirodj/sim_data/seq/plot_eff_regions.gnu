@@ -3,7 +3,7 @@
 # to be the most efficient.
 
 # Set properties for the chart.
-set terminal pdfcairo enhanced color size 3in,1.5in font ", 10"
+set terminal pdfcairo enhanced color size 3in,3in font ", 12"
 set output "eff_regions.pdf"
 unset key
 
@@ -39,16 +39,16 @@ set obj rect from maxX-20000, 1 to maxX, 2  fs empty border rgb heapClr
 
 # Place some labels for key
 set label "3tHeap:" at graph 0.05, 0.95
-set obj rect at graph 0.26, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb _3tHeapClr
-set obj rect at graph 0.26, 0.95 size graph 0.075, 0.075 fs empty border rgb _3tHeapClr
+set obj rect at graph 0.29, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb _3tHeapClr
+set obj rect at graph 0.29, 0.95 size graph 0.075, 0.075 fs empty border rgb _3tHeapClr
 
 set label "heap:" at graph 0.67, 0.95
-set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb heapClr
-set obj rect at graph 0.85, 0.95 size graph 0.075, 0.075 fs empty border rgb heapClr
+set obj rect at graph 0.88, 0.95 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb heapClr
+set obj rect at graph 0.88, 0.95 size graph 0.075, 0.075 fs empty border rgb heapClr
 
 set label "2tLadderQ:" at graph 0.56, 0.85
-set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb ladderClr
-set obj rect at graph 0.85, 0.85 size graph 0.075, 0.075 fs empty border rgb ladderClr
+set obj rect at graph 0.88, 0.85 size graph 0.075, 0.075 fs transparent solid 0.6 noborder fc rgb ladderClr
+set obj rect at graph 0.88, 0.85 size graph 0.075, 0.075 fs empty border rgb ladderClr
 
 # set some labels to make the chart more readable.
 labX = 20000

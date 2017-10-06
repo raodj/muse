@@ -307,6 +307,14 @@ private:
         set via --time-window command-line argument.
     */
     muse::Time timeWindow;
+
+    /** An internal temporary container of events used to pass events
+        (all at the same receive time) to an agent.
+
+        This list is created once and reused to reduce
+        allocation/deallocation events.
+    */
+    muse::EventContainer agentEvents;
 };
 
 END_NAMESPACE(muse);

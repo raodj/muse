@@ -53,10 +53,10 @@ int main(int argc, char** argv) {
     ArgParser ap(arg_list, HelpInfo);
     ap.parseArguments(argc, argv, true);
 
-    //first get simulation kernel instance to work with
+    // first lets initialize the kernel
+    muse::Simulation::initializeSimulation(argc, argv);
+    // next get simulation kernel instance to work with
     muse::Simulation* const kernel = muse::Simulation::getSimulator();
-    //now lets initialize the kernel
-    kernel->initialize(argc,argv);
     
     int agentsPerNode = max_agents / max_nodes;
     const int rank    = kernel->getSimulatorID(); 
@@ -85,7 +85,7 @@ int main(int argc, char** argv) {
     kernel->start();
 
     // now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    muse::Simulation::finalizeSimulation();
 
     // All done.
     return 0;

@@ -24,12 +24,11 @@
 //---------------------------------------------------------------------------
 
 #include "Event.h"
-#include "Simulation.h"
 
 using namespace muse;
 
 // The static map used for recycling events
-std::unordered_map<int, std::stack<char*>> Event::EventRecycler;
+thread_local std::unordered_map<int, std::stack<char*>> Event::EventRecycler;
 
 Event::Event(const AgentID  receiverID, const Time  receiveTime):
     senderAgentID(-1u), receiverAgentID(receiverID), sentTime(TIME_INFINITY), 
@@ -47,6 +46,7 @@ Event::decreaseReference() {
     ASSERT(getReferenceCount() > 0);
     // Decrement the reference count.
     referenceCount--;
+    ASSERT(getReferenceCount() >= 0); 
     if (referenceCount == 0) {
         // Manually call event destructor
         this->~Event();
@@ -76,8 +76,8 @@ Event::setColor(const char col) {
     color = col;
 }
 
-ostream&
-operator<<(ostream& os, const muse::Event& event) {
+std::ostream&
+operator<<(std::ostream& os, const muse::Event& event) {
     os << "Event[Sender=" << event.getSenderAgentID()   << ","
        << "receiver="     << event.getReceiverAgentID() << ","
        << "sentTime="     << event.getSentTime()        << ","

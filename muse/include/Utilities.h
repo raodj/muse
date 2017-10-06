@@ -42,10 +42,12 @@
 #ifdef DEVELOPER_ASSERTIONS
 #include <assert.h>
 
+#define WHEN_ASSERT(x) x
 #define ASSERT(x) assert(x)
 
 #else // !DEVELOPER_ASSERTIONS
 
+#define WHEN_ASSERT(x)
 #define ASSERT(x)
 
 #endif

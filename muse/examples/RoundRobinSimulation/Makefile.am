@@ -29,6 +29,7 @@ bin_PROGRAMS = roundRobinSim
 
 roundRobinSim_LDFLAGS = -L../../kernel
 roundRobinSim_LDADD = $(STDCPP) -lmuse
+roundRobinSim_DEPENDENCIES=../../kernel/libmuse.a
 
 roundRobinSim_SOURCES = \
 	RoundRobinSimulation.h \

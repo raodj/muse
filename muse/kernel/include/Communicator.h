@@ -55,7 +55,7 @@ public:
 
         Do nothing, since no memory is allocated.
     */
-    ~Communicator();
+    virtual ~Communicator();
 
     /** \brief Send the specified Event to the appropriate remote
         process
@@ -71,7 +71,7 @@ public:
         
 	\see Event
     */
-    void sendEvent(Event* e, const int eventSize);
+    virtual void sendEvent(Event* e, const int eventSize);
 
     /** \brief Send out a GVT message.
 
@@ -85,7 +85,7 @@ public:
         \param[in] destRank The rank of the destination process to
         which the event is to be dispatched.
     */
-    void sendMessage(const GVTMessage *msg, const int destRank);
+    virtual void sendMessage(const GVTMessage *msg, const int destRank);
 
     /** \brief Send out a string as a message with a given tag.
 
@@ -103,8 +103,8 @@ public:
         tagged for dispatch.  This is a convenience feature that can
         be used to send different types of messages.
     */
-    void sendMessage(const std::string& str, const int destRank,
-                     int tag = STRING_MESSAGE);
+    virtual void sendMessage(const std::string& str, const int destRank,
+                             int tag = STRING_MESSAGE);
     
     /** \brief Retrieve a string from a message.
 
@@ -139,9 +139,10 @@ public:
         returns it and sets srcRank.  Otherwise srcRank is set to -1
         and this method returns an empty string.
     */
-    std::string receiveMessage(int& recvRank,
-                               const int srcRank = MPI_ANY_SOURCE,
-                               int tag = STRING_MESSAGE, bool blocking = true);
+    virtual std::string receiveMessage(int& recvRank,
+                                       const int srcRank = MPI_ANY_SOURCE,
+                                       int tag = STRING_MESSAGE,
+                                       bool blocking = true);
     
     /** The recvEvent method.
 	
@@ -153,7 +154,7 @@ public:
 
         \see Event
     */
-    Event* receiveEvent();
+    virtual Event* receiveEvent();
 
     /** \brief Sync all communicators and get the agentMap populated.
 
@@ -170,7 +171,7 @@ public:
 
 	\see SimulatorID
     */
-    SimulatorID initialize(int argc, char* argv[], bool );
+    virtual SimulatorID initialize(int argc, char* argv[], bool );
 
     /** \brief Synchronize AgentMapping between Kernel and
         Communicator
@@ -179,15 +180,38 @@ public:
 	Before you can send any events across the wire (MPI), use this to
 	get your agents and other kernel's agents mapped correctly.
      
-	\note initialize() must be called before this method
-     
+        \note This method essentially creates a list of local agents
+        and calls the overloaded version of this method.
+
+	\note Simulation::initializeSimulation() must be called before
+	this method
+        
 	\param[in,out] allAgents The list of agents the kernel contains
 
         \see AgentContainer
     */
-    void registerAgents(AgentContainer& allAgents);
+    virtual void registerAgents(AgentContainer& allAgents);
 
-    /** \brief Check if the given agent is registered locally.
+    /** \brief Synchronize AgentMapping between Kernel and
+        Communicator
+        
+	This is used to sync the AgentMapping in the Communicator class.
+	Before you can send any events across the wire (MPI), use this to
+	get your agents and other kernel's agents mapped correctly.
+     
+	\note Simulation::initializeSimulation() must be called before
+	this method
+     
+	\param[in,out] allAgents The list of agent IDs that this local
+	kernel contains.  Events for any of these agents will be
+	routed to this class.
+
+        \see AgentContainer
+    */
+    virtual void registerAgents(const std::vector<AgentID>& allAgents);
+    
+    /** \brief Check if the given agent is registered locally on the
+	same MPI process.
 	
 	\param[in] id The agent id is used to check
 
@@ -195,7 +219,25 @@ public:
         
 	\see AgentID
     */
-    bool isAgentLocal(const AgentID id);
+    virtual bool isAgentLocal(const AgentID id) const {
+        return (getOwnerRank(id) == (int) myMPIrank);
+    }
+
+    /** \brief Check if a pair of agents are local to a given
+	process/thread.
+	
+	\param[in] id1 The agent id to be used for checks.
+
+        \param[in] id2 The agent id to be used for checks.
+
+        \return True if the two agents are registered on the same
+        process/thread.  Otherwise this method returns false.
+        
+	\see AgentID
+    */
+    virtual bool isAgentLocal(const AgentID id1, const AgentID id2) const {
+        return (getOwnerThreadRank(id1) == getOwnerThreadRank(id2));
+    }
 
     /** \brief Obtain the rank of the process on which a given
         agent resides.
@@ -214,8 +256,38 @@ public:
         returns the rank of the process on which the given agent
         resides.  Otherwise this method returns -1.
     */
-    unsigned int getOwnerRank(const AgentID& id) const;
+    virtual int getOwnerRank(const AgentID& id) const {
+        // Find iterator for given agent id
+        AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);
+        // If id is valid then iterator is valid.
+        return (entry != agentMap.end()) ? entry->second : -1;
+    }
+    
+    /** \brief Obtain the thread-based rank of the process on which a
+        given agent resides.
 
+        This method can be used to determine the thread-based rank,
+        that is: <i>getOwnerRank(id) * getThreadID(id)</i> of the
+        remote process on which a given agent resides.  This is used
+        by GVT manager to forward tokens between threads.  The default
+        base class implementation merely returns the same value as
+        getOwnerRank().
+
+        \note The values returned by this method make sense only after
+        the communicator has been initialized and information
+        regarding all the agents has been exchanged.
+
+        \param id The ID of the agent for which the corresponding
+        thread-based rank is desired.
+
+        \return If the id (parameter) is valid then this method
+        returns the rank of the process on which the given agent
+        resides.  Otherwise this method returns a negative value.
+    */
+    virtual int getOwnerThreadRank(const AgentID& id) const {
+        return getOwnerRank(id);
+    }
+    
     /** \brief Obtain process configuration information.
 
         This method may be used to obtain some of the
@@ -235,8 +307,14 @@ public:
 
         \param[out] numProcesses The total number of processes
         constituting the simulation.
+
+        \param[out] totNumThreads The number of threads, that is --
+        <i>processes * threadsPerProcess</i> in the parallel,
+        distributed simulation.  The default base class always returns
+        the totNumThreads to be the same as numProcesses.
     */
-    void getProcessInfo(unsigned int& rank, unsigned int& numProcesses);
+    virtual void getProcessInfo(unsigned int& rank, unsigned int& numProcesses,
+                                unsigned int& totNumThreads);
 
     /** \brief Set a reference to the GVT manager.
 
@@ -259,9 +337,9 @@ public:
         finalized permitting another simulation run using current
         setup.
     */
-    void finalize(bool stopMPI = true);
+    virtual void finalize(bool stopMPI = true);
 
-private:
+protected:
     /** \brief The locations of all agents in the simulation.
         
 	When simulation starts, all simulation kernels, will perform a

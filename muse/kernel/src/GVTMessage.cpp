@@ -29,7 +29,8 @@
 using namespace muse;
 
 GVTMessage*
-GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
+GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses,
+                   int destRank) {
     // A static variable to generate sequence numbers
     static unsigned int GlobalSequenceCounter = 0;
     
@@ -42,7 +43,24 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses) {
     // Now use the flat memory to instantiate an object.
     GVTMessage* msg = new (memory) GVTMessage(msgKind, msgSize);
     // Setup the sequence number for this newly created message
-    msg->sequenceNumber = GlobalSequenceCounter++;
+    msg->receiverAgentID = destRank;
+    msg->sequenceNumber  = GlobalSequenceCounter++;
+    // Now we have a message object to return/work-with
+    return msg;
+}
+
+GVTMessage*
+GVTMessage::create(const GVTMessage* src, int destRank) {
+    const int msgSize = src->getSize();
+    // Allocate flat memory for the message.
+    char* memory = new char[msgSize];
+    // Now use the flat memory to instantiate an object.
+    GVTMessage* msg = new (memory) GVTMessage(src->kind, msgSize);
+    // Copy all the information
+    std::memcpy(msg, src, msgSize);
+    // Setup the receiver thread/process so that receiving process can
+    // route GVT messages appropriately.
+    msg->receiverAgentID = destRank;
     // Now we have a message object to return/work-with
     return msg;
 }
@@ -79,9 +97,12 @@ GVTMessage::areCountersZero(const int numProcesses) const {
 }
 
 GVTMessage::GVTMessage(const GVTMsgKind msgKind, const int msgSize)
-    : kind(msgKind), size(msgSize) {
+    : Event(-1, -1), kind(msgKind), size(msgSize) {
     // Initialize other members to invalid values.
     gvtEstimate = tMin = TIME_INFINITY;
+    // Set variables in muse::Event base class to invalid values
+    senderAgentID = -1;
+    sentTime      = -1;
 }
 
 GVTMessage::~GVTMessage() {
