@@ -76,8 +76,6 @@ BugLifeSimulation::processArgs(int& argc, char *argv[]) {
 	  &rows, ArgParser::INTEGER },
 	{ "--bugs", "The number of bugs you want in the simulation.",
 	  &bugs, ArgParser::INTEGER },
-	{ "--nodes", "The max numbers of nodes used for this simulation.",
-	  &max_nodes, ArgParser::INTEGER },
 	{ "--end", "The end time for the simulation.", &end_time,
 	  ArgParser::INTEGER },
 	{"", "", NULL, ArgParser::INVALID}	 
@@ -90,8 +88,7 @@ BugLifeSimulation::processArgs(int& argc, char *argv[]) {
 
     // Let the kernel initialize using any additional command-line
     // arguments.
-    Simulation* const kernel = Simulation::getSimulator();
-    kernel->initialize(argc, argv);
+    muse::Simulation::initializeSimulation(argc, argv);
 }
 
 void
@@ -109,7 +106,10 @@ BugLifeSimulation::createMap() {
 void
 BugLifeSimulation::createSpaces() {
     // Convenient local reference to simulation kernel
-    Simulation* const kernel = Simulation::getSimulator();    
+    Simulation* const kernel = Simulation::getSimulator();
+    ASSERT( kernel != NULL );
+    max_nodes = kernel->getNumberOfProcesses();
+    ASSERT( max_nodes > 0 );
     const int max_space_agents = cols * rows;
     // Figure out number of agents per node.
     int space_agents_on_node = max_space_agents / max_nodes;
@@ -158,7 +158,7 @@ BugLifeSimulation::simulate() {
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    muse::Simulation::finalizeSimulation();
 }
 
 void

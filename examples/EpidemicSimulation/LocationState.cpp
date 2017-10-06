@@ -8,7 +8,7 @@ LocationState::getClone(){
     //Keep in mind this shallow copy works because there are no complex
     //pointers that I need to take care of. Just primitive data types.
     LocationState* clone = new LocationState();
-    clone->setIndex(this->getIndex());
+    clone->index = this->index;
     clone->timestamp = this->timestamp;
     
     return clone;

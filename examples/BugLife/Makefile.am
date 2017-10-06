@@ -29,6 +29,7 @@ bin_PROGRAMS = bugsim
 
 bugsim_LDFLAGS = -L../../kernel
 bugsim_LDADD = $(STDCPP) -lmuse
+bugsim_DEPENDENCIES=../../kernel/libmuse.a
 
 bugsim_SOURCES = \
 	src/Bug.cpp\

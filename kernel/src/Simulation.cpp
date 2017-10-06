@@ -33,25 +33,77 @@
 #include <cstdlib>
 #include <csignal>
 
+// The different types of simulators currently supported
+#include "DefaultSimulation.h"
+#include "mpi-mt/MultiThreadedSimulationManager.h"
+
 using namespace muse;
+
+// Define reference to the singleton simulator/kernel
+muse::Simulation* muse::Simulation::kernel = NULL;
 
 Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
                            gvtDelayRate(10), numberOfProcesses(-1u) {
-    commManager   = NULL;
-    scheduler     = NULL;
-    myID          = -1u;
-    listener      = NULL;
-    doDumpStats   = false;
-    mustSaveState = false;
+    commManager     = NULL;
+    scheduler       = NULL;
+    myID            = -1u;
+    listener        = NULL;
+    doDumpStats     = false;
+    mustSaveState   = false;
+    maxMpiMsgThresh = 100;
+}
+
+Simulation*
+Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
+    throw (std::exception) {
+    // First use a temporary argument parser to determine type of
+    // simulation kernel to instantiate.
+    std::string simName = "default";
+    ArgParser::ArgRecord arg_list[] = {
+        { "--simulator", "The type of simulator/kernel to use; one of: " \
+          "default, mpi-mt, mpi-mt-shm", 
+          &simName, ArgParser::STRING },
+        {"", "", NULL, ArgParser::INVALID}
+    };
+    // Use the MUSE argument parser to parse command-line arguments
+    // and update instance variables
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv, false);
+    // Instantiate the actual simulation object based on simName.
+    if (simName == "default") {
+        kernel = new DefaultSimulation();
+    } else if (simName == "mpi-mt") {
+        kernel = new MultiThreadedSimulationManager();
+    } else {
+        // Invalid simulator name.
+        throw std::runtime_error("Invalid value for --simulator argument" \
+                                 "(muse be: default, mpi-mt, or mpi-mt-shm)");
+    }
+    // Now let the instantiated/derived kernel initialize further.
+    ASSERT (kernel != NULL);
+    kernel->initialize(argc, argv, initMPI);  // can throw exception!
+    // When control drops here, things went fine thus far
+    return kernel;
+}
+
+void
+Simulation::finalizeSimulation(bool stopMPI, bool delSim) {
+    // First let the derived class finalize
+    ASSERT( kernel != NULL );
+    kernel->finalize(stopMPI);
+    // If the simulator is to be deleted, do that now.
+    if (delSim) {
+        delete kernel;  // get rid of singleton instance.
+        kernel = NULL;
+    }
 }
 
 void
 Simulation::initialize(int& argc, char* argv[], bool initMPI)
     throw (std::exception) {
-    commManager = new Communicator();
-    myID = commManager->initialize(argc, argv, initMPI);
-    commManager->getProcessInfo(myID, numberOfProcesses);
-    
+    UNUSED_PARAM(argc);   // Suppress compiler warnings about these 3
+    UNUSED_PARAM(argv);   // unused parameters
+    UNUSED_PARAM(initMPI);
     // If debugging is enabled, hijack cout and redirect it to a
     // LogID.txt file
     DEBUG({
@@ -69,9 +121,6 @@ Simulation::initialize(int& argc, char* argv[], bool initMPI)
     dumpStatAction.sa_flags = 0;
     sigaction(SIGUSR1, &dumpStatAction, NULL);
     sigaction(SIGUSR2, &dumpStatAction, NULL);
-    // Consume any specific command-line arguments used to setup and
-    // configure other components like the scheduler and GVT manager.
-    parseCommandLineArgs(argc, argv);
 }
 
 void
@@ -84,7 +133,9 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         { "--gvt-delay", "Number of event cyles after  which to start "
           "GVT measurement", &gvtDelayRate, ArgParser::INTEGER},
         { "--save-state", "Force state saving (used only with 1 process)",
-          &saveState, ArgParser::BOOLEAN},        
+          &saveState, ArgParser::BOOLEAN},
+        { "--max-mpi-msg-thresh", "Maximum consecutive MPI msgs to process",
+          &maxMpiMsgThresh, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -97,7 +148,8 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Initialize the scheduler.
     scheduler->initialize(myID, numberOfProcesses, argc, argv);
     // Setup flag to enable/disable state saving in agents
-    mustSaveState = (saveState || (numberOfProcesses > 1));
+    mustSaveState = (saveState || (numberOfProcesses > 1) ||
+                     (getNumberOfThreads() > 1));
 }
 
 
@@ -107,19 +159,15 @@ Simulation::~Simulation() {
 }
 
 bool
-Simulation::registerAgent(muse::Agent* agent)  { 
+Simulation::registerAgent(muse::Agent* agent, const int threadRank)  {
+    UNUSED_PARAM(threadRank);
     if (scheduler->addAgentToScheduler(agent)) {
         allAgents.push_back(agent);
         agent->mustSaveState = this->mustSaveState;
+        agent->setKernel(this);
         return true;
     }
     return false;
-}
-
-Simulation*
-Simulation::getSimulator() {
-    static Simulation kernel;
-    return &kernel;
 }
 
 bool 
@@ -146,35 +194,105 @@ Simulation::scheduleEvent(Event* e) {
     return true;
 }
 
-void 
-Simulation::start() {
-    //if no agents registered we need to leave start and end sim
-    if (allAgents.empty()) return;
-    //first we setup the AgentMap for all kernels
-    commManager->registerAgents(allAgents);
+void
+Simulation::preStartInit() {
+    ASSERT( commManager != NULL );
     // Create and initialize our GVT manager.
-    gvtManager = new GVTManager();
+    gvtManager = new GVTManager(this);
     gvtManager->initialize(startTime, commManager);
     // Set gvt manager with the communicator.
     commManager->setGVTManager(gvtManager);
     // Inform scheduler(s) that simulation is starting.
     scheduler->start(startTime);
-    //information about the simulation environment
-    unsigned int rank = -1u;
-    commManager->getProcessInfo(rank, numberOfProcesses);
-    
+}
+
+void
+Simulation::initAgents() {
     // Loop for the initialization
-    AgentContainer::iterator it;
-    for (it = allAgents.begin(); (it != allAgents.end()); it++) {
-        (*it)->setLVT(startTime);  // Setup initial LVT
-        (*it)->initialize();
+    for (muse::Agent* agent : allAgents) {
+        ASSERT( agent != NULL );
+        agent->setLVT(startTime);  // Setup initial LVT
+        agent->initialize();       // Call API method to initialize agent
         // time to archive the agent's init state
-        (*it)->saveState();
+        agent->saveState();
+    }        
+}
+
+void
+Simulation::processMpiMsgs() {
+    // If we have only one process then there is nothing to be done
+    if (numberOfProcesses < 2) {
+        return;  // no other process to communicate with.
     }
-    
+    // An optimization trick is to try to get as many events from
+    // the wire as we can. A good magic number is 100.  However
+    // this number could be dynamically adapted depending on
+    // behavior of the simulation.
+    for (int numMsgs = maxMpiMsgThresh; (numMsgs > 0); numMsgs--) {
+        Event* incoming_event = commManager->receiveEvent();
+        if (incoming_event != NULL) {
+            ASSERT(incoming_event->getReferenceCount() == 1);
+            scheduleEvent(incoming_event);
+            // Decrease the reference because if it was rejected,
+            // the event will be properly deleted. However, if it
+            // is in the eventPQ, it will be unharmed (reference
+            // count will actually be fixed to correct for lack of
+            // local output queue)
+            ASSERT(incoming_event->getReferenceCount() < 3);
+            incoming_event->decreaseReference();
+            if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
+                std::cout << "LGVT = " << LGVT << " is below GVT: "
+                          << getGVT()
+                          << " which is serious error. "
+                          << "Scheduled agents:\n";
+                scheduler->agentPQ->prettyPrint(std::cout);
+                std::cerr << "Rank " << myID << " Aborting.\n";
+                std::cerr << std::flush;
+                DEBUG(logFile->close());
+                ASSERT ( false );
+            }
+        } else {
+            break; 
+        }
+        // Let the GVT Manager forward any pending control
+        // messages, if needed
+        gvtManager->checkWaitingCtrlMsg();
+    }    
+}
+
+void
+Simulation::processNextEvent() {
+    // Update lgvt to the time of the next event to be processed.
+    LGVT = scheduler->getNextEventTime();
+    // Do sanity checks.
+    if (LGVT < getGVT()) {
+        std::cout << "Offending event: "
+                  << *scheduler->agentPQ->front() << std::endl;
+        std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+                  << " which is serious error. Scheduled agents: \n";
+        scheduler->agentPQ->prettyPrint(std::cout);
+        std::cout << "Rank " << myID << " Aborting.\n";
+        std::cout << std::flush;
+        DEBUG(logFile->close());
+        abort();
+    }
+    // Let the scheduler do its task to have the agent process events.
+    scheduler->processNextAgentEvents();    
+}
+
+void 
+Simulation::start() {
+    // This check below should be removed -- If no agents registered
+    // we need to leave start and end sim
+    if (allAgents.empty()) return;
+    // Finish all the setup prior to starting simulation.
+    preStartInit();
+    // Next initialize all the agents
+    initAgents();
+    // Start the core simulation loop.
     LGVT         = startTime;
     int gvtTimer = gvtDelayRate;
-    
+    // The main simulation loop
     while (gvtManager->getGVT() < endTime) {
         // See if a stat dump has been requested
         if (doDumpStats) {
@@ -186,62 +304,16 @@ Simulation::start() {
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-       
-        // An optimization trick is to try to get as many events from
-        // the wire as we can. A good magic number is 1000.  However
-        // this number should be dynamically adapted depending on
-        // behavior of the simulation.
-        for (int magic = 0; (magic < 1000); magic++) {
-            Event* incoming_event = commManager->receiveEvent();
-            if (incoming_event != NULL) {
-                ASSERT(incoming_event->getReferenceCount() == 1);
-                scheduleEvent(incoming_event);
-                // Decrease the reference because if it was rejected,
-                // the event will be properly deleted. However, if it
-                // is in the eventPQ, it will be unharmed (reference
-                // count will actually be fixed to correct for lack of
-                // local output queue)
-                ASSERT(incoming_event->getReferenceCount() < 3);
-                incoming_event->decreaseReference();
-                if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
-                    std::cout << "LGVT = " << LGVT << " is below GVT: "
-                              << getGVT()
-                              << " which is serious error. "
-                              << "Scheduled agents:\n";
-                    scheduler->agentPQ->prettyPrint(std::cout);
-                    std::cerr << "Rank " << myID << " Aborting.\n";
-                    std::cerr << std::flush;
-                    DEBUG(logFile->close());
-                    ASSERT ( false );
-                }
-            } else {
-                break; 
-            }
-            // Let the GVT Manager forward any pending control
-            // messages, if needed
-            gvtManager->checkWaitingCtrlMsg();
-        }        
-        
-        // Update lgvt to the time of the next event to be processed.
-        LGVT = scheduler->getNextEventTime();
-        if (LGVT < getGVT()) {
-            std::cout << "Offending event: "
-                      << *scheduler->agentPQ->front() << std::endl;
-            std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
-                      << " which is serious error. Scheduled agents: \n";
-            scheduler->agentPQ->prettyPrint(std::cout);
-            std::cout << "Rank " << myID << " Aborting.\n";
-            std::cout << std::flush;
-            DEBUG(logFile->close());
-            abort();
-        }
-        
-        scheduler->processNextAgentEvents();
-    }    
+        // Process a block of events received via the network.
+        processMpiMsgs();
+        // Process the next event from the list of events managed by
+        // the scheduler.
+        processNextEvent();
+    }
 }
 
 void
-Simulation::finalize(bool stopMPI) {
+Simulation::finalize(bool stopMPI, bool delCommMgr) {
     // Inform the scheduler that the simulation is complete
     scheduler->stop();
     // Finalize all the agents on this MPI process while accumulating stats
@@ -273,9 +345,12 @@ Simulation::finalize(bool stopMPI) {
     delete gvtManager;
     gvtManager = NULL;
     
-    // Finalize the communicator
+    // Finalize the communicator 
     commManager->finalize(stopMPI);
-    delete commManager;
+    // Delete it if requested
+    if (delCommMgr) {
+        delete commManager;
+    }
     commManager = NULL;
 
     // Invalidate the  kernel ID
@@ -312,8 +387,13 @@ Simulation::garbageCollect() {
 }
 
 bool
-Simulation::isAgentLocal(AgentID id) {
+Simulation::isAgentLocal(AgentID id) const {
     return commManager->isAgentLocal(id);
+}
+
+bool
+Simulation::isAgentLocal(const AgentID id1, const AgentID id2) const {
+    return commManager->isAgentLocal(id1, id2);
 }
 
 void Simulation::stop() {}

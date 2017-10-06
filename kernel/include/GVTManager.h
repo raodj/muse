@@ -184,34 +184,6 @@ public:
     */
     void startGVTestimation();
 
-protected:
-    /** Helper method to set the GVT value.
-
-        This is a helper method that is invoked from the
-        recvGVTMessage() method when 
-     */
-    void setGVT(const Time& gvt);
-    
-    /** The constructor.
-
-        <p>The constructor has been made private to ensure that it is
-        not instantiated by any other class other than
-        muse::Simulation.  This is to ensure that only the simulation
-        can own a GVTManager object.</p>
-
-        The constructor is relatively straightforward and sets all of
-        the instance variables to intial (invalid) values. The
-        variables are initialized to valid values by the initialize
-        method.
-    */
-    GVTManager();
-
-    /** The destructor.
-	
-        The destructor cleans up the dynamic memory allocated to hold
-        the vector counters (if any) in this class.
-    */
-    virtual ~GVTManager();
 
     /** Helper method to check and forward pending control message.
         
@@ -226,6 +198,69 @@ protected:
         operations.
     */
     void checkWaitingCtrlMsg();
+
+    /** Convenience method to override MPI rank with a thread-based
+        rank.
+
+        This method is typically used by MultiThreadedSimulation to
+        override the MPI-based rank set in initialize method with
+        thread-based rank.  This is important because each thread can
+        have its own custom GVT manager and consequently the rank
+        associated with them needs to be different.  The thread-based
+        rank cannot be determined by the GVT manager.  Instead, it
+        needs to be set my the Simulation hierarchy that owns the GVT
+        manager.
+
+        \note Call to this method is meaningful only after
+        GVTManager::initialize method has been invoked on this GVT
+        manager.
+        
+        \param[in] thrRank The thread-based rank to be used instead of
+        MPI rank.
+    */
+    void setThreadedRank(const int thrRank) { rank = thrRank; }
+    
+protected:
+    /** Helper method to set the GVT value.
+
+        This is a helper method that is invoked from
+        checkWaitingCtrlMsg (for rank 0) or recvGVTMessage (for other
+        ranks).  This method is used to set GVT and trigger garbage
+        collection only on processes with non-zero rank.  For rank 0,
+        we wait until all GVT acknowledgment messages are received to
+        ensure that the simulation loop does not terminate early
+        (which may cause some acknowledgements to be
+        lost/unprocessed).  In the case rank 0, the GVT is set when
+        acknowledgments reach zero.
+
+        \param[in] gvtEst The newly estimated GVT value.
+    */
+    void setGVT(const Time& gvtEst);
+    
+    /** The constructor.
+
+        <p>The constructor has been made private to ensure that it is
+        not instantiated by any other class other than
+        muse::Simulation.  This is to ensure that only the simulation
+        can own a GVTManager object.</p>
+
+        The constructor is relatively straightforward and sets all of
+        the instance variables to intial (invalid) values. The
+        variables are initialized to valid values by the initialize
+        method.
+
+        \param[in] sim Pointer to the simulator that logically owns
+        this GVTManager. The pointer is used to determine the LGVT
+        value.
+    */
+    GVTManager(muse::Simulation *sim);
+
+    /** The destructor.
+	
+        The destructor cleans up the dynamic memory allocated to hold
+        the vector counters (if any) in this class.
+    */
+    virtual ~GVTManager();
      
     /** Helper method to update and forward a GVT control message.
 
@@ -254,6 +289,18 @@ protected:
         </ol>
     */
     void forwardCtrlMsg();
+
+    /** Convenience method to check and update GVT and trigger garbage
+        collection.
+
+        This is a refactored method that is used to tirgger garbage
+        collection.  It is called from setGVT method for non-zero-rank
+        processes.  For rank 0, it is invoked from 
+        
+        \parma[in] gvtEst The newly estimated GVT value.
+     */
+    void garbageCollect(const Time& gvtEst);
+    
     
 private:
     /** The current active color associated with this process.
@@ -320,10 +367,10 @@ private:
     
     /** The total number of processes in the simulation.
 
-        This instance variable holds the total number of processes in
-        the system.  This value is set to zero in the constructor and
-        is initialized to the correct value in the initialize()
-        method.
+        This instance variable holds the total number of threads in
+        the system -- that is <i>processes * threadPerProcess</i>.
+        This value is set to zero in the constructor and is
+        initialized to the correct value in the initialize() method.
     */
     unsigned int numProcesses;
 
@@ -367,6 +414,14 @@ private:
 	have had a chance to receive the broadcast from process 0.
     */
     int pendingAcks;
+
+    /** Pointer to the simulator that logically owns this GVT manager.
+
+        This pointer is used to determine the LGVT value.  The pointer
+        is initialized in the constructor and is never changed during
+        the life time of this object.
+    */
+    muse::Simulation* const sim;
 };
 
 END_NAMESPACE(muse);

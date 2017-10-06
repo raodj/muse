@@ -56,16 +56,18 @@ Bug::Bug(muse::AgentID id, CoordAgentIDMap& coords, int cols, int rows) :
 
 void
 Bug::initialize() throw (std::exception) {
+    // Schedule a logical move-in for this bug into an initial location.
+    scheduleMoveInEvent(4);
 }
 
 int
 Bug::getRandom(const int max) const {
-    int rnd =  int(MTRandom::RandDouble()* max);
+    int rnd =  int(MTRandom::RandDouble() * max);
     // Make sure we dont get out of range random value
     while (rnd == max)  {
 	rnd = int(MTRandom::RandDouble() * max);
     }
-    return max;
+    return rnd;
 }
 
 void

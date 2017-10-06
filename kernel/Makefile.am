@@ -80,6 +80,17 @@ libmuse_a_SOURCES = \
 	include/ThreeTierHeapEventQueue.h \
 	src/ThreeTierHeapEventQueue.cpp \
 	include/TwoTierLadderQueue.h \
-	src/TwoTierLadderQueue.cpp
+	src/TwoTierLadderQueue.cpp \
+	include/DefaultSimulation.h \
+	src/DefaultSimulation.cpp \
+	include/mpi-mt/MultiThreadedCommunicator.h \
+	src/mpi-mt/MultiThreadedCommunicator.cpp \
+	include/mpi-mt/MultiThreadedSimulation.h \
+	src/mpi-mt/MultiThreadedSimulation.cpp \
+	include/mpi-mt/MultiThreadedSimulationManager.h \
+	src/mpi-mt/MultiThreadedSimulationManager.cpp \
+	include/mpi-mt/MTQueue.h \
+	include/mpi-mt/SingleBlockingMTQueue.h \
+	src/mpi-mt/SingleBlockingMTQueue.cpp
 
 # end of Makefile.am

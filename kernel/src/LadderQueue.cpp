@@ -735,7 +735,7 @@ muse::Rung::Rung(EventMultiSet&& set, const Time minTS, const double bktWidth) :
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
     // Move events from given set into buckets in this Rung.
-    DEBUG(std::cout << "Adding " << list.size() << " events to rung\n");
+    DEBUG(std::cout << "Adding " << set.size() << " events to rung\n");
     for (auto curr = set.begin(); (curr != set.end()); curr++) {
         // Add to the appropriate bucket in this rung
         enqueue(*curr);

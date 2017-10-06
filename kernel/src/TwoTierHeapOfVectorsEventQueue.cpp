@@ -90,8 +90,11 @@ TwoTierHeapOfVectorsEventQueue::getNextEvents(Agent* agent,
     ASSERT(container.empty());
     ASSERT(agent->schedRef.tier2eventPQ->top().getEvent() != NULL);
     // All events in tier2eventPQ top should have same receive times.
-    const Time eventTime = agent->schedRef.tier2eventPQ->getTopTime();  
-    // Move all the events out of the tier2eventPQ top into the return container.
+    // The following code is enabled only when assertions are enabled.
+    WHEN_ASSERT(const Time eventTime =
+                agent->schedRef.tier2eventPQ->getTopTime());
+    // Move all the events out of the tier2eventPQ top into the return
+    // container.
     container = std::move(agent->schedRef.tier2eventPQ->top().getEventList());
     // Do validation checks on the events in tier2eventPQ.
     for (const Event* event : container) {

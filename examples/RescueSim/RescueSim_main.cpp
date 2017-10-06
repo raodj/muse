@@ -32,10 +32,8 @@ RescueSim_main::processArgs(int& argc, char* argv[]) {
    };
    ArgParser ap(arg_list);
    ap.parseArguments(argc, argv, true);
-   Simulation * const kernel = Simulation::getSimulator();
-
    //now lets initialize the kernel
-   kernel->initialize(argc,argv);
+   muse::Simulation::initializeSimulation(argc, argv);
 }
 
 void
@@ -93,23 +91,24 @@ RescueSim_main::simulate() {
    kernel->setStartTime(start);
    kernel->setStopTime(end);
 
-//   MPI_Barrier(MPI_COMM_WORLD);
    //we finally start the simulation here!!
    kernel->start();
 
    //now we finalize the kernel to make sure it cleans up.
-   kernel->finalize();
+   muse::Simulation::finalizeSimulation();
 }
 
 void
 RescueSim_main::run(int& argc, char* argv[]) {
    srand(time(0));
    RescueSim_main Rmain;
-   Simulation * const kernel = Simulation::getSimulator();
+   // Process arguments and initialize simulator/kernel.
    Rmain.processArgs(argc, argv);
    int area_agents           = (Rmain.cols)/AREA_COL_WIDTH;
    int vols_agents           = area_agents + (Rmain.vols);
    int vics_agents           = vols_agents + (Rmain.vics);
+   // Setup values based on simulation's physical configuration
+   muse::Simulation* const kernel = muse::Simulation::getSimulator();
    int rank                  = kernel->getSimulatorID();
    Rmain.max_nodes           = kernel->getNumberOfProcesses();
    Rmain.createArea(0, area_agents, rank);

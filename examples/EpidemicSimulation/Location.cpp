@@ -1,5 +1,5 @@
-#ifndef _Location_CPP
-#define _Location_CPP
+#ifndef LOCATION_CPP
+#define LOCATION_CPP
 
 #include "Location.h"
 #include "MTRandom.h"
@@ -7,9 +7,8 @@
 #include <cstdlib>
 #include <cstdio>
 
-Location::Location() {
-
-
+Location::Location(const muse::AgentID id) : muse::Agent(id, new muse::State()) {
+    // Nothing else for now.
 }
 
 #endif 

@@ -34,7 +34,8 @@
 // switch to muse namespace to make life easier.
 using namespace muse;
 
-GVTManager::GVTManager() {
+GVTManager::GVTManager(muse::Simulation* sim) : sim(sim) {
+    ASSERT( sim != NULL );
     // Initialize all the instance variables to default values.
     white          = 0;    // White is 0 to begin with
     vecCounters[0] = NULL; // Vectors are created in initialize
@@ -70,7 +71,8 @@ GVTManager::initialize(const Time& startTime, Communicator* comm) {
     gvt          = startTime;
     commManager  = comm;
     // Determine configuration information from the comm manager.
-    commManager->getProcessInfo(rank, numProcesses);
+    unsigned int numProcs;  // Dummy. Not used.
+    commManager->getProcessInfo(rank, numProcs, numProcesses);
     ASSERT(numProcesses > 0);
     ASSERT(rank < numProcesses);
     
@@ -90,8 +92,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     
     // Compute remote process id.
     const unsigned int destRank =
-        commManager->getOwnerRank(event->getReceiverAgentID());
-    ASSERT(destRank != rank);
+        commManager->getOwnerThreadRank(event->getReceiverAgentID());
     ASSERT(destRank < numProcesses);
 
     // Perform the operations related to sending of a message as
@@ -99,8 +100,6 @@ GVTManager::sendRemoteEvent(Event *event) {
     // it out.
     ASSERT((activeColor == 0) || (activeColor == 1));
     event->setColor(activeColor);
-    commManager->sendEvent(event, event->getEventSize());
-    DEBUG(std::cout << *event << std::endl);
     // Now track event counters immaterial of whether the event is
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
@@ -111,6 +110,13 @@ GVTManager::sendRemoteEvent(Event *event) {
         tMin = std::min<Time>(tMin, event->getReceiveTime());
         DEBUG(std::cout << "GVTManager tMin = " << tMin << std::endl);
     }
+    // Finally actually ship out the event to the destination
+    DEBUG(std::cout << *event << std::endl);
+    // NOTE: Sending event should be last step.  After sending you
+    // should not inspect the event because the receiving thread may
+    // delete it immediately and inspecting event after that will
+    // cause memory errors!
+    commManager->sendEvent(event, event->getEventSize());
     // Everything went well.
     return true;
 }
@@ -175,7 +181,7 @@ GVTManager::forwardCtrlMsg() {
     ctrlMsg->setTmin(std::min<Time>(ctrlMsg->getTmin(), tMin));
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
-    const Time lgvt = Simulation::getSimulator()->getLGVT();
+    const Time lgvt = sim->getLGVT();
     DEBUG(std::cout << "Process " << rank << " LGVT: " << lgvt
                     << ", tMin = " << ctrlMsg->getTmin() << std::endl);
     if (rank != ROOT_KERNEL) {
@@ -187,8 +193,11 @@ GVTManager::forwardCtrlMsg() {
         ctrlMsg->setGVTEstimate(lgvt);
     }
     // Now send control message to next process
-    commManager->sendMessage(ctrlMsg, (rank + 1) % numProcesses);
-    DEBUG(std::cout << "Sent GVT ctrlMsg: " << *ctrlMsg << std::endl);
+    const int dest = (rank + 1) % numProcesses;
+    ctrlMsg->setDestRank(-dest);  // Facilitate multi-threaded routing
+    commManager->sendMessage(ctrlMsg, dest);
+    DEBUG(std::cout << "Sent from " << rank << " to " << dest
+                    << " GVT ctrlMsg: " << *ctrlMsg << std::endl);
     // We no longer have a control message.
     GVTMessage::destroy(ctrlMsg);
     ctrlMsg = NULL;
@@ -208,14 +217,21 @@ GVTManager::recvGVTMessage(GVTMessage *message) {
         ASSERT(activeColor != white);
         // We have a new gvt estimate. update and garbage collect.
         setGVT(message->getGVTEstimate());
+        DEBUG(std::cout << "Rank " << rank << " set GVT via: "
+                        << *message << std::endl);
         // Delete this message as we no longer need it.
         GVTMessage::destroy(message);
         // All done with this case.
         return;
     } else if (message->getKind() == GVTMessage::GVT_ACK_MSG) {
         // Acknowledgement for gvt update from a remote process
+        ASSERT(rank == ROOT_KERNEL);
         ASSERT(pendingAcks > 0);
         pendingAcks--;
+        if (pendingAcks == 0) {
+            // All acks received. Finally update GVT on local rank
+            garbageCollect(message->getGVTEstimate());
+        }
         // Delete this message as we no longer need it.
         GVTMessage::destroy(message);
         return;
@@ -248,7 +264,7 @@ GVTManager::startGVTestimation() {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!
         activeColor = !white; // Change our active color.
-        setGVT(Simulation::getSimulator()->getLGVT());
+        setGVT(sim->getLGVT());
         return;
     }
     
@@ -259,10 +275,11 @@ GVTManager::startGVTestimation() {
     ASSERT(ctrlMsg == NULL);
     ASSERT(activeColor == white);
     // Start a new GVT estimation process.
-    GVTMessage *msg = GVTMessage::create(GVTMessage::GVT_CTRL_MSG,numProcesses);
+    GVTMessage *msg = GVTMessage::create(GVTMessage::GVT_CTRL_MSG,
+                                         numProcesses, -1);
     ASSERT(msg != NULL);
     // Fill in other details.
-    msg->setGVTEstimate(Simulation::getSimulator()->getLGVT());
+    msg->setGVTEstimate(sim->getLGVT());
     msg->setTmin(TIME_INFINITY);
     // Update and reset the vector counters.
     int *count = msg->getCounters();
@@ -289,7 +306,8 @@ GVTManager::setGVT(const Time& gvtEst) {
     // First swap our definition of red and white putting this process
     // in white state (it must be red right now)
     ASSERT(activeColor == !white);
-    white = !white;
+    white = !white;  // Changing definition of white maybe a bit
+                     // confusing but it is valid and correct.
     ASSERT(activeColor == white);
     // Reset cycle of GVT computation.
     cycle = 0;
@@ -308,22 +326,33 @@ GVTManager::setGVT(const Time& gvtEst) {
         pendingAcks = numProcesses - 1;
         // Here is the broadcast loop.
         for(unsigned int pid = 1; (pid < numProcesses); pid++) {
+            gvtMsg->setDestRank(-pid);
             commManager->sendMessage(gvtMsg, pid);
         }
         // Destroy message as we no longer need it.
         GVTMessage::destroy(gvtMsg);
+        // If we don't have any pending acks, then trigger garbage collect
+        if (pendingAcks == 0) {
+            // No need to wait for acknowledgments (as we will get none)
+            garbageCollect(gvtEst);
+        }
     } else {
         // Received a GVT update from process 0. Send an
         // acknowledgement back.
-        GVTMessage *gvtAck = GVTMessage::create(GVTMessage::GVT_ACK_MSG);
+        GVTMessage *gvtAck = GVTMessage::create(GVTMessage::GVT_ACK_MSG, 0, 0);
         ASSERT(gvtAck != NULL);
         gvtAck->setGVTEstimate(gvtEst);
         // Send ack to process 0
         commManager->sendMessage(gvtAck, ROOT_KERNEL);
         // Destroy message as we no longer need it.
         GVTMessage::destroy(gvtAck);
+        // Trigger garbage collection right away on non-zero ranks
+        garbageCollect(gvtEst);
     }
-    
+}
+
+void
+GVTManager::garbageCollect(const Time& gvtEst) {
     // Trigger garbage collection in the simulation if gvt has
     // actually changed
     if (gvtEst > gvt) {
@@ -335,9 +364,9 @@ GVTManager::setGVT(const Time& gvtEst) {
             std::cout << "GVT: " << gvtEst << std::endl;
         }
         DEBUG(std::cout << "GVT: " << gvtEst << std::endl);
-
         // Do garbage collection
-        Simulation::getSimulator()->garbageCollect();
+        ASSERT( sim != NULL );
+        sim->garbageCollect();
     }
 }
 

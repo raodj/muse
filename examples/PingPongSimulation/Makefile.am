@@ -29,6 +29,7 @@ bin_PROGRAMS = pp_sim
 
 pp_sim_LDFLAGS = -L../../kernel
 pp_sim_LDADD = $(STDCPP) -lmuse
+pp_sim_DEPENDENCIES=../../kernel/libmuse.a
 
 pp_sim_SOURCES = \
 	PingPongSimulation.cpp\

@@ -14,10 +14,9 @@
 #include "Agent.h"
 
 class Location : public muse::Agent {
-    
 public:
     
-    Location(){}
+    Location(const muse::AgentID id);
     
     void initialize() throw (std::exception);
     

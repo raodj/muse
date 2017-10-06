@@ -27,7 +27,6 @@
 #include <algorithm>
 #include "Avg.h"
 #include "EventQueue.h"
-#include "TwoTierHeapOfVectorsEventQueue.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -122,6 +121,9 @@ public:
         return eventList;
     }
 };
+
+// A convenience shortcut used just in this source file
+using Tier2List = std::deque<HOETier2Entry*>;
 
 /** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
     managing events.
@@ -601,10 +603,21 @@ private:
     */
     Avg agentBktCount;
 
-	/** A stack to recycle Tier2 entries to minimize memory allocation
-		calls for these small blocks used in this queue.
-	 */
-	std::deque<HOETier2Entry*> tier2Recycler;
+    /** A stack to recycle Tier2 entries to minimize memory allocation
+        calls for these small blocks used in this queue.
+    */
+    std::deque<HOETier2Entry*> tier2Recycler;
+
+    
+    /** Default, empty Tier2List to handle removal of agents.
+
+        This is a default/empty tier-2 list that is used to streamline
+        removal of agents.  As agents are removed in the removeAgent
+        method, their 2nd tier queue is substituted with this
+        default/empty list.  This enables updating position of agents
+        within this heap without causing memory issues.
+    */
+    Tier2List EmptyT2List;
 };
 
 END_NAMESPACE(muse)

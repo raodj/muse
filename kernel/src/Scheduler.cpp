@@ -46,7 +46,7 @@ Scheduler::addAgentToScheduler(Agent* agent) {
 bool
 Scheduler::removeAgentFromScheduler(Agent* agent) {
     ASSERT(agent != NULL);
-    if (agentMap[agent->getAgentID()] == NULL) {
+    if (agentMap[agent->getAgentID()] != NULL) {
         agentPQ->removeAgent(agent);  // remove agent from scheduler.
         // Clear out agent entry in our internal look-up map.
         agentMap[agent->getAgentID()] = NULL;
@@ -93,10 +93,9 @@ Scheduler::processNextAgentEvents() {
     }
     // Have the next agent (with lowest receive timestamp events) to
     // process its batch of events.
-    static muse::EventContainer events;
-    agentPQ->dequeueNextAgentEvents(events);
-    agent->processNextEvents(events);
-    events.clear();
+    agentPQ->dequeueNextAgentEvents(agentEvents);
+    agent->processNextEvents(agentEvents);
+    agentEvents.clear();
     // Processed some events
     return true;
 }
@@ -145,7 +144,6 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
         DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
         // Have the agent to do inputQ, and outputQ clean-up and
         // return list of events to reschedule.
-        muse::EventContainer reschedule;
         agent->doRollbackRecovery(e, *agentPQ);
         // Basic sanity check on correct rollback behavior
         if (e->getReceiveTime() <= agent->getLVT()) {

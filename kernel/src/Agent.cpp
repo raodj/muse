@@ -37,6 +37,9 @@ Agent::Agent(AgentID id, State* agentState)
     : myID(id), lvt(0), myState(agentState), mustSaveState(true),
       numRollbacks(0), numScheduledEvents(0), numProcessedEvents(0),
       numMPIMessages(0), numCommittedEvents(0), numSchedules(0) {
+    // Initialize kernel to an invalid value.
+    kernel = NULL;
+    
     // The event queue creation now happens in respective queue
     // classes derived from EventQueue (in addAgent() method).
 
@@ -161,7 +164,8 @@ Agent::scheduleEvent(Event* e) {
     ASSERT(e->sentTime >= getTime(GVT));
     
     // Check to make sure we don't schedule past the simulation end time.
-    if (e->getReceiveTime() >= Simulation::getSimulator()->getStopTime()) {
+    ASSERT( kernel != NULL );
+    if (e->getReceiveTime() >= kernel->getStopTime()) {
         e->decreaseReference();
         return false;
     }
@@ -175,7 +179,7 @@ Agent::scheduleEvent(Event* e) {
         e->decreaseReference();
         abort();
     }
-    if (Simulation::getSimulator()->scheduleEvent(e)) {
+    if (kernel->scheduleEvent(e)) {
         DEBUG(std::cout << "Scheduled: " << *e << std::endl);
         // Add event to our output queue only when more than 1 process
         // is used for parallel simulation
@@ -189,7 +193,7 @@ Agent::scheduleEvent(Event* e) {
         // Keep track of event being scheduled.
         numScheduledEvents++;
         // this is to keep track of how many MPI message we use
-        if (!Simulation::getSimulator()->isAgentLocal(e->getReceiverAgentID())) {
+        if (!kernel->isAgentLocal(myID, e->getReceiverAgentID())) {
             numMPIMessages++;
         }
         return true;
@@ -321,10 +325,10 @@ Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
             // check if bitMap to receiver agent has been set.
             if (bitMap[receiver] == false) {
                 bitMap[receiver] = true;  // send anit-message flag.
-                if (!Simulation::getSimulator()->isAgentLocal(receiver)) {
+                if (!kernel->isAgentLocal(myID, receiver)) {
                     currentEvent->makeAntiMessage();
                     // cout << "Making Anti-Message: " << *currentEvent << endl;
-                    Simulation::getSimulator()->scheduleEvent(currentEvent);
+                    kernel->scheduleEvent(currentEvent);
                 } else {
                     // Send an anti-message to the agent on the same
                     // process so that it rolls back. Since pointers
@@ -335,9 +339,12 @@ Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
                     antiEvent->senderAgentID = currentEvent->senderAgentID;
                     antiEvent->sentTime      = currentEvent->sentTime;
                     antiEvent->makeAntiMessage();
-                    if (!Simulation::getSimulator()->scheduleEvent(antiEvent)) {
+                    if (!kernel->scheduleEvent(antiEvent)) {
                         // The scheduler rejected our anti-message.
                         antiEvent->decreaseReference();
+                    } else {
+                        std::cout << "Anti event not deleted -- "
+                                  << *antiEvent << std::endl;
                     }
                 }
             }
@@ -485,15 +492,16 @@ Agent::garbageCollect(const Time gvt) {
 
 Time
 Agent::getTime(TimeType timeType) const {
+    ASSERT( kernel != NULL );
     switch(timeType) {
     case LVT:
         return getLVT();
         break;
     case LGVT:
-        return (Simulation::getSimulator())->getLGVT();
+        return kernel->getLGVT();
         break;
     case GVT:
-        return (Simulation::getSimulator())->getGVT();
+        return kernel->getGVT();
         break;
     }
     return TIME_INFINITY;
@@ -525,9 +533,9 @@ operator<<(ostream& os, const muse::Agent& agent) {
     os << "Agent[id: "       << agent.getAgentID() << "; "
        << "Events in heap: " <<  agent.schedRef.eventPQ->size();
     if (!agent.schedRef.eventPQ->empty()) {
-	DEBUG(os << "; Top Event: " << *agent.schedRef.eventPQ->top());
+	os << "; Top Event: " << *agent.schedRef.eventPQ->top();
     } else {
-	DEBUG(os << "; Top Event: none");
+	os << "; Top Event: none";
     }
     DEBUG(os << "; StateQueue: " << statePrinter(os,agent.stateQueue));
     os << "]";
@@ -553,6 +561,12 @@ Agent::dumpStats(std::ostream& os, const bool printHeader) const {
        << numProcessedEvents << TAB
        << numRollbacks       << TAB
        << numMPIMessages     << std::endl;
+}
+
+void
+Agent::setKernel(muse::Simulation* sim) {
+    ASSERT( sim != NULL );
+    this->kernel = sim;
 }
 
 #endif

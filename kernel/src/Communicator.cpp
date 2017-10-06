@@ -50,13 +50,24 @@ Communicator::initialize(int argc, char* argv[], bool initMPI) {
 
 void
 Communicator::registerAgents(AgentContainer& allAgents) {
+    // Build the list of IDs of local agents
+    std::vector<AgentID> idList(allAgents.size());
+    for (size_t i = 0; (i < allAgents.size()); i++) {
+        idList[i] = allAgents[i]->getAgentID();
+    }
+    // Have the helper method do the work
+    registerAgents(idList);
+}
+
+void
+Communicator::registerAgents(const std::vector<AgentID>& allAgents) {
     const int procCount = MPI_GET_SIZE();
     const int rank      = MPI_GET_RANK();
     
     // Add all of the local agents to the map
     AgentContainer::iterator ac_it;
-    for (ac_it = allAgents.begin(); (ac_it != allAgents.end()); ac_it++) {
-        agentMap[(*ac_it)->getAgentID()] = rank;
+    for (const AgentID id : allAgents) {
+        agentMap[id] = rank;
     }
 
     // If the number of Processes in the system is 1, we don't have any
@@ -112,14 +123,8 @@ Communicator::registerAgents(AgentContainer& allAgents) {
         std::cout << "Agent Registration: complete!" << std::endl;
         delete[] flatAgentMap;
     } else {
-        // Other processes need to send their registrations along.
-        AgentID agentList[allAgents.size()];
-        // Build the flat agent list
-        for (size_t i = 0; i < allAgents.size(); i++) {
-            agentList[i] = allAgents[i]->getAgentID();
-        }
         // Send the flat list across with MPI
-        MPI_SEND(agentList, allAgents.size(), MPI_TYPE_UNSIGNED,
+        MPI_SEND(allAgents.data(), allAgents.size(), MPI_TYPE_UNSIGNED,
                  ROOT_KERNEL, AGENT_LIST);
         //get the size of incoming agentMap list
         int agentMapLength = 0;
@@ -140,9 +145,9 @@ void
 Communicator::sendEvent(Event* e, const int eventSize){
     try {
         // Send event as raw (char) data
-        char* serialEvent = reinterpret_cast<char*>(e);
-        MPI_SEND(serialEvent, eventSize, MPI_TYPE_CHAR,
-                 agentMap[e->getReceiverAgentID()], EVENT);
+        const char* serialEvent = reinterpret_cast<const char*>(e);
+        const int destRank      = getOwnerRank(e->getReceiverAgentID());
+        MPI_SEND(serialEvent, eventSize, MPI_TYPE_CHAR, destRank, EVENT);
         //cout << "SENT an Event of size: " << eventSize << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
         //e->decreaseReference();
@@ -259,14 +264,6 @@ Communicator::receiveEvent(){
     return NULL;
 }
 
-bool
-Communicator::isAgentLocal(const AgentID id) {
-    // cout << "Check if Local Agent: " << id <<endl;
-    // ASSERT(id >= 0 && id <= 4);
-    // SimulatorID my_id = MPI_GET_RANK();
-    return (agentMap[id] == myMPIrank);
-}
-
 void
 Communicator::finalize(bool stopMPI) {
     try {
@@ -284,22 +281,12 @@ Communicator::setGVTManager(GVTManager* gvtMgr) {
     gvtManager = gvtMgr;
 }
 
-SimulatorID
-Communicator::getOwnerRank(const AgentID& id) const {
-    // Find iterator for given agent id
-    AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);
-    // If id is valid then iterator is valid.
-    if (entry != agentMap.end()) {
-        return entry->second;
-    }
-    // Invalid or unknown agent id.
-    return -1u;
-}
-
 void
-Communicator::getProcessInfo(unsigned int& rank, unsigned int& numProcesses) {
-    rank         = MPI_GET_RANK();
-    numProcesses = MPI_GET_SIZE();
+Communicator::getProcessInfo(unsigned int& rank, unsigned int& numProcesses,
+                             unsigned int& totNumThreads) {
+    rank          = MPI_GET_RANK();
+    numProcesses  = MPI_GET_SIZE();
+    totNumThreads = numProcesses;
 }
 
 Communicator::~Communicator() {}

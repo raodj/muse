@@ -43,7 +43,7 @@
 #include "Eat.h"
 #include "Scout.h"
 
-#define NO_BUG  -1u
+#define NO_BUG  muse::AgentID(-1)
 
 Space::Space(muse::AgentID id, muse::State* state) : Agent(id, state) {
     // Nothing else to be done in the constructor
@@ -88,8 +88,8 @@ Space::finalize() {
 
 void
 Space::executeMoveIn(BugEvent* current_event, SpaceState* my_state) {
-    MoveIn     * move_in  = static_cast<MoveIn*>(current_event);
-    if ( my_state->getBugID() == NO_BUG) {
+    MoveIn* move_in  = static_cast<MoveIn*>(current_event);
+    if (my_state->getBugID() == NO_BUG) {
 	//means we are not holding a bug 
 	my_state->setBugID(move_in->getSenderAgentID());
 	MoveIn * move = MoveIn::create(move_in->getSenderAgentID() ,

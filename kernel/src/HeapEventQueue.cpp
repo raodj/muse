@@ -200,7 +200,7 @@ void
 HeapEventQueue::prettyPrint(std::ostream& os) const {
     os << "HeapEventQueue [size=" << eventList.size() << "]:\n";
     for (auto curr = eventList.begin(); (curr != eventList.end()); curr++) {
-        os << " " << (*curr) << std::endl;
+        os << " " << *(*curr) << std::endl;
     }
     os << std::endl;
 

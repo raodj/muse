@@ -7,6 +7,7 @@ bin_PROGRAMS = pcs
 
 pcs_LDFLAGS = -L../../kernel
 pcs_LDADD = $(STDCPP) -lmuse
+pcs_DEPENDENCIES=../../kernel/libmuse.a
 
 pcs_SOURCES = \
 	PCS_Simulation.cpp\

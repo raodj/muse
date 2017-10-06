@@ -29,6 +29,7 @@ bin_PROGRAMS = rollbackSim
 
 rollbackSim_LDFLAGS = -L../../kernel
 rollbackSim_LDADD = $(STDCPP) -lmuse
+rollbackSim_DEPENDENCIES=../../kernel/libmuse.a
 
 rollbackSim_SOURCES = \
 	RollbackAgent.cpp \

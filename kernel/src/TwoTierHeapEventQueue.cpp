@@ -51,6 +51,11 @@ TwoTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     ASSERT(agent->schedRef.eventPQ != NULL);
     // Remove all events for this agent from the 2nd tier heap.
     agent->schedRef.eventPQ->clear();
+    // Delete custom 2nd tier binary heap wrapper
+    delete agent->schedRef.eventPQ;
+    // Replace with reference to default/empty one to ease updating
+    // position of agent in the heap.
+    agent->schedRef.eventPQ = &EmptyBHW;    
     // Update the heap to place agent with LTSF
     updateHeap(agent);
 }

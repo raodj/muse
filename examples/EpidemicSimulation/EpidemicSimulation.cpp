@@ -56,9 +56,8 @@ EpidemicSimulation::processArgs(int argc, char** argv) {
 
     // Let the kernel initialize using any additional command-line
     // arguments.
-    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     try {
-        kernel->initialize(argc, argv);
+        muse::Simulation::initializeSimulation(argc, argv);
     } catch (std::exception& exp) {
         std::cerr << "Exiting simulation due to initialization error: "
                   << exp.what() << std::endl;
@@ -69,7 +68,8 @@ EpidemicSimulation::processArgs(int argc, char** argv) {
     // and update instance variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, true);
-    
+    // Validate configuration/setup
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     rank = kernel->getSimulatorID();
     // Check to ensure we have at least as many agents as compute-nodes
     if (rows * cols < (int) kernel->getNumberOfProcesses()) {
@@ -120,7 +120,7 @@ EpidemicSimulation::simulate() {
     // Finally start the simulation here!!
     kernel->start();
     // Now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    muse::Simulation::finalizeSimulation();
 }
 
 void

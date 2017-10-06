@@ -50,6 +50,7 @@ class Tier2Entry;
 class HOETier2Entry;
 class EventComp;
 class TwoTierHeapAdapter;
+class Simulation;
 
 /** \typedef std::deque<T> List<T>
 
@@ -465,6 +466,19 @@ private:
                                        const Event* straggler,
                                        muse::EventContainer& reschedule);
 
+    /** Setup the simulation kernel to be used by this agent.
+
+        This method is invoked from the Simulation kernel (or its
+        derived classes) when an agent is registered to set the
+        pointer to the kernel that logically owns this agent.  This
+        kernel is used by the agent to schedule events, find GVT
+        values, etc.
+
+        \param sim The simulation/kernel that is agent must use for
+        scheduling events etc.  The pointer is never null.
+    */
+    void setKernel(muse::Simulation* sim);
+    
     /** The agentComp class.
         
         This is used by the scheduler class to figure out which agent
@@ -650,6 +664,16 @@ private:
        count in a 1 process simulation).
     */
     int numSchedules;
+
+    /** Pointer to the simulation kernel that is managing this agent.
+
+        This pointer is set when the agent is registered with a
+        simulation kernel.  This pointer is used to schedule events
+        and perform other necessary interactions with the kernel.
+        Note that in multi-threaded mode this pointer can refer to
+        different kernels.
+    */
+    muse::Simulation* kernel;
 };
 
 END_NAMESPACE(muse);

@@ -249,8 +249,8 @@ AC_DEFUN([AC_PROG_GCC],
      if test "yes" == "$gcc"; then
          USING_GCC="-DGCC"
 	 AC_CHECK_GCC_VERSION
-         AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
-         AC_SUBST(OPT_O3)
+         OPT_O3="-O3"
+         # AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
      else
      	 USING_GCC=""
      fi
@@ -340,6 +340,27 @@ AC_PROG_ICC
 AC_PROG_GCC
 AC_CHECK_MPICC
 AC_PROG_RANLIB
+
+# Enable developer assertions flags as needed.
+DEV_ASSERT=""
+AC_ARG_ENABLE([assertions],
+    AS_HELP_STRING([--enable-assertions], [Enable developer assertion checks for sanity checking]),
+    [ if test "$enableval" == "yes"; then
+          OPT_O3="-O0"
+          DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
+      fi
+    ])
+# override full debugging & optimization flags as needed.
+AC_ARG_ENABLE([debug],
+    AS_HELP_STRING([--enable-debug], [Setup all compile in debugging mode]),
+    [ if test "$enableval" == "yes"; then
+          OPT_O3="-O0"
+          DEV_ASSERT="-DDEVELOPER_ASSERTIONS -DDEBUG_OUTPUT"
+      fi
+    ])
+# Substitute values of variables in makefile(s)
+AC_SUBST(OPT_O3)
+AC_SUBST(DEV_ASSERT)
 
 # Checks for suitable archiver to be used
 AM_PROG_AR

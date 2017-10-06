@@ -29,6 +29,7 @@ bin_PROGRAMS = phold
 
 phold_LDFLAGS = -L../../kernel
 phold_LDADD = $(STDCPP) -lmuse
+phold_DEPENDENCIES=../../kernel/libmuse.a
 
 phold_SOURCES = \
 	PHOLDSimulation.cpp\

@@ -20,11 +20,10 @@ const int PONG_KERNEL = 1;
  * simple ping-pong simulation with exactly 2 agents.
  */
 int main(int argc, char** argv) {
-    // First get simulation kernel instance to work with
-    muse::Simulation* kernel = muse::Simulation::getSimulator();
-    // Now lets initialize the kernel (and MPI)
-    kernel->initialize(argc, argv);
-
+    // First lets initialize the kernel (and MPI)
+    muse::Simulation::initializeSimulation(argc, argv);
+    // Next, get simulation kernel instance to work with
+    muse::Simulation* const kernel = muse::Simulation::getSimulator();
     // now SPMD way of coding comes into play here!!!
     // NOTE:: here we register the agents (players) to different simulation
     //        kernels!!!!!
@@ -45,8 +44,8 @@ int main(int argc, char** argv) {
     // we finally start the ping pong simulation here!!
     kernel->start();
 
-    // now we finalize the kernel to make sure it cleans up.
-    kernel->finalize();
+    // now we finalize the simulation to make sure it cleans up.
+    muse::Simulation::finalizeSimulation();
 
     // lets not forget to clean up the mez we make :-)
     // we don't have to worry about the kernel it takes care itself!
