@@ -126,7 +126,7 @@ PCS_Agent::moveIn(const PCS_Event& event) {
     // Move-in events have a small 0.125 offset added. So the
     // type-cast below is used to get rid of that small delta. Compute
     // the next time this portable must move out of this Cell.
-    std::exponential_distribution<double> move_distrib(1 / moveIntervalMean);
+    std::exponential_distribution<double> move_distrib(1.0 / moveIntervalMean);
     uint moveDistrib = lookAhead + move_distrib(generator);
     const muse::Time move_timeStamp = event.getMoveTimeStamp() + moveDistrib;
     // Determine the ongoing action based on minimum of timestamps
@@ -200,8 +200,8 @@ PCS_Agent::nextCall(const PCS_Event& event) {
     PCS_State * const state = dynamic_cast<PCS_State*> (getState());
     // The three random number generators used below.
     std::poisson_distribution<uint> duration_distrib(callDurationMean);
-    std::exponential_distribution<double> move_distrib(1/moveIntervalMean);
-    std::exponential_distribution<double> interval_distrib(1/callIntervalMean);
+    std::exponential_distribution<double> move_distrib(1.0 / moveIntervalMean);
+    std::exponential_distribution<double> interval_distrib(1.0 / callIntervalMean);
     // Extract timestamps from events (they will change below).
     muse::Time complete_call_timeStamp = event.getCompletionTimeStamp();
     muse::Time next_call_timeStamp     = event.getNextCallTimeStamp();
@@ -247,8 +247,8 @@ PCS_Agent::nextCall(const PCS_Event& event) {
 void
 PCS_Agent::initialize() throw (std::exception) {
     // Random number generators for the 2 parameters in each portable
-    std::exponential_distribution<double> move_distrib(1/moveIntervalMean);
-    std::exponential_distribution<double> interval_distrib(1/callIntervalMean);
+    std::exponential_distribution<double> move_distrib(1.0 /moveIntervalMean);
+    std::exponential_distribution<double> interval_distrib(1.0 / callIntervalMean);
     /* We generate N Portables (i.e., PCS_Events) with random receive
      * times to self and initialize the timestamp fields by
      * exponentials with independent means. The
