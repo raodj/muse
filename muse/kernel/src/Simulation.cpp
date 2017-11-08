@@ -36,6 +36,7 @@
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
+// #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
 
 using namespace muse;
 
@@ -74,6 +75,8 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
         kernel = new DefaultSimulation();
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
+//    } else if (simName == "mpi-mt-shm") {
+//        kernel = new MultiThreadedShmSimulationManager();
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
