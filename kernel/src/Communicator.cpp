@@ -150,7 +150,6 @@ Communicator::sendEvent(Event* e, const int eventSize){
         MPI_SEND(serialEvent, eventSize, MPI_TYPE_CHAR, destRank, EVENT);
         //cout << "SENT an Event of size: " << eventSize << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
-        //e->decreaseReference();
     } catch (const MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendEvent): "
                   << e.Get_error_string() << std::endl;
