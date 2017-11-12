@@ -36,7 +36,7 @@ BEGIN_NAMESPACE(muse)
 	eventList) all with exactly the same receive time to a given
 	agent.  These objects are cached/reused by the scheduler queue to
 	reduce memory allocation operations, particularly for the
-	eventList because memory management turns out to be he most
+	eventList because memory management turns out to be the most
 	expensive operation.
 */
 class HOETier2Entry {
@@ -125,24 +125,29 @@ public:
 // A convenience shortcut used just in this source file
 using Tier2List = std::deque<HOETier2Entry*>;
 
-/** A three-tier-heap aka "3tHeap" or "heap-of-heap" event queue for
-    managing events.
+/** A three-tier-heap aka "3tHeap" event queue for managing events.
 
-    <p>This class provides a heap-of-heap based event queue for
-    managing events for simulation.  The two-tiers are organized as
-    follows:</p>
+    <p>This class provides a heap-of-list-of-lists based event queue
+    for managing events for simulation.  The three-tiers are organized
+    as follows:</p>
 
     <p><u>First tier:</u> This class uses standard C++ algorithms
     (such as: \c std::make_heap, \c std::push_heap, \c std::pop_heap)
     to manage a heap of events for each agent.  The events are stored
-    in a backing std::vector in each agent.  It is the same per-agent
-    infrastructure as used by Fibonacci heap (implemented in AgentPQ
-    class).</p>
+    in a backing std::vector in each agent.  It is analogous to the
+    per-agent infrastructure as used by Fibonacci heap (implemented in
+    AgentPQ class).</p>
     
-    <p><u>Second tier:</u> This class specifically handles the
+    <p><u>Second tier:</u> This tier specifically handles the
     necessary behavior of the second tier of operations -- that is
-    scheduling of agents by maintaining heap of agents.</p>
+    scheduling of events by maintaining a sorted list-of-list of
+    events.</p>
 
+    <p><u>Third tier:</u> This tier contains a list of concurrent
+    events -- that is, events scheduled for a given agent at a given
+    time.  The third tier is implemented by the HOETier2Entry
+    objects.</p>
+    
     \note On the long run it would be better to avoid reliance on
     std::push_heap or std::pop_heap methods due to implicit dependence
     in the fixHeap() method.
