@@ -307,8 +307,6 @@ muse::TwoTierRung::move(TwoTierBucket&& bkt, const Time minTS,
     // Ensure bucket width is not ridiculously small
     bucketWidth = bktWidth;
     currBucket  = 0;  // current bucket in this rung.
-    // Initialize variable to track maximum bucket count
-    LQ2T_STATS(maxBkts = 0);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
@@ -338,17 +336,19 @@ muse::TwoTierRung::move(OneTierBottom&& bottom, const Time rStart,
     bucketWidth = bktWidth;
     currBucket  = 0;  // current bucket in this rung.    
     ASSERT(rungEventCount == 0);
-    // Initialize variable to track maximum bucket count
-    LQ2T_STATS(maxBkts = 0);
     DEBUG(std::cout << "bucketWidth = " << bucketWidth << std::endl);
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
     // Move events from bottom into buckets in this Rung.
     DEBUG(std::cout << "Adding " << bottom.size() << " events to rung\n");
-    for (muse::Event* event : bottom) {
+    // OneTierBottom is sorted list of events. To preserve sorting
+    // (and keep sorting overheads down), we will process events in
+    // reverse order.
+    for (OneTierBottom::reverse_iterator curr = bottom.rbegin();
+         (curr != bottom.rend()); curr++) {
         // Add to the appropriate bucket in this rung using a
         // helper method in this class.
-        enqueue(event);
+        enqueue(*curr);
     }
     // Finally clear out the events in bottom.
     bottom.clear();
