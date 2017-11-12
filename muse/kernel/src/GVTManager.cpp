@@ -123,7 +123,9 @@ GVTManager::sendRemoteEvent(Event *event) {
 
 void
 GVTManager::inspectRemoteEvent(Event *event) {
-    ASSERT(event != NULL); // false assertion doesn't work
+    ASSERT(event != NULL); // Ensure we have a valid event.
+    // Event's color can be only 2 values -- white or !white
+    ASSERT((event->getColor() == white) || (event->getColor() == !white));
     DEBUG(std::cout << "GVTManager inspected " << *event << std::endl);
     // Update vector counters associated with this process.
     vecCounters[(int) event->getColor()][rank]--;
