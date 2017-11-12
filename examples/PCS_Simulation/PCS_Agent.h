@@ -240,9 +240,56 @@ private:
     muse::Time infinity = TIME_INFINITY;
         
     /** 
-     * The engine that generates pseudo-random numbers.
+     * The engine that generates pseudo-random numbers that is used
+     * only in the nextCall and initialize methods
      */
     std::mt19937 generator;
+
+    /** 
+     * The engine that generates pseudo-random numbers that is used
+     * only in the moveIn and initialize methods.
+     */
+    std::mt19937 moveGenerator;
+
+    /** A temporary event container that is used to fully-sort the
+        events to ensure a total order as the PCS model is sensitive
+        to the order of events.  The events in this list are sorted
+        using the totalOrderCompare method below.
+    */
+    std::vector<PCS_Event*> fullySortedEvents;
+    
+    /** Event comparison function in the executeTaks method to enforce
+        a total order on the events being processed as the behavior of
+        PCS simulation is sensitive to the order of events.  This
+        comparator is used on concurrent events (that is events with
+        same receiveTime) at one agent (so all receiverAgentIDs are
+        the same).
+
+        \param[in] lhs The left-hand-side event for comparison.  The
+        pointer cannot be NULL.
+
+        \param[in] lhs The right-hand-side event for comparison.  The
+        pointer cannot be NULL.
+        
+        \return This method returns true if lhs is less than rhs.
+        That is, lhs should be processed before rhs.
+    */
+    static inline bool totalOrderCompare(const PCS_Event* const lhs,
+                                         const PCS_Event* const rhs) {
+        if (lhs->getSentTime() != rhs->getSentTime()) {
+            return (lhs->getSentTime() < rhs->getSentTime());
+        }
+        // Sent times are the same. Sort next on the sender agent
+        if (lhs->getSenderAgentID() != rhs->getSenderAgentID()) {
+            return (lhs->getSenderAgentID() < rhs->getSenderAgentID());
+        }
+        // Next, sort based on the operation to be performed
+        if (lhs->getMethod() != rhs->getMethod()) {
+            return (lhs->getMethod() < rhs->getMethod());
+        }
+        // Finally sort on portable id
+        return (lhs->getPortableID() < rhs->getPortableID());
+    }
 };
 
 #endif /* PCSAGENT_H */

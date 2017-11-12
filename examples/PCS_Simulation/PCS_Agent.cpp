@@ -37,6 +37,7 @@
 //---------------------------------------------------------------------
 
 #include "PCS_Agent.h"
+#include <algorithm>
 
 PCS_Agent::PCS_Agent(muse::AgentID id, PCS_State* state, int x, int y, int n,
                    double call_interval_mean, double call_duration_mean,
@@ -45,7 +46,7 @@ PCS_Agent::PCS_Agent(muse::AgentID id, PCS_State* state, int x, int y, int n,
     Agent(id, state), X(x), Y(y), N(n), lookAhead(lookAhead),
     granularity(granularity), callIntervalMean(call_interval_mean),
     callDurationMean(call_duration_mean),
-    moveIntervalMean(move_interval_mean), generator(id) {
+    moveIntervalMean(move_interval_mean), generator(id), moveGenerator(id) {
     // Setup the random seed used for generating random delays.
     seed = id;
 }
@@ -127,7 +128,7 @@ PCS_Agent::moveIn(const PCS_Event& event) {
     // type-cast below is used to get rid of that small delta. Compute
     // the next time this portable must move out of this Cell.
     std::exponential_distribution<double> move_distrib(1.0 / moveIntervalMean);
-    uint moveDistrib = lookAhead + move_distrib(generator);
+    uint moveDistrib = lookAhead + move_distrib(moveGenerator);
     const muse::Time move_timeStamp = event.getMoveTimeStamp() + moveDistrib;
     // Determine the ongoing action based on minimum of timestamps
     NextAction action = getAction(complete_call_timeStamp, next_call_timeStamp,
@@ -262,7 +263,7 @@ PCS_Agent::initialize() throw (std::exception) {
         // that no calls are initially in progress"
         muse::Time complete_call_timeStamp = TIME_INFINITY;
         uint next_call_timeStamp     = lookAhead + interval_distrib(generator);
-        uint move_timeStamp          = lookAhead + move_distrib(generator);
+        uint move_timeStamp          = lookAhead + move_distrib(moveGenerator);
         // Schedule event to change state of this portable based on
         // minimum of the 3 timestamps.
         PCS_Event* e = getNextEvent(portableID, complete_call_timeStamp,
@@ -322,9 +323,16 @@ PCS_Agent::processEvent(PCS_Event* nextEvent) {
 
 void
 PCS_Agent::executeTask(const muse::EventContainer* events) {
-    for (auto it = events->begin(); it != events->end(); it++) {
+    fullySortedEvents.clear();
+    for (muse::Event* event : *events) {
+        PCS_Event* const current_event = dynamic_cast<PCS_Event*>(event);
+        fullySortedEvents.push_back(current_event);
+    }
+    std::sort(fullySortedEvents.begin(), fullySortedEvents.end(),
+              totalOrderCompare);
+    for (muse::Event* event : fullySortedEvents) {
         simGranularity();
-        PCS_Event* const current_event = dynamic_cast<PCS_Event*>(*it);
+        PCS_Event* const current_event = dynamic_cast<PCS_Event*>(event);
         processEvent(current_event);
     }
 } // End executeTask
