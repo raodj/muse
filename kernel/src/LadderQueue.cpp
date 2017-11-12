@@ -94,7 +94,7 @@ muse::VectorBucket::~VectorBucket() {
 
 void
 muse::VectorBucket::push_back(VectorBucket&& bucket) {
-    list.reserve(list.size() + bucket.size());
+    // list.reserve(list.size() + bucket.size());
     list.insert(list.end(), bucket.list.begin(), bucket.list.end());
     count += bucket.size();
     bucket.list.clear();
