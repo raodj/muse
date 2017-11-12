@@ -752,6 +752,8 @@ public:
     */
     TwoTierRung(TwoTierBucket&& bkt, const Time rStart,
                 const double bucketWidth) : rungEventCount(0) {
+        // Initialize variable to track maximum bucket count
+        LQ2T_STATS(maxBkts = 0);
         move(std::move(bkt), rStart, bucketWidth);
     }
 
@@ -789,6 +791,8 @@ public:
     */
     TwoTierRung(OneTierBottom&& bottom, const Time rStart,
                 const double bucketWidth) : rungEventCount(0) {
+        // Initialize variable to track maximum bucket count
+        LQ2T_STATS(maxBkts = 0);
         move(std::move(bottom), rStart, bucketWidth);
     }
 
@@ -1059,7 +1063,7 @@ public:
         used by the this queue to report detailed statistics about its
         operations at the end of simulation.
      */
-    TwoTierLadderQueue() : EventQueue("LadderQueue"), nRung(0),
+    TwoTierLadderQueue() : EventQueue("TwoTierLadderQueue"), nRung(0),
                            ladderEventCount(0) {
         ladder.reserve(MaxRungs);
         LQ2T_STATS(ceTop    = ceLadder   = ceBot  = 0);
