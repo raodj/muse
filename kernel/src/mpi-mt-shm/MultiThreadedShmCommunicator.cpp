@@ -1,5 +1,5 @@
-#ifndef MUSE_MULTI_THREADED_COMMUNICATOR_CPP
-#define MUSE_MULTI_THREADED_COMMUNICATOR_CPP
+#ifndef MUSE_MULTI_THREADED_SHM_COMMUNICATOR_CPP
+#define MUSE_MULTI_THREADED_SHM_COMMUNICATOR_CPP
 
 //---------------------------------------------------------------------------
 //

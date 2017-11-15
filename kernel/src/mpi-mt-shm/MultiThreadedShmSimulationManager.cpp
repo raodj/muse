@@ -1,5 +1,5 @@
-#ifndef MUSE_MULTI_THREADED_SIMUALTION_MANAGER_CPP
-#define MUSE_MULTI_THREADED_SIMUALTION_MANAGER_CPP
+#ifndef MUSE_MULTI_THREADED_SHM_SIMUALTION_MANAGER_CPP
+#define MUSE_MULTI_THREADED_SHM_SIMUALTION_MANAGER_CPP
 
 //---------------------------------------------------------------------------
 //
