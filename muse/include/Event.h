@@ -87,6 +87,7 @@ class Event {
     // friend class BinomialHeapEventQueue;
     friend class AgentPQ;
     friend class MultiThreadedSimulation;
+    friend class MultiThreadedShmSimulation;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.

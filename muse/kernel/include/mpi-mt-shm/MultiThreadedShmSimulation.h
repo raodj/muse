@@ -1,5 +1,5 @@
-#ifndef MUSE_MULTI_THREADED_SIMUALTION_H
-#define MUSE_MULTI_THREADED_SIMUALTION_H
+#ifndef MUSE_MULTI_THREADED_SHM_SIMUALTION_H
+#define MUSE_MULTI_THREADED_SHM_SIMUALTION_H
 
 //---------------------------------------------------------------------------
 //
@@ -24,7 +24,7 @@
 
 #include <mutex>
 #include "Simulation.h"
-#include "mpi-mt-shm/MTQueue.h"
+#include "mpi-mt/MTQueue.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -361,7 +361,7 @@ protected:
         without experiencing race conditions.  The list is initialized
         in the parseCommandLineArgs method.
     */
-    MTQueueShm* incomingEvents;
+    MTQueue* incomingEvents;
     
 private:
     /** The undefined copy constructor.

@@ -91,6 +91,14 @@ libmuse_a_SOURCES = \
 	src/mpi-mt/MultiThreadedSimulationManager.cpp \
 	include/mpi-mt/MTQueue.h \
 	include/mpi-mt/SingleBlockingMTQueue.h \
-	src/mpi-mt/SingleBlockingMTQueue.cpp
+	src/mpi-mt/SingleBlockingMTQueue.cpp \
+	include/mpi-mt-shm/MultiThreadedShmCommunicator.h \
+	src/mpi-mt-shm/MultiThreadedShmCommunicator.cpp \
+	include/mpi-mt-shm/MultiThreadedShmSimulation.h \
+	src/mpi-mt-shm/MultiThreadedShmSimulation.cpp \
+	include/mpi-mt-shm/MultiThreadedShmSimulationManager.h \
+	src/mpi-mt-shm/MultiThreadedShmSimulationManager.cpp \
+	include/mpi-mt-shm/SingleBlockingMTQueueShm.h \
+	src/mpi-mt-shm/SingleBlockingMTQueueShm.cpp
 
 # end of Makefile.am

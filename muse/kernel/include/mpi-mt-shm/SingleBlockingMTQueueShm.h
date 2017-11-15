@@ -1,5 +1,5 @@
-#ifndef MUSE_SINGLE_BLOCKING_MT_QUEUE_H
-#define MUSE_SINGLE_BLOCKING_MT_QUEUE_H
+#ifndef MUSE_SINGLE_BLOCKING_MT_QUEUE_SHM_H
+#define MUSE_SINGLE_BLOCKING_MT_QUEUE_SHM_H
 
 //---------------------------------------------------------------------------
 //
