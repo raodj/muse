@@ -1008,7 +1008,7 @@ muse::LadderQueue::createRungFromBottom() {
     // Compute the start time and bucket width for the rung.  Note
     // that with rollbacks, ladder can be empty and that situation
     // needs to be handled.
-    const double bucketWidth = (ladder.empty() ? bottom.getBucketWidth() :
+    const double bucketWidth = (nRung == 0 ? bottom.getBucketWidth() :
                                 ladder[nRung - 1].getBucketWidth());
     // The paper computes rStart as RCur[NRung-1].  However, due to
     // rollback-reprocessing the bottom may have events that are below
