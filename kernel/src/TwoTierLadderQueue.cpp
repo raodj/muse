@@ -605,7 +605,8 @@ muse::TwoTierBucket&&
 muse::TwoTierLadderQueue::recurseRung() {
     ASSERT(!empty());
     ASSERT(nRung > 0);
-    ASSERT(!ladder.empty());    
+    ASSERT(!ladder.empty());
+    ASSERT(nRung <= ladder.size());
     // Now the last rung in ladder is the rung that has the next
     // bucket of events.
     muse::Time bktTime    = 0;  // set by removeNextBucket call below
@@ -694,11 +695,15 @@ muse::TwoTierLadderQueue::createRungFromBottom() {
     ASSERT(!bottom.empty());
     ASSERT(bottom.getTimeRange() > 0);
     DEBUG(std::cout << "Moving events from bottom to a new rung. Bottom has "
-                    << bottom.size() << " events." << std::endl);
+                    << bottom.size() << " events. Bottom time range = "
+                    << bottom.getTimeRange() << std::endl);
     // Compute the start time and bucket width for the rung.  Note
     // that with rollbacks, ladder can be empty and that situation
     // needs to be handled.
-    const double bucketWidth = (ladder.empty() ? bottom.getBucketWidth() :
+    DEBUG(std::cout << "Ladder is empty: " << std::boolalpha << ladder.empty()
+                    << ". nRung = " << nRung << ", ladder.size() = "
+                    << ladder.size() << std::endl);
+    const double bucketWidth = ((nRung == 0) ? bottom.getBucketWidth() :
                                 ladder[nRung - 1].getBucketWidth());
     // The paper computes rStart as RCur[NRung-1].  However, due to
     // rollback-reprocessing the bottom may have events that are below
