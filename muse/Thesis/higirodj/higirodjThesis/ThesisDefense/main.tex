@@ -1,13 +1,13 @@
 \documentclass[12pt, openany]{book} 
 
 \usepackage{personal_preamble}
-\usepackage{fixltx2e}
+% \usepackage{fixltx2e}
 
 % advisors/committee members, PERSONALIZE THIS!!
 \newcommand{\noReaders}{2} % number of readers minus your adviser
 \newcommand{\reader}[1]{
 		\IfEqCase{#1}{
-        {0}{Dr. Rao M. Dhananjai} % adviser
+        {0}{Dr. Dhananjai M. Rao} % adviser
         {1}{Dr. Matthew Stephan}
         {2}{Dr. Karen Davis}
         }
@@ -46,15 +46,14 @@
 % manuscript
 \mainmatter % handle main matter formating
 \input{documents/introduction.tex}
-\input{documents/muse.tex}
 \input{documents/simModels.tex}
 \input{documents/dataStructures.tex}
 \input{documents/experiment.tex}
 \input{documents/conclusion.tex}
 % back matter
 \backmatter % handle back matter formatting
-\bibliography{bibliography}
 \addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{bibliography}
 \bibliographystyle{ieeetr}
 
 \end{document}

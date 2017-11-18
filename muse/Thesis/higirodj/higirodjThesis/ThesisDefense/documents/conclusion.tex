@@ -1,7 +1,7 @@
 \chapter{Conclusions}
 
 Efficient data structures, \textit{i.e.,} priority queues for managing pending
-event sets play a critical role in overall performance of both
+event sets play a critical role in the overall performance of both
 sequential and parallel simulations.  In the context of this study, we
 broadly classified the queues into single-tiered (\textbf{heap} and
 \textbf{ladderQ}) or multi-tiered (\textbf{2tHeap}, \textbf{fibHeap}, \textbf{3tHeap}, and
@@ -10,16 +10,14 @@ structures organize pending events into tiers, with each tier possibly
 implemented using different structures.  Organizing events into
 multiple tiers decouples event management and Logical Process (LP)
 scheduling permitting different algorithms and data structures to suit
-the different needs.
+the different needs~\cite{higiro2017multi}.
 
 The comparative analysis used a fine-tuned version of the Ladder Queue
-(\textbf{ladderQ}) proposed by Tang et.al. ~\cite{tang-05}.  The objective of
+(\textbf{ladderQ}) proposed by Tang et al.~\cite{tang-05}.  Our objective in
 fine-tuning was to reduce the runtime constants of the \textbf{ladderQ}
-without significantly impacting its amortized O(1) time complexity.
-Reduction in runtime constants is primarily realized by minimizing
+without significantly impacting its amortized O(1) time complexity. We realize the reduction in runtime constants by minimizing
 memory management overheads -- \textit{i.e.,} \ding{182} favor few bulk
-operations via \textbf{std::vector} than many small ones via \textbf{std::list}
-and \ding{183} recycle memory or substructures rather than
+operations via \textbf{std::vector} than many small ones via \textbf{std::list}, and \ding{183} recycle memory or substructures rather than
 reallocating them.  Using \textbf{std::vector} (\textit{i.e.,} dynamically growing
 array) enables use of algorithms with lower time constants, such as:
 \textbf{std::sort}, over \textbf{std::multiset} or binary heaps.  The bulk
@@ -27,7 +25,7 @@ memory operations do consume additional memory, but our analysis shows
 that the performance gains significantly outweigh the extra memory
 used.  Accordingly, other simulation kernels can significantly improve
 overall performance by replacing linked-lists with dynamically growing
-arrays.
+arrays~\cite{higiro2017multi}.
 
 One challenge that arose during design of experiments was exploring
 the large multidimensional parameter space in the \textbf{PHOLD} synthetic
@@ -42,7 +40,7 @@ concurrency per LP indicated by \textbf{eventsPerLP} parameter (\textit{i.e.,} b
 of events scheduled per LP), plays the most dominant role.  The data
 was cross-verified using corellograms from longer simulations.  Similar
 GSA analysis can be applied to other models and benchmarks enabling
-consistent analysis for other aspects of simulations.
+consistent analysis for other aspects of simulations~\cite{higiro2017multi}.
 
 The sequential and parallel simulation results showed that
 \textbf{2tLadderQ} performs no worse than \textbf{ladderQ} in sequential
@@ -58,7 +56,7 @@ but may allowing relaxation of the time-window.  The results strongly
 favor the general use of \textbf{2tLadderQ} over the \textbf{ladderQ}.
 Furthermore, the multi-tier organization of \textbf{2tLadderQ} can further
 reduce lock contention and consequent synchronization overheads in
-multithreaded simulations.
+multithreaded simulations~\cite{higiro2017multi}.
 
 The experiments show that multi-tier queues also incur additional
 overhead as part of the two step process.  Moreover, the runtime
@@ -68,29 +66,25 @@ perform well in our benchmarks.  Consequently, in sequential
 simulations, their advantages were realized in simulations that have
 higher concurrency (\textit{i.e.,} larger batches of events) per LP.
 The advantages of \textbf{3tHeap} is realized only when each
-LP has 10 or more concurrent events at each time step.  Such scenarios
+LP has 10 or more concurrent events at each time step. Such scenarios
 with high \textbf{eventsPerLP} arises in epidemic models~\cite{yeom-14} and
 detailed simulation models such as packet-level network
-simulations~\cite{tang-05}.  However, further experimental analysis
-with such models is necessary to verify effectiveness of the data
-structures.
+simulations~\cite{tang-05}. The simulations results using \textbf{PCS} showed that \textbf{3tHeap} is the desired scheduler queue for optimal runtime performance in sequential and optimistic parallel simulations.  However, further experimental analysis
+with such models is necessary to validate effectiveness of the data
+structures~\cite{higiro2017multi}.
 
 The multi-tier data structures enjoy lower runtime constants for event
 cancellation operations which play an influential role in Time Warp
 synchronized parallel simulations.  Therefore, the multi-tier data
 structures perform consistently better in optimistic parallel
-simulations.  In overall summary, our analysis favor the use of
-multi-tier queues, specifically \textbf{2tLadderQ} and \textbf{3tHeap}, as they
-are consistently effective in sequential and parallel simulations,
-with sequential results also bearing potential application to
-conservative and multithreaded simulations.
+simulations.  In overall summary, our analysis favor the use of \textbf{2tLadderQ} and \textbf{3tHeap}, as they are consistently effective in sequential and parallel simulations, with sequential results also bearing potential application to conservative and multithreaded simulations~\cite{higiro2017multi}.
 
 
 \subsubsection{Future Work}
 
 The results in this thesis provide us with an understanding of the effectiveness of multi-tier data structures for managing pending events in sequential \& optimistic parallel simulations. However, the thesis can be extended and our findings further strengthened through additional testing and analysis. An area worthy of further exploration is to determine whether or not our research findings are attributed to the characteristics and design of our multi-tier data structures or influenced by the framework that supported the testing. 
 
-As such, we propose the implementation of our multi-tier data structure (i.e. \textbf{ladderQ}, \textbf{2tLadderQ} and \textbf{3tHeap} in a different programming languages such as Java and comparing performance. Furthermore, the data structures should be assessed using different parallel simulation frameworks and experimental platforms. Franceschini et.al., evaluated different implementation of the pending event using their Ruby based discrete event simulator\cite{franceschini-15}. While, Luca Toscano et al., designed and implemented a Time Warp based parallel simulation framework developed in Erlang\cite{toscano2012parallel}. The approaches and frameworks presented in these studies could be applied to the evaluation of our multi-tier data structures. Lastly, we constrained our simulation models to the benchmark \textbf{PHOLD} and the 
+As such, we propose the implementation of our multi-tier data structure (i.e. \textbf{ladderQ}, \textbf{2tLadderQ} and \textbf{3tHeap} in a different programming language such as Java and comparing performance. Furthermore, the data structures should be assessed using different parallel simulation frameworks and experimental platforms. Franceschini et.al., evaluated different implementation of the pending event using their Ruby based discrete event simulator\cite{franceschini-15}. While, Luca Toscano et al., designed and implemented a Time Warp based parallel simulation framework developed in Erlang\cite{toscano2012parallel}. The approaches and frameworks presented in these studies could be applied to the evaluation of our multi-tier data structures. Lastly, we constrained our simulation models to the benchmark \textbf{PHOLD} and the 
 \textbf{PCS} model. It would be useful to assess the performance of our data structures using a wider range of simulation models to examine the durability of our results
 
        
