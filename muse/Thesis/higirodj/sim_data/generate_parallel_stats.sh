@@ -25,31 +25,36 @@ source ./generate_stats.sh
 # NOTE: The PARAMS variable is set in the included helper scripts
 #
 function setupRuntimeStats() {
-	if [[ $SIM_PARAMS == *"ladderQ"* ]]; then
-		echo "** Gathering ladderQ runtime stats **"
+	# Handle both 2tLadderQ and regular ladderQ
+	if [[ $SIM_PARAMS == *"adderQ"* ]]; then
+		echo "** Gathering ladderQ style runtime stats **"
 		RunTimeStatsInfo=(
-			"runtime   1 max 2   ^real "
-			"memory    p max 6   Maximum resident set size"
-			"rollbacks p sum 9   Total #rollbacks "
-			"mpiMsgs   p sum 7   Total #MPI messages "
-			"topCancl  p sum 12  Events cancelled from top"
-			"ladCancl  p sum 9   Events cancelled from ladder"
-			"botCancl  p sum 9   Events cancelled from bottom"
-			"topScan   p sum 16  Events scanned in top"
-			"ladScan   p sum 11  Events scanned from ladder"
-			"botScan   p sum 11  Events scanned from bottom"
-			"topIns    p sum 16  Inserts into top"
-			"ladIns    p sum 14  Inserts into rungs"
-			"botIns    p sum 13  Inserts into bottom"
-			"rungs     p max 18  Max rung count"
-			"bktRung   p sum 12  Average #buckets per rung"
-			"botSize   p sum 17  Average bottom size"
-			"bktSize   p sum 16  Average bucket width"	
+			"runtime    p max 8   h:mm:ss or m:ss"
+			"memory     p max 6   Maximum resident set size"
+			"rollbacks  p sum 9   Total #rollbacks "
+			"mpiMsgs    p sum 7   Total #MPI messages "
+			"topCancl   p sum 12  Events cancelled from top"
+			"ladCancl   p sum 9   Events cancelled from ladder"
+			"botCancl   p sum 9   Events cancelled from bottom"
+			"topScan    p sum 16  Events scanned in top"
+			"ladScan    p sum 11  Events scanned from ladder"
+			"botScan    p sum 11  Events scanned from bottom"
+			"NuBotScan  p sum 9   Events scanned from bottom"
+			"NoCBotSc   p sum 13  No cancel scans of bottom"
+			"NuNoCBotSc p sum 11  No cancel scans of bottom"	
+			"topIns     p sum 16  Inserts into top"
+			"ladIns     p sum 14  Inserts into rungs"
+			"botIns     p sum 13  Inserts into bottom"
+			"rungs      p max 18  Max rung count"
+			"bktRung    p sum 12  Average #buckets per rung"
+			"botSize    p sum 17  Average bottom size"
+			"bktSize    p sum 16  Average bucket width"
+			"bot2Lad    p sum 10  Bottom to rung operations"
 		)
-	elif [[ $SIM_PARAMS == *"heap2tQ"* ]]; then
+	elif [[ $SIM_PARAMS == *"3tHeap"* ]]; then
 		echo "** Gathering heap2tQ runtime stats **"		
 		RunTimeStatsInfo=(
-			"runtime     1 max 2   ^real "
+			"runtime     p max 8   h:mm:ss or m:ss"
 			"memory      p max 6   Maximum resident set size"
 			"rollbacks   p sum 9   Total #rollbacks "
 			"mpiMsgs     p sum 7   Total #MPI messages "
@@ -63,7 +68,7 @@ function setupRuntimeStats() {
 	else
 		echo "** Gathering generic runtime stats **"
 		RunTimeStatsInfo=(
-			"runtime     1 max 2   ^real "
+			"runtime     p max 8   h:mm:ss or m:ss"
 			"memory      p max 6   Maximum resident set size"
 			"rollbacks   p sum 9   Total #rollbacks "
 			"mpiMsgs     p sum 7   Total #MPI messages "
@@ -109,19 +114,28 @@ function overrideCmdLineParams {
 function generateParStats() {
 	# Setup the global PROCS variable with the number of procs to use.
 	PROCS="$1"
-	# Setup the PBS script to be run 10 times
-	local pbsScript="$TMPDIR/pbs_job.sh"
-	createPBSscript "$pbsScript"
-	# Run the PBS script 10 times and collect data from 10 runs
-	runPBSjobs $REPS "$pbsScript"
-	if [ $? -ne 0 ]; then
-		# Error submitting PBS job or waiting on them.
-		return 1
-	fi
-	# Summarize data from the REPS number of output files
-	recordAllStats $OUT_FILE
-	# Save the raw data in a single file in case we ever need it.
-	saveOutputFiles "$pbsScript"
+	while [[ 1 ]]
+	do
+		# Generate the PBS script to be run 10 times
+		local pbsScript="$TMPDIR/pbs_job.sh"
+		createPBSscript "$pbsScript"
+		# Run the PBS script 10 times and collect data from 10 runs
+		runPBSjobs $REPS "$pbsScript"
+		if [ $? -ne 0 ]; then
+			# Error submitting PBS job or waiting on them.
+			return 1
+		fi
+		# Summarize data from the REPS number of output files
+		recordAllStats $OUT_FILE
+		# Save the raw data in a single file in case we ever need it.
+		saveOutputFiles "$pbsScript"
+		# Generate next set of parameters
+		nextParamComb
+		if [ $? -ne 0 ]; then
+			# Done exploring different parameter combinations.
+			return 0
+		fi
+	done		
 }
 
 # The main function that coordinates the various activities of
@@ -152,18 +166,18 @@ function parMain() {
 	setupRuntimeStats
 	# Save procs in CSV form and initialize PROCS for parallel sim
 	local csvPROCS="$PROCS"
-	PROCS=2
     # Check add header to output file (if it does not have one already)
+	PROCS="2"	
     printHeader "$OUT_FILE"
     # Print parameters and ranges for cross verifications
     printParamRanges
-    # Now generate data various combination of parmaeters.
-	initCmdLineParams
 	# Now generate data for each config in procs after replacing ","
 	# with spaces to make string processing easier.
 	procList=${csvPROCS//,/\ }
 	for np in $procList
 	do
+		# Now generate data various combination of parmaeters.
+		initCmdLineParams
 		# Use helper method to collect stats for given configuration
 		generateParStats $np
 		if [ $? -ne 0 ]; then

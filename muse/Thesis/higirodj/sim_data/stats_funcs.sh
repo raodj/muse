@@ -149,4 +149,74 @@ function summarize_runtime_stats() {
     fi
 }
 
+# Summarizes wall clock time for a given job given the file name prefix.
+#  $1 = Prefix of the files in pwd to be summarized
+#  $2 = number of entries expected in each file.
+#  $3 = x-axis value
+#  $4 = summary data file
+#  $5 = Search string to identify line of statistic -- ignored
+#  $6 = Column in search line containing numeric statistic -- ignored
+#  $7 = "one" or "sum" to select one or sum of values in this stats
+function summarize_elapsed_time_stats() {
+    # Set variable names to make function more readable
+    local prefix=$1
+    local entries=$2
+    local xaxis=$3
+    local dataFile=$4
+    local srchStr="$5"
+    local statCol=$6
+    local aggrType=$7
+    # An array of "one" or "sum" statistics extracted from multiple files
+    local modelStats=()
+    local fileNum=1
+    for outFile in `ls -1 ${prefix}*`; do
+		# Extract raw elapsed time in h:mm:ss or m:ss format
+		local statList=( `grep "$srchStr" ${outFile} | cut -d' ' -f${statCol}` )
+		
+		if [ ${#statList[*]} -lt $entries ]; then
+			>&2 echo "Unable to extract $2 entries from $outFile (extracted only ${#statList[*]} entries): '$srchStr'"
+		fi
+		# Normalize elapsed times to seconds
+		local count=$(( ${#statList[@]} - 1 ))
+		for idx in `seq 0 $count`
+		do
+			local wallTime=${statList[$Idx]}
+			local fmt=( ${wallTime//:/\ } )
+			local runTime=0
+			if [ ${#fmt[@]} -eq 3 ]; then
+				runTime=`echo "$wallTime" | awk -F: '{ print ($1 * 3600) + ($2 * 60) + $3 }'`
+			else
+				runTime=`echo "$wallTime" | awk -F: '{ print ($1 * 60) + $2 }'`
+			fi
+			statList[$count]=$runTime
+		done
+		# Now sort the statList as numbers for further operations
+		statList=( `echo ${statList[@]} | sort -n` )
+		# The at least one stat data was obtained when either select
+		# one or sum the values depending on the parameter specified.
+		if [ ${#statList[*]} -gt 0 ]; then
+			if [ "${aggrType}" == "one" ]; then
+				local midVal=`expr ${#statList[*]} / 2`
+				modelStats[${fileNum}]=${statList[$midVal]}
+			elif [ "${aggrType}" == "max" ]; then
+				local maxIdx=$(( ${#statList[@]} - 1 ))
+				modelStats[${fileNum}]=${statList[$maxIdx]}
+			else
+				# Use sum of values as the reference
+				sum=`echo "${statList[*]}" | tr " " "\n" | awk '{sum+=$1;}END{print sum}'`
+				modelStats[${fileNum}]=$sum
+			fi
+			fileNum=$((fileNum + 1))
+		fi
+    done
+    if [ ${#modelStats[*]} -gt 0 ]; then
+        # Now we have stats from all the files. Print summary values
+        # for plotting averages and confidence intervals.
+		echo "$xaxis ${#modelStats[*]} `calcMeanAndCI ${modelStats[*]}` `calcBoxVals ${modelStats[*]}`"
+    else
+		# Print warning message that data for given configuration is missing
+		>&2 echo "Warning: Data not found for ${prefix}. Skipping entry"
+    fi
+}
+
 # End of script

@@ -16,7 +16,7 @@ reps=10
 #   "param_name [1|p] [sum|max|any] col_with_stat search words"
 #
 RunTimeStatsInfo=(
-	"runtime     1 max 2   ^real "
+	"runtime     p max 8   h:mm:ss or m:ss"
 	"memory      p max 6   Maximum resident set size"
 	"rollbacks   p sum 9   Total #rollbacks "
 	"mpiMsgs     p sum 7   Total #MPI messages "
@@ -31,9 +31,9 @@ source ./generate_stats.sh
 main $*
 
 # The following code is used for testing / validation of stats
-# PROCS=2
-# TMPDIR="tmp_8520"
-# REPS=10
+# PROCS=1
+# TMPDIR="tmp_4939"
+# REPS=3
 
 # initCmdLineParams
 # printHeader
