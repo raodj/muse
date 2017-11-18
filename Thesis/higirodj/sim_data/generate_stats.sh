@@ -20,16 +20,39 @@
 # link to the actual executable.
 SIM_EXEC="./phold"
 
+# An optional perf command-line that can be overridden to use perf to
+# collect additional statistics
+PERF_EXEC=""
+
 # The list of command-line parameters to be varied for simulation.
 # These values change from simulation-to-simulation.  Entries are in
 # the form: cmd-line-arg="values".  Arguments with a '%' sign at
 # the end are converted to percentage values in the range 0.0 to 1.0
 
+# The following configuration was used for sequential simulations for
+# recording caching charachteristics using perf.
 declare -A CmdLineParams
-CmdLineParams=( ['--delay']="1 2 4 8"
-                ['--selfEvents%']="0 25"
+CmdLineParams=( ['--delay']="1 10"
+                ['--selfEvents%']="25"
                 ['--eventsPerAgent']="1 2 5 10 15 20"
               )
+
+# The following configuration was used for sequential simulations
+# declare -A CmdLineParams
+# CmdLineParams=( ['--delay']="1 2 5 10"
+#                ['--selfEvents%']="0 25"
+#                ['--eventsPerAgent']="1 2 5 10 15 20"
+#              )
+
+# The following configuration is used for parallel simulations
+# declare -A CmdLineParams
+# CmdLineParams=( ['--delay']="1 10"
+#                ['--selfEvents%']="0 25"
+#                ['--eventsPerAgent']="2 5 10"
+#              )
+
+# declare -A CmdLineParams
+#CmdLineParams=( ['--2t-ladderQ-t2k']="1 2 16 32 64 128 256 512 1024 2048" )
 
 # The global array of current values for the parameters to be
 # populated by the initCmdLineParams method in this script.
@@ -42,7 +65,10 @@ declare -A currCmdLineIndexs
 # ------ Typically you should not have to modify values below this line. -----
 
 # Fixed subset of command-line arguments to be passed to PBS
-PBS_PARAMS="-lwalltime=01:00:00 -m n"
+PBS_PARAMS="-lwalltime=01:00:00"
+
+# Any additional command-line options to be included.
+ADDL_SIM_CMD_LINE_ARGS="--time-window 10"
 
 # Include helper functions
 source ./stats_funcs.sh
@@ -84,6 +110,10 @@ function parseArgs() {
                 ;;
 			--reps)
 				REPS="$1"
+				shift
+				;;
+			--simExec)
+				SIM_EXEC="$1"
 				shift
 				;;
             *)
@@ -226,14 +256,15 @@ function createPBSscript {
 	local script="$1"
 	local args=`toCmdLine`
 	echo "Creating script for: $args"
-	local mainCmd="time -p mpiexec --output-filename \$out_file /usr/bin/time -p -v ./phold $args"
-	echo "#PBS -j oe"                    > "$script"
-	echo "cd \$PBS_O_WORKDIR"           >> "$script"
+	local mainCmd="time -p mpiexec --output-filename \$out_file /usr/bin/time -p -v $PERF_EXEC $SIM_EXEC $ADDL_SIM_CMD_LINE_ARGS $args"
+	echo "#PBS -j oe"                     > "$script"
+	echo "cd \$PBS_O_WORKDIR"            >> "$script"
 	echo 'jobID=`echo ${PBS_JOBID} | cut -d"." -f1`' >> "$script"
-	echo "out_file=\"$TMPDIR/sim_out_\${jobID}_\"" >> "$script"
-	echo "$mainCmd"                     >> "$script"
-	echo 'cat "$out_file"*'             >> "$script"
-	echo 'rm -f "$out_file"*'           >> "$script"
+	echo "out_file=\"$TMPDIR/sim_out_\${jobID}_\""   >> "$script"
+	echo "fullOut=\"$TMPDIR/sim_out_\${REP}.txt\""   >> "$script"
+	echo "$mainCmd"                                  >> "$script"
+	echo 'cat "$out_file"* > "$fullOut"'             >> "$script"
+	echo 'rm -f "$out_file"*'                        >> "$script"
 }
 
 # Function to run a given script 10 times and collate the data
@@ -259,9 +290,9 @@ function runPBSjobs {
 	for rep in `seq 1 $reps`
 	do
 		local name="sim_$$_$rep"
-		local outFile="$TMPDIR/sim_out_${rep}.txt"
-		# echo qsub ${params} -N $name -o $outFile $script
-		jobid=`qsub ${params} -N $name -o $outFile $script`
+		local outFile="$TMPDIR/sim_pbs_out_${rep}.txt"
+		echo qsub ${params} -N $name -v "REP=${rep}" $script
+		jobid=`qsub ${params} -N $name -v "REP=${rep}" -o $outFile $script`
 		if [ $? -ne 0 ]; then
 			echo "Error submitting PBS job using following config:"
 			echo "qsub ${params} -N $name -o $outFile $script"
@@ -300,8 +331,12 @@ function extractStats {
 	local expCount=$PROCS
 	if [ "$expNum" == "1" ]; then
 		expCount=1
-	fi 
-	local stats=( `summarize_runtime_stats "$outFile" $expCount "$paramName" "$tmpFile" "$searchStr" $column "$paramType"` )
+	fi
+	if [ "$searchStr" == "h:mm:ss or m:ss" ]; then
+		local stats=( `summarize_elapsed_time_stats "$outFile" $expCount "$paramName" "$tmpFile" "$searchStr" $column "$paramType"` )		
+	else
+		local stats=( `summarize_runtime_stats "$outFile" $expCount "$paramName" "$tmpFile" "$searchStr" $column "$paramType"` )
+	fi
 	# Print the necessary information as a CSV
 	echo "${stats[2]}, ${stats[3]}, ${stats[4]}, ${stats[5]}, ${stats[6]}, ${stats[7]}, ${stats[8]}, ${stats[9]}, ${stats[10]}"
 }
@@ -384,10 +419,10 @@ function printHeader {
 function saveOutputFiles {
 	local pbsScript="$1"
 	# Check and create temporary-subdirectory
-	local dir="$TMPDIR/aggr_out_proc_${PROCS}"
+	local dir="$TMPDIR/aggr_out"
 	mkdir -p "$dir"
 	# Create file name with parameter values in the file name.
-	local aggrFileName="aggr_out"
+	local aggrFileName="aggr_out_proc_${PROCS}"
     for param in "${!CmdLineParams[@]}"
     do
         local paramVal=( `param2CmdLine "$param"` )
