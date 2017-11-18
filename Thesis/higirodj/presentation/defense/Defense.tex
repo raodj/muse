@@ -61,9 +61,10 @@ Miami University
 \section{Introduction/Motivation}
 \section{Background}
 \section{Methodology}
-\section{GSA results}
-\section{Sequential simulation results}
-\section{Parallel simulation assessments}
+\section{Results}
+\subsection{GSA results}
+\subsection{Sequential simulation results}
+\subsection{Parallel simulation assessments}
 \section{Conclusion and Future Work}
 
 
@@ -111,11 +112,8 @@ Synchronization of LPs is needed to prevent causality violations.
 \end{minipage}
 \end{figure}
 
-Synchronization strategies:
-\begin{itemize}
-\item Conservative.
-\item Optimistic.
-\end{itemize}
+Synchronization strategy: optimistic (Time Warp).
+
 \end{frame}
 
 \begin{frame}
@@ -158,7 +156,7 @@ Synchronization strategies:
 \end{minipage}
 \end{figure}
 \begin{itemize}
-\item Ladder Queue is a priority queue implementation proposed by Tang et al. with amortized constant time complexity.
+\item Ladder Queue is a priority queue implementation proposed by Tang et al. with amortized O(1) constant time complexity.
 \item There are two key ideas underlying the Ladder Queue, namely: minimize the number of events to be sorted and delay sorting of events as much as possible.
 \end{itemize}
 \end{frame}
@@ -168,18 +166,13 @@ Synchronization strategies:
 \frametitle{\centerline{Ladder Queue (\textbf{ladderQ - Fine Tuned})}}
 \begin{figure}
 \centering
-\begin{minipage}{0.55\textwidth}
+\begin{minipage}{0.95\textwidth}
 \includegraphics[width=1\linewidth]{images/lq_config_compare.pdf}
-\end{minipage}
-\centering
-\begin{minipage}{0.45\textwidth}
-\includegraphics[width=1\linewidth]{images/lq_config_memory_compare.pdf}
 \end{minipage}
 \end{figure}
 \begin{itemize}{\vspace*{-5mm}}
-\item Comparison of execution time and peak memory using 6 different ladderQ configurations.
+\item Comparison of execution time using 6 different ladderQ configurations.
 \item L.List-L.List configuration was slowest and performed 85x slower than the Vec-Vec configuration.
-\item The increased performance of Vec-Vec comes at about a 6x increase in peak memory footprint when compared to L.List-L.List.
 \end{itemize}
 \end{frame}
 
@@ -209,10 +202,13 @@ Synchronization strategies:
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] \colorbox{red}{Background}
 \item[\ding{184}] Methodology
-\item[\ding{185}] GSA results
-\item[\ding{186}] Sequential simulation results
-\item[\ding{187}] Parallel simulation assessments
-\item[\ding{188}]Conclusion and Future Work
+\item[\ding{185}] Results
+\setlength{\itemindent}{0.1in}
+\item GSA results
+\item Sequential simulation results
+\item Parallel simulation assessments
+\setlength{\itemindent}{0in}
+\item[\ding{186}]Conclusion and Future Work
 \end{itemize}
 \end{frame}
 
@@ -401,20 +397,6 @@ A scheduler queue is required to implement four key operations to manage pending
 
 
 
-\begin{frame}
-\frametitle{\centerline{PHOLD - Key Parameters}}
-\begin{figure}[T]
-\begin{minipage}[b]{1\textwidth}
-\includegraphics[width=\textwidth]{images/keyParameters.png}
-\end{minipage}
-\end{figure}
-\begin{itemize} 
-\item Imbalance parameter influences the partition.
-\item Granularity impacts the processing time of events.
-\item $\lambda$ impacts the distribution of the time stamp values.
-\end{itemize}
-\end{frame}
-
 
 
 
@@ -437,10 +419,13 @@ A scheduler queue is required to implement four key operations to manage pending
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] Background
 \item[\ding{184}] \colorbox{red}{Methodology}
-\item[\ding{185}] GSA results
-\item[\ding{186}] Sequential simulation results
-\item[\ding{187}] Parallel simulation assessments
-\item[\ding{188}]Conclusion and Future Work
+\item[\ding{185}] Results
+\setlength{\itemindent}{0.1in}
+\item GSA results
+\item Sequential simulation results
+\item Parallel simulation assessments
+\setlength{\itemindent}{0in}
+\item[\ding{186}]Conclusion and Future Work
 \end{itemize}
 \end{frame}
 
@@ -467,24 +452,58 @@ A scheduler queue is required to implement four key operations to manage pending
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] Background
 \item[\ding{184}] Methodology
-\item[\ding{185}] \colorbox{red}{GSA results}
-\item[\ding{186}] Sequential simulation results
-\item[\ding{187}] Parallel simulation assessments
-\item[\ding{188}]Conclusion and Future Work
+\item[\ding{185}] \colorbox{red}{Results}
+\setlength{\itemindent}{0.1in}
+\item \colorbox{yellow}{GSA results}
+\item Sequential simulation results
+\item Parallel simulation assessments
+\setlength{\itemindent}{0in}
+\item[\ding{186}]Conclusion and Future Work
 \end{itemize}
 \end{frame}
+
+
+\begin{frame}
+\frametitle{\centerline{GSA sequential results - PCS}}
+\begin{figure}[T]
+\begin{minipage}[b]{0.95\textwidth}
+\includegraphics[width=\textwidth]{images/2tLadderQv3tHeapgsa_anal_shortPCS.pdf}
+\end{minipage}
+\textbf{\caption{GSA data from sequential simulations (1 MPI-process)
+showing influential PCS parameters (\textbf{2tLadderQ}
+vs. \textbf{3tHeap}).}}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\centerline{GSA parallel results - PHOLD}}
+\begin{figure}[T]
+\begin{minipage}[b]{0.95\textwidth}
+\includegraphics[width=\textwidth]{images/par_2tlad_vs_3tHeap_gsa_anal_short.pdf}
+\end{minipage}
+\textbf{\caption{GSA data from parallel simulations (4 MPI-processes)
+showing influential PHOLD parameters (\textbf{2tLadderQ}
+vs. \textbf{3tHeap}).}}
+\end{figure}
+\end{frame}
+
+
 
 \begin{frame}
 \frametitle{\centerline{Summary of GSA results}}
 \begin{itemize}
 \item \textbf{Events per LP} - parameter with most influence using \textbf{PHOLD} benchmark in sequential and parallel simulations. 
-\item \textbf{Portables per Cell} - parameter with most influence using \textbf{PCS} in sequential and simulations. 
-\item \textbf{lambda} - parameter with marginal influence using \textbf{PHOLD} benchmark in sequential. 
-\item \textbf{\%Self-Events} - parameter has a more pronounced influence in comparison to \textbf{lambda} using \textbf{PHOLD} benchmark in parallel. 
+
+\item \textbf{lambda} - parameter with marginal influence using \textbf{PHOLD} benchmark in sequential simulations. 
+
+\item \textbf{\%Self-Events} - parameter has a more pronounced influence in comparison to \textbf{lambda} using \textbf{PHOLD} benchmark in parallel simulations. 
+
+\item \textbf{Portables per Cell} - parameter with most influence using \textbf{PCS} in sequential and parallel simulations. 
+
 \item \textbf{Model size} - marginal influence using \textbf{PCS} in sequential simulations. 
 \end{itemize}
 \end{frame}
-
 
 
 
@@ -524,15 +543,18 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] Background
 \item[\ding{184}] Methodology
-\item[\ding{185}] GSA results
-\item[\ding{186}] \colorbox{red}{Sequential simulation results}
-\item[\ding{187}] Parallel simulation assessments
-\item[\ding{188}]Conclusion and Future Work
+\item[\ding{185}] \colorbox{red}{Results}
+\setlength{\itemindent}{0.1in}
+\item GSA results
+\item \colorbox{yellow}{Sequential simulation results}
+\item Parallel simulation assessments
+\setlength{\itemindent}{0in}
+\item[\ding{186}]Conclusion and Future Work
 \end{itemize}
 \end{frame}
 
 \begin{frame}
-\frametitle{\centerline{Sequential simulation results - PHOLD}}
+\frametitle{\centerline{Sequential simulation results}}
 \begin{figure}
 \begin{minipage}{0.45\linewidth}
 \centering
@@ -540,27 +562,12 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \end{minipage}
 \begin{minipage}{0.45\linewidth}
 \centering
-\includegraphics[width=\textwidth]{images/ph3_memory.pdf}
+\includegraphics[width=\textwidth, height=5cm]{images/pcs6_runtime_full.png}
 \end{minipage}
-\textbf{\caption{Sequential simulation runtimes and peak memory usage with \textbf{ph3}.}}
+\textbf{\caption{Sequential simulation runtimes for \textbf{ph3} and \textbf{pcs6} configurations.}}
 \end{figure}
 \end{frame}
 
-
-\begin{frame}
-\frametitle{\centerline{Sequential simulation results - PCS}}
-\begin{figure}
-\begin{minipage}{0.49\linewidth}
-\centering
-\includegraphics[width=\textwidth]{images/pcs6_runtime_full.png}
-\end{minipage}
-\begin{minipage}{0.49\linewidth}
-\centering
-\includegraphics[width=\textwidth]{images/pcs6_memory_full.png}
-\end{minipage}
-\textbf{\caption{Sequential simulation runtimes and peak memory usage with \textbf{pcs6}.}}
-\end{figure}
-\end{frame}
 
 
 \begin{frame}
@@ -569,10 +576,13 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] Background
 \item[\ding{184}] Methodology
-\item[\ding{185}] GSA results
-\item[\ding{186}] Sequential simulation results
-\item[\ding{187}] \colorbox{red}{Parallel simulation assessments}
-\item[\ding{188}]Conclusion and Future Work
+\item[\ding{185}] \colorbox{red}{Results}
+\setlength{\itemindent}{0.1in}
+\item GSA results
+\item Sequential simulation results
+\item \colorbox{yellow}{Parallel simulation assessments}
+\setlength{\itemindent}{0in}
+\item[\ding{186}]Conclusion and Future Work
 \end{itemize}
 \end{frame}
 
@@ -586,10 +596,6 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \begin{minipage}{0.45\linewidth}
 \centering
 \includegraphics[width=\textwidth]{images/ph4_Delay_1_Evt_2_run_time.pdf}
-\end{minipage}
-\begin{minipage}{0.45\linewidth}
-\centering
-\includegraphics[width=\textwidth]{images/ph4_Delay_1_Evt_2_rollbacks.pdf}
 \end{minipage}
 \textbf{\caption{Statistics from PH4 configuration of PHOLD parallel simulation with eventsPerLP=2, $\lambda= 1$, \%selfEvents=25\% }}
 \end{figure}
@@ -605,10 +611,7 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \centering
 \includegraphics[width=\textwidth]{images/ph4_Delay_10_Evt_10_run_time.pdf}
 \end{minipage}
-\begin{minipage}{0.45\linewidth}
-\includegraphics[width=\textwidth]{images/ph4_Delay_10_Evt_10_rollbacks.pdf}
-\end{minipage}
-\textbf{\caption{Statistics from PH5 configuration of PHOLD parallel simulation with eventsPerLP=10, $\lambda= 10$, \%selfEvents=25\% }}
+\textbf{\caption{Statistics from PH4 configuration of PHOLD parallel simulation with eventsPerLP=10, $\lambda= 10$, \%selfEvents=25\% }}
 \end{figure}
 \end{frame}
 
@@ -620,24 +623,21 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \centering
 \includegraphics[width=\textwidth]{images/ph5_Delay_10_Evt_20_run_time.pdf}
 \end{minipage}
-\begin{minipage}{0.45\linewidth}
-\includegraphics[width=\textwidth]{images/ph5_Delay_10_Evt_20_rollbacks.pdf}
-\end{minipage}
-\textbf{\caption{Statistics from PH5 configuration of PHOLD parallel simulation with eventsPerLP=20, $\lambda= 10$, \%selfEvents=25\% }}
+\textbf{\caption{Statistics from PH5 configuration with eventsPerLP=20, $\lambda= 10$, \%selfEvents=25\%}}
 \end{figure}
 \end{frame}
-
 
 
 \begin{frame}
 \frametitle{\centerline{Parallel simulation assessment - Best case for \textbf{3tHeap}}}
 \begin{figure}
-\begin{minipage}{0.99\linewidth}
-\includegraphics[width=\linewidth]{images/pcs8_parallel_75_log.png}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[width=\textwidth, height=6cm]{images/pcs8_parallel_75_2.png}
 \end{minipage}
-\textbf{\caption{Statistics from PCS8 configuration of PCS parallel simulation with portables per cell = 75}}
+\textbf{\caption{Statistics from PCS8 configuration with portables per cell = 75}}
 \end{figure}
 \end{frame}
+
 
 \begin{frame}
 \frametitle{\centerline{Overview}}
@@ -645,28 +645,31 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 \item[\ding{182}] Introduction/Motivation
 \item[\ding{183}] Background
 \item[\ding{184}] Methodology
-\item[\ding{185}] GSA results
-\item[\ding{186}] Sequential simulation results
-\item[\ding{187}] Parallel simulation assessments
-\item[\ding{188}] \colorbox{red}{Conclusion and Future Work}
+\item[\ding{185}] Results
+\setlength{\itemindent}{0.1in}
+\item GSA results
+\item Sequential simulation results
+\item Parallel simulation assessments
+\setlength{\itemindent}{0in}
+\item[\ding{186}] \colorbox{red}{Conclusion and Future Work}
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{\centerline{Conclusions}}
 \begin{itemize}
-\item Recommend the use of General Sensitivity Analysis (GSA) to reduce the parameter space in simulation models with large parameters.
+
 \item \textbf{2tLadderQ} performs no worse than \textbf{ladderQ} in sequential simulations with \textsubscript{t2}k=1. 
 \item Results favor the general use of \textbf{2tLadderQ} over the \textbf{ladderQ}.
 \item The advantages of \textbf{3tHeap} is realized only when each logical process has 10 or more concurrent events at each time step.
-\item Multi-tier data structures perform consistently better in optimistic parallel simulations.
+\item Recommend the use of General Sensitivity Analysis (GSA) to reduce the parameter space in simulation models with large parameters.
 \end{itemize}
 \end{frame}
 
 \begin{frame}
 \frametitle{\centerline{Future Work}}
 \begin{itemize}
-\item Implement our multi-tier data structures in a different language and compare performance.
+\item Implement the multi-tier data structures in a different language and compare performance.
 \item Test data structures on other parallel simulation frameworks. 
 \item Assess the performance of our data structures using a wider range of simulation models.
 \item Assess the effectiveness of multi-tier data structures in multi-threaded simulations.
@@ -696,6 +699,25 @@ Name & \#LPs & \multicolumn{2}{c}{Sim. End Time} \\ \cline{3-4}
 
 \begin{frame}
 \Huge{\centerline{The End}}
+\end{frame}
+
+\begin{frame}
+\frametitle{\centerline{Ladder Queue (\textbf{ladderQ - Fine Tuned})}}
+\begin{figure}
+\centering
+\begin{minipage}{0.55\textwidth}
+\includegraphics[width=1\linewidth]{images/lq_config_compare.pdf}
+\end{minipage}
+\centering
+\begin{minipage}{0.45\textwidth}
+\includegraphics[width=1\linewidth]{images/lq_config_memory_compare.pdf}
+\end{minipage}
+\end{figure}
+\begin{itemize}{\vspace*{-5mm}}
+\item Comparison of execution time and peak memory using 6 different ladderQ configurations.
+\item L.List-L.List configuration was slowest and performed 85x slower than the Vec-Vec configuration.
+\item The increased performance of Vec-Vec comes at about a 6x increase in peak memory footprint when compared to L.List-L.List.
+\end{itemize}
 \end{frame}
 
 \begin{frame}
@@ -775,6 +797,39 @@ vs. \textbf{3tHeap}).}}
 \end{frame}
 
 \begin{frame}
+\frametitle{\centerline{Sequential simulation results - PHOLD}}
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph3_run_time.pdf}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph3_memory.pdf}
+\end{minipage}
+\textbf{\caption{Sequential simulation runtimes and peak memory usage with \textbf{ph3}.}}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\centerline{Sequential simulation results - PCS}}
+\begin{figure}
+\begin{minipage}{0.49\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/pcs6_runtime_full.png}
+\end{minipage}
+\begin{minipage}{0.49\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/pcs6_memory_full.png}
+\end{minipage}
+\textbf{\caption{Sequential simulation runtimes and peak memory usage with \textbf{pcs6}.}}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
 \frametitle{\centerline{Simulation Model - PHOLD}}
 \begin{table}[!ht]\centering \vspace*{-4mm}
 \textbf{\caption{Parameters in PHOLD benchmark}}
@@ -797,6 +852,19 @@ $P(x|\lambda)=\lambda e^{-\lambda x}$. \\
 \end{table}
 \end{frame}
 
+\begin{frame}
+\frametitle{\centerline{PHOLD - Key Parameters}}
+\begin{figure}[T]
+\begin{minipage}[b]{1\textwidth}
+\includegraphics[width=\textwidth]{images/keyParameters.png}
+\end{minipage}
+\end{figure}
+\begin{itemize} 
+\item Imbalance parameter influences the partition.
+\item Granularity impacts the processing time of events.
+\item $\lambda$ impacts the distribution of the time stamp values.
+\end{itemize}
+\end{frame}
 
 
 \begin{frame}
@@ -912,6 +980,24 @@ Parameter & Description \\
 \end{frame}
 
 
+
+\begin{frame}
+\frametitle{\centerline{Parallel simulation assessment - Efficient case for \textbf{ladderQ}}}
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph4_Delay_1_Evt_2_run_time.pdf}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph4_Delay_1_Evt_2_rollbacks.pdf}
+\end{minipage}
+\textbf{\caption{Statistics from PH4 configuration of PHOLD parallel simulation with eventsPerLP=2, $\lambda= 1$, \%selfEvents=25\% }}
+\end{figure}
+\end{frame}
+
+
+
 \begin{frame}
 \frametitle{Parallel simulation assessment -  Knee point for \textbf{3tHeap} vs. \textbf{ladderQ}}
 \begin{figure}
@@ -927,6 +1013,8 @@ Parameter & Description \\
 \end{frame}
 
 
+
+
 \begin{frame}
 \frametitle{Parallel simulation assessment -  Knee point for \textbf{3tHeap} vs. \textbf{ladderQ}}
 \begin{figure}
@@ -940,6 +1028,49 @@ Parameter & Description \\
 \textbf{\caption{Statistics from PH4 configuration of PHOLD parallel simulation with eventsPerLP=10, $\lambda= 10$, \%selfEvents=25\% }}
 \end{figure}
 \end{frame}
+
+\begin{frame}
+\frametitle{Parallel simulation assessment -  Knee point for \textbf{3tHeap} vs. \textbf{ladderQ}}
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph4_Delay_10_Evt_10_run_time.pdf}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[width=\textwidth]{images/ph4_Delay_10_Evt_10_rollbacks.pdf}
+\end{minipage}
+\textbf{\caption{Statistics from PH4 configuration of PHOLD parallel simulation with eventsPerLP=10, $\lambda= 10$, \%selfEvents=25\% }}
+\end{figure}
+\end{frame}
+
+
+\begin{frame}
+\frametitle{\centerline{Parallel simulation assessment - Best case for \textbf{3tHeap}}}
+\begin{figure}
+\begin{minipage}{0.45\linewidth}
+\centering
+\includegraphics[width=\textwidth]{images/ph5_Delay_10_Evt_20_run_time.pdf}
+\end{minipage}
+\begin{minipage}{0.45\linewidth}
+\includegraphics[width=\textwidth]{images/ph5_Delay_10_Evt_20_rollbacks.pdf}
+\end{minipage}
+\textbf{\caption{Statistics from PH5 configuration of PHOLD parallel simulation with eventsPerLP=20, $\lambda= 10$, \%selfEvents=25\% }}
+\end{figure}
+\end{frame}
+
+
+
+\begin{frame}
+\frametitle{\centerline{Parallel simulation assessment - Best case for \textbf{3tHeap}}}
+\begin{figure}
+\begin{minipage}{0.99\linewidth}
+\includegraphics[width=\linewidth]{images/pcs8_parallel_75_log.png}
+\end{minipage}
+\textbf{\caption{Statistics from PCS8 configuration of PCS parallel simulation with portables per cell = 75}}
+\end{figure}
+\end{frame}
+
+
 
 
 \begin{frame}
@@ -963,6 +1094,15 @@ Parameter & Description \\
 \end{figure}
 \end{frame}
 
+\begin{frame}
+\frametitle{\centerline{Parallel simulation assessment - Best case for \textbf{3tHeap}}}
+\begin{figure}
+\begin{minipage}{0.99\linewidth}
+\includegraphics[width=\linewidth]{images/pcs8_parallel_75_log.png}
+\end{minipage}
+\textbf{\caption{Statistics from PCS8 configuration of PCS parallel simulation with portables per cell = 75}}
+\end{figure}
+\end{frame}
 
 
 \end{document}
