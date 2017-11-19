@@ -351,12 +351,14 @@ muse::TwoTierRung::TwoTierRung(TwoTierRung&& src, const double newBktWidth) :
     currBucket = (src.currBucket * src.bucketWidth) / bucketWidth;
     ASSERT(currBucket <= src.currBucket);
     // Setup the current timestamp value based on curr bucket
-    rCurrTS = rStartTS + (currBucket * bucketWidth);
+    // rCurrTS = rStartTS + (currBucket * bucketWidth);
+    rCurrTS = src.rCurrTS;
     // Redistribute events from source rung to this rung.
     for (size_t bkt = 0; (bkt < src.bucketList.size()); bkt++) {
         move(std::move(src.bucketList[bkt]));
     }
     ASSERT(rungEventCount == src.rungEventCount);
+    src.rungEventCount = 0;
 }
     
 void
@@ -425,7 +427,7 @@ bool
 muse::TwoTierRung::canContain(muse::Event* event) const {
     const muse::Time recvTime = event->getReceiveTime();
     const int bucketNum = (recvTime - rStartTS) / bucketWidth;
-    return ((bucketNum >= (int) currBucket) && (recvTime >= rStartTS));
+    return ((bucketNum >= (int) currBucket) && (recvTime >= rCurrTS));
 }
 
 void
