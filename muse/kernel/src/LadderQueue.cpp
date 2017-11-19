@@ -265,9 +265,12 @@ muse::Bottom::getBucketWidth() const {
     }
     ASSERT(sel.front() != NULL);
     ASSERT(sel.back()  != NULL);
-    const double maxTS = sel.front()->getReceiveTime();
-    const double minTS = sel.back()->getReceiveTime();
-    return (maxTS - minTS + size() - 1.0) / sel.size();
+    const double minTS = sel.front()->getReceiveTime();
+    const double maxTS = sel.back()->getReceiveTime();
+    ASSERT(maxTS >= minTS);
+    ASSERT(sel.size() > 0);
+    const double bktWidth = (maxTS - minTS + size() - 1.0) / sel.size();
+    return bktWidth;
 }
 
 int
