@@ -885,7 +885,7 @@ public:
         }
         return (sel.back()->getReceiveTime() - sel.front()->getReceiveTime());
     }
-    
+	
 protected:
     // Two different strategies based on the type of bucket used -->
     // linked-list vs. vector
@@ -1497,7 +1497,17 @@ public:
         any agent) is pending in a sub-bucket.
     */   
     bool haveBefore(const Time recvTime) const;
-    
+
+    /** Return the current bucket list size, which indicates the net
+        number of buckets in this rung.  This information is typically
+        used to report statistics at the end.
+
+        \return The net number of buckets in this rung of the ladder.
+     */
+    int getBucketListSize() const {
+        return bucketList.size();
+    }
+	
 protected:
 
 private:
