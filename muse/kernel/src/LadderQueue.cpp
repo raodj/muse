@@ -911,6 +911,11 @@ muse::LadderQueue::reportStats(std::ostream& os) {
             for (size_t i = 0; (i < nRung); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
+            std::string rungBktSizes;
+            for (size_t i = 0; (i < ladder.size()); i++) {
+                rungBktSizes += std::to_string(ladder[i].getBucketListSize());
+                rungBktSizes += " ";
+            }            
             // Compute net number of compares for ladderQ
             // const long comps = log2(botLen.getMean()) * botLen.getSum();
             // std::make_heap has 3N time complexity.
@@ -932,6 +937,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nMax bottom size             : " << maxBotSize
                << "\nAverage bucket width        : " << avgBktWidth
                << "\nBottom to rung operations   : " << botToRung
+               << "\nRung bucket list sizes:     : " << rungBktSizes
                << "\nCompare estimate            : " << comps
                << std::endl;
     });
