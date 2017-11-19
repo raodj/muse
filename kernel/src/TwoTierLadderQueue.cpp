@@ -27,7 +27,7 @@
 #include "TwoTierLadderQueue.h"
 
 // The maximum number of buckets 1 rung can have.
-#define MAX_BUCKETS 100
+#define MAX_BUCKETS 50
 
 /** The number of sub-buckets to be used in each 2-tier bucket */
 int muse::TwoTierBucket::t2k = 32;
@@ -192,6 +192,23 @@ muse::TwoTierTop::add(muse::Event* event) {
     maxTS = std::max(maxTS, event->getReceiveTime());
 }
 
+double
+muse::TwoTierTop::getBucketWidth() const {
+    DEBUG(std::cout << "minTS=" << minTS << ", maxTS=" << maxTS
+          << ", size=" << size() << std::endl);
+    // Compute preferred bucket width as per Tang et al paper
+    double bktWidth = std::max((maxTS - minTS + size() - 1.0) / size(), 0.01);
+    // Don't let bucket count exceed max number of buckets
+    const int lastBkt = (maxTS - minTS) / bktWidth;
+    if (lastBkt > MAX_BUCKETS) {
+        // The number of buckets would exceed threshold. So rework
+        // bucket size such that it will not eceed MAX_BUCKETS.
+        bktWidth = std::max((maxTS - minTS) / MAX_BUCKETS, 0.01);
+    }
+    return bktWidth;
+}
+
+
 // -------------------------[ OneTierBottom methods ]-------------------------
 
 void
@@ -249,7 +266,15 @@ muse::OneTierBottom::getBucketWidth() const {
     const double minTS = back()->getReceiveTime();
     ASSERT(maxTS >= minTS);
     ASSERT(size() > 0);
-    const double bktWidth = (maxTS - minTS + size() - 1.0) / size();
+    double bktWidth = (maxTS - minTS + size() - 1.0) / size();
+    // Don't let bucket width get so small that it will exceed the
+    // max_bucket threshold to handle the events.
+    const int lastBkt = (maxTS - minTS) / bktWidth;
+    if (lastBkt > MAX_BUCKETS) {
+        // The number of buckets would exceed threshold. So rework
+        // bucket size such that it will not eceed MAX_BUCKETS.
+        bktWidth = std::max((maxTS - minTS) / MAX_BUCKETS, 0.01);
+    }
     return bktWidth;
 }
 
@@ -302,6 +327,38 @@ muse::OneTierBottom::validate() const {
 
 // -------------------------[ TwoTierRung methods ]-------------------------
 
+muse::TwoTierRung&
+muse::TwoTierRung::operator=(TwoTierRung&& src) {
+    rStartTS       = std::move(src.rStartTS);
+    rCurrTS        = std::move(src.rCurrTS);
+    bucketWidth    = std::move(src.bucketWidth);
+    currBucket     = std::move(src.currBucket);
+    bucketList     = std::move(src.bucketList);
+    rungEventCount = std::move(src.rungEventCount);
+    // Move over all the statistics information
+    LQ2T_STATS(maxBkts    = std::move(src.maxBkts));
+    LQ2T_STATS(numRedistr = std::move(src.numRedistr));
+    return *this;
+}
+
+muse::TwoTierRung::TwoTierRung(TwoTierRung&& src, const double newBktWidth) :
+    rStartTS(src.rStartTS), bucketWidth(newBktWidth), rungEventCount(0) {
+    // Track the maximum number of buckets from source
+    LQ2T_STATS(maxBkts = std::move(src.maxBkts));
+    // The number of times events were re-bucketed
+    LQ2T_STATS(numRedistr = std::move(src.numRedistr));
+    // Set the current bucket for this rung based on new bucket width.
+    currBucket = (src.currBucket * src.bucketWidth) / bucketWidth;
+    ASSERT(currBucket <= src.currBucket);
+    // Setup the current timestamp value based on curr bucket
+    rCurrTS = rStartTS + (currBucket * bucketWidth);
+    // Redistribute events from source rung to this rung.
+    for (size_t bkt = 0; (bkt < src.bucketList.size()); bkt++) {
+        move(std::move(src.bucketList[bkt]));
+    }
+    ASSERT(rungEventCount == src.rungEventCount);
+}
+    
 void
 muse::TwoTierRung::move(TwoTierBucket&& bkt, const Time minTS,
                         const double bktWidth) {
@@ -314,6 +371,11 @@ muse::TwoTierRung::move(TwoTierBucket&& bkt, const Time minTS,
     ASSERT(bucketWidth > 0);
     ASSERT(rungEventCount == 0);
     // Move events from given bucket into buckets in this Rung.
+    move(std::move(bkt));
+}
+
+void
+muse::TwoTierRung::move(TwoTierBucket&& bkt) {
     DEBUG(std::cout << "Adding " << bkt.size() << " events to rung\n");
     for (BktEventList& list : bkt.getSubBuckets()) {
         // Add all events from sub-buckets to various buckets in this rung.
@@ -373,6 +435,34 @@ muse::TwoTierRung::enqueue(muse::Event* event) {
     // Compute bucket for this event based on equation #2 in LQ paper.
     size_t bucketNum = (event->getReceiveTime() - rStartTS) / bucketWidth;
     ASSERT(bucketNum >= currBucket);
+    if (bucketNum > MAX_BUCKETS) {
+        // Rebucket events in this rung to ensure the bucket count
+        // does not become too large.
+        const double maxTS = rStartTS + (bucketNum * bucketWidth);
+        const double newBktWidth = (maxTS - rStartTS) / MAX_BUCKETS;
+        DEBUG({
+                if (newBktWidth <= bucketWidth) {
+                    std::cout << "Current bucketWidth = " << bucketWidth
+                              << ", new bucketWidth   = " << newBktWidth
+                              << std::endl;
+                    std::cout << "rStartTS = " << rStartTS << ", bucketNum = "
+                              << bucketNum << ", maxTS = " << maxTS
+                              << ", rungEventCount = " << rungEventCount
+                              << std::endl;
+                }
+        });
+        ASSERT(newBktWidth >= bucketWidth);
+        // Use suitable constructor to create new rung with events
+        // redistributed from this rung.
+        TwoTierRung rebucketed(std::move(*this), newBktWidth);
+        *this = std::move(rebucketed);
+        ASSERT(newBktWidth == bucketWidth);
+        // Now recompute bcuket number based on the new bucket sizes
+         bucketNum = (event->getReceiveTime() - rStartTS) / bucketWidth;
+         ASSERT(bucketNum <= MAX_BUCKETS);
+         LQ2T_STATS(numRedistr++);
+         DEBUG(std::cout << "Redistributed events in rung\n");
+    }
     if (bucketNum >= bucketList.size()) {
         // Ensure bucket list of sufficient size
         bucketList.resize(bucketNum + 1);
@@ -404,7 +494,7 @@ muse::TwoTierRung::removeNextBucket(muse::Time& bktTime) {
     // Save information about the bucket to be removed & returned.
     const int retBkt = currBucket;
     bktTime = rStartTS + (retBkt * bucketWidth);
-    // Advance current bucket to next time.    
+    // Advance current bucket to next time.
     currBucket++;
     rCurrTS = rStartTS + (currBucket * bucketWidth);
     // Sanity check on counters...
@@ -526,6 +616,13 @@ muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
             for (size_t i = 0; (i < nRung); i++) {
                 ladder[i].updateStats(avgBktCnt);
             }
+            // Track final bucket counts per rung -- Note: for-loop
+            // range is intentionally different from the one right above
+            std::string rungBktSizes;
+            for (const TwoTierRung& rung: ladder) {
+                rungBktSizes += std::to_string(rung.getBucketListSize()) + "(";
+                rungBktSizes += std::to_string(rung.getNumRedistr()) + ") ";
+            }
             // Compute net number of compares for ladderQ
             // const long comps = log2(botLen.getMean()) * botLen.getSum();
             // std::make_heap has 3N time complexity.
@@ -547,6 +644,7 @@ muse::TwoTierLadderQueue::reportStats(std::ostream& os) {
                << "\nMax bottom size             : " << maxBotSize
                << "\nAverage bucket width        : " << avgBktWidth
                << "\nBottom to rung operations   : " << botToRung
+               << "\nRung #bkts (#redistr)       : " << rungBktSizes
                << "\nCompare estimate            : " << comps
                << std::endl;
         });
@@ -621,8 +719,12 @@ muse::TwoTierLadderQueue::recurseRung() {
     if ((bkt.size() > LQ2T_THRESH) && (nRung < MaxRungs)) {
         // Note: Here bucket width can dip a bit low. But that is
         // needed to ensure consistent ladder setup.
-        const double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
-                                    1.0) / bkt.size();
+        double bucketWidth = (lastRung.getBucketWidth() + bkt.size() -
+                              1.0) / bkt.size();
+        // Ensure bucketWidth is not so small that we get too many bcukets.
+        if ((lastRung.getBucketWidth() / bucketWidth) >= MAX_BUCKETS) {
+            bucketWidth = lastRung.getBucketWidth() / MAX_BUCKETS;
+        }
         // Create a new rung in the ladder
         nRung++;
         if (nRung > ladder.size()) {
@@ -706,8 +808,9 @@ muse::TwoTierLadderQueue::createRungFromBottom() {
     DEBUG(std::cout << "Ladder is empty: " << std::boolalpha << ladder.empty()
                     << ". nRung = " << nRung << ", ladder.size() = "
                     << ladder.size() << std::endl);
-    const double bucketWidth = ((nRung == 0) ? bottom.getBucketWidth() :
-                                ladder[nRung - 1].getBucketWidth());
+    // const double bucketWidth = ((nRung == 0) ? bottom.getBucketWidth() :
+    //                            ladder[nRung - 1].getBucketWidth());
+    const double bucketWidth = bottom.getBucketWidth();
     // The paper computes rStart as RCur[NRung-1].  However, due to
     // rollback-reprocessing the bottom may have events that are below
     // RCur[NRung-1].  Consequently, we use the minimum of the two
@@ -725,7 +828,8 @@ muse::TwoTierLadderQueue::createRungFromBottom() {
                     << (bucketWidth / bottom.size()) << std::endl);
     ladderEventCount += bottom.size();  // Update ladder event count
     LQ2T_STATS(botToRung += bottom.size());
-    const double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
+    // double bktWidth = (bucketWidth + bottom.size() - 1.0) / bottom.size();
+    double bktWidth = bucketWidth;
     DEBUG(std::cout << "bktWidth = " << bktWidth << std::endl);
     // Add rung and move move bottom into the last rung of the ladder.
     nRung++;
