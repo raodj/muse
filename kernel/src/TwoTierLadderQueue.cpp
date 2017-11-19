@@ -247,7 +247,10 @@ muse::OneTierBottom::getBucketWidth() const {
     // end for fast pop_back
     const double maxTS = front()->getReceiveTime();
     const double minTS = back()->getReceiveTime();
-    return (maxTS - minTS + size() - 1.0) / size();
+    ASSERT(maxTS >= minTS);
+    ASSERT(size() > 0);
+    const double bktWidth = (maxTS - minTS + size() - 1.0) / size();
+    return bktWidth;
 }
 
 int
