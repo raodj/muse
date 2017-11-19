@@ -313,6 +313,9 @@ Simulation::start() {
         // the scheduler.
         processNextEvent();
     }
+    // Wait for all the parallel processes to complete the main
+    // simulation loop.
+    MPI_BARRIER();
 }
 
 void
@@ -485,10 +488,13 @@ Simulation::reportStatistics(std::ostream& os) {
     // Report statistics
     if (myID == ROOT_KERNEL) {
         os << stats.str();   // report local stats
-        for (size_t rank = 1; (rank < numberOfProcesses); rank++) {
-            int recvRank;
-            os << commManager->receiveMessage(recvRank, rank);
-            ASSERT( recvRank == static_cast<int>(rank) );
+        // Receive stats from each process and print it. Earlier we
+        // used to print stats in a fixed order which *may* cause
+        // issues with many processes.  So this loop processes
+        // messages as and when they become available.
+        for (size_t numLeft = numberOfProcesses; (numLeft > 1); numLeft--) {
+            int recvRank;  // The rank of the sending process
+            os << commManager->receiveMessage(recvRank);
         }
     } else {
         // Not root kernel. So send stats to the root kernel.

@@ -488,8 +488,8 @@ void MPI_INIT(int argc, char* argv[]);
 
     <p>This macro provides a convenient, conditionally defined macro
     to refer to MPI::Finalize method. If MPI is available, then
-    MPI_FINALIZE defaults to MPI::Init.  On the other hand, if MPI is
-    disabled then this macro simply reduces to a blank method.</p>
+    MPI_FINALIZE defaults to MPI::Finalize.  On the other hand, if MPI
+    is disabled then this macro simply reduces to a blank method.</p>
 
     This macro can be used as shown below:
 
@@ -501,6 +501,7 @@ void MPI_INIT(int argc, char* argv[]);
         // ... some code goes here ..
 	MPI_INIT(argc, argv);
         // ... more code goes here ..
+	MPI_FINALIZE();
     }
     \endcode
 */
@@ -730,6 +731,36 @@ extern double MPI_WTIME();
 #else
 // MPI is not available
 #define MPI_CODE(x)
+#endif
+
+/** \def MPI_BARRIER
+
+	\brief Macro to map MPI_BARRIER to MPI::Barrier (if MPI is
+	enabled) or an empty method call if MPI is unavailable.
+
+	<p>This macro provides a convenient, conditionally defined macro
+	to refer to MPI::Barrier method. If MPI is available, then
+	MPI_BARRIER defaults to MPI::Barrier.  On the other hand, if MPI
+	is disabled then this macro simply reduces to a blank method.</p>
+
+	This macro can be used as shown below:
+
+	\code
+
+	#include "MPIHelper.h"
+
+	int main(int argc, char *argv[]) {
+	// ... some code goes here ..
+	MPI_BARRIER();
+	// ... more code goes here ..
+	}
+	\endcode
+*/
+#ifdef HAVE_LIBMPI
+#define MPI_BARRIER() MPI::COMM_WORLD.Barrier()
+#else
+// MPI is not available
+#define MPI_BARRIER()
 #endif
 
 #endif
