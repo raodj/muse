@@ -258,6 +258,14 @@ Communicator::receiveEvent(){
         GVTMessage *msg = reinterpret_cast<GVTMessage*>(incoming_event);
         // Let the GVT manager handle it.
         gvtManager->recvGVTMessage(msg);
+    } else {
+        // An unhandled message.  This is a serious problem!
+        std::cout << "Error: Received an unhandled message at rank="
+                  << myMPIrank << ", from=" << status.Get_source()
+                  << ", Tag=" << status.Get_tag() << ", size="
+                  << eventSize << std::endl;
+        std::cout << "Aborting due to unhandled message.\n";
+        abort();
     }
     
     return NULL;
