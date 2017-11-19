@@ -752,7 +752,7 @@ bool
 muse::Rung::canContain(muse::Event* event) const {
     const muse::Time recvTime = event->getReceiveTime();
     const int bucketNum = (recvTime - rStartTS) / bucketWidth;
-    return ((bucketNum >= (int) currBucket) && (recvTime >= rStartTS));
+    return ((bucketNum >= (int) currBucket) && (recvTime >= rCurrTS));
 }
 
 void
