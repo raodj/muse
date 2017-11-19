@@ -468,11 +468,7 @@ public:
         \return The suggested bucket width (in terms of time) for the
         top-level rung of the TwoTierLadder.
     */
-    double getBucketWidth() const {
-        DEBUG(std::cout << "minTS=" << minTS << ", maxTS=" << maxTS
-              << ", size=" << size() << std::endl);
-        return std::max((maxTS - minTS + size() - 1.0) / size(), 0.01);
-    }
+    double getBucketWidth() const;
 
 protected:
     /** Helper method to reset top either during construction or
@@ -719,8 +715,32 @@ public:
         bucketWidth(src.bucketWidth), currBucket(src.currBucket),
         bucketList(std::move(src.bucketList)),
         rungEventCount(src.rungEventCount) {
-        LQ2T_STATS(maxBkts = src.maxBkts);
+        LQ2T_STATS(maxBkts    = src.maxBkts);
+        LQ2T_STATS(numRedistr = src.numRedistr);
     }
+
+    /** A move constructor required to quickly move rungs in a ladder
+        to shrink/grow it.
+
+        \param[in] src The source rung from where events are to be
+        copied.
+    */
+    TwoTierRung& operator=(TwoTierRung&& src);
+
+    /** A convenience method method used to redistribute events with
+        different bucket size.
+
+        This method is used from TwoTierRung::enqueue() method to
+        create a new set of buckets with different bucket width.  This
+        operations is used to ensure that the net number of buckets in
+        the ladder queue does not become too large.
+
+        \param[in,out] src The rung whose events are to be
+        redistributed.
+
+        \param[in] bucketWidth The new bucket width to be used.
+     */
+    TwoTierRung(TwoTierRung&& src, const double bucketWidth);
     
     /** Convenience constructor to create a rung using events from the
         top rung.
@@ -737,7 +757,7 @@ public:
             // Reset of top counters etc. is done by caller in
             // TwoTierLadderQueue::populateBottom()
     }
-
+    
     /** Convenience constructor to create a rung with events from a
         given bucket.
         
@@ -753,7 +773,8 @@ public:
     TwoTierRung(TwoTierBucket&& bkt, const Time rStart,
                 const double bucketWidth) : rungEventCount(0) {
         // Initialize variable to track maximum bucket count
-        LQ2T_STATS(maxBkts = 0);
+        LQ2T_STATS(maxBkts    = 0);
+        LQ2T_STATS(numRedistr = 0);
         move(std::move(bkt), rStart, bucketWidth);
     }
 
@@ -773,6 +794,22 @@ public:
     */
     void move(TwoTierBucket&& bucket, const Time rStart,
               const double bucketWidth);
+
+
+    /** Convenience method just moving events from a given bucket (no
+        initialization is done)
+
+        This is a convenience method to move events from a given
+        bucket into this rung.
+
+        \note This method assumes that the rung is already
+        setup/initialized!
+        
+        \param[in,out] bkt The bucket from where events are to be
+        moved into this rung.  After this operation data in bkt bucket
+        is cleared.
+    */
+    void move(TwoTierBucket&& bucket);
     
     /** Convenience constructor to create a rung with events from the
         bottom rung.
@@ -792,10 +829,11 @@ public:
     TwoTierRung(OneTierBottom&& bottom, const Time rStart,
                 const double bucketWidth) : rungEventCount(0) {
         // Initialize variable to track maximum bucket count
-        LQ2T_STATS(maxBkts = 0);
+        LQ2T_STATS(maxBkts    = 0);
+        LQ2T_STATS(numRedistr = 0);
         move(std::move(bottom), rStart, bucketWidth);
     }
-
+	
     /** Convenience method to create a rung with events from the
         bottom rung.
 
@@ -986,6 +1024,26 @@ public:
         any agent) is pending in a sub-bucket.
     */    
     bool haveBefore(const Time recvTime) const;
+
+    /** Return the current bucket list size, which indicates the net
+        number of buckets in this rung.  This information is typically
+        used to report statistics at the end.
+
+        \return The net number of buckets in this rung of the ladder.
+     */
+    int getBucketListSize() const {
+        return bucketList.size();
+    }
+
+    /** Return the current bucket list size, which indicates the net
+        number of buckets in this rung.  This information is typically
+        used to report statistics at the end.
+
+        \return The net number of buckets in this rung of the ladder.
+     */
+    int getNumRedistr() const {
+        LQ2T_STATS(return numRedistr);
+    }
     
 protected:
     // Currently this class does not have any protected members.
@@ -1032,6 +1090,11 @@ private:
     /** Statistics object to track the maximum number of buckets used
         in this rung */
     LQ2T_STATS(size_t maxBkts);
+
+    /** Statistics on number of times redistribution of events into
+        larger bucket widths was done for this rung.
+     */
+    LQ2T_STATS(size_t numRedistr);
 };
 
 /** The top-level 2-tier ladder queue
