@@ -32,6 +32,7 @@ noinst_LIBRARIES = libmuse.a
 libmuse_a_LIBADD = $(STDCPP)
 
 libmuse_a_SOURCES = \
+	include/EventAdapter.h \
 	include/EventQueue.h \
 	include/AgentPQ.h \
 	include/BinaryHeapWrapper.h \
@@ -44,6 +45,7 @@ libmuse_a_SOURCES = \
 	include/Scheduler.h \
 	include/WindowsHashMap.h \
 	include/MPIHelper.h \
+	include/EventRecycler.h\
 	src/Utilities.cpp \
 	src/Agent.cpp \
 	src/Event.cpp \
@@ -62,6 +64,8 @@ libmuse_a_SOURCES = \
 	src/ArgParser.cpp \
 	src/HRMScheduler.cpp \
 	src/MPIHelper.cpp \
+	src/EventRecycler.cpp \
+	src/EventQueue.cpp \
 	include/HRMScheduler.h \
 	include/ResChannel.h \
 	src/ResChannel.cpp \
@@ -69,8 +73,6 @@ libmuse_a_SOURCES = \
 	src/LadderQueue.cpp \
 	include/HeapEventQueue.h \
 	src/HeapEventQueue.cpp \
-	include/BinomialHeapEventQueue.h \
-	src/BinomialHeapEventQueue.cpp \
 	include/TwoTierHeapEventQueue.h \
 	src/TwoTierHeapEventQueue.cpp \
 	include/TwoTierHeapOfVectorsEventQueue.h \

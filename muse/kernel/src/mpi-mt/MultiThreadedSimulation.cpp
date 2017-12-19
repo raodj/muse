@@ -30,18 +30,31 @@
 #include "GVTMessage.h"
 #include "Scheduler.h"
 #include "ArgParser.h"
+#include "EventAdapter.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
 
+// The shared barrier to facilitate coordination of threads to help
+// clean-up recycled events.
+SpinLockThreadBarrier MultiThreadedSimulation::threadBarrier;
+
 MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager* mgr,
                                                  int thrID, int globalThrID,
-                                                 int threadsPerNode) :
-    threadsPerNode(threadsPerNode), threadID(thrID),
-    globalThreadID(globalThrID), mtCommMgr(NULL), simMgr(mgr) {
+                                                 int threadsPerNode,
+                                                 bool usingSharedEvents) :
+    Simulation(usingSharedEvents), threadsPerNode(threadsPerNode),
+    threadID(thrID), globalThreadID(globalThrID), mtCommMgr(NULL),
+    simMgr(mgr), mainPendingDeallocs(EventRecycler::pendingDeallocs) {
     ASSERT(mgr != NULL);
     ASSERT(threadsPerNode > 0);
     ASSERT(thrID >= 0);
+    // Initialize counters used to dynamically adapt number of calls
+    // to processPendingDeallocs() method from garbageCollect() method
+    // in this class to keep simulations fast.
+    deallocThresh = 0.1;
+    deallocRate   = 1;
+    deallocTicker = deallocRate;
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -93,7 +106,8 @@ MultiThreadedSimulation::processIncomingEvents() {
             // This must be a GVT message.
             ASSERT(event->getReceiverAgentID() <= 0);
             ASSERT(event->getReceiveTime() == -1);
-            GVTMessage *msg = dynamic_cast<GVTMessage*>(event);
+            ASSERT(dynamic_cast<GVTMessage*>(event) != NULL);
+            GVTMessage *msg = static_cast<GVTMessage*>(event);
             ASSERT(msg != NULL);
             gvtManager->recvGVTMessage(msg);
         } else {
@@ -102,13 +116,21 @@ MultiThreadedSimulation::processIncomingEvents() {
             // to further processing.
             gvtManager->inspectRemoteEvent(event);
             scheduleEvent(event);
-            // Decrease the reference because if it was rejected,
-            // the event will be properly deleted. However, if it
-            // is in the eventPQ, it will be unharmed (reference
-            // count will actually be fixed to correct for lack of
-            // local output queue)
-            ASSERT(event->getReferenceCount() < 3);
-            event->decreaseReference();
+            if (!doShareEvents) {
+                // Decrease the reference because if it was rejected,
+                // the event will be properly deleted. However, if it
+                // is in the eventPQ, it will be unharmed (reference
+                // count will actually be fixed to correct for lack of
+                // entry of this event in a output queue on this
+                // process)
+                ASSERT(EventRecycler::getReferenceCount(event) < 3);
+                EventRecycler::decreaseOutputRefCount(doShareEvents, event);
+            } else {
+                // Decrease reference count to counter the temporary
+                // increase (see: MultiThreadedSimulation::
+                // scheduleEvent(Event* e)
+                EventRecycler::decreaseInputRefCount(doShareEvents, event);
+            }
         }
         // Note: Don't skip this step -- Let the GVT Manager
         // forward any pending control messages, if needed
@@ -121,6 +143,8 @@ MultiThreadedSimulation::processIncomingEvents() {
     }
 }
 
+// NOTE: This method is the main thread method and is called from
+// multiple threads!
 void
 MultiThreadedSimulation::simulate() {
     // Initialize all the agents
@@ -149,13 +173,32 @@ MultiThreadedSimulation::simulate() {
         // the scheduler.
         processNextEvent();
     }
+    // Wait for all the threads to finish by waiting on a barrier.
+    threadBarrier.wait();
+    // Clear out any pending recyclable events on each thread (as each
+    // thread has its own thread_local recycler)
+    EventRecycler::deleteRecycledEvents();
+    ASSERT(EventRecycler::Recycler.empty());
+    threadBarrier.wait();  // Important: wait for threads to finish
+    // Add any pending events to the main thread's pending event list
+    if (threadID != 0) {
+        // This is not the main thread.
+        EventRecycler::movePendingDeallocsTo(mainPendingDeallocs);
+    }
+    // Finally all threads (particularly thread 0) waits for other
+    // threads to finish moving pending events (for final clean-up)
+    // before exiting this main thread-method.
+    threadBarrier.wait();
 }
 
 bool 
 MultiThreadedSimulation::scheduleEvent(Event* e) {
     ASSERT(e->getReceiveTime() >= getGVT());
-    ASSERT((e->getReferenceCount() == 1) || (e->getReferenceCount() == 2));
-
+    ASSERT((doShareEvents == true) || (e->getReferenceCount() == 1) ||
+           (e->getReferenceCount() == 2));
+    ASSERT(!doShareEvents || (EventRecycler::getInputRefCount(e) > 0) ||
+           (EventRecycler::getReferenceCount(e) > 0));
+    
     if (TIME_EQUALS(e->getSentTime(), TIME_INFINITY) ||
         (e->getSenderAgentID() == -1)) {
         std::cerr << "Don't use this method with a new event, go "
@@ -174,15 +217,25 @@ MultiThreadedSimulation::scheduleEvent(Event* e) {
         // Remote events are sent via the GVTManager to aid tracking
         // GVT. The gvt manager calls communicator.
         if (destThrID / threadsPerNode == (int) myID) {
-            // Destination thread is on same process.  Since this
-            // event is crossing thread boundaries we make a copy to
-            // avoid race conditions on the reference counter.
-            const int evtSize = e->getEventSize();
-            Event *copy = reinterpret_cast<Event*>(Event::allocate(evtSize));
-            std::memcpy(copy, e, evtSize);
-            ASSERT(copy->getReferenceCount() > 0);
-            // copy->setReferenceCount(1);
-            gvtManager->sendRemoteEvent(copy);
+            if (doShareEvents) {
+                // We need to increase reference count here to ensure
+                // that event does not get garbage collected before
+                // the receiving thread has a chance to process this
+                // event!
+                EventRecycler::increaseInputRefCount(e);
+                gvtManager->sendRemoteEvent(e);
+            } else {
+                // Destination thread is on same process.  Since this
+                // event is crossing thread boundaries we make a copy to
+                // avoid race conditions on the reference counter.
+                const int evtSize = EventAdapter::getEventSize(e);
+                Event* const copy =
+                    reinterpret_cast<Event*>(Event::allocate(evtSize));
+                std::memcpy(copy, e, evtSize);
+                ASSERT(copy->getReferenceCount() > 0);
+                // copy->setReferenceCount(1);
+                gvtManager->sendRemoteEvent(copy);
+            }
         } else {
             // The destination thread is on a remote process and event
             // does not need to be cloned.  However, it does need
@@ -191,6 +244,36 @@ MultiThreadedSimulation::scheduleEvent(Event* e) {
         }
     }
     return true;
+}
+
+void
+MultiThreadedSimulation::garbageCollect() {
+    // First let base class do its standard garbage collection
+    Simulation::garbageCollect();
+    // Rest of the logic is needed only when using shared events
+    if (!doShareEvents) {
+        return;  // Not using shared events. Nothing further to do.
+    }
+    // Now reclaim/recycle any pending events in an adaptive manner so
+    // that we make the most effective use of calls to this method.
+    if (--deallocTicker <= 0) {
+        // Time to call processPendingDeallocs()
+        const double fracReclaimed = EventRecycler::processPendingDeallocs();
+        deallocsPerCall    += fracReclaimed;  // Track to report stats at end
+        if (fracReclaimed < deallocThresh) {
+            // Call processPendingDeallocs() less frequently
+            deallocRate *= 2;
+            DEBUG(std::cout << "DeallocsRate increased to: " << deallocRate
+                            << " using " << fracReclaimed    << std::endl);
+        } else if (fracReclaimed > (deallocThresh * 1.5)) {
+            // Call processPendingDeallocs() more frequently            
+            deallocRate = std::max(1, deallocRate / 2);
+            DEBUG(std::cout << "DeallocsRate decreased to: " << deallocRate
+                            << " using " << fracReclaimed    << std::endl);
+        }
+        // Reset the deallocTicker
+        deallocTicker = deallocRate;
+    }
 }
 
 void
@@ -236,6 +319,11 @@ MultiThreadedSimulation::processMpiMsgs() {
     // the list of threads so that events can be added to ther
     // incoming event queue(s).
     simMgr->processMpiMsgs();
+}
+
+void
+MultiThreadedSimulation::reportLocalStatistics(std::ostream& os) {
+    os << "#Deallocs cleared/call: " << deallocsPerCall << std::endl;
 }
 
 #endif

@@ -101,8 +101,8 @@ GVTMessage::GVTMessage(const GVTMsgKind msgKind, const int msgSize)
     // Initialize other members to invalid values.
     gvtEstimate = tMin = TIME_INFINITY;
     // Set variables in muse::Event base class to invalid values
-    senderAgentID = -1;
-    sentTime      = -1;
+    // senderAgentID = -1;
+    // sentTime      = -1;
 }
 
 GVTMessage::~GVTMessage() {
@@ -117,7 +117,8 @@ operator<<(std::ostream& os, const muse::GVTMessage& gvtMsg) {
        << "): gvtEstimate=" << gvtMsg.gvtEstimate
        << ", tMin = "<< gvtMsg.tMin << ". Vector counters = { ";
 
-    const int MaxCounters = (gvtMsg.size - sizeof(muse::GVTMessage)) / sizeof(int);
+    const int MaxCounters = (gvtMsg.size - sizeof(muse::GVTMessage)) /
+        sizeof(int);
     for (int i = 0; (i < MaxCounters); i++) {
         os << gvtMsg.count[i] << " ";
     }

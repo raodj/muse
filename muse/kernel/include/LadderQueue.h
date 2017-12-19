@@ -1558,6 +1558,10 @@ private:
     dequeue, and cancel events from the ladder queue.</p>
 */
 class LadderQueue : public EventQueue {
+    friend class ListBucket;
+    friend class VectorBucket;
+    friend class HeapBottom;
+    friend class MultiSetBottom;
 public:
     LadderQueue() : EventQueue("LadderQueue"), nRung(0), ladderEventCount(0) {
         ladder.reserve(MaxRungs);

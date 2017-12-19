@@ -30,6 +30,7 @@
 #include <iostream>
 #include <cstdlib>
 #include "EventQueue.h"
+#include "EventAdapter.h"
 
 using namespace muse;
 
@@ -90,15 +91,16 @@ void
 Agent::processNextEvents(muse::EventContainer& events) {
     // The events cannot be empty
     ASSERT(!events.empty());
+    // Flag for -- are we directly sharing events beween threads?
+    const bool usingSharedEvents = kernel->usingSharedEvents();
     // Add the events to our input queue only when state saving is
     // enabled -- that is we have more than 1 process and rollbacks
     // are possible.
     if (mustSaveState) {
         for (EventContainer::iterator curr = events.begin();
              (curr != events.end()); curr++) {
-            // Avoiding the following 2 redundant operations:
-            // (*curr)->increaseReference();  // Add to inputQueue
-            // (*curr)->decreaseReference();  // remove from events container
+            ASSERT(!usingSharedEvents ||
+                   (EventRecycler::getInputRefCount(*curr) > 0));
             inputQueue.push_back(*curr);
         }
     } else {
@@ -115,7 +117,7 @@ Agent::processNextEvents(muse::EventContainer& events) {
     setLVT(events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
     // Let the derived class actually process events that it needs to.
-    executeTask(&events);
+    executeTask(events);
     
     // Increment the numProcessedEvents and numScheduled counters
     numProcessedEvents += events.size();
@@ -125,12 +127,23 @@ Agent::processNextEvents(muse::EventContainer& events) {
     saveState();
 
     if (!mustSaveState) {
+        // This applicable only in sequential mode. So the ASSERT
+        // establishes the necessary conditions.
+        ASSERT((kernel->getNumberOfProcesses() == 1) &&
+               (kernel->getNumberOfThreads()   == 1));
         // Decrease reference and free-up events as we are not adding to 
         // input queue for handling rollbacks that cannot occur in this case.
-        for (EventContainer::iterator curr = events.begin();
-             (curr != events.end()); curr++) {
-            ASSERT( (*curr)->getReferenceCount() == 1 );
-            (*curr)->decreaseReference();
+        for (muse::Event* curr : events) {
+            // Ensure these conditions are met in single-threaded mode
+            if (usingSharedEvents) {
+                ASSERT( EventRecycler::getReferenceCount(curr) == 1 );
+                ASSERT( EventRecycler::getInputRefCount(curr)  == 1 );
+                // The order of decreasing reference counters is important
+                EventRecycler::decreaseInputRefCount(curr);
+            }
+            ASSERT( EventRecycler::getReferenceCount(curr) == 1 );
+            ASSERT( EventRecycler::getInputRefCount(curr)  == 0 );
+            EventRecycler::decreaseOutputRefCount(curr);
         }
     }
 }
@@ -156,17 +169,20 @@ Agent::scheduleEvent(Event* e) {
     ASSERT(TIME_EQUALS(e->getSentTime(), TIME_INFINITY));
     ASSERT(e->getSenderAgentID()  == -1);
     ASSERT(e->isAntiMessage()     == false);
-    ASSERT(e->getReferenceCount() == 1);
-    
+    ASSERT(EventRecycler::getReferenceCount(e) == 1);
+    ASSERT(EventRecycler::getInputRefCount(e)  == 0);
+    // Flag to determine which reference counter should be modified.
+    const bool usingSharedEvents = kernel->usingSharedEvents();
+
     // Fill in the sent time and sender agent id info.
-    e->sentTime      = getLVT();
-    e->senderAgentID = getAgentID();
-    ASSERT(e->sentTime >= getTime(GVT));
+    EventAdapter::setSentTime(e, getLVT());
+    EventAdapter::setSenderAgentID(e, getAgentID());
+    ASSERT(e->getSentTime() >= getTime(GVT));
     
     // Check to make sure we don't schedule past the simulation end time.
     ASSERT( kernel != NULL );
     if (e->getReceiveTime() >= kernel->getStopTime()) {
-        e->decreaseReference();
+        EventRecycler::decreaseOutputRefCount(usingSharedEvents, e);
         return false;
     }
     
@@ -176,7 +192,7 @@ Agent::scheduleEvent(Event* e) {
         std::cerr << "Attempt to schedule an event with a smaller or equal "
                   << "timestamp as LVT, this is impossible as it violates"
                   << "causality constraints." << std::endl;
-        e->decreaseReference();
+        EventRecycler::decreaseOutputRefCount(usingSharedEvents, e);
         abort();
     }
     if (kernel->scheduleEvent(e)) {
@@ -186,9 +202,12 @@ Agent::scheduleEvent(Event* e) {
         if (mustSaveState) {
             outputQueue.push_back(e);
         } else {
-            // We don't add this event to output queue so decrease reference
-            ASSERT( e->getReferenceCount() > 1 );
-            e->decreaseReference();
+            // We don't add this event to output queue so decrease
+            // reference when not using shared event.
+            if (!usingSharedEvents) {
+                ASSERT( e->getReferenceCount() >= 1 );
+                EventRecycler::decreaseOutputRefCount(usingSharedEvents, e);
+            }
         }
         // Keep track of event being scheduled.
         numScheduledEvents++;
@@ -200,7 +219,7 @@ Agent::scheduleEvent(Event* e) {
     }
     // If control drops here, the event was rejected from
     // scheduling. Clean up.
-    e->decreaseReference();
+    EventRecycler::decreaseOutputRefCount(usingSharedEvents, e);
     return false;
 }
 
@@ -314,42 +333,27 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 }
 
 void
-Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {  
+Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
+    // Flag to determine which reference counter should be modified.
+    const bool usingSharedEvents = kernel->usingSharedEvents();    
     AgentIDBoolMap bitMap;  // track if anti-msg has been sent to an agent
     List<Event*>::iterator outQ_it = outputQueue.begin();
     while (outQ_it != outputQueue.end()) {
-        Event* const currentEvent = *outQ_it;
+        Event* const currEvt = *outQ_it;
         // check if the event is invalid.
-        if (currentEvent->getSentTime() > restoredTime) {
-            const AgentID receiver = currentEvent->getReceiverAgentID();
+        if (currEvt->getSentTime() > restoredTime) {
+            const AgentID receiver = currEvt->getReceiverAgentID();
             // check if bitMap to receiver agent has been set.
             if (bitMap[receiver] == false) {
                 bitMap[receiver] = true;  // send anit-message flag.
-                if (!kernel->isAgentLocal(myID, receiver)) {
-                    currentEvent->makeAntiMessage();
-                    // cout << "Making Anti-Message: " << *currentEvent << endl;
-                    kernel->scheduleEvent(currentEvent);
-                } else {
-                    // Send an anti-message to the agent on the same
-                    // process so that it rolls back. Since pointers
-                    // are shared, a duplicate needs to be made.
-                    Event* const antiEvent =
-                        Event::create(receiver, currentEvent->getReceiveTime());
-                    // Setup sender and send-time information.
-                    antiEvent->senderAgentID = currentEvent->senderAgentID;
-                    antiEvent->sentTime      = currentEvent->sentTime;
-                    antiEvent->makeAntiMessage();
-                    if (!kernel->scheduleEvent(antiEvent)) {
-                        // The scheduler rejected our anti-message.
-                        antiEvent->decreaseReference();
-                    } else {
-                        std::cout << "Anti event not deleted -- "
-                                  << *antiEvent << std::endl;
-                    }
-                }
+                // Send anti-message using refactored helper method
+                // (to keep this method from getting too cluttered).
+                // NOTE: currEvt may be directly used to send
+                // anti-messages in some cases.
+                sendAntiMessage(currEvt, usingSharedEvents);
             }
             // Invalid events automatically get removed
-            currentEvent->decreaseReference();
+            EventRecycler::decreaseOutputRefCount(usingSharedEvents, currEvt);
             outQ_it = outputQueue.erase(outQ_it);  // erase & update iterator
         } else {
             outQ_it++;  // Onto the next event to be checked
@@ -358,15 +362,51 @@ Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
 }
 
 void
+Agent::sendAntiMessage(muse::Event* const currEvt, const bool useSharedEvents) {
+    ASSERT(currEvt != NULL);
+    const AgentID receiver = currEvt->getReceiverAgentID();
+    if (!kernel->isAgentLocal(myID, receiver) && !useSharedEvents) {
+        // Directly use the event instead of making copy for remote
+        // agent as copy is sent on the wire right away.
+        EventAdapter::makeAntiMessage(currEvt);
+        kernel->scheduleEvent(currEvt);
+        return;   // All done in this case. Early return to streamline code
+    }
+    // Send an anti-message to the agent on the same process (could be
+    // different thread) so that it rolls back. Since pointers are
+    // shared, a duplicate needs to be made.
+    Event* const antiEvent = Event::create(receiver, currEvt->getReceiveTime());
+    // Setup sender and send-time information.
+    EventAdapter::setSenderInfo(antiEvent, currEvt->getSenderAgentID(),
+                                currEvt->getSentTime());
+    EventAdapter::makeAntiMessage(antiEvent);
+    if (!kernel->scheduleEvent(antiEvent)) {
+        // The scheduler rejected our anti-message.  This is normal
+        // for anit-messages sent to LP on local process/thread.
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
+    } else {
+        // When event sharing is enabled, anti-messages sent to
+        // another thread (on same process) cannot be immediately
+        // reclaimed (until the receiving thread has processed
+        // it.). But we don't have an output reference so decrease
+        // output reference count on the anti-message.
+        ASSERT(!kernel->isAgentLocal(myID, receiver) && useSharedEvents);
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
+    }    
+}
+
+void
 Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
                                      const Event* straggler,
                                      muse::EventContainer& reschedule) {
+    // Flag to determine which reference counter should be modified.
+    const bool useSharedEvents = kernel->usingSharedEvents();
     ASSERT(straggler != NULL);
     List<Event*>::iterator del_it = inputQueue.begin();
     while (del_it != inputQueue.end()) {
         Event *currentEvent = (*del_it);
         ASSERT(currentEvent != NULL);
-        ASSERT(currentEvent->isAntiMessage() == false);
+        ASSERT(useSharedEvents || (currentEvent->isAntiMessage() == false));
         // There are different cases to be applied for processing below.
         if (currentEvent->getReceiveTime() <= restoredTime) {
             // This event needs to stay in the input queue - it does
@@ -379,7 +419,9 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
             (currentEvent->getSentTime() > restoredTime)) {
             // We sent this event to ourselves in the future - it gets deleted
             del_it = inputQueue.erase(del_it);  // remove & update iterator
-            currentEvent->decreaseReference();  // release reference
+            // Let the event recycler appropriately manage reference
+            // counts based on single/multi-threaded modes.
+            EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);
             continue;
         }
         
@@ -399,7 +441,9 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
             DEBUG(std::cout << "*Rescheduling: " << *currentEvent << std::endl);
         } else {
             // Current event is discarded as it is not rescheduled.
-            currentEvent->decreaseReference();
+            // Let the event recycler appropriately manage reference
+            // counts based on single/multi-threaded modes.
+            EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);
         }
         del_it = inputQueue.erase(del_it);  // remove & update iterator
     }
@@ -416,9 +460,11 @@ Agent::cleanStateQueue() {
 
 void
 Agent::cleanInputQueue() {
-     while (!inputQueue.empty()) {
+    // Flag to determine which reference counter should be modified.
+    const bool useSharedEvents = kernel->usingSharedEvents();    
+    while (!inputQueue.empty()) {
         Event *currentEvent = inputQueue.front();
-        currentEvent->decreaseReference();
+        EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);
         inputQueue.pop_front();
         // Remember to keep track number of committed events
         numCommittedEvents++;
@@ -427,9 +473,11 @@ Agent::cleanInputQueue() {
 
 void
 Agent::cleanOutputQueue() {
+    // Flag to determine which reference counter should be modified.
+    const bool useSharedEvents = kernel->usingSharedEvents();        
     while (!outputQueue.empty()) {
         Event *currentEvent = outputQueue.front();
-        currentEvent->decreaseReference();
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, currentEvent);
         outputQueue.pop_front();
     }
 }
@@ -464,11 +512,14 @@ Agent::garbageCollect(const Time gvt) {
     ASSERT(!stateQueue.empty());
     ASSERT(!mustSaveState || (stateQueue.front()->getTimeStamp() < gvt));
     
-    //second we collect from the inputQueue
+    // second we collect from the inputQueue
+    const bool useSharedEvents = kernel->usingSharedEvents();
     while (!inputQueue.empty() &&
            (inputQueue.front()->getReceiveTime() < oneBelowGVT)) {
         Event *currentEvent = inputQueue.front();
-        currentEvent->decreaseReference();
+        // Let the event recycler appropriately manage reference
+        // counts based on single/multi-threaded modes.        
+        EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);
         inputQueue.pop_front();
         //keep track number of processed events
         numCommittedEvents++;
@@ -478,10 +529,9 @@ Agent::garbageCollect(const Time gvt) {
     while (!outputQueue.empty() &&
            (outputQueue.front()->getSentTime() < oneBelowGVT)) {
         Event *currentEvent = outputQueue.front();
-        currentEvent->decreaseReference();
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, currentEvent);
         outputQueue.pop_front();
     }
-    
     
     //we need to garbageCollect all SimStreams here.
     oss.garbageCollect(gvt);
@@ -530,7 +580,8 @@ statePrinter(ostream& os, List<muse::State*> state_q ) {
 
 ostream&
 operator<<(ostream& os, const muse::Agent& agent) {
-    os << "Agent[id: "       << agent.getAgentID() << "; "
+    os << "Agent[id: "       << agent.getAgentID() << "; ";
+    /*
        << "Events in heap: " <<  agent.schedRef.eventPQ->size();
     if (!agent.schedRef.eventPQ->empty()) {
 	os << "; Top Event: " << *agent.schedRef.eventPQ->top();
@@ -539,6 +590,7 @@ operator<<(ostream& os, const muse::Agent& agent) {
     }
     DEBUG(os << "; StateQueue: " << statePrinter(os,agent.stateQueue));
     os << "]";
+    */
     return os; 
 }
 

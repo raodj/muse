@@ -1119,6 +1119,8 @@ private:
     </p>
 */
 class TwoTierLadderQueue : public EventQueue {
+    friend class TwoTierBucket;
+    friend class OneTierBottom;
 public:
     /** The constructor that creates an empty ladder queue.
 

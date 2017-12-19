@@ -24,6 +24,7 @@
 
 #include "DataTypes.h"
 #include "Agent.h"
+#include "EventRecycler.h"
 
 BEGIN_NAMESPACE(muse)
 
@@ -44,6 +45,7 @@ BEGIN_NAMESPACE(muse)
     of the derived classes must be instantiated and used.</p>
 */
 class EventQueue {
+    friend class BinaryHeapWrapper;
 public:
     /** Add/register an agent with the event queue.
 
@@ -78,22 +80,6 @@ public:
     */
     virtual void removeAgent(muse::Agent* agent) = 0;
     
-    /** Update the specified Agent's information.
-
-        This method is invoked after events associated with an agent
-        have been processed.  This method provides the event queue
-        with an opportunity to appropriately relocate the agent in
-        this internal data structures.
-
-        \param[in] crfPointer Pointer to the event queue's interal
-        cross-reference that was returned by addAgent() when the agent
-        was added to this event queue.
-
-        \param[in] uTime The time of the agents's events that where
-        just processed.
-    */    
-    // virtual void update(void* crfPointer, const Time uTime) = 0;
-
     /** Determine if the event queue is empty.
 
         This method must be implemented by the derived classes to
@@ -295,8 +281,20 @@ public:
         }
         return index;
     }
- 
 
+    /** Method to set if events are directly being shared between
+        threads on this process.
+
+        This method is invoked from the derived multi-threaded
+        Simulation class(es) to set a flag to indicate if events are
+        being shared between threads on this process.
+
+        \note This method must be called before events are added to
+        this event queue.  Calling this method after events are added
+        results in undefined behaviors.
+     */
+    static void setUsingSharedEvents(bool sharedEvents);
+    
 protected:
     /** The constructor for this EventQueue.
 
@@ -308,6 +306,52 @@ protected:
         with this qeueue.
     */
     EventQueue(const std::string& name) : name(name) {}
+
+    /** \brief Convenience wrapper to increase the internal reference
+        counter for event -- only for single threaded model.
+
+        This is just a convenience method that can be used by all the
+        derived queue implementations to decrease reference on an
+        event indicating that is can be recycled (or deleted).
+
+        \param[in,out] event The event whose reference count is to be
+        decreased.  This parameter cannot be NULL/nullptr.
+        
+        \see EventRecycler::decreaseReference
+    */
+    inline static void decreaseReference(muse::Event* const event) {
+        EventRecycler::decreaseInputRefCount(usingSharedEvents, event);
+    }
+
+    /** \brief Convenience wrapper to increase the internal reference
+        counter for event -- only for single threaded model.
+
+        This is just a convenience method that can be used by all the
+        derived queue implementations to increase reference on an
+        event indicating that is is being used and it \b cannot be
+        recycled (or deleted).
+
+        \param[in,out] event The event whose reference count is to be
+        decreased.  This parameter cannot be NULL/nullptr.
+        
+        \see EventRecycler::increaseReference
+    */
+    static inline void increaseReference(muse::Event* const event) {
+        EventRecycler::increaseInputRefCount(usingSharedEvents, event);
+    }
+
+    /** Flag to indicate if shared events are used -- that is events
+        are directly shared between two threads on this process.
+
+        This flag is set via call to setUsingSharedEvents from the
+        multi-threaded Simulation derived classes.  The flag is used
+        in the increaseReference and decreaseReference methods in this
+        class to use unified/split reference counters.
+
+        \note This flag is intentionally static so that the static
+        methods in this class can use it.
+    */
+    static bool usingSharedEvents;
 
 private:
     /** A human-readable identifier/name associated with this queue.

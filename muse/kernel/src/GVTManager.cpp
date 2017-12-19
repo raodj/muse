@@ -27,7 +27,7 @@
 #include "GVTMessage.h"
 #include "Communicator.h"
 #include "Simulation.h"
-#include "Event.h"
+#include "EventAdapter.h"
 
 #include <cstring>
 
@@ -99,7 +99,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // described in Mattern's paper. First set color of event and ship
     // it out.
     ASSERT((activeColor == 0) || (activeColor == 1));
-    event->setColor(activeColor);
+    EventAdapter::setColor(event, activeColor);
     // Now track event counters immaterial of whether the event is
     // white or red in perparation for the next cycle where the values
     // of white and red will be swapped.
@@ -116,7 +116,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     // should not inspect the event because the receiving thread may
     // delete it immediately and inspecting event after that will
     // cause memory errors!
-    commManager->sendEvent(event, event->getEventSize());
+    commManager->sendEvent(event, EventAdapter::getEventSize(event));
     // Everything went well.
     return true;
 }
@@ -125,10 +125,11 @@ void
 GVTManager::inspectRemoteEvent(Event *event) {
     ASSERT(event != NULL); // Ensure we have a valid event.
     // Event's color can be only 2 values -- white or !white
-    ASSERT((event->getColor() == white) || (event->getColor() == !white));
+    ASSERT((EventAdapter::getColor(event) == white) ||
+           (EventAdapter::getColor(event) == !white));
     DEBUG(std::cout << "GVTManager inspected " << *event << std::endl);
     // Update vector counters associated with this process.
-    vecCounters[(int) event->getColor()][rank]--;
+    vecCounters[(int) EventAdapter::getColor(event)][rank]--;
     // Any waiting control message must be forwarded only after this
     // incoming event has been scheduled.
 }

@@ -150,7 +150,7 @@ Communicator::sendEvent(Event* e, const int eventSize){
         MPI_SEND(serialEvent, eventSize, MPI_TYPE_CHAR, destRank, EVENT);
         //cout << "SENT an Event of size: " << eventSize << endl;
         //cout << "[COMMUNICATOR] - made it in sendEvent" << endl;
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendEvent): "
                   << e.Get_error_string() << std::endl;
     }
@@ -162,7 +162,7 @@ Communicator::sendMessage(const GVTMessage *msg, const int destRank) {
         // GVT messages are already serialized.
         const char *data = reinterpret_cast<const char*>(msg);
         MPI_SEND(data, msg->getSize(), MPI_TYPE_CHAR, destRank, GVT_MESSAGE);
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
     }
@@ -172,7 +172,7 @@ void
 Communicator::sendMessage(const std::string& str, const int destRank, int tag) {
     try {
         MPI_SEND(str.c_str(), str.size() + 1, MPI_TYPE_CHAR, destRank, tag);
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (sendMessage): ";
         std::cerr << e.Get_error_string() << std::endl;
     }
@@ -191,7 +191,7 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
             // Wait until we get a valid message to read.
             MPI_PROBE(srcRank, tag, status);
         }
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
@@ -204,7 +204,7 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
         MPI_RECV(&msg[0], strSize, MPI::CHAR,
                  status.Get_source(), status.Get_tag(), status);
         recvRank = status.Get_source();
-    } catch (MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return "";
@@ -220,7 +220,7 @@ Communicator::receiveEvent(){
             // No pending event.
             return NULL;
         }
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
@@ -233,7 +233,7 @@ Communicator::receiveEvent(){
     try {
         MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
                  status.Get_source(), status.Get_tag(), status);
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         delete[] incoming_event;
@@ -277,7 +277,7 @@ Communicator::finalize(bool stopMPI) {
         if (stopMPI) {
             MPI_FINALIZE();
         }
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (finalize): "
                   << e.Get_error_string() << std::endl;
     }

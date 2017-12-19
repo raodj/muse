@@ -226,7 +226,7 @@ MultiThreadedShmCommunicator::receiveEvent(){
             // No pending event.
             return NULL;
         }
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
@@ -239,7 +239,7 @@ MultiThreadedShmCommunicator::receiveEvent(){
     try {
         MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
                  status.Get_source(), status.Get_tag(), status);
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         delete[] incoming_event;

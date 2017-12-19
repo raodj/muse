@@ -160,10 +160,10 @@ MultiThreadedCommunicator::sendEvent(Event* e, const int eventSize){
     // First check to see if the reciever is on this process. If so,
     // directly insert the event into its incoming queue.    
     const int thrID = getThreadID(e->getReceiverAgentID());
+    ASSERT( thrID != getThreadID(e->getSenderAgentID()) );
     if (thrID != -1) {
         // This is a local event. Insert it into the receiver agent's
-        // incoming queue in a MT-safe manner.  Since this event is
-        // going across thread boundaries a copy needs to be made.
+        // incoming queue in a MT-safe manner.
         simMgr->addIncomingEvent(thrID, e);
     } else {
         // This is a remote event. Let the base class dispatch it over
@@ -196,7 +196,7 @@ MultiThreadedCommunicator::sendMessage(const GVTMessage *msg,
         // Let the base class dispatch it over MPI in a MT-safe
         // operations.
         std::lock_guard<std::mutex> lock(mpiMutex);  // Ensure MT-safe
-        Communicator::sendMessage(msg, rank);        
+        Communicator::sendMessage(msg, rank);
     }
 }
 
@@ -219,14 +219,23 @@ MultiThreadedCommunicator::receiveMessage(int& recvRank, const int srcRank,
 }
 
 Event*
-MultiThreadedCommunicator::receiveEvent(){
+MultiThreadedCommunicator::receiveEvent() {
+    // Ensure MT-safe MPI calls
+    // We got the lock read MPI messages if any.
+    std::lock_guard<std::mutex> lock(mpiMutex, std::adopt_lock);
+    return receiveOneEvent();
+}
+
+Event*
+MultiThreadedCommunicator::receiveOneEvent() {
+    // Now proceed with MPI operations
     MPI_STATUS status;
     try {
         if (!MPI_IPROBE(MPI_ANY_SOURCE, MPI_ANY_TAG, status)) {
             // No pending event.
             return NULL;
         }
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         return NULL;
@@ -239,7 +248,7 @@ MultiThreadedCommunicator::receiveEvent(){
     try {
         MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
                  status.Get_source(), status.Get_tag(), status);
-    } catch (const MPI_EXCEPTION& e) {
+    } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
         delete[] incoming_event;
@@ -253,11 +262,42 @@ MultiThreadedCommunicator::receiveEvent(){
     // Since the event is from the network, the reference count must be 1
     ASSERT(the_event->getReferenceCount() == 1);
     // Rest of the logic associated with GVT manager inspecting events
-    // etc. is done in the
-    // MultiThreadedSimulation::processIncomingEvents method instead
-    // of here.
+    // etc. is done in the MultiThreadedSimulation's
+    // processIncomingEvents() method instead of here.
     return the_event;
 }
 
-#endif
+int
+MultiThreadedCommunicator::receiveManyEvents(EventContainer& eventList,
+                                             const int maxEvents,
+                                             int retryCount) {
+    // First try to get the lock on the MPI mutex to ensure
+    // thread-safe operations.
+    while (retryCount > 0) {
+        if (mpiMutex.try_lock()) {
+            break;  // yay! got exclusive lock.
+        }
+        retryCount--;  // counter to prevent too many trials.
+    }
+    if (retryCount <= 0) {
+        // Could not get mpi mutex. Can't read messages.
+        return 0;
+    }
+    // When control drops here we have thread-safe access to MPI
+    std::lock_guard<std::mutex> lock(mpiMutex, std::adopt_lock);
+    int eventCount = 0;
+    while (eventCount < maxEvents) {
+        muse::Event* const event = receiveOneEvent();
+        if (event != NULL) {
+            eventList.push_back(event);  // Add received events
+            eventCount++;                // Track events read.
+        } else {
+            // No pending events. time to get out.
+            break;
+        }
+    }
+    // Return the number of events read
+    return eventCount;
+}
 
+#endif

@@ -56,7 +56,7 @@ TwoTierHeapOfVectorsEventQueue::removeAgent(muse::Agent* agent) {
     Tier2List& tier2eventPQ = *agent->schedRef.tier2eventPQ;
     for (auto iter = tier2eventPQ.begin(); iter != tier2eventPQ.end(); iter++) {
         for (Event* evt : (*iter).getEventList()) {
-            evt->decreaseReference();  // logically remove event
+            decreaseReference(evt);  // logically remove event
         }
     }
     // clear out tier2 queue (so this agent's time becomes INFINITY).
@@ -79,7 +79,7 @@ TwoTierHeapOfVectorsEventQueue::pop_front(muse::Agent* agent) {
     EventContainer& eventList = 
             agent->schedRef.tier2eventPQ->top().getEventList();
     for (Event* evt: eventList) {
-        evt->decreaseReference();
+        decreaseReference(evt);  // Call base class static method
     }
     agent->schedRef.tier2eventPQ->pop();
 }
@@ -151,7 +151,7 @@ TwoTierHeapOfVectorsEventQueue::enqueue(muse::Agent* agent,
     // Use helper method (just below this one) to add event and fix-up
     // the queue.  First Increase event reference count for every
     // event added to the event queue.
-    event->increaseReference();
+    increaseReference(event);  // use base class static method
     enqueue(agent, event, true);
 }
 
@@ -217,7 +217,7 @@ TwoTierHeapOfVectorsEventQueue::eraseAfter(muse::Agent* dest,
                 Event* const evt = eventList[index];
                 ASSERT(evt != NULL);
                 if (isFutureEvent(sender, sentTime, evt)) {
-                    evt->decreaseReference();
+                    decreaseReference(evt);  // use base class static method
                     numRemoved++;
                     eventList[index] = eventList.back();
                     eventList.pop_back();
@@ -253,7 +253,7 @@ TwoTierHeapOfVectorsEventQueue::reportStats(std::ostream& os) {
 
 void
 TwoTierHeapOfVectorsEventQueue::prettyPrint(std::ostream& os) const {
-    os << "TwoTierHeapOfVectorsEventQueue::prettyPrint() : not implemented.\n";  
+    os << "TwoTierHeapOfVectorsEventQueue::prettyPrint() : not implemented.\n";
 }
 
 size_t

@@ -296,7 +296,7 @@ AgentPQ::getNextEvents(Agent* agent, EventContainer& container) {
         // Ensure reference counts looks correct
         ASSERT(event->getReferenceCount() < 3);
         // We add the top event we popped to the event container
-        event->increaseReference(); 
+        increaseReference(event); 
         container.push_back(event);
 
         DEBUG(std::cout << "Delivering: " << *event << std::endl);

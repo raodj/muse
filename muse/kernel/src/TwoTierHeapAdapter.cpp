@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "TwoTierHeapAdapter.h"
+#include "TwoTierHeapEventQueue.h"
 #include "Agent.h"
 #include "Utilities.h"
 
@@ -59,7 +60,7 @@ TwoTierHeapAdapter::getNextEvents(EventContainer& container) {
         ASSERT(event->getReferenceCount() < 3);
         
         // We add the top event we popped to the event container
-        event->increaseReference(); 
+        TwoTierHeapEventQueue::increaseReference(event);
         container.push_back(event);
 
         DEBUG(std::cout << "Delivering: " << *event << std::endl);

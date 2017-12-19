@@ -30,6 +30,7 @@
 #include "GVTMessage.h"
 #include "Scheduler.h"
 #include "ArgParser.h"
+#include "EventAdapter.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
@@ -107,8 +108,8 @@ MultiThreadedShmSimulation::processIncomingEvents() {
             // is in the eventPQ, it will be unharmed (reference
             // count will actually be fixed to correct for lack of
             // local output queue)
-            ASSERT(event->getReferenceCount() < 3);
-            event->decreaseReference();
+            ASSERT(EventRecycler::getReferenceCount(event) < 3);
+            EventRecycler::decreaseReference(event);
         }
         // Note: Don't skip this step -- Let the GVT Manager
         // forward any pending control messages, if needed
@@ -177,7 +178,7 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
             // Destination thread is on same process.  Since this
             // event is crossing thread boundaries we make a copy to
             // avoid race conditions on the reference counter.
-            const int evtSize = e->getEventSize();
+            const int evtSize = EventAdapter::getEventSize(e);
             Event *copy = reinterpret_cast<Event*>(Event::allocate(evtSize));
             std::memcpy(copy, e, evtSize);
             ASSERT(copy->getReferenceCount() > 0);
