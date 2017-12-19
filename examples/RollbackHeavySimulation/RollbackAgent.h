@@ -42,11 +42,11 @@ class RollbackAgent : public muse::Agent {
 public:
     RollbackAgent(muse::AgentID &id, const int max_agents);
 
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
 
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
 
-    void finalize();
+    void finalize() override;
 
 private:
     const int max_agents;

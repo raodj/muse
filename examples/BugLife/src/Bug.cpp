@@ -86,10 +86,10 @@ Bug::scheduleMoveInEvent(const int timeFactor) {
 }
 
 void
-Bug::executeTask(const EventContainer* events) {
-    EventContainer::const_iterator it = events->begin();
+Bug::executeTask(const EventContainer& events) {
+    EventContainer::const_iterator it = events.begin();
     BugState&  my_state               = *static_cast<BugState*>(getState()); 
-    for (; (it != events->end()); it++) {
+    for (; (it != events.end()); it++) {
         BugEvent* const current_event = static_cast<BugEvent*>(*it); 
 	// Based on the event type, the corresponding method is called
 	// with 'current_event' and 'my_state' passed as arguments.

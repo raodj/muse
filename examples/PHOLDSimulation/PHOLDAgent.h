@@ -76,11 +76,11 @@ public:
                int receiverRange = 0,
                PHOLDAgent::DelayType receiverDistType = UNIFORM);
 
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
 
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
 
-    void finalize();
+    void finalize() override;
 
     /** A helper method to print the distribution of event delays.
 

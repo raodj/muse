@@ -91,7 +91,12 @@ AC_DEFUN([AC_CHECK_MPICC],
 	AC_LANG([C++])
      
 	AC_LINK_IFELSE(
-            [AC_LANG_PROGRAM([[#include "mpi.h"],[#include <cstdlib>]],[[int argc=0; char **argv = 0; MPI::Init(argc, argv); MPI::Finalize()]])],
+            [AC_LANG_PROGRAM([[#include "mpi.h"
+                               #include <cstdlib>
+                             ]],
+                             [[int argc=0; char **argv = 0;
+                               MPI::Init(argc, argv); MPI::Finalize();
+                             ]])],
 	    [AC_MSG_RESULT([yes])],
             [AC_MSG_RESULT([no])
   	        AC_MSG_ERROR([
@@ -99,12 +104,44 @@ AC_DEFUN([AC_CHECK_MPICC],
 	            machine.  It claims MPI is installed and mpicc is
 	            your path. However, mpicc is not operational and
 	            can't even compile a simple MPI program. This is
-	            not a problem with PEACE. Most likely no MPI
+	            not a problem with MUSE. Most likely no MPI
 	            program will compile on this machine.  Ensure you
 	            are loading the correct version of MPI (possibly
 	            using the 'module' command (example: module load
 	            openmpi-x86_64) in ~/.bashrc])
         ])
+    fi
+])
+
+# A custom helper to check if MPI's C++ exception support constant
+# Get_error_string() method -- on OSC mavapich exceptions have this
+# method as a non-constant method preventing catching exceptions has
+# constant references.
+AC_DEFUN([AC_CHECK_CONST_EXP],
+[
+    if test -n "$have_mpi" && test $have_mpi = 1; then
+        AC_MSG_CHECKING([whether MPI library permits use of constant exceptions])
+	AC_LANG([C++])
+     
+	AC_COMPILE_IFELSE(
+            [AC_LANG_PROGRAM([[#include "mpi.h"
+                               #include <cstdlib>
+                             ]],
+                             [[int argc=0; char **argv = 0;
+                               MPI::Init(argc, argv);
+                               try{} catch (const MPI::Exception& e) {
+                                   std::cerr << e.Get_error_string();
+                               }
+                               MPI::Finalize()
+                             ]])],
+	    [AC_MSG_RESULT([yes])
+             AC_DEFINE_UNQUOTED([USE_CONST_MPI_EXP], 1, [Define to 1 if MPI::Exception has constant Get_errorString() method.])
+            
+            ],
+            [AC_MSG_RESULT([no])
+             AC_DEFINE_UNQUOTED([USE_CONST_MPI_EXP], 0, [Define to 1 if MPI::Exception has constant Get_errorString() method.])            
+            ]
+        )
     fi
 ])
 
@@ -332,13 +369,14 @@ AC_DEFUN([AC_CHECK_HASHMAP],
 
 # Checks for programs.
 AC_PROG_MPI
+AC_CHECK_MPICC
+AC_CHECK_CONST_EXP
 AC_MSG_CHECKING([properties of C++ compiler])
 AC_MSG_RESULT([$CXX])
 AC_PROG_CXX
 AC_LINK_STDCPP
 AC_PROG_ICC
 AC_PROG_GCC
-AC_CHECK_MPICC
 AC_PROG_RANLIB
 
 # Enable developer assertions flags as needed.
@@ -355,9 +393,19 @@ AC_ARG_ENABLE([debug],
     AS_HELP_STRING([--enable-debug], [Setup all compile in debugging mode]),
     [ if test "$enableval" == "yes"; then
           OPT_O3="-O0"
+          DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
+      fi
+    ])
+
+# override full debugging & optimization flags as needed.
+AC_ARG_ENABLE([full-debug],
+    AS_HELP_STRING([--enable-full-debug], [Setup all compile with debugging outputs]),
+    [ if test "$enableval" == "yes"; then
+          OPT_O3="-O0"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS -DDEBUG_OUTPUT"
       fi
     ])
+
 # Substitute values of variables in makefile(s)
 AC_SUBST(OPT_O3)
 AC_SUBST(DEV_ASSERT)

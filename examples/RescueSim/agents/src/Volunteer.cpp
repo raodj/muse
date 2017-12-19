@@ -65,12 +65,11 @@ Volunteer::scheduleUpdatePosEvent(const bool isMessageFinal) {
 }
 
 void
-Volunteer::executeTask(const EventContainer* events){
+Volunteer::executeTask(const EventContainer& events){
    UpdateNearbyEvent* upEvent = NULL;
    VolunteerEvent* volEvent = NULL;
-   for(EventContainer::const_iterator it = events->begin(); 
-                                                       it != events->end(); it++){
-      RescueEvent * current_event = static_cast<RescueEvent*>((*it));
+   for (muse::Event *it : events) {
+      RescueEvent * current_event = static_cast<RescueEvent*>(it);
       VolunteerState * my_state = static_cast<VolunteerState*>(getState());
       if(current_event->getEventType() == VolunteerReport) {
          volEvent = static_cast<VolunteerEvent*>(current_event);

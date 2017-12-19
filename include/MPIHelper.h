@@ -185,6 +185,40 @@ public:
 };
 #endif
 
+/** \def CONST_EXP
+
+    \brief A simple, convenience macro to conditionally enable/disable
+    constant MPI exceptions depending on whether MPI::Exception class
+    supports a constant Get_error_string() method.
+
+    Open-MPI has a constant version of the method while mavaphic does
+    not.  This macro works around this different by selectively
+    permiting the use of const keyword when catching MPI::Exception.
+
+    This macro can be used as shown below:
+
+    \code
+
+    #include "MPIHelper.h"
+
+    void someMethod() {
+        try {
+            MPI_SEND(data, msg->getSize(), MPI::CHAR, destRank, GVT_MESSAGE);
+        } catch (CONST_EXP MPI_EXCEPTION& e) {
+            std::cerr << "MPI ERROR (sendMessage): ";
+            std::cerr << e.Get_error_string() << std::endl;
+        }
+        // ... more code goes here ..
+    }
+
+    \endcode
+*/
+#ifdef USE_CONST_MPI_EXP
+#define CONST_EXP const
+#else
+#define CONST_EXP
+#endif
+
 /** \def MPI_EXCEPTION
 
     \brief A simple, convenience macro to conditionally provide a
@@ -206,7 +240,7 @@ public:
     void someMethod() {
         try {
             MPI_SEND(data, msg->getSize(), MPI::CHAR, destRank, GVT_MESSAGE);
-        } catch (MPI::Exception e) {
+        } catch (CONST_EXP MPI_EXCEPTION& e) {
             std::cerr << "MPI ERROR (sendMessage): ";
             std::cerr << e.Get_error_string() << std::endl;
         }
@@ -223,6 +257,8 @@ class MPI_EXCEPTION {
 public:
     std::string Get_error_string() const { return "MPI is unavailable"; }
 };
+// Ensure that MPI_CONST is also defined
+#define MPI_CONST const
 #endif
 
 /** \def MPI_TYPE_UNSIGNED

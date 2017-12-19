@@ -42,11 +42,10 @@ RescueArea::scheduleNearbyEvent(const muse::AgentID receiver,
 }
 
 void
-RescueArea::executeTask(const muse::EventContainer* events){
+RescueArea::executeTask(const muse::EventContainer& events){
     UpdatePositionEvent *curEvent = NULL;
-    for(muse::EventContainer::const_iterator it = events->begin();
-	it != events->end(); it++) {
-	RescueEvent* const current_event = static_cast<RescueEvent*>((*it));
+    for (muse::Event *it : events) {
+	RescueEvent* const current_event = static_cast<RescueEvent*>(it);
 	RescueAreaState* const my_state  = static_cast<RescueAreaState*>(getState());
 	if(current_event->getEventType() == UpdatePositionVolunteer) {
 	    curEvent = static_cast<UpdatePositionEvent*>(current_event);

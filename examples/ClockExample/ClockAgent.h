@@ -19,11 +19,11 @@ class ClockAgent : public muse::Agent {
 public:
     ClockAgent(muse::AgentID id);
 
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
     
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
     
-    void finalize();
+    void finalize() override;
     
 };
 

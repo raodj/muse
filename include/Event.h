@@ -20,13 +20,10 @@
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
 //          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
 //
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include <unordered_map>
-#include <stack>
 
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(std::ostream&, const muse::Event&);
@@ -62,32 +59,8 @@ BEGIN_NAMESPACE(muse);
 */
 class Event {
     friend std::ostream& ::operator<<(std::ostream&, const muse::Event&);
-    friend class Agent;
-    friend class Simulation;
-    friend class Scheduler;
-    friend class GVTManager;
-    friend class Communicator;
-    friend class BinaryHeapWrapper;
-    friend class ListBucket;
-    friend class VectorBucket;
-    friend class TwoTierBucket;
-    friend class TwoTierBottom;
-    friend class OneTierBottom;
-    friend class TwoTierLadderQueue;    
-    friend class LadderQueue;
-    friend class Bottom;    
-    friend class HeapBottom;
-    friend class MultiSetBottom;
-    friend class HeapEventQueue;
-    friend class BinomialHeapEventQueue;
-    friend class TwoTierHeapEventQueue;
-    friend class ThreeTierHeapEventQueue;
-    friend class TwoTierHeapAdapter;
-    friend class TwoTierHeapOfVectorsEventQueue;
-    // friend class BinomialHeapEventQueue;
-    friend class AgentPQ;
-    friend class MultiThreadedSimulation;
-    friend class MultiThreadedShmSimulation;
+    friend class EventRecycler;
+    friend class EventAdapter;
 public:
     // Use MUSE macro to define the create method to instantiate
     // this event class.
@@ -127,7 +100,6 @@ public:
         value is in the range 0 < referenceCount < 3.
     */
     inline int getReferenceCount() const {return referenceCount; }
-
   
     /** \brief Determine if this Event is an anti-message
         
@@ -242,6 +214,23 @@ public:
         new (event) T(dynamic_cast<const T&>(*this));
         return event;
     }
+    
+    /** \brief Type-setting constructor
+        
+        The constructor is protected to ensure that the user always
+        uses the static CREATE method to create events. The AgentID of
+        the agent receiving the event and the delivery time is the
+        least amount of information needed to be a valid Event.
+        
+        \param receiverID the id of the receiver agent
+        
+        \param receiveTime this is the time the receiving agent should
+        process this event.
+        
+        \see AgentID
+        \see Time
+    */
+    explicit Event(const AgentID  receiverID, const Time  receiveTime);
 
     /** Convenience method to allocate flat memory for a given event.
 
@@ -293,48 +282,7 @@ public:
      */
     static void deallocate(char* buffer, const int size);
     
-    /** \brief Type-setting constructor
-        
-        The constructor is protected to ensure that the user always
-        uses the static CREATE method to create events. The AgentID of
-        the agent receiving the event and the delivery time is the
-        least amount of information needed to be a valid Event.
-        
-        \param receiverID the id of the receiver agent
-        
-        \param receiveTime this is the time the receiving agent should
-        process this event.
-        
-        \see AgentID
-        \see Time
-    */
-    explicit Event(const AgentID  receiverID, const Time  receiveTime);
-
 protected:    
-    /** \brief Get the color of the Event
-        
-        This method must be used to determine the color value
-        associated with this event.  The color value is typically used
-        for GVT computations during simulation.
-      
-        \return The color value associated with this event.  The color
-        value is always zero or one. Any other value potentially
-        indicates an error.
-    */
-    inline char getColor() const { return color; }
-  
-    /** \brief Set the color value for this event.
-        
-        This method must be used to set the color value associated
-        with this event.  The color value is typically used for GVT
-        computations during simulation.
-      
-        \param color The color value associated with this event.
-        The color value is always zero or one. Any other value
-        potentially indicates an error.
-    */
-    void setColor(const char color);
-
     /** \brief Get the size of this Event
         
         This method is used to determine the correct size of each
@@ -348,39 +296,7 @@ protected:
         \return The size of the event
     */
     virtual int getEventSize() const { return sizeof(Event); }
-  
-    /** \brief Decrease the internal reference counter
-        
-        Used for memory management.  This method should not be used by
-        users. MUSE uses this to handle memory for you.
-    */
-    void decreaseReference();
-  
-    /** \brief Increase the internal reference counter
-        
-        Used for memory management.  This method should not be used by
-        users. MUSE uses this to handle memory for you.
-    */
-    void increaseReference();
-  
-    /** \brief Turn this Event into an anti-message
-        
-        Converts this event into an anti-message This method should
-        only be used by MUSE internal operations.
-    */
-    void makeAntiMessage();
-
-    /** \brief Directly set the internal reference counter
-
-        Set the internal reference count to the specified value,
-        bypassing the increase/decrease reference count methods.  Note
-        that this method will not delete the message if the reference
-        count is set to 0.
-
-        This method is intended to be used only during rollbacks.
-     */
-    inline void setReferenceCount(int count) { referenceCount = count; }
- 
+    
     /** \brief Destructor
         
         Events are allocated by the CREATE method, and deleted by
@@ -389,17 +305,24 @@ protected:
         to guarantee that it is "flat" and ready to be sent across the
         wire.
     */
-    virtual ~Event();
+    virtual ~Event() {}
 
-    /// The ID of the Agent that sent this Event
-    AgentID senderAgentID;
     /// The ID of teh Agent that will receive this Event
     AgentID receiverAgentID;
-    /// The Time this Event was sent
-    Time sentTime;
     /// The Time this Event will be delivered/was received
     Time receiveTime;
-    /// Is this an anti-message?
+
+private:
+    /// The ID of the Agent that sent this Event
+    AgentID senderAgentID;
+    
+    /// The Time this Event was sent
+    Time sentTime;
+    
+    /** Flag to indicate if this event is an anti-message.  If the
+        flag is true, then the event is an anti-message.  The default
+        value for this flag is false.
+    */
     bool antiMessage;
 
     /** Internal reference counter for memory management.
@@ -434,7 +357,7 @@ protected:
         
         </ol>
     */
-    int referenceCount; 
+    char referenceCount; 
   
     /** \brief Instance variable to hold the color of this event for
         GVT computation.
@@ -450,33 +373,22 @@ protected:
     */
     char color;
 
-    
-private:
-    /** An unordered map of stacks to recycle events of different
-        sizes.
+    /** \brief Internal reference counter for memory management in
+        multi-threaded scenarios.
 
-        This map is used only if RECYCLE_EVENTS macro has been enabled
-        at compile time.  It has thread local storage so that each
-        thread (in case multi-threaded mode is used) get's its own
-        recycler thereby eliminating contention/locking.
-        
-        The key into this unordered map is the size of the event being
-        recycled.  For each size a stack is maintained to return the
-        most recently used event to improve cache performance.
+        This reference counter is used to track presence of events in
+        input queues of agents and schedulers.  This reference counter
+        is only updated on receivers of events that have events in
+        scheduler or Agent's-input-queues.  Using 2 independent
+        reference counters enables sender and receiver threads to
+        independently update them and then delete/recycle events when
+        both counters become zero.  By default this counter is
+        initialized to zero.
 
-        This map is used by the allocate and deallocate methods in
-        this class.  Typically the Event::create method is the one
-        that is used by applications to create an event.
+        \note In single-threaded mode this reference counter is not
+        used.
     */
-    thread_local static std::unordered_map<int, std::stack<char*>> EventRecycler;
-
-    /** Helper method to clear out all events in the recycler.
-
-        This method is typically called at the end of the simulation
-        from Simulation::finalize() method.  This method deletes all
-        events in the EventRecycler and empty's it.
-    */
-    static void deleteRecycledEvents();
+    char inputRefCount;
 };
 
 END_NAMESPACE(muse);

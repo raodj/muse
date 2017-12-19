@@ -55,9 +55,9 @@ Space::initialize() throw (std::exception) {
 } 
 
 void
-Space::executeTask(const EventContainer* events) {
-    EventContainer::const_iterator it = events->begin();
-    for (; (it != events->end()); it++){
+Space::executeTask(const EventContainer& events) {
+    EventContainer::const_iterator it = events.begin();
+    for (; (it != events.end()); it++){
         BugEvent *current_event = static_cast<BugEvent*>(*it);
         SpaceState *my_state    = static_cast<SpaceState*>(getState());
         // We use a switch on the event type

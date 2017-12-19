@@ -17,11 +17,11 @@ class LonelyAgent : public Agent {
 public:
     LonelyAgent(AgentID &, State *);
 
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
 
-    void executeTask(const EventContainer* events);
+    void executeTask(const EventContainer& events) override;
 
-    void finalize();
+    void finalize() override;
 
 };
 

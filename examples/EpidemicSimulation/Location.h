@@ -18,14 +18,14 @@ public:
     
     Location(const muse::AgentID id);
     
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
     
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
     /**
      * This method is called once just before the simulation 
      * completes.
      */
-    void finalize();
+    void finalize() override;
 
 protected:
     /** Simulate some granularity (i.e., CPU usage) for the event.

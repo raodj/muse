@@ -325,6 +325,20 @@ public:
 	\see Time
      */
     virtual Time getLGVT() const;
+
+    /** Convenience method to determine is events are being shared
+        between multiple threads on this process.
+
+        This is a convenience method that can be used to determine if
+        events are directly shared between two threads on this
+        process.  In such scenarios, two different reference counters
+        (one for send thread and another for receive thread) are
+        internally used to manage and recycle events.
+
+        \return This method returns true if events are shared between
+        threads.  Otherwise this method returns false.
+    */
+    inline bool usingSharedEvents() const { return doShareEvents; }
     
 protected:
     /** The default constructor for this class.
@@ -332,8 +346,11 @@ protected:
         The constructor merely initializes all the instance variables
         to default (or invalid) initial values.  The constructor does
         not perform any further tasks.
+
+        \param[in] usingSharedEvents Flag to indicate if events are
+        directly shared between threads on a process.
     */
-    Simulation();
+    Simulation(const bool usingSharedEvents = false);
 
     /** The destructor.
 
@@ -456,18 +473,31 @@ protected:
         invoked on all processes. On non-root (i.e., MPI rank > 0) the
         stats are generated in a string buffer and sent to the root
         kernel for reporting.  The root kernel obtains statistics from
-        each kerel and reports in rank order on the given output
-        stream.
+        each kerel and reports it on the given output stream.
 
         \param[out] os The output stream to which statistics are to be
         written. By default statistics are reported to std::cout.
     */
     virtual void reportStatistics(std::ostream& os = std::cout);
 
+    /** Overridable method to report additional local statistics (from
+        derived classes) at the end of simulation.
+
+        This method was introduced to enable derived classes report
+        additional statistics.  This method is called from the
+        reportStatistics() method in this class.  The statistics from
+        the derived class must be written to the supplied output
+        stream.
+
+        \param[out] os The output stream to which statistics are to be
+        written. By default statistics are reported to std::cout.
+    */
+    virtual void reportLocalStatistics(std::ostream& = std::cout) {}
+    
     /** \brief Do the actual stats dump
 
-        This method is called by the dumpStatsSignalHandler to actuall
-        do the work
+        This method is called by the dumpStatsSignalHandler to
+        actually do the work
      */
     virtual void dumpStats();
 
@@ -638,6 +668,19 @@ protected:
         \endcode
     */
     int maxMpiMsgThresh;
+
+    /** Flag to indicate if events are to be shared between different
+        processes.
+
+        This flag indicates if events events are being directly shared
+        between two differen threads on this process.  In such
+        scenarios, two different reference counters (one for send
+        thread and another for receive thread) are internally used to
+        manage and recycle events.  The default value is \c false.  It
+        is overridden only by derived multi-threading simulation
+        classes via \c --use-shared-events flag. 
+    */
+    bool doShareEvents;
     
     // Debug-only logging purposes.
     DEBUG(std::ofstream*  logFile);
