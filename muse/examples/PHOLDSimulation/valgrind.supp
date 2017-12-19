@@ -2,7 +2,7 @@
   Suppress_All_Functions_Below_MPI_Init
   Memcheck:Cond
   ...
-  fun:MPIR_Init
+  fun:PMPI_Init
   ...
 }
 
@@ -10,21 +10,21 @@
   Suppress_All_Functions_Below_MPI_Init
   Memcheck:Addr8
   ...
-  fun:MPIR_Init
+  fun:PMPI_Init
   ...
 }
 {
   Suppress_All_Functions_Below_MPI_Init
   Memcheck:Addr1
   ...
-  fun:MPIR_Init
+  fun:PMPI_Init
   ...
 }
 {
   Suppress_All_Functions_Below_MPI_Init
   Memcheck:Value8
   ...
-  fun:MPIR_Init
+  fun:PMPI_Init
   ...
 }
 
@@ -33,7 +33,7 @@
   Memcheck:Param
   ioctl(arg)
   ...
-  fun:MPIR_Init
+  fun:PMPI_Init
   ...
 }
 

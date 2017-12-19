@@ -18,7 +18,7 @@ SIM_EXEC="./pcs"
 
 # The default values for the two types of queues we are working with
 QUEUE1_DEFAULT="2tLadderQ"
-QUEUE2_DEFAULT="heap"
+QUEUE2_DEFAULT="3tHeap"
 
 # The list of command-line parameters to be explored for GSA.  These
 # values change from simulation-to-simulation.  Entries are in the
@@ -37,6 +37,7 @@ CmdLineParams=( ['--rows']="10 50"
                 ['--callIntervalMean']="20 30"
                 ['--callDurationMean']="2 10"
                 ['--moveIntervalMean']="120 160"
+				['--recvr-range']="1 10000"
               )
 
 # ------ Typically you should not have to modify values below this line. -----
@@ -45,7 +46,7 @@ CmdLineParams=( ['--rows']="10 50"
 SOBOL_GEN="./Sobol"
 
 # Any additional command-line options to be included.
-ADDL_SIM_CMD_LINE_ARGS="--2t-ladderQ-t2k 1"
+ADDL_SIM_CMD_LINE_ARGS="--2t-ladderQ-t2k 1 --delay-distrib exponential --recvr-distrib uniform"
 
 # Convenience function print parameters and ranges set
 function printParamRanges() {
