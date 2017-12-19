@@ -40,13 +40,14 @@
 #include <algorithm>
 
 PCS_Agent::PCS_Agent(muse::AgentID id, PCS_State* state, int x, int y, int n,
-                   double call_interval_mean, double call_duration_mean,
-                   double move_interval_mean, int lookAhead,
-                   size_t granularity) :
+                     double call_interval_mean, double call_duration_mean,
+                     double move_interval_mean, int lookAhead,
+                     size_t granularity, bool printInfo) :
     Agent(id, state), X(x), Y(y), N(n), lookAhead(lookAhead),
     granularity(granularity), callIntervalMean(call_interval_mean),
     callDurationMean(call_duration_mean),
-    moveIntervalMean(move_interval_mean), generator(id), moveGenerator(id) {
+    moveIntervalMean(move_interval_mean), generator(id),
+    moveGenerator(id), printInfo(printInfo) {
     // Setup the random seed used for generating random delays.
     seed = id;
 }
@@ -322,10 +323,12 @@ PCS_Agent::processEvent(PCS_Event* nextEvent) {
 }
 
 void
-PCS_Agent::executeTask(const muse::EventContainer* events) {
+PCS_Agent::executeTask(const muse::EventContainer& events) {
+    ASSERT(!events.empty());
     fullySortedEvents.clear();
-    for (muse::Event* event : *events) {
+    for (muse::Event* event : events) {
         PCS_Event* const current_event = dynamic_cast<PCS_Event*>(event);
+        ASSERT(current_event != NULL);
         fullySortedEvents.push_back(current_event);
     }
     std::sort(fullySortedEvents.begin(), fullySortedEvents.end(),
@@ -339,9 +342,12 @@ PCS_Agent::executeTask(const muse::EventContainer* events) {
 
 void
 PCS_Agent::finalize() {
-    PCS_State* const state = dynamic_cast<PCS_State*> (getState());    
-    // Print overall statistics upon finalization
-    oss << "Cell[" << getAgentID() << "]: " << state->to_string() << std::endl;
+    if (printInfo) {
+        PCS_State* const state = dynamic_cast<PCS_State*> (getState());    
+        // Print overall statistics upon finalization
+        oss << "Cell[" << getAgentID() << "]: " << state->to_string()
+            << std::endl;
+    }
 }
 
 #endif 

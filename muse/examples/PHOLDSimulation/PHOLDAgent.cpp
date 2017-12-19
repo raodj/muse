@@ -213,9 +213,9 @@ PHOLDAgent::getRecvrAgentID() {
 }
 
 void
-PHOLDAgent::executeTask(const EventContainer* events) {
+PHOLDAgent::executeTask(const EventContainer& events) {
     // For every event we get we send out one event
-    for (size_t i = 0; (i < events->size()); i++) {
+    for (size_t i = 0; (i < events.size()); i++) {
         // Simulate some event granularity
         simGranularity();
         // First make a random receive time for the future

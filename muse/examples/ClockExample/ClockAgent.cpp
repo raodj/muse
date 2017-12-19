@@ -21,7 +21,7 @@ ClockAgent::initialize() throw (std::exception){
 }
 
 void
-ClockAgent::executeTask(const muse::EventContainer* events){
+ClockAgent::executeTask(const muse::EventContainer& events){
     // when we receive a ClockEvent this means an hour has passed
     // print out our current LVT and print HOUR has passed message.
     // lastly, schedule an event to myself for the next hour.
@@ -31,12 +31,12 @@ ClockAgent::executeTask(const muse::EventContainer* events){
     // time steps)
     ClockState * my_state = (ClockState*) getState();
     muse::EventContainer::const_iterator it;
-    for (it = events->begin(); (it != events->end()); ++it) {
+    for (size_t i = 0; (i < events.size()); i++) {
 	muse::Event * e = muse::Event::create(getAgentID(), getTime() + 5);
         scheduleEvent(e);
         // We update our state here
         my_state->hour = (*it)->getReceiveTime();
-    }//end for
+    }  //end for
 }//end executeTask
 
 void

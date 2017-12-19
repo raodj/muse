@@ -40,7 +40,7 @@ public:
      * @param events The list of events to process. This list 
      * will contain at least one event for this agent to process.
      */
-    void executeTask(const muse::EventContainer* events) override;
+    void executeTask(const muse::EventContainer& events) override;
 
     /**
      * This method is called once just before the simulation 

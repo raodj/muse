@@ -21,12 +21,13 @@ PingPongAgent::initialize() throw (std::exception) {
 }  //end initialize
 
 void
-PingPongAgent::executeTask(const muse::EventContainer* events) {
+PingPongAgent::executeTask(const muse::EventContainer& events) {
     std::cout << "PingPong Agent [" << getAgentID() << "] @ LVT: "
               << getTime() << std::endl;
    
-    if (!events->empty()){
-        muse::Event * e = muse::Event::create((getAgentID() + 1) % 2, getTime() + 1);
+    if (!events.empty()){
+        muse::Event * e = muse::Event::create((getAgentID() + 1) % 2,
+                                              getTime() + 1);
         scheduleEvent(e);
     }
 }  //end executeTask

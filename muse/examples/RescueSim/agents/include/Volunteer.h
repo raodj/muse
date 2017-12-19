@@ -9,10 +9,10 @@ using namespace muse;
 class Volunteer : public Agent {
 public:
    Volunteer(AgentID, State *, int c, int r , int x, int y);
-   void initialize() throw (std::exception);
-   void executeTask(const EventContainer*);
+   void initialize() throw (std::exception) override;
+   void executeTask(const EventContainer&) override;
    void calculateMove();
-   void finalize();
+   void finalize() override;
 protected:
    int cols;
    int rows;

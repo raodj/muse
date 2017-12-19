@@ -17,22 +17,22 @@ LonelyAgent::initialize() throw (std::exception) {
     if (scheduleEvent(e)) {
         oss << "Talking to self: " << getAgentID() << endl;
     }
-} //end initialize
+}  //end initialize
 
 void
-LonelyAgent::executeTask(const EventContainer* events){
-    if (!events->empty()) {
+LonelyAgent::executeTask(const EventContainer& events) {
+    if (!events.empty()) {
         Event * e = Event::create(getAgentID(), getTime() + 1); 
         if (scheduleEvent(e)) {
             oss << "Talking to self: " << getAgentID() <<endl;
         }
     }
-}//end executeTask
+}  //end executeTask
 
 void
 LonelyAgent::finalize() {
     // cout << "LonelyAgent [" << getAgentID() << "] FINALIZE" << endl;
-}//end finalize
+}  //end finalize
 
 #endif 
 

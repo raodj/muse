@@ -63,11 +63,56 @@ public:
         The constructor is relatively straightforward and merely
         initializes the instance variables to the corresponding
         parameter values.
+
+        \param[in] id The ID to be set for the agent.  This value must
+        be unique across the entire parallel simulation.
+
+        \param[in] state The initial state to be set for this agent.
+
+        \param[in] x The logical x-coordinate on the grid for this agent.
+
+        \param[in] y The logical y-coordinate on the grid for this agent.
+
+        \param[in] call_interval_mean The mean (in minutes, default is
+        20 minutes) of the Exponential distribution used to determine
+        the duration between 2 successive calls made by portables.
+        Typically this value is the same for all agents to keep
+        portable behaviors consistent.
+
+        \param[in] call_duration_mean The mean (in minutes, default is
+        2 minutes) duration of a phone call, with duration assumed to
+        be Poisson distributed.  This mean value is used as the mean
+        of a Poisson distribution that is used to determine duration
+        of phone calls for a portable.  Typically this value is the
+        same for all agents to keep portable behaviors consistent at
+        each cell.
+
+        \param[in] move_iterval_mean Mean (in minutes, default is 120
+        minutes) of exponential distribution used to determine when a
+        portable moves from one cell tower to another.  Typically this
+        value is the same for all agents to keep portable behaviors
+        consistent at each cell.
+
+        \param[in] lookAhead An optional look ahead to be used when
+        generating future time stamps.  This value is by default 1.
+        It is used in scenarios when exponential distribution
+        generates zero (from random number generation) but MUSE does
+        not permit scheduling of events at the same time (i.e., MUSE
+        does not support zero-length rollbacks).
+
+        \param[in] granularity Used to add some CPU load for each
+        event. Larger values add more load. Zero indicates no load at
+        all.
+
+        \param[in] printInfo Print information at the end of
+        simulation in finalize method about the operations done by
+        this agent.  This an application level message.
     */
-    PCS_Agent(muse::AgentID, PCS_State*, int x, int y, int n,
-             double call_interval_mean, double call_duration_mean,
-             double move_interval_mean,
-             int lookAhead = 1, size_t granularity = 0);
+    PCS_Agent(muse::AgentID id, PCS_State* state, int x, int y, int n,
+              double call_interval_mean = 20.0, double call_duration_mean = 2.0,
+              double move_interval_mean = 120.0,
+              int lookAhead = 1, size_t granularity = 0,
+              bool printInfo = true);
 
     /**
      * The initialize method for this object is called only once when the
@@ -78,7 +123,7 @@ public:
      * The minimum of the three timestamps is used to determine the type and
      * the destination of the PCS_Event/Portable.
      */
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
     
     /**
      * This method is called each time the PCS_Agent/Cell receives
@@ -86,13 +131,13 @@ public:
      * the method to be invoked (nextCall, completionCall, moveIn, or moveOut)
      * and the subsequent actions that are taken based on the timestamps. 
      */
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
  
     /**
      * This method is called once just before the simulation 
      * completes.
      */    
-    void finalize();
+    void finalize() override;
     
     /**
      * The availability of channels is determined. If channels are not
@@ -290,7 +335,17 @@ private:
         // Finally sort on portable id
         return (lhs->getPortableID() < rhs->getPortableID());
     }
+
+    /** Flag to enable/disable printing information at the end of
+        simulation.
+
+        This flag is used in the finalize method to control if message
+        about the operations done by this agent is to be printed.
+        This an application level message which can clutter outputs in
+        performance benchmarking and can be suppressed via \c
+        --no-info command-line argument.
+    */
+    const bool printInfo;
 };
 
-#endif /* PCSAGENT_H */
-
+#endif /* PCS_AGENT_H */

@@ -220,6 +220,17 @@ private:
         This value is set via the command-line argument --moveIntervalMean
     */
     double moveIntervalMean;
+
+    /** Flag to enable/disable printing information at the end of
+        simulation.
+
+        This flag is used in the finalize method to control if message
+        about the operations done by this agent is to be printed.
+        This an application level message which can clutter outputs in
+        performance benchmarking and can be suppressed via \c
+        --no-info command-line argument.
+    */
+    bool dontPrintInfo;    
 };
 
 #endif /* PCS_SIMULATION_H */

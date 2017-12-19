@@ -136,7 +136,7 @@ public:
         
         \see EventContainer
     */
-    virtual void executeTask(const EventContainer* events) = 0;
+    virtual void executeTask(const EventContainer& events) = 0;
 
     //------------Provided by muse----below-----------------//
     
@@ -439,6 +439,27 @@ private:
     */
     void doCancellationPhaseOutputQueue(const Time& restoredTime);
 
+    /** Refactored utility method called only from
+        doCancellationPhaseOutputQueue method to send out
+        anti-message.
+
+        This method is a refactored method that was introduced to
+        merely streamline the body of the
+        doCancellationPhaseOutputQueue method.  This method creates
+        and sends output anti-messages for a given event.  This method
+        checks for the following 3 cases: 1. cancel event to LP on
+        local process/thread, 2. cancel event to different thread on
+        same process, and 3. cancel event to a remote process.
+
+        \param[in] currEvt The event to be canceled.  This parameter
+        cannot be NULL/nullptr.
+        
+        \param[in] useSharedEvents Flag to indicate if events are
+        directly shared between threads on the same proces.
+    */
+    void sendAntiMessage(muse::Event* const currEvt,
+                         const bool useSharedEvents);
+    
     /** The doCancellationPhaseInputQueue method.
         This is the third and final step of the rollback recovery process.
         In this method we start prunning the input queue. Events

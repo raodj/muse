@@ -127,7 +127,7 @@ public:
 	\param[in] events The list of events to be processed by this
 	agent.
     */
-    void executeTask(const EventContainer* events);
+    void executeTask(const EventContainer& events);
 
     /** The MUSE API method invoked at the end of the simulation.
 

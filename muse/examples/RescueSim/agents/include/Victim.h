@@ -10,9 +10,9 @@ using namespace muse;
 class Victim : public Agent {
 public:
    Victim(AgentID, State *, int c, int r);
-   void initialize() throw (std::exception);
-   void executeTask(const EventContainer* events);
-   void finalize();
+   void initialize() throw (std::exception) override;
+   void executeTask(const EventContainer& events) override;
+   void finalize() override;
    int cols;
    int rows;
    coord my_location;

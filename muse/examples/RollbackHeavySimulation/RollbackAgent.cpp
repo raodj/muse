@@ -54,8 +54,8 @@ RollbackAgent::initialize() throw (std::exception) {
 } //end initialize
 
 void
-RollbackAgent::executeTask(const muse::EventContainer* events) {
-    if (!events->empty()) {
+RollbackAgent::executeTask(const muse::EventContainer& events) {
+    if (!events.empty()) {
         const muse::Time receiveTime = getTime() + 1;
         for (int i = 0; (i < max_agents); i++) {
 	    muse::Event* const e = muse::Event::create(muse::AgentID(i),

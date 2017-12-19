@@ -8,9 +8,9 @@
 class RescueArea : public muse::Agent {
 public:
     RescueArea(muse::AgentID, muse::State *);
-    void initialize() throw (std::exception);
-    void executeTask(const muse::EventContainer*);
-    void finalize();
+    void initialize() throw (std::exception) override;
+    void executeTask(const muse::EventContainer&) override;
+    void finalize() override;
 
 protected:
     /** Convenience method to determine number of entries to be copied

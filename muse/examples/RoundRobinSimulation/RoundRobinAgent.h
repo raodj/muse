@@ -64,7 +64,7 @@ public:
 	generates the initial token/event that is circulated to
 	adjacent agents.
     */
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
 
     /** The method to process event(s) scheduled for this agent.
 
@@ -79,14 +79,14 @@ public:
 	scheduled and does not really use the events in any meaningful
 	manner.
     */
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
 
     /** API method invoked by the MUSE kernel at the end of simulation.
 
 	Currently, this method does not have any special tasks to
 	perform and is present merely as a place holder.
     */
-    void finalize();
+    void finalize() override;
 
 private:
     /**

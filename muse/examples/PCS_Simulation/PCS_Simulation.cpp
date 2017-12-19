@@ -58,9 +58,10 @@ PCS_Simulation::PCS_Simulation() {
     end_time         = 100;
     granularity      = 0;
     channels         = 8;
-    callIntervalMean = 20;   // Call every 20 minutes (exponential)
-    callDurationMean = 2.0;  // Calls are about 2 minutes long (poisson)
-    moveIntervalMean = 120;  // Every 2 hours move to another cell (expo)
+    callIntervalMean = 20;     // Call every 20 minutes (exponential)
+    callDurationMean = 2.0;    // Calls are about 2 minutes long (poisson)
+    moveIntervalMean = 120;    // Every 2 hours move to another cell (expo)
+    dontPrintInfo    = false;  // Print appl. info at end of sim.
 }
 
 PCS_Simulation::~PCS_Simulation() {}
@@ -91,6 +92,8 @@ PCS_Simulation::processArgs(int argc, char** argv) {
          &callDurationMean, ArgParser::DOUBLE},
         {"--moveIntervalMean", "Mean (> 0, exponential) move interval time",
          &moveIntervalMean, ArgParser::DOUBLE},
+        {"--no-info", "Don't print appl. info at end of sim.",
+         &dontPrintInfo, ArgParser::BOOLEAN},        
         {"", "", NULL, ArgParser::INVALID}
     };
     
@@ -130,22 +133,34 @@ PCS_Simulation::createAgents() {
     muse::Simulation* kernel = muse::Simulation::getSimulator();    
     const int max_agents     = rows * cols;
     const int max_nodes      = kernel->getNumberOfProcesses();
+    const int threadsPerNode = kernel->getNumberOfThreads();    
     const int skewAgents     = (max_nodes > 1) ? (max_agents * imbalance) : 0;
     const double factor      = (skewAgents > 0) ?
         (skewAgents / (double) cumlSum(max_nodes)) : 0;
     const int agentsPerNode  = (max_agents - skewAgents) / max_nodes;
     ASSERT( agentsPerNode > 0 );
+    const int agentsPerThread= std::max(1, agentsPerNode / threadsPerNode);
+    ASSERT( agentsPerThread > 0 );    
     const int agentStartID   = (agentsPerNode * rank) + cumlSum(rank, factor);
     const int agentEndID     = (rank == max_nodes - 1) ? max_agents :
         ((agentsPerNode * (rank + 1)) + cumlSum(rank + 1, factor));
-    
+    // Create the agents and assign to multiple threads if that is the
+    // configuration.
+    int currThread = 0;  // current thread
+    int currThrNumAgents = 0;  // number of agents on current thread.    
     for (int i = agentStartID; (i < agentEndID); i++) {
         PCS_State* const state = new PCS_State(channels);
         PCS_Agent* const agent =
             new PCS_Agent(i, state, rows, cols, portables,
                           callIntervalMean, callDurationMean,  moveIntervalMean,
-                          lookAhead, granularity);
-        kernel->registerAgent(agent);
+                          lookAhead, granularity, !dontPrintInfo);
+        kernel->registerAgent(agent, currThread);
+        // Handle assigning agents to different threads
+        if ((++currThrNumAgents >= agentsPerThread) &&
+            (currThread < threadsPerNode - 1)) {
+            currThread++;          // assign agents to next thread.
+            currThrNumAgents = 0;  // reset number of agents on this thread.
+        }        
     }
     std::cout << "Rank " << rank << ": Registered agents from "
               << agentStartID    << " to "

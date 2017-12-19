@@ -35,6 +35,10 @@ GLOBALCPPFLAGS += $(CPP11) $(CPP0X)
 # comparisons ensure the following flag is disabled.
 GLOBALCPPFLAGS += $(DEV_ASSERT)
 
+# Override configure settings to enable developer assertions used for
+# validating/sanity-checks throughout the code base
+# GLOBALCPPFLAGS += -DDEVELOPER_ASSERTIONS
+
 # The following compiler flag enables recyling of events during
 # simulation. See Event::allocate and Event::deallocate methods.
 GLOBALCPPFLAGS += -DRECYCLE_EVENTS

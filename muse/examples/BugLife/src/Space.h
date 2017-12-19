@@ -45,11 +45,11 @@ class Space : public muse::Agent {
 public:
     Space(muse::AgentID , muse::State *);
 
-    void initialize() throw (std::exception);
+    void initialize() throw (std::exception) override;
 
-    void executeTask(const muse::EventContainer* events);
+    void executeTask(const muse::EventContainer& events) override;
 
-    void finalize();
+    void finalize() override;
 
 protected:
     void executeMoveIn(BugEvent* current_event, SpaceState* my_state);
