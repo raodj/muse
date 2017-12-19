@@ -384,7 +384,7 @@ DEV_ASSERT=""
 AC_ARG_ENABLE([assertions],
     AS_HELP_STRING([--enable-assertions], [Enable developer assertion checks for sanity checking]),
     [ if test "$enableval" == "yes"; then
-          OPT_O3="-O0"
+          OPT_O3="-O3"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
       fi
     ])
@@ -411,7 +411,7 @@ AC_SUBST(OPT_O3)
 AC_SUBST(DEV_ASSERT)
 
 # Checks for suitable archiver to be used
-AM_PROG_AR
+# AM_PROG_AR
 
 # Check and set some default compiler flags for the build
 AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])
@@ -439,12 +439,12 @@ AM_PROG_CC_C_O
 
 # Checks for libraries.
 AC_CHECK_LIB([m],[asin],,,[-lstdc++])
-AC_CHECK_FUNCS([MPI_Init])
-AC_SEARCH_LIBS([initscr],[curses],,,[-lstdc++])
-AC_CHECK_LIB([readline],[readline],,,[-lstdc++])
-AC_CHECK_LIB([pthread], [pthread_create],,,[-lstdc++])
-AC_SEARCH_LIBS([gethostname], [c,nsl],,,[-lstdc++])
-AC_SEARCH_LIBS([bind],[c,nsl,socket],,,[-lstdc++])
+# AC_CHECK_FUNCS([MPI_Init])
+AC_SEARCH_LIBS([initscr],[curses],,,[$LINK_STD_CPP])
+AC_CHECK_LIB([readline],[readline],,,[$LINK_STD_CPP])
+AC_CHECK_LIB([pthread], [pthread_create],,,[$LINK_STD_CPP])
+AC_SEARCH_LIBS([gethostname], [c,nsl],,,[$LINK_STD_CPP])
+AC_SEARCH_LIBS([bind],[c,nsl,socket],,,[$LINK_STD_CPP])
 
 # Checks for header files.
 AC_HEADER_STDC

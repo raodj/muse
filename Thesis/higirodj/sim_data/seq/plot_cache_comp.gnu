@@ -7,7 +7,9 @@
 
 # Set input / output file names
 csvDir = config . "_perf_data"
-delay  = "10"
+if (!exist('delay')) {
+  delay  = "1"
+}
 selfEvents = "0.250"
 outFile1 = sprintf("%s_cache_miss_per_event_delay_%s.pdf", config, delay)
 outFile2 = sprintf("%s_cache_miss_per_instr_delay_%s.pdf", config, delay)
@@ -19,7 +21,7 @@ searchStr = sprintf("^ %s, %s, ", delay, selfEvents)
 
 # Set properties for the chart.
 set datafile separator ","
-set terminal pdfcairo enhanced color size 3in,2.5in font ", 10"
+set terminal pdfcairo enhanced color size 1.75in,1.75in font ", 10"
 
 # Set properties for the line plot
 # set border 10 front linewidth 0.5
@@ -31,7 +33,7 @@ if (exists("keyOn")) {
 } else {
     unset key
 }
-    
+
 set xrange[0:21]
 set xtics (1, 5, 10, 15, 20)
 set grid lc rgb "#dddddd"
@@ -72,7 +74,7 @@ queueColor = "8 2 5 6"
 # Plot line charts for each queue of values.
 #  for [i=1:4] getData(word(queueList, i)) using 3:($15*100/$6):($16*100/$7) with filledcurves lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
 
-# Plot chart showing cache miss per event 
+# Plot chart showing cache miss per event
 set output outFile1
 set ylabel "Cache misses per Event" font " Bold, 8" offset 2,0
 set y2label "Total #Events (in millions)" font " Bold, 8" tc rgb "#7e2f8e" offset -1.5, 0
@@ -81,15 +83,16 @@ set y2tics tc rgb "#7e2f8e"
 set ytics nomirror
 
 print getData(word(queueList, 1))
+print word(ColorList, int(word(queueColor, 1)))
 
-plot for [i=1:4] getData(word(queueList, i)) using 3:($13/$4):($15/$4):($16/$4) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
-     for [i=1:4] getData(word(queueList, i)) using 3:($13/$4) with lines lw 2 lc rgb word(ColorList, word(queueColor, i) + 0) title word(queueList, i),\
-     getData(word(queueList, 1)) using 3:($4/1e6) axes x1y2 with lines lw 2 lc rgb "#7e2f8e" title "Tot.Evts"
+plot for [i=1:4] getData(word(queueList, i)) using 3:($13/$4):($15/$4):($16/$4) with yerrorbars lw 2 ps 0.2 pt 7 lc rgb word(ColorList, int(word(queueColor, i))) notitle,\
+     for [i=1:4] getData(word(queueList, i)) using 3:($13/$4) with lines lw 2 lc rgb word(ColorList, int(word(queueColor, i))) title word(queueList, i),\
+     getData(word(queueList, 1)) using 3:($4/1e6) axes x1y2 with lines lw 2 lc  rgb "#7e2f8e" title "Tot.Evts"
 
 #--------------------------------------------------------------
-     
+
 # Plot chart showing cache miss per instruction
-set terminal pdfcairo enhanced color size 2in,2.5in font ", 10"     
+set terminal pdfcairo enhanced color size 2in,2.5in font ", 10"
 set output outFile2
 set ylabel "Cache misses per Instruction" font " Bold, 8" offset 2,0
 set yrange [0:*]
@@ -98,8 +101,8 @@ unset y2tics
 set ytics mirror
 set key top right
 
-plot for [i=1:4] getData(word(queueList, i)) using 3:($13/$22):($15/$22):($16/$22) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
-     for [i=1:4] getData(word(queueList, i)) using 3:($13/$22) with lines lw 2 lc rgb word(ColorList, word(queueColor, i) + 0) title word(queueList, i)
+plot for [i=1:4] getData(word(queueList, i)) using 3:($13/$22):($15/$22):($16/$22) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, int(word(queueColor, i))) notitle,\
+     for [i=1:4] getData(word(queueList, i)) using 3:($13/$22) with lines lw 2 lc rgb word(ColorList, int(word(queueColor, i))) title word(queueList, i)
 
 #--------------------------------------------------------------
      
@@ -113,7 +116,7 @@ unset y2tics
 set ytics mirror
 set key top right
 
-plot for [i=1:4] getData(word(queueList, i)) using 3:($22/$4):($24/$4):($25/$4) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, word(queueColor, i) + 0) notitle,\
-     for [i=1:4] getData(word(queueList, i)) using 3:($22/$4) with lines lw 2 lc rgb word(ColorList, word(queueColor, i) + 0) title word(queueList, i)     
+plot for [i=1:4] getData(word(queueList, i)) using 3:($22/$4):($24/$4):($25/$4) with yerrorbars lw 1 ps 0.2 pt 7 lc rgb word(ColorList, int(word(queueColor, i))) notitle,\
+     for [i=1:4] getData(word(queueList, i)) using 3:($22/$4) with lines lw 2 lc rgb word(ColorList, int(word(queueColor, i))) title word(queueList, i)     
 
 # End of script

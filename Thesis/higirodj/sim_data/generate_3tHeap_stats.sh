@@ -4,7 +4,7 @@
 # submits multiple PBS jobs to run simulations in parallel.  Run as
 # (with parameters to simulation at the end):
 #
-# $ ./generate_heap2tQ_stats.sh --procs 4 --outfile ph4_heap2tQ_4proc_timings.csv --params '--rows 100 --cols 100 --scheduler-queue heap2tQ --simEndTime 500' > ph4_heap2tQ_4proc_log.txt 2>&1 &
+# $ ./generate_3tHeap_stats.sh --procs 4 --outfile ph4_3tHeap_4proc_timings.csv --params '--rows 100 --cols 100 --scheduler-queue 3tHeap --simEndTime 500' > ph4_3tHeap_4proc_log.txt 2>&1 &
 
 # The number of reps we would like to average
 reps=10
@@ -15,7 +15,7 @@ reps=10
 #   "param_name [1|p] [sum|max|any] col_with_stat search words"
 #
 RunTimeStatsInfo=(
-	"runtime     1 max 2   ^real "
+	"runtime     p max 8   h:mm:ss or m:ss"	
 	"memory      p max 6   Maximum resident set size"
 	"rollbacks   p sum 9   Total #rollbacks "
 	"mpiMsgs     p sum 7   Total #MPI messages "
