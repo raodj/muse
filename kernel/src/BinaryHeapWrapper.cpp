@@ -48,13 +48,13 @@ BinaryHeapWrapper::pop() {
 	return;
     }
     pop_heap(heapContainer->begin(), heapContainer->end(), EventComp());
-    heapContainer->back()->decreaseReference();
+    EventQueue::decreaseReference(heapContainer->back());
     heapContainer->pop_back();
 }
 
 void
 BinaryHeapWrapper::push(Event * event) {
-    event->increaseReference();
+    EventQueue::increaseReference(event);
     heapContainer->push_back(event);
     push_heap(heapContainer->begin(), heapContainer->end(), EventComp());
 }
@@ -100,7 +100,7 @@ BinaryHeapWrapper::removeFutureEvents(const muse::AgentID sender,
         if ((lastEvent->getSenderAgentID() == sender) &&
             (lastEvent->getSentTime() >= sentTime)) {
             // This event needs to be cancelled
-            lastEvent->decreaseReference();
+            EventQueue::decreaseReference(lastEvent);
             numRemoved++;
         } else {
             // This event is still valid, and needs to be processed
@@ -140,7 +140,7 @@ BinaryHeapWrapper::removeFutureEvents(const muse::AgentID sender,
         if ((evt->getSenderAgentID() == sender) &&
             (evt->getSentTime() >= sentTime)) {
             // This event needs to be cancelled.
-            evt->decreaseReference();
+            EventQueue::decreaseReference(evt);
             numRemoved++;
             // Now it is time to patchup the hole and fix up the heap.
             // To patch-up we move event from the bottom up to this
@@ -174,7 +174,7 @@ BinaryHeapWrapper::clear() {
     ASSERT( heapContainer != NULL );
     // Decrease reference for all events in our event container
     for (Event* evt : *heapContainer) {
-        evt->decreaseReference();
+        EventQueue::decreaseReference(evt);
     }
     // Clear out our event container
     heapContainer->clear();

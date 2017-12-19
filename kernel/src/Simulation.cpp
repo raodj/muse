@@ -30,6 +30,7 @@
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
+#include "EventAdapter.h"
 #include <cstdlib>
 #include <csignal>
 
@@ -43,8 +44,9 @@ using namespace muse;
 // Define reference to the singleton simulator/kernel
 muse::Simulation* muse::Simulation::kernel = NULL;
 
-Simulation::Simulation() : LGVT(0), startTime(0), endTime(0),
-                           gvtDelayRate(10), numberOfProcesses(-1u) {
+Simulation::Simulation(const bool useSharedEvents)
+    : LGVT(0), startTime(0), endTime(0), gvtDelayRate(10),
+      numberOfProcesses(-1u), doShareEvents(useSharedEvents) {
     commManager     = NULL;
     scheduler       = NULL;
     myID            = -1u;
@@ -241,8 +243,8 @@ Simulation::processMpiMsgs() {
             // is in the eventPQ, it will be unharmed (reference
             // count will actually be fixed to correct for lack of
             // local output queue)
-            ASSERT(incoming_event->getReferenceCount() < 3);
-            incoming_event->decreaseReference();
+            ASSERT(EventRecycler::getReferenceCount(incoming_event) < 3);
+            EventRecycler::decreaseReference(incoming_event);
             if ((LGVT = scheduler->getNextEventTime()) < getGVT()) {
                 std::cout << "LGVT = " << LGVT << " is below GVT: "
                           << getGVT()
@@ -361,19 +363,21 @@ Simulation::finalize(bool stopMPI, bool delCommMgr) {
 
     // Invalidate the  kernel ID
     myID = -1u;
-    
-    // Un-hijack cout
-    DEBUG(std::cout.rdbuf(oldstream));
-    // Get rid of the log file.
-    DEBUG(delete logFile);
-    DEBUG(logFile = NULL);
+
+    DEBUG({
+            if (logFile != NULL) {
+                // Un-hijack cout
+                std::cout.rdbuf(oldstream);
+                // Get rid of the log file.
+                delete logFile;
+                logFile = NULL;
+            }
+    });
     // Get rid of scheduler as we no longer need it
     delete scheduler;
     scheduler = NULL;
     // Clear out the list of agents in this simulation
     allAgents.clear();
-    // Free-up any recycled events we may have
-    Event::deleteRecycledEvents();
 }
 
 void
@@ -483,6 +487,8 @@ Simulation::reportStatistics(std::ostream& os) {
           << "\nTotal #rollbacks      : " << totalRollbacks
           << "\nTotal #MPI messages   : " << totalMPIMessages
           << std::endl;
+    // Let derived class(es) report statistics (if any)
+    reportLocalStatistics(stats);
     // Have the scheduler (and event queue) report statistics (if any)
     scheduler->reportStats(stats);
     // Report statistics

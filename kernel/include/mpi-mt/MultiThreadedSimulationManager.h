@@ -225,6 +225,15 @@ private:
         from MPI.
     */
     std::mutex mpiMutex;
+
+    /** A temporary vector to hold incoming MPI events.
+
+        This container is repeatedly reused in processMpiMsgs to
+        obtain events from MPI via call to MultiThreadedCommunicator's
+        receiveManyEvents method.  This container is reused so that we
+        don't waste CPU cycles on recreating/resizing the container.
+    */
+    EventContainer mpiEvents;
     
     /** The only constructor for this class.
 

@@ -57,7 +57,7 @@ ThreeTierHeapEventQueue::removeAgent(muse::Agent* agent) {
     Tier2List& tier2eventPQ = *agent->tier2;
     for (muse::HOETier2Entry* bucket : tier2eventPQ) {
         for (Event* evt : bucket->getEventList()) {
-            evt->decreaseReference();  // logically remove event
+            decreaseReference(evt);  // logically delete/free event
         }
         // Free the memory reserved for this bucket
         delete bucket;
@@ -87,7 +87,7 @@ ThreeTierHeapEventQueue::pop_front(muse::Agent* agent) {
     std::vector<muse::Event*>& eventList =
         agent->tier2->front()->getEventList();
     for (Event* evt: eventList) {
-        evt->decreaseReference();
+        decreaseReference(evt);  // Logically free/recycle event
     }
     // agent->tier2->erase(agent->tier2->begin());
     tier2Recycler.emplace_back(agent->tier2->front());
@@ -169,7 +169,7 @@ ThreeTierHeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     // the queue.  First Increase event reference count for every
     // event added to the event queue.
     ASSERT( event->getReferenceCount() < 2 );
-    event->increaseReference();
+    increaseReference(event);  // Call base class method to increase reference
     enqueueEvent(agent, event);
     updateHeap(agent);    
 }
@@ -241,7 +241,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
                 Event* const evt = eventList[index];
                 ASSERT(evt != NULL);
                 if (isFutureEvent(sender, sentTime, evt)) {
-                    evt->decreaseReference();
+                    decreaseReference(evt);  // Logically free/recycle event
                     numRemoved++;
                     eventList[index] = eventList.back();
                     eventList.pop_back();

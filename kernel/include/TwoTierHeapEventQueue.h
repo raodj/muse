@@ -51,6 +51,7 @@ BEGIN_NAMESPACE(muse)
     in the fixHeap() method.
 */
 class TwoTierHeapEventQueue : public EventQueue {
+    friend class TwoTierHeapAdapter;
 public:
     /** The constructor for the TwoTierHeapEventQueue.
 

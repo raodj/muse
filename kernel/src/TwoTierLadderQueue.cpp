@@ -42,7 +42,7 @@ void
 muse::TwoTierBucket::clear() {
     for (BktEventList& subBkt : subBuckets) {
         for (muse::Event* event : subBkt) {
-            event->decreaseReference();
+            TwoTierLadderQueue::decreaseReference(event);
         }
     }
     count = 0;
@@ -99,7 +99,7 @@ muse::TwoTierBucket::remove_after(BktEventList& list, muse::AgentID sender,
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // Free-up event.
-            event->decreaseReference();
+            TwoTierLadderQueue::decreaseReference(event);
             removedCount++;
             // To minimize removal time replace entry with last one
             // and pop the last entry off.
@@ -136,7 +136,7 @@ muse::TwoTierBucket::remove(BktEventList& list, muse::AgentID receiver) {
     BktEventList::iterator curr = list.begin();
     while (curr != list.end()) {
         if ((*curr)->getReceiverAgentID() == receiver) {
-            (*curr)->decreaseReference();
+            TwoTierLadderQueue::decreaseReference(*curr);
             curr = list.erase(curr);                
             removedCount++;
         } else {
@@ -292,7 +292,7 @@ muse::OneTierBottom::remove_after(muse::AgentID sender, const Time sendTime) {
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // Free-up event.
-            event->decreaseReference();
+            TwoTierLadderQueue::decreaseReference(event);
             removedCount++;
             // In sorted mode we have to preserve the order. So
             // cannot swap & pop in this situation
@@ -985,7 +985,7 @@ muse::TwoTierLadderQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
 void
 muse::TwoTierLadderQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     UNUSED_PARAM(agent);
-    event->increaseReference();
+    increaseReference(event);  // Use base class helper method
     enqueue(event);
 }
 

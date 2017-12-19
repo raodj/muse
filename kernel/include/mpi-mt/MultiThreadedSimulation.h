@@ -24,7 +24,9 @@
 
 #include <mutex>
 #include "Simulation.h"
+#include "SpinLockThreadBarrier.h"
 #include "mpi-mt/MTQueue.h"
+#include "Avg.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -103,8 +105,6 @@ class MultiThreadedSimulationManager;
     documentation for more details on the features provided.
 */
 class MultiThreadedSimulation : public muse::Simulation {
-    // GVTManager needs to be able to call garbageCollect()
-    friend class GVTManager;
     // The manager needs to create instances of this class
     friend class MultiThreadedSimulationManager;
 public:        
@@ -142,10 +142,15 @@ protected:
 
         \param[in] threadsPerNode The total number of threads running
         on this node (with thread IDs: 0, 1, ..., threadsPerNode-1).
+
+        \param[in] usingSharedEvents Flag to indicate if events are to
+        be directly shared between sending and receiving threads on
+        this process.
     */
     MultiThreadedSimulation(MultiThreadedSimulationManager* simMgr,
                             int thrID = 0, int globalThrID = 0,
-                            int threadsPerNode = 1);
+                            int threadsPerNode = 1,
+                            bool usingSharedEvents = false);
 
     /** The destructor.
 
@@ -301,6 +306,22 @@ protected:
     */
     virtual bool scheduleEvent(Event* e) override;
 
+    /** \brief Clean up old States and Events
+
+        This method overrides the default implementation in the base
+        class.  First it passess control to the base class to perform
+        the standard garbage collection process.  Next, this method
+        calls EventRecycler::processPendingDeallocs() to try to
+        reclaim pending events after a garbage collection cycle has
+        completed.  This is done here because EventRecycler::
+        processPendingDeallocs method is a time consuming one
+        (particularly when there are many events pending) and each
+        iteration through it has to be successful.
+
+        \see EventRecycler::processPendingDeallocs()
+     */
+    virtual void garbageCollect() override;
+    
     /** Method to process incoming messages from other threads.
 
         This method is periodically invoked from the core simulation
@@ -323,6 +344,20 @@ protected:
         threads for final processing.
     */
     virtual void processMpiMsgs() override;
+
+    /** Overridable method to report additional local statistics (from
+        derived classes) at the end of simulation.
+
+        This method was introduced to enable derived classes report
+        additional statistics.  This method is called from the
+        reportStatistics() method in this class.  The statistics from
+        the derived class must be written to the supplied output
+        stream.
+
+        \param[out] os The output stream to which statistics are to be
+        written. By default statistics are reported to std::cout.
+    */
+    virtual void reportLocalStatistics(std::ostream& os = std::cout) override;
     
 protected:
     /** The number of threads to be spun-up for each MPI process.
@@ -401,6 +436,74 @@ private:
         and is never changed during the life time of this object.
     */
     MultiThreadedSimulation* const simMgr;
+
+    /** A shared barrier to facilitate coordination of threads as they
+        wind-up.
+
+        This barrier is used to wait for threads to finish-up their
+        main loops so that any pending events can be correctly
+        recycled.
+    */
+    static SpinLockThreadBarrier threadBarrier;
+
+    /** Reference to the main threads' pending deallocations.
+
+        This list always referes to the pending deallocations list on
+        the main thread.  This list is used for the following reason
+        -- Pending event deallocations on various threads cannot be
+        fully reclaimed until all agents are finalized (and they
+        relinquish references to events in their internal queues).
+        Consequently, at the end of the
+        MultiThreadedSimulation::simulate() method, each thread (other
+        than the main thread) adds its pending events to this list.
+        This list is finally cleaned-up in the main thread.
+    */
+    EventContainer& mainPendingDeallocs;
+
+    /** Track the fraction of events reclaimed from EventRecycler's
+        pendingDeallocs list at end of each GC cycle.  This counter is
+        updated in garbageCollect method in this class.  This value
+        essentially indicates the number of times EventRecycler::
+        processPendingDeallocs() method was called and the fraction of
+        events that were successfully reclaimed.  If this value is low
+        then we need fewer calles to the method.
+    */
+    Avg deallocsPerCall;
+    
+    /** Command-line argument to set the desired fraction of events
+        cleared from pendingDeallocs list for each GC cycle.  This
+        value is a fraction in the range 0.01 to 1.0.  It cannot be
+        set to zero. This value is used to double the deallocRate
+        until the desired deallocFrac is achieved.  If the fraction of
+        deallocated events is more than 1.5 times this value then the
+        deallocRate is halved (but not below 1).
+    */
+    double deallocThresh;
+
+    /** The current rate at which processPendingDeallocs() should be
+        called.  This value is updated after each call to
+        processPendingDeallocs() method to reach the specified
+        deallocFrac threshold value, the following manner:
+
+        \code
+
+        const double fracRecovered = EventRecycler::processPendingDallocs();
+        if (fracRecovered < deallocThresh) {
+            deallocRate *= 2;
+        } else if (fracRecovered > (deallocThresh * 1.5)) {
+            deallocRate = std::max(1, deallocRate / 2);
+        }
+    */
+    int deallocRate;
+
+    /** This is the counter used to determine if
+        processPendingDeallocs() method should be called.  This
+        counter is initialized to deallocRate.  It is decremented in
+        each call to garbageCollect() method.  If this counter reaches
+        zero, then processPendingDeallocs() is called and it is reset
+        back to deallocRate.
+    */
+    int deallocTicker;
 };
 
 END_NAMESPACE(muse);

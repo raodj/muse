@@ -30,7 +30,7 @@
 
 muse::ListBucket::~ListBucket() {
     for (auto& event : list) {
-        event->decreaseReference();
+        LadderQueue::decreaseReference(event);
     }
 }
 
@@ -42,7 +42,7 @@ muse::ListBucket::remove_after(muse::AgentID sender, const Time sendTime) {
         muse::Event* const event = *curr;
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             curr = list.erase(curr);            
             removedCount++;
         } else {
@@ -73,7 +73,7 @@ muse::ListBucket::remove(muse::AgentID receiver) {
     while (curr != list.end()) {
         muse::Event* const event = *curr;
         if (event->getReceiverAgentID() == receiver) {
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             curr = list.erase(curr);
             removedCount++;
         } else {
@@ -88,7 +88,7 @@ muse::ListBucket::remove(muse::AgentID receiver) {
 
 muse::VectorBucket::~VectorBucket() {
     for (auto& event : list) {
-        event->decreaseReference();
+        LadderQueue::decreaseReference(event);
     }
 }
 
@@ -110,7 +110,7 @@ muse::VectorBucket::remove_after(muse::AgentID sender, const Time sendTime) {
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // Free-up event.
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
             // To minimize removal time replace entry with last one
             // and pop the last entry off.
@@ -139,7 +139,7 @@ muse::VectorBucket::remove_after_sorted(muse::AgentID sender,
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // Free-up event.
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
             // To preserved sorted order erase from list correctly.
             curr = list.erase(curr);
@@ -159,7 +159,7 @@ muse::VectorBucket::remove(muse::AgentID receiver) {
         muse::Event* const event = list[curr];
         if (event->getReceiverAgentID() == receiver) {
             list.erase(list.begin() + curr);
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
         } else {
             curr++;
@@ -394,7 +394,7 @@ muse::HeapBottom::remove_after(muse::AgentID sender, const Time sendTime) {
             (event->getSentTime() >= sendTime)) {
             // This event needs to be removed.
             maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++; 
             // Now it is time to patchup the hole and fix up the heap.
             // To patch-up we move event from the bottom up to this
@@ -428,7 +428,7 @@ muse::HeapBottom::remove(muse::AgentID receiver) {
         muse::Event* const event = *curr;
         if (event->getReceiverAgentID() == receiver) {
             maxEvtTime = std::max(maxEvtTime, event->getReceiveTime());
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
         } else {
             retained.push_back(event);
@@ -575,7 +575,7 @@ muse::MultiSetBottom::remove_after(muse::AgentID sender, const Time sendTime) {
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sendTime)) {
             // This event needs to be removed.
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
             currIdx = sel.erase(currIdx);
         } else {
@@ -595,7 +595,7 @@ muse::MultiSetBottom::remove(muse::AgentID receiver) {
     while (!sel.empty() && (currIdx != sel.end())) {
         Event* const event = *currIdx;
         if (event->getReceiverAgentID() == receiver) {
-            event->decreaseReference();
+            LadderQueue::decreaseReference(event);
             removedCount++;
             currIdx = sel.erase(currIdx);
         } else {
@@ -937,7 +937,7 @@ muse::LadderQueue::reportStats(std::ostream& os) {
                << "\nMax bottom size             : " << maxBotSize
                << "\nAverage bucket width        : " << avgBktWidth
                << "\nBottom to rung operations   : " << botToRung
-               << "\nRung bucket list sizes:     : " << rungBktSizes
+               << "\nRung #bkts                  : " << rungBktSizes
                << "\nCompare estimate            : " << comps
                << std::endl;
     });
@@ -1283,7 +1283,7 @@ muse::LadderQueue::dequeueNextAgentEvents(muse::EventContainer& events) {
 void
 muse::LadderQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     UNUSED_PARAM(agent);
-    event->increaseReference();
+    increaseReference(event);  // Call base class method
     enqueue(event);
 }
 

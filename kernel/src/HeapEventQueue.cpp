@@ -56,7 +56,7 @@ HeapEventQueue::removeAgent(muse::Agent* agent) {
         // the antiMessage's and if the event is from same sender
         if (evt->getReceiverAgentID() == id) {
             // This event is for the agent being removed. Delete it.
-            evt->decreaseReference();
+            decreaseReference(evt);
             // Now it is time to patchup the hole and fix up the heap.
             // To patch-up we move event from the bottom up to this
             // slot and then fix-up the heap.
@@ -102,7 +102,7 @@ HeapEventQueue::enqueue(muse::Agent* agent, muse::Event* event) {
     UNUSED_PARAM(agent);
     ASSERT(agent != NULL);
     ASSERT(event != NULL);
-    event->increaseReference();
+    increaseReference(event);  // Call base class method
     eventList.push_back(event);
     maxQsize = std::max(maxQsize, eventList.size());
     std::push_heap(eventList.begin(), eventList.end(), compare);
@@ -143,7 +143,7 @@ HeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
         muse::Event* const event = *curr;
         if ((event->getSenderAgentID() == sender) &&
             (event->getSentTime() >= sentTime)) {
-            event->decreaseReference();   // Canceled event!
+            decreaseReference(event);   // Canceled event!
             removedCount++;
         } else {
             retained.push_back(event);    // Reschedule the event.
@@ -175,7 +175,7 @@ HeapEventQueue::eraseAfter(muse::Agent* dest, const muse::AgentID sender,
         if ((evt->getSenderAgentID() == sender) &&
             (evt->getSentTime() >= sentTime)) {
             // This event needs to be cancelled.
-            evt->decreaseReference();
+            decreaseReference(evt);
             numRemoved++;
             // Now it is time to patchup the hole and fix up the heap.
             // To patch-up we move event from the bottom up to this
