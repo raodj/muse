@@ -43,19 +43,20 @@
 #include "ArgParser.h"
 
 PHOLDSimulation::PHOLDSimulation() {
-    rows          = 3;
-    cols          = 3;
-    events        = 3;
-    delay         = 0;
-    lookAhead     = 1;
-    imbalance     = 0.0;
-    selfEvents    = 0.0;
-    end_time      = 100;
-    granularity   = 0;
-    delayDistrib  = "exponential";
-    delayHist     = false;
-    receiverRange = 0;
-    recvrDistrib  = "uniform";
+    rows           = 3;
+    cols           = 3;
+    events         = 3;
+    delay          = 0;
+    lookAhead      = 1;
+    imbalance      = 0.0;
+    selfEvents     = 0.0;
+    end_time       = 100;
+    granularity    = 0;
+    delayDistrib   = "exponential";
+    delayHist      = false;
+    receiverRange  = 0;
+    recvrDistrib   = "uniform";
+    extraEventSize = 0;
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
@@ -92,6 +93,8 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          &receiverRange, ArgParser::INTEGER},
         {"--recvr-distrib", "Receiver agent ID distribution to be used",
          &recvrDistrib, ArgParser::STRING},
+        {"--extra-evt-size", "Extra bytes to be added to each event",
+         &extraEventSize, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -174,7 +177,7 @@ PHOLDSimulation::createAgents() {
         PHOLDAgent* agent = new PHOLDAgent(i, state, rows, cols, events, delay,
                                            lookAhead, selfEvents, granularity,
                                            delayType, receiverRange,
-                                           recvrType);
+                                           recvrType, extraEventSize);
         kernel->registerAgent(agent, currThread);
         // Have the first agent print the delay histogram
         if (delayHist && (i == agentStartID)) {

@@ -54,6 +54,7 @@
 #include "Event.h"
 #include "MTRandom.h"
 #include "Simulation.h"
+#include "PHOLDEvent.h"
 #include <cstdlib>
 #include <cctype>
 #include <random>
@@ -72,11 +73,12 @@ int PHOLDAgent::maxRecvrRange = -1;
 PHOLDAgent::PHOLDAgent(AgentID id, PholdState* state, int x, int y,
                        int n, int d, int lookAhead, double selfEvents,
                        size_t granularity, DelayType type,
-                       int recvrRange, DelayType recvrDistType) : 
+                       int recvrRange, DelayType recvrDistType,
+                       int extraEventSize) : 
     Agent(id, state), X(x),Y(y), N(n), delay(d), delayType(type),
     lookAhead(lookAhead),  selfEvents(selfEvents), rng(id),
     granularity(granularity), receiverRange(recvrRange),
-    receiverDistType(recvrDistType) {
+    receiverDistType(recvrDistType), extraEventSize(extraEventSize) {
      // Setup the random seed used for generating self/other events
     seed = id;
     // Setup the maximum random delay value for reverse distributions
@@ -152,7 +154,9 @@ PHOLDAgent::initialize() throw (std::exception){
         Time  receive(getTime() + 1 + RndDelay);
         ASSERT( receive > getTime() );
         if ( receive < Simulation::getSimulator()->getStopTime() ){
-            Event * e = Event::create<Event>(getAgentID(), receive); 
+            const size_t eventSize = sizeof(PHOLDEvent) + extraEventSize;
+            Event* e = Event::create<PHOLDEvent>(eventSize, getAgentID(),
+                                                 receive, extraEventSize);
             scheduleEvent(e);
         }
     }
@@ -213,11 +217,33 @@ PHOLDAgent::getRecvrAgentID() {
 }
 
 void
+PHOLDAgent::simEventProcessing(const muse::Event* event) const {
+    ASSERT(dynamic_cast<const PHOLDEvent*>(event) != NULL);
+    const PHOLDEvent* const evt = static_cast<const PHOLDEvent*>(event);
+    ASSERT(evt->getEventSize() == int(sizeof(PHOLDEvent) + extraEventSize));    
+    const char* const data = evt->getExtraData();
+    // Do some basic data processing with events
+    ASSERT(data != NULL);
+    int sum = 0;
+    for (int i = 0; (i < extraEventSize); i++) {
+        sum += data[i];
+    }
+    // Ensure that the results are consistent.
+    if (sum != extraEventSize) {
+        std::cerr << "Extra bytes in events was not correct!\n";
+    }
+}
+
+void
 PHOLDAgent::executeTask(const EventContainer& events) {
     // For every event we get we send out one event
     for (size_t i = 0; (i < events.size()); i++) {
         // Simulate some event granularity
         simGranularity();
+        // Simulate some operation on processing extra bytes on events
+        if (extraEventSize > 0) {
+            simEventProcessing(events[i]);
+        }
         // First make a random receive time for the future
         const int RndDelay = (delay > 0) ? getDelay(delayType, delay) : 0;
         const Time  receiveTime(getTime() + lookAhead + RndDelay);
@@ -242,7 +268,9 @@ PHOLDAgent::executeTask(const EventContainer& events) {
             }
             ASSERT((receiverAgentID >= 0) && (receiverAgentID < X * Y));
             // Make event
-            Event * e = Event::create(receiverAgentID, receiveTime);
+            const size_t eventSize = sizeof(PHOLDEvent) + extraEventSize;
+            Event* e = Event::create<PHOLDEvent>(eventSize, receiverAgentID,
+                                                 receiveTime, extraEventSize);
             // Schedule the event
             scheduleEvent(e);
         }
