@@ -24,13 +24,9 @@
 //---------------------------------------------------------------------------
 
 #include <cstdlib>
-#include <sstream>
 #include "Scheduler.h"
 #include "Simulation.h"
 #include "ArgParser.h"
-
-std::ostringstream rbStats;
-std::ofstream rbStatsFile;
 
 using namespace muse;
 
@@ -166,21 +162,7 @@ Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
     // This event is an anti-message we must remove it and
     // future events from this agent.
-    const int eraseCount = 
-        agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
-    rbStats << agent->getAgentID()   << ","
-            << agent->getLVT()       << ","
-            << agent->numSchedules   << ","
-            << e->getSenderAgentID() << ","
-            << e->getSentTime()      << ","
-            << e->getReceiveTime()   << ","
-            << eraseCount            << "\n";
-    agent->numSchedules = 0;
-    if (rbStats.tellp() > 1000) {
-        const std::string stats = rbStats.str();
-        rbStatsFile.write(stats.c_str(), stats.size());
-        rbStats.str("");
-    }
+    agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
     // agent->eventPQ->removeFutureEvents(e);
     // There are cases when we may not have a future anti-message as
     // partial cleanup of input-queues done by
@@ -245,9 +227,6 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new ThreeTierHeapEventQueue(); 
     } else if (queueName == "fibHeap") {
         agentPQ = new AgentPQ();
-    } else if (queueName == "binomHeap") {
-        // agentPQ = new BinomialHeapEventQueue();
-        ASSERT("Not yet implemented" == NULL);
     } else if (queueName == "2tLadderQ") {
         agentPQ = new TwoTierLadderQueue();
     } else {
@@ -256,17 +235,10 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
                   << "Aborting.\n";
         std::abort();  // throw an exception instead?
     }
-    std::string rbFileName = "rb_stats_rank_" + std::to_string(rank) +
-        "_" + std::to_string(numProcesses) + ".csv";
-    rbStatsFile.open(rbFileName, std::ios::app);
-    rbStats << "#Agent,LVT,Schedules,Sender,SentTime,RecvTime,EventsErased\n";
 }
 
 void
 Scheduler::reportStats(std::ostream& os) {
-    const std::string stats = rbStats.str();
-    rbStatsFile.write(stats.c_str(), stats.size());
-    rbStats.str("");
     agentPQ->reportStats(os);
 }
 
@@ -277,3 +249,4 @@ Scheduler::prettyPrint(std::ostream& os) const {
 }
 
 #endif
+
