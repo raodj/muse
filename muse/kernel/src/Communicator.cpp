@@ -34,7 +34,7 @@ using namespace muse;
 
 Communicator::Communicator() {
     gvtManager = NULL;
-    myMPIrank  = -1;
+    myMPIrank  = SimulatorID(-1);
 }
 
 SimulatorID

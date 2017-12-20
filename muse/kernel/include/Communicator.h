@@ -260,7 +260,7 @@ public:
         // Find iterator for given agent id
         AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);
         // If id is valid then iterator is valid.
-        return (entry != agentMap.end()) ? entry->second : -1;
+        return (entry != agentMap.end()) ? (int) entry->second : -1;
     }
     
     /** \brief Obtain the thread-based rank of the process on which a

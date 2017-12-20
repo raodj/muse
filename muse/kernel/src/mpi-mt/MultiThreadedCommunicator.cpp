@@ -104,7 +104,7 @@ MultiThreadedCommunicator::sendGatherAgentInfo(VecUint& idThrList) {
 }
 
 void
-MultiThreadedCommunicator::registerAgents() {
+MultiThreadedCommunicator::registerAllAgents() {
     // Build the list of pairs of values in the form <agent_id,
     // global_thread_id>.
     const int mpiRank = myMPIrank;

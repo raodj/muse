@@ -157,7 +157,7 @@ MultiThreadedSimulationManager::preStartInit() {
     // Finally let the comm-manager finish exchanging list of agents
     // on different MPI processes which is needed to enable exchange
     // of events.
-    mtCommMgr->registerAgents();
+    mtCommMgr->registerAllAgents();
     // Setup initial capacity on container to hold incoming MPI events
     mpiEvents.reserve(maxMpiMsgThresh * 2);
 }

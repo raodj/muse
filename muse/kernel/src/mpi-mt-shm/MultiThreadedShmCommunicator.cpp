@@ -104,7 +104,7 @@ MultiThreadedShmCommunicator::sendGatherAgentInfo(VecUint& idThrList) {
 }
 
 void
-MultiThreadedShmCommunicator::registerAgents() {
+MultiThreadedShmCommunicator::registerAllAgents() {
     // Build the list of pairs of values in the form <agent_id,
     // global_thread_id>.
     const int mpiRank = myMPIrank;

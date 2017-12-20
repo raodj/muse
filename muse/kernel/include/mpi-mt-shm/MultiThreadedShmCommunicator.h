@@ -109,7 +109,7 @@ public:
     */
     int getThreadID(const AgentID id) const {
         AgentIDSimulatorIDMap::const_iterator entry = agentThreadMap.find(id);
-        return (entry != agentThreadMap.end() ? entry->second : -1);
+        return (entry != agentThreadMap.end() ? (int) entry->second : -1);
     }
 
     /** \brief Obtain the thread-based rank of the process on which a
@@ -159,7 +159,7 @@ public:
         // Find iterator for given agent id
         AgentIDSimulatorIDMap::const_iterator entry = agentMap.find(id);
         // If id is valid then iterator is valid.
-        return (entry != agentMap.end()) ? entry->second : -1;
+        return (entry != agentMap.end()) ? (int) entry->second : -1;
     }
     
     /** \brief Obtain process configuration information.
@@ -319,7 +319,7 @@ protected:
         Communicator::registerAgents(const std::vector<AgentID>&)
         method to register agents with all the parallel processes.
     */
-    void registerAgents();
+    void registerAllAgents();
 
 private:
     /** Method run on MPI-rank zero to aggregate and broadcast

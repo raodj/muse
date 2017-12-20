@@ -208,7 +208,8 @@ AC_DEFUN([AC_CHECK_ARGS],
 				          [[std::cout << "ac_check_args"]])])
         src=`ls conftest.c*`
         output=`$CXX $1 $CXXFLAGS $LIBS $ICC_NO_WARN_FOR_CONFIGURE $src 2>&1`
-        if test -z "$output"; then
+	flag_check=`expr match "$output" ".*$1.*"`
+        if test "$flag_check" == "0"; then
             AC_MSG_RESULT([yes])
             m4_default([$2], :)
 	    CPPFLAGS+=" [$1]"
@@ -422,8 +423,15 @@ AC_CHECK_ARGS([-Wextra], [WEXTRA="-Wextra"], [WEXTRA=""], [])
 AC_SUBST(WEXTRA)
 AC_CHECK_ARGS([-pipe], [PIPE="-pipe"], [PIPE=""], [])
 AC_SUBST(PIPE)
-AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
-AC_SUBST(FAST)
+
+# The -fast flag for ICC causes libraries to break due to inter-procedural
+# call optimizations. So sadly it cannot be used for libraries. 
+# AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
+# AC_SUBST(FAST)
+
+# The -O3 flag is now accepted by gcc, icc, & clang.
+AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
+AC_SUBST(OPT_O3)
 
 # Check and start using new C++11 standards
 # AC_CHECK_ARGS([-std=c++14], [CPP14="-std=c++14"], [CPP14=""], [])
@@ -462,7 +470,7 @@ AC_STRUCT_TM
 
 
 # Checks for library functions.
-AC_FUNC_MALLOC
+# AC_FUNC_MALLOC
 AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_STRTOD

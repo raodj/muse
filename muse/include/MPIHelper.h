@@ -213,7 +213,7 @@ public:
 
     \endcode
 */
-#ifdef USE_CONST_MPI_EXP
+#if USE_CONST_MPI_EXP == 1
 #define CONST_EXP const
 #else
 #define CONST_EXP
