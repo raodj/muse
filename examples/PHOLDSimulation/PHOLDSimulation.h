@@ -241,6 +241,28 @@ private:
         tailed distribution.
     */
     std::string recvrDistrib;
+
+    /** Additional bytes to be added to an event to facilitate
+        characterization of models with different event sizes.  Note
+        that this value refers to extra bytes (on top of the basic
+        muse::Event size) to be added to each event.  Currently, the
+        extra bytes added to events cannot be varied.  The increased
+        event size several impacts:
+
+        <ul>
+
+        <li>The larger events introduce some additional event
+        processing overheads associated simply scanning the
+        bytes to simulate some access.</li>
+        
+        <li>It takes longer to exchange larger events over network or
+        shared-memory</li>
+
+        <li>It takes more memory to store larger events in memory.</li>
+        
+        </ul>
+    */
+    int extraEventSize;
 };
 
 #endif

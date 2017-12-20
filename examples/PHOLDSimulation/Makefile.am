@@ -38,8 +38,8 @@ phold_SOURCES = \
 	PHOLDAgent.cpp\
 	PholdState.h\
 	PholdState.cpp\
+	PHOLDEvent.h\
 	P-HOLD-Simulation.doc\
 	pholdTestPbs.sh\
 	pholdTest.sh
-
 # end of Makefile.am
