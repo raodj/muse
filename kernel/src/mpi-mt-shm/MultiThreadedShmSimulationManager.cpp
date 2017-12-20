@@ -141,7 +141,7 @@ MultiThreadedShmSimulationManager::preStartInit() {
     // Finally let the comm-manager finish exchanging list of agents
     // on different MPI processes which is needed to enable exchange
     // of events.
-    mtCommMgr->registerAgents();
+    mtCommMgr->registerAllAgents();
 }
 
 void

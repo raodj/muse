@@ -181,7 +181,15 @@ public:
 	\see AgentID 
     */
     virtual bool registerAgent(Agent* agent, const int threadRank = -1);
+
+
+    /** \brief Get all Agents registered to the simulation
         
+        \return An AgentContainer with all registered agents
+        \see AgentContainer
+    */
+    inline const AgentContainer& getRegisteredAgents() const { return allAgents; }
+    
     /** \brief Get the only, singleton Simulation object.
 
         The simulation class implements a singleton pattern. Call this
