@@ -26,6 +26,7 @@
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
 #include "mpi-mt/SingleBlockingMTQueue.h"
+#include "mpi-mt/SingleBlockingMTSpinLockQueue.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
 #include "Scheduler.h"
@@ -292,6 +293,8 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Setup the MT-queue for this process to use
     if (mtQueue == "single-blocking") {
         incomingEvents = new SingleBlockingMTQueue();
+    } else if (mtQueue == "single-blocking-sl") {
+        incomingEvents = new SingleBlockingMTSpinLockQueue();
     } else {
         // Invalid mt-queue name.
         throw std::runtime_error("Invalid value for --mt-queue argument" \

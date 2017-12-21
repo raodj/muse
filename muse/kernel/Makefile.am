@@ -85,6 +85,7 @@ libmuse_a_SOURCES = \
 	src/TwoTierLadderQueue.cpp \
 	include/DefaultSimulation.h \
 	src/DefaultSimulation.cpp \
+	include/SpinLock.h \
 	include/mpi-mt/MultiThreadedCommunicator.h \
 	src/mpi-mt/MultiThreadedCommunicator.cpp \
 	include/mpi-mt/MultiThreadedSimulation.h \
@@ -94,6 +95,8 @@ libmuse_a_SOURCES = \
 	include/mpi-mt/MTQueue.h \
 	include/mpi-mt/SingleBlockingMTQueue.h \
 	src/mpi-mt/SingleBlockingMTQueue.cpp \
+	include/mpi-mt/SingleBlockingMTSpinLockQueue.h \
+	src/mpi-mt/SingleBlockingMTSpinLockQueue.cpp \
 	include/mpi-mt-shm/MultiThreadedShmCommunicator.h \
 	src/mpi-mt-shm/MultiThreadedShmCommunicator.cpp \
 	include/mpi-mt-shm/MultiThreadedShmSimulation.h \
