@@ -200,7 +200,6 @@ MultiThreadedSimulationManager::finalize(bool stopMPI, bool delCommMgr) {
     // be holding onto the last few events.  These events are added to
     // the thread #0's pendingDeallocs list by other threads before
     // they join thread #0 in simulate() method in this class.
-    EventRecycler::deleteRecycledEvents();
     ASSERT(EventRecycler::pendingDeallocs.empty());
     ASSERT(EventRecycler::Recycler.empty());    
     // Finally, get rid of all the thread helper classes as they are no

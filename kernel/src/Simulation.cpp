@@ -378,6 +378,8 @@ Simulation::finalize(bool stopMPI, bool delCommMgr) {
     scheduler = NULL;
     // Clear out the list of agents in this simulation
     allAgents.clear();
+    // Finally clear out any pending events in the event recyler.
+    EventRecycler::deleteRecycledEvents();
 }
 
 void
