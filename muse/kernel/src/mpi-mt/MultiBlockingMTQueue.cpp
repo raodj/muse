@@ -24,6 +24,7 @@
 
 #include <iostream>
 #include <cmath>
+#include "Event.h"
 #include "mpi-mt/MultiBlockingMTQueue.h"
 
 // Switch to muse namespace to streamline code below
@@ -54,8 +55,10 @@ MultiBlockingMTQueue<MutexType>::add(int srcThrIdx, int destThrIdx,
     UNUSED_PARAM(srcThrIdx);
     UNUSED_PARAM(destThrIdx);
     ASSERT( event != NULL );
-    // Add event to one of the sub-queues
-    subQueues[srcThrIdx & bitMask].add(srcThrIdx, destThrIdx, event);
+    // Add event to one of the sub-queues based on the sender agent's ID
+    const muse::AgentID receiver = event->getReceiverAgentID();
+    DEBUG(std::cout << (receiver & bitMask) << std::endl);
+    subQueues[receiver & bitMask].add(srcThrIdx, destThrIdx, event);
 }
 
 template <typename MutexType>
@@ -69,7 +72,8 @@ MultiBlockingMTQueue<MutexType>::add(int srcThrIdx, int destThrIdx,
         return;  // nothing to be done.
     }
     // Add all event to one of the sub-queues
-    subQueues[srcThrIdx & bitMask].add(srcThrIdx, destThrIdx, eventList);    
+    const muse::AgentID receiver = eventList.front()->getReceiverAgentID();
+    subQueues[receiver & bitMask].add(srcThrIdx, destThrIdx, eventList);    
 }
 
 template <typename MutexType>
