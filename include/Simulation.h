@@ -28,6 +28,7 @@
 #include "Event.h"
 #include "State.h"
 #include "DataTypes.h"
+#include "Avg.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -559,8 +560,12 @@ protected:
         This is a convenience method that derived classes can override
         to perform any additional operations in conjunction with
         message processing.
+
+        \return This method returns the number of MPI messages that
+        were received and processed.  If no messages were received,
+        this method returns zero.
     */
-    virtual void processMpiMsgs();
+    virtual int processMpiMsgs();
 
     /** \brief Refactored method to process the next set of events (if
         any) associated with 1 agent.
@@ -696,6 +701,23 @@ protected:
 
     /// Keep track of if stats should be dumped this cycle
     bool doDumpStats;
+
+    /** The average number of consecutive MPI messages read/processed
+        each time the processMpiMsgs method was called.
+
+        This stats object tracks the average number of consecutive MPI
+        messages read/processed.  This statistic does not track the
+        calls that returned zero messages.
+    */
+    Avg mpiMsgBatchSize;
+
+    /** Counter to track the number of times processMpiMsgs method was
+        called.
+
+        This instance variabe tracks the number of times the
+        processMpiMsgs method was called.
+    */
+    size_t processMpiMsgCalls;
     
 private:
     /** The undefined copy constructor.

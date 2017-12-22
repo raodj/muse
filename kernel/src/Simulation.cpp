@@ -47,13 +47,14 @@ muse::Simulation* muse::Simulation::kernel = NULL;
 Simulation::Simulation(const bool useSharedEvents)
     : LGVT(0), startTime(0), endTime(0), gvtDelayRate(10),
       numberOfProcesses(-1u), doShareEvents(useSharedEvents) {
-    commManager     = NULL;
-    scheduler       = NULL;
-    myID            = -1u;
-    listener        = NULL;
-    doDumpStats     = false;
-    mustSaveState   = false;
-    maxMpiMsgThresh = 100;
+    commManager        = NULL;
+    scheduler          = NULL;
+    myID               = -1u;
+    listener           = NULL;
+    doDumpStats        = false;
+    mustSaveState      = false;
+    maxMpiMsgThresh    = 1000;
+    processMpiMsgCalls = 0;
 }
 
 Simulation*
@@ -223,17 +224,20 @@ Simulation::initAgents() {
     }        
 }
 
-void
+int
 Simulation::processMpiMsgs() {
     // If we have only one process then there is nothing to be done
     if (numberOfProcesses < 2) {
-        return;  // no other process to communicate with.
+        return 0;  // no other process to communicate with.
     }
+    // Track number of times the processMpiMsgs method is called.
+    processMpiMsgCalls++;
     // An optimization trick is to try to get as many events from
     // the wire as we can. A good magic number is 100.  However
     // this number could be dynamically adapted depending on
     // behavior of the simulation.
-    for (int numMsgs = maxMpiMsgThresh; (numMsgs > 0); numMsgs--) {
+    int numMsgs;
+    for (numMsgs = 0; (numMsgs < maxMpiMsgThresh); numMsgs++) {
         Event* incoming_event = commManager->receiveEvent();
         if (incoming_event != NULL) {
             ASSERT(incoming_event->getReferenceCount() == 1);
@@ -257,12 +261,17 @@ Simulation::processMpiMsgs() {
                 ASSERT ( false );
             }
         } else {
-            break; 
+            break;  // No message current available.
         }
         // Let the GVT Manager forward any pending control
         // messages, if needed
         gvtManager->checkWaitingCtrlMsg();
-    }    
+    }
+    // Track the batch size if numMsgs is greater than zero.
+    if (numMsgs > 0) {
+        mpiMsgBatchSize += numMsgs;
+    }
+    return numMsgs;
 }
 
 void
@@ -481,13 +490,15 @@ Simulation::reportStatistics(std::ostream& os) {
 
     // Place all the statistics into a string buffer for convenience.
     std::ostringstream stats;
-    stats << "\nStats from Kernel ID  : " << myID
-          << "\nNumber of agents      : " << allAgents.size()
-          << "\nTotal schedules       : " << totalSchedules
-          << "\nTotal Scheduled Events: " << totalScheduledEvents 
-          << "\nTotal Committed Events: " << totalCommittedEvents
-          << "\nTotal #rollbacks      : " << totalRollbacks
-          << "\nTotal #MPI messages   : " << totalMPIMessages
+    stats << "\nStats from Kernel ID   : " << myID
+          << "\nNumber of agents       : " << allAgents.size()
+          << "\nTotal schedules        : " << totalSchedules
+          << "\nTotal Scheduled Events : " << totalScheduledEvents 
+          << "\nTotal Committed Events : " << totalCommittedEvents
+          << "\nTotal #rollbacks       : " << totalRollbacks
+          << "\nTotal #MPI messages    : " << totalMPIMessages
+          << "\n#process MPI msgs calls: " << processMpiMsgCalls
+          << "\nMPI msg batch size     : " << mpiMsgBatchSize
           << std::endl;
     // Let derived class(es) report statistics (if any)
     reportLocalStatistics(stats);

@@ -228,7 +228,7 @@ MultiThreadedShmSimulation::preStartInit() {
     gvtManager->setThreadedRank(globalThreadID);
 }
 
-void
+int
 MultiThreadedShmSimulation::processMpiMsgs() {
     ASSERT(simMgr != NULL);
     ASSERT(simMgr != this);  // Ensure no recursion
@@ -236,7 +236,7 @@ MultiThreadedShmSimulation::processMpiMsgs() {
     // thread.  This is necessary because only manager has pointers to
     // the list of threads so that events can be added to ther
     // incoming event queue(s).
-    simMgr->processMpiMsgs();
+    return simMgr->processMpiMsgs();
 }
 
 #endif

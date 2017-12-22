@@ -342,8 +342,12 @@ protected:
         the threads on this nodes.  This method appropriately
         dispatches them to the incoming event queues of various
         threads for final processing.
+
+        \return This method returns the number of MPI messages that
+        were received and processed.  If no messages were received,
+        this method returns zero.
     */
-    virtual void processMpiMsgs() override;
+    virtual int processMpiMsgs() override;
 
     /** Overridable method to report additional local statistics (from
         derived classes) at the end of simulation.
@@ -504,6 +508,24 @@ private:
         back to deallocRate.
     */
     int deallocTicker;
+
+    /** Average number of events processed as a single batch from the
+        incomingEvents queue.
+
+        This stats object tracks the average number of events
+        read/processed from the shared incomingEvents queue.  This
+        statistic does not track the calls that returned zero
+        messages.
+    */
+    Avg shrQevtCount;
+
+    /** Counter to track the number of times the incomingEvents
+        queue's removeAll method was called.
+
+        This instance variabe tracks the number of times the
+        incoming queue was checked by this thread.
+    */
+    size_t shrQcheckCount;    
 };
 
 END_NAMESPACE(muse);

@@ -206,8 +206,12 @@ protected:
         the threads on this nodes.  This method appropriately
         dispatches them to the incoming event queues of various
         threads for final processing.
+
+        \return This method returns the number of MPI messages that
+        were received and processed.  If no messages were received,
+        this method returns zero.
     */
-    virtual void processMpiMsgs() override;
+    virtual int processMpiMsgs() override;
 
 private:
     /** The list of sub-kernels that are run as independent threads.
