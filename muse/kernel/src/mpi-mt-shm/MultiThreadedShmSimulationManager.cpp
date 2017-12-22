@@ -183,25 +183,28 @@ MultiThreadedShmSimulationManager::finalize(bool stopMPI, bool delCommMgr) {
     threads.clear();  // Clear out the vector as a sanity check.
 }
 
-void
+int
 MultiThreadedShmSimulationManager::processMpiMsgs() {
     // If we have only one process then there is nothing to be done
     if (numberOfProcesses < 2) {
-        return;  // no other process to communicate with.
+        return 0;  // no other process to communicate with.
     }
     // First try to lock the shared MPI mutex.  If it is not lockable,
     // then some other thread is pumping MPI messages for all
     // threads. So skip rest of the operation.
     if (!mpiMutex.try_lock()) {
-        return;  // Some other thread is working.
+        return 0;  // Some other thread is working.
     }
     // We got the lock read MPI messages if any.
     std::lock_guard<std::mutex> lock(mpiMutex, std::adopt_lock);
+    // Track number of times the processMpiMsgs method is called.
+    processMpiMsgCalls++;    
     // An optimization trick is to try to get as many events from the
     // wire as we can. A good magic number is 100.  However this
     // number could be dynamically adapted depending on behavior of
     // the simulation.
-    for (int numMsgs = maxMpiMsgThresh; (numMsgs > 0); numMsgs--) {
+    int numMsgs;
+    for (numMsgs = 0; (numMsgs < maxMpiMsgThresh); numMsgs++) {    
         Event* incoming_event = commManager->receiveEvent();
         if (incoming_event != NULL) {
             ASSERT(incoming_event->getReferenceCount() == 1);
@@ -229,6 +232,11 @@ MultiThreadedShmSimulationManager::processMpiMsgs() {
             break;
         }
     }
+    // Track the batch size if numMsgs is greater than zero.
+    if (numMsgs > 0) {
+        mpiMsgBatchSize += numMsgs;
+    }
+    return numMsgs;    
 }
 
 #endif

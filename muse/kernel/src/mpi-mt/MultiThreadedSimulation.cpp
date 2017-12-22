@@ -53,9 +53,13 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     // Initialize counters used to dynamically adapt number of calls
     // to processPendingDeallocs() method from garbageCollect() method
     // in this class to keep simulations fast.
-    deallocThresh = 0.1;
-    deallocRate   = 1;
-    deallocTicker = deallocRate;
+    deallocThresh  = 0.1;
+    deallocRate    = 1;
+    deallocTicker  = deallocRate;
+    // Counter to track number of times the incomingEvents queue's
+    // removeAll method was called in the processIncomingEvents()
+    // method.
+    shrQcheckCount = 0;
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -101,6 +105,11 @@ void
 MultiThreadedSimulation::processIncomingEvents() {
     // Get all incoming events in an MT-safe manner.
     EventContainer eventList = incomingEvents->removeAll(threadID);
+    // Update queue statistics for reporting at the end
+    shrQcheckCount++;
+    if (!eventList.empty()) {
+        shrQevtCount += eventList.size();
+    }
     // Process each event in a manner similar to base class operations
     for (Event* event : eventList) {
         if (event->getSenderAgentID() == -1) {
@@ -313,7 +322,7 @@ MultiThreadedSimulation::preStartInit() {
     gvtManager->setThreadedRank(globalThreadID);
 }
 
-void
+int
 MultiThreadedSimulation::processMpiMsgs() {
     ASSERT(simMgr != NULL);
     ASSERT(simMgr != this);  // Ensure no recursion
@@ -321,12 +330,15 @@ MultiThreadedSimulation::processMpiMsgs() {
     // thread.  This is necessary because only manager has pointers to
     // the list of threads so that events can be added to ther
     // incoming event queue(s).
-    simMgr->processMpiMsgs();
+    return simMgr->processMpiMsgs();
 }
 
 void
 MultiThreadedSimulation::reportLocalStatistics(std::ostream& os) {
-    os << "#Deallocs cleared/call: " << deallocsPerCall << std::endl;
+    os << "#Deallocs cleared/call: "   << deallocsPerCall
+       << "\nAvg sharedQ size      : " <<  shrQevtCount
+       << "\n#processing of sharedQ: " << shrQcheckCount
+       << std::endl;
 }
 
 #endif
