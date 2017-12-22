@@ -106,9 +106,13 @@ public:
     /** Remove all the events in this queue into a local list.
 
         This method performs bulk copying of all the events (if any)
-        added to this queue into a separate list and returns the list
-        of events.
+        added to this queue into a separate list.  The container is
+        passed-in by the caller giving the caller the ability to reuse
+        containers (to minimize creation/resizing overheads).
 
+        \param[out] eventList The container to which events are to be
+        added.  Existing entries in this list are left unmodified.
+        
         \note The list returned by this method is not MT-safe
 
         \param[in] destThrIdx The index of the destination thread on
@@ -122,8 +126,8 @@ public:
         added to this queue.  If the queue was empty, then the list is
         also empty.  The list returned by this method is not MT-safe.
     */
-    virtual EventContainer removeAll(int destThrIdx,
-                                     int maxEvents = -1) override;
+    virtual void removeAll(EventContainer& eventList, int destThrIdx,
+                           int maxEvents = -1) override;
     
     /** The polymorphic destructor.
 

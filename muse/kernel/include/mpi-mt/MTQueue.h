@@ -93,7 +93,11 @@ public:
         added to this queue into a separate list and returns the list
         of events.
 
-        \note The list returned by this method is not MT-safe
+        \note The list returned by this method is not MT-safe.
+
+        \note This method uses the pure-virtual removeAll method to
+        perform the actual removal.  That way derived classes need to
+        only implement one version of the removeAll method.
         
         \return This method returns a list (std::vector) of events
         added to this queue.  If the queue was empty, then the list is
@@ -110,8 +114,31 @@ public:
         added to this queue.  If the queue was empty, then the list is
         also empty.  The list returned by this method is not MT-safe.        
     */
-    virtual EventContainer removeAll(int destThrIdx,
-                                     int maxEvents = -1) = 0;
+    virtual EventContainer removeAll(int destThrIdx, int maxEvents = -1) {
+        EventContainer evtList;
+        removeAll(evtList, destThrIdx, maxEvents);
+        return evtList;
+    }
+
+    /** Remove all the events in this queue into a given container.
+
+        This method performs bulk copying of all the events (if any)
+        added to this queue into a separate list.  The container is
+        passed-in by the caller giving the caller the ability to reuse
+        containers (to minimize creation/resizing overheads).
+
+        \param[out] eventList The container to which events are to be
+        added.  Eisting entries in this list are left unmodified.
+        
+        \param[in] numEvents The maximum number of events to be
+        returned by this method.  If this parameter is -1, then all
+        the pending events are returned.
+        
+        \param[in] destThrIdx The index of the destination thread on
+        the local process which will process the event.
+    */
+    virtual void removeAll(EventContainer& eventList, int destThrIdx,
+                           int maxEvents = -1) = 0;    
     
     /** The polymorphic destructor.
 

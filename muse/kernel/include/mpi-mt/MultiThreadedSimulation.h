@@ -525,7 +525,16 @@ private:
         This instance variabe tracks the number of times the
         incoming queue was checked by this thread.
     */
-    size_t shrQcheckCount;    
+    size_t shrQcheckCount;
+
+    /** List of incoming events read from incomingEvents queue.
+
+        This is a temporary container that is re-used to read incoming
+        events over the shared mult-threaded queue associated with
+        this container.  This container is used just in the
+        processIncomingEvents method.
+    */
+    EventContainer shrEvents;
 };
 
 END_NAMESPACE(muse);

@@ -41,11 +41,17 @@ BEGIN_NAMESPACE(muse);
     <li>It uses a shared EventContainer (std::vector) as a backing
     store</li>
     
-    <li>It uses a std::mutex to protected the above EventContainer
-    from being simultaneously accessed by multiple threads.</li>
+    <li>It uses a given type of mutex to protected the above
+    EventContainer from being simultaneously accessed by multiple
+    threads.</li>
     
     </ul>
+
+    \note The MutexType template parameter can either be std::mutex or
+    muse::SpinLock, thereby enabling two different strategies to
+    accomplish critical sections.
 */
+template <typename MutexType = std::mutex>
 class SingleBlockingMTQueue : public muse::MTQueue {
 public:
     /** The default constructor.
@@ -57,6 +63,16 @@ public:
         minimize initial reallocations.
     */
     SingleBlockingMTQueue(int reserve = 1024);
+
+    /** A copy constructor for use with creating lists of this class.
+
+        The copy constructor for this class.  Note that it does not
+        copy the value of mutex.
+    */
+    SingleBlockingMTQueue(const SingleBlockingMTQueue& src) :
+        queue(src.queue) {
+        // Nothing else to be done.
+    }
     
     /** Add an event into the queue.
 
@@ -103,27 +119,25 @@ public:
     virtual void add(int srcThrIdx, int destThrIdx,
                      EventContainer& eventList) override;
 
-    /** Remove all the events in this queue into a local list.
+    /** Remove all the events in this queue into a given local list.
 
         This method performs bulk copying of all the events (if any)
-        added to this queue into a separate list and returns the list
-        of events.
+        added to this queue into a separate list.  The container is
+        passed-in by the caller giving the caller the ability to reuse
+        containers (to minimize creation/resizing overheads).
 
-        \note The list returned by this method is not MT-safe
-
+        \param[out] eventList The container to which events are to be
+        added.  Existing entries in this list are left unmodified.
+        
         \param[in] destThrIdx The index of the destination thread on
         the local process which will process the event.
 
         \param[in] numEvents The maximum number of events to be
         returned by this method.  If this parameter is -1, then all
         the pending events are returned.
-        
-        \return This method returns a list (std::vector) of events
-        added to this queue.  If the queue was empty, then the list is
-        also empty.  The list returned by this method is not MT-safe.
     */
-    virtual EventContainer removeAll(int destThrIdx,
-                                     int maxEvents = -1) override;
+    virtual void removeAll(EventContainer& eventList, int destThrIdx,
+                           int maxEvents = -1) override;
     
     /** The polymorphic destructor.
 
@@ -141,17 +155,24 @@ protected:
     */
     EventContainer queue;
 
-    /** The standard blocking mutex to enable MT-safe access to queue.
+    /** A mutex (std::mutex or muse::SpinLock) to enable MT-safe
+        access to queue.
 
         This mutex is locked/unlocked in the different methods in this
-        class to enable MT-safe operations on the queue.
+        class to enable MT-safe operations on the queue.  The actual
+        type is a template parameter.
     */
-    std::mutex queueMutex;
+    MutexType queueMutex;
     
 private:
     // Currrently this class does not have any private instance
     // variables.
 };
+
+// Since this is a template class the C++ source should be included
+// here as part of the header compile unit to ensure consistent
+// template parameter usage.
+#include "mpi-mt/SingleBlockingMTQueue.cpp"
 
 END_NAMESPACE(muse);
 

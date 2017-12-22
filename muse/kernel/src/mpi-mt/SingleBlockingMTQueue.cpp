@@ -27,25 +27,28 @@
 // Switch to muse namespace to streamline code below
 using namespace muse;
 
-SingleBlockingMTQueue::SingleBlockingMTQueue(int reserve) {
+template <typename MutexType>
+SingleBlockingMTQueue<MutexType>::SingleBlockingMTQueue(int reserve) {
     // Allocate some initial size.
     queue.reserve(reserve);
 }
 
+template <typename MutexType>
 void
-SingleBlockingMTQueue::add(int srcThrIdx, int destThrIdx,
-                           muse::Event* event) {
+SingleBlockingMTQueue<MutexType>::add(int srcThrIdx, int destThrIdx,
+                                      muse::Event* event) {
     UNUSED_PARAM(srcThrIdx);
     UNUSED_PARAM(destThrIdx);
     ASSERT( event != NULL );
     // Lock the mutex to get exclusive access to the actual queue
-    std::lock_guard<std::mutex> lock(queueMutex);
+    std::lock_guard<MutexType> lock(queueMutex);
     queue.push_back(event);
 }
 
+template <typename MutexType>
 void
-SingleBlockingMTQueue::add(int srcThrIdx, int destThrIdx,
-                           EventContainer& eventList) {
+SingleBlockingMTQueue<MutexType>::add(int srcThrIdx, int destThrIdx,
+                                      EventContainer& eventList) {
     UNUSED_PARAM(srcThrIdx);
     UNUSED_PARAM(destThrIdx);
     
@@ -53,28 +56,28 @@ SingleBlockingMTQueue::add(int srcThrIdx, int destThrIdx,
         return;  // nothing to be done.
     }
     // Lock the mutex to get exclusive access to the actual queue
-    std::lock_guard<std::mutex> lock(queueMutex);
+    std::lock_guard<MutexType> lock(queueMutex);
     // Add all the events.
     queue.insert(queue.end(), eventList.begin(), eventList.end());
     // Clear event list to show all events have been added.
     eventList.clear();
 }
 
-EventContainer
-SingleBlockingMTQueue::removeAll(int destThrIdx, int maxEvents) {
+template <typename MutexType>
+void
+SingleBlockingMTQueue<MutexType>::removeAll(EventContainer& eventList,
+                                            int destThrIdx, int maxEvents) {
     UNUSED_PARAM(destThrIdx);
     // Lock the mutex to get exclusive access to the actual queue
-    std::lock_guard<std::mutex> lock(queueMutex);
+    std::lock_guard<MutexType> lock(queueMutex);
     // Now that we have exclusive access to the queue, finalize the
     // number of events to be dequeued.
     maxEvents = (maxEvents == -1 ? queue.size() :
                  std::min<int>(queue.size(), maxEvents));
     // Copy the desired number of events.
-    EventContainer retVal(queue.begin(), queue.begin() + maxEvents);
+    eventList.insert(eventList.end(), queue.begin(), queue.begin() + maxEvents);
     // Remove the copied events from the queue.
     queue.erase(queue.begin(), queue.begin() + maxEvents);
-    // Return the local list back to the caller.
-    return retVal;
 }
 
 #endif
