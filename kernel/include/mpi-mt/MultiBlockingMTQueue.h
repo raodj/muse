@@ -1,5 +1,5 @@
-#ifndef MUSE_SINGLE_BLOCKING_MT_SPIN_LOCK_QUEUE_H
-#define MUSE_SINGLE_BLOCKING_MT_SPIN_LOCK_QUEUE_H
+#ifndef MUSE_MULTI_BLOCKING_MT_QUEUE_H
+#define MUSE_MULTI_BLOCKING_MT_QUEUE_H
 
 //---------------------------------------------------------------------------
 //
@@ -22,43 +22,58 @@
 //
 //---------------------------------------------------------------------------
 
-#include "mpi-mt/MTQueue.h"
-#include "SpinLock.h"
+#include <mutex>
+#include "MTQueue.h"
+#include "mpi-mt/SingleBlockingMTQueue.h"
 
 BEGIN_NAMESPACE(muse);
 
-/** A simple blocking implementation that uses spin locks, for
-    multi-threading safe queues.
+/** A shared queue with multiple subqueues for exchanging events
+    between threads.
 
     This class implements the features of the abstract MTQueue base
-    class using a simple blocking queue implementation.  The list
-    typically contains events/messages from other threads or those
-    received over MPI.  It enables multiple threds to safely
-    add/remove events in a MT-safe manner.  Key implementation aspects
-    include:
+    class using one-or-more separate blocking sub-queues.  Each
+    sub-queue list typically contains events/messages from other
+    threads or those received over MPI.  It enables multiple threds to
+    safely add/remove events in a MT-safe manner.  Key implementation
+    aspects include:
 
     <ul>
     
-    <li>It uses a shared EventContainer (std::vector) as a backing
-    store</li>
+    <li>It uses a list of SingleBlockingMTQueue for implementing each
+    sub-queue</li>
     
-    <li>It uses a shared muse::SpinLock to protected the above
-    EventContainer from being simultaneously accessed by multiple
-    threads.</li>
+    <li>The specified type of mutex is simply passed onto
+    SingleBlockingMTQueue for its use.</li>
+
+    <li>The number of subqueues to be used.  Ideally this value must
+        be a power of 2 as internally this data structure uses
+        bit-wise operations to select a sub-queue based on source
+        thread's ID.  </li>
     
     </ul>
+
+    \note The MutexType template parameter can either be std::mutex or
+    muse::SpinLock, thereby enabling two different strategies to
+    accomplish critical sections.    
 */
-class SingleBlockingMTSpinLockQueue : public muse::MTQueue {
+template <typename MutexType = std::mutex>
+class MultiBlockingMTQueue : public muse::MTQueue {
 public:
     /** The default constructor.
 
         The default constructor currently reserves space in the
         underlying backing store to minimize inital reallocations.
 
+        \param[in] numSubQueues The number of subqueues to be used.
+        Ideally this value must be a power of 2 as internally this
+        data structure uses bit-wise operations to select a sub-queue
+        based on source thread's ID.
+        
         \param[in] reserve The initial number of entries to reserve to
         minimize initial reallocations.
     */
-    SingleBlockingMTSpinLockQueue(int reserve = 1024);
+    MultiBlockingMTQueue(int numSubQueues = 2, int reserve = 1024);
     
     /** Add an event into the queue.
 
@@ -105,13 +120,15 @@ public:
     virtual void add(int srcThrIdx, int destThrIdx,
                      EventContainer& eventList) override;
 
-    /** Remove all the events in this queue into a local list.
+    /** Remove all the events in this queue into a given local list.
 
         This method performs bulk copying of all the events (if any)
-        added to this queue into a separate list and returns the list
-        of events.
+        added to this queue into a separate list.  The container is
+        passed-in by the caller giving the caller the ability to reuse
+        containers (to minimize creation/resizing overheads).
 
-        \note The list returned by this method is not MT-safe
+        \param[out] eventList The container to which events are to be
+        added.  Eisting entries in this list are left unmodified.
 
         \param[in] destThrIdx The index of the destination thread on
         the local process which will process the event.
@@ -119,41 +136,53 @@ public:
         \param[in] numEvents The maximum number of events to be
         returned by this method.  If this parameter is -1, then all
         the pending events are returned.
-        
-        \return This method returns a list (std::vector) of events
-        added to this queue.  If the queue was empty, then the list is
-        also empty.  The list returned by this method is not MT-safe.
     */
-    virtual EventContainer removeAll(int destThrIdx,
-                                     int maxEvents = -1) override;
-    
+    virtual void removeAll(EventContainer& eventList, int destThrIdx,
+                           int maxEvents = -1) override;
+
     /** The polymorphic destructor.
 
         The destructor does not perform any specific operation and is
         merely present to enable polymorphic deletion of MTQueue.
     */
-    virtual ~SingleBlockingMTSpinLockQueue() override {}
+    virtual ~MultiBlockingMTQueue() override {}
 
 protected:
-    /** The backing (not MT-safe) store used by this queue.
+    /** The list of sub-queues used to try and minimize contention for
+        a mutex.
 
-        This event container (a std::vector) contains the events added
-        (but not yet removed) to this queue.  Access to this list is
-        protected using queueMutex;
+        This list contains the sub-queues that ultimately manage the
+        events added to this multi-queue.  Each sub-queue has its own
+        independent mutex for for MT-safe access.
+
+        \note The number of sub-queues is fixed when this class is
+        instantiated.
     */
-    EventContainer queue;
+    std::vector<SingleBlockingMTQueue<MutexType>> subQueues;
 
-    /** A spin lock to enable MT-safe access to queue.
+    /** The bit-mask used for bit-wise operations used to identify
+        sub-queue.
 
-        This spin lock is locked/unlocked in the different methods in
-        this class to enable MT-safe operations on the queue.
+        Typically a modulo (%) operation would be used to identify
+        sub-queues (e.g., subQidx = srcThrIdx % subQueues.size()).
+        However, modulo is an expensive division operation.  So
+        bit-wise operations are used, as in -- subQidx = srcThrIdx &
+        bitMask.  Accordingly, the bitMask is set to the nearest power
+        of two that is less than subQueues.size().  For a even
+        distribution of usage, the sub-queue count should be a power
+        of 2.
     */
-    SpinLock queueSL;
-    
+    int bitMask;
+
 private:
     // Currrently this class does not have any private instance
     // variables.
 };
+
+// Since this is a template class the C++ source should be included
+// here as part of the header compile unit to ensure consistent
+// template parameter usage.
+#include "mpi-mt/MultiBlockingMTQueue.cpp"
 
 END_NAMESPACE(muse);
 

@@ -60,8 +60,9 @@ SingleBlockingMTQueueShm::add(int srcThrIdx, int destThrIdx,
     eventList.clear();
 }
 
-EventContainer
-SingleBlockingMTQueueShm::removeAll(int destThrIdx, int maxEvents) {
+void
+SingleBlockingMTQueueShm::removeAll(EventContainer& eventList,
+                                    int destThrIdx, int maxEvents) {
     UNUSED_PARAM(destThrIdx);
     // Lock the mutex to get exclusive access to the actual queue
     std::lock_guard<std::mutex> lock(queueMutex);
@@ -70,11 +71,9 @@ SingleBlockingMTQueueShm::removeAll(int destThrIdx, int maxEvents) {
     maxEvents = (maxEvents == -1 ? queue.size() :
                  std::min<int>(queue.size(), maxEvents));
     // Copy the desired number of events.
-    EventContainer retVal(queue.begin(), queue.begin() + maxEvents);
+    eventList.insert(eventList.end(), queue.begin(), queue.begin() + maxEvents);
     // Remove the copied events from the queue.
     queue.erase(queue.begin(), queue.begin() + maxEvents);
-    // Return the local list back to the caller.
-    return retVal;
 }
 
 #endif

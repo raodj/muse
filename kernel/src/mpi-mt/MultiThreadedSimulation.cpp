@@ -26,7 +26,8 @@
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
 #include "mpi-mt/SingleBlockingMTQueue.h"
-#include "mpi-mt/SingleBlockingMTSpinLockQueue.h"
+#include "mpi-mt/MultiBlockingMTQueue.h"
+#include "SpinLock.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
 #include "Scheduler.h"
@@ -104,14 +105,14 @@ MultiThreadedSimulation::finalize(bool stopMPI, bool delCommMgr) {
 void
 MultiThreadedSimulation::processIncomingEvents() {
     // Get all incoming events in an MT-safe manner.
-    EventContainer eventList = incomingEvents->removeAll(threadID);
+    incomingEvents->removeAll(shrEvents, threadID);
     // Update queue statistics for reporting at the end
     shrQcheckCount++;
-    if (!eventList.empty()) {
-        shrQevtCount += eventList.size();
+    if (!shrEvents.empty()) {
+        shrQevtCount += shrEvents.size();
     }
     // Process each event in a manner similar to base class operations
-    for (Event* event : eventList) {
+    for (Event* event : shrEvents) {
         if (event->getSenderAgentID() == -1) {
             // This must be a GVT message.
             ASSERT(event->getReceiverAgentID() <= 0);
@@ -146,10 +147,14 @@ MultiThreadedSimulation::processIncomingEvents() {
         // forward any pending control messages, if needed
         gvtManager->checkWaitingCtrlMsg();
     }
-    if (eventList.empty()) {
+    if (shrEvents.empty()) {
         // Note: Don't skip this step -- Let the GVT Manager forward
         // any pending control messages, if needed
         gvtManager->checkWaitingCtrlMsg();
+    } else {
+        // Clear out all processed events (capacity is unaltered) in
+        // preparation for next round of calls ot this emthod.
+        shrEvents.clear();
     }
 }
 
@@ -290,9 +295,12 @@ void
 MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Make the arg_record
     std::string mtQueue = "single-blocking";
+    int subQueues       = 2;  // #sub-queues in multi-blocking queue
     ArgParser::ArgRecord arg_list[] = {
-        { "--mt-queue", "MT-safe queue to use for events from other threads",
+        {"--mt-queue", "MT-safe queue to use for events from other threads",
           &mtQueue, ArgParser::STRING },
+        {"--multi-mt-queues", "#sub-queues in multi-blocking queue",
+         &subQueues, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -301,9 +309,11 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
     ap.parseArguments(argc, argv, false);
     // Setup the MT-queue for this process to use
     if (mtQueue == "single-blocking") {
-        incomingEvents = new SingleBlockingMTQueue();
+        incomingEvents = new SingleBlockingMTQueue<std::mutex>();
     } else if (mtQueue == "single-blocking-sl") {
-        incomingEvents = new SingleBlockingMTSpinLockQueue();
+        incomingEvents = new SingleBlockingMTQueue<muse::SpinLock>();
+    } else if (mtQueue == "multi-blocking") {
+        incomingEvents = new MultiBlockingMTQueue<std::mutex>(subQueues);
     } else {
         // Invalid mt-queue name.
         throw std::runtime_error("Invalid value for --mt-queue argument" \
