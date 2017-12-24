@@ -97,6 +97,8 @@ libmuse_a_SOURCES = \
 	src/mpi-mt/SingleBlockingMTQueue.cpp \
 	include/mpi-mt/MultiBlockingMTQueue.h \
 	src/mpi-mt/MultiBlockingMTQueue.cpp \
+	include/mpi-mt/MultiNonBlockingMTQueue.h \
+	src/mpi-mt/MultiNonBlockingMTQueue.cpp \
 	include/mpi-mt-shm/MultiThreadedShmCommunicator.h \
 	src/mpi-mt-shm/MultiThreadedShmCommunicator.cpp \
 	include/mpi-mt-shm/MultiThreadedShmSimulation.h \
