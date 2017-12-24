@@ -27,6 +27,7 @@
 #include "mpi-mt/MultiThreadedCommunicator.h"
 #include "mpi-mt/SingleBlockingMTQueue.h"
 #include "mpi-mt/MultiBlockingMTQueue.h"
+#include "mpi-mt/MultiNonBlockingMTQueue.h"
 #include "SpinLock.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
@@ -314,11 +315,16 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
         incomingEvents = new SingleBlockingMTQueue<muse::SpinLock>();
     } else if (mtQueue == "multi-blocking") {
         incomingEvents = new MultiBlockingMTQueue<std::mutex>(subQueues);
+    } else if (mtQueue == "multi-blocking-sl") {
+        incomingEvents = new MultiBlockingMTQueue<muse::SpinLock>(subQueues);
+    } else if (mtQueue == "multi-non-blocking") {
+        incomingEvents = new MultiNonBlockingMTQueue(subQueues);
     } else {
         // Invalid mt-queue name.
         throw std::runtime_error("Invalid value for --mt-queue argument" \
                                  "(muse be: single-blocking");        
     }
+    std::cout << "mtQueue set to: " << mtQueue << std::endl;
     // Let base class process consume other arguments as appropriate
     Simulation::parseCommandLineArgs(argc, argv);
 }
