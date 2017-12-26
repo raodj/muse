@@ -55,6 +55,8 @@ Simulation::Simulation(const bool useSharedEvents)
     mustSaveState      = false;
     maxMpiMsgThresh    = 1000;
     processMpiMsgCalls = 0;
+    mpiMsgCheckThresh  = 1;
+    mpiMsgCheckCounter = mpiMsgCheckThresh;
 }
 
 Simulation*
@@ -225,6 +227,39 @@ Simulation::initAgents() {
 }
 
 int
+Simulation::checkProcessMpiMsgs() {
+    // A fixed threshold for sample count
+    const int MpiThreshSamples = 100;
+    // If we have only one process then there is nothing to be done
+    if (numberOfProcesses < 2) {
+        return 0;  // no other process to communicate with.
+    }
+    // Call the actual processMpiMsgs() method based on counter
+    // settings.
+    int numEvts = -1;
+    if (--mpiMsgCheckCounter == 0) {
+        numEvts = processMpiMsgs();
+        if (numEvts == 0) {
+            if ((mpiMsgCheckThresh == 1) &&
+                (maxMpiMsgCheckThresh.getCount() > MpiThreshSamples)) {
+                // Once we have collected sufficient samples we can
+                // setup our threshold directly to that value.
+                mpiMsgCheckThresh = maxMpiMsgCheckThresh.getMean();
+            } else {
+                mpiMsgCheckThresh = std::min(128, mpiMsgCheckThresh + 5);
+            }
+        } else {
+            // Track the maximum value for mpiMsgCheckThresh for use
+            // later on.
+            maxMpiMsgCheckThresh += mpiMsgCheckThresh;
+            mpiMsgCheckThresh     = 1;  // Reset back to 1.
+        }
+        mpiMsgCheckCounter = mpiMsgCheckThresh;
+    }
+    return numEvts;
+}
+
+int
 Simulation::processMpiMsgs() {
     // If we have only one process then there is nothing to be done
     if (numberOfProcesses < 2) {
@@ -318,8 +353,9 @@ Simulation::start() {
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-        // Process a block of events received via the network.
-        processMpiMsgs();
+        // Process a block of events received via the network, while
+        // performing exponential backoff as necessary.
+        checkProcessMpiMsgs();
         // Process the next event from the list of events managed by
         // the scheduler.
         processNextEvent();
@@ -499,6 +535,7 @@ Simulation::reportStatistics(std::ostream& os) {
           << "\nTotal #MPI messages    : " << totalMPIMessages
           << "\n#process MPI msgs calls: " << processMpiMsgCalls
           << "\nMPI msg batch size     : " << mpiMsgBatchSize
+          << "\nMax MPI msg check thres: " << maxMpiMsgCheckThresh
           << std::endl;
     // Let derived class(es) report statistics (if any)
     reportLocalStatistics(stats);

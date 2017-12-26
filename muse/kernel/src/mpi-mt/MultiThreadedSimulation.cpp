@@ -180,9 +180,10 @@ MultiThreadedSimulation::simulate() {
             // Initate another round of GVT calculations if needed.
             gvtManager->startGVTestimation();
         }
-        // Process a block of events received via the network (goes to
-        // derived manager class).
-        processMpiMsgs();
+        // Process a block of events received via the network
+        // (eventually goes to derived manager class when
+        // processMpiMsgs() method is called by the base class).
+        checkProcessMpiMsgs();
         // Process incoming events and update GVT token
         processIncomingEvents();
         // Process the next event from the list of events managed by

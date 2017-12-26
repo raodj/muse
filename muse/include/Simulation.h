@@ -537,13 +537,49 @@ protected:
     virtual void initAgents();
 
 
+    /** \brief Refactored method to perform backoff to improve
+        efficiency of reading messages from incoming MPI/network
+        messages.
+
+        This method is repeatedly invoked from the core simulation
+        loop (in start() method) to process a batch of MPI messages.
+        However, in simulations with few network messages, this call
+        can be expensive as no messages may be read.  Consequently,
+        this method adjusts the mpiMsgCheckThresh depending on number
+        of events read.  The code below summarizes the logic:
+
+        \code
+        
+        int numEvts = -1;
+        if (--mpiMsgCheckCounter == 0) {
+            numEvts = processMpiMsgs();
+            if (numEvts == 0) {
+                mpiMsgCheckThresh = std::min(10240, mpiMsgCheckThresh * 2);
+            } else {
+                mpiMsgCheckThresh = std::min(1, mpiMsgCheckThresh / 2);
+            }
+            mpiMsgCheckCounter = mpiMsgCheckThresh;
+        }
+        return numEvts;
+        
+        \endcode
+
+        \note Derived classes typically do not overload this method.
+
+        \return This method returns -1 if the call to processMpiMsgs()
+        method was postponed.  Otherwise, it returns the number of MPI
+        messages reported by processMpiMsgs() method.
+    */
+    virtual int checkProcessMpiMsgs();
+    
     /** \brief Refactored method to process a block of incoming
         MPI/network messages.
 
         This method is repeatedly invoked from the core simulation
-        loop (in start() method) to process a maximum of
-        maxMpiMsgThresh messages as suggested in the loop below (shown
-        as pseudo code):
+        loop from checkProcessMpiMsgs (which inturn is called from
+        start() method) to process a maximum of maxMpiMsgThresh
+        messages as suggested in the loop below (shown as pseudo
+        code):
 
         \code
 
@@ -718,7 +754,44 @@ protected:
         processMpiMsgs method was called.
     */
     size_t processMpiMsgCalls;
-    
+
+    /** Counter to determine if MPI message check is to be
+        performed.
+
+        This counter is initialized to mpiMsgCheckThresh value.  In
+        each call to checkProcessMpiMsgs method, this value is
+        decremented. If it reaches zero, it is reset back to
+        mpiMsgCheckThresh and the actual processMpiMsgs() method is
+        called.
+    */
+    int mpiMsgCheckCounter = 1;
+
+    /** Threshold to manage rate at which checks for MPI messages are
+        performed.
+
+        Checking for MPI messages via call to MPI_IProbe is an
+        expensive operation.  Consequently, calls to
+        Communicator::receiveEvent (which calls MPI_IProbe) needs to
+        be carefully managed.  This value is is used to manage the
+        rate in the following manner -- For each call to
+        processMpiMsgs in which the first call to receive an event
+        over MPI returns no events, this value is doubled (with max
+        value of 10240); otherwise it is halved (with minimum value of
+        1).
+    */
+    int mpiMsgCheckThresh = 1;
+
+    /** Statistic to track the maximum value of mpiMsgCheckThresh
+        before it is reset back to 1.
+
+        This statistic object tracs the maximum value of
+        mpiMsgCheckThresh before it is reset back to 1. After
+        sufficient samples have been gathered, this value is useful to
+        quickly reset mpiMsgCheckCounter back to a high value rather
+        than slowly increasing.
+    */
+    Avg maxMpiMsgCheckThresh;
+
 private:
     /** The undefined copy constructor.
 
