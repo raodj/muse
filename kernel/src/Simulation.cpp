@@ -309,7 +309,7 @@ Simulation::processMpiMsgs() {
     return numMsgs;
 }
 
-void
+bool
 Simulation::processNextEvent() {
     // Update lgvt to the time of the next event to be processed.
     LGVT = scheduler->getNextEventTime();
@@ -325,8 +325,10 @@ Simulation::processNextEvent() {
         DEBUG(logFile->close());
         abort();
     }
-    // Let the scheduler do its task to have the agent process events.
-    scheduler->processNextAgentEvents();    
+    // Let the scheduler do its task to have the agent process events
+    // if possible.  If no events are processed the following method
+    // call returns false.
+    return scheduler->processNextAgentEvents();    
 }
 
 void 
@@ -358,7 +360,11 @@ Simulation::start() {
         checkProcessMpiMsgs();
         // Process the next event from the list of events managed by
         // the scheduler.
-        processNextEvent();
+        if (!processNextEvent()) {
+            // We did not have any events to process. So check MPI
+            // more frequently.
+            mpiMsgCheckCounter = 1;
+        }
     }
     // Wait for all the parallel processes to complete the main
     // simulation loop.
@@ -536,6 +542,7 @@ Simulation::reportStatistics(std::ostream& os) {
           << "\n#process MPI msgs calls: " << processMpiMsgCalls
           << "\nMPI msg batch size     : " << mpiMsgBatchSize
           << "\nMax MPI msg check thres: " << maxMpiMsgCheckThresh
+          << "\nAdaptive time window   : " << scheduler->adaptiveTimeWindow
           << std::endl;
     // Let derived class(es) report statistics (if any)
     reportLocalStatistics(stats);

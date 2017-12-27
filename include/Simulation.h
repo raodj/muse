@@ -611,8 +611,13 @@ protected:
         1 agent.  This is a convenience method that derived classes
         can override to perform any additional operations in
         conjunction with message processing.
+
+        \return If event(s) were scheduled/processed this method
+        returns true.  If no events were processed (either because of
+        time-window restrictions or there were no events) then this
+        method returns false.
     */
-    virtual void processNextEvent();
+    virtual bool processNextEvent();
     
 protected:
     /// All of the Agents in the Simulation

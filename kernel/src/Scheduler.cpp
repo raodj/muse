@@ -30,7 +30,7 @@
 
 using namespace muse;
 
-Scheduler::Scheduler() : agentPQ(NULL), timeWindow(0) {}
+Scheduler::Scheduler() : agentPQ(NULL), timeWindow(0), adaptTimeWindow(false) {}
 
 bool
 Scheduler::addAgentToScheduler(Agent* agent) {
@@ -64,12 +64,21 @@ Scheduler::updateKey(void* pointer, Time uTime) {
 
 bool
 Scheduler::withinTimeWindow(muse::Agent* agent,
-                            const muse::Event* const event) const {
+                            const muse::Event* const event) {
     ASSERT(event != NULL);
     UNUSED_PARAM(event);
     const Time gvt = Simulation::getSimulator()->getGVT();
-    // return ((agent->getLVT() - gvt) > 604800000);
-    return ((agent->getLVT() - gvt) <= timeWindow);
+    // If the next lowest-timestamp event is within time-window go
+    // ahead and process it.
+    const Time timeDelta = agent->getLVT() - gvt;
+    if (timeDelta <= timeWindow) {
+        return true;
+    } else if (adaptTimeWindow) {
+        // Maybe the time window is a bit too small. Start increasing
+        // time window to try and accommodate the next event.
+        adaptiveTimeWindow += (timeDelta * 2);
+    }
+    return false;  // Current event outside time window. Do not schedule
 }
 
 bool
@@ -89,7 +98,7 @@ Scheduler::processNextAgentEvents() {
     // Check if the next lowest time-stamp event falls within time
     // window with respect to GVT.  If not, do not process events.
     if ((timeWindow > muse::Time(0)) && !withinTimeWindow(agent, front)) {
-        return false;
+        return false;  // No events to schedule.
     }
     // Have the next agent (with lowest receive timestamp events) to
     // process its batch of events.
@@ -142,6 +151,19 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
+        // If adaptive time window is to be used, then update the time
+        // based on the current GVT value.
+        if (adaptTimeWindow) {
+            const Time gvt    = Simulation::getSimulator()->getGVT();
+            const Time rbDist = e->getReceiveTime() - gvt;
+            if (rbDist > 0) {
+                adaptiveTimeWindow += rbDist;
+                if (adaptiveTimeWindow.getCount() > 100) {
+                    // Sufficient samples have been accumulated.
+                    timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
+                }
+            }
+        }
         // Have the agent to do inputQ, and outputQ clean-up and
         // return list of events to reschedule.
         agent->doRollbackRecovery(e, *agentPQ);
@@ -205,7 +227,9 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         {"--2t-ladderQ-t2k", "Sub-buckets per bucket in 2-tier ladder queue",
          &TwoTierBucket::t2k, ArgParser::INTEGER},
         {"--lq-max-rungs", "Max rungs for ladderQ / 2tLadderQ",
-         &LadderQueue::MaxRungs, ArgParser::INTEGER},        
+         &LadderQueue::MaxRungs, ArgParser::INTEGER},
+        {"--adapt-time-window", "Use adaptive time window to control optimism",
+         &adaptTimeWindow, ArgParser::BOOLEAN},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the argument parser to parse command-line arguments and
