@@ -188,7 +188,11 @@ MultiThreadedSimulation::simulate() {
         processIncomingEvents();
         // Process the next event from the list of events managed by
         // the scheduler.
-        processNextEvent();
+        if (!processNextEvent()) {
+            // We did not have any events to process. So check MPI
+            // more frequently.
+            mpiMsgCheckCounter = 1;            
+        }
     }
     // Wait for all the threads to finish by waiting on a barrier.
     threadBarrier.wait();

@@ -260,6 +260,11 @@ protected:
         time window.  Time windows are used to avoid over-optimism in
         some simulations.
 
+        <p>As of Dec 26 2017, this method also grows the adaptive time
+        window if the next lowest timestamp event was not scheduled as
+        it does not fall within the time window.  This is done to
+        ensure that time windows do not become too small.</p>
+
         \note The event is one of a set of events that will be
         processed if this method returns true.  All of the concurrent
         events are destined for the agent indicated by
@@ -277,7 +282,7 @@ protected:
         operations.
     */
     bool withinTimeWindow(muse::Agent* agent,
-                          const muse::Event* const event) const;
+                          const muse::Event* const event);
 
     /** Obtain the time window (if any) that has been set.
 
@@ -315,6 +320,28 @@ private:
         allocation/deallocation events.
     */
     muse::EventContainer agentEvents;
+
+    /** Flag to indicate if adaptive time window is to be used to
+        throttle optimism (thereby reducing rollback overheads).
+
+        This flag is used to indicate if the scheduler should use an
+        adaptive time window for throttling optimism -- that is,
+        events are not scheduled if the agent->getLVT() - gvt >
+        timeWindow.
+    */
+    bool adaptTimeWindow;
+
+    /** The current adaptive time window value to be used for
+        throttling optimism.
+
+        This value is used only if the adaptTimeWindow is specified.
+        This value is updated in the checkAndHandleRollback method --
+        each time an agent is rolled back, this time window is updated
+        based on rollback distance -- i.e., straggler->recvTime - gvt.
+        Once 100 samples have been accumulated this value is used to
+        update the time window.
+    */
+    Avg adaptiveTimeWindow;
 };
 
 END_NAMESPACE(muse);
