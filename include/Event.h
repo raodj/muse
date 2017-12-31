@@ -37,25 +37,54 @@ extern std::ostream& operator<<(std::ostream&, const muse::Event&);
     Event class to implement a suitate create method.
 */
 #define CREATE(EventClassName)                                          \
-    static EventClassName* create(const muse::AgentID receiverID,       \
+    static EventClassName* create(const muse::AgentID receiver,         \
                                   const muse::Time recvTime,            \
                                   const int size = sizeof(EventClassName)) { \
         EventClassName* event =                                         \
-            reinterpret_cast<EventClassName*>(allocate(size));          \
-        new (event) EventClassName(receiverID, recvTime);               \
+            reinterpret_cast<EventClassName*>(allocate(size, receiver)); \
+        new (event) EventClassName(receiver, recvTime);                 \
         return event;                                                   \
     }
 
 BEGIN_NAMESPACE(muse);
 
 /** The base class for all events in a simulation.
-    This class represents the base class from which all user-defined
-    simulation events must be derived.
+
+    <p>This class represents the base class from which all
+    user-defined simulation events must be derived.</p>
     
-    To create an event for your simulation, make sure you derive from
-    this Event Class, Also you will NOT override any of the given
-    methods, instead add your own methods and whatever the agent
-    receiving the event needs to process the event.
+    <p>To create an event for your simulation, make sure you derive
+    from this Event class.  When implementing your own events, the
+    following key points should be kept in mind to ensure correct and
+    fast simulation:
+
+    <ol>
+
+    <li>Your derived event classes should not have pointers or objects
+    but just primitive types.  If you need to pass variable-length
+    data (like strings or arrays) you will need to develop some custom
+    solution similar to muse::GVTMessage.  See GVTMessage
+    implementation for example on how to pass variable-length
+    data</li>
+    
+    <li>Ensure you suitably override the getEventSize() virtual
+    method.  This is an important method to override in your derived
+    event class.</li>
+
+    <li>Always use one of the Event::create methods to instantiate
+    events.  The Event::create methods enable event recycling and
+    NUMA-aware memory management to give you the most efficient memory
+    uage in a sequential or parallel (including: just MPI, just
+    threads, or MPI+threads)</li>
+    
+    </ol>
+
+    </p>
+
+    <p>Developer note: The instance variables in this class are
+    intentionally organized in a specific order to minimize
+    muse::Event size to 40 bytes (including vtable) on x86_64
+    architectures.  So do not change the order</p>
 */
 class Event {
     friend std::ostream& ::operator<<(std::ostream&, const muse::Event&);
@@ -123,16 +152,23 @@ public:
         
         \endcode
         
-        @tparam T the type of derived event class to be created.
+        \tparam T the type of derived event class to be created.
+
+        \param[in] receiver The destination agent to which the event
+        is to be dispatched.  In multi-threaded mode using NUMA-aware
+        allocator, this value is used to optimally allocate memory for
+        the event.
         
-        @Args A variadic list of zero or more arguments to be passed to
-        the constructor of the event.  Note that the event must implement
-        the constructor in the order in which arguments are supplied.
+        \param[in] Args A variadic list of zero or more arguments to
+        be passed to the constructor of the event.  Note that the
+        event must implement the constructor in the order in which
+        arguments are supplied.
     */
     template<typename T, typename... Args> 
-    static T* create( Args&&... args ) {
-        T* event = reinterpret_cast<T*>(allocate(sizeof(T)));
-        new (event) T(std::forward<Args>(args)...);
+    static T* create(const muse::AgentID receiver, Args&&... args) {
+        // 
+        T* event = reinterpret_cast<T*>(allocate(sizeof(T), receiver));
+        new (event) T(receiver, std::forward<Args>(args)...);
         return event;
     }
 
@@ -156,19 +192,28 @@ public:
         
         @tparam T the type of derived event class to be created.
 
-        @tparam dummy A dummy parameter that is ignored but must be
+        \tparam dummy A dummy parameter that is ignored but must be
         specified (typically as literal constant 0).  It is merely
         used to distinguish the different overload of the static
         create method in this class.
+
+        \param[in] receiver The destination agent to which the event
+        is to be dispatched.  In multi-threaded mode using NUMA-aware
+        allocator, this value is used to optimally allocate memory for
+        the event.
         
-        @Args A variadic list of zero or more arguments to be passed to
-        the constructor of the event.  Note that the event must implement
-        the constructor in the order in which arguments are supplied.
+        \param[in] args A variadic list of zero or more arguments to
+        be passed to the constructor of the event.  Note that the
+        event must implement the constructor in the order in which
+        arguments are supplied.
     */
     template<typename T, size_t dummy = 0, typename... Args> 
-    static T* create(size_t size, Args&&... args) {
-        T* event = reinterpret_cast<T*>(allocate(size));
-        new (event) T(std::forward<Args>(args)...);
+    static T* create(const size_t size, const muse::AgentID receiver,
+                     Args&&... args) {
+        // Use allocator to reserve memory for the event
+        T* event = reinterpret_cast<T*>(allocate(size, receiver));
+        // Use in-place-new to convert memory to an object.
+        new (event) T(receiver, std::forward<Args>(args)...);
         return event;
     }
 
@@ -183,8 +228,8 @@ public:
         \code
         
         // ... some code ...
-        muse::Event* event;
-        muse::Event* copy = event->create<muse::Event>();
+        muse::SomeEvent* event;
+        muse::SomeEvent* copy = event->create<muse::SomeEvent>();
         // ... more code ...
         scheduleEvent(event);
         
@@ -202,15 +247,13 @@ public:
         }
 
         \endcode
-
-        @param[in] src The source event object that must be cloned.
-        We accept a reference to ensure that the source is not
-        nullptr.  The size of the source object is used to determine
-        the amount of memory to be allocated.
     */
     template<typename T> 
     T* create() const {
-        T* event = reinterpret_cast<T*>(allocate(this->getEventSize()));
+        // Use allocator to reserve memory for the event
+        T* event = reinterpret_cast<T*>(allocate(this->getEventSize(),
+                                                 this->getReceiverAgentID()));
+        // Use in-place-new to convert memory to an object.
         new (event) T(dynamic_cast<const T&>(*this));
         return event;
     }
@@ -230,7 +273,12 @@ public:
         \see AgentID
         \see Time
     */
-    explicit Event(const AgentID  receiverID, const Time  receiveTime);
+    explicit inline Event(const AgentID  receiverID, const Time  receiveTime) :
+        receiveTime(receiveTime), receiverAgentID(receiverID), 
+        senderAgentID(-1), sentTime(TIME_INFINITY),  antiMessage(false),
+        referenceCount(1), color('*'), inputRefCount(0) {
+        // Nothing else to be done in the constructor.
+    }
 
     /** Convenience method to allocate flat memory for a given event.
 
@@ -253,10 +301,16 @@ public:
         \param[in] size The size of the flat buffer to be allocated
         for storing event information.
 
+        \param[in] receiver The destination agent to which the event
+        is to be sent.  This value is used by the NUMA-aware memory
+        allocator to manage memory.  If NUMA is not being used, then
+        this value is not used.  If the receiver is -1, then memory is
+        allocated on local NUMA node (used for events coming over MPI).
+        
         \return A pointer to a valid/flat buffer. This method always
         returns a valid event pointer.
     */
-    static char* allocate(const int size);
+    static char* allocate(const int size, const muse::AgentID receiver);
 
     /** This method is the dual/converse of allocate to recycle events
         if recycling is enabled.
@@ -274,13 +328,11 @@ public:
         buffer to the appropriate entry in the EventRecycler map in
         this class.</p>
         
-        \param[in] buffer The event buffer previously obtained via
-        call to the allocate method in this class.
-
-        \param[in] size The size of the buffer (in bytes).  The size
-        is used to recycle the buffer in future calls to allocate.
-     */
-    static void deallocate(char* buffer, const int size);
+        \param[in] event The event to be de-allocated.  This event
+        must have been previously obtained via call to the allocate
+        method in this class.
+    */
+    static void deallocate(muse::Event* event);
     
 protected:    
     /** \brief Get the size of this Event
@@ -306,11 +358,12 @@ protected:
         wire.
     */
     virtual ~Event() {}
+    
+    /// The Time this Event will be delivered/was received
+    Time receiveTime;
 
     /// The ID of teh Agent that will receive this Event
     AgentID receiverAgentID;
-    /// The Time this Event will be delivered/was received
-    Time receiveTime;
 
 private:
     /// The ID of the Agent that sent this Event

@@ -33,6 +33,7 @@
 #include "EventAdapter.h"
 #include <cstdlib>
 #include <csignal>
+#include <unistd.h>
 
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
@@ -521,10 +522,9 @@ Simulation::reportStatistics(std::ostream& os) {
     for (AgentContainer::iterator it = allAgents.begin();
 	 it != allAgents.end(); it++) {
 	Agent* const agent = *it;
-        const int outputQueueSize = agent->outputQueue.size();
 	// Track total statistics
         totalRollbacks       += agent->numRollbacks;
-        totalCommittedEvents += agent->numCommittedEvents + outputQueueSize;
+        totalCommittedEvents += agent->numCommittedEvents;
         totalMPIMessages     += agent->numMPIMessages;
         totalScheduledEvents += agent->numScheduledEvents;
         totalSchedules       += agent->numSchedules;

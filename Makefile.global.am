@@ -30,6 +30,9 @@ GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
 GLOBALCPPFLAGS += $(CPP11) $(CPP0X)
 
+# For profiling the frame pointers are important for short methods.
+GLOBALCPPFLAGS += -fno-omit-frame-pointer
+
 # The following compiler flag enables additional sanity checks that
 # may slow down simulations.  So for full performance and performance
 # comparisons ensure the following flag is disabled.
@@ -38,6 +41,12 @@ GLOBALCPPFLAGS += $(DEV_ASSERT)
 # Override configure settings to enable developer assertions used for
 # validating/sanity-checks throughout the code base
 # GLOBALCPPFLAGS += -DDEVELOPER_ASSERTIONS
+
+# The following flag is typically enabled in configure. The following
+# compiler flag causes simulation to write verbose output to Log*.txt
+# file(s).  It is primarily designed to be used with single-threaded
+# MPI simulations.
+# GLOBALCPPFLAGS += -DDEBUG_OUTPUT
 
 # The following compiler flag enables recyling of events during
 # simulation. See Event::allocate and Event::deallocate methods.

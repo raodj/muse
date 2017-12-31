@@ -242,7 +242,8 @@ MultiThreadedCommunicator::receiveOneEvent() {
     }
     // Figure out the agent list size
     int eventSize = status.Get_count(MPI_TYPE_CHAR);
-    char *incoming_event = Event::allocate(eventSize);
+    // Note we pass -1 to allocate event on this_thread's NUMA node.
+    char *incoming_event = Event::allocate(eventSize, -1);
     ASSERT( incoming_event != NULL );
     // Read the actual data.
     try {

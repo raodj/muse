@@ -27,6 +27,7 @@
 #include "SpinLockThreadBarrier.h"
 #include "mpi-mt/MTQueue.h"
 #include "Avg.h"
+#include "NumaMemoryManager.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -146,11 +147,19 @@ protected:
         \param[in] usingSharedEvents Flag to indicate if events are to
         be directly shared between sending and receiving threads on
         this process.
+
+        \param[in] cpuID An optional CPU ID to which the thread is to
+        be pinned.  This value is used to set the affinity for this
+        thread.  This value is determined by the
+        MultiThreadedSimulationManager::start() method.  The CPU ID is
+        chosen such that it also honors PBS job settings as well.  If
+        the cpuID is -1, then processor affinity is not setup.
     */
     MultiThreadedSimulation(MultiThreadedSimulationManager* simMgr,
                             int thrID = 0, int globalThrID = 0,
                             int threadsPerNode = 1,
-                            bool usingSharedEvents = false);
+                            bool usingSharedEvents = false,
+                            int cpuID = -1);
 
     /** The destructor.
 
@@ -362,6 +371,29 @@ protected:
         written. By default statistics are reported to std::cout.
     */
     virtual void reportLocalStatistics(std::ostream& os = std::cout) override;
+
+    /** Setup CPU affinity for this thread.
+
+        This method is called only once on each thread from the
+        simulate() method.  This method uses the cpuID setup for this
+        thread to setup process affinity for this thread.  In
+        addition, this method also sets the NUMA node associated with
+        the CPU to which the thread is setup.
+    */
+    void setCpuAffinity() const;
+
+
+    /** Convenience method to get the NUMA node ID for a given CPU id.
+
+        This method is a convenience method used to streamline the
+        code for enabling NUMA-aware memory management.  This method
+        returns the NUMA node ID for a given logical CPU id by calling
+        numa_node_of_cpu().
+
+        \return The NUMA node for the CPU.  If NUMA is not available,
+        this method always returns -1.
+    */
+    int getNumaNodeOfCpu(const int cpu) const;
     
 protected:
     /** The number of threads to be spun-up for each MPI process.
@@ -401,6 +433,31 @@ protected:
         in the parseCommandLineArgs method.
     */
     MTQueue* incomingEvents;
+
+    /** Refactored utility method to make copy of an event honoring
+        NUMA and other runtime flags/settings.
+
+        This is a refactored utility method used to make copy of
+        events going across thread boundaries.  This method is
+        currently called only from MultiThreadedSimulation's
+        scheduleEvent method.  This method is used only when
+        usingSharedEvents is set to \c false.  This method make an
+        identical clone of the given event.
+
+        \param[in] src The source event to be cloned. This parameter
+        cannot be NULL.
+
+        \param[in] receiver The receiving agent ID used for cloning
+        event (if NUMA is not being used or when sharing events).
+        
+        \param[in] destThrID The global rank of the destination thread
+        to which the event is to be sent.  This value modulo
+        threadsPerNode gives the local thread ID.
+
+        \return A clone of the event with memory suitably allocated.
+    */
+    muse::Event* cloneEvent(const muse::Event* src,
+                            const muse::AgentID receiver) const;
     
 private:
     /** The undefined copy constructor.
@@ -535,6 +592,70 @@ private:
         processIncomingEvents method.
     */
     EventContainer shrEvents;
+
+    /** The CPU ID setup for this thread.
+
+        The CPU ID setup for this thread to establish CPU affinity.
+        This value is used when the threads actually start running.
+        If this value is -1, then CPU affinity is not setup.
+    */
+    int cpuID;
+
+    /* Flag to indicate if NUMA usage is completely disabled.
+
+       If this flag is true, then NUMA operations are never used.  If
+       this flag is <u>\c false and usingSharedEvents is also \c
+       false</u> then NUMA is used to allocate memory for events going
+       across thread boundaries.  This ensures that sending threads
+       have copy on their NUMA node while receiving thread has copy in
+       its NUMA node to ensure good performance.
+
+       \see cloneEvent
+    */
+    bool noNuma;
+    
+    /** List of NUMA node IDs for each thread to be used by NUMA-aware
+        memory manager.
+
+        This is a static (i.e., shared by all threads) list that
+        contains the NUMA-node ID (0, 1, 2, ...) for each thread.
+        Note that many threads can have have same NUMA-node ID based
+        on the number of cores on each CPU.  Entries are added to this
+        vector by MultiThreadedSimulationManager::createThreads
+        method.  The list is passed onto the NUMA-aware EventRecycler
+        to allocate memory appropriate NUMA nodes.
+    */
+    static std::vector<int> numaIDofThread;
+
+#if USE_NUMA == 1
+    /** Reference to main Numa memory manager to add list of allocated
+        pages to finally free at end of simulation.
+
+        This reference always referes to the NumaMemoryManager on the
+        main thread.  This object is used for the following reason --
+        Event deallocations on various threads cannot be fully
+        reclaimed until all agents are finalized (and they relinquish
+        references to events in their internal queues).  Consequently,
+        at the end of the MultiThreadedSimulation::simulate() method,
+        each thread (other than the main thread) adds its NUMA blocks
+        to the main numa manager. This list is finally cleaned-up in
+        the main thread.
+    */
+    NumaMemoryManager& mainNumaManager;
+
+    /** String to temporarily hold thread-local NUMA memory management
+        statistics.
+
+        The thread-local NUMA memory manager goes out of scope when
+        the thread ends at the end of the simulate method.  However,
+        statistics are reported after the thread ends.  Consequently,
+        this instance variable maintains a copy of the NUMA statistics
+        to be reported when the reportLocalStatistics method is
+        called.
+     */
+    std::string numaStats;
+
+#endif
 };
 
 END_NAMESPACE(muse);

@@ -22,6 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <numa.h>
 #include <thread>
 #include <algorithm>
 #include "mpi-mt/MultiThreadedSimulationManager.h"
@@ -50,6 +51,7 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
     throw (std::exception) {
     // First, parse out the number of threads and if direct event
     // exchange is to be used.
+    bool noNuma = (USE_NUMA == 1) ? false : true;
     ArgParser::ArgRecord arg_list[] = {
         { "--threads-per-node", "Number of threads to start per node/process",
           &threadsPerNode, ArgParser::INTEGER},
@@ -57,6 +59,10 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
           &doShareEvents, ArgParser::BOOLEAN},
         { "--dealloc-thresh", "Desired % (0.01 to 1.0) of reclaiming shared-events",
           &deallocThresh, ArgParser::DOUBLE},
+#ifdef USE_NUMA        
+        {"--no-numa", "Disable use of NUMA-aware memory management",
+         &noNuma, ArgParser::BOOLEAN},
+#endif        
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -72,6 +78,14 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
     // Setup the global/static flag in EventQueue if we would like to
     // directly share events between threads.
     EventQueue::setUsingSharedEvents(doShareEvents);
+    // Setup the NUMA mode of operation based on command-line arguments.
+    EventRecycler::NumaSetting numaMode = EventRecycler::NUMA_NONE;
+    if (!noNuma) {
+        // If NUMA is enabled, then setup default mode depending on
+        // whether we are sharing events or not.
+        numaMode = (doShareEvents ? EventRecycler::NUMA_RECEIVER :
+                    EventRecycler::NUMA_SENDER);
+    }
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedCommunicator* mtc =
         new MultiThreadedCommunicator(this, threadsPerNode);
@@ -91,27 +105,74 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
     // Initialize the barrier in MultiThreadedSimulation used for
     // coordinating the number of threads being used.
     threadBarrier.setThreadCount(threadsPerNode);
-    // Add this class as thread zero.
-    threads.push_back(this);
     // Create the necessary number of threads.
-    for (int thrID = 1; (thrID < threadsPerNode); thrID++) {
-        const int globalThrID = (myID * threadsPerNode) + thrID;
+    createThreads(threadsPerNode, mtc, cmdArgs);
+    // Finally, let the base-class perform generic initialization
+    muse::Simulation::initialize(argc, argv, initMPI);
+    // Enable/disable NUMA-aware memory management.
+    EventRecycler::setupNUMA(mtc, numaIDofThread, numaMode);
+}
+
+void
+MultiThreadedSimulationManager::createThreads(const int threadCount,
+                                              MultiThreadedCommunicator* mtc,
+                                              std::vector<char*> cmdArgs) {
+    // Get the list of CPUs to be used.
+    const std::vector<int> cpuList = getAvailableCPUs();
+    ASSERT(!cpuList.empty());
+    // If we have more threads than CPU's report a warning
+    if ((int) cpuList.size() < threadCount) {
+        std::cout << "Warning: More threads " << threadCount
+                  << " than available cores: "
+                  << cpuList.size() << std::endl;
+    }
+    // Re-size the numaIDs list to accommodate local thread information
+    numaIDofThread.resize(threadCount);
+    // Add this class as thread zero to the list of threads.
+    threads.push_back(this);
+    cpuID = cpuList.at(0);
+    // Setup NUMA node information for this thread/CPU.
+    numaIDofThread[0] = getNumaNodeOfCpu(cpuID);
+    // Create the other thread classes.
+    for (int thrID = 1; (thrID < threadCount); thrID++) {
+        const int globalThrID = (myID * threadCount) + thrID;
+        const int cpuNum      = cpuList.at(thrID % cpuList.size());
         MultiThreadedSimulation* tsm =
             new MultiThreadedSimulation(this, thrID, globalThrID,
-                                        threadsPerNode, doShareEvents);
+                                        threadCount, doShareEvents, cpuNum);
+        // Setup NUMA node information for this thread/CPU.
+        numaIDofThread[thrID] = getNumaNodeOfCpu(cpuID);
         // Setup the pointer to shared comm-manager to be used
-        tsm->setCommManager(mtc);        
+        tsm->setCommManager(mtc);
         // Setup command-line arguments from a copy to preserve original
-        argc = cmdArgs.size();
+        int argc = cmdArgs.size();
         std::vector<char*> cmdArgsCopy = cmdArgs;
-        argv = cmdArgsCopy.data();
+        char** argv = cmdArgsCopy.data();
         // Let the thread initialize itself based on parameters.
         tsm->initialize(argc, argv, false);
         // Add the newly created thread to the list
         threads.push_back(tsm);
     }
-    // Finally, let the base-class perform generic initialization
-    muse::Simulation::initialize(argc, argv, initMPI);
+}
+
+std::vector<int>
+MultiThreadedSimulationManager::getAvailableCPUs() const {
+    std::vector<int> cpuList;  // Available CPUs for pinning
+    cpu_set_t cpuset;          // cores from pthread.
+    CPU_ZERO(&cpuset);         // Initialize with zeros.
+    int err = 0;               // Error code (if any)
+    if ((err = pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t),
+                                      &cpuset)) != 0) {
+        std::cerr << "Error in getCPUAffinity(): " << err << std::endl;
+    } else {
+        // Got CPU bit-map. Convert to list to make processing easier.
+        for (int i = 0; (i < CPU_SETSIZE); i++) {
+            if (CPU_ISSET(i, &cpuset)) {
+                cpuList.push_back(i);
+            }
+        }
+    }
+    return cpuList;
 }
 
 bool

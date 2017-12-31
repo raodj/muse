@@ -145,6 +145,47 @@ AC_DEFUN([AC_CHECK_CONST_EXP],
     fi
 ])
 
+# A custom helper macro check if NUMA development libraries are
+# available and operational.  MUSE's multi-threaded mode is NUMA-aware
+# and relies on Linux's NUMA libraries for its's operation.
+# Check if we are using icc to supress a couple of useless remarks
+AC_DEFUN([AC_PROG_NUMA],
+[
+     # Let user provide configure flag to enable/disable NUMA
+     AC_ARG_WITH([numa],
+         AS_HELP_STRING([--with-numa],[Enable NUMA aware memory management]),
+         [ numa="$withval" ])
+
+     # If user has not explicitly enabled/disabled NUMA then use numa
+     # if libraries are found to be operational.
+     if test -z "$numa"; then
+         AC_MSG_CHECKING([whether NUMA library is operational])
+         AC_LANG([C++])
+         old_ldflags="$LDFLAGS"
+         LDFLAGS="$LDFLAGS -lnuma"
+         AC_RUN_IFELSE(
+             [AC_LANG_PROGRAM([[#include <numa.h>
+                                #include <numaif.h>
+                                #include <iostream>
+                              ]],
+                              [[return (numa_available() == -1 ? 1 : 0)]])],
+	     [ AC_MSG_RESULT([yes])
+               numa="yes" ],
+             [ AC_MSG_RESULT([no])
+               numa="no"
+               LDFLAGS="$old_ldflags"
+             ]
+         )
+     fi
+
+     # Now enable/disable compiler macro in config.h
+     if test "$numa" != "yes"; then
+         AC_DEFINE_UNQUOTED([USE_NUMA], 0, [Define to 1 if NUMA is usable.])
+     else
+         AC_DEFINE_UNQUOTED([USE_NUMA], 1, [Define to 1 if NUMA is usable.])
+     fi
+])
+
 # Check if mpicxx requires -lstdc++ option (needed on redhawk)
 AC_DEFUN([AC_LINK_STDCPP],
 [
@@ -379,6 +420,7 @@ AC_LINK_STDCPP
 AC_PROG_ICC
 AC_PROG_GCC
 AC_PROG_RANLIB
+AC_PROG_NUMA
 
 # Enable developer assertions flags as needed.
 DEV_ASSERT=""
@@ -456,7 +498,7 @@ AC_SEARCH_LIBS([bind],[c,nsl,socket],,,[$LINK_STD_CPP])
 
 # Checks for header files.
 AC_HEADER_STDC
-AC_CHECK_HEADERS([arpa/inet.h fcntl.h limits.h malloc.h netdb.h netinet/in.h stddef.h stdlib.h string.h strings.h sys/socket.h sys/time.h unistd.h values.h GL/glut.h])
+AC_CHECK_HEADERS([alloca.h cstdlib string pthread.h])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_HEADER_STDBOOL
@@ -474,7 +516,7 @@ AC_STRUCT_TM
 AC_FUNC_MEMCMP
 AC_TYPE_SIGNAL
 AC_FUNC_STRTOD
-AC_CHECK_FUNCS([bzero floor gethostbyname gethostname gethrtime gettimeofday memset mkdir modf pow rint socket sqrt strcasecmp strchr strdup strstr strtol])
+AC_CHECK_FUNCS([floor memset mkdir pow pthread_getattr_np])
 
 # Finally detect the most recent and working version of hash map is
 # available in c++ land

@@ -39,7 +39,7 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses,
         (sizeof(unsigned int) * numProcesses);
     const int msgSize = sizeof(GVTMessage) + vecSize;
     // Allocate flat memory for the message.
-    char* memory = new char[msgSize];
+    char* memory = Event::allocate(msgSize, -1);
     // Now use the flat memory to instantiate an object.
     GVTMessage* msg = new (memory) GVTMessage(msgKind, msgSize);
     // Setup the sequence number for this newly created message
@@ -53,7 +53,7 @@ GVTMessage*
 GVTMessage::create(const GVTMessage* src, int destRank) {
     const int msgSize = src->getSize();
     // Allocate flat memory for the message.
-    char* memory = new char[msgSize];
+    char* memory = Event::allocate(msgSize, -1);
     // Now use the flat memory to instantiate an object.
     GVTMessage* msg = new (memory) GVTMessage(src->kind, msgSize);
     // Copy all the information
@@ -67,10 +67,8 @@ GVTMessage::create(const GVTMessage* src, int destRank) {
 
 void
 GVTMessage::destroy(GVTMessage* msg) {
-    if (msg != NULL) {
-        char* buffer = reinterpret_cast<char*>(msg);
-        delete [] buffer;
-    }
+    // Let the Event's deallocation/recycling take care of this message
+    muse::Event::deallocate(msg);
 }
 
 void
@@ -103,11 +101,6 @@ GVTMessage::GVTMessage(const GVTMsgKind msgKind, const int msgSize)
     // Set variables in muse::Event base class to invalid values
     // senderAgentID = -1;
     // sentTime      = -1;
-}
-
-GVTMessage::~GVTMessage() {
-    // The destructor should never get called.
-    ASSERT("GVTMessage destructor should not get called" == NULL);
 }
 
 std::ostream&
