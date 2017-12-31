@@ -75,11 +75,13 @@ PCS_Agent::minTimeStamp(muse::Time completeCallTime, muse::Time nextCallTime,
 }
 
 PCS_Event*
-PCS_Agent::getNextEvent(const uint portableID, const muse::Time callCompleteTime,
-                       const muse::Time nextCallTime,
-                       const muse::Time moveTime) const {
-    const NextAction action = getAction(callCompleteTime, nextCallTime,
-                                        moveTime);
+PCS_Agent::getNextEvent(const uint portableID,
+                        const muse::Time callCompleteTime,
+                        const muse::Time nextCallTime,
+                        const muse::Time moveTime) const {
+    // Determine next event based on time stamp
+    const NextAction action =
+        getAction(callCompleteTime, nextCallTime, moveTime);
     Method method = COMPLETE_CALL;  // Will change below.
     switch (action) {
     case COMPLETECALL: method = COMPLETE_CALL; break;
@@ -92,9 +94,11 @@ PCS_Agent::getNextEvent(const uint portableID, const muse::Time callCompleteTime
     // Determine event receive time to change state of portable based
     // on minimum of 3 timestamps.
     muse::Time receive = minTimeStamp(callCompleteTime, nextCallTime, moveTime);
-    PCS_Event* e = PCS_Event::create(getAgentID(), receive, moveTime,
-                                    nextCallTime, callCompleteTime,
-                                    method, portableID);
+    // Create event to be scheduled.
+    PCS_Event* const e =
+        muse::Event::create<PCS_Event>(getAgentID(), receive, moveTime,
+                                       nextCallTime, callCompleteTime,
+                                       method, portableID);
     return e;
 }
 
@@ -190,10 +194,12 @@ PCS_Agent::moveOut(const PCS_Event& event) {
     // hand-offs happen almost instantly. So the time increment here
     // is very small.
     const muse::Time receiveTime = getTime() + 0.125;
-    PCS_Event* e = PCS_Event::create(receiverAgentID, receiveTime,
-                                   move_timeStamp, next_call_timeStamp,
-                                   complete_call_timeStamp, MOVE_IN,
-                                   event.getPortableID());
+    // Create event using custom allocator in 
+    PCS_Event* const e =
+        muse::Event::create<PCS_Event>(receiverAgentID, receiveTime,
+                                       move_timeStamp, next_call_timeStamp,
+                                       complete_call_timeStamp, MOVE_IN,
+                                       event.getPortableID());    
     return e;
 }
 

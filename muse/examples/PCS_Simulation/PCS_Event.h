@@ -67,33 +67,22 @@ enum Method {
  * are modeled by different instance variables in this PCS_Event class
  * In similarity to a Portable, the PCS_Event object has three
  * independent exponentially distributed timestamp fields.
+ *
+ * <p>
+ * This event class is instantiated as suggested below:
+ *
+ * \code
+ * PCS_Event* const event =
+ *     muse::Event::create<PCS_Event>(receiver, recvTime, moveTime,
+ *                                    callTime, compTime, Method, portable);
+ * \endcode
+ *
+ * </p>
  */
 class PCS_Event : public muse::Event {
- public:
-    /** Only method to be used to create a new PCS_Event.
-
-        Events in MUSE are created as flat arrays to ease transmission
-        over MPI without needing any special
-        serialization/deserialization.  Accordingly, this method
-        creates a PCS_Event from a flat array.
-
-        \note This is the only method that must be used to create a
-        new PCS_Event.
-    */
-    static PCS_Event* create(const muse::AgentID receiverID,
-                             const muse::Time recvTime,
-                             const muse::Time moveTimeStamp,
-                             const muse::Time callTimeStamp,
-                             const muse::Time completionTimeStamp,
-                             Method method, uint portableID) {
-        PCS_Event* const event =
-            reinterpret_cast<PCS_Event*>(allocate(sizeof(PCS_Event)));
-        new (event) PCS_Event(receiverID, recvTime, moveTimeStamp,
-                              callTimeStamp, completionTimeStamp,
-                              method, portableID);
-        return event;
-    }
-    
+    // Decleare muse::Event as friend so it can call constructors here
+    friend class muse::Event;
+public:
     inline muse::Time getMoveTimeStamp() const {
         return moveTimeStamp;
     }
@@ -125,14 +114,8 @@ class PCS_Event : public muse::Event {
         \return The size of the event
     */
     virtual int getEventSize() const override { return sizeof(PCS_Event); }
-
     
-    static void deallocate(PCS_Event* delEvent) {
-        muse::Event::deallocate(reinterpret_cast<char*>(delEvent),
-                                delEvent->getEventSize());
-    }
-    
- protected:
+protected:
     /** The move timestamp represents the time at which the portable
         will leave the current cell and re- side at one of the
         neighboring cells.  It is initialized by an exponentially
