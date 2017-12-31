@@ -236,6 +236,7 @@ PHOLDAgent::simEventProcessing(const muse::Event* event) const {
 
 void
 PHOLDAgent::executeTask(const EventContainer& events) {
+    ASSERT(getTime() < Simulation::getSimulator()->getStopTime());
     // For every event we get we send out one event
     for (size_t i = 0; (i < events.size()); i++) {
         // Simulate some event granularity
@@ -248,7 +249,7 @@ PHOLDAgent::executeTask(const EventContainer& events) {
         const int RndDelay = (delay > 0) ? getDelay(delayType, delay) : 0;
         const Time  receiveTime(getTime() + lookAhead + RndDelay);
 
-        if ( receiveTime < Simulation::getSimulator()->getStopTime() ){
+        if (receiveTime < Simulation::getSimulator()->getStopTime()) {
             // Now we need to choose the agent to send this event to.
             muse::AgentID receiverAgentID = getAgentID();
             if (selfEvents < 0) {
