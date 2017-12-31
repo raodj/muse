@@ -28,21 +28,14 @@
 
 using namespace muse;
 
-Event::Event(const AgentID  receiverID, const Time  receiveTime):
-    receiverAgentID(receiverID), receiveTime(receiveTime),
-    senderAgentID(-1), sentTime(TIME_INFINITY),  antiMessage(false),
-    referenceCount(1), color('*'), inputRefCount(0) {
-    // Nothing else to be done in the constructor.
-}
-
 char*
-Event::allocate(const int size) {
-    return muse::EventRecycler::allocate(size);
+Event::allocate(const int size, const muse::AgentID receiver) {
+    return muse::EventRecycler::allocate(size, receiver);
 }
 
 void
-Event::deallocate(char* buffer, const int size) {
-    return muse::EventRecycler::deallocate(buffer, size);
+Event::deallocate(muse::Event* event) {
+    muse::EventRecycler::deallocate(event);
 }
 
 std::ostream&

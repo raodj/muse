@@ -18,8 +18,7 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Meseret Gebre          gebremr@muohio.edu
-//          Dhananjai M. Rao       raodm@muohio.edu
+// Authors:  Dhananjai M. Rao       raodm@muohio.edu
 //
 //---------------------------------------------------------------------------
 

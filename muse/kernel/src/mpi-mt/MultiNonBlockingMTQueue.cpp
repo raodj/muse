@@ -53,7 +53,7 @@ MultiNonBlockingMTQueue::MultiNonBlockingMTQueue(int numSubQueues, int reserve,
 
 MultiNonBlockingMTQueue::~MultiNonBlockingMTQueue() {
     for (LockFreeQueue* subQ : subQueues) {
-        ASSERT(subQ.empty());
+        ASSERT(subQ->empty());
         delete subQ;
     }
 }

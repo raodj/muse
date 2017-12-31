@@ -22,21 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
-#include "Event.h"
 #include <unordered_map>
 #include <stack>
+#include "config.h"
+#include "Event.h"
+#include "NumaMemoryManager.h"
 
 BEGIN_NAMESPACE(muse);
 
-// Forward declaration for muse::Event class
+// Forward declaration for some of the classes.
 class Event;
+class MultiThreadedCommunicator;
 
 /** An unordered map to store free events of different sizes.
 
     The key into this unordered map is the size of the event being
     recycled.  For each size a stack is maintained to return the
     most recently used event to improve cache performance.
- */
+*/
 using RecycleMap = std::unordered_map<int, std::stack<char*>>;
 
 /** A convenience class for enabling/disabling (at compile time) event
@@ -64,12 +67,136 @@ class EventRecycler {
     friend class MultiThreadedShmSimulation;
     friend class MultiThreadedShmSimulationManager;
 public:
+    /** The default NUMA settings for memory management.
+
+        These enumerations are primarily applicable only when
+        multi-threaded simulations are used.  The default setting is
+        always NUMA_NONE. Since these values relate to
+        multi-threading, the actual setting to be used to setup in
+        various multi-threading simulators during start-up.
+    */
+    enum NumaSetting {
+        /** No NUMA usage and use default new/delete operators */
+        NUMA_NONE,
+        /** Default NUMA allocations based on sender's agent ID. By
+            default memory is allocated on the sender-thread's NUMA
+            node.  Typically used when <u>shared events are not
+            used</u>.
+        */
+        NUMA_SENDER,
+        /** Default NUMA allocations based on receiver agent ID. By
+            default memory is allocated on the receiving-thread's NUMA
+            node.  Typically used when <u>event shared is enabled.</u>.
+        */
+        NUMA_RECEIVER
+    };
+    
+    /** Convenience interface method to allocate flat memory for a
+        given event.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events with default or NUMA-aware
+        memory management.  This method is uses a compile-time macro
+        to call the default or NUMA-aware helper methods in this
+        class.  The default memory management also permits
+        enabling/disabling event recyling via the RECYCLE_EVENTS
+        compile-time macro.  However, the NUMA-aware memory management
+        (if available and enabled at runtime) requires/uses event
+        recycling and the RECYCLE_EVENTS macro must be nabled.
+
+        \note This method is static and consequently thread safe and
+        can be simultaneously called from multiple threads.
+        
+        \param[in] size The size of the flat buffer to be allocated
+        for storing event information.
+
+        \param[in] receiver The destination agent to which the event
+        is to be sent.  This value is used by the NUMA-aware memory
+        allocator to manage memory.  If NUMA is not being used, then
+        this value is not used.  If this value is -1, then memory is
+        allocated on the local NUMA node of the thread calling this
+        method.
+        
+        \return A pointer to a valid/flat buffer. This method always
+        returns a valid event pointer.
+    */    
+    static char* allocate(const int size, const muse::AgentID receiver) {
+#if USE_NUMA == 0
+        return allocateDefault(size, receiver);
+#else
+        return allocateNuma(numaSetting, size, receiver);
+#endif
+    }
+
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
+
+        This method is a convenience method that provide a
+        compile-time option to use NUMA-aware memory management, if
+        NUMA-libraries are available.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
+        
+        \param[in] event The event to be deallocated/recycled.
+    */
+    static void deallocate(muse::Event* event) {
+#if USE_NUMA == 0
+        deallocateDefault(event);
+#else
+        deallocateNuma(event);
+#endif
+    }
+
+    /** Helper method to clear out all events in the recycler.
+
+        <p>This method is typically called at the end of the
+        simulation from Simulation::finalize() or
+        MultiThreadedSimulation::simulate() method.  The overall
+        functionality is to deletes all events in the thread-local
+        EventRecycler and empty's it.</p>
+
+        <p>This method uses a compile-time flag to either call
+        deleteRecycledEventsDefault() (if NUMA is not used) or
+        deleteRecycledEventsNuma() (when NUMA is being used)</p>
+    */
+    static void deleteRecycledEvents() {
+#if USE_NUMA == 0
+        deleteRecycledEventsDefault();
+#else
+        deleteRecycledEventsNuma();
+#endif
+    }
+    
+    /** Convenience method to get the reference count on events for
+        troubleshooting/debugging purposes.
+
+        \note This method is thread safe under the assumption that
+        only the sending thread calls/uses this method.
+        
+        \return The reference count on events. For valid events this
+        value is in the range 0 < referenceCount < 3.
+    */
+    static int getReferenceCount(const muse::Event* const event);
+
+    /** Convenience method to get the input reference count on events
+        for troubleshooting/debugging purposes.
+
+        \note This method is thread safe under the assumption that
+        only the receiving thread calls/uses this method.
+        
+        \return The input reference count on events. For valid events
+        this value is in the range 0 < inputRefCount < 3.
+    */
+    static int getInputRefCount(const muse::Event* const event);
+
+protected:
     /** Convenience method to allocate flat memory for a given event.
 
         This method is a convenience method to streamline memory
         recycling operations for events.  This method allows memory
         recycling for events to be enabled/disabled using compile-time
-        macro RECYCLE_EVENTS.
+        macro RECYCLE_EVENTS. 
 
         \note This method is thread safe and can be simultaneously
         called from multiple threads.
@@ -88,11 +215,18 @@ public:
         \param[in] size The size of the flat buffer to be allocated
         for storing event information.
 
+        \param[in] receiver The destination agent to which the event
+        is to be sent.  This value is used by the NUMA-aware memory
+        allocator to manage memory.  If NUMA is not being used, then
+        this value is not used.  If this value is -1, then memory is
+        allocated on the local NUMA node of the thread calling this
+        method.
+        
         \return A pointer to a valid/flat buffer. This method always
         returns a valid event pointer.
     */
-    static char* allocate(const int size);
-
+    static char* allocateDefault(const int size, const muse::AgentID receiver);
+    
     /** This method is the dual/converse of allocate to recycle events
         if recycling is enabled.
 
@@ -117,32 +251,131 @@ public:
 
         \param[in] size The size of the buffer (in bytes).  The size
         is used to recycle the buffer in future calls to allocate.
-     */
-    static void deallocate(char* buffer, const int size);
-    
-    /** Convenience method to get the reference count on events for
-        troubleshooting/debugging purposes.
-
-        \note This method is thread safe under the assumption that
-        only the sending thread calls/uses this method.
-        
-        \return The reference count on events. For valid events this
-        value is in the range 0 < referenceCount < 3.
     */
-    static int getReferenceCount(const muse::Event* const event);
+    static void deallocateDefault(char* buffer, const int size);
 
-    /** Convenience method to get the input reference count on events
-        for troubleshooting/debugging purposes.
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
 
-        \note This method is thread safe under the assumption that
-        only the receiving thread calls/uses this method.
+        This method is a convenience method that calls deallocate
+        method with necessary parameters.  This method streamlines
+        calls to the deallocate method in various spots in the
+        EventRecycler source.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
         
-        \return The input reference count on events. For valid events
-        this value is in the range 0 < inputRefCount < 3.
+        \param[in] event The event to be deallocated/recycled.
     */
-    static int getInputRefCount(const muse::Event* const event);
+    static void deallocateDefault(muse::Event* event) {
+        // Manually call event destructor
+        event->~Event();
+        // Free-up or recycle the memory for this event.
+#ifdef RECYCLE_EVENTS        
+        deallocateDefault(reinterpret_cast<char*>(event),
+                          event->getEventSize());
+#else
+        // Avoid 1 extra call to getEventSize() in this situation
+        deallocateDefault(reinterpret_cast<char*>(event), 0);
+#endif
+    }
+
+#if USE_NUMA == 1
+    /** Convenience method for NUMA-aware allocatation for events.
+
+        This method is a convenience method to streamline NUMA-aweare
+        memory operations.  This method requires memory recycling for
+        events to be enabled using compile-time macro RECYCLE_EVENTS.
+        If default NUMA allocation is NUMA_RECEIVER then the
+        receiver's ID is used to determine NUMA node on which memory
+        is to be allocated.  Otherwise the specified thread's ID is
+        used.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
+        
+        \param[in] numa The NUMA setting to be used when allocating
+        memory.
+        
+        \param[in] size The size of the flat buffer to be allocated
+        for storing event information.
+
+        \param[in] receiver The destination agent to which the event
+        is to be sent.  This value is used by the NUMA-aware memory
+        allocator to manage memory.  If NUMA is not being used, then
+        this value is not used.  If this value is -1, then memory is
+        allocated on the local NUMA node of the thread calling this
+        method.
+        
+        \return A pointer to a valid/flat buffer. This method always
+        returns a valid event pointer.
+    */
+    static char* allocateNuma(const EventRecycler::NumaSetting numaMode,
+                              const int size, const muse::AgentID receiver);
     
-protected:
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
+
+        This method is a convenience method to streamline memory
+        recycling operations for events.  This method allows memory
+        recycling for events to be enabled/disabled using compile-time
+        macro RECYCLE_EVENTS.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
+        
+        <p>If recycling of events is disabled, this method simply
+        deletes the buffer using delete[] operator.</p>
+
+        <p>On the other hand, if recycling of events is enabled (via
+        compiler flag RECYCLE_EVENTS), then this method adds the
+        buffer to the appropriate entry in the EventRecycler map in
+        this class.</p>
+        
+        \param[in] buffer The event buffer previously obtained via
+        call to the allocate method in this class.
+
+        \param[in] size The size of the buffer (in bytes).  The size
+        is used to recycle the buffer in future calls to allocate.
+    */
+    static void deallocateNuma(char* buffer, const int size);
+
+    /** This method is the dual/converse of allocate to recycle events
+        if recycling is enabled.
+
+        This method is a convenience method that calls deallocate
+        method with necessary parameters.  This method streamlines
+        calls to the deallocate method in various spots in the
+        EventRecycler source.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
+        
+        \param[in] event The event to be deallocated/recycled.
+    */
+    static void deallocateNuma(muse::Event* event) {
+        if (numaSetting != NUMA_NONE) {
+            // Manually call event destructor
+            event->~Event();
+            // Free-up or recycle the memory for this event.
+            deallocateNuma(reinterpret_cast<char*>(event),
+                           event->getEventSize());
+        } else {
+            // NUMA use is disabled at runtime.
+            deallocateDefault(event);
+        }
+    }
+
+    /** Helper method to clear out all events in the recycler.
+
+        This method is typically called at the end of the simulation
+        from Simulation::finalize() method.  This method deletes all
+        events in the EventRecycler and empty's it.
+    */
+    static void deleteRecycledEventsNuma();
+    
+#endif
+
     /** \brief Decrease the internal reference counter for event --
         only for single threaded model.
 
@@ -351,6 +584,44 @@ protected:
         thread.
     */
     static void movePendingDeallocsTo(EventContainer& mainList);
+
+    /** Setup NUMA-aware memory management for events.
+
+        This method is invoked from
+        MultiThreadedSimulationManager::initialize() to setup the
+        NUMA-aware memory manager for use in multi-threaded simulation.
+
+        \note This method must be called only from the main thread.
+        
+        \note It is important to call startNUMA at the beginning of
+        each thread.
+        
+        \param[in] mtc The communicator that provides agent-to-thread
+        mappings used to determine the destination thread for events.
+
+        \param[in] numaIDofThread The list of local NUMA-nodes for
+        each thread.  This list provides the nearest NUMA-node for
+        each thread so that memory is allocated on that NUMA node.
+
+        \param[in] numa The type of NUMA operation to be used by
+        default when allocating memory for events.
+    */
+    static void setupNUMA(const MultiThreadedCommunicator* mtc,
+                          const std::vector<int>& numaIDofThread,
+                          NumaSetting numa = EventRecycler::NUMA_NONE);
+
+    /** Per-thread method to start thread-local NUMA memory manager.
+
+        This method must be called at the beginning of each thread to
+        enable NUMA memory management for each thread.
+
+        \note Unlike the setupNUMA method, this method must be called
+        from each thread.
+
+        \param[in] blockSize The size of NUMA memory that should be
+        allocated whenever additional memory is needed.
+    */
+    static void startNUMA(const int blockSize = 65536);
     
 private:
     /** An unordered map of stacks to recycle events of different
@@ -381,14 +652,59 @@ private:
         (i.e. inputRefCount > 0), events are added to this list.
     */
     thread_local static EventContainer pendingDeallocs;
-        
+ 
+    /** The ID/index (zero-based) of the thread associated with this
+        event recycler.
+
+        This instance variable tracks the ID/index (zero-based) of the
+        thread that is logically operating with this event recycler.
+        This value is initialized to 0.  It is set when in the
+        MultiThreadedSimulation::simulate() method, which is the main
+        thread method.
+    */
+    thread_local static char threadID;
+
+    /** Flag to indicate the type of NUMA-aware memory management to
+        be used, including if NUMA is enabled/disabled.
+
+        This setting is used to determine if NUMA-aware memory
+        management has been enabled/disabled, and if enabled, the type
+        of default NUMA-awareness to use.  The NUMA is usage is
+        typically configured (actually disabled) via command-line
+        argument '--no-numa' supported in multi-threaded simulations.
+        In non-multi-threaded modes (and by default), this value is
+        set to \c NUMA_NONE.
+    */
+    static NumaSetting numaSetting;
+
+    /** List of NUMA node IDs for each thread to be used by NUMA-aware
+        memory manager.
+
+        This is a static (i.e., shared by all threads) list that
+        contains the NUMA-node ID (0, 1, 2, ...) for each thread.  The
+        zero-based threadID is used as the index into this vector to
+        provide fast mapping between threadID and NUMA-node ID.  Note
+        that many threads can have have same NUMA-node ID based on the
+        number of cores on each CPU.  This list is setup in the
+        setupNUMA method in this class.
+    */
+    static std::vector<int> numaIDofThread;
+
+    /** The communicator that provides agent-to-thread mapping.
+
+        This communicator is used only for NUMA-aware memory
+        management.  By default it is NULL.  This pointer is set in
+        the setupNUMA method.
+    */
+    static const MultiThreadedCommunicator* mtc;
+    
     /** Helper method to clear out all events in the recycler.
 
         This method is typically called at the end of the simulation
         from Simulation::finalize() method.  This method deletes all
         events in the EventRecycler and empty's it.
     */
-    static void deleteRecycledEvents();
+    static void deleteRecycledEventsDefault();
 
     /** Helper method to check and reclaim events in the
         pendingDeallocs list.
@@ -408,6 +724,16 @@ private:
         \see MultiThreadedSimulation::garbageCollect
     */
     static double processPendingDeallocs();
+
+#if USE_NUMA == 1
+    /** A thread-local NUMA memory manager for managing memory in a
+        NUMA-aware manner.
+
+        This is a thread local numa memory manager that performs the
+        core tasks of managing memory in a NUMA-aware fashion.
+    */
+    thread_local static NumaMemoryManager numaMemMgr;
+#endif
     
 private:    
     /** The only constructor that is intentionally private to ensure

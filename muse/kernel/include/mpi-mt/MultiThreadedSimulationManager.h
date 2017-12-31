@@ -24,6 +24,7 @@
 
 #include <mutex>
 #include "mpi-mt/MultiThreadedSimulation.h"
+#include "EventRecycler.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -176,7 +177,10 @@ public:
     inline void addIncomingEvent(const size_t destThrIdx, muse::Event* event) {
         ASSERT(destThrIdx < threads.size());
         ASSERT(event != NULL);
-        threads[destThrIdx]->incomingEvents->add(threadID, destThrIdx, event);
+        // The EventRecyler has the current thread's index. Use that
+        // directly to determine the index of the calling thread.
+        threads[destThrIdx]->incomingEvents->add(EventRecycler::threadID,
+                                                 destThrIdx, event);
     }
 
 protected:
@@ -213,6 +217,36 @@ protected:
     */
     virtual int processMpiMsgs() override;
 
+    /** Refactored utility method to create threads.
+
+        This method is called only once from the initialize() method
+        in this class.  This method creates the threads in this class,
+        while setting up the necessary information to pin threads to
+        specific CPUs/cores.
+
+        \param[in,out] mtc The multi-threaded communicator shared by
+        the different threads in this process.
+
+        \param[in] cmdArgs The command-line arguments to be passed to
+        the various threads as part of initialization.
+    */
+    void createThreads(const int threads, MultiThreadedCommunicator* mtc,
+                       std::vector<char*> cmdArgs);
+    
+    /** Helper method to determine the list of available CPUs to which
+        threads can be pinned.
+
+        \note The value returned by this method is meaningful only
+        before the threads have been spun-up.
+        
+        This method enumerates the CPUs to which threads can be
+        pinned.  This method internally calls pthread_getaffinity_np
+        to determine the default affinity setup.
+
+        \return A vector with list of candidate CPUs.
+    */
+    std::vector<int> getAvailableCPUs() const;
+    
 private:
     /** The list of sub-kernels that are run as independent threads.
         The entries in this list are created in the initialize()

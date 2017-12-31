@@ -359,7 +359,7 @@ protected:
         deleted).  Instead of invoking the destructor the
         GVTMessage::destory() method must be used for this task.
     */
-    ~GVTMessage();
+    ~GVTMessage() {}
 
 private:
     /** \brief Instance variable to hold the type of GVT message.

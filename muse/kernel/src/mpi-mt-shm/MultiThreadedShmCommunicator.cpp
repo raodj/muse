@@ -233,7 +233,7 @@ MultiThreadedShmCommunicator::receiveEvent(){
     }
     // Figure out the agent list size
     int eventSize = status.Get_count(MPI_TYPE_CHAR);
-    char *incoming_event = Event::allocate(eventSize);
+    char *incoming_event = Event::allocate(eventSize, -1);
     ASSERT( incoming_event != NULL );
     // Read the actual data.
     try {

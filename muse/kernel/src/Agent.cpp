@@ -111,14 +111,19 @@ Agent::processNextEvents(muse::EventContainer& events) {
         numCommittedEvents += events.size();
     }
     DEBUG(std::cout << "Agent " << getAgentID() << " is scheduled to process "
-                    << "events at time: " << events.front()->getReceiveTime());
+                    << events.size() << " events at time: "
+                    << events.front()->getReceiveTime()
+                    << " [committed thusfar: " << numCommittedEvents << "]\n");
     ASSERT(events.front()->getReceiveTime() > getState()->timestamp);
     // Set the LVT and timestamp
     setLVT(events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
     // Let the derived class actually process events that it needs to.
     executeTask(events);
-    
+    DEBUG(std::cout << "Agent " << getAgentID() << " is done processing "
+                    << events.size() << " events at time: "
+                    << events.front()->getReceiveTime() << " [committed "
+                    << "thusfar: " << numCommittedEvents << "]\n\n");
     // Increment the numProcessedEvents and numScheduled counters
     numProcessedEvents += events.size();
     numSchedules++;

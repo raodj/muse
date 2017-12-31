@@ -24,15 +24,39 @@
 
 #include <mutex>
 #include "EventRecycler.h"
+#include "mpi-mt/MultiThreadedCommunicator.h"
 
 // Just to keep namespaces manageable
 using namespace muse;
+
+// The static information shared between multiple threads and used
+// only for NUMA-aware memory management.
+
+// By default NUMA-awareness is disabled.
+EventRecycler::NumaSetting EventRecycler::numaSetting =
+    EventRecycler::NUMA_NONE;
+
+// The list of NUMA-nodes for each thread.
+std::vector<int> EventRecycler::numaIDofThread;
+
+// The shared communicator to provide agent-to-thread mapping.
+const MultiThreadedCommunicator* EventRecycler::mtc = NULL;
+
+//-------------[ The following are thread-local statics ]----------------
 
 // The static map used for recycling events
 thread_local RecycleMap EventRecycler::Recycler;
 
 // The list of pending output events to be deallocated/recycled
 thread_local EventContainer EventRecycler::pendingDeallocs;
+
+// The thread-local index (zero-based) of the thread.
+thread_local char EventRecycler::threadID = 0;
+
+#if USE_NUMA == 1
+// The NUMA-aware memory manager for each thread
+thread_local NumaMemoryManager EventRecycler::numaMemMgr;
+#endif
 
 int
 EventRecycler::getReferenceCount(const muse::Event* const event) {
@@ -52,68 +76,8 @@ EventRecycler::decreaseReference(muse::Event* const event) {
     event->referenceCount--;
     ASSERT(event->getReferenceCount() >= 0); 
     if (event->referenceCount == 0) {
-        // Manually call event destructor
-        event->~Event();
-        // Free-up or recycle the memory for this event.
-#ifdef RECYCLE_EVENTS        
-        deallocate(reinterpret_cast<char*>(event), event->getEventSize());
-#else
-        // Avoid 1 extra call to getEventSize() in this situation
-        deallocate(reinterpret_cast<char*>(event), 0);
-#endif
+        deallocate(event);
     }
-}
-
-// ------------[ Methods associated with event recycling ]--------------
-
-char*
-EventRecycler::allocate(const int size) {
-    // Don't call processPendingDeallocs here.  It turned out to be
-    // too expensive a large number of events can be pending and
-    // iterating over the list was taking ~65% of the runtime instead
-    // of the desirable ~5% it should.
-    // processPendingDeallocs();  // <-- A *big* no, no!
-#ifdef RECYCLE_EVENTS
-    RecycleMap::iterator curr = Recycler.find(size);
-    if (curr != Recycler.end() && !curr->second.empty()) {
-        // Recycle existing buffer.
-        char *buf = curr->second.top();
-        curr->second.pop();
-        return buf;
-    }
-#endif
-    // No existing buffer of given size to recycle (or recycling is
-    // disabled). So, create a new one.
-    return new char[size];
-}
-
-void
-EventRecycler::deallocate(char* buffer, const int size) {
-#ifdef RECYCLE_EVENTS
-    Recycler[size].push(buffer);
-#else
-    UNUSED_PARAM(size);
-    delete [] buffer;
-#endif
-}
-
-void
-EventRecycler::deleteRecycledEvents() {
-    // Clear out any pending deallocations first.  This method is
-    // called just once or twice at the end of simulation to
-    // clean-up. So performance is not an issue but aggressive
-    // clean-up is important.
-    processPendingDeallocs();
-    // Now finally delete recycled events.
-    for (RecycleMap::iterator curr = Recycler.begin();
-         (curr != Recycler.end()); curr++) {
-        std::stack<char*>& stack = curr->second;
-        while (!stack.empty()) {
-            delete [] stack.top();
-            stack.pop();
-        }
-    }
-    Recycler.clear();
 }
 
 // This method is designed to be used only in multi-threaded mode when
@@ -128,16 +92,7 @@ EventRecycler::decreaseOutputRefCount(muse::Event* const event) {
     ASSERT(event->getReferenceCount() >= 0); 
     if (event->referenceCount == 0)  {
         if (event->inputRefCount == 0) {
-            // Both threads are done with this event!
-            // Manually call event destructor
-            event->~Event();
-            // Free-up or recycle the memory for this event.
-#ifdef RECYCLE_EVENTS        
-            deallocate(reinterpret_cast<char*>(event), event->getEventSize());
-#else
-            // Avoid 1 extra call to getEventSize() in this situation
-            deallocate(reinterpret_cast<char*>(event), 0);
-#endif
+            deallocate(event);
         } else {
             // This event is still being used by the receiving
             // thread. Queue it to be reclaimed later.
@@ -146,6 +101,8 @@ EventRecycler::decreaseOutputRefCount(muse::Event* const event) {
         }
     }  // event->refCount == 0
 }
+
+// -------[ Methods for managing shared events between threads ]---------
 
 double
 EventRecycler::processPendingDeallocs() {
@@ -167,7 +124,7 @@ EventRecycler::processPendingDeallocs() {
             pendingDeallocs.pop_back();  // Remove dealocated event
             lastEntry--;                 // Account for removed event.
             // Deallocate the current event.
-            deallocate(reinterpret_cast<char*>(event), event->getEventSize());
+            deallocate(event);
             // Track number of events deallocated
             delCount++;
         }
@@ -197,5 +154,133 @@ EventRecycler::movePendingDeallocsTo(EventContainer& mainList) {
     // now in the mainList.
     pendingDeallocs.clear();
 }
+
+// -------[ Methods associated with event recycling non-NUMA ]---------
+
+char*
+EventRecycler::allocateDefault(const int size, const muse::AgentID receiver) {
+    UNUSED_PARAM(receiver);    
+    // Don't call processPendingDeallocs here.  It turned out to be
+    // too expensive a large number of events can be pending and
+    // iterating over the list was taking ~65% of the runtime instead
+    // of the desirable ~5% it should.
+    // processPendingDeallocs();  // <-- A *big* no, no!
+#ifdef RECYCLE_EVENTS
+    RecycleMap::iterator curr = Recycler.find(size);
+    if (curr != Recycler.end() && !curr->second.empty()) {
+        // Recycle existing buffer.
+        char *buf = curr->second.top();
+        curr->second.pop();
+        return buf;
+    }
+#endif
+    // No existing buffer of given size to recycle (or recycling is
+    // disabled). So, create a new one.
+    char *buffer = new char[size];
+    // Setup the thread ID for the event being allocated for
+    // NUMA-aware recycling.  The logic below assumes that
+    buffer[sizeof(muse::Event) - 1] = threadID;
+    return buffer;
+}
+
+void
+EventRecycler::deallocateDefault(char* buffer, const int size) {
+#ifdef RECYCLE_EVENTS
+    Recycler[size].push(buffer);
+#else
+    UNUSED_PARAM(size);
+    delete [] buffer;
+#endif
+}
+
+void
+EventRecycler::deleteRecycledEventsDefault() {
+    // Clear out any pending deallocations first.  This method is
+    // called just once or twice at the end of simulation to
+    // clean-up. So performance is not an issue but aggressive
+    // clean-up is important.
+    processPendingDeallocs();
+    // Now finally delete recycled events.
+    for (RecycleMap::iterator curr = Recycler.begin();
+         (curr != Recycler.end()); curr++) {
+        std::stack<char*>& stack = curr->second;
+        while (!stack.empty()) {
+            delete [] stack.top();
+            stack.pop();
+        }
+    }
+    Recycler.clear();
+}
+
+// -------[ Methods associated with event recycling with NUMA ]---------
+
+void
+EventRecycler::setupNUMA(const MultiThreadedCommunicator* comm,
+                         const std::vector<int>& numaIDList,
+                         EventRecycler::NumaSetting numa) {
+#if USE_NUMA == 1    
+    // Setup overall/default NUMA settings.
+    numaSetting = numa;
+    // Save information in static variables for use by all threads.
+    mtc = comm;
+    numaIDofThread = numaIDList;
+    ASSERT(!numaIDofThread.empty());
+    ASSERT(mtc != NULL);
+
+#ifndef RECYCLE_EVENTS
+        std::cerr << "NUMA use requires that RECYCLE_EVENTS macro be defined "
+                  << "during compile time. You will need to recompile MUSE "
+                  << "with RECYCLE_EVENTS macro to use NUMA awareness.\n";
+        abort();
+#endif
+
+#endif // USE_NUMA == 1
+}
+
+void
+EventRecycler::startNUMA(const int blockSize) {
+#if USE_NUMA == 1
+    if (numaSetting != NUMA_NONE) {
+        // Start the per-thread NUMA operations.
+        numaMemMgr.start(numaIDofThread, blockSize);
+    }
+#endif // USE_NUMA == 1
+}
+
+#if USE_NUMA == 1
+
+char*
+EventRecycler::allocateNuma(const NumaSetting numaMode, const int size,
+                            const muse::AgentID receiver) {
+    if (numaMode == NUMA_NONE) {
+        // NUMA use is disabled at runtime.
+        ASSERT(numaSetting == NUMA_NONE);  // Global setting should be same
+        return allocateDefault(size, receiver);
+    }
+    // Use NUMA-aware memory allocator.
+    ASSERT(mtc != NULL);
+    const int thrID  = ((numaMode == NUMA_SENDER) ? threadID :
+                        mtc->getThreadID(receiver, threadID));
+    ASSERT((thrID >= 0) && (thrID < (int) numaIDofThread.size()));
+    const int numaID = numaIDofThread[thrID];
+    // Let NUMA memory manager give us the desried block of memory
+    return numaMemMgr.allocate(numaID, size);
+}
+
+void
+EventRecycler::deallocateNuma(char* buffer, const int size) {
+    if (numaSetting == NUMA_NONE) {
+        deallocateDefault(buffer, size);
+    }
+    // Return memory to NUMA-aware memory manager
+    numaMemMgr.deallocate(buffer, size);
+}
+
+void
+EventRecycler::deleteRecycledEventsNuma() {
+    deleteRecycledEventsDefault();
+}
+
+#endif  // USE_NUMA
 
 #endif
