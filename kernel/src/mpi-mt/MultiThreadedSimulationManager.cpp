@@ -22,7 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
+#include "config.h"
+#if USE_NUMA == 1
 #include <numa.h>
+#endif
+
 #include <thread>
 #include <algorithm>
 #include "mpi-mt/MultiThreadedSimulationManager.h"
@@ -85,6 +89,9 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
         // whether we are sharing events or not.
         numaMode = (doShareEvents ? EventRecycler::NUMA_RECEIVER :
                     EventRecycler::NUMA_SENDER);
+        // Enable per-thread NUMA-aware memory manager for the main
+        // thread.
+        StateRecycler::setup(true, numa_preferred());
     }
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedCommunicator* mtc =

@@ -243,7 +243,7 @@ public:
 
         \return The size of the event
     */
-    int getEventSize() const override { return sizeof(Event); }
+    int getEventSize() const override { return size; }
 
     /** \brief Obtain the Tmin value associated with this event.
 

@@ -60,7 +60,8 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     simMgr(mgr), mainPendingDeallocs(EventRecycler::pendingDeallocs),
     cpuID(cpuID)
 #if USE_NUMA == 1
-    , mainNumaManager(EventRecycler::numaMemMgr)
+    , mainNumaManager(EventRecycler::numaMemMgr),
+    mainStateRecycler(StateRecycler::numaMemMgr)
 #endif
 {
     ASSERT(mgr != NULL);
@@ -177,6 +178,12 @@ void
 MultiThreadedSimulation::setCpuAffinity() const {
     DEBUG(std::cout << "Thread #" << threadID << ", cpuID: "
                     << cpuID << std::endl);
+#if USE_NUMA == 1
+    // Setup additional information in state recycler.
+    StateRecycler::setup(EventRecycler::numaSetting != EventRecycler::NUMA_NONE,
+                         numaIDofThread.at(threadID));
+#endif
+    
     if ((cpuID == -1) || (threadID == 0)) {
         return;  // Nothing else to be done.
     }
@@ -295,6 +302,8 @@ MultiThreadedSimulation::simulate() {
 #if USE_NUMA == 1
         // Add NUMA pages to the main thread's pending event list
         EventRecycler::numaMemMgr.moveNumaBlocksTo(mainNumaManager);
+        // Add NUMA pages for state to the main thread
+        StateRecycler::moveNumaBlocksTo(mainStateRecycler);
 #endif
     }
 

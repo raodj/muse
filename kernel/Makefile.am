@@ -46,6 +46,7 @@ libmuse_a_SOURCES = \
 	include/WindowsHashMap.h \
 	include/MPIHelper.h \
 	include/EventRecycler.h\
+	include/StateRecycler.h\
 	include/NumaMemoryManager.h \
 	src/Utilities.cpp \
 	src/Agent.cpp \
@@ -66,6 +67,7 @@ libmuse_a_SOURCES = \
 	src/HRMScheduler.cpp \
 	src/MPIHelper.cpp \
 	src/EventRecycler.cpp \
+	src/StateRecycler.cpp \
 	src/NumaMemoryManager.cpp \
 	src/EventQueue.cpp \
 	include/HRMScheduler.h \

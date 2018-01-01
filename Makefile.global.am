@@ -52,6 +52,9 @@ GLOBALCPPFLAGS += $(DEV_ASSERT)
 # simulation. See Event::allocate and Event::deallocate methods.
 GLOBALCPPFLAGS += -DRECYCLE_EVENTS
 
+# The following compiler flag enables recyling of states.
+GLOBALCPPFLAGS += -DRECYCLE_STATES
+
 AM_CXXFLAGS = $(GLOBALCXXFLAGS)
 AM_CPPFLAGS = $(GLOBALCPPFLAGS) \
 	-I$(top_builddir)/include

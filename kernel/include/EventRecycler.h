@@ -31,7 +31,6 @@
 BEGIN_NAMESPACE(muse);
 
 // Forward declaration for some of the classes.
-class Event;
 class MultiThreadedCommunicator;
 
 /** An unordered map to store free events of different sizes.

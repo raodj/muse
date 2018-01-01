@@ -101,7 +101,7 @@ public:
     */
     void start(const std::vector<int>& numaIDofThread,
                const int blkSize = 65536);
-    
+
     /** Method to get a block of memory on a given NUMA node.
 
         This method operates in the following manner (in the order of
