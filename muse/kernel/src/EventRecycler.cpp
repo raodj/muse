@@ -194,9 +194,6 @@ EventRecycler::allocateDefault(const int size, const muse::AgentID receiver) {
     // No existing buffer of given size to recycle (or recycling is
     // disabled). So, create a new one.
     char *buffer = new char[size];
-    // Setup the thread ID for the event being allocated for
-    // NUMA-aware recycling.  The logic below assumes that
-    buffer[sizeof(muse::Event) - 1] = threadID;
     return buffer;
 }
 

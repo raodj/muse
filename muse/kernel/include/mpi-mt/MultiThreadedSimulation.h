@@ -643,6 +643,21 @@ private:
     */
     NumaMemoryManager& mainNumaManager;
 
+    /** Reference to main-thread's Numa memory manager to add list of
+        allocated pages to finally free at end of simulation.
+
+        This reference always referes to the StateRecycler::numaMemMgr
+        on the main thread.  This object is used for the following
+        reason -- state deallocations on various threads cannot be
+        fully reclaimed until all agents are finalized (and they
+        relinquish references to states).  Consequently, at the end of
+        the MultiThreadedSimulation::simulate() method, each thread
+        (other than the main thread) adds its NUMA blocks to the main
+        numa manager. This list is finally cleaned-up in the main
+        thread.
+    */
+    NumaMemoryManager& mainStateRecycler;
+    
     /** String to temporarily hold thread-local NUMA memory management
         statistics.
 

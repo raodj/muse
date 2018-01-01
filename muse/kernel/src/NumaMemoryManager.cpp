@@ -90,7 +90,7 @@ NumaMemoryManager::~NumaMemoryManager() {
     // Clear out all the NUMA the pages
     blockList.clear();
 }
-
+    
 // Method to initialize/setup the NUMA memory manager called on each
 // thread.
 void

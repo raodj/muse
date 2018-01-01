@@ -19,14 +19,14 @@
 // U.S., and the terms of this license.
 //
 // Authors: Meseret Gebre          gebremr@muohio.edu
-//          Dhananjai M. Rao       raodm@muohio.edu
-//          Alex Chernyakhovsky    alex@searums.org
+//          Dhananjai M. Rao       raodm@miamiOH.edu
 //
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
+#include "kernel/include/StateRecycler.h"
 
-BEGIN_NAMESPACE(muse)
+BEGIN_NAMESPACE(muse);
 
 /** The State class.
 
@@ -67,10 +67,44 @@ public:
         \return Reference to the timestamp of this State
     */
     inline const Time& getTimeStamp() const { return timestamp; }
-  
+
+    /** Overloaded new operator for all states to streamline recycling
+        of memory.
+
+        This operator new is called whenever states are allocated.
+        This method streamlines the process of allocating states while
+        internally recycling memory for states.  The objective of
+        memory recycling is to primarily reduce calls to the system's
+        memory manager.  In addition, this memory manager is
+        NUMA-aware.
+
+        \param[in] sz The size of the state to be allocated.
+     */
+    void* operator new(size_t sz) {
+        ASSERT(sz >= sizeof(muse::State));
+        return StateRecycler::allocate(sz);
+    }
+
+    /** Overloaded delete operator to enable recycling of states.
+
+        This operator delete is called whenever states are garbage
+        collected by the kernel.  This method recycles the memory
+        block if state recycling is enabled (at compile time via
+        RECYCLE_STATES) compiler flag.
+
+        \param[in] state The state being deallocated.  This must be a
+        pointer returned byc all to operator new in this class.  The
+        pointer cannot be NULL.
+    */
+    void operator delete(void *state) {
+        return StateRecycler::deallocate(static_cast<char*>(state));
+    }
+    
 protected:
     /// The time at which this State represents
     Time timestamp;
+
+private:
 };
 
 END_NAMESPACE(muse)
