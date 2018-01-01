@@ -50,10 +50,14 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses,
 }
 
 GVTMessage*
-GVTMessage::create(const GVTMessage* src, int destRank) {
+GVTMessage::create(const GVTMessage* src, int destRank, int destThread) {
     const int msgSize = src->getSize();
-    // Allocate flat memory for the message.
+    // Allocate flat memory for the message with NUMA awareness.
+#if USE_NUMA == 1
+    char* memory = Event::allocateNuma(msgSize, destThread);
+#else
     char* memory = Event::allocate(msgSize, -1);
+#endif
     // Now use the flat memory to instantiate an object.
     GVTMessage* msg = new (memory) GVTMessage(src->kind, msgSize);
     // Copy all the information

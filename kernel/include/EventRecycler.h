@@ -324,6 +324,30 @@ protected:
     */
     static char* allocateNuma(const EventRecycler::NumaSetting numaMode,
                               const int size, const muse::AgentID receiver);
+
+    /** Convenience method for NUMA-aware allocatation for GVT
+        messages to be sent to a differen thread.
+
+        This method is a convenience method to streamline NUMA-aweare
+        memory operations.  This method requires memory recycling for
+        events to be enabled using compile-time macro RECYCLE_EVENTS.
+
+        \note This method is thread safe and can be simultaneously
+        called from multiple threads.
+        
+        \param[in] size The size of the flat buffer to be allocated
+        for storing event information.
+
+        \param[in] destThreadID The destination thread to which the
+        event is to be sent. If NUMA is not being used, then this
+        value is not used.  If this value is -1, then memory is
+        allocated on the local NUMA node of the thread calling this
+        method.
+        
+        \return A pointer to a valid/flat buffer. This method always
+        returns a valid event pointer.
+    */
+    static char* allocateNuma(const int size, const int destThreadID);
     
     /** This method is the dual/converse of allocate to recycle events
         if recycling is enabled.
