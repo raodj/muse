@@ -190,6 +190,19 @@ public:
     */
     static int getInputRefCount(const muse::Event* const event);
 
+    /** Method to print internal statistics.
+
+        This method returns a string containing a human-readable form
+        of the internal statistics maintained by the default and NUMA
+        memory manager on this thread.
+
+        \note This method reports thread-specific information.
+
+        \return A string containing statistics informaton that can be
+        readily printed.
+    */    
+    static std::string getStats();
+
 protected:
     /** Convenience method to allocate flat memory for a given event.
 
@@ -734,7 +747,34 @@ private:
     */
     thread_local static NumaMemoryManager numaMemMgr;
 #endif
-    
+
+    /** The number of method calls to the allocateDefault method in
+        this class.
+
+        This counter tracks the number of calls to the allocateDefault
+        method.
+    */
+    thread_local static size_t allocCalls;
+
+    /** The number of deallocationDefault method calls.
+
+        This counter tracks the number of deallocateDefault calls.
+
+        \note With events going across threads, the number of allocate
+        vs. deallocate calls will not match-up.  However, the total
+        number across multiple threads should all add-up.
+    */
+    thread_local static size_t deallocCalls;
+
+    /** The number of times memory requests were satisfied from the
+        default event recycler.
+
+        This counter tracks the number of times an allocationDefault
+        request was satisfied using a recycled memory.  Having a high
+        hit rate is important for efficient NUMA utilization.
+    */
+    thread_local static size_t recycleHits;
+
 private:    
     /** The only constructor that is intentionally private to ensure
         that this class is never instantiated.

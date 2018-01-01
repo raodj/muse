@@ -227,7 +227,11 @@ AC_DEFUN([AC_PROG_ICC],
 
      if test "yes" == "$icc"; then
           USING_ICC="-DICC"
-          ICC_NO_WARN_SOME="-wd981 -wd383 -wd424"
+          # -wd981: Supresses values evalutaed in differen order
+          # -wd383: Supresses value copied to temporary for use
+          # -wd424: Supresses extra ";" at end warning
+          # -wd654: Supresses partial overload warnings
+          ICC_NO_WARN_SOME="-wd981 -wd383 -wd424 -wd654"
 	  ICC_NO_WARN_FOR_CONFIGURE="-wd981 -wd383 -wd1419"
      else
           USING_ICC=""

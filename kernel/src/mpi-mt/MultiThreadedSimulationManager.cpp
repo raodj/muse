@@ -141,7 +141,7 @@ MultiThreadedSimulationManager::createThreads(const int threadCount,
             new MultiThreadedSimulation(this, thrID, globalThrID,
                                         threadCount, doShareEvents, cpuNum);
         // Setup NUMA node information for this thread/CPU.
-        numaIDofThread[thrID] = getNumaNodeOfCpu(cpuID);
+        numaIDofThread[thrID] = getNumaNodeOfCpu(cpuNum);
         // Setup the pointer to shared comm-manager to be used
         tsm->setCommManager(mtc);
         // Setup command-line arguments from a copy to preserve original
@@ -152,6 +152,10 @@ MultiThreadedSimulationManager::createThreads(const int threadCount,
         tsm->initialize(argc, argv, false);
         // Add the newly created thread to the list
         threads.push_back(tsm);
+    }
+    for (int thr = 0; (thr < threadCount); thr++) {
+        std::cout << "Thread #" << thr << ": CPU=" << cpuList.at(thr)
+                  << ", NUMA node: " << numaIDofThread.at(thr) << std::endl;
     }
 }
 
