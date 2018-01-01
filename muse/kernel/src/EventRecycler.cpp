@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <mutex>
+#include <sstream>
 #include "EventRecycler.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
 
@@ -57,6 +58,16 @@ thread_local char EventRecycler::threadID = 0;
 // The NUMA-aware memory manager for each thread
 thread_local NumaMemoryManager EventRecycler::numaMemMgr;
 #endif
+
+// The number of method calls to the allocateDefault method in
+thread_local size_t EventRecycler::allocCalls = 0;
+
+// The number of deallocationDefault method calls.
+thread_local size_t EventRecycler::deallocCalls = 0;
+
+// The number of times memory requests were satisfied from the default
+// event recycler
+thread_local size_t EventRecycler::recycleHits = 0;
 
 int
 EventRecycler::getReferenceCount(const muse::Event* const event) {
@@ -159,18 +170,24 @@ EventRecycler::movePendingDeallocsTo(EventContainer& mainList) {
 
 char*
 EventRecycler::allocateDefault(const int size, const muse::AgentID receiver) {
-    UNUSED_PARAM(receiver);    
+    UNUSED_PARAM(receiver);
     // Don't call processPendingDeallocs here.  It turned out to be
     // too expensive a large number of events can be pending and
     // iterating over the list was taking ~65% of the runtime instead
     // of the desirable ~5% it should.
     // processPendingDeallocs();  // <-- A *big* no, no!
+
+    // Track the number of times this method was called
+    allocCalls++;
+    
 #ifdef RECYCLE_EVENTS
     RecycleMap::iterator curr = Recycler.find(size);
     if (curr != Recycler.end() && !curr->second.empty()) {
         // Recycle existing buffer.
         char *buf = curr->second.top();
         curr->second.pop();
+        // Track success here.
+        recycleHits++;
         return buf;
     }
 #endif
@@ -185,6 +202,7 @@ EventRecycler::allocateDefault(const int size, const muse::AgentID receiver) {
 
 void
 EventRecycler::deallocateDefault(char* buffer, const int size) {
+    deallocCalls++;
 #ifdef RECYCLE_EVENTS
     Recycler[size].push(buffer);
 #else
@@ -282,5 +300,18 @@ EventRecycler::deleteRecycledEventsNuma() {
 }
 
 #endif  // USE_NUMA
+
+std::string
+EventRecycler::getStats() {
+    std::ostringstream os;
+    os << "  Default Allocate   calls: " << allocCalls
+       << "\n  Default Deallocate calls: " << deallocCalls
+       << "\n  Default Recycler   hits : " << recycleHits
+       << "\n  Default Recycler  %hits : "
+       << ((float) recycleHits / allocCalls)
+       << std::endl;
+    // Return stats information back to the caller
+    return os.str();
+}
 
 #endif

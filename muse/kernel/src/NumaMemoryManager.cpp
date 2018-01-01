@@ -45,16 +45,16 @@ std::string
 NumaMemoryManager::getStats() const {
     std::ostringstream os;
     // Print top-level aggregate information.
-    os << "---- Thread #" << this << " ----";
-    os << "\n  NUMA Allocate   calls: " << allocCalls
-       << "\n  NUMA Deallocate calls: " << deallocCalls
-       << "\n  NUMA Recycler   hits : " << recycleHits
-       << "\n  NUMA Recycler  %hits : " << ((float) recycleHits / allocCalls)
+    os << "  NUMA Allocate   calls   : " << allocCalls
+       << "\n  NUMA Deallocate calls   : " << deallocCalls
+       << "\n  NUMA Recycler   hits    : " << recycleHits
+       << "\n  NUMA Recycler  %hits    : "
+       << ((float) recycleHits / allocCalls)
        << std::endl;
     // Print block information for each NUMA node.
     os << "  NUMA Blocks: ";
     for (size_t numaID = 0; (numaID < blockList.size()); numaID++) {
-        os << numaID << " [" << blockList[numaID].size() << " blks]";
+        os << numaID << "[" << blockList[numaID].size() << " blks] ";
     }
     os << std::endl;
     // Print recycler information for each NUMA node.
@@ -65,6 +65,7 @@ NumaMemoryManager::getStats() const {
         for (auto curr : nodeRecycler) {
             os << " " << curr.first << " bytes [" << curr.second.size() << "]";
         }
+        os << "\n";
     }
     // Return the string containing statistics
     return os.str();

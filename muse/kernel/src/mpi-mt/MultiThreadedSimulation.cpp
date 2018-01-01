@@ -282,17 +282,22 @@ MultiThreadedSimulation::simulate() {
     EventRecycler::deleteRecycledEvents();
     ASSERT(EventRecycler::Recycler.empty());
     threadBarrier.wait();  // Important: wait for threads to finish
+
+#if USE_NUMA == 1    
+    // Save NUMA statistics to report later on before cleaning up.
+    numaStats = EventRecycler::numaMemMgr.getStats();
+#endif
+    
     // Add any pending events to the main thread's pending event list
     if (threadID != 0) {
         // This is not the main thread.
         EventRecycler::movePendingDeallocsTo(mainPendingDeallocs);
 #if USE_NUMA == 1
-        // Save NUMA statistics to report later on.
-        numaStats = EventRecycler::numaMemMgr.getStats();
         // Add NUMA pages to the main thread's pending event list
         EventRecycler::numaMemMgr.moveNumaBlocksTo(mainNumaManager);
 #endif
     }
+
     // Finally all threads (particularly thread 0) waits for other
     // threads to finish moving pending events (for final clean-up)
     // before exiting this main thread-method.
@@ -468,10 +473,12 @@ MultiThreadedSimulation::reportLocalStatistics(std::ostream& os) {
     os << "#Deallocs cleared/call : "   << deallocsPerCall
        << "\nAvg sharedQ size       : " << shrQevtCount
        << "\n#processing of sharedQ : " << shrQcheckCount
+       << "\nCPU & Numa node used   : " << cpuID
+       << " [numa: "                    << getNumaNodeOfCpu(cpuID) << "]"
        << std::endl;
-
+    // Get stats for the thread-local NUMA memory manager.
 #if USE_NUMA == 1
-    os << numaStats << std::endl;
+    os << numaStats;
 #endif
 }
 

@@ -247,7 +247,7 @@ Simulation::checkProcessMpiMsgs() {
                 // setup our threshold directly to that value.
                 mpiMsgCheckThresh = maxMpiMsgCheckThresh.getMean();
             } else {
-                mpiMsgCheckThresh = std::min(128, mpiMsgCheckThresh + 5);
+                mpiMsgCheckThresh = std::min(128, mpiMsgCheckThresh + 1);
             }
         } else {
             // Track the maximum value for mpiMsgCheckThresh for use
@@ -543,9 +543,11 @@ Simulation::reportStatistics(std::ostream& os) {
           << "\nMPI msg batch size     : " << mpiMsgBatchSize
           << "\nMax MPI msg check thres: " << maxMpiMsgCheckThresh
           << "\nAdaptive time window   : " << scheduler->adaptiveTimeWindow
-          << std::endl;
+          << std::endl;    
     // Let derived class(es) report statistics (if any)
     reportLocalStatistics(stats);
+    // Finally, report statistics from the EventRecycler
+    stats << EventRecycler::getStats();    
     // Have the scheduler (and event queue) report statistics (if any)
     scheduler->reportStats(stats);
     // Report statistics
