@@ -189,7 +189,8 @@ MultiThreadedCommunicator::sendMessage(const GVTMessage *msg,
         // Set destination rank as negative value to help reciever
         // (see MultiThreadedSimulationManager::processMpiMsgs) to
         // detect & route message to appropriate thread
-        GVTMessage* copy = GVTMessage::create(msg, -destRank);
+        GVTMessage* copy = GVTMessage::create(msg, -destRank,
+                                              destRank % threadsPerNode);
         simMgr->addIncomingEvent(destRank % threadsPerNode, copy);
     } else {
         // Msg needs to be sent to a remote thread.

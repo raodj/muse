@@ -282,6 +282,22 @@ EventRecycler::allocateNuma(const NumaSetting numaMode, const int size,
     return numaMemMgr.allocate(numaID, size);
 }
 
+char*
+EventRecycler::allocateNuma(const int size, const int destThreadID) {
+    ASSERT(size > 0);
+    if (numaSetting == NUMA_NONE) {
+        // NUMA use is disabled at runtime.
+        ASSERT(numaSetting == NUMA_NONE);  // Global setting should be same
+        return allocateDefault(size, -1);
+    }
+    // Use specified thread ID or local threadID
+    const int thrID = (destThreadID != -1 ? destThreadID : threadID);
+    ASSERT((thrID >= 0) && (thrID < (int) numaIDofThread.size()));
+    const int numaID = numaIDofThread[thrID];
+    // Let NUMA memory manager give us the desried block of memory
+    return numaMemMgr.allocate(numaID, size);                       
+}
+    
 void
 EventRecycler::deallocateNuma(char* buffer, const int size) {
     if (numaSetting == NUMA_NONE) {

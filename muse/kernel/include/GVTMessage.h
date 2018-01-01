@@ -176,11 +176,18 @@ public:
         \param[in] destRank The destination rank of the process/thread
         to which the message is being sent.  This value is set in the
         receiverAgentID field.
+
+        \param[in] destThread An optional destination thread to which
+        the message is being sent.  This value is used to allocate
+        memory on the destination thread, if NUMA-awareness is
+        available and enabled.  See
+        MultiThreadedCommunicator::sendMessage.
         
         \return A newly created GVT message that is an idential
         deep-copy or clone of the source message.
     */
-    static GVTMessage* create(const GVTMessage* src, int destRank);
+    static GVTMessage* create(const GVTMessage* src, int destRank,
+                              int destThread = -1);
 
     /** \brief Method to destroy (or delete) a GVT message.
 
