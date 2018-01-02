@@ -278,7 +278,7 @@ NumaMemoryManager::redistribute(RedistributionMessage* rdm) {
 
 int
 NumaMemoryManager::getAllocatedMemory(const int numaID) const {
-    ASSERT((numaID >= 0) && (numaID < blockList.size()));
+    ASSERT((numaID >= 0) && (numaID < (int) blockList.size()));
     // Add the memory allocated -- each block is of fixed blockSize
     const int memAllocd = blockList[numaID].size() * blockSize -
         blockList[numaID].top().avail;
