@@ -61,14 +61,14 @@
 /** \def MPI_GET_RANK
 
     \brief A simple, convenience macro to conditionally call
-    MPI::COMM_WORLD.Get_rank()
+    MPI_Comm_rank and return the rank.
 
-    <p>This macro provides a convenient wrapper around MPI's
-    MPI::COMM_WORD.Get_rank() method to conditionally use it.  If MPI
-    is available/enabled, this macro reduces to calling the actual
-    Get_rank() method. However, if MPI is not available, this macro
-    reduces to the constant 0 (one) making it appear as if there is
-    only one process to work with. </p>
+    <p>This macro provides a convenient wrapper around MPI to provide
+    functionality similar to MPI::COMM_WORD.Get_rank().  If MPI is
+    available/enabled, this macro reduces to calling the actual
+    MPI_Comm_rank() function. However, if MPI is not available, this
+    macro reduces to the constant 0 (one) making it appear as if there
+    is only one process to work with. </p>
    
     This macro can be used as shown below:
 
@@ -86,7 +86,11 @@
 */
 #ifdef HAVE_LIBMPI
 // We have MPI enabled
-#define MPI_GET_RANK() MPI::COMM_WORLD.Get_rank()
+inline int MPI_GET_RANK() {
+    int rank;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    return rank;
+}
 #else
 // We don't have MPI
 #define MPI_GET_RANK() 0
@@ -95,14 +99,14 @@
 /** \def MPI_GET_SIZE
 
     \brief A simple, convenience macro to conditionally call
-    MPI::COMM_WORLD.Get_size()
+    MPI_Comm_size() function.
 
-    <p>This macro provides a convenient wrapper around MPI's
-    MPI::COMM_WORD.Get_size() method to conditionally use it.  If MPI
-    is available/enabled, this macro reduces to calling the actual
-    Get_size() method. However, if MPI is not available, this macro
-    reduces to the constant 1 (one) making it appear as if there is
-    only one process to work with. </p>
+    <p>This macro provides a convenient wrapper around MPI to provide
+    functionality similar to MPI::COMM_WORD.Get_size(). If MPI is
+    available/enabled, this macro reduces to calling the actual
+    MPI_Comm_size() method. However, if MPI is not available, this
+    macro reduces to the constant 1 (one) making it appear as if there
+    is only one process to work with. </p>
    
     This macro can be used as shown below:
 
@@ -120,7 +124,11 @@
 */
 #ifdef HAVE_LIBMPI
 // We have MPI enabled
-#define MPI_GET_SIZE() MPI::COMM_WORLD.Get_size()
+inline int MPI_GET_SIZE() {
+    int size = 0;
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    return size;
+}
 #else
 // We don't have MPI
 #define MPI_GET_SIZE() 1
@@ -171,17 +179,13 @@
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_STATUS MPI::Status
+#define MPI_STATUS MPI_Status
 #else
 // We don't have MPI. So provide a suitable definition for MPI_Status
 class MPI_STATUS {
 public:
-    inline int Get_source() const { return 0; }
-    inline int Get_count(const int type = 0) const {
-        UNUSED_PARAM(type);
-        return 0;
-    }
-    inline int Get_tag() const { return 0; }
+    int MPI_SOURCE = 0;
+    int MPI_TAG    = 0;
 };
 #endif
 
@@ -221,15 +225,8 @@ public:
 
 /** \def MPI_EXCEPTION
 
-    \brief A simple, convenience macro to conditionally provide a
-    suitable definition for MPI::Exception data structure depending on
-    whether MPI is available (or not).
-
-    <p>This macro provides a convenient mechanism to work with
-    MPI::Exception class.  If MPI is available, then it defaults to
-    MPI::Exception.  On the other hand, if MPI is disabled then this
-    macro provides a suitable definition so that the core code base
-    does not get cluttered with unnecessary logic.</p>
+    \brief A simple, convenience exception class to throw exceptions
+    when errors are encountered.
 
     This macro can be used as shown below:
 
@@ -240,7 +237,7 @@ public:
     void someMethod() {
         try {
             MPI_SEND(data, msg->getSize(), MPI::CHAR, destRank, GVT_MESSAGE);
-        } catch (CONST_EXP MPI_EXCEPTION& e) {
+        } catch (MPI_CONST MPI_EXCEPTION& e) {
             std::cerr << "MPI ERROR (sendMessage): ";
             std::cerr << e.Get_error_string() << std::endl;
         }
@@ -249,17 +246,12 @@ public:
 
     \endcode
 */
-#ifdef HAVE_LIBMPI
-#define MPI_EXCEPTION MPI::Exception
-#else
-// We don't have MPI. So provide a suitable definition for MPI_Status
 class MPI_EXCEPTION {
 public:
-    std::string Get_error_string() const { return "MPI is unavailable"; }
+    std::string Get_error_string() const { return "MPI error occurred"; }
 };
 // Ensure that MPI_CONST is also defined
 #define MPI_CONST const
-#endif
 
 /** \def MPI_TYPE_UNSIGNED
 
@@ -288,7 +280,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_TYPE_UNSIGNED MPI::UNSIGNED
+#define MPI_TYPE_UNSIGNED MPI_UNSIGNED
 #else
 // MPI is not available
 #define MPI_TYPE_UNSIGNED 0
@@ -320,7 +312,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_TYPE_INT MPI::INT
+#define MPI_TYPE_INT MPI_INT
 #else
 // MPI is not available
 #define MPI_TYPE_INT 0
@@ -352,7 +344,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_TYPE_CHAR MPI::CHAR
+#define MPI_TYPE_CHAR MPI_CHAR
 #else
 // MPI is not available
 #define MPI_TYPE_CHAR 0
@@ -384,7 +376,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_TYPE_2INT MPI::TWOINT
+#define MPI_TYPE_2INT MPI_TWOINT
 #else
 // MPI is not available
 #define MPI_TYPE_2INT 0
@@ -417,7 +409,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_TYPE_DOUBLE MPI::DOUBLE
+#define MPI_TYPE_DOUBLE MPI_DOUBLE
 #else
 // MPI is not available
 #define MPI_TYPE_DOUBLE 0
@@ -449,7 +441,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_OP_SUM MPI::SUM
+#define MPI_OP_SUM MPI_SUM
 #else
 // MPI is not available
 #define MPI_OP_SUM 0
@@ -481,7 +473,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_OP_MAXLOC MPI::MAXLOC
+#define MPI_OP_MAXLOC MPI_MAXLOC
 #else
 // MPI is not available
 #define MPI_OP_MAXLOC 0
@@ -511,7 +503,7 @@ public:
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_INIT(argc, argv) MPI::Init(argc, argv)
+#define MPI_INIT(argc, argv) MPI_Init(&argc, &argv)
 #else
 // MPI is not available
 void MPI_INIT(int argc, char* argv[]);
@@ -542,7 +534,7 @@ void MPI_INIT(int argc, char* argv[]);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_FINALIZE() MPI::Finalize()
+#define MPI_FINALIZE() MPI_Finalize()
 #else
 // MPI is not available
 #define MPI_FINALIZE()
@@ -572,7 +564,7 @@ void MPI_INIT(int argc, char* argv[]);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_PROBE(src, tag, status) MPI::COMM_WORLD.Probe(src, tag, status)
+#define MPI_PROBE(src, tag, status) MPI_Probe(src, tag, MPI_COMM_WORLD, &status)
 #else
 // MPI is not available
 #define MPI_PROBE(src, tag, status)
@@ -580,13 +572,14 @@ void MPI_INIT(int argc, char* argv[]);
 
 /** \def MPI_IPROBE
 
-    \brief Macro to map MPI_PROBE to MPI::COMM_WORLD.IProbe (if MPI is
-    enabled) or an empty method call if MPI is unavailable.
+    \brief Macro to map MPI_PROBE to similar functionality
+    MPI::COMM_WORLD.IProbe (if MPI is enabled) or an empty method call
+    if MPI is unavailable.
 
     <p>This macro provides a convenient, conditionally defined macro
-    to refer to MPI::COMM_WORLD.IProbe method. If MPI is available,
-    then MPI_IPROBE defaults to MPI::IProbe.  On the other hand, if MPI
-    is disabled then this macro simply reduces to a blank method.</p>
+    to refer to MPI_IProbe function. If MPI is available, then
+    MPI_IPROBE defaults to MPI::IProbe.  On the other hand, if MPI is
+    disabled then this macro simply reduces to a blank method.</p>
 
     This macro can be used as shown below:
 
@@ -602,7 +595,11 @@ void MPI_INIT(int argc, char* argv[]);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_IPROBE(src, tag, status) MPI::COMM_WORLD.Iprobe(src, tag, status)
+inline bool MPI_IPROBE(int src, int tag, MPI_STATUS& status) {
+    int flag = 0;
+    MPI_Iprobe(src, tag, MPI_COMM_WORLD, &flag, &status);
+    return (flag == 1);
+}
 #else
 // MPI is not available
 bool MPI_IPROBE(int src, int tag, MPI_STATUS status);
@@ -633,7 +630,8 @@ bool MPI_IPROBE(int src, int tag, MPI_STATUS status);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_BCAST(data, size, type, src) MPI::COMM_WORLD.Bcast(data, size, type, src)
+#define MPI_BCAST(data, size, type, src) MPI_Bcast(data, size, type, \
+                                                   src, MPI_COMM_WORLD)
 #else
 // MPI is not available
 #define MPI_BCAST(data, size, type, src)
@@ -641,14 +639,13 @@ bool MPI_IPROBE(int src, int tag, MPI_STATUS status);
 
 /** \def MPI_RECV
 
-    \brief Macro to map MPI_RECV to MPI::COMM_WORLD.Recv (if MPI is
+    \brief Macro to map MPI_RECV to MPI_Recv (if MPI is
     enabled) or an empty method call if MPI is unavailable.
 
     <p>This macro provides a convenient, conditionally defined macro
-    to refer to MPI::COMM_WORLD.Recv method. If MPI is available, then
-    MPI_BCAST defaults to MPI::COMM_WORLD.Recv.  On the other hand, if
-    MPI is disabled then this macro simply reduces to a blank
-    method.</p>
+    to refer to MPI_Recv method. If MPI is available, then MPI_BCAST
+    defaults to MPI_Recv.  On the other hand, if MPI is disabled then
+    this macro simply reduces to a blank method.</p>
 
     This macro can be used as shown below:
 
@@ -666,7 +663,8 @@ bool MPI_IPROBE(int src, int tag, MPI_STATUS status);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_RECV(data, count, type, rank, tag, status) MPI::COMM_WORLD.Recv(data, count, type, rank, tag, status)
+#define MPI_RECV(data, count, type, rank, tag, status) \
+    MPI_Recv(data, count, type, rank, tag, MPI_COMM_WORLD, &status)
 #else
 // MPI is not available
 #define MPI_RECV(data, count, type, rank, tag, status)
@@ -699,7 +697,8 @@ bool MPI_IPROBE(int src, int tag, MPI_STATUS status);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_SEND(data, count, type, rank, tag) MPI::COMM_WORLD.Send(data, count, type, rank, tag)
+#define MPI_SEND(data, count, type, rank, tag) \
+    MPI_Send(data, count, type, rank, tag, MPI_COMM_WORLD)
 #else
 // MPI is not available
 int MPI_SEND(const void* data, int count, int type, int rank, int tag);
@@ -731,7 +730,7 @@ int MPI_SEND(const void* data, int count, int type, int rank, int tag);
     \endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_WTIME MPI::Wtime
+#define MPI_WTIME MPI_Wtime
 #else
 // MPI is not available
 extern double MPI_WTIME();
@@ -771,13 +770,15 @@ extern double MPI_WTIME();
 
 /** \def MPI_BARRIER
 
-	\brief Macro to map MPI_BARRIER to MPI::Barrier (if MPI is
-	enabled) or an empty method call if MPI is unavailable.
+	\brief Macro to map MPI_BARRIER to MPI_Barrier(MPI_COMM_WORLD)
+	(if MPI is enabled) or an empty method call if MPI is
+	unavailable.
 
-	<p>This macro provides a convenient, conditionally defined macro
-	to refer to MPI::Barrier method. If MPI is available, then
-	MPI_BARRIER defaults to MPI::Barrier.  On the other hand, if MPI
-	is disabled then this macro simply reduces to a blank method.</p>
+	<p>This macro provides a convenient, conditionally defined
+	macro to refer to MPI::Barrier method. If MPI is available,
+	then MPI_BARRIER defaults to MPI_Barrier.  On the other hand,
+	if MPI is disabled then this macro simply reduces to a blank
+	method.</p>
 
 	This macro can be used as shown below:
 
@@ -793,10 +794,47 @@ extern double MPI_WTIME();
 	\endcode
 */
 #ifdef HAVE_LIBMPI
-#define MPI_BARRIER() MPI::COMM_WORLD.Barrier()
+#define MPI_BARRIER() MPI_Barrier(MPI_COMM_WORLD)
 #else
 // MPI is not available
 #define MPI_BARRIER()
+#endif
+
+/** \def MPI_GET_COUNT
+
+	\brief Macro to map MPI_GET_COUNT to MPI_get_count function
+	call (if MPI is enabled) or an empty method call if MPI is
+	unavailable.
+
+	<p>This macro provides a convenient, conditionally defined
+	macro to refer to MPI_get_count function and return the size
+	of message. If MPI is available, then MPI_GET_COUNT defaults
+	to MPI_get_count.  On the other hand, if MPI is disabled then
+	this macro simply returns zero.</p>
+
+	This macro can be used as shown below:
+
+	\code
+
+	#include "MPIHelper.h"
+
+	int main(int argc, char *argv[]) {
+	// ... some code goes here ..
+        MPI_STATUS status;
+	MPI_GET_COUNT(status, MPI_TYPE_UNSIGNED);
+	// ... more code goes here ..
+	}
+	\endcode
+*/
+#ifdef HAVE_LIBMPI
+inline int MPI_GET_COUNT(const MPI_STATUS& status, MPI_Datatype datatype) {
+    int count = 0;
+    MPI_Get_count(&status, datatype, &count);
+    return count;
+}
+#else
+// MPI is not available
+#define MPI_GET_COUNT(status, datatype) 0
 #endif
 
 #endif

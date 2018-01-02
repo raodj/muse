@@ -66,13 +66,13 @@ MultiThreadedCommunicator::gatherBroadcastAgentInfo(VecUint& idThrList) {
         // Probe for a message from another MPI process to figure out size.
         MPI_PROBE(MPI_ANY_SOURCE, AGENT_LIST, status);
         // Figure out the agent list size
-        size_t listSize = status.Get_count(MPI_TYPE_UNSIGNED);
+        size_t listSize = MPI_GET_COUNT(status, MPI_TYPE_UNSIGNED);
         // Grow idThrList by the list size.
         const size_t currSize = idThrList.size();
         idThrList.resize(currSize + listSize);
         // Read the actual data from the MPI process.
         MPI_RECV(&idThrList[currSize], listSize, MPI_TYPE_UNSIGNED,
-                 status.Get_source(), AGENT_LIST, status);
+                 status.MPI_SOURCE, AGENT_LIST, status);
     }
     // Now we have the full mapping aggregated in idThrList. It is
     // time to broadcast it to all the processes.  First send size of
@@ -242,14 +242,14 @@ MultiThreadedCommunicator::receiveOneEvent() {
         return NULL;
     }
     // Figure out the agent list size
-    int eventSize = status.Get_count(MPI_TYPE_CHAR);
+    int eventSize = MPI_GET_COUNT(status, MPI_TYPE_CHAR);
     // Note we pass -1 to allocate event on this_thread's NUMA node.
     char *incoming_event = Event::allocate(eventSize, -1);
     ASSERT( incoming_event != NULL );
     // Read the actual data.
     try {
         MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
-                 status.Get_source(), status.Get_tag(), status);
+                 status.MPI_SOURCE, status.MPI_TAG, status);
     } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
@@ -258,7 +258,7 @@ MultiThreadedCommunicator::receiveOneEvent() {
     }    
     // The logic of how incoming messages are handled here is
     // different than the base class implementation.
-    ASSERT((status.Get_tag() == EVENT) || (status.Get_tag() == GVT_MESSAGE));
+    ASSERT((status.MPI_TAG == EVENT) || (status.MPI_TAG == GVT_MESSAGE));
     // Type cast does the trick as events are binary blobs
     Event* the_event = reinterpret_cast<Event*>(incoming_event);
     // Since the event is from the network, the reference count must be 1

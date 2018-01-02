@@ -85,12 +85,12 @@ Communicator::registerAgents(const std::vector<AgentID>& allAgents) {
             // Probe for a message from another simulation kernel.
             MPI_PROBE(MPI_ANY_SOURCE, AGENT_LIST, status);
             // Figure out the agent list size
-            int agentListSize = status.Get_count(MPI_TYPE_UNSIGNED);
+            int agentListSize = MPI_GET_COUNT(status, MPI_TYPE_UNSIGNED);
             // Make a large enough array
             std::vector<unsigned int> agentList(agentListSize);
             // Perform the actual receive operation
             MPI_RECV(&agentList[0], agentListSize, MPI_TYPE_UNSIGNED,
-                     status.Get_source(), AGENT_LIST, status);
+                     status.MPI_SOURCE, AGENT_LIST, status);
             // Add the contents of this list to master AgentMap
             for(int i = 0; (i < agentListSize); i++) {
                 if (agentMap.find(agentList[i]) != agentMap.end()) {
@@ -98,7 +98,7 @@ Communicator::registerAgents(const std::vector<AgentID>& allAgents) {
                               << agentList[i] << " encountered. Aborting!\n";
                     ASSERT( false );
                 }
-                agentMap[agentList[i]] = status.Get_source();
+                agentMap[agentList[i]] = status.MPI_SOURCE;
             }
         }
 
@@ -197,13 +197,13 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
         return NULL;
     }
     // Figure out the size of the string we need.
-    const int strSize = status.Get_count(MPI_TYPE_CHAR);
+    const int strSize = MPI_GET_COUNT(status, MPI_TYPE_CHAR);
     std::string msg(strSize - 1, 0);
     // Read the actual string data.
     try {
-        MPI_RECV(&msg[0], strSize, MPI::CHAR,
-                 status.Get_source(), status.Get_tag(), status);
-        recvRank = status.Get_source();
+        MPI_RECV(&msg[0], strSize, MPI::CHAR, status.MPI_SOURCE,
+                 status.MPI_TAG, status);
+        recvRank = status.MPI_SOURCE;
     } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
@@ -226,13 +226,13 @@ Communicator::receiveEvent(){
         return NULL;
     }
     // Figure out the agent list size
-    int eventSize = status.Get_count(MPI_TYPE_CHAR);
+    const int eventSize = MPI_GET_COUNT(status, MPI_TYPE_CHAR);
     char *incoming_event = Event::allocate(eventSize, -1);
     ASSERT( incoming_event != NULL );
     // Read the actual data.
     try {
         MPI_RECV(incoming_event, eventSize, MPI_TYPE_CHAR,
-                 status.Get_source(), status.Get_tag(), status);
+                 status.MPI_SOURCE, status.MPI_TAG, status);
     } catch (CONST_EXP MPI_EXCEPTION& e) {
         std::cerr << "MPI ERROR (receiveEvent): ";
         std::cerr << e.Get_error_string() << std::endl;
@@ -244,7 +244,7 @@ Communicator::receiveEvent(){
     ASSERT( gvtManager != NULL );
     
     // Now handle the incoming data based on the tag value.
-    if (status.Get_tag() == EVENT) {
+    if (status.MPI_TAG == EVENT) {
         // Type cast does the trick as events are binary blobs
         Event* the_event = reinterpret_cast<Event*>(incoming_event);
         // Since the event is from the network, the reference count must be 1
@@ -253,7 +253,7 @@ Communicator::receiveEvent(){
         gvtManager->inspectRemoteEvent(the_event);
         // Dispatch event for further processing.
         return the_event;
-    } else if (status.Get_tag() == GVT_MESSAGE ) {
+    } else if (status.MPI_TAG == GVT_MESSAGE ) {
         // Type cast does the trick as GVT messages are binary blobs
         GVTMessage *msg = reinterpret_cast<GVTMessage*>(incoming_event);
         // Let the GVT manager handle it.
@@ -261,8 +261,8 @@ Communicator::receiveEvent(){
     } else {
         // An unhandled message.  This is a serious problem!
         std::cout << "Error: Received an unhandled message at rank="
-                  << myMPIrank << ", from=" << status.Get_source()
-                  << ", Tag=" << status.Get_tag() << ", size="
+                  << myMPIrank << ", from=" << status.MPI_SOURCE
+                  << ", Tag=" << status.MPI_TAG << ", size="
                   << eventSize << std::endl;
         std::cout << "Aborting due to unhandled message.\n";
         abort();

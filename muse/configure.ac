@@ -113,38 +113,6 @@ AC_DEFUN([AC_CHECK_MPICC],
     fi
 ])
 
-# A custom helper to check if MPI's C++ exception support constant
-# Get_error_string() method -- on OSC mavapich exceptions have this
-# method as a non-constant method preventing catching exceptions has
-# constant references.
-AC_DEFUN([AC_CHECK_CONST_EXP],
-[
-    if test -n "$have_mpi" && test $have_mpi = 1; then
-        AC_MSG_CHECKING([whether MPI library permits use of constant exceptions])
-	AC_LANG([C++])
-     
-	AC_COMPILE_IFELSE(
-            [AC_LANG_PROGRAM([[#include "mpi.h"
-                               #include <cstdlib>
-                             ]],
-                             [[int argc=0; char **argv = 0;
-                               MPI::Init(argc, argv);
-                               try{} catch (const MPI::Exception& e) {
-                                   std::cerr << e.Get_error_string();
-                               }
-                               MPI::Finalize()
-                             ]])],
-	    [AC_MSG_RESULT([yes])
-             AC_DEFINE_UNQUOTED([USE_CONST_MPI_EXP], 1, [Define to 1 if MPI::Exception has constant Get_errorString() method.])
-            
-            ],
-            [AC_MSG_RESULT([no])
-             AC_DEFINE_UNQUOTED([USE_CONST_MPI_EXP], 0, [Define to 1 if MPI::Exception has constant Get_errorString() method.])            
-            ]
-        )
-    fi
-])
-
 # A custom helper macro check if NUMA development libraries are
 # available and operational.  MUSE's multi-threaded mode is NUMA-aware
 # and relies on Linux's NUMA libraries for its's operation.
@@ -416,7 +384,6 @@ AC_DEFUN([AC_CHECK_HASHMAP],
 # Checks for programs.
 AC_PROG_MPI
 AC_CHECK_MPICC
-AC_CHECK_CONST_EXP
 AC_MSG_CHECKING([properties of C++ compiler])
 AC_MSG_RESULT([$CXX])
 AC_PROG_CXX
@@ -426,12 +393,31 @@ AC_PROG_GCC
 AC_PROG_RANLIB
 AC_PROG_NUMA
 
-# Enable developer assertions flags as needed.
+# Checks for suitable archiver to be used
+# AM_PROG_AR
+
+# Check and set some default compiler flags for the build
+AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])
+AC_SUBST(INFORM_WARN)
+AC_CHECK_ARGS([-Wall], [WALL="-Wall"], [WALL=""], [])
+AC_SUBST(WALL)
+AC_CHECK_ARGS([-Wextra], [WEXTRA="-Wextra"], [WEXTRA=""], [])
+AC_SUBST(WEXTRA)
+AC_CHECK_ARGS([-pipe], [PIPE="-pipe"], [PIPE=""], [])
+AC_SUBST(PIPE)
+
+# The -fast flag for ICC causes libraries to break due to inter-procedural
+# call optimizations. So sadly it cannot be used for libraries. 
+# AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
+# AC_SUBST(FAST)
+
+# The -O3 flag is now accepted by gcc, icc, & clang.
+AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
+# Override -O3 based on developer assertions flags as needed.
 DEV_ASSERT=""
 AC_ARG_ENABLE([assertions],
     AS_HELP_STRING([--enable-assertions], [Enable developer assertion checks for sanity checking]),
     [ if test "$enableval" == "yes"; then
-          OPT_O3="-O3"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
       fi
     ])
@@ -456,28 +442,6 @@ AC_ARG_ENABLE([full-debug],
 # Substitute values of variables in makefile(s)
 AC_SUBST(OPT_O3)
 AC_SUBST(DEV_ASSERT)
-
-# Checks for suitable archiver to be used
-# AM_PROG_AR
-
-# Check and set some default compiler flags for the build
-AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])
-AC_SUBST(INFORM_WARN)
-AC_CHECK_ARGS([-Wall], [WALL="-Wall"], [WALL=""], [])
-AC_SUBST(WALL)
-AC_CHECK_ARGS([-Wextra], [WEXTRA="-Wextra"], [WEXTRA=""], [])
-AC_SUBST(WEXTRA)
-AC_CHECK_ARGS([-pipe], [PIPE="-pipe"], [PIPE=""], [])
-AC_SUBST(PIPE)
-
-# The -fast flag for ICC causes libraries to break due to inter-procedural
-# call optimizations. So sadly it cannot be used for libraries. 
-# AC_CHECK_ARGS([-fast], [FAST="-fast"], [FAST=""], [])
-# AC_SUBST(FAST)
-
-# The -O3 flag is now accepted by gcc, icc, & clang.
-AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
-AC_SUBST(OPT_O3)
 
 # Check and start using new C++11 standards
 # AC_CHECK_ARGS([-std=c++14], [CPP14="-std=c++14"], [CPP14=""], [])
