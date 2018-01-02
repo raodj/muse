@@ -168,29 +168,24 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
     // Find destination thread ID
     const int destThrID = mtCommMgr->getOwnerThreadRank(recvAgentID);
     ASSERT(destThrID != -1);
-    if (destThrID == globalThreadID) {
-        // Local events are directly inserted into our own scheduler
+    // Matt: core benefit of shared scheduler implemented here
+    if (destThrID == globalThreadID || destThrID / threadsPerNode == (int) myID) {
+        // Destination thread is on same process.  Since this
+        // event is crossing thread boundaries we make a copy to
+        // avoid race conditions on the reference counter.
+        // const int evtSize = EventAdapter::getEventSize(e);
+        // Event *copy = reinterpret_cast<Event*>(Event::allocate(evtSize,
+        //                                                        recvAgentID));
+        // std::memcpy(copy, e, evtSize);
+        // ASSERT(copy->getReferenceCount() > 0);
+        // // copy->setReferenceCount(1);
+        // gvtManager->sendRemoteEvent(copy);
         return scheduler->scheduleEvent(e);
     } else {
-        // Remote events are sent via the GVTManager to aid tracking
-        // GVT. The gvt manager calls communicator.
-        if (destThrID / threadsPerNode == (int) myID) {
-            // Destination thread is on same process.  Since this
-            // event is crossing thread boundaries we make a copy to
-            // avoid race conditions on the reference counter.
-            const int evtSize = EventAdapter::getEventSize(e);
-            Event *copy = reinterpret_cast<Event*>(Event::allocate(evtSize,
-                                                                   recvAgentID));
-            std::memcpy(copy, e, evtSize);
-            ASSERT(copy->getReferenceCount() > 0);
-            // copy->setReferenceCount(1);
-            gvtManager->sendRemoteEvent(copy);
-        } else {
-            // The destination thread is on a remote process and event
-            // does not need to be cloned.  However, it does need
-            // inspection by GVT manager.
-            gvtManager->sendRemoteEvent(e);
-        }
+        // The destination thread is on a remote process and event
+        // does not need to be cloned.  However, it does need
+        // inspection by GVT manager.
+        gvtManager->sendRemoteEvent(e);
     }
     return true;
 }

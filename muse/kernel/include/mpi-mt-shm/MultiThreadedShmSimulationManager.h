@@ -173,11 +173,13 @@ public:
         \param[in] event The event to be added.  This pointer cannot
         be NULL.
     */
-    inline void addIncomingEvent(const size_t destThrIdx, muse::Event* event) {
-        ASSERT(destThrIdx < threads.size());
-        ASSERT(event != NULL);
-        threads[destThrIdx]->incomingEvents->add(threadID, destThrIdx, event);
-    }
+    // MATT: No longer necessary as same-process events share a scheduler
+    // 
+    // inline void addIncomingEvent(const size_t destThrIdx, muse::Event* event) {
+    //     ASSERT(destThrIdx < threads.size());
+    //     ASSERT(event != NULL);
+    //     threads[destThrIdx]->incomingEvents->add(threadID, destThrIdx, event);
+    // }
 
 protected:
     /** \brief Convenience method to perform initialization/setup just

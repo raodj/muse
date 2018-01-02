@@ -307,7 +307,9 @@ protected:
         loop to process all events currently present in incomingEvents
         queue.  The events are from other threads or remote processes.
     */
-    virtual void processIncomingEvents();
+    // Matt: Buffer no longer used, shared scheduler
+    // 
+    // virtual void processIncomingEvents();
 
     /** Read messages (if any) from MPI and add them to incomingEvent
         queues of various threads.
@@ -365,7 +367,8 @@ protected:
         without experiencing race conditions.  The list is initialized
         in the parseCommandLineArgs method.
     */
-    MTQueue* incomingEvents;
+    // MATT: Removing as no longer used
+    // MTQueue* incomingEvents;
     
 private:
     /** The undefined copy constructor.
