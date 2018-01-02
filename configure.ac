@@ -95,7 +95,7 @@ AC_DEFUN([AC_CHECK_MPICC],
                                #include <cstdlib>
                              ]],
                              [[int argc=0; char **argv = 0;
-                               MPI::Init(argc, argv); MPI::Finalize();
+                               MPI_Init(&argc, &argv); MPI_Finalize();
                              ]])],
 	    [AC_MSG_RESULT([yes])],
             [AC_MSG_RESULT([no])

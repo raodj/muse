@@ -201,7 +201,7 @@ Communicator::receiveMessage(int& recvRank, const int srcRank, int tag,
     std::string msg(strSize - 1, 0);
     // Read the actual string data.
     try {
-        MPI_RECV(&msg[0], strSize, MPI::CHAR, status.MPI_SOURCE,
+        MPI_RECV(&msg[0], strSize, MPI_CHAR, status.MPI_SOURCE,
                  status.MPI_TAG, status);
         recvRank = status.MPI_SOURCE;
     } catch (CONST_EXP MPI_EXCEPTION& e) {

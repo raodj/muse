@@ -78,6 +78,8 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     // removeAll method was called in the processIncomingEvents()
     // method.
     shrQcheckCount = 0;
+    // Default flag for redistributing unused NUMA-chunks
+    doRedist       = true;
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -224,8 +226,12 @@ MultiThreadedSimulation::setCpuAffinity() const {
     }
     // bind the stack for this thread on the NUMA node
     const unsigned long nodeMask = 1UL << getNumaNodeOfCpu(cpuID);
+    std::cout << "Calling mbind on thread: " << threadID
+              << " on CPU: " << cpuID << " to bind to NUMA node: "
+              << getNumaNodeOfCpu(cpuID) << std::endl;
     const long bindRc = mbind(stackAddr, stackSize, MPOL_BIND, &nodeMask,
                               sizeof(nodeMask), MPOL_MF_MOVE | MPOL_MF_STRICT);
+    std::cout << "Done mbind.\n";
     if (bindRc != 0) {
         std::cerr << "Error moving stack to local NUMA memory: "
                   << errno << std::endl;
@@ -410,7 +416,8 @@ MultiThreadedSimulation::garbageCollect() {
 #if USE_NUMA == 1
     // With NUMA we periodically need to redistribute events to avoid
     // unconstrained memory growth (depending on communication patterns)
-    if (getGVT() != TIME_INFINITY) {
+    if ((EventRecycler::numaSetting != EventRecycler::NUMA_NONE) &&
+        doRedist && (getGVT() != TIME_INFINITY)) {
         MultiThreadedSimulationManager* const mgr =
             static_cast<MultiThreadedSimulationManager*>(simMgr);
         EventRecycler::numaMemMgr.redistribute(threadsPerNode, threadID,
@@ -448,11 +455,14 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Make the arg_record
     std::string mtQueue = "single-blocking";
     int subQueues       = 2;  // #sub-queues in multi-blocking queue
+    bool disableRedist  = false;
     ArgParser::ArgRecord arg_list[] = {
         {"--mt-queue", "MT-safe queue to use for events from other threads",
           &mtQueue, ArgParser::STRING },
         {"--multi-mt-queues", "#sub-queues in multi-blocking queue",
          &subQueues, ArgParser::INTEGER},
+        {"--no-redist", "Disable NUMA-chunk redistribution",
+         &disableRedist, ArgParser::BOOLEAN},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -475,7 +485,9 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
         throw std::runtime_error("Invalid value for --mt-queue argument" \
                                  "(muse be: single-blocking");        
     }
-    std::cout << "mtQueue set to: " << mtQueue << std::endl;
+    // Disable NUMA-chunk redistribution based on command-line argument
+    doRedist = !disableRedist;
+    DEBUG(std::cout << "mtQueue set to: " << mtQueue << std::endl);
     // Let base class process consume other arguments as appropriate
     Simulation::parseCommandLineArgs(argc, argv);
 }
