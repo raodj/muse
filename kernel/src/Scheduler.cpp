@@ -76,7 +76,7 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     } else if (adaptTimeWindow) {
         // Maybe the time window is a bit too small. Start increasing
         // time window to try and accommodate the next event.
-        adaptiveTimeWindow += (timeDelta * 2);
+        adaptiveTimeWindow += (timeDelta * 4);
     }
     return false;  // Current event outside time window. Do not schedule
 }
