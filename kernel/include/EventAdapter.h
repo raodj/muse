@@ -42,6 +42,7 @@ class EventAdapter {
     friend class GVTManager;
     friend class Agent;
     friend class MultiThreadedSimulation;
+    friend class RedistributionMessage;
 public:
 
     /** \brief Helper to get the size of this Event

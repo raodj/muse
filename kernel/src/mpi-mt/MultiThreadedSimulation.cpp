@@ -37,6 +37,7 @@
 #include "ArgParser.h"
 #include "EventAdapter.h"
 #include "EventRecycler.h"
+#include "mpi-mt/RedistributionMessage.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
@@ -137,6 +138,18 @@ MultiThreadedSimulation::processIncomingEvents() {
             GVTMessage *msg = static_cast<GVTMessage*>(event);
             ASSERT(msg != NULL);
             gvtManager->recvGVTMessage(msg);
+        } else if (event->getSenderAgentID() == REDISTR_MSG_SENDER) {
+#if USE_NUMA == 1
+            // This is a redistribution message to redistribute NUMA
+            // operations.
+            ASSERT(dynamic_cast<RedistributionMessage*>(event) != NULL);
+            RedistributionMessage *rdm =
+                static_cast<RedistributionMessage*>(event);
+            // Add entries to our thread-local recycler.
+            EventRecycler::numaMemMgr.redistribute(rdm);
+            // Get rid of this message
+            RedistributionMessage::destroy(rdm);
+#endif            
         } else {
             // This is a regular event.  All incoming events must be
             // inspected by the GVT manager (for tracking GVT) prior
@@ -394,6 +407,14 @@ void
 MultiThreadedSimulation::garbageCollect() {
     // First let base class do its standard garbage collection
     Simulation::garbageCollect();
+#if USE_NUMA == 1
+    // With NUMA we periodically need to redistribute events to avoid
+    // unconstrained memory growth (depending on communication patterns)
+    MultiThreadedSimulationManager* const mgr =
+        static_cast<MultiThreadedSimulationManager*>(simMgr);
+    EventRecycler::numaMemMgr.redistribute(threadsPerNode, threadID,
+                                           numaIDofThread[threadID], mgr);
+#endif
     // Rest of the logic is needed only when using shared events
     if (!doShareEvents) {
         return;  // Not using shared events. Nothing further to do.
