@@ -410,10 +410,12 @@ MultiThreadedSimulation::garbageCollect() {
 #if USE_NUMA == 1
     // With NUMA we periodically need to redistribute events to avoid
     // unconstrained memory growth (depending on communication patterns)
-    MultiThreadedSimulationManager* const mgr =
-        static_cast<MultiThreadedSimulationManager*>(simMgr);
-    EventRecycler::numaMemMgr.redistribute(threadsPerNode, threadID,
-                                           numaIDofThread[threadID], mgr);
+    if (getGVT() != TIME_INFINITY) {
+        MultiThreadedSimulationManager* const mgr =
+            static_cast<MultiThreadedSimulationManager*>(simMgr);
+        EventRecycler::numaMemMgr.redistribute(threadsPerNode, threadID,
+                                               numaIDofThread[threadID], mgr);
+    }
 #endif
     // Rest of the logic is needed only when using shared events
     if (!doShareEvents) {

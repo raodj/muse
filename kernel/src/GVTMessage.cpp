@@ -53,6 +53,7 @@ GVTMessage::create(const GVTMsgKind msgKind, const int numProcesses,
 
 GVTMessage*
 GVTMessage::create(const GVTMessage* src, int destRank, int destThread) {
+    UNUSED_PARAM(destThread);
     const int msgSize = src->getSize();
     // Allocate flat memory for the message with NUMA awareness.
 #if USE_NUMA == 1
