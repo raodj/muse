@@ -26,6 +26,7 @@
 #
 
 GLOBALCPPFLAGS  = $(WALL) $(WEXTRA) $(PIPE) $(INFORM_WARN) -g $(OPT_O3)
+# GLOBALCPPFLAGS += -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
 GLOBALCPPFLAGS += $(CPP11) $(CPP0X)

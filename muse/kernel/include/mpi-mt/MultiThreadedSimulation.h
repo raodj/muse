@@ -670,6 +670,18 @@ private:
      */
     std::string numaStats;
 
+    /** Runtime flag to enable/disable redistribution of unused memory
+        chunks when using NUMA-aware memory management.
+
+        This flag is used to determine if redistribution of unused
+        memory chunks should be disabled.  This is primarily used for
+        experimental purposes only and typically redistribution should
+        be enabled.  Redistribution can be disabled on the \c
+        --dont-redist command-line argument to multi-threaded
+        simulation.
+    */
+    bool doRedist;
+    
 #endif
 };
 
