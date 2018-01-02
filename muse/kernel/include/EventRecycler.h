@@ -61,6 +61,7 @@ class EventRecycler {
     friend class Agent;
     friend class EventQueue;
     friend class Simulation;
+    friend class GVTMessage;
     friend class MultiThreadedSimulation;
     friend class MultiThreadedSimulationManager;
     friend class MultiThreadedShmSimulation;

@@ -33,7 +33,9 @@
 #include <iostream>
 #include <thread>
 #include <sstream>
-#include "Event.h"
+#include "EventAdapter.h"
+#include "mpi-mt/RedistributionMessage.h"
+#include "mpi-mt/MultiThreadedSimulationManager.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
@@ -67,6 +69,7 @@ NumaMemoryManager::getStats() const {
         }
         os << "\n";
     }
+    os << "  Redistributions: " << numRedist << std::endl;
     // Return the string containing statistics
     return os.str();
 }
@@ -199,12 +202,102 @@ NumaMemoryManager::moveNumaBlocksTo(NumaMemoryManager& mainMgr) {
     for (size_t numaID = 0; (numaID < blockList.size()); numaID++) {
         std::stack<NumaBlock>& blockStack = blockList[numaID];
         while (!blockStack.empty()) {
-            // Add numa block to main list
-            mainMgr.blockList[numaID].push(blockStack.top());
+            // Add numa block to first entry in main list.  This may
+            // not be the same as the NUMA block but it is not a big
+            // deal as we are just going to clean things up.
+            mainMgr.blockList.front().push(blockStack.top());
             // Remove block from stack
             blockStack.pop();
         }
     }
+}
+
+void
+NumaMemoryManager::redistribute(const int threadCount, const int threadID,
+                                const int numaID,
+                                MultiThreadedSimulationManager* const mgr) {
+    ASSERT(threadCount > 0);
+    ASSERT((threadID >= 0) && (threadID < threadCount));
+    ASSERT((numaID >= 0) && (numaID < (int) blockList.size()));
+    ASSERT(mgr != NULL);
+    // Find the amount of memory allocated by this manager on the
+    // specified numa node to determine if recycling is needed.
+    const int memAllocd = getAllocatedMemory(numaID);
+    // Find the amount recycled memory we currently have
+    const int recyclMem = getRecycledMemory(numaID);
+    // If recyclMemory is 2x more than allocated memory, it is time to
+    // redistribute.
+    if (recyclMem <= memAllocd * 2) {
+        // We have not hit the threshold. No further operation needed.
+        return;
+    }
+    DEBUG(std::cout << "Recycled memory: " << recyclMem
+                    << " bytes more than 2x the memory allocated: "
+                    << memAllocd << std::endl);
+    // Compute the proportion of entries to redistribute to each thread.
+    const double redistFrac = (recyclMem - memAllocd) / (threadCount - 1.) /
+        recyclMem;
+    // Redistribute computed fraction of each size. First, get the
+    // recycler map for the given numa node.
+    RecycleMemMap& nodeRecycler = recycler[numaID];
+    // Iterate over each entry (each entry has a different size)
+    for (RecycleMemMap::value_type& entry : nodeRecycler) {
+        // Compute actual number of memory chunks to send to each thread.
+        const int entryCount = std::ceil(redistFrac * entry.second.size());
+        // Now ditribute that many entries to each thread.
+        for (int thrID = 0; (thrID < threadCount); thrID++) {
+            if (thrID == threadID) {
+                continue;  // Nothing to do for local thread.
+            }
+            RedistributionMessage* const rde =
+                RedistributionMessage::create(numaID, entryCount, entry.first,
+                                              entry.second);
+            ASSERT(rde != NULL);
+            // Send event to destination thread.
+            mgr->addIncomingEvent(thrID, rde);
+        }
+    }
+    // Track the number of redistributions
+    numRedist++;
+}
+
+void
+NumaMemoryManager::redistribute(RedistributionMessage* rdm) {
+    ASSERT(rdm != NULL);
+    ASSERT(rdm->getNumaID() >= 0);
+    ASSERT(rdm->getNumaID() < (int) recycler.size());
+    ASSERT(rdm->getEntryCount() > 0);
+    ASSERT(rdm->getEntrySize()  > 0);
+    // Get the recycler entry corresponding to the NUMA node.
+    RecycleMemMap& nodeRecycler = recycler[rdm->getNumaID()];
+    // Get the recycler stack for the given size
+    std::stack<char*>& stack = nodeRecycler[rdm->getEntrySize()];
+    // Now let the redistribution message add entries to this object
+    rdm->addEntriesTo(stack);
+}
+
+int
+NumaMemoryManager::getAllocatedMemory(const int numaID) const {
+    ASSERT((numaID >= 0) && (numaID < blockList.size()));
+    // Add the memory allocated -- each block is of fixed blockSize
+    const int memAllocd = blockList[numaID].size() * blockSize -
+        blockList[numaID].top().avail;
+    return memAllocd;
+}
+
+int
+NumaMemoryManager::getRecycledMemory(const int numaID) const {
+    ASSERT((numaID >= 0) && (numaID < (int) recycler.size()));
+    // Get the recycler map for the given numa node.
+    const RecycleMemMap& nodeRecycler  = recycler[numaID];
+    // Add-up memory of various sizes.
+    int totMem = 0;
+    for (const RecycleMemMap::value_type& entry : nodeRecycler) {
+        // Compute memory for entry. entry.first is size (in bytes)
+        // and entry.second.size() gives number of entries in stack
+        totMem += (entry.first * entry.second.size());
+    }
+    return totMem;
 }
 
 #endif  // USE_NUMA

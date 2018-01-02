@@ -24,6 +24,8 @@
 
 #include "GVTMessage.h"
 #include "Event.h"
+#include "config.h"
+#include "EventRecycler.h"
 
 // Switch to muse name space to make life easier.
 using namespace muse;
@@ -54,7 +56,7 @@ GVTMessage::create(const GVTMessage* src, int destRank, int destThread) {
     const int msgSize = src->getSize();
     // Allocate flat memory for the message with NUMA awareness.
 #if USE_NUMA == 1
-    char* memory = Event::allocateNuma(msgSize, destThread);
+    char* memory = EventRecycler::allocateNuma(msgSize, 0);
 #else
     char* memory = Event::allocate(msgSize, -1);
 #endif
