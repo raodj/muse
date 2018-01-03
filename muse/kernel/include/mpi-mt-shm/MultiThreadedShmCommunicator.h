@@ -112,6 +112,27 @@ public:
         return (entry != agentThreadMap.end() ? (int) entry->second : -1);
     }
 
+    /** Determine the thread ID for the specified agent.
+
+        This method can be used to determine the thread ID associated
+        with a given agent.
+
+        \param[in] id The ID of the agent whose thread ID is
+        desired.
+
+        \param[in] defaultThrID The default value to be returned if
+        the specified agent is not a local agent.
+
+        \return The ID of the thread or defaultThrID (if the agent ID
+        is not local or invalid.
+    */
+    int getThreadID(const AgentID id, const int defaultThrID) const {
+        AgentIDSimulatorIDMap::const_iterator entry = agentThreadMap.find(id);
+        ASSERT((defaultThrID >= 0) && (defaultThrID < threadsPerNode));
+        return (entry != agentThreadMap.end() ? (int) entry->second :
+                defaultThrID);
+    }
+    
     /** \brief Obtain the thread-based rank of the process on which a
         given agent resides.
 
@@ -283,10 +304,15 @@ public:
 
     /** The recvEvent method to read one event via an MPI call.
 
-        This method is repeatedly invoked from the core simulation
-        loop to read events received over the wire from MPI.  This
-        method overrides the base class implementation to ensure calls
-        from multiple threads are serialized (using a mutex).
+        \note This method is not used with working with multiple
+        threads as constantly locking/unlocking mpiMutex was found to
+        be very ineffective when there is high volume of
+        communications.  Instead the receiveManyEvents method is used.
+        
+        This method overrides the base class implementation to ensure
+        calls from multiple threads are serialized (using a mutex).
+        The actual reading of event is done via call to
+        readOneMessage() method in this class.
 
 	\return Event pointer, this is the event to be received from
 	the wire.  This method will return a NULL if an event was not
@@ -294,6 +320,46 @@ public:
     */
     virtual Event* receiveEvent() override;
 
+    /** Helper emthod to recvEvent one event via an MPI call.
+
+        \note This method assumes that mpiMutex has already been
+        locked before it is invoked.
+
+        This method is a refactored method that is called from
+        receiveEvent() or receiveManyEvents() methods.  This method
+        performs the interactions with MPI invokving probing for
+        messages and reading any pending message.
+
+	\return Event pointer, this is the event to be received from
+	the wire.  This method will return a NULL if an event was not
+	pending to be read.  This method also returns NULL on
+	exceptions.
+    */
+    Event* receiveOneEvent();
+    
+    /** The recvEvent method to read one event via an MPI call.
+
+        This method is repeatedly invoked from the core simulation
+        loop to read a given number of events received over the wire
+        from MPI.  This method is invoked only from
+        MultiThreadedSimulationManager::processMpiMsgs() method.
+
+        \param[out] eventList The event list into received events are
+        to be placed.  Events are appended to this list.  Existing
+        entries are unaltered.
+
+        \param[in] maxEvents The maximum number of events to
+        read/process.
+
+        \param[in] retryCount The number times to try to get mpiMutex
+	lock before giving up.
+
+        \return Returns the number of events read.  If no events were
+        ready then this method returns 0 (zero).
+    */
+    int receiveManyEvents(EventContainer& eventList, const int maxEvents,
+                          int retryCount = 10);
+    
 protected:
     /** Set/update the logical thread ID for an agent on this physical
         process.
@@ -393,7 +459,7 @@ private:
         ensure widest range of compatibility.
     */
     std::mutex mpiMutex;
-
+    
     /** The total numebr of MPI processes constituting this
         distributed simulation.
 

@@ -24,6 +24,7 @@
 
 #include <mutex>
 #include "mpi-mt-shm/MultiThreadedShmSimulation.h"
+#include "EventRecycler.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -211,10 +212,40 @@ protected:
 
         \return This method returns the number of MPI messages that
         were received and processed.  If no messages were received,
-        this method returns zero.
+        this method returns zero.        
     */
     virtual int processMpiMsgs() override;
 
+    /** Refactored utility method to create threads.
+
+        This method is called only once from the initialize() method
+        in this class.  This method creates the threads in this class,
+        while setting up the necessary information to pin threads to
+        specific CPUs/cores.
+
+        \param[in,out] mtc The multi-threaded communicator shared by
+        the different threads in this process.
+
+        \param[in] cmdArgs The command-line arguments to be passed to
+        the various threads as part of initialization.
+    */
+    void createThreads(const int threads, MultiThreadedCommunicator* mtc,
+                       std::vector<char*> cmdArgs);
+    
+    /** Helper method to determine the list of available CPUs to which
+        threads can be pinned.
+
+        \note The value returned by this method is meaningful only
+        before the threads have been spun-up.
+        
+        This method enumerates the CPUs to which threads can be
+        pinned.  This method internally calls pthread_getaffinity_np
+        to determine the default affinity setup.
+
+        \return A vector with list of candidate CPUs.
+    */
+    std::vector<int> getAvailableCPUs() const;
+    
 private:
     /** The list of sub-kernels that are run as independent threads.
         The entries in this list are created in the initialize()
@@ -231,6 +262,15 @@ private:
         from MPI.
     */
     std::mutex mpiMutex;
+
+    /** A temporary vector to hold incoming MPI events.
+
+        This container is repeatedly reused in processMpiMsgs to
+        obtain events from MPI via call to MultiThreadedCommunicator's
+        receiveManyEvents method.  This container is reused so that we
+        don't waste CPU cycles on recreating/resizing the container.
+    */
+    EventContainer mpiEvents;
     
     /** The only constructor for this class.
 

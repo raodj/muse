@@ -142,10 +142,23 @@ protected:
 
         \param[in] threadsPerNode The total number of threads running
         on this node (with thread IDs: 0, 1, ..., threadsPerNode-1).
+
+        \param[in] usingSharedEvents Flag to indicate if events are to
+        be directly shared between sending and receiving threads on
+        this process.
+
+        \param[in] cpuID An optional CPU ID to which the thread is to
+        be pinned.  This value is used to set the affinity for this
+        thread.  This value is determined by the
+        MultiThreadedSimulationManager::start() method.  The CPU ID is
+        chosen such that it also honors PBS job settings as well.  If
+        the cpuID is -1, then processor affinity is not setup.
     */
     MultiThreadedShmSimulation(MultiThreadedShmSimulationManager* simMgr,
                             int thrID = 0, int globalThrID = 0,
-                            int threadsPerNode = 1);
+                            int threadsPerNode = 1,
+                            bool usingSharedEvents = false,
+                            int cpuID = -1);
 
     /** The destructor.
 
@@ -301,6 +314,22 @@ protected:
     */
     virtual bool scheduleEvent(Event* e) override;
 
+    /** \brief Clean up old States and Events
+
+        This method overrides the default implementation in the base
+        class.  First it passess control to the base class to perform
+        the standard garbage collection process.  Next, this method
+        calls EventRecycler::processPendingDeallocs() to try to
+        reclaim pending events after a garbage collection cycle has
+        completed.  This is done here because EventRecycler::
+        processPendingDeallocs method is a time consuming one
+        (particularly when there are many events pending) and each
+        iteration through it has to be successful.
+
+        \see EventRecycler::processPendingDeallocs()
+     */
+    virtual void garbageCollect() override;
+    
     /** Method to process incoming messages from other threads.
 
         This method is periodically invoked from the core simulation
@@ -326,9 +355,46 @@ protected:
 
         \return This method returns the number of MPI messages that
         were received and processed.  If no messages were received,
-        this method returns zero.        
+        this method returns zero.
     */
     virtual int processMpiMsgs() override;
+
+    /** Overridable method to report additional local statistics (from
+        derived classes) at the end of simulation.
+
+        This method was introduced to enable derived classes report
+        additional statistics.  This method is called from the
+        reportStatistics() method in this class.  The statistics from
+        the derived class must be written to the supplied output
+        stream.
+
+        \param[out] os The output stream to which statistics are to be
+        written. By default statistics are reported to std::cout.
+    */
+    virtual void reportLocalStatistics(std::ostream& os = std::cout) override;
+
+    /** Setup CPU affinity for this thread.
+
+        This method is called only once on each thread from the
+        simulate() method.  This method uses the cpuID setup for this
+        thread to setup process affinity for this thread.  In
+        addition, this method also sets the NUMA node associated with
+        the CPU to which the thread is setup.
+    */
+    void setCpuAffinity() const;
+
+
+    /** Convenience method to get the NUMA node ID for a given CPU id.
+
+        This method is a convenience method used to streamline the
+        code for enabling NUMA-aware memory management.  This method
+        returns the NUMA node ID for a given logical CPU id by calling
+        numa_node_of_cpu().
+
+        \return The NUMA node for the CPU.  If NUMA is not available,
+        this method always returns -1.
+    */
+    int getNumaNodeOfCpu(const int cpu) const;
     
 protected:
     /** The number of threads to be spun-up for each MPI process.
@@ -369,6 +435,31 @@ protected:
     */
     // MATT: Removing as no longer used
     // MTQueue* incomingEvents;
+
+    /** Refactored utility method to make copy of an event honoring
+        NUMA and other runtime flags/settings.
+
+        This is a refactored utility method used to make copy of
+        events going across thread boundaries.  This method is
+        currently called only from MultiThreadedSimulation's
+        scheduleEvent method.  This method is used only when
+        usingSharedEvents is set to \c false.  This method make an
+        identical clone of the given event.
+
+        \param[in] src The source event to be cloned. This parameter
+        cannot be NULL.
+
+        \param[in] receiver The receiving agent ID used for cloning
+        event (if NUMA is not being used or when sharing events).
+        
+        \param[in] destThrID The global rank of the destination thread
+        to which the event is to be sent.  This value modulo
+        threadsPerNode gives the local thread ID.
+
+        \return A clone of the event with memory suitably allocated.
+    */
+    muse::Event* cloneEvent(const muse::Event* src,
+                            const muse::AgentID receiver) const;
     
 private:
     /** The undefined copy constructor.
@@ -408,6 +499,180 @@ private:
         and is never changed during the life time of this object.
     */
     MultiThreadedShmSimulation* const simMgr;
+
+    /** A shared barrier to facilitate coordination of threads as they
+        wind-up.
+
+        This barrier is used to wait for threads to finish-up their
+        main loops so that any pending events can be correctly
+        recycled.
+    */
+    static SpinLockThreadBarrier threadBarrier;
+
+    /** Reference to the main threads' pending deallocations.
+
+        This list always referes to the pending deallocations list on
+        the main thread.  This list is used for the following reason
+        -- Pending event deallocations on various threads cannot be
+        fully reclaimed until all agents are finalized (and they
+        relinquish references to events in their internal queues).
+        Consequently, at the end of the
+        MultiThreadedSimulation::simulate() method, each thread (other
+        than the main thread) adds its pending events to this list.
+        This list is finally cleaned-up in the main thread.
+    */
+    EventContainer& mainPendingDeallocs;
+
+    /** Track the fraction of events reclaimed from EventRecycler's
+        pendingDeallocs list at end of each GC cycle.  This counter is
+        updated in garbageCollect method in this class.  This value
+        essentially indicates the number of times EventRecycler::
+        processPendingDeallocs() method was called and the fraction of
+        events that were successfully reclaimed.  If this value is low
+        then we need fewer calles to the method.
+    */
+    Avg deallocsPerCall;
+    
+    /** Command-line argument to set the desired fraction of events
+        cleared from pendingDeallocs list for each GC cycle.  This
+        value is a fraction in the range 0.01 to 1.0.  It cannot be
+        set to zero. This value is used to double the deallocRate
+        until the desired deallocFrac is achieved.  If the fraction of
+        deallocated events is more than 1.5 times this value then the
+        deallocRate is halved (but not below 1).
+    */
+    double deallocThresh;
+
+    /** The current rate at which processPendingDeallocs() should be
+        called.  This value is updated after each call to
+        processPendingDeallocs() method to reach the specified
+        deallocFrac threshold value, the following manner:
+
+        \code
+
+        const double fracRecovered = EventRecycler::processPendingDallocs();
+        if (fracRecovered < deallocThresh) {
+            deallocRate *= 2;
+        } else if (fracRecovered > (deallocThresh * 1.5)) {
+            deallocRate = std::max(1, deallocRate / 2);
+        }
+    */
+    int deallocRate;
+
+    /** This is the counter used to determine if
+        processPendingDeallocs() method should be called.  This
+        counter is initialized to deallocRate.  It is decremented in
+        each call to garbageCollect() method.  If this counter reaches
+        zero, then processPendingDeallocs() is called and it is reset
+        back to deallocRate.
+    */
+    int deallocTicker;
+
+    /** Average number of events processed as a single batch from the
+        incomingEvents queue.
+
+        This stats object tracks the average number of events
+        read/processed from the shared incomingEvents queue.  This
+        statistic does not track the calls that returned zero
+        messages.
+    */
+    Avg shrQevtCount;
+
+    /** Counter to track the number of times the incomingEvents
+        queue's removeAll method was called.
+
+        This instance variabe tracks the number of times the
+        incoming queue was checked by this thread.
+    */
+    size_t shrQcheckCount;
+
+    /** List of incoming events read from incomingEvents queue.
+
+        This is a temporary container that is re-used to read incoming
+        events over the shared mult-threaded queue associated with
+        this container.  This container is used just in the
+        processIncomingEvents method.
+    */
+    EventContainer shrEvents;
+
+    /** The CPU ID setup for this thread.
+
+        The CPU ID setup for this thread to establish CPU affinity.
+        This value is used when the threads actually start running.
+        If this value is -1, then CPU affinity is not setup.
+    */
+    int cpuID;
+
+    /* Flag to indicate if NUMA usage is completely disabled.
+
+       If this flag is true, then NUMA operations are never used.  If
+       this flag is <u>\c false and usingSharedEvents is also \c
+       false</u> then NUMA is used to allocate memory for events going
+       across thread boundaries.  This ensures that sending threads
+       have copy on their NUMA node while receiving thread has copy in
+       its NUMA node to ensure good performance.
+
+       \see cloneEvent
+    */
+    bool noNuma;
+    
+    /** List of NUMA node IDs for each thread to be used by NUMA-aware
+        memory manager.
+
+        This is a static (i.e., shared by all threads) list that
+        contains the NUMA-node ID (0, 1, 2, ...) for each thread.
+        Note that many threads can have have same NUMA-node ID based
+        on the number of cores on each CPU.  Entries are added to this
+        vector by MultiThreadedSimulationManager::createThreads
+        method.  The list is passed onto the NUMA-aware EventRecycler
+        to allocate memory appropriate NUMA nodes.
+    */
+    static std::vector<int> numaIDofThread;
+
+#if USE_NUMA == 1
+    /** Reference to main Numa memory manager to add list of allocated
+        pages to finally free at end of simulation.
+
+        This reference always referes to the NumaMemoryManager on the
+        main thread.  This object is used for the following reason --
+        Event deallocations on various threads cannot be fully
+        reclaimed until all agents are finalized (and they relinquish
+        references to events in their internal queues).  Consequently,
+        at the end of the MultiThreadedSimulation::simulate() method,
+        each thread (other than the main thread) adds its NUMA blocks
+        to the main numa manager. This list is finally cleaned-up in
+        the main thread.
+    */
+    NumaMemoryManager& mainNumaManager;
+
+    /** Reference to main-thread's Numa memory manager to add list of
+        allocated pages to finally free at end of simulation.
+
+        This reference always referes to the StateRecycler::numaMemMgr
+        on the main thread.  This object is used for the following
+        reason -- state deallocations on various threads cannot be
+        fully reclaimed until all agents are finalized (and they
+        relinquish references to states).  Consequently, at the end of
+        the MultiThreadedSimulation::simulate() method, each thread
+        (other than the main thread) adds its NUMA blocks to the main
+        numa manager. This list is finally cleaned-up in the main
+        thread.
+    */
+    NumaMemoryManager& mainStateRecycler;
+    
+    /** String to temporarily hold thread-local NUMA memory management
+        statistics.
+
+        The thread-local NUMA memory manager goes out of scope when
+        the thread ends at the end of the simulate method.  However,
+        statistics are reported after the thread ends.  Consequently,
+        this instance variable maintains a copy of the NUMA statistics
+        to be reported when the reportLocalStatistics method is
+        called.
+     */
+    std::string numaStats;
+
+#endif
 };
 
 END_NAMESPACE(muse);
