@@ -317,10 +317,10 @@ EventRecycler::deleteRecycledEventsNuma() {
 std::string
 EventRecycler::getStats() {
     std::ostringstream os;
-    os << "  Default Allocate   calls: " << allocCalls
+    os << "  Default Allocate calls  : " << allocCalls
        << "\n  Default Deallocate calls: " << deallocCalls
-       << "\n  Default Recycler   hits : " << recycleHits
-       << "\n  Default Recycler  %hits : "
+       << "\n  Default Recycler hits   : " << recycleHits
+       << "\n  Default Recycler %hits  : "
        << ((float) recycleHits / allocCalls)
        << std::endl;
     // Return stats information back to the caller

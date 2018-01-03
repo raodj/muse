@@ -47,10 +47,10 @@ std::string
 NumaMemoryManager::getStats() const {
     std::ostringstream os;
     // Print top-level aggregate information.
-    os << "  NUMA Allocate   calls   : " << allocCalls
+    os << "  NUMA Allocate calls     : "   << allocCalls
        << "\n  NUMA Deallocate calls   : " << deallocCalls
-       << "\n  NUMA Recycler   hits    : " << recycleHits
-       << "\n  NUMA Recycler  %hits    : "
+       << "\n  NUMA Recycler hits      : " << recycleHits
+       << "\n  NUMA Recycler %hits     : "
        << ((float) recycleHits / allocCalls)
        << std::endl;
     // Print block information for each NUMA node.
