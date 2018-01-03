@@ -22,18 +22,24 @@
 //
 //---------------------------------------------------------------------------
 
+#include "config.h"
+#if USE_NUMA == 1
+#include <numa.h>
+#endif
+
 #include <thread>
 #include <algorithm>
 #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
 #include "mpi-mt-shm/MultiThreadedShmCommunicator.h"
 #include "GVTMessage.h"
 #include "ArgParser.h"
+#include "EventQueue.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
 
 MultiThreadedShmSimulationManager::MultiThreadedShmSimulationManager()
-    : MultiThreadedShmSimulation(this) {   // note -- NULL is intentional
+    : MultiThreadedShmSimulation(this) {
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -47,10 +53,20 @@ void
 MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
                                            bool initMPI)
     throw (std::exception) {
-    // First, parse out the number of threads to be created.
+    // First, parse out the number of threads and if direct event
+    // exchange is to be used.
+    bool noNuma = (USE_NUMA == 1) ? false : true;
     ArgParser::ArgRecord arg_list[] = {
         { "--threads-per-node", "Number of threads to start per node/process",
           &threadsPerNode, ArgParser::INTEGER},
+        { "--use-shared-events", "Share events between threads on node",
+          &doShareEvents, ArgParser::BOOLEAN},
+        { "--dealloc-thresh", "Desired % (0.01 to 1.0) of reclaiming shared-events",
+          &deallocThresh, ArgParser::DOUBLE},
+#ifdef USE_NUMA        
+        {"--no-numa", "Disable use of NUMA-aware memory management",
+         &noNuma, ArgParser::BOOLEAN},
+#endif        
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -58,7 +74,25 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
     ASSERT( threadsPerNode > 0 );
-
+    if ((deallocThresh  <= 0) || (deallocThresh > 1.0)) {
+        std::cerr << "Invalid value for --dealloc-thresh. Value must be "
+            "> 0 and <= 1\n";
+        abort();
+    }
+    // Setup the global/static flag in EventQueue if we would like to
+    // directly share events between threads.
+    EventQueue::setUsingSharedEvents(doShareEvents);
+    // Setup the NUMA mode of operation based on command-line arguments.
+    EventRecycler::NumaSetting numaMode = EventRecycler::NUMA_NONE;
+    if (!noNuma) {
+        // If NUMA is enabled, then setup default mode depending on
+        // whether we are sharing events or not.
+        numaMode = (doShareEvents ? EventRecycler::NUMA_RECEIVER :
+                    EventRecycler::NUMA_SENDER);
+        // Enable per-thread NUMA-aware memory manager for the main
+        // thread.
+        StateRecycler::setup(true, numa_preferred());
+    }
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedShmCommunicator* mtc =
         new MultiThreadedShmCommunicator(this, threadsPerNode);
@@ -75,27 +109,81 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
     Simulation::initialize(argc, argv, initMPI);
     // Setup our global thread ID
     globalThreadID = myID * threadsPerNode;
-    // Add this class as thread zero.
-    threads.push_back(this);
+    // Initialize the barrier in MultiThreadedShmSimulation used for
+    // coordinating the number of threads being used.
+    threadBarrier.setThreadCount(threadsPerNode);
     // Create the necessary number of threads.
-    for (int thrID = 1; (thrID < threadsPerNode); thrID++) {
-        const int globalThrID = (myID * threadsPerNode) + thrID;
+    createThreads(threadsPerNode, mtc, cmdArgs);
+    // Finally, let the base-class perform generic initialization
+    muse::Simulation::initialize(argc, argv, initMPI);
+    // Enable/disable NUMA-aware memory management.
+    EventRecycler::setupNUMA(mtc, numaIDofThread, numaMode);
+}
+
+void
+MultiThreadedShmSimulationManager::createThreads(const int threadCount,
+                                              MultiThreadedShmCommunicator* mtc,
+                                              std::vector<char*> cmdArgs) {
+    // Get the list of CPUs to be used.
+    const std::vector<int> cpuList = getAvailableCPUs();
+    ASSERT(!cpuList.empty());
+    // If we have more threads than CPU's report a warning
+    if ((int) cpuList.size() < threadCount) {
+        std::cout << "Warning: More threads " << threadCount
+                  << " than available cores: "
+                  << cpuList.size() << std::endl;
+    }
+    // Re-size the numaIDs list to accommodate local thread information
+    numaIDofThread.resize(threadCount);
+    // Add this class as thread zero to the list of threads.
+    threads.push_back(this);
+    cpuID = cpuList.at(0);
+    // Setup NUMA node information for this thread/CPU.
+    numaIDofThread[0] = getNumaNodeOfCpu(cpuID);
+    // Create the other thread classes.
+    for (int thrID = 1; (thrID < threadCount); thrID++) {
+        const int globalThrID = (myID * threadCount) + thrID;
+        const int cpuNum      = cpuList.at(thrID % cpuList.size());
         MultiThreadedShmSimulation* tsm =
             new MultiThreadedShmSimulation(this, thrID, globalThrID,
-                                        threadsPerNode);
+                                        threadCount, doShareEvents, cpuNum);
+        // Setup NUMA node information for this thread/CPU.
+        numaIDofThread[thrID] = getNumaNodeOfCpu(cpuNum);
         // Setup the pointer to shared comm-manager to be used
-        tsm->setCommManager(mtc);        
+        tsm->setCommManager(mtc);
         // Setup command-line arguments from a copy to preserve original
-        argc = cmdArgs.size();
+        int argc = cmdArgs.size();
         std::vector<char*> cmdArgsCopy = cmdArgs;
-        argv = cmdArgsCopy.data();
+        char** argv = cmdArgsCopy.data();
         // Let the thread initialize itself based on parameters.
         tsm->initialize(argc, argv, false);
         // Add the newly created thread to the list
         threads.push_back(tsm);
     }
-    // Finally, let the base-class perform generic initialization
-    muse::Simulation::initialize(argc, argv, initMPI);
+    for (int thr = 0; (thr < threadCount); thr++) {
+        std::cout << "Thread #" << thr << ": CPU=" << cpuList.at(thr)
+                  << ", NUMA node: " << numaIDofThread.at(thr) << std::endl;
+    }
+}
+
+std::vector<int>
+MultiThreadedShmSimulationManager::getAvailableCPUs() const {
+    std::vector<int> cpuList;  // Available CPUs for pinning
+    cpu_set_t cpuset;          // cores from pthread.
+    CPU_ZERO(&cpuset);         // Initialize with zeros.
+    int err = 0;               // Error code (if any)
+    if ((err = pthread_getaffinity_np(pthread_self(), sizeof(cpu_set_t),
+                                      &cpuset)) != 0) {
+        std::cerr << "Error in getCPUAffinity(): " << err << std::endl;
+    } else {
+        // Got CPU bit-map. Convert to list to make processing easier.
+        for (int i = 0; (i < CPU_SETSIZE); i++) {
+            if (CPU_ISSET(i, &cpuset)) {
+                cpuList.push_back(i);
+            }
+        }
+    }
+    return cpuList;
 }
 
 bool
@@ -142,6 +230,8 @@ MultiThreadedShmSimulationManager::preStartInit() {
     // on different MPI processes which is needed to enable exchange
     // of events.
     mtCommMgr->registerAllAgents();
+    // Setup initial capacity on container to hold incoming MPI events
+    mpiEvents.reserve(maxMpiMsgThresh * 2);
 }
 
 void
@@ -164,6 +254,9 @@ MultiThreadedShmSimulationManager::start() {
     // Now that the simulation is done, wind-up the threads
     std::for_each(thrList.begin(), thrList.end(),
                   std::mem_fn(&std::thread::join));
+    // Wait for all the parallel processes to complete the main
+    // simulation loop.
+    MPI_BARRIER();    
 }
 
 void
@@ -174,7 +267,14 @@ MultiThreadedShmSimulationManager::finalize(bool stopMPI, bool delCommMgr) {
     }
     // Next, finalize this thread #0
     MultiThreadedShmSimulation::finalize(stopMPI, delCommMgr);
-    // Next get rid of all the thread helper classes as they are no
+    // Free-up pending events from sub-threads to be cleaned up. There
+    // maybe some to be cleaned as Agent's input/output queues could
+    // be holding onto the last few events.  These events are added to
+    // the thread #0's pendingDeallocs list by other threads before
+    // they join thread #0 in simulate() method in this class.
+    ASSERT(EventRecycler::pendingDeallocs.empty());
+    ASSERT(EventRecycler::Recycler.empty());    
+    // Finally, get rid of all the thread helper classes as they are no
     // longer needed.  The thread #0 will be deleted in
     // Simulation::finalizeSimulation() method if user requests it.
     for (size_t thrIdx = 1; (thrIdx < threads.size()); thrIdx++) {
@@ -203,40 +303,52 @@ MultiThreadedShmSimulationManager::processMpiMsgs() {
     // wire as we can. A good magic number is 100.  However this
     // number could be dynamically adapted depending on behavior of
     // the simulation.
-    int numMsgs;
-    for (numMsgs = 0; (numMsgs < maxMpiMsgThresh); numMsgs++) {    
-        Event* incoming_event = commManager->receiveEvent();
-        if (incoming_event != NULL) {
-            ASSERT(incoming_event->getReferenceCount() == 1);
-            const AgentID receiver = incoming_event->getReceiverAgentID();
-            // Enqueue the incoming event to the appropriate thread.
-            if (incoming_event->getSenderAgentID() == -1) {
-                // This must be a GVT message.
-                ASSERT(receiver <= 0);
-                ASSERT(dynamic_cast<GVTMessage*>(incoming_event) != NULL);
-                const unsigned int glblThrId = -receiver;
-                DEBUG(std::cout << "myID = " << myID
-                                << ", glblThrId = " << glblThrId << std::endl);
-                ASSERT(glblThrId >= (myID + 0) * threadsPerNode);
-                ASSERT(glblThrId <  (myID + 1) * threadsPerNode);
-                // Always send incoming GVT messages to thread index #0.
-                addIncomingEvent(glblThrId % threadsPerNode, incoming_event);
-            } else {
-                // Get the thread ID for the receiver agent.
-                const int thrIdx = mtCommMgr->getThreadID(receiver);
-                ASSERT( thrIdx != -1 );
-                addIncomingEvent(thrIdx, incoming_event);
-            }
+    ASSERT(mpiEvents.empty());
+    if (mtCommMgr->receiveManyEvents(mpiEvents, maxMpiMsgThresh) <= 0) {
+        return 0;  // No events were obtained from MPI
+    }
+    // Process the incoming MPI events.
+    for (Event* incoming_event : mpiEvents) {
+        ASSERT(incoming_event->getReferenceCount() == 1);
+        const AgentID receiver = incoming_event->getReceiverAgentID();
+        // Enqueue the incoming event to the appropriate thread.
+        if (incoming_event->getSenderAgentID() == -1) {
+            // This must be a GVT message.
+            ASSERT(receiver <= 0);
+            ASSERT(dynamic_cast<GVTMessage*>(incoming_event) != NULL);
+            const unsigned int glblThrId = -receiver;
+            DEBUG(std::cout << "myID = " << myID
+                            << ", glblThrId = " << glblThrId << std::endl);
+            ASSERT(glblThrId >= (myID + 0) * threadsPerNode);
+            ASSERT(glblThrId <  (myID + 1) * threadsPerNode);
+            // Always send incoming GVT messages to thread index #0.
+            addIncomingEvent(glblThrId % threadsPerNode, incoming_event);
         } else {
-            // Incoming event was NULL. Nothing more to read for now.
-            break;
+            // Get the thread ID for the receiver agent.
+            const int thrIdx = mtCommMgr->getThreadID(receiver);
+            ASSERT( thrIdx != -1 );
+            // Increment input reference counter for this event to
+            // balance decrement in MultiThreadedSimulation::
+            // processIncomingEvents() -- this is to balance
+            // expectation between locally-shared events versus events
+            // received over the wire
+            if (doShareEvents) {
+                EventRecycler::increaseInputRefCount(doShareEvents,
+                                                     incoming_event);
+            }
+            addIncomingEvent(thrIdx, incoming_event);
         }
     }
+    // Save events received over mpi to return
+    const int msgCount = mpiEvents.size();
     // Track the batch size if numMsgs is greater than zero.
-    if (numMsgs > 0) {
-        mpiMsgBatchSize += numMsgs;
-    }
-    return numMsgs;    
+    if (msgCount > 0) {
+        mpiMsgBatchSize += msgCount;
+    }    
+    // Clear out the processed events in preparation for next cycle
+    mpiEvents.clear();
+    // Return the number of events received.
+    return msgCount;
 }
 
 #endif
