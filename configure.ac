@@ -225,7 +225,9 @@ AC_DEFUN([AC_CHECK_ARGS],
         if test "$flag_check" == "0"; then
             AC_MSG_RESULT([yes])
             m4_default([$2], :)
-	    CPPFLAGS+=" [$1]"
+            if test -z "[$5]"; then 
+                CPPFLAGS+=" [$1]"
+            fi
         else
 	    AC_MSG_RESULT([no])
 	    m4_default([$3], :)
@@ -300,8 +302,6 @@ AC_DEFUN([AC_PROG_GCC],
      if test "yes" == "$gcc"; then
          USING_GCC="-DGCC"
 	 AC_CHECK_GCC_VERSION
-         OPT_O3="-O3"
-         # AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
      else
      	 USING_GCC=""
      fi
@@ -412,12 +412,14 @@ AC_SUBST(PIPE)
 # AC_SUBST(FAST)
 
 # The -O3 flag is now accepted by gcc, icc, & clang.
-AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""])
+AC_CHECK_ARGS([-O3], [OPT_O3="-O3"], [OPT_O3=""], [$OPT_O3], ["no"])
+
 # Override -O3 based on developer assertions flags as needed.
 DEV_ASSERT=""
 AC_ARG_ENABLE([assertions],
     AS_HELP_STRING([--enable-assertions], [Enable developer assertion checks for sanity checking]),
     [ if test "$enableval" == "yes"; then
+          AC_MSG_NOTICE([Enabling developer assertion compiler flag])    
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
       fi
     ])
@@ -425,7 +427,8 @@ AC_ARG_ENABLE([assertions],
 AC_ARG_ENABLE([debug],
     AS_HELP_STRING([--enable-debug], [Setup all compile in debugging mode]),
     [ if test "$enableval" == "yes"; then
-          OPT_O3="-O0"
+          AC_MSG_NOTICE([Enabling debug flags & developer assertions])
+          OPT_O3="-Og"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
       fi
     ])
@@ -434,6 +437,7 @@ AC_ARG_ENABLE([debug],
 AC_ARG_ENABLE([full-debug],
     AS_HELP_STRING([--enable-full-debug], [Setup all compile with debugging outputs]),
     [ if test "$enableval" == "yes"; then
+          AC_MSG_NOTICE([Enabling full debug flags & developer assertions])    
           OPT_O3="-O0"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS -DDEBUG_OUTPUT"
       fi
