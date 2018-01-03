@@ -93,6 +93,17 @@ PHOLDAgent::PHOLDAgent(AgentID id, PholdState* state, int x, int y,
     }    
 }
 
+void
+PHOLDAgent::setLocalAgentRange(const muse::AgentID min, const muse::AgentID max,
+                               const double remoteEvtFrac) {
+    localAgentRange.first  = min;
+    localAgentRange.second = max;
+    remoteEvents           = remoteEvtFrac;
+    // Ensure that receiver range is set to a non-zero value so that
+    // the logic in executeTask correctly does local_remote processing
+    receiverRange          = (receiverDistType == LOCAL_REMOTE ? 1 : 0);
+}
+
 int
 PHOLDAgent::getDelay(const DelayType delType, const int genParam) {
     switch (delType) {
@@ -202,7 +213,44 @@ PHOLDAgent::getAdjacentAgentID() {
 }
 
 muse::AgentID
+PHOLDAgent::getLocalRemoteID() {
+    // Compute total number of remote agents that we have.
+    const int remAgntCount = X * Y - (localAgentRange.second -
+                                      localAgentRange.first);
+    // Use a uniform random distribution to decide if a local or
+    // remote agent should be selected.
+    std::uniform_real_distribution<> isRemote(0, 1);
+    if ((isRemote(rng) > remoteEvents) || (remAgntCount == 0)) {
+        // Generate ID of an local agent. Note that remAgntCount will
+        // be zero in 1 process/thread case -- yes, the user should
+        // not have specified remoteEvents > 0 -- but here we work
+        // around it.
+        ASSERT(localAgentRange.first < localAgentRange.second);
+        std::uniform_int_distribution<> id(localAgentRange.first,
+                                           localAgentRange.second - 1);
+        return id(rng);
+    }
+    // When control drops here we are generating ID of a remote
+    // agent. Remote agents the IDs are not contiguous.  So some
+    // math-logic is needed to uniformly select a remote agent.  First
+    // generate a uniform random number in the range 0 to the number
+    // of remote agents we have.
+    std::uniform_int_distribution<> idGen(0, remAgntCount - 1);
+    const int index = idGen(rng);
+    // Now convert the index into an actual ID based on range.
+    return (index < localAgentRange.first) ? index :
+        (index + localAgentRange.second - localAgentRange.first);
+}
+
+muse::AgentID
 PHOLDAgent::getRecvrAgentID() {
+    if (receiverDistType == LOCAL_REMOTE) {
+        // This is not really a distribution but a special case of
+        // operation of PHOLD.
+        return getLocalRemoteID();
+    }
+    // When control drops here we are generating a destination
+    // receiver agent based on an actual distribution.
     const int rndVal = getDelay(receiverDistType, receiverRange);
     // Set default as current agent.
     muse::AgentID receiverAgentID = getAgentID() + rndVal - (maxRecvrRange / 2);
@@ -298,6 +346,8 @@ PHOLDAgent::toDelayType(const std::string& delay) {
         return REVERSE_POISSON;
     } else if ((delay_str == "reverse_exponential") || (delay_str == "5")) {
         return REVERSE_EXPONENTIAL;
+    } else if ((delay_str == "local_remote") || (delay_str == "6")) {
+        return LOCAL_REMOTE;
     }
     return INVALID_DELAY;
 }

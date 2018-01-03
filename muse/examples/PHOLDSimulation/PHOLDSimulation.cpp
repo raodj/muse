@@ -57,6 +57,7 @@ PHOLDSimulation::PHOLDSimulation() {
     receiverRange  = 0;
     recvrDistrib   = "uniform";
     extraEventSize = 0;
+    remoteEvents   = 0;
 }
 
 PHOLDSimulation::~PHOLDSimulation() {}
@@ -95,6 +96,8 @@ PHOLDSimulation::processArgs(int argc, char** argv) {
          &recvrDistrib, ArgParser::STRING},
         {"--extra-evt-size", "Extra bytes to be added to each event",
          &extraEventSize, ArgParser::INTEGER},
+        {"--remote-events", "%remote events when recvr-distrib is local_remote",
+         &remoteEvents, ArgParser::DOUBLE},     
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -170,14 +173,20 @@ PHOLDSimulation::createAgents() {
         PHOLDAgent::toDelayType(recvrDistrib);    
     // Create the agents and assign to multiple threads if that is the
     // configuration.
-    int currThread = 0;  // current thread
+    int currThread       = 0;  // current thread
     int currThrNumAgents = 0;  // number of agents on current thread.
+    int thrStartAgent    = agentStartID;  // First agent on current thread.
     for (int i = agentStartID; (i < agentEndID); i++) {
         PholdState* state = new PholdState();
         PHOLDAgent* agent = new PHOLDAgent(i, state, rows, cols, events, delay,
                                            lookAhead, selfEvents, granularity,
                                            delayType, receiverRange,
                                            recvrType, extraEventSize);
+        // Setup range of local agents based on per-thread values.
+        const int thrEndAgent = (currThread == threadsPerNode - 1) ?
+            agentEndID : (thrStartAgent + agentsPerThread);
+        agent->setLocalAgentRange(thrStartAgent, thrEndAgent, remoteEvents);
+        std::cout << "start end: " << thrStartAgent << " " << thrEndAgent << std::endl;
         kernel->registerAgent(agent, currThread);
         // Have the first agent print the delay histogram
         if (delayHist && (i == agentStartID)) {
@@ -186,8 +195,9 @@ PHOLDSimulation::createAgents() {
         // Handle assigning agents to different threads
         if ((++currThrNumAgents >= agentsPerThread) &&
             (currThread < threadsPerNode - 1)) {
-            currThread++;  // assign agents to next thread.
+            currThread++;          // assign agents to next thread.
             currThrNumAgents = 0;  // reset number of agents on this thread.
+            thrStartAgent = i + 1; // Set starting agent for new thread
         }
     }
     std::cout << "Rank " << rank << ": Registered agents from "
