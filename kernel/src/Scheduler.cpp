@@ -76,7 +76,7 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     } else if (adaptTimeWindow) {
         // Maybe the time window is a bit too small. Start increasing
         // time window to try and accommodate the next event.
-        adaptiveTimeWindow += (timeDelta * 4);
+        adaptiveTimeWindow += (timeDelta * 1);
     }
     return false;  // Current event outside time window. Do not schedule
 }
@@ -148,6 +148,7 @@ Scheduler::scheduleEvent(Event* e) {
 
 bool
 Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
+    DEBUG(static Avg avgRbDist);
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
@@ -156,12 +157,18 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
         if (adaptTimeWindow) {
             const Time gvt    = Simulation::getSimulator()->getGVT();
             const Time rbDist = e->getReceiveTime() - gvt;
-            if (rbDist > 0) {
-                adaptiveTimeWindow += rbDist;
-                if (adaptiveTimeWindow.getCount() > 100) {
-                    // Sufficient samples have been accumulated.
-                    timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
-                }
+            adaptiveTimeWindow += rbDist;            
+            DEBUG(avgRbDist += rbDist);
+            if (adaptiveTimeWindow.getCount() > 100) {
+                // Sufficient samples have been accumulated.  Set time
+                // window estimate.
+                timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
+                DEBUG(
+                      if (adaptiveTimeWindow.getCount() % 50000 == 0) {
+                          std::cout << "RB timeWindow set to: "
+                                    << adaptiveTimeWindow << ", rbDist = "
+                                    << avgRbDist << std::endl;
+                      });
             }
         }
         // Have the agent to do inputQ, and outputQ clean-up and
