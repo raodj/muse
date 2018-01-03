@@ -186,7 +186,6 @@ PHOLDSimulation::createAgents() {
         const int thrEndAgent = (currThread == threadsPerNode - 1) ?
             agentEndID : (thrStartAgent + agentsPerThread);
         agent->setLocalAgentRange(thrStartAgent, thrEndAgent, remoteEvents);
-        std::cout << "start end: " << thrStartAgent << " " << thrEndAgent << std::endl;
         kernel->registerAgent(agent, currThread);
         // Have the first agent print the delay histogram
         if (delayHist && (i == agentStartID)) {
