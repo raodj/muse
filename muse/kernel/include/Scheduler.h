@@ -39,6 +39,7 @@ BEGIN_NAMESPACE(muse);
      
 class Scheduler {
     friend class Simulation;
+    friend class MultiThreadedShmSimulationManager;
 public:
     /** \brief Default Constructor
 

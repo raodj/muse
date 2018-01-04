@@ -264,6 +264,18 @@ protected:
     */
     void setCommManager(MultiThreadedShmCommunicator* mtc);
 
+
+    /** Set pointer to a scheduler that is shared between threads
+
+        This must be called when a MT simulation thread is created
+        as the pointer must be to a single scheduler that is shared.
+    */
+    void setMTScheduler(MultiThreadedScheduler* sch) {
+        ASSERT(scheduler == NULL);
+        ASSERT(sch != NULL);
+        scheduler = sch; // held by base class muse::Simulation
+    }
+
     /** Performs the core simulation operation for each thread.
 
         This method is invoked on each thread associated with the

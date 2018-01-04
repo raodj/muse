@@ -24,6 +24,7 @@
 
 #include <mutex>
 #include "mpi-mt-shm/MultiThreadedShmSimulation.h"
+#include "mpi-mt-shm/MultiThreadedScheduler.h"
 #include "EventRecycler.h"
 
 BEGIN_NAMESPACE(muse);
@@ -225,11 +226,15 @@ protected:
 
         \param[in,out] mtc The multi-threaded communicator shared by
         the different threads in this process.
+        
+        \param[in,out] mts The multi-threaded scheduler shared by
+        the different threads in this process.
 
         \param[in] cmdArgs The command-line arguments to be passed to
         the various threads as part of initialization.
     */
     void createThreads(const int threads, MultiThreadedCommunicator* mtc,
+                       MultiThreadedScheduler* mts,
                        std::vector<char*> cmdArgs);
     
     /** Helper method to determine the list of available CPUs to which

@@ -136,6 +136,7 @@ void
 Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Make the arg_record
     bool saveState = false;
+    std::string simName = "default";
     ArgParser::ArgRecord arg_list[] = {
         { "--scheduler", "The scheduler to use (default or hrm)",
           &schedulerName, ArgParser::STRING },
@@ -145,6 +146,9 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
           &saveState, ArgParser::BOOLEAN},
         { "--max-mpi-msg-thresh", "Maximum consecutive MPI msgs to process",
           &maxMpiMsgThresh, ArgParser::INTEGER},
+        { "--simulator", "The type of simulator/kernel to use; one of: " \
+          "default, mpi-mt, mpi-mt-shm", 
+          &simName, ArgParser::STRING },
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -152,10 +156,15 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // and update instance variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
-    // Setup scheduler based on scheduler name.
-    scheduler = (schedulerName == "hrm") ? new HRMScheduler() : new Scheduler();
-    // Initialize the scheduler.
-    scheduler->initialize(myID, numberOfProcesses, argc, argv);
+    // Do not set scheduler yet if we are using shared memory multi threading
+    if (simName != "mpi-mt-shm") {
+        // Setup scheduler based on scheduler name.
+        scheduler = (schedulerName == "hrm") ? new HRMScheduler() : new Scheduler();
+        // Initialize the scheduler.
+        scheduler->initialize(myID, numberOfProcesses, argc, argv);
+    } else {
+        ASSERT(scheduler == NULL);
+    }
     // Setup flag to enable/disable state saving in agents
     mustSaveState = (saveState || (numberOfProcesses > 1) ||
                      (getNumberOfThreads() > 1));
