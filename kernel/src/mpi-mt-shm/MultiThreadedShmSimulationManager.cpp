@@ -34,6 +34,7 @@
 #include "GVTMessage.h"
 #include "ArgParser.h"
 #include "EventQueue.h"
+#include "Scheduler.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
@@ -99,6 +100,11 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
     // Let comm-manager use command-line arguments to configure itself.
     mtc->initialize(argc, argv, initMPI);
     setCommManager(mtc);  // set comm-manager for 'this' object.
+    // Setup shared scheduler object
+    // TODO (deperomm): Have this be based on command args?
+    MultiThreadedScheduler* mts = new MultiThreadedScheduler();
+    mts->initialize(myID, numberOfProcesses, argc, argv);
+    setMTScheduler(mts);
     // Now create the necessary number of threads and initialize them.
     // To repeatedly and consistently initialize each thread class,
     // the command-line arguments are saved and restored.
@@ -113,7 +119,7 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
     // coordinating the number of threads being used.
     threadBarrier.setThreadCount(threadsPerNode);
     // Create the necessary number of threads.
-    createThreads(threadsPerNode, mtc, cmdArgs);
+    createThreads(threadsPerNode, mtc, mts, cmdArgs);
     // Finally, let the base-class perform generic initialization
     muse::Simulation::initialize(argc, argv, initMPI);
     // Enable/disable NUMA-aware memory management.
@@ -123,6 +129,7 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
 void
 MultiThreadedShmSimulationManager::createThreads(const int threadCount,
                                               MultiThreadedShmCommunicator* mtc,
+                                              MultiThreadedScheduler* mts,
                                               std::vector<char*> cmdArgs) {
     // Get the list of CPUs to be used.
     const std::vector<int> cpuList = getAvailableCPUs();
@@ -149,8 +156,9 @@ MultiThreadedShmSimulationManager::createThreads(const int threadCount,
                                         threadCount, doShareEvents, cpuNum);
         // Setup NUMA node information for this thread/CPU.
         numaIDofThread[thrID] = getNumaNodeOfCpu(cpuNum);
-        // Setup the pointer to shared comm-manager to be used
+        // Setup the pointer to shared comm-manager and scheduler
         tsm->setCommManager(mtc);
+        tsm->setScheduler(mts);
         // Setup command-line arguments from a copy to preserve original
         int argc = cmdArgs.size();
         std::vector<char*> cmdArgsCopy = cmdArgs;
