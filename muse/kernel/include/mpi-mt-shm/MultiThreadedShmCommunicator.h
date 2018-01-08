@@ -361,22 +361,6 @@ public:
                           int retryCount = 10);
     
 protected:
-    /** Set/update the logical thread ID for an agent on this physical
-        process.
-
-        This method is invoked as agents are registered and added to
-        the differen threads on this physical process.  This method
-        updates entries in the agentThreadMap to enable looking-up
-        thread ID's associated with a given agent.
-
-        \param[in] id The ID of the agent
-
-        \param[in] thrIdx The zero-based index of the thread that is
-        actually managing the agent.
-    */
-    void setAgentThread(const AgentID id, const int thrIdx) {
-        agentThreadMap[id] = thrIdx;
-    }
 
     /** Registers local agents (already in agentThreadMap) with all
         processes.

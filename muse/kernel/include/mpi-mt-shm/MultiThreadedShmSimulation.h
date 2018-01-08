@@ -24,7 +24,9 @@
 
 #include <mutex>
 #include "Simulation.h"
+#include "SpinLockThreadBarrier.h"
 #include "mpi-mt/MTQueue.h"
+#include "mpi-mt-shm/MultiThreadedScheduler.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -273,7 +275,9 @@ protected:
     void setMTScheduler(MultiThreadedScheduler* sch) {
         ASSERT(scheduler == NULL);
         ASSERT(sch != NULL);
-        scheduler = sch; // held by base class muse::Simulation
+		mtScheduler = sch;
+		// ensure base class scheduler is null and not used
+		ASSERT(muse::Simulation::scheduler == NULL);
     }
 
     /** Performs the core simulation operation for each thread.
@@ -342,34 +346,25 @@ protected:
      */
     virtual void garbageCollect() override;
     
-    /** Method to process incoming messages from other threads.
+	/** Read messages (if any) from MPI and schedule them as necessary
 
-        This method is periodically invoked from the core simulation
-        loop to process all events currently present in incomingEvents
-        queue.  The events are from other threads or remote processes.
-    */
-    // Matt: Buffer no longer used, shared scheduler
-    // 
-    // virtual void processIncomingEvents();
+		This method is repeatedly invoked from the core simulation
+		loop to read messages via MPI.  This method usesd the mpiMutex
+		to serialize reading events to ensure MT-safe operations.
 
-    /** Read messages (if any) from MPI and add them to incomingEvent
-        queues of various threads.
+		\note This method is called from multiple sub-threads
+		logically managed by this class.
 
-        This method is repeatedly invoked from the core simulation
-        loop to read messages via MPI.  This is a polymorphic call
-        that occurs only on sub-threads.  This method dispatches the
-        call to MultiThreadedSimulationManager::processMpiMsgs().  
+		\note Events read by this method could be destined to any of
+		the threads on this nodes.  This method appropriately
+		dispatches them to the incoming event queues of various
+		threads for final processing.
 
-        \note Events read by this method could be destined to any of
-        the threads on this nodes.  This method appropriately
-        dispatches them to the incoming event queues of various
-        threads for final processing.
-
-        \return This method returns the number of MPI messages that
-        were received and processed.  If no messages were received,
-        this method returns zero.
-    */
-    virtual int processMpiMsgs() override;
+		\return This method returns the number of MPI messages that
+		were received and processed.  If no messages were received,
+		this method returns zero.
+	*/
+	virtual int processMpiMsgs() override;
 
     /** Overridable method to report additional local statistics (from
         derived classes) at the end of simulation.
@@ -409,6 +404,15 @@ protected:
     int getNumaNodeOfCpu(const int cpu) const;
     
 protected:
+	/** A shared scheduler between multiple threads
+
+	This scheduler overrides the base class scheduler and is shared
+	with multiple threads running on the same process. It is
+	assigned by the manager thread when created and is concurrently
+	accessed and manipulated.
+	*/
+	MultiThreadedScheduler* mtScheduler;
+
     /** The number of threads to be spun-up for each MPI process.
 
         This value is initialized to 1 by default.  The actual value
@@ -490,6 +494,15 @@ private:
         be private and is undefined.
     */
     MultiThreadedShmSimulation& operator=(const Simulation&);
+
+	/** Mutex to ensure only one thread at a time performs reading
+	events from MPI.
+
+	This mutex is used in the processMpiMsgs method to ensure that
+	only one thread at a time reads and enqueues incoming events
+	from MPI.
+	*/
+	static std::mutex mpiMutex;
 
     /** The multi-threading aware communicator.
 
@@ -597,15 +610,6 @@ private:
         incoming queue was checked by this thread.
     */
     size_t shrQcheckCount;
-
-    /** List of incoming events read from incomingEvents queue.
-
-        This is a temporary container that is re-used to read incoming
-        events over the shared mult-threaded queue associated with
-        this container.  This container is used just in the
-        processIncomingEvents method.
-    */
-    EventContainer shrEvents;
 
     /** The CPU ID setup for this thread.
 
