@@ -53,7 +53,7 @@ BEGIN_NAMESPACE(muse);
 */
 class MultiThreadedShmSimulationManager : public MultiThreadedShmSimulation {
     // The muse::Simulation::initializeSimulation method needs to instantiate
-    friend class muse::Simulation;
+    friend class Simulation;
 public:
     /** \brief Interface method to enable derived classes to complete
         initialization of the simulator/kernel.
@@ -121,18 +121,13 @@ public:
 	simulation.  Once the agent is registered, then the simulation
 	takes ownership of the agent object.  The agent object is
 	deleted when the finalizeSimulation method is invoked.
-
-        \param[in] threadRank An optional parameter to specify a
-        specific thread in this process to which this agent should be
-        partitioned.  The default value of -1 causes agents to be
-        assigned to threads in a round-robin manner.
         
 	\return True if the agent was registerd correctly.
         
 	\see Agent()
 	\see AgentID 
     */
-    bool registerAgent(Agent* agent, const int threadRank = -1) override;
+    bool registerAgent(Agent* agent) override;
 
     /** \brief Start the Simulation
 
@@ -195,27 +190,6 @@ protected:
         registering agents with all MPI processes.
     */
     virtual void preStartInit() override;
-
-    /** Read messages (if any) from MPI and add them to incomingEvent
-        queues of various threads.
-
-        This method is repeatedly invoked from the core simulation
-        loop to read messages via MPI.  This method usesd the mpiMutex
-        to serialize reading events to ensure MT-safe operations.
-
-        \note This method is called from multiple sub-threads
-        logically managed by this class.
-        
-        \note Events read by this method could be destined to any of
-        the threads on this nodes.  This method appropriately
-        dispatches them to the incoming event queues of various
-        threads for final processing.
-
-        \return This method returns the number of MPI messages that
-        were received and processed.  If no messages were received,
-        this method returns zero.        
-    */
-    virtual int processMpiMsgs() override;
 
     /** Refactored utility method to create threads.
 
