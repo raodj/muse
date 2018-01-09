@@ -22,8 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <numa.h>
-#include <numaif.h>
+// #include <numa.h> DO NOT CHECK IN
+// #include <numaif.h> DO NOT CHECK IN
 #include <string>
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
@@ -79,7 +79,7 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     // method.
     shrQcheckCount = 0;
     // Default flag for redistributing unused NUMA-chunks
-    doRedist       = true;
+    // doRedist       = true; // MATT DO NOT CHECK IN
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -343,8 +343,8 @@ MultiThreadedSimulation::cloneEvent(const muse::Event* src,
     if (EventRecycler::numaSetting == EventRecycler::NUMA_SENDER) {
         // Override default memory management and allocate event on
         // the receiver's NUMA node.
-        mem = EventRecycler::allocateNuma(EventRecycler::NUMA_RECEIVER,
-                                          evtSize, receiver);
+		mem = NULL; // EventRecycler::allocateNuma(EventRecycler::NUMA_RECEIVER,
+                      //                    evtSize, receiver);   // MATT DO NOT CHECK IN
     } else {
         // Use default memory management of Event.
         mem = Event::allocate(evtSize, receiver);
@@ -417,7 +417,7 @@ MultiThreadedSimulation::garbageCollect() {
     // With NUMA we periodically need to redistribute events to avoid
     // unconstrained memory growth (depending on communication patterns)
     if ((EventRecycler::numaSetting != EventRecycler::NUMA_NONE) &&
-        doRedist && (getGVT() != TIME_INFINITY)) {
+        true && (getGVT() != TIME_INFINITY)) {
         MultiThreadedSimulationManager* const mgr =
             static_cast<MultiThreadedSimulationManager*>(simMgr);
         EventRecycler::numaMemMgr.redistribute(threadsPerNode, threadID,
@@ -486,7 +486,7 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
                                  "(muse be: single-blocking");        
     }
     // Disable NUMA-chunk redistribution based on command-line argument
-    doRedist = !disableRedist;
+   //  doRedist = !disableRedist; // MATT DO NOT CHECK IN
     DEBUG(std::cout << "mtQueue set to: " << mtQueue << std::endl);
     // Let base class process consume other arguments as appropriate
     Simulation::parseCommandLineArgs(argc, argv);

@@ -39,3 +39,7 @@ class MultiThreadedScheduler : public Scheduler {
 
 
 };
+
+END_NAMESPACE(muse);
+
+#endif

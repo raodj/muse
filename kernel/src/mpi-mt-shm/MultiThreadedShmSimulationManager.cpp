@@ -195,23 +195,10 @@ MultiThreadedShmSimulationManager::getAvailableCPUs() const {
 }
 
 bool
-MultiThreadedShmSimulationManager::registerAgent(Agent* agent,
-                                              const int threadRank) {
-    // A static variable to persist across invocations to handle
-    // round-robin assignment to differen threads.
-    static int nextThreadIdx = 0;
-    // Do basic checks.
+MultiThreadedShmSimulationManager::registerAgent(Agent* agent, const int threadRank = -1) {
+	UNUSED_PARAM(threadRank);
     ASSERT(agent != NULL);
-    ASSERT((threadRank >= -1) && (threadRank < threadsPerNode));
 
-    // Setup the rank of the thread with which the agent should register
-    int thrIdx = threadRank;
-    if (thrIdx == -1) {
-        // Do round-robin assignment to threads in this case
-        thrIdx = nextThreadIdx;
-        // Update index of next thread (for next time this method is called)
-        nextThreadIdx = (nextThreadIdx + 1) % threadsPerNode;
-    }
     // Register agent--thread mapping with the communication manager
     ASSERT(mtCommMgr != NULL);
     mtCommMgr->setAgentThread(agent->getAgentID(), thrIdx);

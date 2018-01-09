@@ -25,7 +25,6 @@
 #include <mutex>
 #include "Simulation.h"
 #include "SpinLockThreadBarrier.h"
-#include "mpi-mt/MTQueue.h"
 #include "mpi-mt-shm/MultiThreadedScheduler.h"
 
 BEGIN_NAMESPACE(muse);
@@ -44,7 +43,7 @@ class MultiThreadedShmSimulationManager;
     <ul>
 
     <li>This simulation mode is enabled by specifying <tt>--simulator
-    mpi-mt --threads-per-node 5</tt> at the command-line of a MUSE
+    mpi-mt-shm --threads-per-node 5</tt> at the command-line of a MUSE
     compliant simulation.  The value for <tt>threads-per-node</tt>
     command-line argument typically is the same as the \c ppn value
     (as in: <tt>-lnodes=4:ppn=8</tt>) specified as part of the MPI

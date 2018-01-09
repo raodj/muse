@@ -94,44 +94,6 @@ public:
         setup.
     */
     virtual void finalize(bool stopMPI = true) override;
-
-    /** Determine the thread ID for the specified agent.
-
-        This method can be used to determine the thread ID associated
-        with a given agent.
-
-        \param[in] id The ID of the agent whose thread ID is
-        desired. Calling this method with an invalid or non-local
-        agent results in a return value of -1.
-
-        \return The ID of the thread or -1 (if the agent ID is not
-        local or invalid).
-    */
-    int getThreadID(const AgentID id) const {
-        AgentIDSimulatorIDMap::const_iterator entry = agentThreadMap.find(id);
-        return (entry != agentThreadMap.end() ? (int) entry->second : -1);
-    }
-
-    /** Determine the thread ID for the specified agent.
-
-        This method can be used to determine the thread ID associated
-        with a given agent.
-
-        \param[in] id The ID of the agent whose thread ID is
-        desired.
-
-        \param[in] defaultThrID The default value to be returned if
-        the specified agent is not a local agent.
-
-        \return The ID of the thread or defaultThrID (if the agent ID
-        is not local or invalid.
-    */
-    int getThreadID(const AgentID id, const int defaultThrID) const {
-        AgentIDSimulatorIDMap::const_iterator entry = agentThreadMap.find(id);
-        ASSERT((defaultThrID >= 0) && (defaultThrID < threadsPerNode));
-        return (entry != agentThreadMap.end() ? (int) entry->second :
-                defaultThrID);
-    }
     
     /** \brief Obtain the thread-based rank of the process on which a
         given agent resides.
