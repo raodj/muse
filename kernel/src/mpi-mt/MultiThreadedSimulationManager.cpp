@@ -91,7 +91,7 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
                     EventRecycler::NUMA_SENDER);
         // Enable per-thread NUMA-aware memory manager for the main
         // thread.
-        // StateRecycler::setup(true, numa_preferred()); // MATT DO NOT CHECK IN
+        StateRecycler::setup(true, numa_preferred());
     }
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedCommunicator* mtc =
