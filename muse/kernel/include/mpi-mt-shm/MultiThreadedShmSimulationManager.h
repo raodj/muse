@@ -107,9 +107,9 @@ public:
     /** \brief Register the given Agent to the Simulation
 
         This method is invoked from the model code to register agents
-	associated with the simulation.  This method adds the agent to
-	the specified thread or the next thread in a round-robin
-	manner.
+	associated with the simulation. This method adds the agent to the
+	list of shared agents between the possibly many threads that are 
+	owned by this manager.
 
 	\note Once regiestered agents will be handled by
 	MUSE. Deleting of agent will be handled by MUSE. Please only
@@ -121,13 +121,17 @@ public:
 	simulation.  Once the agent is registered, then the simulation
 	takes ownership of the agent object.  The agent object is
 	deleted when the finalizeSimulation method is invoked.
+
+	\param[in] threadRank, this parameter is not used for shared
+	memory multi threaded simulation as agents are shared amoung
+	all threads.
         
 	\return True if the agent was registerd correctly.
         
 	\see Agent()
 	\see AgentID 
     */
-    bool registerAgent(Agent* agent) override;
+    bool registerAgent(Agent* agent, const int threadRank = -1) override;
 
     /** \brief Start the Simulation
 
