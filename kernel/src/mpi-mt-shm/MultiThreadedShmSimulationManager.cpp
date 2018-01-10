@@ -199,16 +199,8 @@ MultiThreadedShmSimulationManager::registerAgent(Agent* agent, const int threadR
 	UNUSED_PARAM(threadRank);
     ASSERT(agent != NULL);
 
-    // Register agent--thread mapping with the communication manager
-    ASSERT(mtCommMgr != NULL);
-    mtCommMgr->setAgentThread(agent->getAgentID(), thrIdx);
-    // Register agent with the appropriate thread.
-    if (thrIdx == 0) {
-        // Register on this thread via base class method.
-        return Simulation::registerAgent(agent);
-    }
-    // Register with another thread.
-    return threads[thrIdx]->registerAgent(agent);
+	// Simply register the agent, since the scheduler is shared between threads anyway
+    MultiThreadedShmSimulation::registerAgent(agent);
 }
 
 void
@@ -219,6 +211,7 @@ MultiThreadedShmSimulationManager::preStartInit() {
     // Have all the threads do their pre-start init
     for (size_t thrIdx = 1; (thrIdx < threads.size()); thrIdx++) {
         ASSERT(threads[thrIdx] != NULL);
+		// MATT: Shared GVTManager? At the moment each thread has its own ****************************
         threads[thrIdx]->preStartInit();
     }
     // Finally let the comm-manager finish exchanging list of agents

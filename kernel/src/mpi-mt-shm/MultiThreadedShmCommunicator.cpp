@@ -192,7 +192,7 @@ MultiThreadedShmCommunicator::sendMessage(const GVTMessage *msg,
         // detect & route message to appropriate thread
         GVTMessage* copy = GVTMessage::create(msg, -destRank,
                                               destRank % threadsPerNode);
-        simMgr->addIncomingEvent(destRank % threadsPerNode, copy);
+        simMgr->processIncomingEvent(copy);
     } else {
         // Msg needs to be sent to a remote thread.
         // Let the base class dispatch it over MPI in a MT-safe

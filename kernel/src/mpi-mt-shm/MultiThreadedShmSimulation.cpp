@@ -95,6 +95,25 @@ MultiThreadedShmSimulation::setCommManager(MultiThreadedShmCommunicator* mtc) {
     commManager->getProcessInfo(myID, numberOfProcesses, totNumThreads);
 }
 
+void 
+MultiThreadedShmSimulation::setMTScheduler(MultiThreadedScheduler* sch) {
+	ASSERT(sch != NULL);
+	// make sure the scheduler is only set by this method to ensure
+	// scheduler is a MultiThreadedScheduler
+	ASSERT(scheduler == NULL);
+	mtScheduler = sch;
+	scheduler = sch; // let the base class hold the MTscheduler
+}
+
+bool
+MultiThreadedShmSimulation::registerAgent(Agent* agent, const int threadRank = -1) {
+	UNUSED_PARAM(threadRank);
+	// ensure the base class's scheduler is a MultiThreadedScheduler
+	ASSERT(dynamic_cast<MultiThreadedScheduler*>(scheduler));
+	// let base class register this agent (registers it with the scheduler)
+	Simulation::registerAgent(agent);
+}
+
 void
 MultiThreadedShmSimulation:: initialize(int& argc, char* argv[], bool initMPI)
     throw(std::exception) {
@@ -108,11 +127,6 @@ void
 MultiThreadedShmSimulation::finalize(bool stopMPI, bool delCommMgr) {
     // The base class does all the necessary work
     Simulation::finalize(stopMPI, delCommMgr);
-    // Delete our incoming queue as we no longer need it.
-    if (incomingEvents != NULL) {
-        delete incomingEvents;
-        incomingEvents = NULL;  // for sanity checks
-    }
 }
 
 void
@@ -213,8 +227,6 @@ MultiThreadedShmSimulation::simulate() {
         // (eventually goes to derived manager class when
         // processMpiMsgs() method is called by the base class).
         checkProcessMpiMsgs();
-        // Process incoming events and update GVT token
-        processIncomingEvents();
         // Process the next event from the list of events managed by
         // the scheduler.
         if (!processNextEvent()) {
@@ -461,8 +473,8 @@ MultiThreadedShmSimulation::processMpiMsgs() {
 				<< ", glblThrId = " << glblThrId << std::endl);
 			ASSERT(glblThrId >= (myID + 0) * threadsPerNode);
 			ASSERT(glblThrId <  (myID + 1) * threadsPerNode);
-			// Always send incoming GVT messages to thread index #0.
-			addIncomingEvent(glblThrId % threadsPerNode, incoming_event);
+			// Matt: Instead of adding to incoming event queue, process it
+			processIncomingEvent(incoming_event);
 		}
 		else {
 			// Get the thread ID for the receiver agent.
@@ -477,7 +489,8 @@ MultiThreadedShmSimulation::processMpiMsgs() {
 				EventRecycler::increaseInputRefCount(doShareEvents,
 					incoming_event);
 			}
-			addIncomingEvent(thrIdx, incoming_event);
+			// Matt: Instead of adding to incoming event queue, process it
+			processIncomingEvent(incoming_event);
 		}
 	}
 	// Save events received over mpi to return
@@ -490,6 +503,58 @@ MultiThreadedShmSimulation::processMpiMsgs() {
 	mpiEvents.clear();
 	// Return the number of events received.
 	return msgCount;
+}
+
+void 
+MultiThreadedShmSimulation::processIncomingEvent(Event* event) {
+	if (event->getSenderAgentID() == -1) {
+		// This must be a GVT message.
+		ASSERT(event->getReceiverAgentID() <= 0);
+		ASSERT(event->getReceiveTime() == -1);
+		ASSERT(dynamic_cast<GVTMessage*>(event) != NULL);
+		GVTMessage *msg = static_cast<GVTMessage*>(event);
+		ASSERT(msg != NULL);
+		gvtManager->recvGVTMessage(msg);
+	}
+	else if (event->getSenderAgentID() == REDISTR_MSG_SENDER) {
+#if USE_NUMA == 1
+		// This is a redistribution message to redistribute NUMA
+		// operations.
+		ASSERT(dynamic_cast<RedistributionMessage*>(event) != NULL);
+		RedistributionMessage *rdm =
+			static_cast<RedistributionMessage*>(event);
+		// Add entries to our thread-local recycler.
+		EventRecycler::numaMemMgr.redistribute(rdm);
+		// Get rid of this message
+		RedistributionMessage::destroy(rdm);
+#endif            
+	}
+	else {
+		// This is a regular event.  All incoming events must be
+		// inspected by the GVT manager (for tracking GVT) prior
+		// to further processing.
+		gvtManager->inspectRemoteEvent(event);
+		scheduleEvent(event);
+		if (!doShareEvents) {
+			// Decrease the reference because if it was rejected,
+			// the event will be properly deleted. However, if it
+			// is in the eventPQ, it will be unharmed (reference
+			// count will actually be fixed to correct for lack of
+			// entry of this event in a output queue on this
+			// process)
+			ASSERT(EventRecycler::getReferenceCount(event) < 3);
+			EventRecycler::decreaseOutputRefCount(doShareEvents, event);
+		}
+		else {
+			// Decrease reference count to counter the temporary
+			// increase (see: MultiThreadedSimulation::
+			// scheduleEvent(Event* e)
+			EventRecycler::decreaseInputRefCount(doShareEvents, event);
+		}
+	}
+	// Note: Don't skip this step -- Let the GVT Manager
+	// forward any pending control messages, if needed
+	gvtManager->checkWaitingCtrlMsg();
 }
 
 void

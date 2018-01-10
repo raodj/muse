@@ -158,30 +158,6 @@ public:
     */
     virtual void start() override;
 
-    /** Convenience method used by MultiThreadedCommunicator to
-        enqueue incoming events.
-
-        This is a convenience method used by
-        MultiThreadedCommunicator::sendEvent method to add an event
-        from another local thread to a given thread.  This method adds
-        the given event to the specified thread's incoming event
-        queue.
-
-        \param[in] destThrIdx The destination thread to whose incoming
-        queue the event is to be added.  The thread index must be
-        valid. No special checks are made to keep the method fast.
-
-        \param[in] event The event to be added.  This pointer cannot
-        be NULL.
-    */
-    // MATT: No longer necessary as same-process events share a scheduler
-    // 
-    // inline void addIncomingEvent(const size_t destThrIdx, muse::Event* event) {
-    //     ASSERT(destThrIdx < threads.size());
-    //     ASSERT(event != NULL);
-    //     threads[destThrIdx]->incomingEvents->add(threadID, destThrIdx, event);
-    // }
-
 protected:
     /** \brief Convenience method to perform initialization/setup just
         before agents are initialized.

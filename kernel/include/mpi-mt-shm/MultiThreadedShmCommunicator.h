@@ -365,15 +365,6 @@ private:
     void sendGatherAgentInfo(VecUint& idThrList);
                           
 private:
-    /** \brief The zero-based thread IDs on this local process that
-        logically manages a given agent.
-
-        As local agents are registered, the logical threads that
-	manages the agent are added to this map.  This information is
-	used to route local and incoming MPI events to appropriate
-	threads.
-    */
-    AgentIDSimulatorIDMap agentThreadMap;
 
     /** The simulation manager associated with this
         communicator.
