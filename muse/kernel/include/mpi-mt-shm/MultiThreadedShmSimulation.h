@@ -23,6 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include <mutex>
+#include "Event.h"
 #include "Simulation.h"
 #include "SpinLockThreadBarrier.h"
 #include "mpi-mt-shm/MultiThreadedScheduler.h"
@@ -121,6 +122,36 @@ public:
         simulation).
     */    
     virtual unsigned int getNumberOfThreads() const { return threadsPerNode; }
+
+	/** \brief Register an agent to the multi-threaded sim process
+
+	Once you design and create an agent for your simulation, use
+	this method to register the agent to the simulator. For
+	example a client could check the SimulatorID and with a switch
+	statement register agents to different simulators on different
+	processes. See examples.
+
+	\note Once regiestered agents will be handled by
+	MUSE. Deleting of agent will be handled by MUSE. Please only
+	allocate agent on the heap.
+
+	\param[in] agent pointer, this is of type Agent.  This pointer
+	cannot be NULL.  The agent must have a valid agent ID setup.
+	The agent ID must be unique across the entire parallel
+	simulation.  Once the agent is registered, then the simulation
+	takes ownership of the agent object.  The agent object is
+	deleted when the finalizeSimulation method is invoked.
+
+	\param[in] threadRank, this is not used as shared memory
+	multi threading shares the scheduler and thus agetns are not
+	locked into any one thread on the process.
+
+	\return True if the agent was register correctly.
+
+	\see Agent()
+	\see AgentID
+	*/
+	virtual bool registerAgent(Agent* agent, const int threadRank = -1);
     
 protected:
     /** The default constructor for this class.
@@ -256,7 +287,7 @@ protected:
     /** Set pointer to common/shared multi-threaded communicator.
 
         This method is typically invoked from
-        MultiThreadedSimulationManager::initialize method to set the
+        MultiThreadedShmSimulationManager::initialize method to set the
         pointer to the communicator to be used.  The communicator is
         shared between multiple threads.  Consequently, it is aware of
         multiple threads and routes events accordingly.  This method
@@ -266,18 +297,17 @@ protected:
     void setCommManager(MultiThreadedShmCommunicator* mtc);
 
 
-    /** Set pointer to a scheduler that is shared between threads
+    /** Set pointer to a scheduler that is shared between threads.
 
-        This must be called when a MT simulation thread is created
-        as the pointer must be to a single scheduler that is shared.
+        This method is typically invoked from
+        MultiThreadedShmSimulationManager::initialize method to set the
+        pointer to the scheduler to be used.  The scheduler is
+        shared between multiple threads.  Consequently, it is aware of
+        multiple threads and routes events accordingly.  This method
+        sets both MultiThreadedShmSimulation::mtScheduler and
+        Simulation::scheduler.
     */
-    void setMTScheduler(MultiThreadedScheduler* sch) {
-        ASSERT(scheduler == NULL);
-        ASSERT(sch != NULL);
-		mtScheduler = sch;
-		// ensure base class scheduler is null and not used
-		ASSERT(muse::Simulation::scheduler == NULL);
-    }
+	void setMTScheduler(MultiThreadedScheduler* sch);
 
     /** Performs the core simulation operation for each thread.
 
@@ -365,6 +395,18 @@ protected:
 	*/
 	virtual int processMpiMsgs() override;
 
+	/** Handle a new incoming event in a multi-thread aware way.
+
+		Since threads share a scheduler, this method is the same
+		regardless of which thread it is called on.
+
+		\note this method replaces the processIncomingEvents() method
+		from the non-shared memory multi-thread implementation in that
+		it is called immediately upon receiving event (thus skipping
+		the buffer queue), otherwise processing is the same
+	*/
+	virtual void processIncomingEvent(Event* event);
+
     /** Overridable method to report additional local statistics (from
         derived classes) at the end of simulation.
 
@@ -403,14 +445,6 @@ protected:
     int getNumaNodeOfCpu(const int cpu) const;
     
 protected:
-	/** A shared scheduler between multiple threads
-
-	This scheduler overrides the base class scheduler and is shared
-	with multiple threads running on the same process. It is
-	assigned by the manager thread when created and is concurrently
-	accessed and manipulated.
-	*/
-	MultiThreadedScheduler* mtScheduler;
 
     /** The number of threads to be spun-up for each MPI process.
 
@@ -439,17 +473,6 @@ protected:
         events.
     */
     int globalThreadID;
-    
-    /** A list of incoming events from other threads and processes.
-
-        The list of incoming events that will be processed by this
-        thread.  This list is multi-threading (MT) safe -- that is,
-        multiple threads can simultaneously operate on this list
-        without experiencing race conditions.  The list is initialized
-        in the parseCommandLineArgs method.
-    */
-    // MATT: Removing as no longer used
-    // MTQueue* incomingEvents;
 
     /** Refactored utility method to make copy of an event honoring
         NUMA and other runtime flags/settings.
@@ -507,7 +530,7 @@ private:
 
         This communicator is shared between multiple threaded.  It is
         created in the
-        muse::MultiThreadedSimulationManager::initialize method.  The
+        muse::MultiThreadedShmSimulationManager::initialize method.  The
         pointer is filled-in via call to setCommManager method in this
         class.  Note that this pointer is exactly the same as pointer
         set in the base class's muse::Simulation::commManager.  We
@@ -515,6 +538,19 @@ private:
         to do any typecasting etc.
     */
     MultiThreadedShmCommunicator* mtCommMgr;
+
+	/** The multi-threading aware scheduler.
+		
+		This scheduler is shared between multiple threaded.  It is
+        created in the
+        muse::MultiThreadedShmSimulationManager::initialize method.  The
+        pointer is filled-in via call to setMTScheduler method in this
+        class.  Note that this pointer is exactly the same as pointer
+        set in the base class's muse::Simulation::commManager.  We
+        maintain a pointer to the derived class so that we don't have
+        to do any typecasting etc.
+	*/
+	MultiThreadedScheduler* mtScheduler;
 
     /** The simulation manager that owns this simulation.
 
@@ -591,24 +627,6 @@ private:
         back to deallocRate.
     */
     int deallocTicker;
-
-    /** Average number of events processed as a single batch from the
-        incomingEvents queue.
-
-        This stats object tracks the average number of events
-        read/processed from the shared incomingEvents queue.  This
-        statistic does not track the calls that returned zero
-        messages.
-    */
-    Avg shrQevtCount;
-
-    /** Counter to track the number of times the incomingEvents
-        queue's removeAll method was called.
-
-        This instance variabe tracks the number of times the
-        incoming queue was checked by this thread.
-    */
-    size_t shrQcheckCount;
 
     /** The CPU ID setup for this thread.
 

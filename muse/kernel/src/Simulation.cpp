@@ -163,6 +163,7 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         // Initialize the scheduler.
         scheduler->initialize(myID, numberOfProcesses, argc, argv);
     } else {
+		// we don't want to set the scheduler here, as it needs to be shared between threads
         ASSERT(scheduler == NULL);
     }
     // Setup flag to enable/disable state saving in agents
