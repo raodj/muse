@@ -101,7 +101,9 @@ PHOLDAgent::setLocalAgentRange(const muse::AgentID min, const muse::AgentID max,
     remoteEvents           = remoteEvtFrac;
     // Ensure that receiver range is set to a non-zero value so that
     // the logic in executeTask correctly does local_remote processing
-    receiverRange          = (receiverDistType == LOCAL_REMOTE ? 1 : 0);
+    if (receiverDistType == LOCAL_REMOTE) {
+        receiverRange = 1;
+    }
 }
 
 int
