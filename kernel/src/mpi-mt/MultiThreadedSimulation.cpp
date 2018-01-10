@@ -80,6 +80,8 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     shrQcheckCount = 0;
     // Default flag for redistributing unused NUMA-chunks
     doRedist       = true;
+    // The rate at which incoming messages are to be checked
+    msgCheckRate   = 1;
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -275,6 +277,8 @@ MultiThreadedSimulation::simulate() {
     // Start the core simulation loop.
     LGVT         = startTime;
     int gvtTimer = gvtDelayRate;
+    // Counter to track if incoming events are to be processed
+    int msgCheckCount = msgCheckRate;
     // The main simulation loop
     while (gvtManager->getGVT() < endTime) {
         // See if a stat dump has been requested
@@ -292,7 +296,10 @@ MultiThreadedSimulation::simulate() {
         // processMpiMsgs() method is called by the base class).
         checkProcessMpiMsgs();
         // Process incoming events and update GVT token
-        processIncomingEvents();
+        if (--msgCheckCount == 0) {
+            processIncomingEvents();
+            msgCheckCount = msgCheckRate;
+        }
         // Process the next event from the list of events managed by
         // the scheduler.
         if (!processNextEvent()) {
@@ -463,6 +470,8 @@ MultiThreadedSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
          &subQueues, ArgParser::INTEGER},
         {"--no-redist", "Disable NUMA-chunk redistribution",
          &disableRedist, ArgParser::BOOLEAN},
+        {"--msg-check-rate", "Rate for processing events from shared queues",
+         &msgCheckRate, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
