@@ -281,13 +281,17 @@ protected:
         \param[in] event The event to be deallocated/recycled.
     */
     static void deallocateDefault(muse::Event* event) {
+        // Free-up or recycle the memory for this event.
+#ifdef RECYCLE_EVENTS
+        // Save event size (as destructor call below can change it)
+        const int eventSize = event->getEventSize();
         // Manually call event destructor
         event->~Event();
-        // Free-up or recycle the memory for this event.
-#ifdef RECYCLE_EVENTS        
-        deallocateDefault(reinterpret_cast<char*>(event),
-                          event->getEventSize());
-#else
+        // Recycle the buffer
+        deallocateDefault(reinterpret_cast<char*>(event), eventSize);
+#else 
+        // Manually call event destructor
+        event->~Event();       
         // Avoid 1 extra call to getEventSize() in this situation
         deallocateDefault(reinterpret_cast<char*>(event), 0);
 #endif
@@ -392,11 +396,12 @@ protected:
     */
     static void deallocateNuma(muse::Event* event) {
         if (numaSetting != NUMA_NONE) {
+            // Save event size (as destructor call below can change it)
+            const int eventSize = event->getEventSize();        
             // Manually call event destructor
             event->~Event();
             // Free-up or recycle the memory for this event.
-            deallocateNuma(reinterpret_cast<char*>(event),
-                           event->getEventSize());
+            deallocateNuma(reinterpret_cast<char*>(event), eventSize);
         } else {
             // NUMA use is disabled at runtime.
             deallocateDefault(event);

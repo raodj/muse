@@ -322,7 +322,11 @@ EventRecycler::getStats() {
        << "\n  Default Recycler hits   : " << recycleHits
        << "\n  Default Recycler %hits  : "
        << ((float) recycleHits / allocCalls)
-       << std::endl;
+       << "\n  Defult Recycler         : ";
+    for (auto curr : Recycler) {
+        os << " " << curr.first << " bytes [" << curr.second.size() << "]";
+    }
+    os << std::endl;
     // Return stats information back to the caller
     return os.str();
 }
