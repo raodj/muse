@@ -681,6 +681,18 @@ private:
         simulation.
     */
     bool doRedist;
+
+    /** Rate at which incoming messages are to be processed.
+
+        This instance variable tracks a command-line argument to
+        control the frequency with which incoming events from shared
+        queues are processed.  The rate is a blance between overhead
+        (of checking/removing events from queues) and latency (it is
+        better to process stragglers/anti-messages asap).  This value
+        is set via command-line argument \c --msg-check-rate.  The
+        default value is 1 (check every time).
+    */
+    int msgCheckRate;
     
 #endif
 };
