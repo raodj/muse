@@ -670,6 +670,8 @@ private:
      */
     std::string numaStats;
 
+#endif   // USE_NUMA == 1
+
     /** Runtime flag to enable/disable redistribution of unused memory
         chunks when using NUMA-aware memory management.
 
@@ -693,8 +695,6 @@ private:
         default value is 1 (check every time).
     */
     int msgCheckRate;
-    
-#endif
 };
 
 END_NAMESPACE(muse);

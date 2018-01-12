@@ -24,6 +24,7 @@
 
 #include <unordered_map>
 #include <stack>
+#include "Utilities.h"
 #include "NumaMemoryManager.h"
 
 BEGIN_NAMESPACE(muse);

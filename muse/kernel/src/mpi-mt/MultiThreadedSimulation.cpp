@@ -22,9 +22,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include <numa.h>
-#include <numaif.h>
 #include <string>
+#include "NumaMemoryManager.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
 #include "mpi-mt/SingleBlockingMTQueue.h"
@@ -78,6 +77,7 @@ MultiThreadedSimulation::MultiThreadedSimulation(MultiThreadedSimulationManager*
     // removeAll method was called in the processIncomingEvents()
     // method.
     shrQcheckCount = 0;
+    
     // Default flag for redistributing unused NUMA-chunks
     doRedist       = true;
     // The rate at which incoming messages are to be checked
@@ -347,6 +347,7 @@ MultiThreadedSimulation::cloneEvent(const muse::Event* src,
     // First suitably allocate memory for the copy
     const int evtSize = EventAdapter::getEventSize(src);    
     char* mem;  // Initialized in if-else below.
+#if USE_NUMA == 1
     if (EventRecycler::numaSetting == EventRecycler::NUMA_SENDER) {
         // Override default memory management and allocate event on
         // the receiver's NUMA node.
@@ -356,6 +357,11 @@ MultiThreadedSimulation::cloneEvent(const muse::Event* src,
         // Use default memory management of Event.
         mem = Event::allocate(evtSize, receiver);
     }
+#else
+    // NUMA-library use is disabled at compile time.
+    mem = Event::allocate(evtSize, receiver);
+#endif
+    
     ASSERT( mem != NULL );
     muse::Event* const copy = reinterpret_cast<muse::Event*>(mem);
     std::memcpy(copy, src, evtSize);
