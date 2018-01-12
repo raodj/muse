@@ -84,6 +84,7 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
     EventQueue::setUsingSharedEvents(doShareEvents);
     // Setup the NUMA mode of operation based on command-line arguments.
     EventRecycler::NumaSetting numaMode = EventRecycler::NUMA_NONE;
+#if USE_NUMA == 1
     if (!noNuma) {
         // If NUMA is enabled, then setup default mode depending on
         // whether we are sharing events or not.
@@ -93,6 +94,11 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
         // thread.
         StateRecycler::setup(true, numa_preferred());
     }
+#else
+    // NUMA libraries are not available at compile time
+    StateRecycler::setup(true, -1);
+#endif
+    
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedCommunicator* mtc =
         new MultiThreadedCommunicator(this, threadsPerNode);

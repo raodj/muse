@@ -80,8 +80,12 @@ StateRecycler::allocate(const int size) {
     // whether NUMA is enabled/disabled.
     const int netSize = size + StateAlignment;
     // NOTE: Calls can come here before multiple threads are used!
+#if USE_NUMA == 1
     char *buffer = (useNuma ? numaMemMgr.allocate(numaID, netSize) :
                     static_cast<char*>(::operator new(netSize)));
+#else
+    char *buffer = static_cast<char*>(::operator new(netSize));
+#endif
     // Setup the state size, which is used during deallocation.
     int* sizePtr = reinterpret_cast<int*>(buffer);
     *sizePtr     = size;
