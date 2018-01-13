@@ -34,7 +34,7 @@ using namespace muse;
 
 MultiThreadedShmCommunicator::MultiThreadedShmCommunicator(MultiThreadedShmSimulationManager* simMgr,
                                                      const int thrPerNode)
-    : simMgr(simMgr), threadsPerNode(thrPerNode), numMpiProcesses(0) {
+    : simMgr(simMgr), threadsPerNode(thrPerNode) {
     ASSERT( simMgr != NULL );
     ASSERT( threadsPerNode > 0 );
     // Nothing else to be done here for now
@@ -49,92 +49,8 @@ MultiThreadedShmCommunicator::initialize(int argc, char* argv[],
                                       bool initMPI) {
     // The base class does the necessary initialization
     SimulatorID simID = Communicator::initialize(argc, argv, initMPI);
-    // Set the actual number of MPI processes in the simulation now.
-    unsigned int rank = 0, totNumThreads = 0;
-    getProcessInfo(rank, numMpiProcesses, totNumThreads);
     // Finally return the simulation ID from base class
     return simID;
-}
-
-// Method run only on MPI process with rank zero
-void
-MultiThreadedShmCommunicator::gatherBroadcastAgentInfo(VecUint& idThrList) {
-    ASSERT(myMPIrank == ROOT_KERNEL);
-    // First we collect id<->thread mapping from all other processes
-    for (size_t proc = 1; (proc < numMpiProcesses); proc++) {
-        MPI_STATUS status;  // information on incoming message
-        // Probe for a message from another MPI process to figure out size.
-        MPI_PROBE(MPI_ANY_SOURCE, AGENT_LIST, status);
-        // Figure out the agent list size
-        size_t listSize = MPI_GET_COUNT(status, MPI_TYPE_UNSIGNED);
-        // Grow idThrList by the list size.
-        const size_t currSize = idThrList.size();
-        idThrList.resize(currSize + listSize);
-        // Read the actual data from the MPI process.
-        MPI_RECV(&idThrList[currSize], listSize, MPI_TYPE_UNSIGNED,
-                 status.MPI_SOURCE, AGENT_LIST, status);
-    }
-    // Now we have the full mapping aggregated in idThrList. It is
-    // time to broadcast it to all the processes.  First send size of
-    // the full list so that other processes can allocate memory
-    // needed to receive the data.
-    unsigned int listSize = idThrList.size();
-    ASSERT( listSize % 2 == 0 );
-    MPI_BCAST(&listSize, 1, MPI_TYPE_UNSIGNED, ROOT_KERNEL);
-    // Next broadcast the actual mapping
-    MPI_BCAST(idThrList.data(), listSize, MPI_TYPE_UNSIGNED, ROOT_KERNEL);
-    std::cout << "Registration of " << (listSize / 2) << " agents complete!\n";
-}
-
-// Method run only on MPI process other than rank zero
-void
-MultiThreadedShmCommunicator::sendGatherAgentInfo(VecUint& idThrList) {
-    ASSERT(myMPIrank != ROOT_KERNEL);
-    // First send local id<->thread mapping to process with Rank #0
-    MPI_SEND(idThrList.data(), idThrList.size(), MPI_TYPE_UNSIGNED,
-             ROOT_KERNEL, AGENT_LIST);
-    // Next, get broadcasted full size of mapping from rank #0
-    int listSize = 0;
-    MPI_BCAST(&listSize, 1, MPI_TYPE_UNSIGNED, ROOT_KERNEL);
-    ASSERT( listSize % 2 == 0 );  // must be even number
-    // Allocate necessary space to receive the data
-    idThrList.resize(listSize);
-    // Receive the full list from the root kernel
-    MPI_BCAST(idThrList.data(), listSize, MPI_TYPE_UNSIGNED, ROOT_KERNEL);    
-}
-
-void
-MultiThreadedShmCommunicator::registerAllAgents() {
-    // Build the list of pairs of values in the form <agent_id,
-    // global_thread_id>.
-    const int mpiRank = myMPIrank;
-    VecUint idList(agentThreadMap.size() * 2);
-    // The global thread ID of thread #0 on this process
-    const int glblThrStartIdx = threadsPerNode * mpiRank;
-    size_t idx = 0;  // index in idList
-    for (AgentIDSimulatorIDMap::value_type& entry : agentThreadMap) {
-        idList[idx++] = entry.first;   // agent ID
-        idList[idx++] = (glblThrStartIdx + entry.second);  // thread ID
-    }
-    // We need to merge agent<->thread mapping from all MPI proceses
-    if (numMpiProcesses > 1) {
-        // We need to merge mappings. Rank #0 first receives mappings
-        // from all processes, merges them, and then broadcasts the
-        // merged/full list to all the processes.
-        if (mpiRank == ROOT_KERNEL) {
-            // Do operations for Rank #0 -- modifies idList
-            gatherBroadcastAgentInfo(idList);
-        } else {
-            // Do operations for all other ranks
-            sendGatherAgentInfo(idList);
-        }
-    }
-    // Now idList has the full list of agent<->threadID
-    // mapping. Update agentMap in base class with the information.
-    ASSERT(idList.size() % 2 == 0);
-    for (size_t i = 0; (i < idList.size()); i += 2) {
-        agentMap[idList[i]] = idList[i + 1];
-    }
 }
 
 void
@@ -150,7 +66,12 @@ MultiThreadedShmCommunicator::getProcessInfo(unsigned int& rank,
     // Get basic information from parent process
     Communicator::getProcessInfo(rank, numProcesses, totNumThreads);
     // Update the total number of threads
-    totNumThreads = numProcesses * threadsPerNode;
+
+	// todo (deperomm): Hack, mpi-mt thinks processes are threads, so for true shared memory parallization, leave num of threads as the num of processes
+	// Uncomment out line below once hack is fixed (mpi-mt knows difference between threads/processes)
+	// as only reason this is possible is becasue totNumThreads is not used anywhere in mpi-mt-shm
+	// Other part of this hack is located in GVTManager.cpp
+    // totNumThreads = numProcesses * threadsPerNode;
 }
 
 void
@@ -159,13 +80,14 @@ MultiThreadedShmCommunicator::sendEvent(Event* e, const int eventSize){
     ASSERT( e != NULL );
     // First check to see if the reciever is on this process. If so,
     // directly insert the event into its incoming queue.    
-    const int thrID = getThreadID(e->getReceiverAgentID());
-    ASSERT( thrID != getThreadID(e->getSenderAgentID()) );
+	const int thrID = 0; // getThreadID(e->getReceiverAgentID()); // Matt todo event management
+	ASSERT(thrID != 0); //getThreadID(e->getSenderAgentID()) );
     if (thrID != -1) {
+		// Matt: Local event should never reach here, should just be scheduled at MTSimulator level
         // This is a local event. Insert it into the receiver agent's
         // incoming queue in a MT-safe manner.  Since this event is
         // going across thread boundaries a copy needs to be made.
-        simMgr->addIncomingEvent(thrID, e);
+        // simMgr->addIncomingEvent(thrID, e); // see above, should not even reach here, but todo with event management
     } else {
         // This is a remote event. Let the base class dispatch it over
         // MPI in a MT-safe operations
@@ -192,7 +114,7 @@ MultiThreadedShmCommunicator::sendMessage(const GVTMessage *msg,
         // detect & route message to appropriate thread
         GVTMessage* copy = GVTMessage::create(msg, -destRank,
                                               destRank % threadsPerNode);
-        simMgr->processIncomingEvent(copy);
+        // simMgr->processIncomingEvent(copy); // Matt: This shouldn't happen, should be handled by the MTSimulation level, intentionally results in error as method is protected, part of event managemetn rework
     } else {
         // Msg needs to be sent to a remote thread.
         // Let the base class dispatch it over MPI in a MT-safe

@@ -214,6 +214,10 @@ public:
         \note Call to this method is meaningful only after
         GVTManager::initialize method has been invoked on this GVT
         manager.
+
+		\note This method only used with non-memory sharing multi-
+		threading. Shared memory multi-threading does not use thread
+		based MPI rank.
         
         \param[in] thrRank The thread-based rank to be used instead of
         MPI rank.

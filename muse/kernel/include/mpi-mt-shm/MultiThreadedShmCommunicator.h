@@ -324,8 +324,7 @@ public:
     
 protected:
 
-    /** Registers local agents (already in agentThreadMap) with all
-        processes.
+    /** Registers local agents with all processes.
 
         This method creates a list of local agents and uses
         Communicator::registerAgents(const std::vector<AgentID>&)
@@ -397,16 +396,6 @@ private:
     */
     std::mutex mpiMutex;
     
-    /** The total numebr of MPI processes constituting this
-        distributed simulation.
-
-        This instance variable is set to the actual number of MPI
-        processes in the simulation.  It is used in sendMessage method
-        to streamline sending messages based on thread-based rank
-        (specifically to disambiguate if 0 rank is on a different
-        process or same process).
-    */
-    unsigned int numMpiProcesses;
 };
 
 END_NAMESPACE(muse)

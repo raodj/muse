@@ -516,6 +516,10 @@ protected:
         This is a convenience method that derived classes can override
         to perform any additional initialization/setup operations
         prior to commencement of simulation.
+
+		\note In multi threaded sims, this method is only called by the 
+		manager thread as the commManager and gvtManager are shared between
+		threads.
     */
     virtual void preStartInit();
 

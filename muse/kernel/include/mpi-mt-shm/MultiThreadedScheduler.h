@@ -36,6 +36,9 @@ BEGIN_NAMESPACE(muse);
 */
 class MultiThreadedScheduler : public Scheduler { 
 
+	// TODO (deperomm): override initialize() class to make sure the data structure 
+	// we use is a multi threaded PQ (that's the only thing initialize does is set 
+	// the structure)
 
 
 };

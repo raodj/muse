@@ -26,6 +26,7 @@
 #include "mpi-mt-shm/MultiThreadedShmSimulation.h"
 #include "mpi-mt-shm/MultiThreadedScheduler.h"
 #include "EventRecycler.h"
+#include "Agent.h"
 
 BEGIN_NAMESPACE(muse);
 

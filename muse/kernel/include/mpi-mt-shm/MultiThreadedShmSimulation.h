@@ -24,6 +24,7 @@
 
 #include <mutex>
 #include "Event.h"
+#include "GVTManager.h"
 #include "Simulation.h"
 #include "SpinLockThreadBarrier.h"
 #include "mpi-mt-shm/MultiThreadedScheduler.h"
@@ -123,35 +124,6 @@ public:
     */    
     virtual unsigned int getNumberOfThreads() const { return threadsPerNode; }
 
-	/** \brief Register an agent to the multi-threaded sim process
-
-	Once you design and create an agent for your simulation, use
-	this method to register the agent to the simulator. For
-	example a client could check the SimulatorID and with a switch
-	statement register agents to different simulators on different
-	processes. See examples.
-
-	\note Once regiestered agents will be handled by
-	MUSE. Deleting of agent will be handled by MUSE. Please only
-	allocate agent on the heap.
-
-	\param[in] agent pointer, this is of type Agent.  This pointer
-	cannot be NULL.  The agent must have a valid agent ID setup.
-	The agent ID must be unique across the entire parallel
-	simulation.  Once the agent is registered, then the simulation
-	takes ownership of the agent object.  The agent object is
-	deleted when the finalizeSimulation method is invoked.
-
-	\param[in] threadRank, this is not used as shared memory
-	multi threading shares the scheduler and thus agetns are not
-	locked into any one thread on the process.
-
-	\return True if the agent was register correctly.
-
-	\see Agent()
-	\see AgentID
-	*/
-	virtual bool registerAgent(Agent* agent, const int threadRank = -1);
     
 protected:
     /** The default constructor for this class.
@@ -168,10 +140,6 @@ protected:
         associated with this class.  This value is in the range 0 <=
         thrID < threadsPerNode.
 
-        \param[in] globalThrID The global thread ID associated with
-        this thread.  This value is unique across the process and is
-        computed as: (MPI_rank * threadsPerNode + thrID)
-
         \param[in] threadsPerNode The total number of threads running
         on this node (with thread IDs: 0, 1, ..., threadsPerNode-1).
 
@@ -187,8 +155,7 @@ protected:
         the cpuID is -1, then processor affinity is not setup.
     */
     MultiThreadedShmSimulation(MultiThreadedShmSimulationManager* simMgr,
-                            int thrID = 0, int globalThrID = 0,
-                            int threadsPerNode = 1,
+                            int thrID = 0, int threadsPerNode = 1,
                             bool usingSharedEvents = false,
                             int cpuID = -1);
 
@@ -273,17 +240,6 @@ protected:
     */
     virtual void parseCommandLineArgs(int &argc, char* argv[]) override;
 
-    /** \brief Convenience method to perform initialization/setup just
-        before agents are initialized.
-
-        This method is invoked from the main thread from
-        MultiThreadedSimulationManager to initialize the threads prior
-        to simulation.  This method first let's the base class perform
-        necesssary initialization.  It then overrides the GVT
-        manager's rank to a thread-based rank.
-    */
-    virtual void preStartInit() override;
-
     /** Set pointer to common/shared multi-threaded communicator.
 
         This method is typically invoked from
@@ -308,6 +264,17 @@ protected:
         Simulation::scheduler.
     */
 	void setMTScheduler(MultiThreadedScheduler* sch);
+
+	/** Set pointer to a gvtManager that is shared between threads.
+
+	This method is typically invoked from
+	MultiThreadedShmSimulationManager::preStartInit method to set the
+	pointer to the gvtManager to be used.  The manager is
+	shared between multiple threads.
+	*/
+	void setGVTManager(GVTManager* gvtMan) {
+		gvtManager = gvtMan;
+	}
 
     /** Performs the core simulation operation for each thread.
 
@@ -462,17 +429,6 @@ protected:
         threadsPerNode.
     */
     const int threadID;
-
-    /** The zero-based logical index value associated with this
-        thread.
-
-        This number is similar to an MPI rank.  It is computed as:
-        MPI_rank * threadsPerNode + threadID.  Consequently, each
-        thread gets a unique value across the processes.  This is the
-        value that is used by communicator to appropriately route
-        events.
-    */
-    int globalThreadID;
 
     /** Refactored utility method to make copy of an event honoring
         NUMA and other runtime flags/settings.
