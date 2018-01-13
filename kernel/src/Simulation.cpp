@@ -164,7 +164,9 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         // Initialize the scheduler.
         scheduler->initialize(myID, numberOfProcesses, argc, argv);
     } else {
-		// we don't want to set the scheduler here, as it needs to be shared between threads
+		// We don't want to set scheduler here, it must be shared between threads.
+		// Instead, it's created and set in 
+		// initialize() and createThreads() of MultiThreadedShmSimulationManager
         ASSERT(scheduler == NULL);
     }
     // Setup flag to enable/disable state saving in agents
@@ -216,7 +218,13 @@ Simulation::scheduleEvent(Event* e) {
 
 void
 Simulation::preStartInit() {
+	// Note: In share memory multi threaded sims, this method is only 
+	// called by the manager thread as the gvtManager is then shared 
+	// directly with the other threads
     ASSERT( commManager != NULL );
+	// Ensure we don't populate this in a derived class and accidently
+	// overwrite it here
+	ASSERT(gvtManager == NULL);
     // Create and initialize our GVT manager.
     gvtManager = new GVTManager(this);
     gvtManager->initialize(startTime, commManager);

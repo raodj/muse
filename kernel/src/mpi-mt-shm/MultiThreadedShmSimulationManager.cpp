@@ -94,34 +94,32 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
         // thread.
         StateRecycler::setup(true, numa_preferred());
     }
+	// To repeatedly and consistently initialize each thread class,
+	// the command-line arguments are saved and restored.
+	std::vector<char*> cmdArgs(argv, argv + argc);
+	// First initialize & setup this sim class that runs as thread zero
+	MultiThreadedShmSimulation::initialize(argc, argv, initMPI);
     // Next, initialize the communicator shared by multiple threads
     MultiThreadedShmCommunicator* mtc =
         new MultiThreadedShmCommunicator(this, threadsPerNode);
     // Let comm-manager use command-line arguments to configure itself.
     mtc->initialize(argc, argv, initMPI);
-    setCommManager(mtc);  // set comm-manager for 'this' object.
+	// set comm-manager and process data for this sim thread
+    setCommManager(mtc); 
     // Setup shared scheduler object
-    // TODO (deperomm): Have this be based on command args?
+    // TODO (deperomm): Have this be command args, generic, which mt scheduler?
     MultiThreadedScheduler* mts = new MultiThreadedScheduler();
     mts->initialize(myID, numberOfProcesses, argc, argv);
     setMTScheduler(mts);
     // Now create the necessary number of threads and initialize them.
-    // To repeatedly and consistently initialize each thread class,
-    // the command-line arguments are saved and restored.
-    std::vector<char*> cmdArgs(argv, argv + argc);
-    // First initialize & setup this class that runs as thread zero
-    MultiThreadedShmSimulation::initialize(argc, argv, initMPI);
-    // Only the manager explicitly initializes parent class to hijack streams
-    Simulation::initialize(argc, argv, initMPI);
-    // Setup our global thread ID
-    globalThreadID = myID * threadsPerNode;
     // Initialize the barrier in MultiThreadedShmSimulation used for
     // coordinating the number of threads being used.
     threadBarrier.setThreadCount(threadsPerNode);
     // Create the necessary number of threads.
     createThreads(threadsPerNode, mtc, mts, cmdArgs);
     // Finally, let the base-class perform generic initialization
-    muse::Simulation::initialize(argc, argv, initMPI);
+	// Only the manager explicitly initializes parent class to hijack streams
+    Simulation::initialize(argc, argv, initMPI); // Matt: This was called twice in mpi-mt?
     // Enable/disable NUMA-aware memory management.
     EventRecycler::setupNUMA(mtc, numaIDofThread, numaMode);
 }
@@ -149,22 +147,22 @@ MultiThreadedShmSimulationManager::createThreads(const int threadCount,
     numaIDofThread[0] = getNumaNodeOfCpu(cpuID);
     // Create the other thread classes.
     for (int thrID = 1; (thrID < threadCount); thrID++) {
-        const int globalThrID = (myID * threadCount) + thrID;
         const int cpuNum      = cpuList.at(thrID % cpuList.size());
         MultiThreadedShmSimulation* tsm =
-            new MultiThreadedShmSimulation(this, thrID, globalThrID,
-                                        threadCount, doShareEvents, cpuNum);
+            new MultiThreadedShmSimulation(this, thrID, threadCount, 
+				                                doShareEvents, cpuNum);
+		// Let the thread initialize itself based on parameters.
+		tsm->initialize(argc, argv, false);
         // Setup NUMA node information for this thread/CPU.
         numaIDofThread[thrID] = getNumaNodeOfCpu(cpuNum);
-        // Setup the pointer to shared comm-manager and scheduler
+        // Setup shared comm-manager pointers and get proc data
         tsm->setCommManager(mtc);
+		// Setup shared scheduler pointer
         tsm->setScheduler(mts);
-        // Setup command-line arguments from a copy to preserve original
+        // Setup command-line arguments from a copy to preserve original (Matt: why?)
         int argc = cmdArgs.size();
         std::vector<char*> cmdArgsCopy = cmdArgs;
         char** argv = cmdArgsCopy.data();
-        // Let the thread initialize itself based on parameters.
-        tsm->initialize(argc, argv, false);
         // Add the newly created thread to the list
         threads.push_back(tsm);
     }
@@ -195,31 +193,29 @@ MultiThreadedShmSimulationManager::getAvailableCPUs() const {
 }
 
 bool
-MultiThreadedShmSimulationManager::registerAgent(Agent* agent, const int threadRank = -1) {
+MultiThreadedShmSimulationManager::registerAgent(Agent* agent, const int threadRank) {
 	UNUSED_PARAM(threadRank);
     ASSERT(agent != NULL);
 
-	// Simply register the agent, since the scheduler is shared between threads anyway
-    MultiThreadedShmSimulation::registerAgent(agent);
+	// Simply register the agent, since 'scheduler' is shared between threads anyway
+    Simulation::registerAgent(agent);
 }
 
 void
 MultiThreadedShmSimulationManager::preStartInit() {
     ASSERT( commManager != NULL );
-    // Let base class method do initial setup
-    MultiThreadedShmSimulation::preStartInit();
-    // Have all the threads do their pre-start init
+    // Only gets called once by this manager thread to initialize gvtManager
+    Simulation::preStartInit(); // sets up gvtManager
+    // Share the gvtManager
+	ASSERT(gvtManager != NULL);
     for (size_t thrIdx = 1; (thrIdx < threads.size()); thrIdx++) {
         ASSERT(threads[thrIdx] != NULL);
-		// MATT: Shared GVTManager? At the moment each thread has its own ****************************
-        threads[thrIdx]->preStartInit();
+        threads[thrIdx]->setGVTManager(gvtManager);
     }
-    // Finally let the comm-manager finish exchanging list of agents
-    // on different MPI processes which is needed to enable exchange
-    // of events.
-    mtCommMgr->registerAllAgents();
+    // Let base class send and receive agents from all other manager processes
+    commManager->registerAgents(allAgents);
     // Setup initial capacity on container to hold incoming MPI events
-    mpiEvents.reserve(maxMpiMsgThresh * 2);
+    mpiEvents.reserve(maxMpiMsgThresh);
 }
 
 void

@@ -22,12 +22,11 @@
 //
 //---------------------------------------------------------------------------
 
-// #include <numa.h> MATT DO NOT CHECK IN
-#include <numaif.h>
+#include "NumaMemoryManager.h"
 #include <string>
 #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
 #include "mpi-mt-shm/MultiThreadedShmCommunicator.h"
-#include "mpi-mt-shm/MultiThreadedShmScheduler.h"
+#include "mpi-mt-shm/MultiThreadedScheduler.h"
 #include "SpinLock.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
@@ -48,12 +47,10 @@ SpinLockThreadBarrier MultiThreadedShmSimulation::threadBarrier;
 // the derived class, in MultiThreadedSimulationManager::createThreads
 std::vector<int> MultiThreadedSimulation::numaIDofThread;
 MultiThreadedShmSimulation::MultiThreadedShmSimulation(MultiThreadedShmSimulationManager* mgr,
-                                                 int thrID, int globalThrID,
-                                                 int threadsPerNode,
-                                                 bool usingSharedEvents,
-                                                 int cpuID) :
+                                                 int thrID, int threadsPerNode,
+                                                 bool usingSharedEvents, int cpuID) :
     Simulation(usingSharedEvents), threadsPerNode(threadsPerNode),
-    threadID(thrID), globalThreadID(globalThrID), mtCommMgr(NULL),
+    threadID(thrID), mtCommMgr(NULL),
     simMgr(mgr), mainPendingDeallocs(EventRecycler::pendingDeallocs),
     cpuID(cpuID)
 #if USE_NUMA == 1
@@ -98,20 +95,12 @@ MultiThreadedShmSimulation::setCommManager(MultiThreadedShmCommunicator* mtc) {
 void 
 MultiThreadedShmSimulation::setMTScheduler(MultiThreadedScheduler* sch) {
 	ASSERT(sch != NULL);
-	// make sure the scheduler is only set by this method to ensure
-	// scheduler is a MultiThreadedScheduler
+	// Make sure 'scheduler' set only by this method and not the base class
+	// to ensure scheduler is a MultiThreadedScheduler type. (there is
+	// logic in Simulation::parseCommandLineArgs to prevent this)
 	ASSERT(scheduler == NULL);
 	mtScheduler = sch;
 	scheduler = sch; // let the base class hold the MTscheduler
-}
-
-bool
-MultiThreadedShmSimulation::registerAgent(Agent* agent, const int threadRank = -1) {
-	UNUSED_PARAM(threadRank);
-	// ensure the base class's scheduler is a MultiThreadedScheduler
-	ASSERT(dynamic_cast<MultiThreadedScheduler*>(scheduler));
-	// let base class register this agent (registers it with the scheduler)
-	Simulation::registerAgent(agent);
 }
 
 void
@@ -309,36 +298,20 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
     // Find destination thread ID
     const int destThrID = mtCommMgr->getOwnerThreadRank(recvAgentID);
     ASSERT(destThrID != -1);
-    // ---------------
-    // MATT: Core benefit of shared scheduler will appear here
-	//       Direct evetns on this process to shared scheduler, process
-	//       remote events via MPI
-    // ---------------
-    if (destThrID == globalThreadID) {
-        // Local events are directly inserted into our own scheduler
+	// check if event is on this process or a remote one
+    if (destThrID / threadsPerNode == (int)myID) {
+		// Event is on this process
+		if (doShareEvents) {
+			// We need to increase input reference count (which
+			// typically only the receiving thread manipulates,
+			// but is safe here as only 1 thread is currently
+			// operating with the event) here to ensure that event
+			// does not get garbage collected before the receiving
+			// thread has a chance to process this event!
+			EventRecycler::increaseInputRefCount(e);
+		}
         return mtScheduler->scheduleEvent(e);
     } else {
-        // Remote events are sent via the GVTManager to aid tracking
-        // GVT. The gvt manager calls communicator.
-        if (destThrID / threadsPerNode == (int) myID) {
-            if (doShareEvents) {
-                // We need to increase input reference count (which
-                // typically only the receiving thread manipulates,
-                // but is safe here as only 1 thread is currently
-                // operating with the event) here to ensure that event
-                // does not get garbage collected before the receiving
-                // thread has a chance to process this event!
-                EventRecycler::increaseInputRefCount(e);
-                gvtManager->sendRemoteEvent(e);
-            } else {
-                // Destination thread is on same process but differen
-                // thread.  Since this event is crossing thread
-                // boundaries we make a copy (while honoring NUMA) to
-                // avoid race conditions on the reference counter.
-                Event* const copy = cloneEvent(e, recvAgentID);
-                gvtManager->sendRemoteEvent(copy);
-            }
-        } else {
             // The destination thread is on a remote process and event
             // does not need to be cloned.  However, it does need
             // inspection by GVT manager.
@@ -390,49 +363,11 @@ MultiThreadedShmSimulation::garbageCollect() {
 
 void
 MultiThreadedShmSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
-    // Make the arg_record
-    std::string mtQueue = "single-blocking";
-    int subQueues       = 2;  // #sub-queues in multi-blocking queue
-    ArgParser::ArgRecord arg_list[] = {
-        {"--mt-queue", "MT-safe queue to use for events from other threads",
-          &mtQueue, ArgParser::STRING },
-        {"--multi-mt-queues", "#sub-queues in multi-blocking queue",
-         &subQueues, ArgParser::INTEGER},
-        {"", "", NULL, ArgParser::INVALID}
-    };
-    // Use the MUSE argument parser to parse command-line arguments
-    // and update instance variables
-    ArgParser ap(arg_list);
-    ap.parseArguments(argc, argv, false);
-    // Setup the MT-queue for this process to use
-    // MATT: No need for MT queues
-    if (mtQueue == "single-blocking") {
-        incomingEvents = new SingleBlockingMTQueue<std::mutex>();
-    } else if (mtQueue == "single-blocking-sl") {
-        incomingEvents = new SingleBlockingMTQueue<muse::SpinLock>();
-    } else if (mtQueue == "multi-blocking") {
-        incomingEvents = new MultiBlockingMTQueue<std::mutex>(subQueues);
-    } else if (mtQueue == "multi-blocking-sl") {
-        incomingEvents = new MultiBlockingMTQueue<muse::SpinLock>(subQueues);
-    } else if (mtQueue == "multi-non-blocking") {
-        incomingEvents = new MultiNonBlockingMTQueue(subQueues);
-    } else {
-        // Invalid mt-queue name.
-        throw std::runtime_error("Invalid value for --mt-queue argument" \
-                                 "(muse be: single-blocking");        
-    }
-    std::cout << "mtQueue set to: " << mtQueue << std::endl;
+    
+    // MTSimulation arguments would be parsed here, if there were any...
+
     // Let base class process consume other arguments as appropriate
     Simulation::parseCommandLineArgs(argc, argv);
-}
-
-void
-MultiThreadedShmSimulation::preStartInit() {
-    // First let the base class do the necessary setup
-    Simulation::preStartInit();
-    // Now override the GVT manager's rank with thread-based rank
-    ASSERT(gvtManager != NULL);
-    gvtManager->setThreadedRank(globalThreadID);
 }
 
 int
