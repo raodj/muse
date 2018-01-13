@@ -26,6 +26,8 @@
 
 #if USE_NUMA == 1
 
+#include <numa.h>
+#include <numaif.h>
 #include <stack>
 #include <vector>
 #include <unordered_map>

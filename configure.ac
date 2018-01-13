@@ -428,7 +428,7 @@ AC_ARG_ENABLE([debug],
     AS_HELP_STRING([--enable-debug], [Setup all compile in debugging mode]),
     [ if test "$enableval" == "yes"; then
           AC_MSG_NOTICE([Enabling debug flags & developer assertions])
-          OPT_O3="-Og"
+          OPT_O3="-O0"
           DEV_ASSERT="-DDEVELOPER_ASSERTIONS"
       fi
     ])

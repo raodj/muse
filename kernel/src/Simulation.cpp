@@ -58,6 +58,7 @@ Simulation::Simulation(const bool useSharedEvents)
     processMpiMsgCalls = 0;
     mpiMsgCheckThresh  = 1;
     mpiMsgCheckCounter = mpiMsgCheckThresh;
+    DEBUG(logFile      = NULL);
 }
 
 Simulation*

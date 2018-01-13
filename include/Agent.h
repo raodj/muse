@@ -451,13 +451,18 @@ private:
         local process/thread, 2. cancel event to different thread on
         same process, and 3. cancel event to a remote process.
 
+        \param[in] minSendTime The minimum send time
+        including-and-after which all events sent by this agent to a
+        given receiver should be cancelled.
+        
         \param[in] currEvt The event to be canceled.  This parameter
         cannot be NULL/nullptr.
         
         \param[in] useSharedEvents Flag to indicate if events are
         directly shared between threads on the same proces.
     */
-    void sendAntiMessage(muse::Event* const currEvt,
+    void sendAntiMessage(const muse::Time minSendTime,
+                         muse::Event* const currEvt,
                          const bool useSharedEvents);
     
     /** The doCancellationPhaseInputQueue method.

@@ -326,17 +326,18 @@ muse::Bottom::validate() {
     if (sel.empty()) {
         return;
     }
-    Bucket::iterator next = sel.begin();
-    Bucket::iterator prev = next++;
-    while ((next != sel.end()) &&
+    // Ensure events are sorted in timestamp order.    
+    Bucket::reverse_iterator next = sel.rbegin();
+    Bucket::reverse_iterator prev = next++;
+    while ((next != sel.rend()) &&
            ((*next)->getReceiveTime() >= (*prev)->getReceiveTime())) {
         prev = next++;
     }
-    if (next != sel.end()) {
+    if (next != sel.rend()) {
         std::cout << "Error in LadderQueue.Bottom: Event " << **next
                   << " was found after " << **prev << std::endl;
     }
-    ASSERT( next == sel.end() );
+    ASSERT( next == sel.rend() );
 }
 
 // -----------------------[ HeapBottom methods ]---------------------------

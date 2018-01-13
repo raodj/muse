@@ -235,11 +235,12 @@ Agent::doRollbackRecovery(const Event* stragglerEvent,
     doRestorationPhase(stragglerEvent->getReceiveTime());
     // After state is restored, that means out current time is the restored time
     Time restoredTime = getTime(LVT);
-    
     DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
                     << restoredTime << ", while GVT = " << getTime(GVT)
                     << std::endl);
-    
+    // NOTE: Here it is very possible that the restored time is less
+    // than GVT!  Having restored time less than GVT is not an issue!
+
     // First reschedule events.  This must happen before output queue
     // processing to handle cyclic rollback chains of the form: A1 ->
     // A2 -> A3 -> A1.  The Scheduler::handleFutureAntiMessages() also
@@ -341,38 +342,81 @@ void
 Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
     // Flag to determine which reference counter should be modified.
     const bool usingSharedEvents = kernel->usingSharedEvents();    
-    AgentIDBoolMap bitMap;  // track if anti-msg has been sent to an agent
+    // Here we have to determine the lowest receive-time event we have
+    // sent thus-far to each agent and send anti-messages for each.
+    // We use a hash map to track the lowest recive-time event.
+    AgentEventMap antiMsg;  // Track lowest timestamp event
+    AgentTimeMap  minSendTime;  // Track minimum sent times.
     List<Event*>::iterator outQ_it = outputQueue.begin();
     while (outQ_it != outputQueue.end()) {
         Event* const currEvt = *outQ_it;
-        // check if the event is invalid.
+        ASSERT(currEvt->getSenderAgentID() == getAgentID());
+        // check if the event should be canceled.
         if (currEvt->getSentTime() > restoredTime) {
+            // check if we already have an event with lower timestamp
+            // for the receiver. If not record current event.
             const AgentID receiver = currEvt->getReceiverAgentID();
-            // check if bitMap to receiver agent has been set.
-            if (bitMap[receiver] == false) {
-                bitMap[receiver] = true;  // send anit-message flag.
-                // Send anti-message using refactored helper method
-                // (to keep this method from getting too cluttered).
-                // NOTE: currEvt may be directly used to send
-                // anti-messages in some cases.
-                sendAntiMessage(currEvt, usingSharedEvents);
+            AgentEventMap::iterator entry = antiMsg.find(receiver);
+            if (entry == antiMsg.end()) {
+                antiMsg[receiver] = currEvt;  // save event for anti-message.
+                // Track the minimum sent time to enable cancelation of
+                // future pending events.
+                minSendTime[receiver] = currEvt->getSentTime();
+            } else {
+                // Track the minimum sent time to enable cancelation of
+                // future pending events.
+                minSendTime[receiver] = std::min(minSendTime[receiver],
+                                                 currEvt->getSentTime());
+                // Entry already exists. Record current event if it
+                // has a lower receive-time.
+                if (entry->second->getReceiveTime() >
+                    currEvt->getReceiveTime()) {
+                    // Delete/recycle existing entry.
+                    EventRecycler::decreaseOutputRefCount(usingSharedEvents,
+                                                          entry->second);
+                    // Record the new event
+                    entry->second = currEvt;
+                } else {
+                    // We already have the lowest receive-time event
+                    // for this receiver.
+                    EventRecycler::decreaseOutputRefCount(usingSharedEvents,
+                                                          currEvt);
+                }
             }
-            // Invalid events automatically get removed
-            EventRecycler::decreaseOutputRefCount(usingSharedEvents, currEvt);
             outQ_it = outputQueue.erase(outQ_it);  // erase & update iterator
         } else {
+            // currEvt is safe as it is was sent at-or-before restoreTime.
             outQ_it++;  // Onto the next event to be checked
         }
     }
+    // Now send out anti-messages to each of the receivers in the hash map.
+    for (AgentEventMap::iterator entry = antiMsg.begin();
+         (entry != antiMsg.end()); entry++) {
+        // Send anti-message using refactored helper method (to keep
+        // this method from getting too cluttered).  NOTE: currEvt may
+        // be directly used to send anti-messages in some cases.
+        sendAntiMessage(minSendTime[entry->first], entry->second,
+                        usingSharedEvents);
+        // Free up the unused event.
+        EventRecycler::decreaseOutputRefCount(usingSharedEvents, entry->second);
+    }
+    ASSERT(outputQueue.empty() ||
+           (outputQueue.back()->getSentTime() <= restoredTime));
 }
 
 void
-Agent::sendAntiMessage(muse::Event* const currEvt, const bool useSharedEvents) {
+Agent::sendAntiMessage(const muse::Time minSendTime,
+                       muse::Event* const currEvt, const bool useSharedEvents) {
     ASSERT(currEvt != NULL);
+    ASSERT(currEvt->getSenderAgentID() == myID);
+    DEBUG(std::cout << "- Sending anti-message: " << *currEvt
+                    << ", minSendTime: " << minSendTime << std::endl);
     const AgentID receiver = currEvt->getReceiverAgentID();
     if (!kernel->isAgentLocal(myID, receiver) && !useSharedEvents) {
         // Directly use the event instead of making copy for remote
         // agent as copy is sent on the wire right away.
+        EventAdapter::setSenderInfo(currEvt, currEvt->getSenderAgentID(),
+                                    minSendTime);
         EventAdapter::makeAntiMessage(currEvt);
         kernel->scheduleEvent(currEvt);
         return;   // All done in this case. Early return to streamline code
@@ -383,7 +427,7 @@ Agent::sendAntiMessage(muse::Event* const currEvt, const bool useSharedEvents) {
     Event* const antiEvent = Event::create(receiver, currEvt->getReceiveTime());
     // Setup sender and send-time information.
     EventAdapter::setSenderInfo(antiEvent, currEvt->getSenderAgentID(),
-                                currEvt->getSentTime());
+                                minSendTime);
     EventAdapter::makeAntiMessage(antiEvent);
     if (!kernel->scheduleEvent(antiEvent)) {
         // The scheduler rejected our anti-message.  This is normal
@@ -442,12 +486,14 @@ Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
         if (!((straggler->getSenderAgentID() == currentEvent->getSenderAgentID()) &&
               (currentEvent->getSentTime() >= straggler->getSentTime()) &&
               (straggler->isAntiMessage()))) {
+            ASSERT((straggler->getSenderAgentID() != currentEvent->getSenderAgentID()) || !straggler->isAntiMessage() || (currentEvent->getSentTime() < straggler->getSentTime()));
             reschedule.push_back(currentEvent);
             DEBUG(std::cout << "*Rescheduling: " << *currentEvent << std::endl);
         } else {
             // Current event is discarded as it is not rescheduled.
             // Let the event recycler appropriately manage reference
             // counts based on single/multi-threaded modes.
+            DEBUG(std::cout << "*Discarding: " << *currentEvent << std::endl);
             EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);
         }
         del_it = inputQueue.erase(del_it);  // remove & update iterator
@@ -522,6 +568,7 @@ Agent::garbageCollect(const Time gvt) {
     while (!inputQueue.empty() &&
            (inputQueue.front()->getReceiveTime() < oneBelowGVT)) {
         Event *currentEvent = inputQueue.front();
+        DEBUG(std::cout << "Committing: " << *currentEvent << std::endl);
         // Let the event recycler appropriately manage reference
         // counts based on single/multi-threaded modes.        
         EventRecycler::decreaseInputRefCount(useSharedEvents, currentEvent);

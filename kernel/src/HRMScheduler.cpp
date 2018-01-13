@@ -141,7 +141,7 @@ HRMScheduler::processNextAgentEvents() {
     bool  retVal = false;
     if ((nextEvtTime != INFINITY) && (retVal = Scheduler::processNextAgentEvents())) {
         // Check to see if an Epoch of sufficient duration has occurred.
-        unsigned long currTime;
+        unsigned long currTime = 0;
         if (((nextEvtTime - prevEpochVTime) > epochVTimeThreshold) &&
             (((currTime = currentTimeMillis()) - epochClock) > epochClockThreshold)) {
             // New Epoch has been detected.  Append it to the epoch list.

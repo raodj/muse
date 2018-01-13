@@ -254,6 +254,8 @@ protected:
         TIME_INFINITY if heap is empty.
     */
     muse::Time getTopTime(const muse::Agent* const agent) const {
+        ASSERT(agent != NULL);
+        ASSERT(agent->schedRef.eventPQ != NULL);
         return agent->schedRef.eventPQ->getTopTime();
     }
     
