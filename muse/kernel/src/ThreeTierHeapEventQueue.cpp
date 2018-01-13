@@ -241,6 +241,7 @@ ThreeTierHeapEventQueue::eraseAfter(muse::Agent* dest,
                 Event* const evt = eventList[index];
                 ASSERT(evt != NULL);
                 if (isFutureEvent(sender, sentTime, evt)) {
+                    DEBUG(std::cout << "  Cancelling event: " << *evt << std::endl);
                     decreaseReference(evt);  // Logically free/recycle event
                     numRemoved++;
                     eventList[index] = eventList.back();
@@ -302,7 +303,8 @@ ThreeTierHeapEventQueue::updateHeap(muse::Agent* agent) {
         // Update time value as well for future access
         agent->oldTopTime = getTopTime(agent);
         // Validation check.
-        ASSERT(getTopTime(agentList[0]) <= getTopTime(agentList[1]));
+        ASSERT((agentList.size() <= 1) ||
+               (getTopTime(agentList[0]) <= getTopTime(agentList[1])));
     }
     // Return the new index position of the agent
     return index;

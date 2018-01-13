@@ -151,7 +151,8 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
     DEBUG(static Avg avgRbDist);
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
-        DEBUG(std::cout << "Rollingback due to: " << *e << std::endl);
+        DEBUG(std::cout << "Rollingback due to: " << *e
+                        << " at LVT: " << agent->getLVT() << std::endl);
         // If adaptive time window is to be used, then update the time
         // based on the current GVT value.
         if (adaptTimeWindow) {

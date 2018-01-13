@@ -78,4 +78,26 @@ typedef HashMap<muse::AgentID, muse::Agent*, HashFunction<muse::AgentID>, EqualA
 */
 typedef HashMap<muse::AgentID, bool, HashFunction<muse::AgentID>, EqualAgentID> AgentIDBoolMap;
 
+/** \typedef A hash_map<AgentID, Event*>
+
+    A typedef for a hash map whose key is AgentID and contains event
+    pointers.
+
+    The following typedef provides a short cut for using a hash map
+    whose key is a AgentID and contains event pointers.  This hash map
+    is used in Agent::doCancellationPhaseOutputQueue.
+*/
+typedef HashMap<muse::AgentID, muse::Event*, HashFunction<muse::AgentID>, EqualAgentID> AgentEventMap;
+
+/** \typedef A hash_map<AgentID, Time>
+
+    A typedef for a hash map whose key is AgentID and contains
+    simulation times.
+
+    The following typedef provides a short cut for using a hash map
+    whose key is a AgentID and contains simulation time.  This hash
+    map is used in Agent::doCancellationPhaseOutputQueue.
+*/
+typedef HashMap<muse::AgentID, muse::Time, HashFunction<muse::AgentID>, EqualAgentID> AgentTimeMap;
+
 #endif  // HASH_MAP_H

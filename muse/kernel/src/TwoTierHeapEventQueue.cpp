@@ -195,7 +195,8 @@ TwoTierHeapEventQueue::updateHeap(muse::Agent* agent) {
         // Update time value as well for future access
         agent->oldTopTime = getTopTime(agent);
         // Validation check.
-        ASSERT(getTopTime(agentList[0]) <= getTopTime(agentList[1]));
+        ASSERT((agentList.size() < 2) ||
+               (getTopTime(agentList[0]) <= getTopTime(agentList[1])));
     }
     // Return the new index position of the agent
     return index;

@@ -312,17 +312,17 @@ muse::OneTierBottom::validate() const {
         return;  // yes. bottom is valid.
     }
     // Ensure events are sorted in timestamp order.
-    BktEventList::const_iterator next = cbegin();
-    BktEventList::const_iterator prev = next++;
-    while ((next != cend()) &&
+    BktEventList::const_reverse_iterator next = crbegin();
+    BktEventList::const_reverse_iterator prev = next++;
+    while ((next != crend()) &&
            ((*next)->getReceiveTime() >= (*prev)->getReceiveTime())) {
         prev = next++;
     }
-    if (next != cend()) {
+    if (next != crend()) {
         std::cout << "Error in LadderQueue.Bottom: Event " << **next
                   << " was found after " << **prev << std::endl;
     }
-    ASSERT( next == cend() );
+    ASSERT( next == crend() );
 }
 
 // -------------------------[ TwoTierRung methods ]-------------------------
