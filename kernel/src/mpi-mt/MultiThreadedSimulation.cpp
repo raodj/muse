@@ -36,6 +36,7 @@
 #include "ArgParser.h"
 #include "EventAdapter.h"
 #include "EventRecycler.h"
+#include "StateRecycler.h"
 #include "mpi-mt/RedistributionMessage.h"
 
 // Switch to muse namespace to streamline code
@@ -255,6 +256,7 @@ MultiThreadedSimulation::getNumaNodeOfCpu(const int cpu) const {
 #if USE_NUMA == 1
     return numa_node_of_cpu(cpu);
 #else
+    UNUSED_PARAM(cpu);
     return -1;
 #endif
 }
@@ -313,7 +315,9 @@ MultiThreadedSimulation::simulate() {
     // Clear out any pending recyclable events on each thread (as each
     // thread has its own thread_local recycler).  But first save
     // default recycler statistics to report later.
+#if USE_NUMA == 1
     numaStats += EventRecycler::getStats();
+#endif
     EventRecycler::deleteRecycledEvents();
     ASSERT(EventRecycler::Recycler.empty());
     threadBarrier.wait();  // Important: wait for threads to finish
@@ -538,7 +542,9 @@ MultiThreadedSimulation::reportLocalStatistics(std::ostream& os) {
        << " [numa: "                    << getNumaNodeOfCpu(cpuID) << "]"
        << std::endl;
     // Get stats for the thread-local default & NUMA memory manager.
+#if USE_NUMA == 1
     os << numaStats;
+#endif
 }
 
 #endif

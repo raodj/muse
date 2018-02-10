@@ -241,14 +241,19 @@ EventRecycler::setupNUMA(const MultiThreadedCommunicator* comm,
     numaIDofThread = numaIDList;
     ASSERT(!numaIDofThread.empty());
     ASSERT(mtc != NULL);
-
+    
 #ifndef RECYCLE_EVENTS
-        std::cerr << "NUMA use requires that RECYCLE_EVENTS macro be defined "
-                  << "during compile time. You will need to recompile MUSE "
-                  << "with RECYCLE_EVENTS macro to use NUMA awareness.\n";
-        abort();
+    std::cerr << "NUMA use requires that RECYCLE_EVENTS macro be defined "
+              << "during compile time. You will need to recompile MUSE "
+              << "with RECYCLE_EVENTS macro to use NUMA awareness.\n";
+    abort();
 #endif
-
+    
+#else
+    // NOT using NUMA
+    UNUSED_PARAM(comm);
+    UNUSED_PARAM(numaIDList);
+    UNUSED_PARAM(numa);
 #endif // USE_NUMA == 1
 }
 
@@ -259,6 +264,9 @@ EventRecycler::startNUMA(const int blockSize) {
         // Start the per-thread NUMA operations.
         numaMemMgr.start(numaIDofThread, blockSize);
     }
+#else
+    // Not using NUMA
+    UNUSED_PARAM(blockSize);
 #endif // USE_NUMA == 1
 }
 
