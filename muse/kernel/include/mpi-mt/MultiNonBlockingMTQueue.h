@@ -82,7 +82,7 @@ public:
         Since LockQueueQueue does not have a size() method to tell
         number of elements in it, we will set an arbitrary size.
     */
-    MultiNonBlockingMTQueue(int numSubQueues = 2, int reserve = 10240,
+    MultiNonBlockingMTQueue(int numSubQueues = 2, int reserve = 2048,
                             int batchSize = 25);
     
     /** Add an event into the queue.

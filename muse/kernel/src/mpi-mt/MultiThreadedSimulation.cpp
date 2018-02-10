@@ -311,14 +311,16 @@ MultiThreadedSimulation::simulate() {
     // Wait for all the threads to finish by waiting on a barrier.
     threadBarrier.wait();
     // Clear out any pending recyclable events on each thread (as each
-    // thread has its own thread_local recycler)
+    // thread has its own thread_local recycler).  But first save
+    // default recycler statistics to report later.
+    numaStats += EventRecycler::getStats();
     EventRecycler::deleteRecycledEvents();
     ASSERT(EventRecycler::Recycler.empty());
     threadBarrier.wait();  // Important: wait for threads to finish
 
 #if USE_NUMA == 1    
-    // Save NUMA statistics to report later on before cleaning up.
-    numaStats = EventRecycler::numaMemMgr.getStats();
+    // Also, save NUMA statistics to report later on before cleaning up.
+    numaStats += EventRecycler::numaMemMgr.getStats();
 #endif
     
     // Add any pending events to the main thread's pending event list
@@ -535,10 +537,8 @@ MultiThreadedSimulation::reportLocalStatistics(std::ostream& os) {
        << "\nCPU & Numa node used   : " << cpuID
        << " [numa: "                    << getNumaNodeOfCpu(cpuID) << "]"
        << std::endl;
-    // Get stats for the thread-local NUMA memory manager.
-#if USE_NUMA == 1
+    // Get stats for the thread-local default & NUMA memory manager.
     os << numaStats;
-#endif
 }
 
 #endif
