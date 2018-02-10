@@ -31,6 +31,7 @@
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
 #include "EventAdapter.h"
+#include "StateRecycler.h"
 #include <cstdlib>
 #include <csignal>
 #include <unistd.h>

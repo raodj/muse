@@ -24,7 +24,6 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include "kernel/include/StateRecycler.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -80,10 +79,7 @@ public:
 
         \param[in] sz The size of the state to be allocated.
      */
-    void* operator new(size_t sz) {
-        ASSERT(sz >= sizeof(muse::State));
-        return StateRecycler::allocate(sz);
-    }
+    void* operator new(size_t sz);
 
     /** Overloaded delete operator to enable recycling of states.
 
@@ -96,9 +92,7 @@ public:
         pointer returned byc all to operator new in this class.  The
         pointer cannot be NULL.
     */
-    void operator delete(void *state) {
-        return StateRecycler::deallocate(static_cast<char*>(state));
-    }
+    void operator delete(void *state);
     
 protected:
     /// The time at which this State represents

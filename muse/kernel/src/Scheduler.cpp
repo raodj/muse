@@ -66,7 +66,7 @@ bool
 Scheduler::withinTimeWindow(muse::Agent* agent,
                             const muse::Event* const event) {
     ASSERT(event != NULL);
-    UNUSED_PARAM(event);
+    UNUSED_PARAM(agent);
     const Time gvt = Simulation::getSimulator()->getGVT();
     // If the next lowest-timestamp event is within time-window go
     // ahead and process it.

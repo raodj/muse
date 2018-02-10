@@ -24,6 +24,7 @@
 //---------------------------------------------------------------------------
 
 #include "State.h"
+#include "kernel/include/StateRecycler.h"
 
 using namespace muse;
 
@@ -36,6 +37,20 @@ State::getClone() {
     State *state = new State();
     state->timestamp = getTimeStamp();
     return state;
+}
+
+// Overloaded new operator for all states to streamline recycling of
+// memory.
+void*
+State::operator new(size_t sz) {
+    ASSERT(sz >= sizeof(muse::State));
+    return StateRecycler::allocate(sz);
+}
+
+// Overloaded delete operator to enable recycling of states.
+void
+State::operator delete(void *state) {
+    return StateRecycler::deallocate(static_cast<char*>(state));
 }
 
 #endif

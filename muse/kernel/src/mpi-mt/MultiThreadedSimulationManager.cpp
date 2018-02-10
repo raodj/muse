@@ -34,6 +34,7 @@
 #include "GVTMessage.h"
 #include "ArgParser.h"
 #include "EventQueue.h"
+#include "StateRecycler.h"
 
 // Switch to muse namespace to streamline code
 using namespace muse;
