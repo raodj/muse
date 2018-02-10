@@ -70,13 +70,15 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     const Time gvt = Simulation::getSimulator()->getGVT();
     // If the next lowest-timestamp event is within time-window go
     // ahead and process it.
-    const Time timeDelta = agent->getLVT() - gvt;
+    // const Time timeDelta = agent->getLVT() - gvt;
+    const Time timeDelta = event->getReceiveTime() - gvt;
     if (timeDelta <= timeWindow) {
         return true;
     } else if (adaptTimeWindow) {
         // Maybe the time window is a bit too small. Start increasing
         // time window to try and accommodate the next event.
         adaptiveTimeWindow += (timeDelta * 1);
+        timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
     }
     return false;  // Current event outside time window. Do not schedule
 }
