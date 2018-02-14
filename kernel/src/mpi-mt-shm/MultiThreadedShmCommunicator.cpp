@@ -67,10 +67,10 @@ MultiThreadedShmCommunicator::getProcessInfo(unsigned int& rank,
     Communicator::getProcessInfo(rank, numProcesses, totNumThreads);
     // Update the total number of threads
 
-	// todo (deperomm): Hack, mpi-mt thinks processes are threads, so for true shared memory parallization, leave num of threads as the num of processes
-	// Uncomment out line below once hack is fixed (mpi-mt knows difference between threads/processes)
-	// as only reason this is possible is becasue totNumThreads is not used anywhere in mpi-mt-shm
-	// Other part of this hack is located in GVTManager.cpp
+    // todo (deperomm): Hack, mpi-mt thinks processes are threads, so for true shared memory parallization, leave num of threads as the num of processes
+    // Uncomment out line below once hack is fixed (mpi-mt knows difference between threads/processes)
+    // as only reason this is possible is becasue totNumThreads is not used anywhere else in mpi-mt-shm
+    // Other part of this hack is located in GVTManager.cpp, search deperomm for relavent comment block
     // totNumThreads = numProcesses * threadsPerNode;
 }
 
@@ -119,6 +119,8 @@ MultiThreadedShmCommunicator::sendMessage(const GVTMessage *msg,
         // Msg needs to be sent to a remote thread.
         // Let the base class dispatch it over MPI in a MT-safe
         // operations.
+        // todo(deperomm): This lock seems like it could be a big bottleneck in
+        // multi threaded sims as every remote event must lock to send via mpi?
         std::lock_guard<std::mutex> lock(mpiMutex);  // Ensure MT-safe
         Communicator::sendMessage(msg, rank);
     }

@@ -39,7 +39,7 @@
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
-// #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
+#include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
 
 using namespace muse;
 
@@ -83,8 +83,8 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
         kernel = new DefaultSimulation();
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
-    // } else if (simName == "mpi-mt-shm") {
-    //     kernel = new MultiThreadedShmSimulationManager();
+    } else if (simName == "mpi-mt-shm") {
+        kernel = new MultiThreadedShmSimulationManager();
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
@@ -165,9 +165,9 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         // Initialize the scheduler.
         scheduler->initialize(myID, numberOfProcesses, argc, argv);
     } else {
-		// We don't want to set scheduler here, it must be shared between threads.
-		// Instead, it's created and set in 
-		// initialize() and createThreads() of MultiThreadedShmSimulationManager
+        // We don't want to set scheduler here, it must be shared between threads.
+        // Instead, it's created and set in 
+        // initialize() from createThreads() in MultiThreadedShmSimulationManager
         ASSERT(scheduler == NULL);
     }
     // Setup flag to enable/disable state saving in agents
@@ -219,13 +219,13 @@ Simulation::scheduleEvent(Event* e) {
 
 void
 Simulation::preStartInit() {
-	// Note: In share memory multi threaded sims, this method is only 
-	// called by the manager thread as the gvtManager is then shared 
-	// directly with the other threads
+    // Note: In share memory multi threaded sims, this method is only 
+    // called by the manager thread as the gvtManager is then shared 
+    // directly with the other threads
     ASSERT( commManager != NULL );
-	// Ensure we don't populate this in a derived class and accidently
-	// overwrite it here
-	ASSERT(gvtManager == NULL);
+    // Ensure we don't populate this in a derived class and accidently
+    // overwrite it here
+    ASSERT(gvtManager == NULL);
     // Create and initialize our GVT manager.
     gvtManager = new GVTManager(this);
     gvtManager->initialize(startTime, commManager);
@@ -259,6 +259,8 @@ Simulation::checkProcessMpiMsgs() {
     // settings.
     int numEvts = -1;
     if (--mpiMsgCheckCounter == 0) {
+        // todo(deperomm): processMpiMsgs returns 0 if it couldn't get the lock in MT, but mpi check frequency logic assumes 0 means there were no events to process, this is bad?
+        // todo(deperomm): mpimsgcheckcounter is not thread safe, decrements cause race conditions
         numEvts = processMpiMsgs();
         if (numEvts == 0) {
             if ((mpiMsgCheckThresh == 1) &&

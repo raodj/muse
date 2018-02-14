@@ -188,7 +188,7 @@ protected:
         \param[in] cmdArgs The command-line arguments to be passed to
         the various threads as part of initialization.
     */
-    void createThreads(const int threads, MultiThreadedCommunicator* mtc,
+    void createThreads(const int threads, MultiThreadedShmCommunicator* mtc,
                        MultiThreadedScheduler* mts,
                        std::vector<char*> cmdArgs);
     
