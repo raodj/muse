@@ -473,14 +473,14 @@ private:
     */
     MultiThreadedShmSimulation& operator=(const Simulation&);
 
-	/** Mutex to ensure only one thread at a time performs reading
-	events from MPI.
+    /** Mutex to ensure only one thread at a time performs reading
+    events from MPI.
 
-	This mutex is used in the processMpiMsgs method to ensure that
-	only one thread at a time reads and enqueues incoming events
-	from MPI.
-	*/
-	static std::mutex mpiMutex;
+    This mutex is used in the processMpiMsgs method to ensure that
+    only one thread at a time reads and enqueues incoming events
+    from MPI.
+    */
+    static std::mutex mpiMutex;
 
     /** The multi-threading aware communicator.
 
@@ -495,18 +495,18 @@ private:
     */
     MultiThreadedShmCommunicator* mtCommMgr;
 
-	/** The multi-threading aware scheduler.
-		
-		This scheduler is shared between multiple threaded.  It is
-        created in the
-        muse::MultiThreadedShmSimulationManager::initialize method.  The
-        pointer is filled-in via call to setMTScheduler method in this
-        class.  Note that this pointer is exactly the same as pointer
-        set in the base class's muse::Simulation::commManager.  We
-        maintain a pointer to the derived class so that we don't have
-        to do any typecasting etc.
-	*/
-	MultiThreadedScheduler* mtScheduler;
+    /** The multi-threading aware scheduler.
+
+            This scheduler is shared between multiple threaded.  It is
+    created in the
+    muse::MultiThreadedShmSimulationManager::initialize method.  The
+    pointer is filled-in via call to setMTScheduler method in this
+    class.  Note that this pointer is exactly the same as pointer
+    set in the base class's muse::Simulation::commManager.  We
+    maintain a pointer to the derived class so that we don't have
+    to do any typecasting etc.
+    */
+    MultiThreadedScheduler* mtScheduler;
 
     /** The simulation manager that owns this simulation.
 
@@ -538,6 +538,15 @@ private:
         This list is finally cleaned-up in the main thread.
     */
     EventContainer& mainPendingDeallocs;
+    
+    /** Shared event container used when a thread pulls events from mpi
+
+        This is a temporary container that is re-used to read incoming
+        events over mpi from remote processes. processMpiMsgs() is locked
+        in such a way that this container should only be used by one thread
+        at a time.
+    */
+    EventContainer mpiEvents;
 
     /** Track the fraction of events reclaimed from EventRecycler's
         pendingDeallocs list at end of each GC cycle.  This counter is

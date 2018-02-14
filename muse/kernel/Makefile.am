@@ -104,14 +104,13 @@ libmuse_a_SOURCES = \
 	include/mpi-mt/MultiNonBlockingMTQueue.h \
 	src/mpi-mt/MultiNonBlockingMTQueue.cpp \
 	include/mpi-mt/RedistributionMessage.h \
-	src/mpi-mt/RedistributionMessage.cpp
-#	include/mpi-mt-shm/MultiThreadedShmCommunicator.h \
-#	src/mpi-mt-shm/MultiThreadedShmCommunicator.cpp \
-#	include/mpi-mt-shm/MultiThreadedShmSimulation.h \
-#	src/mpi-mt-shm/MultiThreadedShmSimulation.cpp \
-#	include/mpi-mt-shm/MultiThreadedShmSimulationManager.h \
-#	src/mpi-mt-shm/MultiThreadedShmSimulationManager.cpp \
-#	include/mpi-mt-shm/SingleBlockingMTQueueShm.h \
-#	src/mpi-mt-shm/SingleBlockingMTQueueShm.cpp
+	src/mpi-mt/RedistributionMessage.cpp \
+	include/mpi-mt-shm/MultiThreadedShmCommunicator.h \
+	src/mpi-mt-shm/MultiThreadedShmCommunicator.cpp \
+	include/mpi-mt-shm/MultiThreadedShmSimulation.h \
+	src/mpi-mt-shm/MultiThreadedShmSimulation.cpp \
+	include/mpi-mt-shm/MultiThreadedShmSimulationManager.h \
+	src/mpi-mt-shm/MultiThreadedShmSimulationManager.cpp \
+	include/mpi-mt-shm/MultiThreadedScheduler.h 
 
 # end of Makefile.am

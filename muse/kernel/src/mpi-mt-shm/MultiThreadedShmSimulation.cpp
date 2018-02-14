@@ -42,10 +42,13 @@ using namespace muse;
 // clean-up recycled events.
 SpinLockThreadBarrier MultiThreadedShmSimulation::threadBarrier;
 
+// Shared mutex lock to allow thread safe pulling of mpi events from the wire
+std::mutex MultiThreadedShmSimulation::mpiMutex;
+
 // The static/shared list of NUMA-node IDs for each thread.  This list
 // is static and is shared by multiple threads.  Entries are added by
 // the derived class, in MultiThreadedSimulationManager::createThreads
-std::vector<int> MultiThreadedSimulation::numaIDofThread;
+std::vector<int> MultiThreadedShmSimulation::numaIDofThread;
 MultiThreadedShmSimulation::MultiThreadedShmSimulation(MultiThreadedShmSimulationManager* mgr,
                                                  int thrID, int threadsPerNode,
                                                  bool usingSharedEvents, int cpuID) :
@@ -67,10 +70,6 @@ MultiThreadedShmSimulation::MultiThreadedShmSimulation(MultiThreadedShmSimulatio
     deallocThresh  = 0.1;
     deallocRate    = 1;
     deallocTicker  = deallocRate;
-    // Counter to track number of times the incomingEvents queue's
-    // removeAll method was called in the processIncomingEvents()
-    // method.
-    shrQcheckCount = 0;
     // Nothing much to be done for now as base class does all the
     // necessary work.
 }
@@ -110,6 +109,8 @@ MultiThreadedShmSimulation:: initialize(int& argc, char* argv[], bool initMPI)
     // Consume any specific command-line arguments used to setup and
     // configure other components like the scheduler and GVT manager.
     parseCommandLineArgs(argc, argv);
+    // make sure parseCommandLineArgs doens't set scheduler for MT sims
+    ASSERT(scheduler == NULL);
 }
 
 void
@@ -178,6 +179,7 @@ MultiThreadedShmSimulation::getNumaNodeOfCpu(const int cpu) const {
 #if USE_NUMA == 1
     return numa_node_of_cpu(cpu);
 #else
+    UNUSED_PARAM(cpu);
     return -1;
 #endif
 }
@@ -195,8 +197,6 @@ MultiThreadedShmSimulation::simulate() {
     // Important: wait for threads to finish setup before starting
     // event processing on all threads.
     threadBarrier.wait();
-    // Initialize all the agents
-    initAgents();
     // Start the core simulation loop.
     LGVT         = startTime;
     int gvtTimer = gvtDelayRate;
@@ -255,29 +255,29 @@ MultiThreadedShmSimulation::simulate() {
     threadBarrier.wait();
 }
 
-muse::Event*
-MultiThreadedShmSimulation::cloneEvent(const muse::Event* src,
-                                    const muse::AgentID receiver) const {
-    ASSERT(src != NULL);
-    ASSERT(receiver >= 0);
-    // First suitably allocate memory for the copy
-    const int evtSize = EventAdapter::getEventSize(src);    
-    char* mem;  // Initialized in if-else below.
-    if (EventRecycler::numaSetting == EventRecycler::NUMA_SENDER) {
-        // Override default memory management and allocate event on
-        // the receiver's NUMA node.
-        mem = EventRecycler::allocateNuma(EventRecycler::NUMA_RECEIVER,
-                                          evtSize, receiver);
-    } else {
-        // Use default memory management of Event.
-        mem = Event::allocate(evtSize, receiver);
-    }
-    ASSERT( mem != NULL );
-    muse::Event* const copy = reinterpret_cast<muse::Event*>(mem);
-    std::memcpy(copy, src, evtSize);
-    ASSERT(copy->getReferenceCount() > 0);
-    return copy;
-}
+//muse::Event*
+//MultiThreadedShmSimulation::cloneEvent(const muse::Event* src,
+//                                    const muse::AgentID receiver) const {
+//    ASSERT(src != NULL);
+//    ASSERT(receiver >= 0);
+//    // First suitably allocate memory for the copy
+//    const int evtSize = EventAdapter::getEventSize(src);    
+//    char* mem;  // Initialized in if-else below.
+//    if (EventRecycler::numaSetting == EventRecycler::NUMA_SENDER) {
+//        // Override default memory management and allocate event on
+//        // the receiver's NUMA node.
+//        mem = EventRecycler::allocateNuma(EventRecycler::NUMA_RECEIVER,
+//                                          evtSize, receiver);
+//    } else {
+//        // Use default memory management of Event.
+//        mem = Event::allocate(evtSize, receiver);
+//    }
+//    ASSERT( mem != NULL );
+//    muse::Event* const copy = reinterpret_cast<muse::Event*>(mem);
+//    std::memcpy(copy, src, evtSize);
+//    ASSERT(copy->getReferenceCount() > 0);
+//    return copy;
+//}
 
 bool 
 MultiThreadedShmSimulation::scheduleEvent(Event* e) {
@@ -293,30 +293,24 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
                   << "through the agent's scheduleEvent method." << std::endl;
         abort();
     }
-    // Convenient reference to the destination agent ID
-    const AgentID recvAgentID = e->getReceiverAgentID();
-    // Find destination thread ID
-    const int destThrID = mtCommMgr->getOwnerThreadRank(recvAgentID);
-    ASSERT(destThrID != -1);
-	// check if event is on this process or a remote one
-    if (destThrID / threadsPerNode == (int)myID) {
-		// Event is on this process
-		if (doShareEvents) {
-			// We need to increase input reference count (which
-			// typically only the receiving thread manipulates,
-			// but is safe here as only 1 thread is currently
-			// operating with the event) here to ensure that event
-			// does not get garbage collected before the receiving
-			// thread has a chance to process this event!
-			EventRecycler::increaseInputRefCount(e);
-		}
+    // check if event is on this process or a remote one
+    if (commManager->isAgentLocal(myID)) {
+        // Event is on this process
+        if (doShareEvents) {
+            // We need to increase input reference count (which
+            // typically only the receiving thread manipulates,
+            // but is safe here as only 1 thread is currently
+            // operating with the event) here to ensure that event
+            // does not get garbage collected before the receiving
+            // thread has a chance to process this event!
+            EventRecycler::increaseInputRefCount(e);
+        }
         return mtScheduler->scheduleEvent(e);
     } else {
-            // The destination thread is on a remote process and event
-            // does not need to be cloned.  However, it does need
-            // inspection by GVT manager.
-            gvtManager->sendRemoteEvent(e);
-        }
+        // The destination thread is on a remote process and event
+        // does not need to be cloned.  However, it does need
+        // inspection by GVT manager.
+        gvtManager->sendRemoteEvent(e);
     }
     return true;
 }
@@ -372,131 +366,120 @@ MultiThreadedShmSimulation::parseCommandLineArgs(int &argc, char* argv[]) {
 
 int
 MultiThreadedShmSimulation::processMpiMsgs() {
-	// If we have only one process then there is nothing to be done
-	if (numberOfProcesses < 2) {
-		return 0;  // no other process to communicate with.
-	}
-	// First try to lock the shared MPI mutex.  If it is not lockable,
-	// then some other thread is pumping MPI messages for all
-	// threads. So skip rest of the operation.
-	if (!mpiMutex.try_lock()) {
-		return 0;  // Some other thread is working.
-	}
-	// We got the lock read MPI messages if any.
-	std::lock_guard<std::mutex> lock(mpiMutex, std::adopt_lock);
-	// Track number of times the processMpiMsgs method is called.
-	processMpiMsgCalls++;
-	// An optimization trick is to try to get as many events from the
-	// wire as we can. A good magic number is 100.  However this
-	// number could be dynamically adapted depending on behavior of
-	// the simulation.
-	ASSERT(mpiEvents.empty());
-	if (mtCommMgr->receiveManyEvents(mpiEvents, maxMpiMsgThresh) <= 0) {
-		return 0;  // No events were obtained from MPI
-	}
-	// Process the incoming MPI events.
-	for (Event* incoming_event : mpiEvents) {
-		ASSERT(incoming_event->getReferenceCount() == 1);
-		const AgentID receiver = incoming_event->getReceiverAgentID();
-		// Enqueue the incoming event to the appropriate thread.
-		if (incoming_event->getSenderAgentID() == -1) {
-			// This must be a GVT message.
-			ASSERT(receiver <= 0);
-			ASSERT(dynamic_cast<GVTMessage*>(incoming_event) != NULL);
-			const unsigned int glblThrId = -receiver;
-			DEBUG(std::cout << "myID = " << myID
-				<< ", glblThrId = " << glblThrId << std::endl);
-			ASSERT(glblThrId >= (myID + 0) * threadsPerNode);
-			ASSERT(glblThrId <  (myID + 1) * threadsPerNode);
-			// Matt: Instead of adding to incoming event queue, process it
-			processIncomingEvent(incoming_event);
-		}
-		else {
-			// Get the thread ID for the receiver agent.
-			const int thrIdx = mtCommMgr->getThreadID(receiver);
-			ASSERT(thrIdx != -1);
-			// Increment input reference counter for this event to
-			// balance decrement in MultiThreadedSimulation::
-			// processIncomingEvents() -- this is to balance
-			// expectation between locally-shared events versus events
-			// received over the wire
-			if (doShareEvents) {
-				EventRecycler::increaseInputRefCount(doShareEvents,
-					incoming_event);
-			}
-			// Matt: Instead of adding to incoming event queue, process it
-			processIncomingEvent(incoming_event);
-		}
-	}
-	// Save events received over mpi to return
-	const int msgCount = mpiEvents.size();
-	// Track the batch size if numMsgs is greater than zero.
-	if (msgCount > 0) {
-		mpiMsgBatchSize += msgCount;
-	}
-	// Clear out the processed events in preparation for next cycle
-	mpiEvents.clear();
-	// Return the number of events received.
-	return msgCount;
+    // If we have only one process then there is nothing to be done
+    if (numberOfProcesses < 2) {
+        return 0;  // no other process to communicate with.
+    }
+    // First try to lock the shared MPI mutex.  If it is not lockable,
+    // then some other thread is pumping MPI messages for all
+    // threads. So skip rest of the operation.
+    if (!mpiMutex.try_lock()) {
+        return 0;  // Some other thread is working.
+    }
+    // We got the lock read MPI messages if any.
+    std::lock_guard<std::mutex> lock(mpiMutex, std::adopt_lock);
+    // Track number of times the processMpiMsgs method is called.
+    processMpiMsgCalls++;
+    // An optimization trick is to try to get as many events from the
+    // wire as we can. A good magic number is 100.  However this
+    // number could be dynamically adapted depending on behavior of
+    // the simulation.
+    ASSERT(mpiEvents.empty());
+    if (mtCommMgr->receiveManyEvents(mpiEvents, maxMpiMsgThresh) <= 0) {
+            return 0;  // No events were obtained from MPI
+    }
+    // Process the incoming MPI events.
+    for (Event* incoming_event : mpiEvents) {
+        ASSERT(incoming_event->getReferenceCount() == 1);
+        // Enqueue the incoming event to the appropriate thread.
+        if (incoming_event->getSenderAgentID() == -1) {
+            // This must be a GVT message.
+            ASSERT(receiver <= 0);
+            ASSERT(dynamic_cast<GVTMessage*>(incoming_event) != NULL);
+            processIncomingEvent(incoming_event);
+        }
+        else {
+            // Increment input reference counter for this event to
+            // balance decrement in MultiThreadedSimulation::
+            // processIncomingEvents() -- this is to balance
+            // expectation between locally-shared events versus events
+            // received over the wire
+            if (doShareEvents) {
+                EventRecycler::increaseInputRefCount(doShareEvents,
+                        incoming_event);
+            }
+            processIncomingEvent(incoming_event);
+        }
+    }
+    // Save events received over mpi to return
+    const int msgCount = mpiEvents.size();
+    // Track the batch size if numMsgs is greater than zero.
+    if (msgCount > 0) {
+            mpiMsgBatchSize += msgCount;
+    }
+    // Clear out the processed events in preparation for next cycle
+    mpiEvents.clear();
+    // Return the number of events received.
+    return msgCount;
 }
 
 void 
 MultiThreadedShmSimulation::processIncomingEvent(Event* event) {
-	if (event->getSenderAgentID() == -1) {
-		// This must be a GVT message.
-		ASSERT(event->getReceiverAgentID() <= 0);
-		ASSERT(event->getReceiveTime() == -1);
-		ASSERT(dynamic_cast<GVTMessage*>(event) != NULL);
-		GVTMessage *msg = static_cast<GVTMessage*>(event);
-		ASSERT(msg != NULL);
-		gvtManager->recvGVTMessage(msg);
-	}
-	else if (event->getSenderAgentID() == REDISTR_MSG_SENDER) {
+    if (event->getSenderAgentID() == -1) {
+        // This must be a GVT message.
+        ASSERT(event->getReceiverAgentID() <= 0);
+        ASSERT(event->getReceiveTime() == -1);
+        ASSERT(dynamic_cast<GVTMessage*>(event) != NULL);
+        GVTMessage *msg = static_cast<GVTMessage*>(event);
+        ASSERT(msg != NULL);
+        gvtManager->recvGVTMessage(msg);
+    }
+    else if (event->getSenderAgentID() == REDISTR_MSG_SENDER) {
 #if USE_NUMA == 1
-		// This is a redistribution message to redistribute NUMA
-		// operations.
-		ASSERT(dynamic_cast<RedistributionMessage*>(event) != NULL);
-		RedistributionMessage *rdm =
-			static_cast<RedistributionMessage*>(event);
-		// Add entries to our thread-local recycler.
-		EventRecycler::numaMemMgr.redistribute(rdm);
-		// Get rid of this message
-		RedistributionMessage::destroy(rdm);
+    // This is a redistribution message to redistribute NUMA
+    // operations.
+    ASSERT(dynamic_cast<RedistributionMessage*>(event) != NULL);
+    RedistributionMessage *rdm =
+            static_cast<RedistributionMessage*>(event);
+    // Add entries to our thread-local recycler.
+    EventRecycler::numaMemMgr.redistribute(rdm);
+    // Get rid of this message
+    RedistributionMessage::destroy(rdm);
 #endif            
-	}
-	else {
-		// This is a regular event.  All incoming events must be
-		// inspected by the GVT manager (for tracking GVT) prior
-		// to further processing.
-		gvtManager->inspectRemoteEvent(event);
-		scheduleEvent(event);
-		if (!doShareEvents) {
-			// Decrease the reference because if it was rejected,
-			// the event will be properly deleted. However, if it
-			// is in the eventPQ, it will be unharmed (reference
-			// count will actually be fixed to correct for lack of
-			// entry of this event in a output queue on this
-			// process)
-			ASSERT(EventRecycler::getReferenceCount(event) < 3);
-			EventRecycler::decreaseOutputRefCount(doShareEvents, event);
-		}
-		else {
-			// Decrease reference count to counter the temporary
-			// increase (see: MultiThreadedSimulation::
-			// scheduleEvent(Event* e)
-			EventRecycler::decreaseInputRefCount(doShareEvents, event);
-		}
-	}
-	// Note: Don't skip this step -- Let the GVT Manager
-	// forward any pending control messages, if needed
-	gvtManager->checkWaitingCtrlMsg();
+    }
+    else {
+        // This is a regular event.  All incoming events must be
+        // inspected by the GVT manager (for tracking GVT) prior
+        // to further processing.
+        gvtManager->inspectRemoteEvent(event);
+        scheduleEvent(event);
+        if (!doShareEvents) {
+            // Decrease the reference because if it was rejected,
+            // the event will be properly deleted. However, if it
+            // is in the eventPQ, it will be unharmed (reference
+            // count will actually be fixed to correct for lack of
+            // entry of this event in a output queue on this
+            // process)
+            ASSERT(EventRecycler::getReferenceCount(event) < 3);
+            EventRecycler::decreaseOutputRefCount(doShareEvents, event);
+        }
+        else {
+            // Decrease reference count to counter the temporary
+            // increase (see: MultiThreadedSimulation::
+            // scheduleEvent(Event* e)
+            EventRecycler::decreaseInputRefCount(doShareEvents, event);
+        }
+    }
+    // Note: Don't skip this step -- Let the GVT Manager
+    // forward any pending control messages, if needed
+    gvtManager->checkWaitingCtrlMsg();
 }
 
 void
 MultiThreadedShmSimulation::reportLocalStatistics(std::ostream& os) {
     os << "#Deallocs cleared/call : "   << deallocsPerCall
-       << "\nAvg sharedQ size       : " << shrQevtCount
-       << "\n#processing of sharedQ : " << shrQcheckCount
+//       << "\nAvg sharedQ size       : " << shrQevtCount
+//       << "\n#processing of sharedQ : " << shrQcheckCount
        << "\nCPU & Numa node used   : " << cpuID
        << " [numa: "                    << getNumaNodeOfCpu(cpuID) << "]"
        << std::endl;

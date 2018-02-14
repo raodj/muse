@@ -76,7 +76,7 @@ GVTManager::initialize(const Time& startTime, Communicator* comm) {
     ASSERT(numProcesses > 0);
     ASSERT(rank < numProcesses);
 
-	numProcesses = numThreads; // todo (deperomm): This hack is necessary as "threads" in mpi-mt is also mpi processes. numThreads is hard coded in the MTCommunicator to always return number of processes while in shared memory multi-threading. That class must thus also be fixed once this hack is fixed
+    // todo (deperomm): This hack is necessary as "threads" in mpi-mt is also mpi processes. numThreads is hard coded in the MTCommunicator to always return number of processes while in shared memory multi-threading. That class must thus also be fixed once this hack is fixed
     
     // Create the main vector counters.
     vecCounters[0] = new int[numProcesses];
