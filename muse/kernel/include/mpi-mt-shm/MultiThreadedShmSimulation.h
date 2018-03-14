@@ -263,18 +263,16 @@ protected:
         sets both MultiThreadedShmSimulation::mtScheduler and
         Simulation::scheduler.
     */
-	void setMTScheduler(MultiThreadedScheduler* sch);
+    void setMTScheduler(MultiThreadedScheduler* sch);
 
-	/** Set pointer to a gvtManager that is shared between threads.
+    /** Set pointer to a gvtManager that is shared between threads.
 
-	This method is typically invoked from
-	MultiThreadedShmSimulationManager::preStartInit method to set the
-	pointer to the gvtManager to be used.  The manager is
-	shared between multiple threads.
-	*/
-	void setGVTManager(GVTManager* gvtMan) {
-		gvtManager = gvtMan;
-	}
+    This method is typically invoked from
+    MultiThreadedShmSimulationManager::preStartInit method to set the
+    pointer to the gvtManager to be used.  The manager is
+    shared between multiple threads.
+    */
+    void setGVTManager(GVTManager* gvtMan);
 
     /** Performs the core simulation operation for each thread.
 
@@ -303,6 +301,24 @@ protected:
         </ol>
     */
     virtual void simulate();
+    
+    /** \brief thread safe processing of one batch of events for one agent
+        
+        This method specifically accesses the shared event queue in a thread
+        safe way, both updating LGVT and returning if events were processed
+        
+        This method is repeatedly invoked from the core simulation
+        loop (in start() method) to process the next set of events for
+        1 agent.  This is a convenience method that derived classes
+        can override to perform any additional operations in
+        conjunction with message processing.
+
+        \return If event(s) were scheduled/processed this method
+        returns true.  If no events were processed (either because of
+        time-window restrictions or there were no events) then this
+        method returns false.
+    */
+    virtual bool processNextEvent() override;
 
     /** \brief Schedule the specified event.
         
@@ -342,37 +358,37 @@ protected:
      */
     virtual void garbageCollect() override;
     
-	/** Read messages (if any) from MPI and schedule them as necessary
+    /** Read messages (if any) from MPI and schedule them as necessary
 
-		This method is repeatedly invoked from the core simulation
-		loop to read messages via MPI.  This method usesd the mpiMutex
-		to serialize reading events to ensure MT-safe operations.
+            This method is repeatedly invoked from the core simulation
+            loop to read messages via MPI.  This method usesd the mpiMutex
+            to serialize reading events to ensure MT-safe operations.
 
-		\note This method is called from multiple sub-threads
-		logically managed by this class.
+            \note This method is called from multiple sub-threads
+            logically managed by this class.
 
-		\note Events read by this method could be destined to any of
-		the threads on this nodes.  This method appropriately
-		dispatches them to the incoming event queues of various
-		threads for final processing.
+            \note Events read by this method could be destined to any of
+            the threads on this nodes.  This method appropriately
+            dispatches them to the incoming event queues of various
+            threads for final processing.
 
-		\return This method returns the number of MPI messages that
-		were received and processed.  If no messages were received,
-		this method returns zero.
-	*/
-	virtual int processMpiMsgs() override;
+            \return This method returns the number of MPI messages that
+            were received and processed.  If no messages were received,
+            this method returns zero.
+    */
+    virtual int processMpiMsgs() override;
 
-	/** Handle a new incoming event in a multi-thread aware way.
+    /** Handle a new incoming event in a multi-thread aware way.
 
-		Since threads share a scheduler, this method is the same
-		regardless of which thread it is called on.
+            Since threads share a scheduler, this method is the same
+            regardless of which thread it is called on.
 
-		\note this method replaces the processIncomingEvents() method
-		from the non-shared memory multi-thread implementation in that
-		it is called immediately upon receiving event (thus skipping
-		the buffer queue), otherwise processing is the same
-	*/
-	virtual void processIncomingEvent(Event* event);
+            \note this method replaces the processIncomingEvents() method
+            from the non-shared memory multi-thread implementation in that
+            it is called immediately upon receiving event (thus skipping
+            the buffer queue), otherwise processing is the same
+    */
+    virtual void processIncomingEvent(Event* event);
 
     /** Overridable method to report additional local statistics (from
         derived classes) at the end of simulation.
@@ -497,14 +513,13 @@ private:
 
     /** The multi-threading aware scheduler.
 
-            This scheduler is shared between multiple threaded.  It is
-    created in the
+    This scheduler is shared between multiple threads.  It is created in the
     muse::MultiThreadedShmSimulationManager::initialize method.  The
     pointer is filled-in via call to setMTScheduler method in this
     class.  Note that this pointer is exactly the same as pointer
     set in the base class's muse::Simulation::commManager.  We
     maintain a pointer to the derived class so that we don't have
-    to do any typecasting etc.
+    to do any typecasting.
     */
     MultiThreadedScheduler* mtScheduler;
 

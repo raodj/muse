@@ -624,13 +624,24 @@ protected:
     virtual bool processNextEvent();
     
 protected:
-    /// All of the Agents in the Simulation
+    /** All of the Agents in the Simulation
+     *  
+     *  This is shared between all instances of Simulation if multi threaded
+     */
     AgentContainer allAgents;
 
     // Globally unique ID of the simulator -- MPI_Rank in this case
     SimulatorID myID;
 
-    Time LGVT, startTime, endTime;
+    Time startTime, endTime;
+    
+    /**
+     * local virtual time of this simulation kernel, unique to each thread
+     * 
+     * Note: There may be more than one associated kernel running on multple
+     * threads on the same process with differing LGVT values.
+     */
+    Time LGVT;
 
     /** The name associated with the scheduler.
 
@@ -743,6 +754,12 @@ protected:
     // Debug-only logging purposes.
     DEBUG(std::ofstream*  logFile);
     DEBUG(std::streambuf* oldstream);
+    
+    /** The name of the type of simulator this is
+  
+        Example names include "default", "mpi-mt", or "mpi-mt-shm"   
+     */
+    static std::string simName;
 
     /// Keep track of if stats should be dumped this cycle
     bool doDumpStats;

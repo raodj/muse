@@ -34,12 +34,15 @@
 #include "TwoTierHeapEventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
 #include "TwoTierHeapOfVectorsEventQueue.h"
+#include "mpi-mt-shm/BadMTQ.h"
 
 BEGIN_NAMESPACE(muse);
      
 class Scheduler {
     friend class Simulation;
     friend class MultiThreadedShmSimulationManager;
+    friend class MultiThreadedShmSimulation;
+    friend class MultiThreadedScheduler;
 public:
     /** \brief Default Constructor
 
@@ -53,7 +56,7 @@ public:
         Does nothing, as the constructor does nothing.
     */
     virtual ~Scheduler();
-
+    
     /** \brief Schedule the given event
         
         Only used by the Simulation kernel. Users of MUSE API should
@@ -319,8 +322,10 @@ private:
 
         This list is created once and reused to reduce
         allocation/deallocation events.
+        
+        This is local to individual threads since could be concurrent
     */
-    muse::EventContainer agentEvents;
+    thread_local static muse::EventContainer agentEvents;
 
     /** Flag to indicate if adaptive time window is to be used to
         throttle optimism (thereby reducing rollback overheads).

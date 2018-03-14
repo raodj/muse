@@ -78,22 +78,13 @@ void
 MultiThreadedShmCommunicator::sendEvent(Event* e, const int eventSize){
     // Do some basic sanity checks.
     ASSERT( e != NULL );
-    // First check to see if the reciever is on this process. If so,
-    // directly insert the event into its incoming queue.    
-	const int thrID = 0; // getThreadID(e->getReceiverAgentID()); // Matt todo event management
-	ASSERT(thrID != 0); //getThreadID(e->getSenderAgentID()) );
-    if (thrID != -1) {
-		// Matt: Local event should never reach here, should just be scheduled at MTSimulator level
-        // This is a local event. Insert it into the receiver agent's
-        // incoming queue in a MT-safe manner.  Since this event is
-        // going across thread boundaries a copy needs to be made.
-        // simMgr->addIncomingEvent(thrID, e); // see above, should not even reach here, but todo with event management
-    } else {
-        // This is a remote event. Let the base class dispatch it over
-        // MPI in a MT-safe operations
-        std::lock_guard<std::mutex> lock(mpiMutex);  // Ensure MT-safe
-        Communicator::sendEvent(e, eventSize);
-    }
+    // This should only be used for remote events, as local events are handled
+    // internally with a shared event queue
+    ASSERT( getOwnerRank(e->getReceiverAgentID()) != 
+            getOwnerRank(e->getSenderAgentID()) );
+    ASSERT( !isAgentLocal(e->getReceiverAgentID()) );
+    std::lock_guard<std::mutex> lock(mpiMutex);  // Ensure MT-safe
+    Communicator::sendEvent(e, eventSize);
 }
 
 void

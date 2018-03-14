@@ -101,6 +101,8 @@ Agent::processNextEvents(muse::EventContainer& events) {
              (curr != events.end()); curr++) {
             ASSERT(!usingSharedEvents ||
                    (EventRecycler::getInputRefCount(*curr) > 0));
+            ASSERT(EventRecycler::getInputRefCount(*curr) < 2);
+            ASSERT(*curr != NULL);
             inputQueue.push_back(*curr);
         }
     } else {
@@ -114,6 +116,7 @@ Agent::processNextEvents(muse::EventContainer& events) {
                     << events.size() << " events at time: "
                     << events.front()->getReceiveTime()
                     << " [committed thusfar: " << numCommittedEvents << "]\n");
+    ASSERT(events.front()->getReceiverAgentID() == myID);
     ASSERT(events.front()->getReceiveTime() > getState()->timestamp);
     // Set the LVT and timestamp
     setLVT(events.front()->getReceiveTime());

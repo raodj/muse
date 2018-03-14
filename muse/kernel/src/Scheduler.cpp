@@ -30,6 +30,9 @@
 
 using namespace muse;
 
+// temp queue used to reduce allocate and deallocate overheads
+thread_local muse::EventContainer Scheduler::agentEvents;
+
 Scheduler::Scheduler() : agentPQ(NULL), timeWindow(0), adaptTimeWindow(false) {}
 
 bool
@@ -96,7 +99,7 @@ Scheduler::processNextAgentEvents() {
                     << std::endl);
     // Figure out the agent to receive this event.
     Agent* const agent = agentMap[front->getReceiverAgentID()];
-    ASSERT(agent != NULL);    
+    ASSERT(agent != NULL);
     // Check if the next lowest time-stamp event falls within time
     // window with respect to GVT.  If not, do not process events.
     if ((timeWindow > muse::Time(0)) && !withinTimeWindow(agent, front)) {
@@ -263,7 +266,9 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new AgentPQ();
     } else if (queueName == "2tLadderQ") {
         agentPQ = new TwoTierLadderQueue();
-    } else {
+    } else if (queueName == "badMTQ") {
+        agentPQ = new BadMTQ();
+    }else {
         std::cerr << "Invalid scheduler queue name. Valid queue names are:\n"
                   << "\tladderQ fibHeap heap 2tHeap 3tHeap heap2tQ.\n"
                   << "Aborting.\n";
