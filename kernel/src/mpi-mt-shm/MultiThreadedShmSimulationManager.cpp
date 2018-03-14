@@ -80,6 +80,9 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
             "> 0 and <= 1\n";
         abort();
     }
+    
+    doShareEvents = true; // For shared multi threading, always share events (remove later (deperomm))
+    
     // Setup the global/static flag in EventQueue if we would like to
     // directly share events between threads.
     EventQueue::setUsingSharedEvents(doShareEvents);
@@ -92,7 +95,9 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
                     EventRecycler::NUMA_SENDER);
         // Enable per-thread NUMA-aware memory manager for the main
         // thread.
-//        StateRecycler::setup(true, numa_preferred()); (deperomm) temp comment out while figuring out numa recyler integration
+#if USE_NUMA == 1
+        StateRecycler::setup(true, numa_preferred());
+#endif
     }
     // To repeatedly and consistently initialize each thread class,
     // the command-line arguments are saved and restored.
@@ -121,7 +126,7 @@ MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
     // Only the manager explicitly initializes parent class to hijack streams
     Simulation::initialize(argc, argv, initMPI);
     // Enable/disable NUMA-aware memory management.
-//    EventRecycler::setupNUMA(mtc, numaIDofThread, numaMode); (deperomm) temp commented out figuring out numa integration
+    EventRecycler::setupNUMA(NULL, numaIDofThread, numaMode); // (deperomm) mt-mpi-shm does not use NUMA
 }
 
 void
@@ -206,6 +211,8 @@ MultiThreadedShmSimulationManager::preStartInit() {
     ASSERT( commManager != NULL );
     // Only gets called once by this manager thread to initialize gvtManager
     Simulation::preStartInit(); // sets up gvtManager
+    // Creates a ptr from the gvt manager to this sim kernel
+    setGVTManager(gvtManager);
     // Share the gvtManager
     ASSERT(gvtManager != NULL);
     for (size_t thrIdx = 1; (thrIdx < threads.size()); thrIdx++) {
@@ -248,19 +255,77 @@ MultiThreadedShmSimulationManager::start() {
 
 void
 MultiThreadedShmSimulationManager::finalize(bool stopMPI, bool delCommMgr) {
-    // First let all the sub-threads finalize
+    // Inform the scheduler that the simulation is complete
+    scheduler->stop();
+    // Finalize all the agents on this process while accumulating stats
+    for (AgentContainer::iterator it = allAgents.begin();
+	 it != allAgents.end(); it++) {
+	Agent* const agent = *it;
+        agent->finalize();
+        agent->cleanStateQueue();
+        agent->cleanInputQueue();
+        // Don't clean output queue yet as we need stats from it.
+    }
+    // Report aggregate statistics from this kernel
+    reportStatistics(); 
+    
+    // Clean up all the agents
+    for (AgentContainer::iterator it = allAgents.begin();
+	 it != allAgents.end(); it++) {
+        Agent* const agent = *it;
+        agent->cleanOutputQueue();
+        ASSERT(agent->inputQueue.empty());
+        ASSERT(agent->outputQueue.empty());
+        // Remove agent from scheduler
+        scheduler->removeAgentFromScheduler(agent);
+        // Bye byte agent!
+        delete agent;
+    }
+    
+    // Now that agents are cleared, let all the threads finalize
+    // Agents may hold leftover events in their queues, so must finalize
+    // them first before the thread's recyclers can be finalized
     for (size_t thrIdx = 1; (thrIdx < threads.size()); thrIdx++) {
         threads[thrIdx]->finalize(false, false);
     }
-    // Next, finalize this thread #0
-    MultiThreadedShmSimulation::finalize(stopMPI, delCommMgr);
-    // Free-up pending events from sub-threads to be cleaned up. There
-    // maybe some to be cleaned as Agent's input/output queues could
-    // be holding onto the last few events.  These events are added to
-    // the thread #0's pendingDeallocs list by other threads before
-    // they join thread #0 in simulate() method in this class.
+    MultiThreadedShmSimulation::finalize(false, false);
+    
+    // This also ensures there aren't any events accidently left in an
+    // agent event queue
     ASSERT(EventRecycler::pendingDeallocs.empty());
-    ASSERT(EventRecycler::Recycler.empty());    
+    ASSERT(EventRecycler::Recycler.empty());
+
+    // Now delete GVT manager as we no longer need it.
+    commManager->setGVTManager(NULL);
+    delete gvtManager;
+    gvtManager = NULL;
+    
+    // Finalize the communicator 
+    commManager->finalize(stopMPI);
+    // Delete it if requested
+    if (delCommMgr) {
+        delete commManager;
+    }
+    commManager = NULL;
+
+    // Invalidate the  kernel ID
+    myID = -1u;
+
+    DEBUG({
+            if (logFile != NULL) {
+                // Un-hijack cout
+                std::cout.rdbuf(oldstream);
+                // Get rid of the log file.
+                delete logFile;
+                logFile = NULL;
+            }
+    });
+    // Get rid of scheduler as we no longer need it
+    delete scheduler;
+    scheduler = NULL;
+    // Clear out the list of agents in this simulation
+    allAgents.clear();
+
     // Finally, get rid of all the thread helper classes as they are no
     // longer needed.  The thread #0 will be deleted in
     // Simulation::finalizeSimulation() method if user requests it.

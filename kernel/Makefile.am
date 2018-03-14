@@ -111,6 +111,9 @@ libmuse_a_SOURCES = \
 	src/mpi-mt-shm/MultiThreadedShmSimulation.cpp \
 	include/mpi-mt-shm/MultiThreadedShmSimulationManager.h \
 	src/mpi-mt-shm/MultiThreadedShmSimulationManager.cpp \
-	include/mpi-mt-shm/MultiThreadedScheduler.h 
+	include/mpi-mt-shm/MultiThreadedScheduler.h \
+	src/mpi-mt-shm/MultiThreadedScheduler.cpp \
+	src/mpi-mt-shm/BadMTQ.cpp \
+	include/mpi-mt-shm/BadMTQ.h 
 
 # end of Makefile.am

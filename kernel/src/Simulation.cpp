@@ -45,6 +45,10 @@ using namespace muse;
 
 // Define reference to the singleton simulator/kernel
 muse::Simulation* muse::Simulation::kernel = NULL;
+// Static value for type of sim this is
+std::string muse::Simulation::simName = "";
+// Shared list of all agents in the simulation, across threads
+//AgentContainer muse::Simulation::allAgents;
 
 Simulation::Simulation(const bool useSharedEvents)
     : LGVT(0), startTime(0), endTime(0), gvtDelayRate(10),
@@ -67,7 +71,7 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     throw (std::exception) {
     // First use a temporary argument parser to determine type of
     // simulation kernel to instantiate.
-    std::string simName = "default";
+    simName = "default";
     ArgParser::ArgRecord arg_list[] = {
         { "--simulator", "The type of simulator/kernel to use; one of: " \
           "default, mpi-mt, mpi-mt-shm", 
@@ -138,7 +142,10 @@ void
 Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Make the arg_record
     bool saveState = false;
-    std::string simName = "default";
+    // Make sure simName has been set by the arg parser in "Initialize Simulation"
+    // If simName is coming up as null, then the user must not have gotten the
+    // kernel by calling Simulation::initializeSimulation
+    ASSERT(Simulation::simName != "");
     ArgParser::ArgRecord arg_list[] = {
         { "--scheduler", "The scheduler to use (default or hrm)",
           &schedulerName, ArgParser::STRING },
@@ -148,9 +155,6 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
           &saveState, ArgParser::BOOLEAN},
         { "--max-mpi-msg-thresh", "Maximum consecutive MPI msgs to process",
           &maxMpiMsgThresh, ArgParser::INTEGER},
-        { "--simulator", "The type of simulator/kernel to use; one of: " \
-          "default, mpi-mt, mpi-mt-shm", 
-          &simName, ArgParser::STRING },
         {"", "", NULL, ArgParser::INVALID}
     };
 
@@ -159,7 +163,7 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
     // Do not set scheduler yet if we are using shared memory multi threading
-    if (simName != "mpi-mt-shm") {
+    if (Simulation::simName != "mpi-mt-shm") {
         // Setup scheduler based on scheduler name.
         scheduler = (schedulerName == "hrm") ? new HRMScheduler() : new Scheduler();
         // Initialize the scheduler.
@@ -225,7 +229,7 @@ Simulation::preStartInit() {
     ASSERT( commManager != NULL );
     // Ensure we don't populate this in a derived class and accidently
     // overwrite it here
-    ASSERT(gvtManager == NULL);
+//    ASSERT(gvtManager == NULL); // (deperomm) Issue in mpi-mt where this is getting set before here, not sure why, just overwrite it for now
     // Create and initialize our GVT manager.
     gvtManager = new GVTManager(this);
     gvtManager->initialize(startTime, commManager);

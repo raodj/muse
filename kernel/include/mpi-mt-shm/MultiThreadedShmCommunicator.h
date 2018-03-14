@@ -115,7 +115,7 @@ public:
         resides.  Otherwise this method returns a negative value.
     */
     virtual int getOwnerRank(const AgentID& id) const override {
-        return (Communicator::getOwnerRank(id) / threadsPerNode);
+        return (Communicator::getOwnerRank(id));
     }
 
     /** \brief Obtain the thread-based rank of the process on which a

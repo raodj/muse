@@ -31,6 +31,7 @@
 #include "Event.h"
 #include "State.h"
 #include "oSimStream.h"
+#include <mutex>
 
 /** Use this macro to compare to Time values safely
  */
@@ -80,10 +81,14 @@ class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
     friend class Scheduler;
+    friend class MultiThreadedScheduler;
+    friend class MultiThreadedShmSimulation; // to lock on garbage collection
+    friend class MultiThreadedShmSimulationManager; // garbage collection
     friend class AgentPQ;
     friend class TwoTierHeapEventQueue;
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
+    friend class BadMTQ;
 public:    
     /** enum for return Time.
         when agent ask for time via getTime()
@@ -267,6 +272,15 @@ protected:
         push all data to std::cout.
     */
     oSimStream oss;
+    
+    /**
+     * Lock to prevent threads from manipulating the same agent concurrently
+     * 
+     * If sets of events have very close but not same timestamps, it is possible
+     * for multiple threads to pull events for the same agent, resulting in 
+     * LVT being unpredictable and possibly in an invalid state.
+     */
+    std::recursive_mutex agentLock;
 
     /** Save the current state
 

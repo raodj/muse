@@ -30,9 +30,11 @@
 #include "SpinLock.h"
 #include "GVTManager.h"
 #include "GVTMessage.h"
+#include "SimulationListener.h"
 #include "ArgParser.h"
 #include "EventAdapter.h"
 #include "EventRecycler.h"
+#include "StateRecycler.h"
 #include "mpi-mt/RedistributionMessage.h"
 
 // Switch to muse namespace to streamline code
@@ -93,13 +95,19 @@ MultiThreadedShmSimulation::setCommManager(MultiThreadedShmCommunicator* mtc) {
 
 void 
 MultiThreadedShmSimulation::setMTScheduler(MultiThreadedScheduler* sch) {
-	ASSERT(sch != NULL);
-	// Make sure 'scheduler' set only by this method and not the base class
-	// to ensure scheduler is a MultiThreadedScheduler type. (there is
-	// logic in Simulation::parseCommandLineArgs to prevent this)
-	ASSERT(scheduler == NULL);
-	mtScheduler = sch;
-	scheduler = sch; // let the base class hold the MTscheduler
+    ASSERT(sch != NULL);
+    // Make sure 'scheduler' set only by this method and not the base class
+    // to ensure scheduler is a MultiThreadedScheduler type. (there is
+    // logic in Simulation::parseCommandLineArgs to prevent this)
+    ASSERT(scheduler == NULL);
+    mtScheduler = sch;
+    scheduler = sch; // let the base class hold the MTscheduler
+}
+
+void
+MultiThreadedShmSimulation::setGVTManager(GVTManager* gvtMan) {
+    gvtManager = gvtMan;
+    gvtManager->addMTSimKernel(this);
 }
 
 void
@@ -115,8 +123,17 @@ MultiThreadedShmSimulation:: initialize(int& argc, char* argv[], bool initMPI)
 
 void
 MultiThreadedShmSimulation::finalize(bool stopMPI, bool delCommMgr) {
-    // The base class does all the necessary work
-    Simulation::finalize(stopMPI, delCommMgr);
+    // Only thread specific finalizing operations gets done here
+    
+    // Both of these recyclers use thread_local storage, so clear them
+    EventRecycler::deleteRecycledEvents();
+    StateRecycler::deleteRecycledStates();
+    
+    // These are thread local, so ensure they are empty on each thread
+    // This also ensures there aren't any events accidently left in an
+    // agent event queue
+    ASSERT(EventRecycler::Recycler.empty()); 
+    ASSERT(EventRecycler::pendingDeallocs.empty());
 }
 
 void
@@ -189,7 +206,7 @@ MultiThreadedShmSimulation::getNumaNodeOfCpu(const int cpu) const {
 void
 MultiThreadedShmSimulation::simulate() {
     // Setup the thread ID in our EventRecycler for initializing
-    muse::EventRecycler::threadID = this->threadID;    
+    muse::EventRecycler::threadID = this->threadID;
     // Setup thread affinity basedon cpuID set for this thread.
     setCpuAffinity();
     // Always, start-up the per-thread NUMA memory manager.
@@ -207,10 +224,13 @@ MultiThreadedShmSimulation::simulate() {
             dumpStats();
             doDumpStats = false;
         }
-        if (--gvtTimer == 0) {
-            gvtTimer = gvtDelayRate;
-            // Initate another round of GVT calculations if needed.
-            gvtManager->startGVTestimation();
+        // This should only be done on thread 0 to avoid race conditions
+        if (threadID == 0) {
+            if (--gvtTimer == 0) {
+                gvtTimer = gvtDelayRate;
+                // Initate another round of GVT calculations if needed.
+                gvtManager->startGVTestimation();
+            }
         }
         // Process a block of events received via the network
         // (eventually goes to derived manager class when
@@ -221,15 +241,10 @@ MultiThreadedShmSimulation::simulate() {
         if (!processNextEvent()) {
             // We did not have any events to process. So check MPI
             // more frequently.
-            mpiMsgCheckCounter = 1;            
+            mpiMsgCheckCounter = 1;
         }
     }
     // Wait for all the threads to finish by waiting on a barrier.
-    threadBarrier.wait();
-    // Clear out any pending recyclable events on each thread (as each
-    // thread has its own thread_local recycler)
-    EventRecycler::deleteRecycledEvents();
-    ASSERT(EventRecycler::Recycler.empty());
     threadBarrier.wait();  // Important: wait for threads to finish
 
 #if USE_NUMA == 1    
@@ -253,6 +268,27 @@ MultiThreadedShmSimulation::simulate() {
     // threads to finish moving pending events (for final clean-up)
     // before exiting this main thread-method.
     threadBarrier.wait();
+}
+
+bool
+MultiThreadedShmSimulation::processNextEvent() {
+    // Update lgvt to the time of the next event to be processed.
+    // Let the scheduler do its task to have the agent process events
+    // if possible.  If no events are processed the following method
+    // call returns false.
+    bool ret = mtScheduler->processNextAgentEvents(LGVT);
+    // Do sanity checks.
+    if (LGVT < getGVT()) {
+        std::cout << "Offending event: "
+                  << *scheduler->agentPQ->front() << std::endl;
+        std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+                  << " which is serious error. Scheduled agents: \n";
+        std::cout << "Rank " << myID << " Aborting.\n";
+        std::cout << std::flush;
+        DEBUG(logFile->close());
+        abort();
+    }
+    return ret;    
 }
 
 //muse::Event*
@@ -296,15 +332,6 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
     // check if event is on this process or a remote one
     if (commManager->isAgentLocal(myID)) {
         // Event is on this process
-        if (doShareEvents) {
-            // We need to increase input reference count (which
-            // typically only the receiving thread manipulates,
-            // but is safe here as only 1 thread is currently
-            // operating with the event) here to ensure that event
-            // does not get garbage collected before the receiving
-            // thread has a chance to process this event!
-            EventRecycler::increaseInputRefCount(e);
-        }
         return mtScheduler->scheduleEvent(e);
     } else {
         // The destination thread is on a remote process and event
@@ -317,8 +344,25 @@ MultiThreadedShmSimulation::scheduleEvent(Event* e) {
 
 void
 MultiThreadedShmSimulation::garbageCollect() {
-    // First let base class do its standard garbage collection
-    Simulation::garbageCollect();
+    // Garbage collect in same fashion as base class but lock the agents
+    // (since this is multi threaded and agents must be locked before modified)
+    const Time gvt = getGVT();
+    // First let the scheduler know it can garbage collect.
+    scheduler->garbageCollect(gvt);
+    for (AgentContainer::iterator it = allAgents.begin();
+         (it != allAgents.end()); it++) { 
+        // can't modified agents while multi threading
+        (*it)->agentLock.lock();
+        (*it)->garbageCollect(gvt);
+        (*it)->agentLock.unlock();
+    }
+    // Let listener know garbage collection for a given GVT value has
+    // been completed.
+    if (listener != NULL) {
+        listener->garbageCollectionDone(gvt);
+    }
+    
+    
 #if USE_NUMA == 1
     // With NUMA we periodically need to redistribute events to avoid
     // unconstrained memory growth (depending on communication patterns)
@@ -394,7 +438,7 @@ MultiThreadedShmSimulation::processMpiMsgs() {
         // Enqueue the incoming event to the appropriate thread.
         if (incoming_event->getSenderAgentID() == -1) {
             // This must be a GVT message.
-            ASSERT(receiver <= 0);
+            ASSERT(incoming_event->getReceiverAgentID() <= 0);
             ASSERT(dynamic_cast<GVTMessage*>(incoming_event) != NULL);
             processIncomingEvent(incoming_event);
         }

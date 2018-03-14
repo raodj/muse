@@ -86,6 +86,28 @@ GVTManager::initialize(const Time& startTime, Communicator* comm) {
     memset(vecCounters[1], 0, sizeof(int) * numProcesses);
 }
 
+void
+GVTManager::addMTSimKernel(MultiThreadedShmSimulation* mts) {
+    mtKernels.push_back(mts);
+}
+
+Time
+GVTManager::getTrueLGVT() {
+    if (mtKernels.empty()) {
+        // kernels weren't set, this probably isn't multi threaded so just 
+        // return the main kernel's LGVT
+        ASSERT(sim->simName != "mt-mpi-shm");
+        return sim->getLGVT();
+    } else {
+        // this is a multi threaded sim, get the min LGVT of all threads
+        Time lgvt = mtKernels[0]->getLGVT();
+        for(size_t t = 1; t < mtKernels.size(); t++) {
+            lgvt = std::min<Time>(lgvt, mtKernels[t]->getLGVT());
+        }
+        return lgvt;
+    }
+}
+
 bool
 GVTManager::sendRemoteEvent(Event *event) {
     // Validate conditions.
@@ -94,7 +116,7 @@ GVTManager::sendRemoteEvent(Event *event) {
     
     // Compute remote process id.
     const unsigned int destRank =
-        commManager->getOwnerThreadRank(event->getReceiverAgentID());
+    commManager->getOwnerThreadRank(event->getReceiverAgentID());
     ASSERT(destRank < numProcesses);
 
     // Perform the operations related to sending of a message as
@@ -186,7 +208,7 @@ GVTManager::forwardCtrlMsg() {
     ctrlMsg->setTmin(std::min<Time>(ctrlMsg->getTmin(), tMin));
     // Set GVT estimate based on rank of process. But first determine
     // our LGVT value.
-    const Time lgvt = sim->getLGVT();
+    const Time lgvt = getTrueLGVT();
     DEBUG(std::cout << "Process " << rank << " LGVT: " << lgvt
                     << ", tMin = " << ctrlMsg->getTmin() << std::endl);
     if (rank != ROOT_KERNEL) {
@@ -269,7 +291,7 @@ GVTManager::startGVTestimation() {
         // If there is only one process in the simulation, then simply
         // use LGVT as the GVT value!
         activeColor = !white; // Change our active color.
-        setGVT(sim->getLGVT());
+        setGVT(getTrueLGVT());
         return;
     }
     
@@ -284,7 +306,7 @@ GVTManager::startGVTestimation() {
                                          numProcesses, -1);
     ASSERT(msg != NULL);
     // Fill in other details.
-    msg->setGVTEstimate(sim->getLGVT());
+    msg->setGVTEstimate(getTrueLGVT());
     msg->setTmin(TIME_INFINITY);
     // Update and reset the vector counters.
     int *count = msg->getCounters();

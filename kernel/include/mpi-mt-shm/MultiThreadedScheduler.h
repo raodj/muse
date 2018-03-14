@@ -35,12 +35,51 @@ BEGIN_NAMESPACE(muse);
     threads, each of which can operate on it concurrently.
 */
 class MultiThreadedScheduler : public Scheduler { 
+    
+public:
+    /** \brief Default Constructor
 
-	// TODO (deperomm): override initialize() class to make sure the data structure 
-	// we use is a multi threaded PQ (that's the only thing initialize does is set 
-	// the structure)
+        Does not have a specific task to perform and is merely present
+        as a place holder for future extensions.
+    */
+    MultiThreadedScheduler();
 
+    /** \brief Destructor
 
+        Does nothing, as the constructor does nothing.
+    */
+    virtual ~MultiThreadedScheduler();
+    
+    /** \brief Instruct the current 'top' Agent to process its Events
+
+        To be thread safe, must update simLGVT and return if events were
+        processed at the same time.
+        
+        Only used by the Simulation kernel. Users of MUSE API should
+        not touch this function.
+        
+        \param[out] simLGVT - updated to the new LGVT value for the sim thread
+        
+        \return True if the chosen agent had events to process.
+    */
+    virtual bool processNextAgentEvents(Time& simLGVT);
+    
+    /** \brief Schedule the given event in a thread safe way
+        
+        This method operates very similar to Scheduler::scheduleEvent()
+        
+        Only used by the Simulation kernel. Users of MUSE API should
+        not touch this function.  Rollback checks are done at this
+        level.
+
+        After the appropriate processing has occured, the Event will
+        be placed into the appropraite Agent's Event Priority Queue.
+        
+        \param[in] e Event to be scheduled
+
+        \return True if the Event was scheduled successfully
+    */
+    virtual bool scheduleEvent(Event *e);
 };
 
 END_NAMESPACE(muse);
