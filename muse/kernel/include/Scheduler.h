@@ -43,6 +43,8 @@ class Scheduler {
     friend class MultiThreadedShmSimulationManager;
     friend class MultiThreadedShmSimulation;
     friend class MultiThreadedScheduler;
+    friend class oclScheduler;
+    friend class oclSimulation;
 public:
     /** \brief Default Constructor
 
@@ -353,3 +355,4 @@ private:
 END_NAMESPACE(muse);
 
 #endif
+

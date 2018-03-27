@@ -89,6 +89,8 @@ class Agent {
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
     friend class BadMTQ;
+    friend class OCLAgent;
+    friend class oclSimulation;
 public:    
     /** enum for return Time.
         when agent ask for time via getTime()

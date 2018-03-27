@@ -53,6 +53,7 @@ class GVTManager {
     // instantiate this GVTManager class for its use.
     friend class Simulation;
     friend class MultiThreadedShmSimulationManager;
+    friend class oclSimulation;
 public:
     /** Initialize the internal data structures for GVT calculations.
 

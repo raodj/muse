@@ -32,7 +32,6 @@ BEGIN_NAMESPACE(muse);
 
 // Forward declaration for some of the classes.
 class MultiThreadedCommunicator;
-
 /** An unordered map to store free events of different sizes.
 
     The key into this unordered map is the size of the event being
@@ -66,6 +65,7 @@ class EventRecycler {
     friend class MultiThreadedSimulationManager;
     friend class MultiThreadedShmSimulation;
     friend class MultiThreadedShmSimulationManager;
+    friend class OCLAgent;
 public:
     /** The default NUMA settings for memory management.
 
