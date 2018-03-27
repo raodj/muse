@@ -71,6 +71,7 @@ class Simulation {
     friend class GVTManager;
     friend class Agent;
     friend class Scheduler;
+    friend class oclSimulation;
 public:
     /** \brief Complete initialization of the Simulation
 
