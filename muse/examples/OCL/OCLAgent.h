@@ -67,7 +67,7 @@ class OCLAgent : public Agent {
          * xl is the values of the current state and they are updated
          * within the method
          */
-        void nextODE(float* xl);
+        void nextODE(float* xl, float step);
         
         /** The setLVT method.
         
