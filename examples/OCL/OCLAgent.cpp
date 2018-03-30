@@ -7,7 +7,7 @@
  */
 
 #include "OCLAgent.h"
-
+#include <ctime>
 using namespace std;
 BEGIN_NAMESPACE(muse);
 
@@ -40,10 +40,10 @@ State* OCLAgent::getState() { return myState; }
 
 void OCLAgent::executeTask(const EventContainer& events, bool& runOCL){
       for (const Event* event : events) {
-         std::cout << "Processing: " << event << std::endl;
-        myState->susceptible += 0;//event.susceptible;
+//         std::cout << "Processing: " << event << std::endl;
+        myState->susceptible -= 1;//event.susceptible;
         myState->exposed     += 1;//event.exposed;
-        myState->infected   += 1;//event.infected;
+        myState->infected   += 0;//event.infected;
         myState->recovered   += 0;//event.recovered;
     }
       //check if using OCL kernel code
@@ -56,7 +56,7 @@ void OCLAgent::executeTask(const EventContainer& events, bool& runOCL){
            values[1] = myState->exposed;
            values[2] = myState->infected;
            values[3] = myState->recovered;
-           nextODE(values);
+           nextODE(values, .001);
            myState->susceptible = values[0];
            myState->exposed = values[1];
            myState->infected = values[2];
@@ -155,36 +155,38 @@ void OCLAgent::seir(const float xl[4], float xln[4]) {
     xln[3] = (V * xl[2]) - (MU * xl[3]);
 }
 
-void OCLAgent::nextODE(float* xl) {
-    const float h = 0.1;
+void OCLAgent::nextODE(float* xl, float step) {
+    const float h = step;
     // Use runge-kutta 4th order method here.
     float k1[4], k2[4], k3[4], k4[4], xlt[4];
     // Compute k1
-    seir(xl, k1);
-    // Compute k2 values using k1.
-    xlt[0] = xl[0] + k1[0] * h / 2;
-    xlt[1] = xl[1] + k1[1] * h / 2;
-    xlt[2] = xl[2] + k1[2] * h / 2;
-    xlt[3] = xl[3] + k1[3] * h / 2;
-    seir(xlt, k2);
-    // Compute k3 values using k2.
-    xlt[0] = xl[0] + k2[0] * h / 2;
-    xlt[1] = xl[1] + k2[1] * h / 2;
-    xlt[2] = xl[2] + k2[2] * h / 2;
-    xlt[3] = xl[3] + k2[3] * h / 2;
-    seir(xlt, k3);
-    // Compute k4 values using k3.
-    xlt[0] = xl[0] + k3[0] * h;
-    xlt[1] = xl[1] + k3[1] * h;
-    xlt[2] = xl[2] + k3[2] * h;
-    xlt[3] = xl[3] + k3[3] * h;
-    seir(xlt, k4);
+    for(float i = 0; i < 1; i += step){
+        seir(xl, k1);
+        // Compute k2 values using k1.
+        xlt[0] = xl[0] + k1[0] * h / 2;
+        xlt[1] = xl[1] + k1[1] * h / 2;
+        xlt[2] = xl[2] + k1[2] * h / 2;
+        xlt[3] = xl[3] + k1[3] * h / 2;
+        seir(xlt, k2);
+        // Compute k3 values using k2.
+        xlt[0] = xl[0] + k2[0] * h / 2;
+        xlt[1] = xl[1] + k2[1] * h / 2;
+        xlt[2] = xl[2] + k2[2] * h / 2;
+        xlt[3] = xl[3] + k2[3] * h / 2;
+        seir(xlt, k3);
+        // Compute k4 values using k3.
+        xlt[0] = xl[0] + k3[0] * h;
+        xlt[1] = xl[1] + k3[1] * h;
+        xlt[2] = xl[2] + k3[2] * h;
+        xlt[3] = xl[3] + k3[3] * h;
+        seir(xlt, k4);
 
-    // Compute the new set of values.
-    xl[0] = xl[0] + (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) * h / 6;
-    xl[1] = xl[1] + (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) * h / 6;
-    xl[2] = xl[2] + (k1[2] + 2*k2[2] + 2*k3[2] + k4[2]) * h / 6;
-    xl[3] = xl[3] + (k1[3] + 2*k2[3] + 2*k3[3] + k4[3]) * h / 6;
+        // Compute the new set of values.
+        xl[0] = xl[0] + (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) * h / 6;
+        xl[1] = xl[1] + (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) * h / 6;
+        xl[2] = xl[2] + (k1[2] + 2*k2[2] + 2*k3[2] + k4[2]) * h / 6;
+        xl[3] = xl[3] + (k1[3] + 2*k2[3] + 2*k3[3] + k4[3]) * h / 6;
+    }
 }
 
 void OCLAgent::finalize(){

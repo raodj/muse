@@ -9,21 +9,28 @@
 #include "oclSimulation.h"
 #include "MPIHelper.h"
 #include "kernel/include/Communicator.h"
+#include <ctime>
 BEGIN_NAMESPACE(muse);
 
 std::vector<OCLAgent*> oclAgents;
-CommandQueue queue;
-Kernel run;
-Context context;
+CommandQueue q;
+Kernel r;
+Context c;
 Buffer buffer_A;
 bool ssa = false;
 bool oclAvailable = false;
-float step = 1.0f;
+float step = 0.001f;
 int compartments = 4;
 float* values;
 Time lastLGVT;
-int rows = 100;
-int cols = 150;
+float stopTime = 25;
+int rows = 300;
+int cols = 300;
+std::clock_t processTime = 0;
+std::clock_t oclTime = 0;
+std::clock_t oclSetUp = 0;
+int popSize;
+int expSize;
 // Define reference to the singleton simulator/kernel
 muse::oclSimulation* muse::oclSimulation::kernel = NULL;
 
@@ -48,9 +55,10 @@ bool oclSimulation::processNextEvent() {
     //      --> get agents that need ocl code run
     // Update lgvt to the time of the next event to be processed.
     kernel->LGVT = scheduler->getNextEventTime();
-    if(kernel->LGVT > lastLGVT && oclAvailable && !oclAgents.empty()){
-        std::cout<<"---Doing Bulk Processing at "<< lastLGVT  << ", " << oclAgents.size()<< " ---" << std::endl;
-        lastLGVT = kernel->LGVT;
+    if((kernel->LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= (CL_DEVICE_MAX_WORK_GROUP_SIZE/(sizeof(float)*4))*1000){
+//        std::cout<<"---Doing Bulk Processing at "<< lastLGVT  << ", " << oclAgents.size()<< " ---" << std::endl;
+        lastLGVT = kernel->LGVT;        
+        
         //parse data from agents
         int count = oclAgents.size();
         int c = 0;
@@ -61,41 +69,24 @@ bool oclSimulation::processNextEvent() {
             values[c+2] = agent->myState->infected;
             values[c+3] = agent->myState->recovered;
             
-            c++;
-            break;
+            c+=4;
         }
         //Run OCL kernel on agent data from list
-//        if(ssa){
-//            int rnd[1] = {0};
-//            float stp[1] = {step};
-//            Buffer buffer_step(context, CL_MEM_READ_WRITE, sizeof(float));
-//            Buffer buffer_rnd(context, CL_MEM_READ_WRITE, sizeof(int));
-//            queue.enqueueWriteBuffer(buffer_step, CL_TRUE, 0, sizeof(float), stp);
-//            queue.enqueueWriteBuffer(buffer_rnd, CL_TRUE, 0, sizeof(int), rnd);
-//        }
-        Buffer buffer_B(context, CL_MEM_READ_WRITE, sizeof(float) * (count));
-        queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
-        
-//        if(!ssa){
-            run.setArg(0, buffer_B);
-//        }else{
-//            run.setArg(0, buffer_B);
-//            run.setArg(1, buffer_A);
-//            run.setArg(2, buffer_rnd);
-//            run.setArg(3, buffer_step);
-//        }
-        queue.enqueueNDRangeKernel(run, 0, count/4, 100);
-        queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
-        queue.finish();
-        //put altered data back into agents
+        std::clock_t start = std::clock();
+        oclStep(values, step, count);
+        oclTime += std::clock() - start;
+        //put altered data back into agents        
         c = 0;
         for(OCLAgent* agent : oclAgents){
             agent->myState->susceptible = values[c];
             agent->myState->exposed = values[c+1];
             agent->myState->infected = values[c+2];
             agent->myState->recovered = values[c+3];
-            
-            c++;
+//            std::cout << values[c] << std::endl;//", " << values2[c] << std::endl;
+//            std::cout << values[c+1] <<std::endl;// ", " << values2[c+1] << std::endl;
+//            std::cout << values[c+2] <<std::endl;// ", " << values2[c+2] << std::endl;
+//            std::cout << values[c+3] <<std::endl;// ", " << values2[c+3] << std::endl;
+            c+=4;
         }
         //clear list of agent ids for ocl
         oclAgents.clear();
@@ -130,6 +121,53 @@ bool oclSimulation::processNextEvent() {
     return ret;
 }
 
+void 
+oclSimulation::oclStep(float* values, float step, int count){
+    Platform default_platform = getPlatform();
+    Device default_device     = getDevice(default_platform, 0, false);
+    Context context(default_device); 
+    Program::Sources sources;
+
+    std::string kernel_code = getKernel(ssa);;
+    sources.push_back({kernel_code.c_str(), kernel_code.length()});
+
+    Program program(context, sources);
+    if (program.build({default_device}) != CL_SUCCESS) {
+        cout << "Error building: " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(default_device) << std::endl;
+        exit(1);
+    }
+
+    CommandQueue queue(context, default_device);
+     cl_int status;
+  
+    Buffer buffer_step(context, CL_MEM_READ_WRITE, sizeof(float));
+    Buffer buffer_B(context, CL_MEM_READ_WRITE, sizeof(float) * (count));    
+//     cout << "Random write status: " << status << endl;
+    status = queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
+//     cout << "Write status: " << status << endl;
+    Kernel run = Kernel(program, "run");
+
+        run.setArg(0, buffer_B);
+    
+    if(count > 0){      
+        int rng = 0;
+        if(count > CL_DEVICE_MAX_WORK_GROUP_SIZE/(sizeof(float)*4)){
+            rng = CL_DEVICE_MAX_WORK_GROUP_SIZE/(sizeof(float)*4);
+        }else{
+            rng = count;
+        }
+        std::clock_t start = std::clock();
+        status = queue.enqueueNDRangeKernel(run, NullRange, NDRange(count), NDRange(rng));//count, CL_DEVICE_MAX_WORK_GROUP_SIZE/(sizeof(float)*4));
+//        std::cout << "Status: " << status << std::endl;
+        queue.finish();
+
+        processTime += std::clock() - start;
+        status = queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
+//        std::cout << "Read Status: " << status << std::endl;
+
+    }
+}
+
 void oclSimulation::start(){
     // This check below should be removed -- If no agents registered
     // we need to leave start and end sim
@@ -137,7 +175,30 @@ void oclSimulation::start(){
     // Next initialize all the agents
     initAgents();
     //Set up OpenCL device if needed
-    if(oclAvailable) initOCL();
+//    cout <<"local group size " << CL_DEVICE_MAX_WORK_GROUP_SIZE << endl;
+//    if(oclAvailable) {
+    std::clock_t setupOCL = std::clock();
+        Platform default_platform = getPlatform();
+        Device default_device     = getDevice(default_platform, 0, false);
+        Context context(default_device); 
+        Program::Sources sources;
+
+        std::string kernel_code = getKernel(ssa);
+        sources.push_back({kernel_code.c_str(), kernel_code.length()});
+
+        Program program(context, sources);
+        if (program.build({default_device}) != CL_SUCCESS) {
+            cout << "Error building: " << program.getBuildInfo<CL_PROGRAM_BUILD_LOG>(default_device) << std::endl;
+            exit(1);
+        }
+
+        CommandQueue queue(context, default_device);
+        Kernel run = Kernel(program, "run");
+        Buffer buffer_step(context, CL_MEM_READ_WRITE, sizeof(float));
+        float stp[1] = {step};
+        queue.enqueueWriteBuffer(buffer_step, CL_TRUE, 0, sizeof(float), stp);
+        oclSetUp += std::clock() - setupOCL; 
+//    }
 
     // Start the core simulation loop.
     LGVT         = startTime;
@@ -161,7 +222,95 @@ void oclSimulation::start(){
         checkProcessMpiMsgs();
         // Process the nextf event from the list of events managed by
         // the scheduler.
-        if (!processNextEvent()) {
+      
+            kernel->LGVT = scheduler->getNextEventTime();
+            if((kernel->LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= (CL_DEVICE_MAX_WORK_GROUP_SIZE)*1000){
+        //        std::cout<<"---Doing Bulk Processing at "<< lastLGVT  << ", " << oclAgents.size()<< " ---" << std::endl;
+                lastLGVT = kernel->LGVT;        
+
+                //parse data from agents
+                int count = oclAgents.size();
+                int c = 0;
+                float values[compartments*oclAgents.size()];
+                for(OCLAgent* agent : oclAgents){
+                    values[c] = agent->myState->susceptible;
+                    values[c+1] = agent->myState->exposed;
+                    values[c+2] = agent->myState->infected;
+                    values[c+3] = agent->myState->recovered;
+
+                    c+=4;
+                }
+                std::clock_t startOCL = std::clock();
+
+                //Run OCL kernel on agent data from list
+                Buffer buffer_B(context, CL_MEM_READ_WRITE, sizeof(float) * (count));
+                queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
+        //        
+                run.setArg(0, buffer_B);
+                run.setArg(1, buffer_step);
+        //        std::clock_t start = std::clock();
+                int rng = 0;
+                if(count > CL_DEVICE_MAX_WORK_GROUP_SIZE){
+                    rng = 1;// CL_DEVICE_MAX_WORK_GROUP_SIZE/(sizeof(float)*4);
+                }else{
+                    rng = count;
+                }
+                std::clock_t start = std::clock();
+                cl_int status = queue.enqueueNDRangeKernel(run, NullRange, NDRange(count), NDRange(rng));
+                queue.finish();
+                clock_t time = std::clock() - start;
+                processTime += time;
+//                std::cout << time << std::endl;
+//                std::cout << "Status: " << status << std::endl;
+                queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
+//                oclStep(values, step, count);
+                oclTime += std::clock() - startOCL;
+                //put altered data back into agents        
+                c = 0;
+                for(OCLAgent* agent : oclAgents){
+                    agent->myState->susceptible = values[c];
+                    agent->myState->exposed = values[c+1];
+                    agent->myState->infected = values[c+2];
+                    agent->myState->recovered = values[c+3];
+        //            std::cout << values[c] << std::endl;//", " << values2[c] << std::endl;
+        //            std::cout << values[c+1] <<std::endl;// ", " << values2[c+1] << std::endl;
+        //            std::cout << values[c+2] <<std::endl;// ", " << values2[c+2] << std::endl;
+        //            std::cout << values[c+3] <<std::endl;// ", " << values2[c+3] << std::endl;
+                    c+=4;
+                }
+                //clear list of agent ids for ocl
+                oclAgents.clear();
+            }//else{
+        //        std::cout << "Next event within time step " << kernel->LGVT  << ", " << lastLGVT << std::endl; 
+        //    }
+            // Do sanity checks.
+            if (LGVT < getGVT()) {
+                std::cout << "Offending event: "
+                          << *scheduler->agentPQ->front() << std::endl;
+                std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
+                          << " which is serious error. Scheduled agents: \n";
+                scheduler->agentPQ->prettyPrint(std::cout);
+                std::cout << "Rank " << myID << " Aborting.\n";
+                std::cout << std::flush;
+                DEBUG(logFile->close());
+                abort();
+            }
+
+            OCLAgent* agent = NULL;
+            // Let the scheduler do its task to have the agent process events
+            // if possible.  If no events are processed the following method
+            // call returns false.
+            //Pass null agent, if it returns with value, add agent to list of 
+            //agents to be bulk processed by gpu
+            bool ret = scheduler->processNextAgentEvents(&agent);
+
+            if(agent != NULL){
+                //add agent to list of agents that need equations run
+                oclAgents.push_back(agent);
+            }
+            
+        if(!ret){
+//        if (!processNextEvent()) {
             // We did not have any events to process. So check MPI
             // more frequently.
             mpiMsgCheckCounter = 1;
@@ -174,7 +323,7 @@ void oclSimulation::start(){
 
 void oclSimulation::initOCL(){
     Platform default_platform = getPlatform();
-    Device default_device     = getDevice(default_platform, 1, false);
+    Device default_device     = getDevice(default_platform, 0, false);
     Context context(default_device); 
     Program::Sources sources;
 
@@ -198,7 +347,7 @@ void oclSimulation::initOCL(){
 //        }
 //        queue.enqueueWriteBuffer(buffer_A, CL_TRUE, 0, sizeof(float)*1024, randomValues);
 //    }
-    run = Kernel(program, "run");
+    Kernel run = Kernel(program, "run");
 }
 
 Platform oclSimulation::getPlatform() {
@@ -209,8 +358,8 @@ Platform oclSimulation::getPlatform() {
         cout << "No platforms found. Check OpenCL installation!\n";
         exit(1);
     }
-    // for(unsigned int i = 0; i < all_platforms.size(); i++)
-        // cout << "Using platform: "<< all_platforms[i].getInfo<CL_PLATFORM_NAME>() <<"\n";
+//     for(unsigned int i = 0; i < all_platforms.size(); i++)
+//         cout << "Using platform: "<< all_platforms[i].getInfo<CL_PLATFORM_NAME>() <<"\n";
     return all_platforms[0];
 }
 
@@ -227,12 +376,12 @@ Device oclSimulation::getDevice(Platform platform, int i, bool display) {
         for (unsigned int j=0; j<all_devices.size(); j++)
             printf("Device %d: %s\n", j, all_devices[j].getInfo<CL_DEVICE_NAME>().c_str());
     }
-    // for (unsigned int j=0; j<all_devices.size(); j++){
-    //     cout << "Device " << j << " : " << all_devices[j].getInfo<CL_DEVICE_TYPE>() << endl;
+//     for (unsigned int j=0; j<all_devices.size(); j++){
+//         cout << "Device " << i << " : " << all_devices[i].getInfo<CL_DEVICE_TYPE>() << endl;
     //     cout << "Device " << j << " : " << all_devices[j].getInfo<CL_DEVICE_EXECUTION_CAPABILITIES>() << endl;
     //     cout << "Device " << j << " : " << all_devices[j].getInfo< CL_DEVICE_VERSION >() << endl;
-    //     cout << "Device " << j << " : " << all_devices[j].getInfo< CL_DEVICE_NAME >() << endl;
-    // }
+//         cout << "Device " << i << " : " << all_devices[i].getInfo< CL_DEVICE_NAME >() << endl;
+//     }
     return all_devices[i];
 }
 
@@ -265,30 +414,30 @@ std::string oclSimulation::getKernel(bool ssa){
         "}\n";
         return ssa_kernel_code;
     }else{
-        std::string ode_kernel_code = "void kernel run(global float* xl) {\n"
-        "const float h = (float)0.1;\n"
-        "float MU = (float)0.011;\n"
-        "float A = (float)0.5;\n"
-        "float V = (float)0.3333;\n"
-        "float R0 = (float)3;\n"
+        std::string ode_kernel_code = "void kernel run(global float* xl, global float* h) {\n"
+        //"const float h = step;\n"
+        "float MU = (float)0.011f;\n"
+        "float A = (float)0.5f;\n"
+        "float V = (float)0.3333f;\n"
+        "float R0 = (float)3.0f;\n"
         "float B  = (float)(R0 * ((MU+A)*(MU+V)) / A);\n"
-        "float N = (float)10000;\n"
+        "float N = (float)10000.0f;\n"
         "int id = get_global_id(0)*4;\n"
         "  \n"
         "        // Use runge-kutta 4th order method here.\n"
         "        float k1[4], k2[4], k3[4], k4[4], xlt[4];\n"
         "        // Compute k1\n"
-
+        "   for(int i = 0; i < (int)1/h[0]; i++){\n"
         "    k1[0] = (MU * N) - (MU * xl[id+0]) - (B * xl[id+2] * xl[id+0] / N);\n"
         "    k1[1] = (B * xl[id+2] * xl[id+0] / N) - (A * xl[id+1]);\n"
         "    k1[2] = (A * xl[id+1]) - ((V + MU) * xl[id+2]);\n"
         "    k1[3] = (V * xl[id+2]) - (MU * xl[id+3]);\n"
 
         "        // Compute k2 values using k1.\n"
-        "        xlt[0] = xl[id+0] + k1[0] * h / 2;\n"
-        "        xlt[1] = xl[id+1] + k1[1] * h / 2;\n"
-        "        xlt[2] = xl[id+2] + k1[2] * h / 2;\n"
-        "        xlt[3] = xl[id+3] + k1[3] * h / 2;\n"
+        "        xlt[0] = xl[id+0] + k1[0] * h[0] / 2;\n"
+        "        xlt[1] = xl[id+1] + k1[1] * h[0] / 2;\n"
+        "        xlt[2] = xl[id+2] + k1[2] * h[0] / 2;\n"
+        "        xlt[3] = xl[id+3] + k1[3] * h[0] / 2;\n"
 
         "    k2[0] = (MU * N) - (MU * xlt[0]) - (B * xlt[2] * xlt[0] / N);\n"
         "    k2[1] = (B * xlt[2] * xlt[0] / N) - (A * xlt[1]);\n"
@@ -296,10 +445,10 @@ std::string oclSimulation::getKernel(bool ssa){
         "    k2[3] = (V * xlt[2]) - (MU * xlt[3]);\n"
 
         "        // Compute k3 values using k2.\n"
-        "        xlt[0] = xl[id+0] + k2[0] * h / 2;\n"
-        "        xlt[1] = xl[id+1] + k2[1] * h / 2;\n"
-        "        xlt[2] = xl[id+2] + k2[2] * h / 2;\n"
-        "        xlt[3] = xl[id+3] + k2[3] * h / 2;\n"
+        "        xlt[0] = xl[id+0] + k2[0] * h[0] / 2;\n"
+        "        xlt[1] = xl[id+1] + k2[1] * h[0] / 2;\n"
+        "        xlt[2] = xl[id+2] + k2[2] * h[0] / 2;\n"
+        "        xlt[3] = xl[id+3] + k2[3] * h[0] / 2;\n"
 
         "    k3[0] = (MU * N) - (MU * xlt[0]) - (B * xlt[2] * xlt[0] / N);\n"
         "    k3[1] = (B * xlt[2] * xlt[0] / N) - (A * xlt[1]);\n"
@@ -307,10 +456,10 @@ std::string oclSimulation::getKernel(bool ssa){
         "    k3[3] = (V * xlt[2]) - (MU * xlt[3]);\n"
 
         "        // Compute k4 values using k3.\n"
-        "        xlt[0] = xl[id+0] + k3[0] * h;\n"
-        "        xlt[1] = xl[id+1] + k3[1] * h;\n"
-        "        xlt[2] = xl[id+2] + k3[2] * h;\n"
-        "        xlt[3] = xl[id+3] + k3[3] * h;\n"
+        "        xlt[0] = xl[id+0] + k3[0] * h[0];\n"
+        "        xlt[1] = xl[id+1] + k3[1] * h[0];\n"
+        "        xlt[2] = xl[id+2] + k3[2] * h[0];\n"
+        "        xlt[3] = xl[id+3] + k3[3] * h[0];\n"
 
         "    k4[0] = (MU * N) - (MU * xlt[0]) - (B * xlt[2] * xlt[0] / N);\n"
         "    k4[1] = (B * xlt[2] * xlt[0] / N) - (A * xlt[1]);\n"
@@ -319,11 +468,11 @@ std::string oclSimulation::getKernel(bool ssa){
 
         "\n"
         "        // Compute the new set of values.\n"
-        "        xl[id+0] = xl[id+0] + (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) * h / 6;\n"
-        "        xl[id+1] = xl[id+1] + (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) * h / 6;\n"
-        "        xl[id+2] = xl[id+2] + (k1[2] + 2*k2[2] + 2*k3[2] + k4[2]) * h / 6;\n"
-        "        xl[id+3] = xl[id+3] + (k1[3] + 2*k2[3] + 2*k3[3] + k4[3]) * h / 6;\n"
-        "    // }  \n"
+        "        xl[id+0] = xl[id+0] + (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) * h[0] / 6;\n"
+        "        xl[id+1] = xl[id+1] + (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) * h[0] / 6;\n"
+        "        xl[id+2] = xl[id+2] + (k1[2] + 2*k2[2] + 2*k3[2] + k4[2]) * h[0] / 6;\n"
+        "        xl[id+3] = xl[id+3] + (k1[3] + 2*k2[3] + 2*k3[3] + k4[3]) * h[0] / 6;\n"
+        "    }  \n"
         "}\n";
         return ode_kernel_code;
     }
@@ -345,9 +494,9 @@ oclSimulation::createAgents() {
     int currThread       = 0;  // current thread
     int currThrNumAgents = 0;  // number of agents on current thread.
     int thrStartAgent    = agentStartID;  // First agent on current thread.
-    std::cout << "Start Making Agents:" << std::endl;
+//    std::cout << "Start Making Agents:" << std::endl;
     for (int i = agentStartID; (i < agentEndID); i++) {
-        oclState* state = new oclState(200, 3);
+        oclState* state = new oclState(popSize, expSize);
         OCLAgent* agent = new OCLAgent(i, state, oclAvailable);
         kernel->registerAgent(agent, currThread);
 
@@ -361,9 +510,9 @@ oclSimulation::createAgents() {
 //        std::cout << "Agent " << i << " created" << std::endl;
 
     }
-    std::cout << "Registered agents from "
-              << agentStartID    << " to "
-              << agentEndID      << " agents.\n";
+//    std::cout << "Registered agents from "
+//              << agentStartID    << " to "
+//              << agentEndID      << " agents.\n";
 }
 
 oclSimulation*
@@ -372,10 +521,28 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     // First use a temporary argument parser to determine type of
     // simulation kernel to instantiate.
     std::string simName = "default";
+    int row = 1500;
+    int col = 1500;
+    bool ocl = false;
+    int stop = 40;
+    int pop = 200000;
+    int exp = 30;
     ArgParser::ArgRecord arg_list[] = {
         { "--simulator", "The type of simulator/kernel to use; one of: " \
           "default, mpi-mt, mpi-mt-shm", 
           &simName, ArgParser::STRING },
+        { "--row", "number of rows in simulation, dictates number of agents",
+          &row, ArgParser::INTEGER},
+        { "--col", "number of columns in simulation, dictates number of agents",
+          &col, ArgParser::INTEGER},
+        { "--ocl", "run OpenCL version of simulation",
+          &ocl, ArgParser::BOOLEAN},
+        { "--endtime", "Number of time steps in simulation",
+          &stop, ArgParser::INTEGER},
+        { "--pop", "Number of people initially in each agent",
+          &pop, ArgParser::INTEGER},
+        { "--exp", "Number of people exposed initially in each agent",
+          &exp, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -391,26 +558,35 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     kernel->scheduler->initialize(myID, numberOfProcesses, argc, argv);
     kernel->commManager = new Communicator();
     kernel->commManager->initialize(argc, argv, initMPI);
-
-   return kernel;
+    rows = row;
+    cols = col;
+    oclAvailable = ocl;
+    stopTime = stop;
+    popSize = pop;
+    expSize = exp;
+    return kernel;
 }
 
 void
 oclSimulation::simulate() {
+//    cout << rows << ", " << cols << ", " << oclAvailable << std::endl;
     // Convenient local reference to simulation kernel
     // Setup start and end time of the simulation
-    std::cout << "****Simulate****" << std::endl;
     kernel->setStartTime(0);
-    kernel->setStopTime(20);
+    kernel->setStopTime(stopTime);
     
     // Finish all the setup prior to starting simulation.
     kernel->preStartInit();
     
     //Create Agents for simulation after start and stop times are set
     createAgents();
-    std::cout << "Agents Created" << std::endl;
+//    std::cout << "Agents Created" << std::endl;
     // Finally start the simulation here!!
     kernel->start();
+    
+    std::cout << "Spent " << processTime / (double)(CLOCKS_PER_SEC / 1000) << " ms on ocl kernel execution" << std::endl;
+    std::cout << "Spent " << oclTime / (double)(CLOCKS_PER_SEC / 1000) << " ms on ocl kernel setup and execution" << std::endl;
+    std::cout << "Spent " << oclSetUp / (double)(CLOCKS_PER_SEC / 1000) << " ms on ocl kernel initialization" << std::endl;
     // Now we finalize the simulation to make sure it cleans up.
     finalizeSimulation();
 }
@@ -566,9 +742,9 @@ END_NAMESPACE(muse);
 int 
 main(int argc, char** argv) {
     muse::oclSimulation* sim = new muse::oclSimulation(); 
-    std::cout << "start" << std::endl;
+//    std::cout << "start" << std::endl;
     sim->initializeSimulation(argc, argv, true);
-    std::cout << "Initialized Simulation" << std::endl;
+//    std::cout << "Initialized Simulation" << std::endl;
     sim->simulate();
     return 0;
 }

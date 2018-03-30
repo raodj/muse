@@ -201,6 +201,8 @@ class oclSimulation : public muse::Simulation{
         that are registered to this kernel take place.
         */
         void garbageCollect();
+        
+        void oclStep(float* values, float step, int count);
     
     protected:
     
