@@ -21,8 +21,8 @@ int numProcessedEvents;
 int numSchedules;
 List<Event*> inputQueue;
 
-OCLAgent::OCLAgent(AgentID id, oclState* state, bool ocl):
-    Agent(id, state), myState (state), myID(id), useOCL(ocl) {
+OCLAgent::OCLAgent(AgentID id, oclState* state, bool ocl, float stp):
+    Agent(id, state), myState (state), myID(id), useOCL(ocl), step(stp) {
     kernel = NULL;
     fibHeapPtr = NULL;
 }
@@ -56,7 +56,7 @@ void OCLAgent::executeTask(const EventContainer& events, bool& runOCL){
            values[1] = myState->exposed;
            values[2] = myState->infected;
            values[3] = myState->recovered;
-           nextODE(values, .001);
+           nextODE(values, step);
            myState->susceptible = values[0];
            myState->exposed = values[1];
            myState->infected = values[2];
