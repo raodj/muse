@@ -24,7 +24,7 @@ class OCLAgent : public Agent {
         \param agentState pointer to the state that has been allocated
         in the heap
     */
-        OCLAgent(AgentID id, oclState* state, bool ocl);
+        OCLAgent(AgentID id, oclState* state, bool ocl, float stp = .001f);
         
         ~OCLAgent();
         
@@ -125,6 +125,8 @@ class OCLAgent : public Agent {
         
         //set when agent is created, dictates if running ocl code
         bool useOCL;
+        
+        float step;
 
 };
 END_NAMESPACE(muse);

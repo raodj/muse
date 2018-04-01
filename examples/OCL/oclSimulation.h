@@ -1,7 +1,7 @@
 #ifndef MUSE_OCLSIMULATION_H
 #define MUSE_OCLSIMULATION_H
 #include "../../include/Simulation.h"
-#include "oclGVTManager.h"
+#include "../../kernel/include/GVTManager.h"
 #include "OCLAgent.h"
 #include "Event.h"
 #include "State.h"
@@ -42,7 +42,7 @@ class oclSimulation : public muse::Simulation{
     friend class oclState;
     friend class Simulation;
     public:
-
+        
         static oclSimulation* kernel;
         
         oclSimulation(const bool usingSharedEvents = false);    
