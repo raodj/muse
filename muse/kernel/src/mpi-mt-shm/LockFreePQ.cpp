@@ -1,11 +1,6 @@
 #ifndef LOCK_FREE_PQ_CPP
 #define LOCK_FREE_PQ_CPP
 
-#include "mpi-mt-shm/LockFreePQ.h"
-#include <stdlib.h> 
-#include <iostream>
-#include <assert.h>
-
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OH.
@@ -27,8 +22,21 @@
 //
 //--------------------------------------------------------------------------
 
+#include "mpi-mt-shm/LockFreePQ.h"
+
+#include <stdlib.h> 
+#include <iostream>
+#include <assert.h>
+#include <math.h>      // pow()
+#include <thread>
+#include <vector>
+
+// The ID associated with any thread that access this queue
+thread_local size_t LockFreePQ::thread_id = THREAD_ID_NULL;
+
 // static LCG rand num generation value
-unsigned int LockFreePQ::lcg_rand = rand();
+// todo(deperomm): better rand value generator
+thread_local unsigned int LockFreePQ::lcg_rand = rand();
 
 LockFreePQ::LockFreePQ() {
     
@@ -43,10 +51,8 @@ LockFreePQ::LockFreePQ() {
     tail->inserting = 0;
     head->key       = KEY_MIN;
     tail->key       = KEY_MAX;
-    head->level     = NUM_LEVELS;
-    tail->level     = NUM_LEVELS;
-    head->value     = "HEAD";
-    tail->value     = "TAIL";
+    head->level     = NUM_LEVELS - 1;
+    tail->level     = NUM_LEVELS - 1;
     
     // At all levels of the skip list, connect head and tail
     for (size_t i = 0; i < NUM_LEVELS; i++) {
@@ -60,6 +66,8 @@ LockFreePQ::LockFreePQ() {
 }
 
 LockFreePQ::~LockFreePQ() {
+    
+    // Clean up current elements of the queue
     Node_t *cur, *pred;
     cur = head;
     while (cur != tail) {
@@ -67,16 +75,23 @@ LockFreePQ::~LockFreePQ() {
         cur = get_unmarked_ref(pred->next[0]);
         freeNode(pred);
     }
-    free(tail);
+    freeNode(tail);
+    
+    // Clean up the garbage collection system
+    finalizeDeallocs();
 }
 
+// Note: This method must call exitCritical() before returning
 void
 LockFreePQ::insert(pkey_t k, pval_t v) {
     
+    enterCritical();
+    
+    // new key cannot be equal to head or tail node key values
     assert(KEY_MIN < k && k < KEY_MAX);
     
     Node_t *new_node;
-    new_node = allocNode();
+    new_node         = allocNode();
     Node_t *del      = NULL;
     
     Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
@@ -84,7 +99,7 @@ LockFreePQ::insert(pkey_t k, pval_t v) {
     new_node->key   = k;
     new_node->value = v;
     
-    // Insert at into bottom level
+    // Insert into bottom level
     bool inserted;
     do {
         del = locatePreds(k, preds, succs);
@@ -93,8 +108,10 @@ LockFreePQ::insert(pkey_t k, pval_t v) {
         if (succs[0]->key == k 
                 && !is_marked_ref(preds[0]->next[0]) 
                 && preds[0]->next[0] == succs[0]) {
-            new_node->inserting = 0;
+            std::cout << "WARNING: Duplicate entry not added." << std::endl;
             freeNode(new_node);
+            
+            exitCritical();
             return;
         }
         
@@ -125,7 +142,7 @@ LockFreePQ::insert(pkey_t k, pval_t v) {
             del = locatePreds(k, preds, succs);
 
             // if new node has been deleted, we're done
-            if (succs[0] != new_node) break;
+            if (succs[0] != new_node) break; // This is why cannot have dup keys
 	    
         } else {
             // Succeeded at this level, move on to next
@@ -135,11 +152,17 @@ LockFreePQ::insert(pkey_t k, pval_t v) {
     
     if (new_node) {
         new_node->inserting = 0;
-    }   
+    }
+    
+    exitCritical();
 }
 
+// Note: This method must call exitCritical() before returning
 pval_t
 LockFreePQ::deleteMin() {
+    
+    enterCritical();
+    
     // initial variables
     pval_t ret = NULL;
     Node_t *pred, *succ, *obsHead = NULL, *newHead = NULL, *cur;
@@ -147,15 +170,18 @@ LockFreePQ::deleteMin() {
     
     pred = head;
     // first real item in the queue, could be deleted
-    obsHead = pred->next[0];
+    obsHead = head->next[0];
     
     do {
         offset++;
         
+        // likely expensive - high probability of a cache miss here, as with all
+        // linked list traversals
         succ = pred->next[0];
         
         // if list is empty, we return null
         if (get_unmarked_ref(succ) == tail) {
+            exitCritical();
             return ret; // null
         }
         
@@ -164,7 +190,9 @@ LockFreePQ::deleteMin() {
         // this is because a node may be inserted in front of (lower than) the
         // node we want to delete (if it came in after we started deleteMin)
         // ex.(deleted* inserting^): 1* 2* 4^ 6* 7 9  return 7 but newHead = 4
-        if (newHead == NULL && pred->inserting) newHead = pred;
+        if (newHead == NULL && pred->inserting) {
+            newHead = pred;
+        }
         
         // if the next node is already marked for deletion, just continue
         if (is_marked_ref(succ)) continue;
@@ -179,6 +207,8 @@ LockFreePQ::deleteMin() {
         // the above logic happens in the while loop condition
         succ = __sync_fetch_and_or(&pred->next[0], 1);
         
+        assert(succ != NULL);
+        
         // set pred = succ in while loop check so that it gets run even when we
         // continue above
     } while ((pred = get_unmarked_ref(succ)) && is_marked_ref(succ));
@@ -191,36 +221,40 @@ LockFreePQ::deleteMin() {
     if (newHead == NULL) newHead = pred;
     
     // only continue to physical deletion of nodes if we are past our threshold
-    if (offset <= maxOffset) return ret;
+    if (offset <= maxOffset) {
+        exitCritical();
+        return ret;
+    }
     
     // We set obsHead = head->next[0]. If those two are still equal, swap
     // obsHead with our new head, thus skipping any node that was before newHead
     // If the two values are no longer equal, another thread probably already
     // did this operation, and we just skip restructuring
     if (__sync_bool_compare_and_swap(&head->next[0], 
-            obsHead, get_marked_ref(newHead))) { // (deperomm): can't newHead be non-deleted if it was inserting?
+            obsHead, get_marked_ref(newHead))) {
         
         // restructure higher level pointers to account for this delete
         restructure();
         
         // if we reach this point, all nodes between obsHead and newHead are
-        // guaranteed not active and safe to delete
+        // guaranteed not accessible by the queue and safe to mark for delete
         cur = get_unmarked_ref(obsHead);
         while (cur != get_unmarked_ref(newHead)) {
             succ = get_unmarked_ref(cur->next[0]);
-            assert(is_marked_ref(cur->next[0])); // make sure marked for delete
-            freeNode(cur); // todo(deperomm): Custom garbage collection/recycling
+            assert(is_marked_ref(cur->next[0]));
+            freeNode(cur);
             cur = succ;
         }
     }
     
+    exitCritical();
     return ret;
 }
 
 Node_t*
 LockFreePQ::locatePreds(pkey_t k, Node_t ** preds, Node_t ** succs) {
     Node_t *pred, *succ, *del = NULL;
-    int d, i;
+    int d = 0, i;
     
     pred = head;
     
@@ -229,17 +263,16 @@ LockFreePQ::locatePreds(pkey_t k, Node_t ** preds, Node_t ** succs) {
     while (i >= 0) {
         // traverse the first node at this level
         succ = pred->next[i];
-        d = is_marked_ref(succ);
+        d = is_marked_ref(succ); // this only applies on bottom level as 
+                                 // only bot level next ptrs have ref marked
         succ = get_unmarked_ref(succ);
         assert(succ != NULL);
         
         // traverse all nodes at this level until we find where we belong
         // note that we continue if
         //     1. the current successor's key less than k
-        //     2. the next successor node is marked for deletion
+        //     2. the current successor has nodes after it that are deleted
         //     3. on bottom level: the current successor was marked for delete
-        // the bot level does this b/c at high levels, we continue until the
-        // current succ is deleted, at the bottom level cont until succ
         while (succ->key < k || is_marked_ref(succ->next[0])
                || ((i == 0) && d)) {
             // on the bottom level, record the last seen deleted node
@@ -247,7 +280,8 @@ LockFreePQ::locatePreds(pkey_t k, Node_t ** preds, Node_t ** succs) {
                 del = succ;
             pred = succ;
             succ = pred->next[i];
-            d = is_marked_ref(succ);
+            d = is_marked_ref(succ);       // only applies on bottom level as 
+                                           // only bot ptrs have ref marked
             succ = get_unmarked_ref(succ);
             assert(succ != NULL);
         }
@@ -266,10 +300,11 @@ LockFreePQ::restructure() {
     pred = head;
     
     while (i > 0) { // don't restructure on the bottom level
-        h = head->next[i];
+        h   = head->next[i];
         cur = pred->next[i];
         
-        // if the first value at this level isn't deleted, just continue
+        // if the first value at this level has nothing deleted in front of it
+        // continue
         if (!is_marked_ref(h->next[0])) {
             i--;
             continue;
@@ -280,7 +315,7 @@ LockFreePQ::restructure() {
         // It's also important to note that pred is always a deleted node at
         // this point, so when we move down levels in subsequent while loops,
         // we continue traversing where pred left off
-        while (is_marked_ref(pred->next[0])) {
+        while (is_marked_ref(cur->next[0])) {
             pred = cur;
             cur = pred->next[i];
         }
@@ -293,7 +328,6 @@ LockFreePQ::restructure() {
     }
 }
 
-
 Node_t*
 LockFreePQ::allocNode() {
     Node_t *new_node;
@@ -301,6 +335,7 @@ LockFreePQ::allocNode() {
     // In skip lists, the level of a node is randomly decided when created
     // Calculate node level via LCG rand num and count num of seqential zeros
     // since prob each bit = 0 is .5, length of zeros is geometric distribution
+    // todo(deperomm): better rand value generator
     unsigned int r = lcg_rand;
     lcg_rand = lcg_rand * 1103515245 + 12345;
     r &= (1u << (NUM_LEVELS - 1)) - 1;
@@ -320,9 +355,134 @@ LockFreePQ::allocNode() {
     return new_node;
 }
 
+void 
+LockFreePQ::freeNode(Node_t *n) {
+    std::lock_guard<std::mutex> guard(freeMutex);
+    pendingDeallocs->push_back(n);
+}
+
 void
-LockFreePQ::prettyPrint() {
+LockFreePQ::enterCritical() {
+    // Initialize thread id if neccessary
+    if (thread_id == THREAD_ID_NULL) {
+        // This is a new thread entering a critical section for the first time
+        
+        // Give this thread a thread_id
+        size_t candidateId = *lastId;
+        while (!__sync_bool_compare_and_swap(lastId, candidateId, candidateId+1)){
+            candidateId = *lastId;
+        }
+        // at this point, we guarantee candidateId is unique to this thread
+        thread_id = pow(2, candidateId);
+        std::cout << "New Thread - log2(ID) = " << candidateId << std::endl;
+    }
+    
+    assert(thread_id != THREAD_ID_NULL);
+    
+    // Mark this thread as in a critical section
+    // Note: this is expensive because of very high contention by threads
+    thread_curr_state->fetch_or(thread_id);
+    
+}
+
+void
+LockFreePQ::exitCritical() {
+    
+    // Mark this thread as NOT in a critical section
+    thread_curr_state->fetch_and(~thread_id);
+    
+    // Mark the current epoch that this thread is no longer in a crit section
+    size_t old = thread_epoch_state->fetch_and(~thread_id);
+    
+    // If epoch_state has been zero'd out, try to switch epochs, else return
+    // We want minimal contention on the atomic state variables, which is why
+    // we use the old value instead of checking the value of epoch_state again
+    if (old != 0) {
+        return;
+    }
+    
+    // If we get the epochMutex, we are the thread changing epoch this time
+    // Else just let the other thread take care of it
+    if (!epochMutex.try_lock()) {
+        return;
+    }
+    
+    // we have the lock
+    
+    // Because another thread could have changed epochs since we last checked
+    // epoch_state, check again now that we officially have the lock
+    // If epoch_state was changed since we last check, just abort
+    if (thread_epoch_state->load() != 0) {
+        epochMutex.unlock();
+        return;
+    }
+    
+    // safe to call this, we have the epoch lock
+    garbageCollectAndChangeEpoch();
+    
+    epochMutex.unlock();
+}
+
+void
+LockFreePQ::garbageCollectAndChangeEpoch() {
+    
+    assert(!epochMutex.try_lock()); // must be the only thread to run this method
+    assert(thread_epoch_state->load() == 0); // must be ready for new epoch
+    
+    int n = 0; // debug
+    
+    // First, garbage collect the waiting nodes
+    for (auto it = waitingDeallocs->begin(); it != waitingDeallocs->end(); it++) {
+        delete *it;
+        n++;
+    }
+    waitingDeallocs->clear();
+    
+    // Swap pointer for pendingDeallocs with waitingDeallocs (which is now
+    // empty) to trigger the start of the new epoch. Nodes that were in
+    // pendingDeallocs are now waiting for this epoch to end
+    // This is the critical moment at which the new epoch technically starts
+    std::deque<Node_t*> *temp = pendingDeallocs;
+    pendingDeallocs = waitingDeallocs;
+    waitingDeallocs = temp;
+    
+    // Threads probably exited and entered after the swap above happened, but
+    // we only care that all threads that were active at the moment we switched
+    // dealloc pointers exit at least once before we change epochs again. As
+    // a result, switching the epoch state now (after switching the pointers)
+    // guarantees that any thread that was active at the moment we switched
+    // will have exited once this epoch_state gets set to 0.
+    thread_epoch_state->store(thread_curr_state->load());
+    
+//     std::cout << "finished epoch, deleted " << n << " cur state: " << thread_curr_state->load() << std::endl;
+    
+}
+
+void
+LockFreePQ::finalizeDeallocs() {
+    // threads must not be active when this is called
+    assert(thread_curr_state->load()  == 0);
+    assert(thread_epoch_state->load() == 0);
+    
+    // with no active threads, switching epochs twice will clear and garbage
+    // collect all dealloc queues
+    epochMutex.lock(); // prevents assert from throwing, serves no other purpose
+    garbageCollectAndChangeEpoch();
+    garbageCollectAndChangeEpoch();
+    epochMutex.unlock();
+    
+    delete thread_curr_state;
+    delete thread_epoch_state;
+    delete pendingDeallocs;
+    delete waitingDeallocs;
+    delete lastId;
+    
+}
+
+void
+LockFreePQ::print() {
     Node_t *cur = head, *last;
+    bool del;
     
     int i = NUM_LEVELS - 1;
     
@@ -341,10 +501,15 @@ LockFreePQ::prettyPrint() {
         std::cout << "|"; // for head entry
         
         do {
-            cur = cur->next[0];
+            del = is_marked_ref(cur->next[0]);
+            cur = get_unmarked_ref(cur->next[0]);
             if (cur->level >= i) {
-                std::cout << "|"; // node reaches up to this level
-                assert(last->next[i] == cur); // make sure link is correct
+                if (del) {
+                    std::cout << "*"; // this is a deleted node on bot level
+                } else {
+                    std::cout << "|"; // node reaches up to this level
+                    assert(last->next[i] == cur); // make sure link is correct
+                }
                 last = cur;
             } else {
                 std::cout << "-"; // node is skipped at this level
@@ -357,40 +522,53 @@ LockFreePQ::prettyPrint() {
     
 }
 
+void test(LockFreePQ *pq, int n, int id) {
+    long out = 0;
+    long in = 0;
+    unsigned long temp;
+    for (int i = 100; i < (10000000/n); i++) {
+        temp = i*n+id;
+        in += temp;
+        int *val = new int;
+        *val = temp;
+        pq->insert(temp, (void *)val);
+        val = (int *)pq->deleteMin();
+        out += *val;
+        delete  val;
+    }
+    std::cout << "Inserted: " << in << " Got: " << out << std::endl;
+}
+
 int main() {
-    LockFreePQ pq = LockFreePQ();
+    LockFreePQ *pq = new LockFreePQ();
     
-    pq.insert(2, "two");
-    pq.insert(5, "five");
-    pq.insert(13, "thirteen");
-    pq.insert(1, "one");
-    pq.insert(9, "nine");
-    pq.insert(12, "twelve");
-    pq.insert(7, "seven");
-    pq.insert(10, "ten");
-    pq.insert(4, "four");
-    pq.prettyPrint();
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    pq.insert(11, "eleven");
-    pq.insert(15, "fifteen");
-    pq.insert(14, "fourteen");
-    pq.insert(6, "six");
-    pq.insert(8, "eight");
-    pq.insert(3, "three");
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
-    std::cout << "out: " << pq.deleteMin() << std::endl;
+    std::vector<std::thread> threads;
+    
+    int n = 8;
+    
+    unsigned long temp;
+    long in = 0;
+    for (int i = 1; i < 100; i++) {
+        temp = i;
+        in += temp;
+        int *val = new int;
+        *val = temp;
+        pq->insert(temp, (void *)val);
+    }
+    std::cout << "init total: " << in << std::endl;
+    
+    
+    
+    for (int i = 0; i < n; i++) {
+        threads.push_back(std::thread(test, pq, n, i));
+    }
+    
+    for (int i = 0; i < n; i++) {
+        threads[i].join();
+    }
+    
+    delete pq;
+    
 }
 
 #endif
