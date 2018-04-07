@@ -42,7 +42,20 @@ class oclSimulation : public muse::Simulation{
     friend class oclState;
     friend class Simulation;
     public:
-        
+        std::vector<OCLAgent*> oclAgents;
+        bool ode = true;
+        bool oclAvailable = false;
+        int compartments = 4;
+        float* values;
+        Time lastLGVT;
+        float stopTime = 25;
+        int rows = 300;
+        int cols = 300;
+        int popSize;
+        int expSize;
+        float step;
+        int maxWorkGroupSize;
+        int maxWorkGroups;
         static oclSimulation* kernel;
         
         oclSimulation(const bool usingSharedEvents = false);    
@@ -96,7 +109,7 @@ class oclSimulation : public muse::Simulation{
          returns the kernel code based on whether running ssa or ode version
          of kernel code
          */
-        std::string getKernel(bool ssa);
+        std::string getKernel();
 
         /*
          Set up start and stop time for simulation, finish setup before
@@ -202,8 +215,18 @@ class oclSimulation : public muse::Simulation{
         */
         void garbageCollect();
         
-        void oclStep(float* values, float step, int count);
-    
+        /*
+         Run the main simulation loop using opencl
+         this avoids opencl scoping problems.
+         */
+        void oclRun();
+        
+        /*
+         Run the main simulation loop without using opencl
+         this avoids opencl scoping problems.
+         */
+        void run();
+            
     protected:
     
         oclScheduler* scheduler;

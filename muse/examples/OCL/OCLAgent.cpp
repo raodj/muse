@@ -12,57 +12,56 @@ using namespace std;
 BEGIN_NAMESPACE(muse);
 
 // The epidemic constants 
-const float beta = 1, mu = 5e-4, psi= 0.1;
-const int compartments = 4;
-bool mustSaveState;
-Time lvt;
-int numCommittedEvents;
-int numProcessedEvents;
-int numSchedules;
-List<Event*> inputQueue;
 
-OCLAgent::OCLAgent(AgentID id, oclState* state, bool ocl, float stp):
-    Agent(id, state), myState (state), myID(id), useOCL(ocl), step(stp) {
+OCLAgent::OCLAgent(AgentID id, oclState* state, bool ocl, float stp, int compartmentNum, bool useODE):
+    Agent(id, state), myState (state), myID(id), useOCL(ocl), step(stp), compartments(compartmentNum), ode(useODE) {
     kernel = NULL;
     fibHeapPtr = NULL;
 }
 
-OCLAgent::~OCLAgent(){
+void OCLAgent::setLVT(Time newLVT) { 
+    lvt= newLVT; 
+}
+            
+void OCLAgent::setKernel(oclSimulation* sim) { 
+    kernel = sim; 
 }
 
-void OCLAgent::setLVT(Time newLVT) { lvt= newLVT; }
-            
-void OCLAgent::setKernel(oclSimulation* sim) { kernel = sim; }
-
-Time OCLAgent::getLVT() { return lvt; }
-
-State* OCLAgent::getState() { return myState; }
+State* OCLAgent::getState() { 
+    return myState; 
+}
 
 void OCLAgent::executeTask(const EventContainer& events, bool& runOCL){
       for (const Event* event : events) {
-//         std::cout << "Processing: " << event << std::endl;
-        myState->susceptible -= 1;//event.susceptible;
-        myState->exposed     += 1;//event.exposed;
-        myState->infected   += 0;//event.infected;
-        myState->recovered   += 0;//event.recovered;
-    }
-      //check if using OCL kernel code
+
+        }
+      // check if using OCL kernel code
       if(useOCL){
-        runOCL = ((myState->exposed > 0) || (myState->infected > 0));
+        if(compartments >= 4){
+          runOCL = ((myState->values[1] > 0) || (myState->values[2] > 0));
+        }else{
+            runOCL = myState->values[1] > 0;
+        }
       }else{
-          //not using ocl run equations for agent immediately
-          float values[4];
-           values[0] = myState->susceptible;
-           values[1] = myState->exposed;
-           values[2] = myState->infected;
-           values[3] = myState->recovered;
-           nextODE(values, step);
-           myState->susceptible = values[0];
-           myState->exposed = values[1];
-           myState->infected = values[2];
-           myState->recovered = values[3];
+        // not using ocl run equations for agent immediately
+        float values[compartments];
+        for(int i = 0; i < compartments; i++){
+            values[i] = myState->values[i];
+        }
+        if(ode){
+          nextODE(values);
+        }else{
+          nextSSA(values);
+        }
+        for(int i = 0; i < compartments; i++){
+           myState->values[i] = values[i];
+         }
+        for(int i = 0; i < compartments; i++){
+//              cout << values[i] << ", ";
+         }
+//           cout << "\n";
       }
-      //create new event for next time step
+      // create new event for next time step
       Event* event = new Event(myID, getLVT()+1);
       scheduleEvent(event);
 }
@@ -141,51 +140,86 @@ void OCLAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
 }
 
 void OCLAgent::seir(const float xl[4], float xln[4]) {
-    //values for the disease being modeled
+    // values for the disease being modeled
     float MU = 0.011;
     float A = 0.5;
     float V = 0.3333;
     float R0 = 3;
     float B  = (R0 * ((MU+A)*(MU+V)) / A);
     float N = xl[0] + xl[1] + xl[2] + xl[3];
-    //represents change from compartment to compartment based on constants above
+    // represents change from compartment to compartment based on constants above
     xln[0] = (MU * N) - (MU * xl[0]) - (B * xl[2] * xl[0] / N);
     xln[1] = (B * xl[2] * xl[0] / N) - (A * xl[1]);
     xln[2] = (A * xl[1]) - ((V + MU) * xl[2]);
     xln[3] = (V * xl[2]) - (MU * xl[3]);
 }
 
-void OCLAgent::nextODE(float* xl, float step) {
+void OCLAgent::synth(const float xl[4], float xln[4]) {
+    // values for the disease being modeled
+    float A = 0.0005f;
+    float B  = 0.00004f;
+    // represents change from compartment to compartment 
+    // for experimenting synthetic epidemic
+    for(int i = 1; i < compartments; i++){
+        xln[i] = (xl[i-1] * A) - (B * xl[i]);
+    }
+    xln[0] = -xln[1];
+}
+
+void OCLAgent::nextODE(float* xl) {
     const float h = step;
     // Use runge-kutta 4th order method here.
-    float k1[4], k2[4], k3[4], k4[4], xlt[4];
+    float k1[compartments], k2[compartments], k3[compartments], k4[compartments], xlt[compartments];
     // Compute k1
-    for(float i = 0; i < 1; i += step){
+    for(float j = 0; j < 1; j += step){
         seir(xl, k1);
         // Compute k2 values using k1.
-        xlt[0] = xl[0] + k1[0] * h / 2;
-        xlt[1] = xl[1] + k1[1] * h / 2;
-        xlt[2] = xl[2] + k1[2] * h / 2;
-        xlt[3] = xl[3] + k1[3] * h / 2;
-        seir(xlt, k2);
+        for(int i = 0; i < compartments; i++){
+            xlt[i] = xl[i] + k1[i] * h / 2;
+        }
+        synth(xlt, k2);
         // Compute k3 values using k2.
-        xlt[0] = xl[0] + k2[0] * h / 2;
-        xlt[1] = xl[1] + k2[1] * h / 2;
-        xlt[2] = xl[2] + k2[2] * h / 2;
-        xlt[3] = xl[3] + k2[3] * h / 2;
-        seir(xlt, k3);
+        for(int i = 0; i < compartments; i++){
+            xlt[i] = xl[i] + k2[i] * h / 2;
+        }
+        synth(xlt, k3);
         // Compute k4 values using k3.
-        xlt[0] = xl[0] + k3[0] * h;
-        xlt[1] = xl[1] + k3[1] * h;
-        xlt[2] = xl[2] + k3[2] * h;
-        xlt[3] = xl[3] + k3[3] * h;
-        seir(xlt, k4);
+        for(int i = 0; i < compartments; i++){
+            xlt[i] = xl[i] + k3[i] * h;
+        }
+        synth(xlt, k4);
 
         // Compute the new set of values.
-        xl[0] = xl[0] + (k1[0] + 2*k2[0] + 2*k3[0] + k4[0]) * h / 6;
-        xl[1] = xl[1] + (k1[1] + 2*k2[1] + 2*k3[1] + k4[1]) * h / 6;
-        xl[2] = xl[2] + (k1[2] + 2*k2[2] + 2*k3[2] + k4[2]) * h / 6;
-        xl[3] = xl[3] + (k1[3] + 2*k2[3] + 2*k3[3] + k4[3]) * h / 6;
+        for(int i = 0; i < compartments; i++){
+            xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
+        }
+    }
+}
+
+void OCLAgent::nextSSA(float* cv){
+    float EventChanges[compartments-1][compartments];
+    for(int i = 0; i < compartments-1; i++){
+        for(int j = 0; j < compartments; j++){
+            if(i==j){
+                EventChanges[i][j] = -1;
+            }
+            else if(j-i == 1){
+                EventChanges[i][j] = 1;
+            }else{
+                EventChanges[i][j] = 0;
+            }
+
+        }
+    }
+    const float rates = .1;
+    for(int i = 0; i < (int)1/step; i++){
+        for(int i = 0; (i < compartments-1); i++) { 
+            for(int j = 0; j < compartments; j++){
+                float r = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
+                float scale = rates*step*r;
+                cv[j] = cv[j] + (EventChanges[i][j] * scale); 
+            }
+        }
     }
 }
 
@@ -194,7 +228,7 @@ void OCLAgent::finalize(){
 }
         
 void OCLAgent::initialize() throw (std::exception){
-        //Generate event for this agent at time step 1
+        // Generate event for this agent at time step 1
         Event* event = new Event(myID, 1);
         scheduleEvent(event);
 }

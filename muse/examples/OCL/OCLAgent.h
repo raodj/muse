@@ -14,6 +14,16 @@ class OCLAgent : public Agent {
     friend class oclSimulation;
     public:
         
+        const float beta = 1, mu = 5e-4, psi= 0.1;
+        const int compartments = 4;
+        bool mustSaveState;
+        bool ode;
+        Time lvt;
+        int numCommittedEvents;
+        int numProcessedEvents;
+        int numSchedules;
+        List<Event*> inputQueue;
+        
        /** The constructor.
         
         \note once constructed MUSE will handle deleting the state
@@ -24,10 +34,8 @@ class OCLAgent : public Agent {
         \param agentState pointer to the state that has been allocated
         in the heap
     */
-        OCLAgent(AgentID id, oclState* state, bool ocl, float stp = .001f);
-        
-        ~OCLAgent();
-        
+        OCLAgent(AgentID id, oclState* state, bool ocl, float stp = .001f, int compartmentNum = 4, bool useODE = true);
+                
         /** The executeTask method.
      
         This method is invoked only when the agent has some events to
@@ -40,7 +48,7 @@ class OCLAgent : public Agent {
         \param events The set of concurrent (events at the same time)
         events that this method should process.
         */    
-        void executeTask(const EventContainer& events, bool& runOCL);
+        virtual void executeTask(const EventContainer& events, bool& runOCL);
         
         void executeTask(const EventContainer& events) override;
 
@@ -51,14 +59,23 @@ class OCLAgent : public Agent {
 	will call this method, when it is time for processing.
         
         */
-        void processNextEvents(muse::EventContainer& events, bool& runOCL);
+        virtual void processNextEvents(muse::EventContainer& events, bool& runOCL);
 
         /*
          * Helper function for nextODE
          * function runs seir equations with values
          * specific to the disease being modeled.
          */
-        void seir(const float xl[4], float xln[4]);
+        virtual void seir(const float xl[4], float xln[4]);
+        
+        
+         /*
+         * Helper function for nextODE
+         * function runs synthetic epidemic equations for testing.
+         */
+        virtual void synth(const float xl[4], float xln[4]);
+        
+        
         /*
          Makes a step with the ODE equations -
          * runs Runge Kutta fourth order equations
@@ -67,13 +84,23 @@ class OCLAgent : public Agent {
          * xl is the values of the current state and they are updated
          * within the method
          */
-        void nextODE(float* xl, float step);
+        virtual void nextODE(float* xl);
+        
+        /*
+         Makes a step with the SSA equations -
+         * runs Gillespie with Tau Leaping optimization
+         * to advance the agent one time step in the simulation
+         * 
+         * cv is the values of the current state and they are updated
+         * within the method
+         */
+        virtual void nextSSA(float* cv);
         
         /** The setLVT method.
         
         \param newLVT the new LVT
         */
-        void setLVT(Time newLVT);
+        virtual void setLVT(Time newLVT);
         
         /** Setup the simulation kernel to be used by this agent.
 
@@ -84,22 +111,15 @@ class OCLAgent : public Agent {
         \param sim The simulation/kernel that is agent must use for
         scheduling events etc.  The pointer is never null.
         */
-        void setKernel(oclSimulation* sim);
-        
-        /** The getLVT method.
+        virtual void setKernel(oclSimulation* sim);
 
-            This will return the agent's Local Virtual Time.
-
-            \return The LVT -- the time of the last processed event
-        */
-        Time getLVT();
 
         /** The getState method.
         This will return the current state of the agent.
 
         \return the current state pointer to the agent's state.
         */
-        State* getState();
+        virtual State* getState();
         
         /*
         The finalize method.
@@ -117,13 +137,21 @@ class OCLAgent : public Agent {
          */
         void initialize() throw (std::exception) override;
         
-        //id for the agent
+            /** The getLVT method.
+        
+        This will return the agent's Local Virtual Time.
+	
+        \return The LVT -- the time of the last processed event
+    */
+    inline Time getLVT() const { return lvt; }
+        
+        // id for the agent
         AgentID myID;
         
-        //State of the agent
+        // State of the agent
         oclState* myState;
         
-        //set when agent is created, dictates if running ocl code
+        // set when agent is created, dictates if running ocl code
         bool useOCL;
         
         float step;
