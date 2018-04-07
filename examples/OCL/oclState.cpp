@@ -3,12 +3,18 @@
 #include "oclState.h"
 BEGIN_NAMESPACE(muse);
 
-oclState::oclState(float population, float exp){
-        //set initial seir values
-	susceptible = population - exp;
-	exposed = exp;
-	infected = 0;
-	recovered = 0;
+oclState::oclState(int compartmentNum, float population, float exp): compartments(compartmentNum){
+        // set initial seir values
+   values = new float[compartments];
+    for(int i = 0; i < compartments; i++){
+        values[i] = 0;
+    }
+    values[0] = population;
+    values[1] = exp;
+}
+
+oclState::~oclState(){
+    delete[] values;
 }
 END_NAMESPACE(muse);
 

@@ -6,12 +6,10 @@ BEGIN_NAMESPACE(muse);
 class oclState : public muse::State {
     friend class oclSimulation;
     friend class OCLAgent;
-	float susceptible;
-	float exposed;
-	float infected;
-	float recovered;
-        oclState(float population, float exp);
-
+        int compartments;
+        float* values;
+        oclState(int compartmentNum, float population, float exp);
+        ~oclState();
 };
 END_NAMESPACE(muse);
 
