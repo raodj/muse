@@ -79,6 +79,7 @@ void OCLAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
       // Add the events to our input queue only when state saving is
       // enabled -- that is we have more than 1 process and rollbacks
       // are possible.
+
       if (mustSaveState) {
         for (EventContainer::iterator curr = events.begin();
              (curr != events.end()); curr++) {
@@ -102,10 +103,10 @@ void OCLAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
       setLVT(events.front()->getReceiveTime());
       getState()->timestamp = getLVT();
 
-
       // Let the derived class actually process events that it needs to.
       // Pass boolean value to execute task to decide if ocl needs to be run on agent 
       executeTask(events, runOCL);
+
       DEBUG(std::cout << "Agent " << getAgentID() << " is done processing "
                     << events.size() << " events at time: "
                     << events.front()->getReceiveTime() << " [committed "

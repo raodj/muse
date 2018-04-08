@@ -3,9 +3,8 @@
 #include "oclState.h"
 BEGIN_NAMESPACE(muse);
 
-oclState::oclState(int compartmentNum, float population, float exp): compartments(compartmentNum){
+oclState::oclState(int compartmentNum, float population, float exp): compartments(compartmentNum), values(new float[compartments]){
         // set initial seir values
-   values = new float[compartments];
     for(int i = 0; i < compartments; i++){
         values[i] = 0;
     }
@@ -13,9 +12,6 @@ oclState::oclState(int compartmentNum, float population, float exp): compartment
     values[1] = exp;
 }
 
-oclState::~oclState(){
-    delete[] values;
-}
 END_NAMESPACE(muse);
 
 #endif

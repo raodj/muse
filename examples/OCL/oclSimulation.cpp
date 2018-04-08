@@ -178,7 +178,7 @@ std::string oclSimulation::getKernel(){
         "   for(int x = 0; x < (int)1/stp; x++){\n"
         "     for(int i = 0; (i < (compartments-1)); i++) {\n"
         "        for(int j = 0; j < compartments; j++){\n"
-        "           float scale = rate*random[(id+x)%1024]*stp;\n"
+        "           float scale = rate*random[(id+x)%100]*stp;\n"
         //"           cv[j] = cv[j] + (EventChanges[i][j] * scale);\n"
         "           cv[j] = cv[j] + scale;\n"
         "        }\n"
@@ -371,6 +371,7 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     float stp = 0.1f;
     int comp = 4;
     bool ssa = false;
+    int maxWG = 0;
     ArgParser::ArgRecord arg_list[] = {
         { "--row", "number of rows in simulation, dictates number of agents",
           &row, ArgParser::INTEGER},
@@ -390,6 +391,8 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
           &stp, ArgParser::FLOAT},
         { "--compartments", "Number of compartments in simulation",
           &comp, ArgParser::INTEGER},
+        { "--workgroup", "Number of agents run on GPU at a time",
+          &maxWG, ArgParser::INTEGER},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -414,6 +417,7 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     kernel->step = stp;
     kernel->compartments = comp;
     kernel->ode = !ssa;
+    kernel->maxWorkGroups = maxWG;
     return kernel;
 }
 
@@ -429,10 +433,10 @@ oclSimulation::simulate() {
     
     //Create Agents for simulation after start and stop times are set
     createAgents();
-//    cout << "Created Agents" << endl;
+    cout << "Created Agents" << endl;
     // Finally start the simulation here!!
     kernel->start();
-//    cout << "Finished Simulation Loop" << endl;
+    cout << "Finished Simulation Loop" << endl;
     // Now we finalize the simulation to make sure it cleans up.
     finalizeSimulation();
 }
@@ -511,7 +515,7 @@ void
 oclSimulation::finalizeSimulation(bool stopMPI, bool delSim) {
     // First let the derived class finalize
     ASSERT( kernel != NULL );
-    kernel->finalize(stopMPI);
+//    kernel->finalize(stopMPI);
     // If the simulator is to be deleted, do that now.
     if (delSim) {
         delete kernel;  // get rid of singleton instance.
@@ -544,7 +548,7 @@ oclSimulation::finalize(bool stopMPI, bool delCommMgr) {
         // Remove agent from scheduler
         scheduler->removeAgentFromScheduler(agent);
         // Bye byte agent!
-        delete agent;
+//        delete agent;
     }
 
     // Now delete GVT manager as we no longer need it.
@@ -553,7 +557,7 @@ oclSimulation::finalize(bool stopMPI, bool delCommMgr) {
     gvtManager = NULL;
     
     // Finalize the communicator 
-    commManager->finalize(stopMPI);
+//    commManager->finalize(stopMPI);
     // Delete it if requested
     if (delCommMgr) {
         delete commManager;
@@ -603,16 +607,26 @@ void oclSimulation::oclRun(){
     CommandQueue queue(context, default_device);
     Kernel run = Kernel(program, "run");
 
+    int maxGlobal = std::min(CL_DEVICE_MAX_WORK_GROUP_SIZE*100, rows*cols*compartments);
+   
+    if(kernel->maxWorkGroups != 0){
+        maxGlobal = std::min(kernel->maxWorkGroups*compartments, maxGlobal);
+    }
+    cout << maxGlobal << ", " << CL_DEVICE_MAX_WORK_GROUP_SIZE << " ,  " <<rows*cols*compartments<< endl;
+    float values[maxGlobal];
+    
+    Buffer buffer_B(context, CL_MEM_READ_WRITE, sizeof(float) * (maxGlobal));
     // Initialize random values for ssa version
-    Buffer buffer_random(context, CL_MEM_READ_WRITE, sizeof(float) * (1024));
+    int numRand = 100;
+    Buffer buffer_random(context, CL_MEM_READ_WRITE, sizeof(float) * (numRand));
     if(!ode){
-        float randomValues[1024];
-        for(int i = 0; i < 1024; i++){
+        float randomValues[numRand];
+        for(int i = 0; i < numRand; i++){
             randomValues[i] = static_cast <float> (rand()) / static_cast <float> (RAND_MAX);
 //            cout << randomValues[i] << endl;
         }
         
-        queue.enqueueWriteBuffer(buffer_random, CL_TRUE, 0, sizeof(float)*(1024), randomValues);
+        queue.enqueueWriteBuffer(buffer_random, CL_TRUE, 0, sizeof(float)*(numRand), randomValues);
     }
     
     // Start the core simulation loop.
@@ -626,6 +640,7 @@ void oclSimulation::oclRun(){
             dumpStats();
             doDumpStats = false;
         }
+        
         if (--gvtTimer == 0 ) {
             gvtTimer = gvtDelayRate;
             // Initate another round of GVT calculations if needed.
@@ -641,7 +656,7 @@ void oclSimulation::oclRun(){
         //start function in order to fix any scoping issues and allow the opencl
         //initialization to occur only once.
             kernel->LGVT = scheduler->getNextEventTime();
-            if((kernel->LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= (CL_DEVICE_MAX_WORK_GROUP_SIZE)*100){
+            if((kernel->LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= maxGlobal/compartments){
 //                std::cout<<"---Doing Bulk Processing at "<< lastLGVT  << ", " << oclAgents.size()<< " ---" << std::endl;
 
                 lastLGVT = kernel->LGVT;        
@@ -649,7 +664,7 @@ void oclSimulation::oclRun(){
                 //parse data from agents
                 int count = oclAgents.size();
                 int c = 0;
-                float values[compartments*oclAgents.size()];
+                //float values[compartments*oclAgents.size()];
                 for(OCLAgent* agent : oclAgents){
                     for(int i = 0; i < compartments; i++){
                         values[i+c] = agent->myState->values[i];      
@@ -659,8 +674,8 @@ void oclSimulation::oclRun(){
 
                 //Run OCL kernel on agent data from list
                 //copy data onto GPU
-                Buffer buffer_B(context, CL_MEM_READ_WRITE, sizeof(float) * (count*compartments));
-                cl_int wstatus = queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count*compartments), values);
+                
+                cl_int wstatus = queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(maxGlobal), values);
 //                std::cout << "Write Status: " << wstatus << std::endl;
                 //Set args for kernel code
                 
@@ -681,11 +696,15 @@ void oclSimulation::oclRun(){
                 //run kernel code on agent data
 //                cout << "global work size: " << count << " local  work  size: " << rng << endl;
                 //the last input into enqueueNDRangeKernel can specify the local work size, but leaving it null allows the opencl to determine the local work size
+                queue.flush();
                 cl_int status = queue.enqueueNDRangeKernel(run, NullRange, NDRange(count),NullRange);// NDRange(rng));
-                queue.finish();
+                queue.flush();
 //                std::cout << "Status: " << status << std::endl;
                 //read data back to values array
-                queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(count), values);
+                status = queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(float)*(maxGlobal), values);
+//                std::cout << "Read Status: " << status << std::endl;
+                queue.flush();
+                
                 //put altered data back into agents        
                 c = 0;
                 bool first = true;
@@ -717,7 +736,6 @@ void oclSimulation::oclRun(){
                 DEBUG(logFile->close());
                 abort();
             }
-
             OCLAgent* agent = NULL;
             // Let the scheduler do its task to have the agent process events
             // if possible.  If no events are processed the following method
@@ -736,6 +754,7 @@ void oclSimulation::oclRun(){
             mpiMsgCheckCounter = 1;
         }
     }
+    queue.finish();
 }
 
 
