@@ -24,25 +24,31 @@
 //
 //---------------------------------------------------------------------------
 
+// debug build command
+//g++ -std=c++11 -O3 -Wall -Wextra -I ../../include -pthread -fPIE -pie LockFreePQ.cpp -o test
+
+
 #include <stdlib.h>
 #include <inttypes.h>  // additional int types, specifically uintptr_t
 #include <climits>     // numeric type limits i.e. ULONG_MAX
 #include <mutex>
 #include <deque>
 #include <atomic>
+#include <random>
 
 #define KEY_NULL 0
 #define NUM_LEVELS 32
-// todo(deperomm): make this dynamic, paper says should = thread count
+// todo(deperomm): make this dynamic, must be >= number of threads
 #define MAX_OFFSET 8
 // Key values for first/last dummy nodes
 #define KEY_MIN (0)
-#define KEY_MAX (ULONG_MAX)
+#define KEY_MAX std::numeric_limits<double>::max()
 // Used to initially set thread_id to an invalid value
 #define THREAD_ID_NULL (UINT_MAX)
 
-typedef unsigned long pkey_t;
-typedef void          *pval_t;
+// todo(deperomm): Replace with c++ templates
+typedef double pkey_t;   // key type   [Same as muse::Time] - see KEY_MAX above
+typedef void   *pval_t;  // value type [Generic pointer]
 
 //Node type, the structure for a single node in the queue
 struct Node_t {
@@ -88,7 +94,7 @@ public:
     /**
      * Cleans up the queue
      * 
-     * This operation is NOT thread safe, and should only be called after 
+     * This operation is NOT thread safe, and should only be active after 
      * all operations are done with the queue.
      */
     ~LockFreePQ();
@@ -97,19 +103,43 @@ public:
      * Inserts a new value into the queue. Duplicate keys will be skipped
      * 
      * If an entry in the queue exists with the same key, the insert will be
-     * skipped and the value not added to the queue.
+     * skipped and the value NOT added to the queue, with a warning printed
      * 
-     * @param key - unsigned int, the value with which priority is calculated
-     * @param value - pointer to the value of this entry in the queue
+     * This method is thread safe and can be called concurrently with other
+     * threads with no risk of being lost or being inserted out of order
+     * 
+     * @param key - pkey_t type, the value with which priority is calculated
+     * @param value - the value of this entry in the queue
      */
     void insert(pkey_t key, pval_t value);
     
     /**
      * Removes and returns the value in the queue with the lowest key
      * 
-     * @return value - pointer to the value of lowest priority node
+     * If the queue is empty, this will return null
+     * 
+     * This method is thread safe and ensures the minimum value of the queue
+     * at the moment the method is called is returned exclusively to the caller
+     * 
+     * @return value - the value of lowest priority node in the queue
      */
     pval_t deleteMin();
+    
+    /**
+     * Returns the key of the node with the lowest key (front) in the queue
+     * 
+     * Does not modify the queue in anyway.
+     * 
+     * Returns KEY_MAX if queue is empty
+     * 
+     * Note that this value could have changed instantly after return if 
+     * another thread was modifying the queue concurrently when this was called.
+     * This means this method should NOT be used unless other measures to ensure 
+     * thread safety are met.
+     * 
+     * @return value - the next key in the priority queue
+     */
+    pkey_t nextMin();
     
     /**
      * Visualizes the current state of the skip list for debugging
@@ -125,12 +155,19 @@ public:
 private:
     
     /**
-     * Gets the current predecessors and successors at all skip list levels
+     * Gets the predecessors and successors for key k at all skip list levels
      * 
      * This information is used by the insert method to attempt to quickly
      * insert the node in the queue. It's possible these preds and succs have
      * changed after this is called, so must use compare and swap to actually
      * do the insert.
+     * 
+     * For example, preds[4] is a ptr to the node that would preceed a node of 
+     * key value k at skip-list level 4 (where first level is 0)
+     * 
+     * @param k     - the key that we want predecessors and successors for
+     * @param preds - list of predecessors at each level for key value k
+     * @param succs - list of successors at each level for key value k
      * 
      * @return del - the last deleted node on the bottom level, could be null
      */
@@ -202,10 +239,10 @@ private:
      * thread_id is always a unique power of two, as it is used for bitwise ops
      * to toggle overall thread state
      * 
-     * For example, the 3rd thread in the system would get thread_id = 0b100
+     * For example, the 3rd thread in the system gets thread_id = 0b100 = 4
      */
     thread_local static size_t thread_id;
-    size_t *lastId = new size_t(0);        // used to distribute IDs to threads
+    static size_t *lastId;  // used to distribute IDs to threads
     
     /**
      * bitmap which represents which threads are acitvely in critical sections
@@ -213,7 +250,7 @@ private:
      * Each bit represents a thread actively in a critical section, when a 
      * thread leaves its critical section it flips its bit back to 0
      * 
-     * For example, if state = 0110 then two threads are actively in crit secs
+     * For example, if state = 0b0110 then two threads are actively in crit secs
      */
     std::atomic_uint *thread_curr_state = new std::atomic_uint;
     
@@ -271,12 +308,7 @@ private:
     Node_t  *head;
     Node_t  *tail;
     
-    // Used for linear conguential generator (LCG) for rand levels of skip list
-    // todo(deperomm): better rand value generator
-    thread_local static unsigned int lcg_rand;
 };
-
-//g++ -std=c++11 -g -Wall -Wextra -I ../../include -pthread -fsanitize=thread -fPIE -pie LockFreePQ.cpp -o test
 
 
 #endif /* LOCK_FREE_PQ_H */
