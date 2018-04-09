@@ -594,7 +594,7 @@ void test(LockFreePQ *pq, std::vector<double> vals) {
         out += *val;
         delete  val;
     }
-    std::cout << "Inserted: " << in << " Got: " << out << " Difference: " << (in - out) << std::endl;
+    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
 }
 
 int main(int argc, char** argv) {
