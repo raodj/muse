@@ -28,15 +28,16 @@
 #include <iostream>
 #include <assert.h>
 #include <math.h>      // pow()
-#include <thread>
-#include <vector>
+#include <thread>      // for testing?
+#include <vector>      // for testing, vector
+#include <algorithm>   // for testing, shuffle
+#include <chrono>      // for testing, clock
 
-// The ID associated with any thread that access this queue
+// The ID associated with any thread that accesses this queue
 thread_local size_t LockFreePQ::thread_id = THREAD_ID_NULL;
 
-// static LCG rand num generation value
-// todo(deperomm): better rand value generator
-thread_local unsigned int LockFreePQ::lcg_rand = rand();
+// A static value used to distribute unique IDs across multiple threads
+size_t* LockFreePQ::lastId = new size_t(0);
 
 LockFreePQ::LockFreePQ() {
     
@@ -60,9 +61,6 @@ LockFreePQ::LockFreePQ() {
     }
     
     maxOffset = MAX_OFFSET; // todo(deperomm): make this cmd line arg
-    
-    // A new random value used for LCG in fast random num generation
-    lcg_rand = lcg_rand * 1103515245 + 12345;
 }
 
 LockFreePQ::~LockFreePQ() {
@@ -251,6 +249,52 @@ LockFreePQ::deleteMin() {
     return ret;
 }
 
+// Note: This method must call exitCritical() before returning
+pkey_t
+LockFreePQ::nextMin() {
+    
+    enterCritical();
+    
+    // initial variables
+    pkey_t ret = KEY_MAX;
+    Node_t *pred, *succ;
+    
+    pred = head;
+    
+    do { 
+        // likely expensive - high probability of a cache miss here, as with all
+        // linked list traversals
+        succ = pred->next[0];
+        
+        // if list is empty, we return null
+        if (get_unmarked_ref(succ) == tail) {
+            exitCritical();
+            return ret; // null
+        }
+        
+        // if the next node is already marked for deletion, just continue
+        if (is_marked_ref(succ)) continue;
+        
+        assert(succ != NULL);
+        
+        // set pred = succ in while loop check so that it gets run even when we
+        // continue above
+    } while ((pred = get_unmarked_ref(succ)) && is_marked_ref(succ));
+    
+    // Note that there is no thread safety in this method. It's very possible
+    // that even when control drops here the min value in the queue could
+    // have changed. As a result this method must have other thread safety
+    // in place above the queue to ensure this value is useful in any way
+    
+    assert(!is_marked_ref(pred));
+    
+    // return key, NOT value
+    ret = pred->key;
+    
+    exitCritical();
+    return ret;
+}
+
 Node_t*
 LockFreePQ::locatePreds(pkey_t k, Node_t ** preds, Node_t ** succs) {
     Node_t *pred, *succ, *del = NULL;
@@ -283,7 +327,17 @@ LockFreePQ::locatePreds(pkey_t k, Node_t ** preds, Node_t ** succs) {
             d = is_marked_ref(succ);       // only applies on bottom level as 
                                            // only bot ptrs have ref marked
             succ = get_unmarked_ref(succ);
-            assert(succ != NULL);
+            if (succ == NULL) {
+                // This is a serious issue. It appears to be related to
+                // garbage collection, where elements of the list are freed
+                // before all threads were done operating on them.
+                // This assert got triggered very rarely (1 in ~20 runs with
+                // millions of elements at very high contention), so if we 
+                // reach this point we simply try again to alleviate the issue 
+                // for now.
+                // todo(deperomm): review garbage collection
+                return locatePreds(k, preds, succs);
+            }
         }
         preds[i] = pred;
         succs[i] = succ;
@@ -333,13 +387,14 @@ LockFreePQ::allocNode() {
     Node_t *new_node;
     
     // In skip lists, the level of a node is randomly decided when created
-    // Calculate node level via LCG rand num and count num of seqential zeros
-    // since prob each bit = 0 is .5, length of zeros is geometric distribution
-    // todo(deperomm): better rand value generator
-    unsigned int r = lcg_rand;
-    lcg_rand = lcg_rand * 1103515245 + 12345;
-    r &= (1u << (NUM_LEVELS - 1)) - 1;
-    int level = __builtin_ctz(r); // count num sequential zeros
+    // We want each level up to be half as likely as the level below it, so
+    // a geometric distribution
+    // todo(deperomm): Validate this random generator is working sufficently
+    static thread_local std::mt19937 generator;
+    static thread_local std::geometric_distribution<int> distribution;
+    
+    int level = distribution(generator);
+    if (level > NUM_LEVELS) level = NUM_LEVELS - 1;
     
     assert(0 <= level && level < NUM_LEVELS);
     
@@ -380,7 +435,7 @@ LockFreePQ::enterCritical() {
     assert(thread_id != THREAD_ID_NULL);
     
     // Mark this thread as in a critical section
-    // Note: this is expensive because of very high contention by threads
+    // Note: this is expensive-ish because of very high contention by threads
     thread_curr_state->fetch_or(thread_id);
     
 }
@@ -433,7 +488,7 @@ LockFreePQ::garbageCollectAndChangeEpoch() {
     
     // First, garbage collect the waiting nodes
     for (auto it = waitingDeallocs->begin(); it != waitingDeallocs->end(); it++) {
-        delete *it;
+        free(*it);
         n++;
     }
     waitingDeallocs->clear();
@@ -442,9 +497,11 @@ LockFreePQ::garbageCollectAndChangeEpoch() {
     // empty) to trigger the start of the new epoch. Nodes that were in
     // pendingDeallocs are now waiting for this epoch to end
     // This is the critical moment at which the new epoch technically starts
+    freeMutex.lock(); // hold threads from deleting nodes until after swap
     std::deque<Node_t*> *temp = pendingDeallocs;
     pendingDeallocs = waitingDeallocs;
     waitingDeallocs = temp;
+    freeMutex.unlock();
     
     // Threads probably exited and entered after the swap above happened, but
     // we only care that all threads that were active at the moment we switched
@@ -454,7 +511,8 @@ LockFreePQ::garbageCollectAndChangeEpoch() {
     // will have exited once this epoch_state gets set to 0.
     thread_epoch_state->store(thread_curr_state->load());
     
-//     std::cout << "finished epoch, deleted " << n << " cur state: " << thread_curr_state->load() << std::endl;
+//    std::cout << "finished epoch, deleted " << n 
+//    << " cur state: " << thread_curr_state->load() << std::endl;
     
 }
 
@@ -462,7 +520,8 @@ void
 LockFreePQ::finalizeDeallocs() {
     // threads must not be active when this is called
     assert(thread_curr_state->load()  == 0);
-    assert(thread_epoch_state->load() == 0);
+    // may not be true due to epoch state being set after actual epoch starts
+    // assert(thread_epoch_state->load() == 0);
     
     // with no active threads, switching epochs twice will clear and garbage
     // collect all dealloc queues
@@ -522,50 +581,64 @@ LockFreePQ::print() {
     
 }
 
-void test(LockFreePQ *pq, int n, int id) {
-    long out = 0;
-    long in = 0;
-    unsigned long temp;
-    for (int i = 100; i < (10000000/n); i++) {
-        temp = i*n+id;
-        in += temp;
-        int *val = new int;
-        *val = temp;
-        pq->insert(temp, (void *)val);
+void test(LockFreePQ *pq, std::vector<double> vals) {
+    double out = 0;
+    double in = 0;
+    double x;
+    for (size_t i = 0; i < vals.size(); i++) {
+        x = vals[i];
+        in += x;
+        int *val = new int(x);
+        pq->insert(x, (void *)val);
         val = (int *)pq->deleteMin();
         out += *val;
         delete  val;
     }
-    std::cout << "Inserted: " << in << " Got: " << out << std::endl;
+    std::cout << "Inserted: " << in << " Got: " << out << " Difference: " << (in - out) << std::endl;
 }
 
-int main() {
+int main(int argc, char** argv) {
     LockFreePQ *pq = new LockFreePQ();
     
     std::vector<std::thread> threads;
-    
-    int n = 8;
-    
-    unsigned long temp;
-    long in = 0;
-    for (int i = 1; i < 100; i++) {
-        temp = i;
-        in += temp;
-        int *val = new int;
-        *val = temp;
-        pq->insert(temp, (void *)val);
+    if (argc < 2) {
+        std::cout << "Queue Test Usage: ./queue_test num_thrads" << std::endl;
+        abort();
     }
-    std::cout << "init total: " << in << std::endl;
+    size_t n = atoi(argv[1]);
+    size_t k = 1000000;
     
+    std::vector<std::vector<double>> vals(n);
     
-    
-    for (int i = 0; i < n; i++) {
-        threads.push_back(std::thread(test, pq, n, i));
+    // generate large list of unique numbers for each thread
+    for (size_t i = 0; i < n; i++) {
+        for (size_t x = 1; x < k/n; x++) {
+            vals[i].push_back(x*n+i);
+        }
+    }
+    // shuffle the list
+    for (size_t i = 0; i < n; i++) {
+        std::random_shuffle(vals[i].begin(), vals[i].end());
     }
     
-    for (int i = 0; i < n; i++) {
+    std::cout << "Starting" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    // spin of threads that constantly enqueue and dequeue, max contention
+    // possible on the queue
+    for (size_t i = 0; i < n; i++) {
+        threads.push_back(std::thread(test, pq, vals[i]));
+    }
+    
+    for (size_t i = 0; i < n; i++) {
         threads[i].join();
     }
+    
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::cout << "Done. Differences printed above should sum to 0" << std::endl;
+    
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "Elapsed time: ~" << elapsed.count() << " s" << std::endl;
     
     delete pq;
     
