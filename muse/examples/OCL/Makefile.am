@@ -33,13 +33,13 @@ ocl_DEPENDENCIES=../../kernel/libmuse.a
 
 ocl_SOURCES = oclSimulation.h\
         oclSimulation.cpp\
-	OCLAgent.h\
-        OCLAgent.cpp\
+	oclAgent.h\
+        oclAgent.cpp\
 	oclScheduler.h\
 	oclScheduler.cpp\
 	oclState.h\
-	oclState.cpp
-	oclGVTManager.h\
-	oclGVTManager.cpp
+	oclState.cpp\
+	synthAgent.h\
+	synthAgent.cpp
 
 # end of Makefile.am
