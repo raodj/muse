@@ -200,7 +200,7 @@ public:
      * 
      * @return pointer to tail of queue
      */
-    Node_t* tail() {
+    Node_t* getTail() {
         return tail;
     }
     
