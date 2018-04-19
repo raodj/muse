@@ -85,6 +85,9 @@ LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
     enterCritical();
     
     // new key cannot be equal to head or tail node key values
+    if (!(KEY_MIN < k && k < KEY_MAX)) {
+        std::cout << "what is happening?: " << k << std::endl;
+    }
     assert(KEY_MIN < k && k < KEY_MAX);
     assert(id >= -1);
     
@@ -113,7 +116,8 @@ LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
             freeNode(new_node); // we didn't insert anything
             
             exitCritical();
-            return succs[0]; // return the entry that matches the key
+            return succs[0]->value; // return the entry that matches the key
+                                    // this could be null if it was deleted
         }
         
         // begin inserting
@@ -160,6 +164,39 @@ LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
 }
 
 pval_t
+LockFreePQ::deleteEntry(pkey_t k, pid_t id) {
+    // This method must call exitCritical() before returning
+    enterCritical();
+    
+    // new key cannot be equal to head or tail node key values
+    assert(KEY_MIN < k && k < KEY_MAX);
+    assert(id >= -1);
+    
+    pval_t ret = NULL;
+    Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
+    
+    locatePreds(k, id, preds, succs);
+
+    // attempt to delete/return if we found the key+id pair
+    if (succs[0]->key == k && succs[0]->id == id
+            && !is_marked_ref(preds[0]->next[0]) 
+            && preds[0]->next[0] == succs[0]) {
+        
+        ret = succs[0]->value;
+        
+        if (ret != NULL) {
+            if (!__sync_bool_compare_and_swap(&succs[0]->value, ret, NULL)) {
+                // failed, another thread already set value to null
+                ret = NULL;
+            }
+        }
+    }
+    
+    exitCritical();
+    return ret;
+}
+
+pval_t
 LockFreePQ::deleteMin() {
     // This method must call exitCritical() before returning
     enterCritical();
@@ -188,9 +225,7 @@ LockFreePQ::deleteMin() {
         
         // don't allow newHead to be past anything currently inserting, we don't
         // want the new front of the queue to be behind something being inserted
-        // this is because a node may be inserted in front of (lower than) the
-        // node we want to delete (if it came in after we started deleteMin)
-        // ex.(deleted* inserting^): 1* 2* 4^ 6* 7 9  return 7 but newHead = 4
+        // even if it was already deleted while it was inserting
         if (newHead == NULL && pred->inserting) {
             newHead = pred;
         }
@@ -210,20 +245,26 @@ LockFreePQ::deleteMin() {
         
         assert(succ != NULL);
         
+        // Grab the value. The value always starts not null, and is set to null
+        // when retrieved to mark this node as deleted and ensure only one
+        // thread retrieves the value
+        if (!is_marked_ref(succ)) {
+            ret = succ->value;
+            if (ret != NULL) {
+                if(!__sync_bool_compare_and_swap(&succ->value, ret, NULL)) {
+                    // failed, another thread grabbed the value first, continue
+                    ret = NULL;
+                }
+            }
+        }
+        
         // set pred = succ in while loop check so that it gets run even when we
         // continue above
     } while ((pred = get_unmarked_ref(succ)) 
-            && (is_marked_ref(succ) || succ->value == NULL));
+            && (is_marked_ref(succ) || ret == NULL));
     
     assert(!is_marked_ref(pred));
     
-    // ===================================
-    // ===========================================================
-    // ==========================================================
-    // ===========================================
-    // HANDLE DELETED NODES
-    
-    ret = pred->value;
     assert(ret != NULL);
     
     // if we didn't traverse any actively inserting nodes, new head is pred
@@ -266,7 +307,7 @@ LockFreePQ::nextMin() {
     enterCritical();
     
     // initial variables
-    pkey_t ret = KEY_MAX-1; // minus 1 so that this key could be inserted
+    pkey_t ret = 10000000; // minus 1 so that this key could be inserted
     Node_t *pred, *succ;
     
     pred = head;
@@ -276,10 +317,10 @@ LockFreePQ::nextMin() {
         // linked list traversals
         succ = pred->next[0];
         
-        // if list is empty, we return KEY_MAX
+        // if list is empty, we return KEY_MAX-1
         if (get_unmarked_ref(succ) == tail) {
             exitCritical();
-            return ret; // KEY_MAX
+            return ret; // KEY_MAX-1
         }
         
         assert(succ != NULL);
@@ -418,6 +459,7 @@ LockFreePQ::locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs) {
             succ = pred->next[i];
             d = is_marked_ref(succ);       // only applies on bottom level as 
                                            // only bot ptrs have ref marked
+//            assert(succ != NULL);
             succ = get_unmarked_ref(succ);
             if (succ == NULL) {
                 // This is a serious issue. It appears to be related to
@@ -674,6 +716,7 @@ LockFreePQ::print() {
     
 }
 
+/* without deleteEntry validation */
 //void test(LockFreePQ *pq, std::vector<double> vals) {
 //    double out = 0;
 //    double in = 0;
@@ -689,13 +732,45 @@ LockFreePQ::print() {
 //    }
 //    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
 //}
+
+/* with delete entry validation */
+//void test(LockFreePQ *pq, std::vector<double> vals) {
+//    double out = 0;
+//    double in = 0;
+//    double x;
+//    for (size_t i = 0; (i+1) < vals.size(); i+=2) {
+//        x = vals[i];
+//        in += x;
+//        int *val = new int(x);
+//        pq->insert(x, (void *)val);
+//        val = (int *)pq->deleteEntry(x);
+//        if (val != NULL) {
+//            out += *val;
+//            delete  val;
+////            std::cout << "O "; // debug print if value was found
+//        } else {
+//            val = (int *)pq->deleteMin();
+//            out += *val;
+//            delete  val;
+////            std::cout << "XXXX "; // debug print if value was not found
+//        }
+//        x = vals[i+1];
+//        in += x;
+//        val = new int(x);
+//        pq->insert(x, (void *)val);
+//        val = (int *)pq->deleteMin();
+//        out += *val;
+//        delete  val;
+//    }
+//    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
+//}
 //
 //int main(int argc, char** argv) {
 //    LockFreePQ *pq = new LockFreePQ();
 //    
 //    std::vector<std::thread> threads;
 //    if (argc < 2) {
-//        std::cout << "Queue Test Usage: ./queue_test num_thrads" << std::endl;
+//        std::cout << "Queue Test Usage: ./queue_test num_threads (num_vals)" << std::endl;
 //        abort();
 //    }
 //    size_t n = atoi(argv[1]);
