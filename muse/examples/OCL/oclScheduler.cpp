@@ -25,6 +25,10 @@
 #include "oclScheduler.h"
 BEGIN_NAMESPACE(muse);
 
+oclScheduler::oclScheduler() : Scheduler(){
+    agentPQ = new AgentPQ();
+}
+
 bool
 oclScheduler::processNextAgentEvents(oclAgent** agentOCL) {
     // If the event queue is empty, do no further operations.

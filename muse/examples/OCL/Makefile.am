@@ -23,13 +23,13 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include -I $$AMDAPPSDKROOT/include  -Wdeprecated-declarations 
+AM_CXXFLAGS += -I../../include  -I $$AMDAPPSDKROOT/include/ -I ../../kernel/include/
 
 bin_PROGRAMS = ocl
 
-ocl_LDFLAGS = -L../../kernel -L $$AMDAPPSDKROOT/lib/x86_64
+ocl_LDFLAGS = -L../../kernel -L $$AMDAPPSDKROOT/lib/x86_64 
 ocl_LDADD = $(STDCPP) -lmuse -lOpenCL 
-ocl_DEPENDENCIES=../../kernel/libmuse.a
+ocl_DEPENDENCIES=../../kernel/libmuse.a 
 
 ocl_SOURCES = oclSimulation.h\
         oclSimulation.cpp\

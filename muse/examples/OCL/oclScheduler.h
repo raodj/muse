@@ -31,8 +31,9 @@ class oclAgent;
 class oclScheduler : public Scheduler {
     friend class oclAgent;
     friend class oclSimulation;
+    public:
+        oclScheduler();
     protected:
-        
     /** The current 'top' Agent is instructed to process its Events
         
      * \param agentOCL: this agent should be passed in as null. 
