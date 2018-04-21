@@ -47,7 +47,6 @@ oclSimulation::oclSimulation(const bool useSharedEvents)
 }
 
 bool oclSimulation::processNextEvent() { 
-    // Only run when not using OCL
     // Do sanity checks.
     if (LGVT < getGVT()) {
         std::cout << "Offending event: "
@@ -60,12 +59,19 @@ bool oclSimulation::processNextEvent() {
         DEBUG(logFile->close());
         abort();
     }
-
     oclAgent* agent = NULL;
     // Let the scheduler do its task to have the agent process events
     // if possible.  If no events are processed the following method
     // call returns false.
+    // Pass null agent, if it returns with value, add agent to list of 
+    // agents to be bulk processed by gpu
+    scheduler = (oclScheduler*)kernel->scheduler;
     bool ret = scheduler->processNextAgentEvents(&agent);
+
+    if(agent != NULL){
+        //add agent to list of agents that need equations run
+        oclAgents.push_back(agent);
+    }
     return ret;
 }
 
@@ -73,24 +79,14 @@ void oclSimulation::start(){
     // If no agents registered
     // we need to leave start and end sim
     if (kernel->allAgents.empty()) return;
-//     Set up OpenCL device if needed
-    if(oclAvailable) {
-        cout << "Initialize Agents" << endl;
-        // Next initialize all the agents
-        initAgents();
-        cout << "Initialize OCL" << endl;
-        // initialize opencl
+    // Next initialize all the agents
+    initAgents();
+    // Set up OpenCL if needed
+    if(oclAvailable){
         initOCL((oclAgent*)kernel->allAgents[0]);
-        // run ocl sim loop
-        
-        // ---comment function call for reference passing solution --- CHECK
-        oclRun();
-
-    }else{
-        cout << "Run base sim loop" << endl;
-        Simulation::start();//run();
-        
     }
+    // run ocl sim loop
+    simLoop();
     // Wait for all the parallel processes to complete the main
     // simulation loop.
     MPI_BARRIER();
@@ -167,7 +163,7 @@ oclSimulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     throw (std::exception) {
     int row = 1;
     int col = 1;
-    bool ocl = true;
+    bool ocl = false;
     int stop = 2;
     int pop = 25000;
     int exp = 30;
@@ -225,10 +221,8 @@ oclSimulation::simulate() {
     // Setup start and end time of the simulation
     kernel->setStartTime(0);
     kernel->setStopTime(stopTime);
-    cout << "Set Start + Stop" << endl;
     // Finish all the setup prior to starting simulation.
     preStartInit();
-    cout << "Create Agents" << endl;
     //Create Agents for simulation after start and stop times are set
     createAgents();
     cout << "Created Agents" << endl;
@@ -286,17 +280,13 @@ void oclSimulation::initOCL(oclAgent* agent){
     }
     cout << "Initialized OCL" << endl;
 
-    // CHECK -- comment class variable assignment, uncomment function call
-    queue = &q;
-    run = &r;
-    buffer_B = &B;
-    buffer_random = &buffer_rnd;
-    buffer_compartments = &buffer_comp;
-//    oclRun(&q, &r, &B, &buffer_rnd);
+    queue = q;
+    run = r;
+    buffer_B = B;
+    buffer_random = buffer_rnd;
+    buffer_compartments = buffer_comp;
 }
-// CHECK -- switch function definition
-//void oclSimulation::oclRun(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random){
-void oclSimulation::oclRun(){
+void oclSimulation::simLoop(){
         // determine maximum number of agents to send to the GPU for processing
     int maxGlobal = std::min(CL_DEVICE_MAX_WORK_GROUP_SIZE*100, rows*cols*compartments);
     // if user specified number of agents, use that value if less than the current max
@@ -314,7 +304,7 @@ void oclSimulation::oclRun(){
     // The main simulation loop
 //    cout << "start sim loop: " << gvtManager->getGVT() << ", " << kernel->endTime << endl;
     while (gvtManager->getGVT() < kernel->endTime) { 
-//            cout << "enter sim loop: " << LGVT << ", " << gvtManager->getGVT() << endl;
+//        cout << "enter sim loop: " << LGVT << ", " << gvtManager->getGVT() << endl;
 
         // See if a stat dump has been requested
         if (doDumpStats) {
@@ -336,45 +326,18 @@ void oclSimulation::oclRun(){
         // this is from process next event --> all opencl code was moved to the
         // start function in order to fix any scoping issues and allow the opencl
         // initialization to occur only once.
-            LGVT = kernel->scheduler->getNextEventTime();
-            if((LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= maxGlobal/compartments){
-                lastLGVT = LGVT;
-                // CHECK -- switch function calls
-//                processWithOCL(queue,run, buffer_B, buffer_random, maxGlobal);
-                processWithOCL(maxGlobal);
-            }
-            // Do sanity checks.
-            if (LGVT < getGVT()) {
-                std::cout << "Offending event: "
-                          << *scheduler->agentPQ->front() << std::endl;
-                std::cout << "LGVT = " << LGVT << " is below GVT: " << getGVT()
-                          << " which is serious error. Scheduled agents: \n";
-                scheduler->agentPQ->prettyPrint(std::cout);
-                std::cout << "Rank " << myID << " Aborting.\n";
-                std::cout << std::flush;
-                DEBUG(logFile->close());
-                abort();
-            }
-            oclAgent* agent = NULL;
-            // Let the scheduler do its task to have the agent process events
-            // if possible.  If no events are processed the following method
-            // call returns false.
-            // Pass null agent, if it returns with value, add agent to list of 
-            // agents to be bulk processed by gpu
-            scheduler = (oclScheduler*)kernel->scheduler;
-            bool ret = scheduler->processNextAgentEvents(&agent);
+        LGVT = kernel->scheduler->getNextEventTime();
+        if((LGVT > lastLGVT && oclAvailable && !oclAgents.empty()) || oclAgents.size() >= maxGlobal/compartments){
+            lastLGVT = LGVT;
+            processWithOCL(maxGlobal);
+        }
 
-            if(agent != NULL){
-                //add agent to list of agents that need equations run
-                oclAgents.push_back(agent);
-            }
-        if(!ret){
+        if(!processNextEvent()){
             // We did not have any events to process. So check MPI
             // more frequently.
             mpiMsgCheckCounter = 1;
         }
     }
-//    queue->finish();
 }
 
 void
@@ -416,11 +379,8 @@ oclSimulation::garbageCollect() {
     }
 }
 
-// CHECK -- switch function definition
 void 
-//oclSimulation::processWithOCL(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random, int maxGlobal){
 oclSimulation::processWithOCL(int maxGlobal){
-
     std::cout<<"---Doing Bulk Processing at "<< lastLGVT  << ", " << oclAgents.size()<< " ---" << std::endl;        
 
     // parse data from agents
@@ -435,25 +395,23 @@ oclSimulation::processWithOCL(int maxGlobal){
 
 
     // copy data onto GPU
-    cl_int wstatus = queue->enqueueWriteBuffer(*buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), values);
+    cl_int wstatus = queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), values);
     std::cout << "Write Status: " << wstatus << std::endl;
     // Set args for kernel code
-    cl_int astatus = run->setArg(0, *buffer_B);
+    cl_int astatus = run.setArg(0, buffer_B);
     if(!ode){
-        run->setArg(1, buffer_random);
+        run.setArg(1, buffer_random);
     }
-
-//                std::cout << "Set Arg Status: " << astatus << std::endl;
     // run kernel code on agent data
     // the last input into enqueueNDRangeKernel can specify the local work size, but leaving it null allows the opencl to determine the local work size
-    queue->flush();
-    cl_int status = queue->enqueueNDRangeKernel(*run, cl::NullRange, cl::NDRange(count), cl::NullRange);
-    queue->flush();
+    queue.flush();
+    cl_int status = queue.enqueueNDRangeKernel(run, cl::NullRange, cl::NDRange(count), cl::NullRange);
+    queue.flush();
     std::cout << "Status: " << status << std::endl;
     // read data back to values array
-    status = queue->enqueueReadBuffer(*buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), values);
+    status = queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), values);
     std::cout << "Read Status: " << status << std::endl;
-    queue->flush();
+    queue.flush();
 
     // put altered data back into agents        
     c = 0;
@@ -481,7 +439,6 @@ int
 main(int argc, char** argv) {
     muse::oclSimulation* sim = new muse::oclSimulation();
     sim->initializeSimulation(argc, argv, true);
-    std::cout << "Initialized Simulation" << std::endl;
     sim->simulate();
     return 0;
 }

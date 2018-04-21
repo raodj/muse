@@ -29,8 +29,7 @@ BEGIN_NAMESPACE(muse);
 
 oclAgent::oclAgent(AgentID id, oclState* state, bool ocl, float stp, int compartmentNum, bool useODE):
     Agent(id, state), compartments(compartmentNum), ode(useODE), myState (state), useOCL(ocl), step(stp)  {
-    kernel = NULL;
-    fibHeapPtr = NULL;
+
 }
 
 void oclAgent::setLVT(Time newLVT) { 
@@ -130,7 +129,6 @@ void oclAgent::initialize() throw (std::exception){
 }
 
 void oclAgent::executeTask(const muse::EventContainer& events, bool& runOCL){
-    std::cout << "Executing Task" << std::endl;
       for (const muse::Event* event : events) {
           // fill in event processing if needed
        }

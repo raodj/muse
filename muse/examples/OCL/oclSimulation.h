@@ -144,11 +144,11 @@ class oclSimulation : public Simulation{
         int maxWorkGroups;
 //        static Simulation* kernel;
         oclScheduler* scheduler;
-        cl::CommandQueue* queue;
-        cl::Kernel* run;
-        cl::Buffer* buffer_B;
-        cl::Buffer* buffer_random;
-        cl::Buffer* buffer_compartments;
+        cl::CommandQueue queue;
+        cl::Kernel run;
+        cl::Buffer buffer_B;
+        cl::Buffer buffer_random;
+        cl::Buffer buffer_compartments;
 
         /*
          * Create a set of agents and register them with the simulation 
@@ -199,16 +199,12 @@ class oclSimulation : public Simulation{
          Run the main simulation loop using opencl
          this avoids opencl scoping problems.
          */
-        // CHECK -- switch function definition
-        void oclRun();
-//        void oclRun(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random);
+        void simLoop();
         
         /*
          * Run opencl kernel code to process agents
          */
-        // CHECK -- switch function definition
         void processWithOCL(int maxGlobal);
-//        void processWithOCL(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random, int maxGlobal);
         
         void initialize(int& argc, char* argv[], bool initMPI) 
             throw (std::exception);
