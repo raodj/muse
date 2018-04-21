@@ -23,8 +23,8 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../include/Simulation.h"
-#include "../../kernel/include/GVTManager.h"
+#include "Simulation.h"
+#include "GVTManager.h"
 #include "oclAgent.h"
 #include "Event.h"
 #include "State.h"
@@ -44,12 +44,11 @@
 #ifdef __APPLE__
 #include <OpenCL/cl.hpp>
 #else
-#include "../CL/cl.hpp"
+#include "CL/cl.hpp"
 #endif
 #include <iostream>
 BEGIN_NAMESPACE(muse);
 
-using namespace cl;
 using namespace std;
 
 // Use real for all state data so users can redefine real as anything needed
@@ -103,7 +102,7 @@ class oclSimulation : public Simulation{
         This pointer can also be obtained via call to getSimulator()
         method in this class.
          */
-        oclSimulation* initializeSimulation(int& argc, char* argv[], bool initMPI)throw (std::exception);
+        Simulation* initializeSimulation(int& argc, char* argv[], bool initMPI)throw (std::exception);
         
         /*
          Set up start and stop time for simulation, finish setup before
@@ -143,9 +142,13 @@ class oclSimulation : public Simulation{
         float step;
         int maxWorkGroupSize;
         int maxWorkGroups;
-        static oclSimulation* kernel;
+//        static Simulation* kernel;
         oclScheduler* scheduler;
-
+        cl::CommandQueue* queue;
+        cl::Kernel* run;
+        cl::Buffer* buffer_B;
+        cl::Buffer* buffer_random;
+        cl::Buffer* buffer_compartments;
 
         /*
          * Create a set of agents and register them with the simulation 
@@ -178,104 +181,40 @@ class oclSimulation : public Simulation{
          Helper function for initOCL,
          * gets the available platforms to run OpenCL kernel
          */
-        Platform getPlatform();
+        cl::Platform getPlatform();
 
         /*
          Helper function for initOCL,
          * gets the available devices to run OpenCL kernel
          */
-        Device getDevice(Platform platform, int i, bool display);
-
-        /*
-         Helper function for initOCL,
-         returns the kernel code based on whether running ssa or ode version
-         of kernel code
-         */
-        std::string getKernel();
-
-        /*
-        Finalize the Simulation
-
-        This method will cause every Agent in the system to finalize,
-        and will then delete the GVTManager and finalize the
-        communicator.
-
-        \param[in] stopMPI If this flag is true, then MPI is
-        finalized.  Otherwise MPI is not finalized permitting another
-        simulation run using current setup.
-
-        \param[in] delSim If this flag is true, then the derived
-        simulator singleton used by this class is deleted, requiring
-        full reinitialization (via call to initializeSimulation()).
-         */
-        void finalizeSimulation(bool stopMPI = true, bool delSim = true);
-
-        /*
-         Helper function for finalizeSimulation
-         Finalizes agents and removes them from scheduler
-         Deletes GVT manager, commManager, and scheduler
-         */
-//        void finalize(bool stopMPI = true, bool delCommMgr = true);
-
-        /*
-         Registers the given agent with the simulation
-         */
-        bool registerAgent(oclAgent* agent, const int threadRank);
+        cl::Device getDevice(cl::Platform platform, int i, bool display);
         
         /*
-        Schedule the specified event
-        
-	Agents use this method to schedule events that are
-	not local.
-     
-	\param e The event you wish to schedule.  This parameter
-	cannot be NULL.  The event must have a valid receive time and
-	receiver agentID filled-in.
-        
-	\return True if scheduling is successful.
+         * Initialize the OpenCL platform, device, context, and queue
          */
-        bool scheduleEvent(Event* e);
-        
-        /*
-        Determine if the givent Agent is local 
-
-	This method will check the registration tables to determine if
-	the Agent that has the given ID is local or not.
-
-	\param[in] id ID of the agent to check
-        
-	\return True if the AgentID is registered to this kernel. 
-         */
-        bool isAgentLocal(AgentID id) const;
-        
-        /*
-         Convenience method to perform initialization/setup just
-        before agents are initialized.
-         * 
-         Initializes the GVTManager and sets the gvt manger with the communicator
-         */
-        void preStartInit();
-        
-        /*Clean up old States and Events
-
-        When this method is called, garbage collections for all the agents
-        that are registered to this kernel take place.
-        */
-        void garbageCollect();
+        void initOCL(oclAgent* agent);
+                
         
         /*
          Run the main simulation loop using opencl
          this avoids opencl scoping problems.
          */
+        // CHECK -- switch function definition
         void oclRun();
+//        void oclRun(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random);
         
         /*
-         Run the main simulation loop without using opencl
-         this avoids opencl scoping problems.
+         * Run opencl kernel code to process agents
          */
-        void run();
-                
-
+        // CHECK -- switch function definition
+        void processWithOCL(int maxGlobal);
+//        void processWithOCL(cl::CommandQueue* queue, cl::Kernel* run, cl::Buffer* buffer_B, cl::Buffer* buffer_random, int maxGlobal);
+        
+        void initialize(int& argc, char* argv[], bool initMPI) 
+            throw (std::exception);
+        void preStartInit();
+        void finalize(bool stopMPI, bool delCommMgr);
+        void garbageCollect();
 };
 END_NAMESPACE(muse);
 

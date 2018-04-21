@@ -66,6 +66,15 @@ class synthAgent : public muse::oclAgent {
          * within the method
          */
          void nextSSA(real* cv);
+         
+         
+         /*
+          * Returns the kernel code for this type of agent
+          * Called from the oclSimulation class
+          * Allows for multiple agent types
+          */
+         std::string getKernel();
+
 };
 
 

@@ -40,6 +40,7 @@ class oclAgent : public Agent {
     friend class oclSimulation;
     friend class oclScheduler;
     friend class synthAgent;
+    friend class synthSimulation;
     /*
      * Functions inside public are the functions that can be defined by the user
      * in order to change the way that the decision to run opencl kernel code is made
@@ -110,6 +111,21 @@ class oclAgent : public Agent {
          */
         virtual void nextSSA(real* cv) = 0;
         
+                 /*
+          * Returns the kernel code for this type of agent
+          * Called from the oclSimulation class
+          * Allows for multiple agent types
+          */
+        virtual std::string getKernel() = 0;
+
+        
+        /*
+         *  The initialize method.
+         * Function runs before the core simulation loop. 
+         * Creates an event for the agent
+         */
+        void initialize() throw (std::exception) override;
+        
     protected:
         /** The processNextEvents method.
         
@@ -155,19 +171,14 @@ class oclAgent : public Agent {
         clean up or displaying results.
          */
         void finalize() override;
+       
         
-        /** The initialize method.
-         Function runs before the core simulation loop. 
-         Creates an event for the agent
-         */
-        void initialize() throw (std::exception) override;
-        
-            /** The getLVT method.
+        /** The getLVT method.
         
         This will return the agent's Local Virtual Time.
 	
         \return The LVT -- the time of the last processed event
-    */
+        */
         inline Time getLVT() const { return lvt; }
         
 };
