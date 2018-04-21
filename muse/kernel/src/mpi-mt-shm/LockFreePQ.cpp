@@ -26,32 +26,38 @@
 
 #include <stdlib.h> 
 #include <iostream>
-#include <assert.h>
+#include <assert.h>    // (deperomm) use utilities.h
 #include <math.h>      // pow()
-#include <thread>      // for testing?
-#include <vector>      // for testing, vector
+#include <thread>      // for testing, threads
 #include <algorithm>   // for testing, shuffle
 #include <chrono>      // for testing, clock
 
 // The ID associated with any thread that accesses this queue
-thread_local size_t LockFreePQ::thread_id = THREAD_ID_NULL;
+template <class K, class V, class Compare>
+thread_local size_t LockFreePQ<K, V, Compare>::thread_id = THREAD_ID_NULL;
 
 // A static value used to distribute unique IDs across multiple threads
-size_t* LockFreePQ::lastId = new size_t(0);
+template <class K, class V, class Compare>
+size_t* LockFreePQ<K, V, Compare>::lastId = new size_t(0);
 
-LockFreePQ::LockFreePQ() {
+template <class K, class V, class Compare>
+LockFreePQ<K, V, Compare>::LockFreePQ() {
     
-    // Dynamically adjust the size of *head and *tail so they can hold 
-    // pointers to all levels in head.next[]
-    // We use (NUM_LEVELS-1) because sizeof *head/tail already includes next[1]
-    head = (Node_t *)calloc(1, sizeof *head + (NUM_LEVELS-1)*sizeof(Node_t *));
-    tail = (Node_t *)calloc(1, sizeof *tail + (NUM_LEVELS-1)*sizeof(Node_t *));
+    comp = Compare();
+    
+    head = new Node_t;
+    tail = new Node_t;
+    
+    // (deperomm): keyMin/keyMax must be set as static members during some init
+    //             better way?
+//    assert(keyMin != NULL);
+//    assert(keyMax != NULL);
     
     // Set initial values
     head->inserting = 0;
     tail->inserting = 0;
-    head->key       = KEY_MIN;
-    tail->key       = KEY_MAX;
+    head->key       = keyMin;
+    tail->key       = keyMax;
     head->level     = NUM_LEVELS - 1;
     tail->level     = NUM_LEVELS - 1;
     
@@ -60,10 +66,11 @@ LockFreePQ::LockFreePQ() {
         head->next[i] = tail;
     }
     
-    maxOffset = MAX_OFFSET; // todo(deperomm): make this cmd line arg
+    maxOffset = MAX_OFFSET; // todo(deperomm): make this cmd line arg?
 }
 
-LockFreePQ::~LockFreePQ() {
+template <class K, class V, class Compare>
+LockFreePQ<K, V, Compare>::~LockFreePQ() {
     
     // Clean up current elements of the queue
     Node_t *cur, *pred;
@@ -79,41 +86,38 @@ LockFreePQ::~LockFreePQ() {
     finalizeDeallocs();
 }
 
-pval_t
-LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
+template <class K, class V, class Compare>
+V
+LockFreePQ<K, V, Compare>::insert(K key, V val) {
     // This method must call exitCritical() before returning
     enterCritical();
     
     // new key cannot be equal to head or tail node key values
-    if (!(KEY_MIN < k && k < KEY_MAX)) {
-        std::cout << "what is happening?: " << k << std::endl;
-    }
-    assert(KEY_MIN < k && k < KEY_MAX);
-    assert(id >= -1);
+    assert(comp(keyMin, key));
+    assert(comp(key,    keyMax));
     
     // value cannot start null as we set it to null if deleted mid queue
-    assert(v != NULL);
+    assert(val != NULL);
     
-    Node_t *new_node;
-    new_node         = allocNode();
-    Node_t *del      = NULL;
+    Node_t *newNode = allocNode();
+    Node_t *del     = NULL;
     
     Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
     
-    new_node->key   = k;
-    new_node->value = v;
-    new_node->id    = id;
+    newNode->key   = key;
+    newNode->value = val;
     
     // Insert into bottom level
     bool inserted;
     do {
-        del = locatePreds(k, id, preds, succs);
+        del = locatePreds(key, preds, succs);
         
         // return if key id pair already exists
-        if (succs[0]->key == k && succs[0]->id == id
+        // note: compare return true if left < right
+        if (!comp(succs[0]->key, key) && !comp(key, succs[0]->key)
                 && !is_marked_ref(preds[0]->next[0]) 
                 && preds[0]->next[0] == succs[0]) {
-            freeNode(new_node); // we didn't insert anything
+            freeNode(newNode); // we didn't insert anything
             
             exitCritical();
             return succs[0]->value; // return the entry that matches the key
@@ -121,33 +125,33 @@ LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
         }
         
         // begin inserting
-        new_node->next[0] = succs[0];
+        newNode->next[0] = succs[0];
         
         // We use compare and swap to ensure thread safety, if fails restart
         inserted = 
-            __sync_bool_compare_and_swap(&preds[0]->next[0], succs[0], new_node);
+            __sync_bool_compare_and_swap(&preds[0]->next[0], succs[0], newNode);
         
     } while (!inserted);
     
     // Insert at all higher levels
     int i = 1;
-    while (i <= new_node->level) {
+    while (i <= newNode->level) {
         // If at this stage we find a successor marked for deletion, we can
         // stop inserting at higher levels and just continue
-        if (is_marked_ref(new_node->next[0]) ||
+        if (is_marked_ref(newNode->next[0]) ||
             is_marked_ref(succs[i]->next[0]) ||
             del == succs[i])
             break;
 
         // begin inserting
-        new_node->next[i] = succs[i];
-        if (!__sync_bool_compare_and_swap(&preds[i]->next[i], succs[i], new_node))
+        newNode->next[i] = succs[i];
+        if (!__sync_bool_compare_and_swap(&preds[i]->next[i], succs[i], newNode))
         {
             // failed b/c competing insert or restructure, try this level again
-            del = locatePreds(k, id, preds, succs);
+            del = locatePreds(key, preds, succs);
 
             // if new node has been deleted, we're done
-            if (succs[0] != new_node) break;
+            if (succs[0] != newNode) break;
 	    
         } else {
             // Succeeded at this level, move on to next
@@ -155,30 +159,31 @@ LockFreePQ::insert(pkey_t k, pval_t v, pid_t id) {
         }
     }
     
-    if (new_node) {
-        new_node->inserting = 0;
+    if (newNode) {
+        newNode->inserting = 0;
     }
     
     exitCritical();
     return NULL;
 }
 
-pval_t
-LockFreePQ::deleteEntry(pkey_t k, pid_t id) {
+template <class K, class V, class Compare>
+V
+LockFreePQ<K, V, Compare>::deleteEntry(K key) {
     // This method must call exitCritical() before returning
     enterCritical();
     
     // new key cannot be equal to head or tail node key values
-    assert(KEY_MIN < k && k < KEY_MAX);
-    assert(id >= -1);
+    assert(comp(keyMin, key));
+    assert(comp(key,    keyMax));
     
-    pval_t ret = NULL;
+    V ret = NULL;
     Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
     
-    locatePreds(k, id, preds, succs);
+    locatePreds(key, preds, succs);
 
     // attempt to delete/return if we found the key+id pair
-    if (succs[0]->key == k && succs[0]->id == id
+    if (!comp(succs[0]->key, key) && !comp(key, succs[0]->key)
             && !is_marked_ref(preds[0]->next[0]) 
             && preds[0]->next[0] == succs[0]) {
         
@@ -196,18 +201,20 @@ LockFreePQ::deleteEntry(pkey_t k, pid_t id) {
     return ret;
 }
 
-pval_t
-LockFreePQ::deleteMin() {
+template <class K, class V, class Compare>
+V
+LockFreePQ<K, V, Compare>::deleteMin() {
     // This method must call exitCritical() before returning
     enterCritical();
     
     // initial variables
-    pval_t ret = NULL;
-    Node_t *pred, *succ, *obsHead = NULL, *newHead = NULL, *cur;
+    V ret = NULL;
+    Node_t *pred, *succ, *cur, *obsHead = NULL, *newHead = NULL;
+    
     int offset = 0;
     
     pred = head;
-    // first real item in the queue, could be deleted
+    // first physical item in the queue. could be deleted, could be tail
     obsHead = head->next[0];
     
     do {
@@ -225,7 +232,7 @@ LockFreePQ::deleteMin() {
         
         // don't allow newHead to be past anything currently inserting, we don't
         // want the new front of the queue to be behind something being inserted
-        // even if it was already deleted while it was inserting
+        // even if it was already deleted during that process
         if (newHead == NULL && pred->inserting) {
             newHead = pred;
         }
@@ -264,8 +271,10 @@ LockFreePQ::deleteMin() {
             && (is_marked_ref(succ) || ret == NULL));
     
     assert(!is_marked_ref(pred));
-    
     assert(ret != NULL);
+    assert(pred->value == NULL); // should have been set to null above
+    
+                               //(unless another thread already re-inserted it?)
     
     // if we didn't traverse any actively inserting nodes, new head is pred
     if (newHead == NULL) newHead = pred;
@@ -301,13 +310,14 @@ LockFreePQ::deleteMin() {
     return ret;
 }
 
-pkey_t
-LockFreePQ::nextMin() {
+template <class K, class V, class Compare>
+K
+LockFreePQ<K, V, Compare>::nextMin() {
     // This method must call exitCritical() before returning
     enterCritical();
     
     // initial variables
-    pkey_t ret = 10000000; // minus 1 so that this key could be inserted
+    K ret = keyMaxMinusOne;
     Node_t *pred, *succ;
     
     pred = head;
@@ -320,7 +330,7 @@ LockFreePQ::nextMin() {
         // if list is empty, we return KEY_MAX-1
         if (get_unmarked_ref(succ) == tail) {
             exitCritical();
-            return ret; // KEY_MAX-1
+            return ret; // KEY_MAX
         }
         
         assert(succ != NULL);
@@ -345,21 +355,23 @@ LockFreePQ::nextMin() {
     return ret;
 }
 
-pval_t
-LockFreePQ::getEntry(pkey_t k, pid_t id) {
+template <class K, class V, class Compare>
+V
+LockFreePQ<K, V, Compare>::getEntry(K key) {
     // This method must call exitCritical() before returning
     enterCritical();
     
-    assert(KEY_MIN < k && k < KEY_MAX);
+    assert(comp(keyMin, key));
+    assert(comp(key,    keyMax));
     
     Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
     
 
-    locatePreds(k, id, preds, succs);
+    locatePreds(key, preds, succs);
 
     // return if key-id pair was NOT found (since it must exist in the
     // queue in order for us to delete it)
-    if (succs[0]->key != k || succs[0]->id != id
+    if (!comp(succs[0]->key, key) && !comp(key, succs[0]->key)
             || is_marked_ref(preds[0]->next[0]) 
             || preds[0]->next[0] != succs[0]) {
 
@@ -372,17 +384,19 @@ LockFreePQ::getEntry(pkey_t k, pid_t id) {
     
 }
 
-Node_t*
-LockFreePQ::getNode(pkey_t k, pid_t id) {
+template <class K, class V, class Compare>
+typename LockFreePQ<K, V, Compare>::Node_t*
+LockFreePQ<K, V, Compare>::getNode(K key) {
     // This method must call exitCritical() before returning
     enterCritical();
     
-    assert(KEY_MIN < k && k < KEY_MAX);
+    assert(comp(keyMin, key));
+    assert(comp(key,    keyMax));
     
     Node_t *preds[NUM_LEVELS], *succs[NUM_LEVELS];
     
 
-    locatePreds(k, id, preds, succs);
+    locatePreds(key, preds, succs);
     
     assert(succs[0] != NULL);
 
@@ -391,7 +405,7 @@ LockFreePQ::getNode(pkey_t k, pid_t id) {
 }
 
 //void
-//LockFreePQ::deleteAfter(pkey_t k, pid_t id) {
+//LockFreePQ<K, V, Compare>::deleteAfter(pkey_t k, pid_t id) {
 //    // This method must call exitCritical() before returning
 //    enterCritical();
 //    assert(KEY_MIN < k && k < KEY_MAX);
@@ -426,23 +440,32 @@ LockFreePQ::getNode(pkey_t k, pid_t id) {
 //    exitCritical();
 //}
 
-
-Node_t*
-LockFreePQ::locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs) {
+template <class K, class V, class Compare>
+typename LockFreePQ<K, V, Compare>::Node_t*
+LockFreePQ<K, V, Compare>::locatePreds(K key, 
+        Node_t ** preds, Node_t ** succs) {
+    
     Node_t *pred, *succ, *del = NULL;
-    int d = 0, i;
+    int  i;
+    bool wasDeleted;
+    
+    assert(comp(keyMin, key));
+    assert(comp(key,    keyMax));
     
     pred = head;
     
     // traverse the skip list top down, getting pred and succ at each level
-    i = NUM_LEVELS -1;
+    i = NUM_LEVELS - 1;
     while (i >= 0) {
         // traverse the first node at this level
         succ = pred->next[i];
-        d = is_marked_ref(succ); // this only applies on bottom level as 
-                                 // only bot level next ptrs have ref marked
-        succ = get_unmarked_ref(succ);
+        
         assert(succ != NULL);
+        
+        // because delete flag is on the pointer, need to store if this
+        // node is deleted before we get the unmarked pointer to actually use
+        wasDeleted = is_marked_ref(succ);
+        succ = get_unmarked_ref(succ);
         
         // traverse all nodes at this level until we find where we belong
         // note that we continue if
@@ -450,16 +473,15 @@ LockFreePQ::locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs) {
         //     2. the current successor has nodes after it that are deleted
         //     3. on bottom level: the current successor was marked for delete
         // succ is what we insert behind and must not be deleted
-        while (succ->key < k || (succ->key == k && succ->id < id) 
-                || is_marked_ref(succ->next[0]) || ((i == 0) && d)) {
+        while (comp(succ->key, key) || is_marked_ref(succ->next[0]) 
+                || ((i == 0) && wasDeleted)) {
+            
             // on the bottom level, record the last seen deleted node
-            if (i == 0 && d)
+            if (i == 0 && wasDeleted)
                 del = succ;
             pred = succ;
             succ = pred->next[i];
-            d = is_marked_ref(succ);       // only applies on bottom level as 
-                                           // only bot ptrs have ref marked
-//            assert(succ != NULL);
+            wasDeleted = is_marked_ref(succ);       
             succ = get_unmarked_ref(succ);
             if (succ == NULL) {
                 // This is a serious issue. It appears to be related to
@@ -470,7 +492,7 @@ LockFreePQ::locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs) {
                 // reach this point we simply try again to alleviate the issue 
                 // for now.
                 // todo(deperomm): review garbage collection
-                return locatePreds(k, id, preds, succs);
+                return locatePreds(key, preds, succs);
             }
         }
         preds[i] = pred;
@@ -480,8 +502,9 @@ LockFreePQ::locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs) {
     return del;
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::restructure() {
+LockFreePQ<K, V, Compare>::restructure() {
     Node_t *pred, *cur, *h;
     int i = NUM_LEVELS - 1;
     
@@ -517,9 +540,10 @@ LockFreePQ::restructure() {
     }
 }
 
-Node_t*
-LockFreePQ::allocNode() {
-    Node_t *new_node;
+template <class K, class V, class Compare>
+typename LockFreePQ<K, V, Compare>::Node_t*
+LockFreePQ<K, V, Compare>::allocNode() {
+    Node_t *newNode;
     
     // In skip lists, the level of a node is randomly decided when created
     // We want each level up to be half as likely as the level below it, so
@@ -529,7 +553,10 @@ LockFreePQ::allocNode() {
     static thread_local std::geometric_distribution<int> distribution;
     
     int level = distribution(generator);
-    if (level > NUM_LEVELS) level = NUM_LEVELS - 1;
+    if (level > NUM_LEVELS) {
+        // wow, this should only happen 1 in 2^32 (4 trillion) times...
+        level = NUM_LEVELS - 1;
+    }
     
     assert(0 <= level && level < NUM_LEVELS);
     
@@ -537,22 +564,24 @@ LockFreePQ::allocNode() {
     // sizeof *new_node has enough space for bot level, then + space for others
     // note bottom level is 0, so any higher level adds space to the node
     // todo(deperomm): Make this come from a garbage collector/recycler
-    new_node = (Node_t *)calloc(1, sizeof *new_node + (level)*sizeof(Node_t *));
+    newNode = new Node_t;
     
-    new_node->level     = level;
-    new_node->inserting = 1; // nodes always start off as being inserted
+    newNode->level     = level;
+    newNode->inserting = 1; // nodes always start off as being inserted
 
-    return new_node;
+    return newNode;
 }
 
+template <class K, class V, class Compare>
 void 
-LockFreePQ::freeNode(Node_t *n) {
+LockFreePQ<K, V, Compare>::freeNode(Node_t *n) {
     std::lock_guard<std::mutex> guard(freeMutex);
     pendingDeallocs->push_back(n);
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::enterCritical() {
+LockFreePQ<K, V, Compare>::enterCritical() {
     // Initialize thread id if neccessary
     if (thread_id == THREAD_ID_NULL) {
         // This is a new thread entering a critical section for the first time
@@ -575,8 +604,9 @@ LockFreePQ::enterCritical() {
     
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::exitCritical() {
+LockFreePQ<K, V, Compare>::exitCritical() {
     
     // Mark this thread as NOT in a critical section
     thread_curr_state->fetch_and(~thread_id);
@@ -614,8 +644,9 @@ LockFreePQ::exitCritical() {
     epochMutex.unlock();
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::garbageCollectAndChangeEpoch() {    
+LockFreePQ<K, V, Compare>::garbageCollectAndChangeEpoch() {    
     
     assert(!epochMutex.try_lock()); // must be the only thread to run this method
     assert(thread_epoch_state->load() == 0); // must be ready for new epoch
@@ -634,9 +665,7 @@ LockFreePQ::garbageCollectAndChangeEpoch() {
     // pendingDeallocs are now waiting for this epoch to end
     // This is the critical moment at which the new epoch technically starts
     freeMutex.lock(); // hold threads from deleting nodes until after swap
-    std::deque<Node_t*> *temp = pendingDeallocs;
-    pendingDeallocs = waitingDeallocs;
-    waitingDeallocs = temp;
+    pendingDeallocs->swap(*waitingDeallocs);
     freeMutex.unlock();
     
     // Threads probably exited and entered after the swap above happened, but
@@ -652,8 +681,9 @@ LockFreePQ::garbageCollectAndChangeEpoch() {
     
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::finalizeDeallocs() {    
+LockFreePQ<K, V, Compare>::finalizeDeallocs() {    
     // threads must not be active when this is called
     assert(thread_curr_state->load()  == 0);
     thread_curr_state->store(0); // todo(deperomm):this shouldn't need to be set
@@ -673,8 +703,9 @@ LockFreePQ::finalizeDeallocs() {
     
 }
 
+template <class K, class V, class Compare>
 void
-LockFreePQ::print() {
+LockFreePQ<K, V, Compare>::print() {
     Node_t *cur = head, *last;
     bool del;
     
@@ -734,87 +765,88 @@ LockFreePQ::print() {
 //}
 
 /* with delete entry validation */
-//void test(LockFreePQ *pq, std::vector<double> vals) {
-//    double out = 0;
-//    double in = 0;
-//    double x;
-//    for (size_t i = 0; (i+1) < vals.size(); i+=2) {
-//        x = vals[i];
-//        in += x;
-//        int *val = new int(x);
-//        pq->insert(x, (void *)val);
-//        val = (int *)pq->deleteEntry(x);
-//        if (val != NULL) {
-//            out += *val;
-//            delete  val;
-////            std::cout << "O "; // debug print if value was found
-//        } else {
-//            val = (int *)pq->deleteMin();
-//            out += *val;
-//            delete  val;
-////            std::cout << "XXXX "; // debug print if value was not found
-//        }
-//        x = vals[i+1];
-//        in += x;
-//        val = new int(x);
-//        pq->insert(x, (void *)val);
-//        val = (int *)pq->deleteMin();
-//        out += *val;
-//        delete  val;
-//    }
-//    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
-//}
-//
-//int main(int argc, char** argv) {
-//    LockFreePQ *pq = new LockFreePQ();
-//    
-//    std::vector<std::thread> threads;
-//    if (argc < 2) {
-//        std::cout << "Queue Test Usage: ./queue_test num_threads (num_vals)" << std::endl;
-//        abort();
-//    }
-//    size_t n = atoi(argv[1]);
-//    size_t k;
-//    if (argc > 2) {
-//        k = atoi(argv[2]);
-//    } else {
-//        k = 2000000;
-//    }
-//    
-//    std::vector<std::vector<double>> vals(n);
-//    
-//    // generate large list of unique numbers for each thread
-//    for (size_t i = 0; i < n; i++) {
-//        for (size_t x = 1; x < k/n; x++) {
-//            vals[i].push_back(x*n+i);
-//        }
-//    }
-//    // shuffle the list
-//    for (size_t i = 0; i < n; i++) {
-//        std::random_shuffle(vals[i].begin(), vals[i].end());
-//    }
-//    
-//    std::cout << "Starting" << std::endl;
-//    auto start = std::chrono::high_resolution_clock::now();
-//    
-//    // spin of threads that constantly enqueue and dequeue, max contention
-//    // possible on the queue
-//    for (size_t i = 0; i < n; i++) {
-//        threads.push_back(std::thread(test, pq, vals[i]));
-//    }
-//    
-//    for (size_t i = 0; i < n; i++) {
-//        threads[i].join();
-//    }
-//    
-//    auto finish = std::chrono::high_resolution_clock::now();
-//    std::cout << "Done. Differences printed above should sum to 0" << std::endl;
-//    
-//    std::chrono::duration<double> elapsed = finish - start;
-//    std::cout << "Elapsed time: ~" << elapsed.count() << " s" << std::endl;
-//    
-//    delete pq;
-//    
-//}
+void test(LockFreePQ<int, int*> *pq, std::vector<int> vals) {
+    long out = 0;
+    long in = 0;
+    int x;
+    for (size_t i = 0; (i+1) < vals.size(); i+=2) {
+        x = vals[i];
+        in += x;
+        int *val = new int(x);
+        pq->insert(x, val);
+        val = pq->deleteEntry(x);
+        if (val != NULL) {
+            out += *val;
+            delete  val;
+//            std::cout << "O "; // debug print if value was found
+        } else {
+            val = pq->deleteMin();
+            out += *val;
+            delete  val;
+//            std::cout << "XXXX "; // debug print if value was not found
+        }
+        x = vals[i+1];
+        in += x;
+        val = new int(x);
+        pq->insert(x, val);
+        val = pq->deleteMin();
+        out += *val;
+        delete  val;
+    }
+    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
+}
+
+int main(int argc, char** argv) {
+    
+    LockFreePQ<int, int*> *pq = new LockFreePQ<int, int*>;
+    
+    std::vector<std::thread> threads;
+    if (argc < 2) {
+        std::cout << "Queue Test Usage: ./queue_test num_threads (num_vals)" << std::endl;
+        abort();
+    }
+    size_t n = atoi(argv[1]);
+    size_t k;
+    if (argc > 2) {
+        k = atoi(argv[2]);
+    } else {
+        k = 200000;
+    }
+    
+    std::vector<std::vector<int>> vals(n);
+    
+    // generate large list of unique numbers for each thread
+    for (size_t i = 0; i < n; i++) {
+        for (size_t x = 1; x < k/n; x++) {
+            vals[i].push_back(x*n+i);
+        }
+    }
+    // shuffle the list
+    for (size_t i = 0; i < n; i++) {
+        std::random_shuffle(vals[i].begin(), vals[i].end());
+    }
+    
+    std::cout << "Starting" << std::endl;
+    auto start = std::chrono::high_resolution_clock::now();
+    
+    // spin of threads that constantly enqueue and dequeue, max contention
+    // possible on the queue
+    for (size_t i = 0; i < n; i++) {
+        threads.push_back(std::thread(test, pq, vals[i]));
+    }
+    
+    for (size_t i = 0; i < n; i++) {
+        threads[i].join();
+    }
+    
+    auto finish = std::chrono::high_resolution_clock::now();
+    std::cout << "Done. Differences printed above should sum to 0" << std::endl;
+    
+    std::chrono::duration<double> elapsed = finish - start;
+    std::cout << "Elapsed time: ~" << elapsed.count() << " s" << std::endl;
+    
+    delete pq;
+    
+}
 
 #endif

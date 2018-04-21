@@ -28,45 +28,36 @@
 //g++ -std=c++11 -O3 -Wall -Wextra -I ../../include -pthread -fPIE -pie LockFreePQ.cpp -o test
 
 
-#include <stdlib.h>
-#include <inttypes.h>  // additional int types, specifically uintptr_t
-#include <climits>     // numeric type limits
-#include <mutex>
-#include <deque>
-#include <atomic>
-#include <random>
+#include <cstdlib>
+#include <cstdint>    // additional int types, specifically uintptr_t
+#include <climits>    // numeric type limits
+#include <functional> // std::less comparator
+#include <vector>     // next pointers and preds/succs arrays
+#include <mutex>      // locks
+#include <deque>      // holds ptrs for garbage collection
+#include <atomic>     // atomic int for state
+#include <random>     // random node level generator (geometric dist)
 
-#define KEY_NULL 0
+
 #define NUM_LEVELS 32
-// todo(deperomm): make this dynamic, must be >= number of threads
+// todo(deperomm): make this dynamic, should be >= number of threads
 #define MAX_OFFSET 8
-// Key values for first/last dummy nodes
-#define KEY_MIN (0)
-#define KEY_MAX std::numeric_limits<double>::max()
 // Used to initially set thread_id to an invalid value
 #define THREAD_ID_NULL (UINT_MAX)
 
-// todo(deperomm): Replace with c++ templates
-typedef double pkey_t;   // key type   [Same as muse::Time] - see KEY_MAX above
-typedef void   *pval_t;  // value type [Generic pointer]
-typedef int    pid_t;    // id type    [Same as muse::AgentID] - unique id
 
-//Node type, the structure for a single node in the queue
-struct Node_t {
-    pkey_t  key;       // value for computing priority in queue
-    pid_t   id;        // a unique id for entries to allow insert w/ same key
-    int     level;     // level in skip list, starts at 0
-    int     inserting; // 1 if this node is actively being inserted, else 0
-    pval_t  value;     // pointer to the value of this node
-    Node_t  *next[1];  // array - ptrs for "next" node at each skip list level
-    // Note: size of next[] is based on the level of the node in the skip list
-    // and is calculated at create time for the node, but is at least size 1
-};
+#define keyMin (0)
+#define keyMax (1000000000)
+#define keyMaxMinusOne (999999999)
+
+
+// todo(deperomm): typedef std::vector<Node_t*> to NList
 
 // From Linden and Jonsson, use a marker on the pointer to indicate if deleted
 #define get_marked_ref(_p)      ((Node_t *)(((uintptr_t)(_p)) | 1))
 #define get_unmarked_ref(_p)    ((Node_t *)(((uintptr_t)(_p)) & ~1))
 #define is_marked_ref(_p)       (((uintptr_t)(_p)) & 1)
+
 
 /**
  * A lock free, thread safe priority queue based on the skip list data structure
@@ -83,6 +74,7 @@ struct Node_t {
  * delete flag for a node, and also utilizing compare and swap (CAS) 
  * instructions on the CPU. The details of which can be read in the above paper
  */
+template <class K, class V, class Compare = std::less<K> >
 class LockFreePQ {
     
 public:
@@ -102,11 +94,23 @@ public:
     ~LockFreePQ();
     
     /**
-     * Inserts a new value into queue, with duplicate (key, id) entries skipped
+    * A node in the linked list priority queue
+    */
+    struct Node_t {
+       K      key;       // key for computing priority
+       V      value;     // value associated with said key
+       int    level;     // level in skip list, bottom is 0
+       bool   inserting; // if this node is actively inserting/restructuring
+       // ptrs for "next" node at each skip list level
+       Node_t *next[NUM_LEVELS];
+    };
+    
+    /**
+     * Inserts a new value into queue, with duplicate keys entries returned
      * 
-     * If an entry in the queue exists with the same key+id, the value will
+     * If an entry in the queue exists with the same key, the given value will
      * NOT be inserted and instead the conflicting value in the queue returned.
-     * If an insert is not expected to have a duplicate already present, must
+     * If an insert is not expected to have a duplicate already present, MUST
      * ensure the return value of this method is NULL to ensure it was inserted.
      * 
      * Note: Duplicate value that gets returned is not exclusive. That is to
@@ -117,28 +121,27 @@ public:
      * This method is thread safe and can be called concurrently with other
      * threads with no risk of being lost or being inserted out of order
      * 
-     * @param key - pkey_t type, the value with which priority is calculated
-     * @param value - the value of this entry in the queue
-     * @param id - the id of the entry to prevent duplicates, default to -1
+     * @param key   - how priority will be calculated
+     * @param value - the value associated with this priority
+     * 
      * @return duplicate - value already present in the queue at key, else NULL
      */
-    pval_t insert(pkey_t key, pval_t value, pid_t id = -1);
-    
+    V insert(K key, V value);
     
     /**
      * Removes and returns the value in the queue with the lowest key
      * 
-     * If the queue is empty, this will return null
+     * If the queue is empty, this will return NULL
      * 
      * This method is thread safe and ensures the minimum value of the queue
      * at the moment the method is called is returned exclusively to the caller
      * 
      * @return value - the value of lowest priority node in the queue
      */
-    pval_t deleteMin();
+    V deleteMin();
     
     /**
-     * Returns the key of the node with the next lowest key (front) in the queue
+     * Returns the next lowest key in the queue. Equivalent to front()->key
      * 
      * Does not modify the queue in any way
      * 
@@ -152,14 +155,14 @@ public:
      * This means this method should NOT be used unless other measures to ensure 
      * thread safety are met higher up in the stack.
      * 
-     * @return value - the next key in the priority queue
+     * @return K key - the next key in the priority queue
      */
-    pkey_t nextMin();
+    K nextMin();
     
     /**
-     * Searches the queue for a key+id and returns the value associated with it
+     * Searches the queue for a key and returns the value associated with it
      * 
-     * If value not found, returns null
+     * If key not found, returns NULL
      * 
      * This method does ***NOT ENSURE EXCLUSIVE ACCESS*** to the element. Other 
      * threads could call this method and manipulate the value concurrently.
@@ -169,16 +172,18 @@ public:
      * Key must be exact match of key in the queue, this can be an issue with
      * floating point values such as doubles.
      * 
-     * @param k - key to search for
-     * @param id - id to search for
+     * @param key - key to search for
+     * 
      * @return value at key+id, if not found null
      */
-    pval_t getEntry(pkey_t k, pid_t id = -1);
+    V getEntry(K key);
     
     /**
-     * Returns the first (least) Node with key+id >= given key+id for traversal
+     * Returns the first (least) Node with key >= given key for traversal
      * 
-     * Returns tail if empty
+     * Returns tail if empty or all nodes have higher priority (lower value)
+     * 
+     * This method is used for "erase after" to remove all nodes after a key
      * _______________________________________________
      * ========= ***** NOT THREAD SAFE ***** =========
      * 
@@ -193,7 +198,7 @@ public:
      * 
      * @return the first valid node in this queue, null if empty
      */
-    Node_t* getNode(pkey_t k, pid_t id = -1);
+    Node_t* getNode(K key);
     
     /**
      * For traversal, pointer to tail of queue
@@ -205,7 +210,7 @@ public:
     }
     
     /**
-     * Searches the queue for a key+id, deletes it, and returns associated value
+     * Searches the queue for a key, deletes it, and returns associated value
      * 
      * If value not found, returns null
      * 
@@ -214,11 +219,11 @@ public:
      * Key must be exact match of key in the queue, this can be an issue with
      * floating point values such as doubles.
      * 
-     * @param k - key to search for
-     * @param id - id to search for
-     * @return value at key+id, if not found null
+     * @param key - key to search for
+     * 
+     * @return value at key, NULL if key not found
      */
-    pval_t deleteEntry(pkey_t k, pid_t id = -1);
+    V deleteEntry(K key);
     
 //    /**
 //     * Removes all values greater than or equal to a given key value
@@ -238,7 +243,32 @@ public:
      */
     void print();
     
+    // todo(deperomm): Better way to make keyMin/keyMax than setting static
+    // variables as an init to use the queue?
+    
+    /**
+     * The key that all other keys must be greater than
+     * 
+     * No key in the queue should be equal to this
+     */
+//    static const int keyMin        = 0;
+//    
+//    /**
+//     * The key that all other keys must be less than
+//     * 
+//     * No key in the queue should be equal to this
+//     */
+//    static const int keyMax          = 1000000000;
+//    static const int keyMaxMinusOne  = 999999999;
+    
 private:
+    
+    /**
+     * The comparator for this queue from the c++ template
+     * 
+     * set in class constructor
+     */
+    Compare comp;
     
     /**
      * Gets the predecessors and successors for key k at all skip list levels
@@ -251,14 +281,13 @@ private:
      * For example, preds[4] is a ptr to the node that would preceed a node of 
      * key value k at skip-list level 4 (where first level is 0)
      * 
-     * @param k     - the key that we want predecessors and successors for
-     * @param id    - the id we want preds/succs for, secondary sort parameter
-     * @param preds - list of predecessors at each level for key value k
-     * @param succs - list of successors at each level for key value k
+     * @param key   - the key that we want predecessors and successors for
+     * @param preds - predecessors at each level for key value k to be set
+     * @param succs - successors at each level for key value k to be set
      * 
      * @return del - the last deleted node on the bottom level, could be null
      */
-    Node_t* locatePreds(pkey_t k, pid_t id, Node_t ** preds, Node_t ** succs);
+    Node_t* locatePreds(K key, Node_t ** preds, Node_t ** succs);
     
     /**
      * Restructures higher level pointers following a deleteMin() operation
@@ -280,7 +309,7 @@ private:
      * 
      * @return Node_t - the newly allocated queue node
      */
-    static Node_t* allocNode();
+    Node_t* allocNode();
     
     /**
      * Marks a node as ready for deletion and deletes nodes when safe to do so
@@ -359,7 +388,7 @@ private:
      * added to this vector. These nodes are very likely not safe to delete
      * as other threads could still use them.
      */
-    std::deque<Node_t*> *pendingDeallocs = new std::deque<Node_t*>;
+    std::vector<Node_t*> *pendingDeallocs = new std::vector<Node_t*>;
     
     /**
      * For garbage collection, when we switch epochs (all threads since last
@@ -370,7 +399,7 @@ private:
      * Every epoch, this queue is processed to free memory and then populated
      * with the contents of pendingDeallocs.
      */
-    std::deque<Node_t*> *waitingDeallocs = new std::deque<Node_t*>;
+    std::vector<Node_t*> *waitingDeallocs = new std::vector<Node_t*>;
     
     /**
      * Finalizes the entire garbage collection system for queue tear down
@@ -379,7 +408,7 @@ private:
      * queue but not physically deleted yet
      * 
      * This should only be called when tearing down the queue and is NOT
-     * thread safe.
+     * thread sa<K,V><K,V>fe.
      */
     void finalizeDeallocs();
     
@@ -394,7 +423,7 @@ private:
     std::mutex epochMutex;
     
     // variables and pointers
-    int     maxOffset;
+    int          maxOffset;
     Node_t  *head;
     Node_t  *tail;
     
