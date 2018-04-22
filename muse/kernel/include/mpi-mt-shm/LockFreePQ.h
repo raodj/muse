@@ -37,6 +37,9 @@
 #include <deque>      // holds ptrs for garbage collection
 #include <atomic>     // atomic int for state
 #include <random>     // random node level generator (geometric dist)
+#include <iostream>
+#include <assert.h>    // (deperomm) use utilities.h
+#include <math.h>      // pow()
 
 
 #define NUM_LEVELS 32
@@ -45,10 +48,6 @@
 // Used to initially set thread_id to an invalid value
 #define THREAD_ID_NULL (UINT_MAX)
 
-
-#define keyMin (0)
-#define keyMax (1000000000)
-#define keyMaxMinusOne (999999999)
 
 
 // todo(deperomm): typedef std::vector<Node_t*> to NList
@@ -104,6 +103,11 @@ public:
        // ptrs for "next" node at each skip list level
        Node_t *next[NUM_LEVELS];
     };
+    
+    // todo(deperomm): Better way to set this up? Need to define max/min for K
+    static K keyMax;
+    static K keyMin;
+    static K keyMaxMinusOne;
     
     /**
      * Inserts a new value into queue, with duplicate keys entries returned
@@ -428,6 +432,9 @@ private:
     Node_t  *tail;
     
 };
+
+
+#include "../LockFreePQ.inl"
 
 
 #endif /* LOCK_FREE_PQ_H */
