@@ -1,36 +1,4 @@
-#ifndef LOCK_FREE_PQ_CPP
-#define LOCK_FREE_PQ_CPP
 
-//---------------------------------------------------------------------------
-//
-// Copyright (c) Miami University, Oxford, OH.
-// All rights reserved.
-//
-// Miami University (MU) makes no representations or warranties about
-// the suitability of the software, either express or implied,
-// including but not limited to the implied warranties of
-// merchantability, fitness for a particular purpose, or
-// non-infringement.  MU shall not be liable for any damages suffered
-// by licensee as a result of using, result of using, modifying or
-// distributing this software or its derivatives.
-//
-// By using or copying this Software, Licensee agrees to abide by the
-// intellectual property laws, and all other applicable laws of the
-// U.S., and the terms of this license.
-//
-// Authors: Dhananjai M. Rao       raodm@muohio.edu
-//
-//--------------------------------------------------------------------------
-
-#include "mpi-mt-shm/LockFreePQ.h"
-
-#include <stdlib.h> 
-#include <iostream>
-#include <assert.h>    // (deperomm) use utilities.h
-#include <math.h>      // pow()
-#include <thread>      // for testing, threads
-#include <algorithm>   // for testing, shuffle
-#include <chrono>      // for testing, clock
 
 // The ID associated with any thread that accesses this queue
 template <class K, class V, class Compare>
@@ -112,15 +80,29 @@ LockFreePQ<K, V, Compare>::insert(K key, V val) {
     do {
         del = locatePreds(key, preds, succs);
         
-        // return if key id pair already exists
-        // note: compare return true if left < right
+        // if key already exists
         if (!comp(succs[0]->key, key) && !comp(key, succs[0]->key)
                 && !is_marked_ref(preds[0]->next[0]) 
                 && preds[0]->next[0] == succs[0]) {
+            
+            V ret = succs[0]->value;
+            
+            if (ret == NULL) {
+                // this entry was popped off previously, re-use the entry
+                if(__sync_bool_compare_and_swap(&succs[0]->value, 
+                        NULL, val)) {
+                    // successfully inserted back into this old node
+                    exitCritical();
+                    return NULL;
+                } else {
+                    ret = succs[0]->value;
+                    assert(ret != NULL); // this is possible?...
+                }
+            }
             freeNode(newNode); // we didn't insert anything
             
             exitCritical();
-            return succs[0]->value; // return the entry that matches the key
+            return ret; // return the entry that matches the key
                                     // this could be null if it was deleted
         }
         
@@ -371,7 +353,7 @@ LockFreePQ<K, V, Compare>::getEntry(K key) {
 
     // return if key-id pair was NOT found (since it must exist in the
     // queue in order for us to delete it)
-    if (!comp(succs[0]->key, key) && !comp(key, succs[0]->key)
+    if ( ( !comp(succs[0]->key, key) && !comp(key, succs[0]->key) )
             || is_marked_ref(preds[0]->next[0]) 
             || preds[0]->next[0] != succs[0]) {
 
@@ -765,88 +747,86 @@ LockFreePQ<K, V, Compare>::print() {
 //}
 
 /* with delete entry validation */
-void test(LockFreePQ<int, int*> *pq, std::vector<int> vals) {
-    long out = 0;
-    long in = 0;
-    int x;
-    for (size_t i = 0; (i+1) < vals.size(); i+=2) {
-        x = vals[i];
-        in += x;
-        int *val = new int(x);
-        pq->insert(x, val);
-        val = pq->deleteEntry(x);
-        if (val != NULL) {
-            out += *val;
-            delete  val;
-//            std::cout << "O "; // debug print if value was found
-        } else {
-            val = pq->deleteMin();
-            out += *val;
-            delete  val;
-//            std::cout << "XXXX "; // debug print if value was not found
-        }
-        x = vals[i+1];
-        in += x;
-        val = new int(x);
-        pq->insert(x, val);
-        val = pq->deleteMin();
-        out += *val;
-        delete  val;
-    }
-    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
-}
-
-int main(int argc, char** argv) {
-    
-    LockFreePQ<int, int*> *pq = new LockFreePQ<int, int*>;
-    
-    std::vector<std::thread> threads;
-    if (argc < 2) {
-        std::cout << "Queue Test Usage: ./queue_test num_threads (num_vals)" << std::endl;
-        abort();
-    }
-    size_t n = atoi(argv[1]);
-    size_t k;
-    if (argc > 2) {
-        k = atoi(argv[2]);
-    } else {
-        k = 200000;
-    }
-    
-    std::vector<std::vector<int>> vals(n);
-    
-    // generate large list of unique numbers for each thread
-    for (size_t i = 0; i < n; i++) {
-        for (size_t x = 1; x < k/n; x++) {
-            vals[i].push_back(x*n+i);
-        }
-    }
-    // shuffle the list
-    for (size_t i = 0; i < n; i++) {
-        std::random_shuffle(vals[i].begin(), vals[i].end());
-    }
-    
-    std::cout << "Starting" << std::endl;
-    auto start = std::chrono::high_resolution_clock::now();
-    
-    // spin of threads that constantly enqueue and dequeue, max contention
-    // possible on the queue
-    for (size_t i = 0; i < n; i++) {
-        threads.push_back(std::thread(test, pq, vals[i]));
-    }
-    
-    for (size_t i = 0; i < n; i++) {
-        threads[i].join();
-    }
-    
-    auto finish = std::chrono::high_resolution_clock::now();
-    std::cout << "Done. Differences printed above should sum to 0" << std::endl;
-    
-    std::chrono::duration<double> elapsed = finish - start;
-    std::cout << "Elapsed time: ~" << elapsed.count() << " s" << std::endl;
-    
-    delete pq;
-    
-}
-
-#endif
+//void test(LockFreePQ<int, int*> *pq, std::vector<int> vals) {
+//    long out = 0;
+//    long in = 0;
+//    int x;
+//    for (size_t i = 0; (i+1) < vals.size(); i+=2) {
+//        x = vals[i];
+//        in += x;
+//        int *val = new int(x);
+//        pq->insert(x, val);
+//        val = pq->deleteEntry(x);
+//        if (val != NULL) {
+//            out += *val;
+//            delete  val;
+////            std::cout << "O "; // debug print if value was found
+//        } else {
+//            val = pq->deleteMin();
+//            out += *val;
+//            delete  val;
+////            std::cout << "XXXX "; // debug print if value was not found
+//        }
+//        x = vals[i+1];
+//        in += x;
+//        val = new int(x);
+//        pq->insert(x, val);
+//        val = pq->deleteMin();
+//        out += *val;
+//        delete  val;
+//    }
+//    std::cout << "Inserted: " << (long)in << " Got: " << (long)out << " Difference: " << ((long)in - (long)out) << std::endl;
+//}
+//
+//int main(int argc, char** argv) {
+//    
+//    LockFreePQ<int, int*> *pq = new LockFreePQ<int, int*>;
+//    
+//    std::vector<std::thread> threads;
+//    if (argc < 2) {
+//        std::cout << "Queue Test Usage: ./queue_test num_threads (num_vals)" << std::endl;
+//        abort();
+//    }
+//    size_t n = atoi(argv[1]);
+//    size_t k;
+//    if (argc > 2) {
+//        k = atoi(argv[2]);
+//    } else {
+//        k = 200000;
+//    }
+//    
+//    std::vector<std::vector<int>> vals(n);
+//    
+//    // generate large list of unique numbers for each thread
+//    for (size_t i = 0; i < n; i++) {
+//        for (size_t x = 1; x < k/n; x++) {
+//            vals[i].push_back(x*n+i);
+//        }
+//    }
+//    // shuffle the list
+//    for (size_t i = 0; i < n; i++) {
+//        std::random_shuffle(vals[i].begin(), vals[i].end());
+//    }
+//    
+//    std::cout << "Starting" << std::endl;
+//    auto start = std::chrono::high_resolution_clock::now();
+//    
+//    // spin of threads that constantly enqueue and dequeue, max contention
+//    // possible on the queue
+//    for (size_t i = 0; i < n; i++) {
+//        threads.push_back(std::thread(test, pq, vals[i]));
+//    }
+//    
+//    for (size_t i = 0; i < n; i++) {
+//        threads[i].join();
+//    }
+//    
+//    auto finish = std::chrono::high_resolution_clock::now();
+//    std::cout << "Done. Differences printed above should sum to 0" << std::endl;
+//    
+//    std::chrono::duration<double> elapsed = finish - start;
+//    std::cout << "Elapsed time: ~" << elapsed.count() << " s" << std::endl;
+//    
+//    delete pq;
+//    
+//}
