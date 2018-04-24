@@ -85,7 +85,7 @@ public:
         events to process.  If no events were available then this
         method returns \c false.
     */
-    virtual bool processNextAgentEvents();
+    virtual AgentID processNextAgentEvents();
 
     /** The garbage collection method for scheduler.
         

@@ -37,7 +37,7 @@
 #include "mpi-mt-shm/BadMTQ.h"
 
 BEGIN_NAMESPACE(muse);
-     
+
 class Scheduler {
     friend class Simulation;
     friend class MultiThreadedShmSimulationManager;
@@ -85,7 +85,7 @@ public:
         
         \return True if the chosen agent had events to process.
     */
-    virtual bool processNextAgentEvents();
+    virtual AgentID processNextAgentEvents();
 
     /** \brief Remove the specified Agent from the Scheduler
 
