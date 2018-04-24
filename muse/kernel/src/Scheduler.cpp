@@ -86,11 +86,11 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     return false;  // Current event outside time window. Do not schedule
 }
 
-bool
+AgentID
 Scheduler::processNextAgentEvents() {
     // If the event queue is empty, do no further operations.
     if (agentPQ->empty()) {
-        return false;
+        return InvalidAgentID;
     }
     // Get the first of next batch of events to be scheduled.
     const muse::Event* const front = agentPQ->front();
@@ -103,7 +103,7 @@ Scheduler::processNextAgentEvents() {
     // Check if the next lowest time-stamp event falls within time
     // window with respect to GVT.  If not, do not process events.
     if ((timeWindow > muse::Time(0)) && !withinTimeWindow(agent, front)) {
-        return false;  // No events to schedule.
+        return InvalidAgentID;  // No events to schedule.
     }
     // Have the next agent (with lowest receive timestamp events) to
     // process its batch of events.
@@ -111,7 +111,7 @@ Scheduler::processNextAgentEvents() {
     agent->processNextEvents(agentEvents);
     agentEvents.clear();
     // Processed some events
-    return true;
+    return agent->myID;
 }
 
 bool
