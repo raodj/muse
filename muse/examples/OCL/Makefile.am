@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -I../../include  -I $$AMDAPPSDKROOT/include/ -I ../../kernel/include/
+AM_CXXFLAGS += -I../../include  -I $$AMDAPPSDKROOT/include/ -I ../../kernel/include/ -I ../../kernel/include/ocl
 
 bin_PROGRAMS = ocl
 
@@ -31,15 +31,9 @@ ocl_LDFLAGS = -L../../kernel -L $$AMDAPPSDKROOT/lib/x86_64
 ocl_LDADD = $(STDCPP) -lmuse -lOpenCL 
 ocl_DEPENDENCIES=../../kernel/libmuse.a 
 
-ocl_SOURCES = oclSimulation.h\
-        oclSimulation.cpp\
-	oclAgent.h\
-        oclAgent.cpp\
-	oclScheduler.h\
-	oclScheduler.cpp\
-	oclState.h\
-	oclState.cpp\
-	synthAgent.h\
-	synthAgent.cpp
+ocl_SOURCES = synth/synthAgent.h\
+	synth/synthAgent.cpp\
+	synth/synthSimulation.h\
+	synth/synthSimulation.cpp
 
 # end of Makefile.am
