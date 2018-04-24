@@ -52,6 +52,7 @@ class HOETier2Entry;
 class EventComp;
 class TwoTierHeapAdapter;
 class Simulation;
+class oclSimulation;
 
 /** \typedef std::deque<T> List<T>
 
@@ -89,7 +90,7 @@ class Agent {
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
     friend class BadMTQ;
-    friend class OCLAgent;
+    friend class oclAgent;
     friend class oclSimulation;
 public:    
     /** enum for return Time.

@@ -37,7 +37,7 @@ class GVTManager;
 class Scheduler;
 class Communicator;
 class SimulationListener;
-
+class oclScheduler;
 /** The Simulation Class.
  
     This is the heart of muse. All core operation that the engine

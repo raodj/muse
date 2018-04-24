@@ -52,6 +52,13 @@ typedef std::vector<Event*> EventContainer;
 */
 typedef int AgentID; 
 
+/*
+ * Invalid Agent ID 
+ * Used as equivalent to false for AgentID return type
+ */
+const AgentID InvalidAgentID = -1;
+
+
 /** The Time type.
     MUSE uses this Time type to make
     sure the client know exactly what the param of a method is asking
@@ -92,6 +99,7 @@ typedef std::vector<SimStream*> SimStreamContainer;
 	default value to which time instance variables are initialized.
 */
 #define TIME_INFINITY muse::Time(1e30)
+
 
 END_NAMESPACE(muse)
 
