@@ -126,7 +126,7 @@ HRMScheduler::start(const Time& startTime) {
     resChannel.informStart();
 }
 
-bool
+AgentID
 HRMScheduler::processNextAgentEvents() {
     // Save the time of the next set of events to be processed by the
     // agent to detect occurrence of next Epoch.
@@ -138,7 +138,7 @@ HRMScheduler::processNextAgentEvents() {
         prevEpochVTime = nextEvtTime;
     }
     // Process next set of events (if any).
-    bool  retVal = false;
+    AgentID  retVal = InvalidAgentID;
     if ((nextEvtTime != INFINITY) && (retVal = Scheduler::processNextAgentEvents())) {
         // Check to see if an Epoch of sufficient duration has occurred.
         unsigned long currTime = 0;

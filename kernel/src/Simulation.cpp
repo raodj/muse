@@ -27,6 +27,7 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "HRMScheduler.h"
+#include "examples/OCL/oclScheduler.h"
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
@@ -40,6 +41,7 @@
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
+#include "examples/OCL/oclSimulation.h"
 
 using namespace muse;
 
@@ -87,12 +89,14 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
         kernel = new DefaultSimulation();
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
+    }else if (simName == "ocl"){
+        kernel = new oclSimulation();
     } else if (simName == "mpi-mt-shm") {
         kernel = new MultiThreadedShmSimulationManager();
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
-                                 "(muse be: default, mpi-mt, or mpi-mt-shm)");
+                                 "(muse be: default, mpi-mt, ocl, or mpi-mt-shm)");
     }
     // Now let the instantiated/derived kernel initialize further.
     ASSERT (kernel != NULL);
@@ -165,7 +169,13 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // Do not set scheduler yet if we are using shared memory multi threading
     if (Simulation::simName != "mpi-mt-shm") {
         // Setup scheduler based on scheduler name.
-        scheduler = (schedulerName == "hrm") ? new HRMScheduler() : new Scheduler();
+        if(schedulerName == "hrm"){
+            scheduler = new HRMScheduler();
+        }else if(schedulerName == "ocl"){
+            scheduler = new oclScheduler();
+        }else{
+            scheduler = new Scheduler();
+        }
         // Initialize the scheduler.
         scheduler->initialize(myID, numberOfProcesses, argc, argv);
     } else {
