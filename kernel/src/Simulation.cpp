@@ -27,7 +27,7 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "HRMScheduler.h"
-#include "examples/OCL/oclScheduler.h"
+#include "ocl/oclScheduler.h"
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
@@ -41,7 +41,7 @@
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
-#include "examples/OCL/oclSimulation.h"
+#include "ocl/oclSimulation.h"
 
 using namespace muse;
 
