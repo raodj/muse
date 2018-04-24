@@ -37,7 +37,7 @@ BEGIN_NAMESPACE(muse);
 */
 class State {
     friend class Agent;
-    friend class OCLAgent;
+    friend class oclAgent;
 public:
     /** \brief Default Constructor.
 
