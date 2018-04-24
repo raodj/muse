@@ -37,7 +37,7 @@ BEGIN_NAMESPACE(muse);
     enabled using OpenCL.  Here we have chosen to use OpenCL over
     CUDA, because CUDA is limited to running only on nVidia platforms.
     On the other hand, OpenCL (limited to Version 1.1) is supported on
-    all patforms.  We have consciously avoided using features from
+    all platforms.  We have consciously avoided using features from
     OpenCL 2.0 or newer releases to ensure broad portability to nVidia
     platforms.
 
@@ -51,6 +51,37 @@ class OclSimulation : muse::Simulation {
     friend class muse::Simulation;
 public:
     
+    /*
+     * Checks whether or not to use OpenCL
+     * if using OpenCL, it calls the OpenCL simulation loop
+     * which will initialize OpenCL and use it for agent processing
+     * if not, it calls the parent simulation start function
+     */
+    void start();
+    
+    /*
+    * Helper function for initializing OpenCL,
+    * returns the kernel code to process agents
+    */
+    std::string getKernel() = 0;
+    
+    /*
+    * Helper function for initializing OpenCL,
+    * gets the available platforms to run OpenCL kernel
+    */
+    Platform getPlatform();
+
+    /*
+    * Helper function for initializing OpenCL,
+    * gets the available devices to run OpenCL kernel
+    */
+    Device getDevice(Platform platform, int i);
+    
+    /*
+    * Run the simulation loop using OpenCL for agent processing
+    */
+    void oclRun();
+
 };
 
 END_NAMESPACE(muse);
