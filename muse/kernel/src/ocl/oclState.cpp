@@ -25,11 +25,10 @@
 #include "ocl/oclState.h"
 BEGIN_NAMESPACE(muse);
 
-oclState::oclState(int compartmentNum, real population, real exp): compartments(compartmentNum), values(new real[compartments]){
+oclState::oclState(int compartmentNum, real population, real exp): compartments(compartmentNum){
         // set initial seir values
-    for(int i = 0; i < compartments; i++){
-        values[i] = 0;
-    }
+    std::vector<real> vec(compartmentNum);
+    values = vec;
     values[0] = population;
     values[1] = exp;
 }

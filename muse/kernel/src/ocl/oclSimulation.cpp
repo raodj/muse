@@ -137,11 +137,14 @@ oclSimulation::initOCL(oclAgent* agent, int maxGlobal) {
     cl::Buffer buffer_rnd(ctx, CL_MEM_READ_WRITE, sizeof(real) * (numRand));
     srand(time(NULL));
     if (!ode) {
-        std::vector<real> randomValues;
+        unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+        std::default_random_engine rnd(seed);
+        std::poisson_distribution<> pRNG(100);
+        std::vector<int> randomValues;
         for (int i = 0; i < numRand; i++) {
-            randomValues.push_back(static_cast <real> (rand()) / static_cast <real> (RAND_MAX));
+            randomValues.push_back(pRNG(rnd));
         }
-        q.enqueueWriteBuffer(buffer_rnd, CL_TRUE, 0, sizeof(real)*(numRand), randomValues.data());
+        q.enqueueWriteBuffer(buffer_rnd, CL_TRUE, 0, sizeof(int)*(numRand), randomValues.data());
     }
 
     queue = q;
@@ -193,11 +196,10 @@ oclSimulation::start() {
     // Next initialize all the agents
     initAgents();
     // Set up OpenCL if needed
-    int maxGlobal;
+    int maxGlobal = maxWorkGroups;
     if (oclAvailable) {
-        std::cout <<  "Initialize ocl" << std::endl;
         // determine maximum number of agents to send to the GPU for processing
-        maxGlobal = std::min(maxWorkGroups, (int)allAgents.size());
+        maxGlobal = std::min(maxWorkGroups, (int)allAgents.size()*compartments);
         initOCL((oclAgent*)kernel->allAgents[0], maxGlobal);
     }
     // Start the core simulation loop.
@@ -271,9 +273,7 @@ oclSimulation::processAgents(int maxGlobal) {
     for (oclAgent* agent : oclAgents) {
         for (int i = 0; i < compartments; i++) {
             values.push_back(agent->myState->values[i]);      
-            std::cout << values[i+c] << ", ";
         }
-        std::cout << std::endl;
         c+=compartments;
     }
     real* vals = values.data();
@@ -306,9 +306,9 @@ oclSimulation::processAgents(int maxGlobal) {
     for (oclAgent* agent : oclAgents) {
        for (int i = 0; i < compartments; i++) {
             agent->myState->values[i] = vals[i+c];
-            std::cout << vals[i+c] << ", ";
+            std::cout << vals[i+c] << "\t";
         }
-       std::cout <<std::endl;
+       std::cout << std::endl;
        c+=compartments;
     }
     // clear list of agent ids for ocl

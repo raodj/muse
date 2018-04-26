@@ -31,7 +31,7 @@ synthAgent::synthAgent(muse::AgentID id, muse::oclState* state):
 }
 
 
-void synthAgent::seir(const real xl[4], real xln[4]) {
+void synthAgent::seir(const real* xl, real* xln) {
     // values for the disease being modeled
     real MU = 0.011;
     real A = 0.5;
@@ -46,7 +46,7 @@ void synthAgent::seir(const real xl[4], real xln[4]) {
     xln[3] = (V * xl[2]) - (MU * xl[3]);
 }
 
-void synthAgent::synth(const real xl[4], real xln[4]) {
+void synthAgent::synth(const real* xl, real* xln) {
     // values for the disease being modeled
     real A = 0.0005f;
     real B  = 0.00004f;
@@ -109,7 +109,7 @@ void synthAgent::nextSSA(real* cv) {
         for (int i = 0; (i < kernel->compartments-1); i++) {
             for (int j = 0; j < kernel->compartments; j++) {
                 float r = static_cast<float> (rand()) / static_cast <float> (RAND_MAX);
-                float scale = rates * kernel->step * r;
+                float scale = rates * kernel->step * r * (compartments - i);
                 cv[j] = cv[j] + (EventChanges[i][j] * scale);
             }
         }
@@ -127,7 +127,7 @@ std::string synthAgent::getKernel() {
         float rate = .0001f;
         s = std::to_string(rate);
         const char *r = s.c_str();
-        std::string ssa_kernel_code = "void kernel run(global float* cv, global float* random) {\n"
+        std::string ssa_kernel_code = "void kernel run(global float* cv, global int* random) {\n"
         "    int compartments = ";
         ssa_kernel_code.append(comp);
         ssa_kernel_code.append(";\n"
@@ -135,12 +135,10 @@ std::string synthAgent::getKernel() {
         "    float stp =");
         ssa_kernel_code.append(pchar);
         ssa_kernel_code.append("f;\n"
-        "    const float rate = ");
-        ssa_kernel_code.append(r);
-        ssa_kernel_code.append("f;\n"
+        "    const float rate = .01f;\n"
         "    const float EventChanges[");
         ssa_kernel_code.append(comp);
-        ssa_kernel_code.append("+1][");
+        ssa_kernel_code.append("-1][");
         ssa_kernel_code.append(comp);
         ssa_kernel_code.append("] = {\n");
 
@@ -167,14 +165,14 @@ std::string synthAgent::getKernel() {
         ssa_kernel_code.append("    };\n"
         "   for(int x = 0; x < (int)1/stp; x++){\n"
         "     for(int i = 0; (i < (compartments-1)); i++) {\n"
+        "       float scale = rate * ((float)random[(id + x) % 100] / 100.0f) * stp * (compartments - i);\n"
         "        for(int j = 0; j < compartments; j++){\n"
-        "           float scale = rate*random[(id+x)%100]*stp;\n"
-//        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
-        "           cv[j+id] = cv[j+id] + scale;\n"
+        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
         "        }\n"
         "     }\n"
         "   }\n"
         "}\n");
+        std::cout << ssa_kernel_code << std::endl;
         return ssa_kernel_code;
     } else {
         std::string s = std::to_string(kernel->compartments);

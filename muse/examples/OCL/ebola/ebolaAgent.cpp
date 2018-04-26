@@ -106,10 +106,6 @@ void ebolaAgent::nextODE(float* xl) {
         // Compute the new set of values.
         for (int i = 0; i < compartments; i++) {
             xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
-//            if(i == I && (k1[i] + 2*k2[i] + 2*k3[i] + k4[i])* h / 6<0){
-//                inf += (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
-//            }
-
         }
     }
     std::cout << xl[0] << "\t" << xl[1] << "\t" << xl[2] 
@@ -165,7 +161,6 @@ void ebolaAgent::nextSSA(real* cv) {
     {0,  0,  0, -1,  0, +1},
     {0,  0,  0,  0, -1, +1}
      };
-    srand(time(NULL));
     real rates[] = { N * mu,
         (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),
         (A * cv[E]), 
@@ -203,52 +198,72 @@ std::string ebolaAgent::getKernel() {
         s = std::to_string(compartments);
         const char *comp = s.c_str();
         float rate = .0001f;
-        s = std::to_string(rate);
-        const char *r = s.c_str();
-        std::string ssa_kernel_code = "void kernel run(global float* cv, global float* random) {\n"
-        "    int compartments = ";
-        ssa_kernel_code.append(comp);
-        ssa_kernel_code.append(";\n"
+        std::string ssa_kernel_code = "void kernel run(global float* cv, global int* random) {\n";
+        if (country == "lib") {
+            //Liberia
+            ssa_kernel_code.append("float Bi = .160f;\n"
+            "float Bh = .062f;\n"
+            "float Bf = .489f;\n"
+            "float A  = .08333f;\n"
+            "float Yh = .3086f;\n"
+            "float Ydh = .0993f;\n"
+            "float Yf = .4975f;\n"
+            "float Yi = .0667f;\n"
+            "float Yd = .0751f;\n"
+            "float Yih = .06297f;\n"
+            "float O1 = .5f;\n"
+            "float O2 = .5f;\n"
+            "float l = .197f;\n");
+        } else {
+            //Sierra Leone
+            ssa_kernel_code.append("float Bi = .128f;\n"
+            "float Bh = .080f;\n"
+            "float Bf = .111f;\n"
+            "float A = .1f;\n"
+            "float Yh = .2427f;\n"
+            "float Ydh = .1597f;\n"
+            "float Yf = .238f;\n"
+            "float Yi = .05f;\n"
+            "float Yd = .0963f;\n"
+            "float Yih = .063f;\n"
+            "float O1 = .75f;\n"
+            "float O2 = .75f;\n"
+            "float l = .197f;\n");
+        }
+        ssa_kernel_code.append("    int compartments = 6;\n"
         "    int id = get_global_id(0)*compartments;\n"
+        "   const float mu = 5e-4f;\n"
+        "   float N = cv[0+id] + cv[1+id] + cv[2+id] + cv[3+id] + cv[4+id] + cv[5+id];\n"
         "    float stp =");
         ssa_kernel_code.append(pchar);
-        ssa_kernel_code.append("f;\n"
-        "    const float rate = ");
-        ssa_kernel_code.append(r);
-        ssa_kernel_code.append("f;\n"
-        "    const float EventChanges[");
-        ssa_kernel_code.append(comp);
-        ssa_kernel_code.append("+1][");
-        ssa_kernel_code.append(comp);
-        ssa_kernel_code.append("] = {\n");
+        ssa_kernel_code.append("f;\n"        
+        " const float rates[] = { N * mu,\n"
+        " (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),\n"
+        " (A * cv[1]), \n"
+        " (Yh * l * cv[2]), \n"
+        " (Yd * (1 - l) * O1 * cv[2]), \n"
+        " (Yi * (1 - l) * (1-O1) * cv[2]),\n"
+        " (Ydh * O2 * cv[3]), \n"
+        " (Yih * (1 - O2) * cv[3]), \n"
+        " (Yf * cv[4])};\n"
 
-        for (int i = 0; i < compartments-1; i++) {
-            ssa_kernel_code.append("{");
-            for (int j = 0; j < compartments; j++) {
-                if (j != 0) {
-                    ssa_kernel_code.append(", ");
-                }
-                if (i == j) {
-                    ssa_kernel_code.append("-1");
-                } else if (j-i == 1) {
-                    ssa_kernel_code.append("1");
-                } else {
-                    ssa_kernel_code.append("0");
-                }
-            }
-            if (i+1 == compartments-1) {
-                ssa_kernel_code.append("}\n");
-            } else {
-                ssa_kernel_code.append("},\n");
-            }
-        }
-        ssa_kernel_code.append("    };\n"
-        "   for(int x = 0; x < (int)1/stp; x++){\n"
-        "     for(int i = 0; (i < (compartments-1)); i++) {\n"
-        "        for(int j = 0; j < compartments; j++){\n"
-        "           float scale = rate*random[(id+x)%100]*stp;\n"
-//        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
-        "           cv[j+id] = cv[j+id] + scale;\n"
+        "    float EventChanges[9][6] = {\n"
+        "    //  S   E   I   H   F   R\n"
+        "     {+1,  0,  0,  0,  0,  0},\n"
+        "     {-1,  1,  0,  0,  0,  0},\n"
+        "     {0, -1, +1,  0,  0,  0},\n"
+        "     {0,  0, -1, +1,  0,  0},\n"
+        "     {0,  0, -1,  0, +1,  0},\n"
+        "     {0,  0, -1,  0,  0, +1},\n"
+        "     {0,  0,  0, -1, +1,  0},\n"
+        "     {0,  0,  0, -1,  0, +1},\n"
+        "     {0,  0,  0,  0, -1, +1}\n"
+        "      };\n");
+        ssa_kernel_code.append("   for (int x = 0; x < (int)1/stp; x++) {\n"
+        "     for (int i = 0; (i < 9); i++) {\n"
+        "       float scale = rates[i] * ((float)random[(id + x) % 100] / 100.0f) * stp;\n"
+        "        for (int j = 0; j < compartments; j++) {\n"
+        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
         "        }\n"
         "     }\n"
         "   }\n"
@@ -260,65 +275,97 @@ std::string ebolaAgent::getKernel() {
         s = std::to_string(kernel->step);
         const char *h = s.c_str();
         std::string ode_kernel_code = "void kernel run(global float* xl) {\n"
-        "   int compartments = ";
-        ode_kernel_code.append(pchar);
-        ode_kernel_code.append(";\n"
-        "   float h = ");
+        "   int compartments = 6;\n"
+        "   float h = ";
         ode_kernel_code.append(h);
-        ode_kernel_code.append("f;\n"
-        "   float A = (float)0.005f;\n"
-        "   float B  = (float)0.004f;\n"
-        "   int id = get_global_id(0)*compartments;\n"
+        ode_kernel_code.append("f;\n");
+        if (country == "lib") {
+            //Liberia
+            ode_kernel_code.append("float Bi = .160f;\n"
+            "float Bh = .062f;\n"
+            "float Bf = .489f;\n"
+            "float A  = .08333f;\n"
+            "float Yh = .3086f;\n"
+            "float Ydh = .0993f;\n"
+            "float Yf = .4975f;\n"
+            "float Yi = .0667f;\n"
+            "float Yd = .0751f;\n"
+            "float Yih = .06297f;\n"
+            "float O1 = .5f;\n"
+            "float O2 = .5f;\n"
+            "float l = .197f;\n");
+        } else {
+            //Sierra Leone
+            ode_kernel_code.append("float Bi = .128f;\n"
+            "float Bh = .080f;\n"
+            "float Bf = .111f;\n"
+            "float A = .1f;\n"
+            "float Yh = .2427f;\n"
+            "float Ydh = .1597f;\n"
+            "float Yf = .238f;\n"
+            "float Yi = .05f;\n"
+            "float Yd = .0963f;\n"
+            "float Yih = .063f;\n"
+            "float O1 = .75f;\n"
+            "float O2 = .75f;\n"
+            "float l = .197f;\n");
+        }
+        
+        ode_kernel_code.append("   int id = get_global_id(0)*6;\n"
         "  \n"
+        "const float mu = 5e-4f;\n"
+        "float N = xl[0+id] + xl[1+id] + xl[2+id] + xl[3+id] + xl[4+id] + xl[5+id];\n"
         "        // Use runge-kutta 4th order method here.\n"
-        "   float k1[");
-        ode_kernel_code.append(pchar);
-        ode_kernel_code.append("], k2[");
-        ode_kernel_code.append(pchar);
-        ode_kernel_code.append("], k3[");
-         ode_kernel_code.append(pchar);
-        ode_kernel_code.append("], k4[");
-         ode_kernel_code.append(pchar);
-        ode_kernel_code.append("], xlt[");
-         ode_kernel_code.append(pchar);
-        ode_kernel_code.append("];\n");
-         ode_kernel_code.append("        // Compute k1\n"
-        "   for(int i = 0; i < (int)1/h; i++){\n"
-            "   for(int i = 1; i < compartments; i++){\n"
-            "       k1[i] = (xl[i-1] * A) - (B * xl[i]);\n"
-            "    }\n"
-            "    k1[0] = -k1[1];\n"
-            "    for(int i = 0; i < compartments; i++){\n"
-            "        xlt[i] = xl[i] + k1[i] * h / 2;\n"
-            "    }\n"
-
-            "   for(int i = 1; i < compartments; i++){\n"
-            "       k2[i] = (xlt[i-1] * A) - (B * xlt[i]);\n"
-            "    }\n"
-            "    k2[0] = -k2[1];\n"
-
-            "    for(int i = 0; i < compartments; i++){\n"
-            "        xlt[i] = xl[i] + k2[i] * h/ 2;\n"
-            "    }\n"
-
-            "   for(int i = 1; i < compartments; i++){\n"
-            "       k3[i] = (xlt[i-1] * A) - (B * xlt[i]);\n"
-            "    }\n"
-            "    k3[0] = -k3[1];\n"
-
-            "    for(int i = 0; i < compartments; i++){\n"
-            "        xlt[i] = xl[i] + k3[i] * h;\n"
-            "    }\n"
-
-            "   for(int i = 1; i < compartments; i++){\n"
-            "       k4[i] = (xlt[i-1] * A) - (B * xlt[i]);\n"
-            "    }\n"
-            "    k4[0] = -k4[1];\n"
-            "\n"
-
-            "    for(int i = 0; i < compartments; i++){\n"
-            "        xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
-            "    }\n"
+        "   float k1[6], k2[6], k3[6], k4[6], xlt[6];\n"
+        "        // Compute k1\n"
+        "   for(int j = 0; j < (int)(1.0f/h); j++){\n"
+        "        k1[0] = N * mu - (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N);\n"
+        "        k1[1] = (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N) - (A * xl[1+id]);\n"
+        "        k1[2] = (A * xl[1+id]) - (Yh * l * xl[2+id]) - (Yd * (1 - l) * O1 * xl[2+id]) - (Yi * (1 - l) * (1-O1) * xl[2+id]);\n"
+        "        k1[3] = (Yh * l * xl[2+id]) - (Ydh * O2 * xl[3+id]) - (Yih * (1 - O2) * xl[3+id]);\n"
+        "        k1[4] = (Yd * (1 - l) * O1 * xl[2+id]) + (Ydh * O2 * xl[3+id]) - (Yf * xl[4+id]);\n"
+        "        k1[5] = (Yi * (1 - l) * (1-O1) * xl[2+id]) + (Yih * (1 - O2) * xl[3+id]) + (Yf * xl[4+id]);\n"
+        "\n"
+        "        // Compute k2 values using k1.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k1[i] * h / 2;\n"
+        "        }\n"
+        "        \n"
+        "        k2[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
+        "        k2[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
+        "        k2[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
+        "        k2[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
+        "        k2[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
+        "        k2[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
+        "\n"
+        "        // Compute k3 values using k2.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k2[i] * h / 2;\n"
+        "        }\n"
+        "\n"
+        "        k3[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
+        "        k3[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
+        "        k3[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
+        "        k3[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
+        "        k3[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
+        "        k3[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
+        "\n"
+        "        // Compute k4 values using k3.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k3[i] * h;\n"
+        "        }\n"
+        "\n"
+        "        k4[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
+        "        k4[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
+        "        k4[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
+        "        k4[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
+        "        k4[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
+        "        k4[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
+        "\n"
+        "        // Compute the new set of values.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xl[i+id] = xl[i+id] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
+        "        }\n"
         "    }  \n"
         "}\n");
         return ode_kernel_code;
