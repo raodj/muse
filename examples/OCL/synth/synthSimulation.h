@@ -35,14 +35,6 @@ class synthSimulation {
         synthSimulation();
 
         /*
-         Set up start and stop time for simulation, finish setup before
-         * starting simulation including calling createAgents
-         * Then calls start
-         * and finalizes simulation
-         */
-//        void simulate();
-
-        /*
          * Create a set of agents and register them with the simulation 
          * This function uses simulation class variables to determine
          * specifics, like total number of agents.

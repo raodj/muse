@@ -38,14 +38,14 @@ class synthAgent : public muse::oclAgent {
          * function runs seir equations with values
          * specific to the disease being modeled.
          */
-         void seir(const real xl[4], real xln[4]);
+         void seir(const real* xl, real* xln);
 
 
          /*
          * Helper function for nextODE
          * function runs synthetic epidemic equations for testing.
          */
-         void synth(const real xl[4], real xln[4]);
+         void synth(const real* xl, real* xln);
 
 
         /*

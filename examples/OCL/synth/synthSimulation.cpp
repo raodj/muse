@@ -100,6 +100,8 @@ int
 main(int argc, char** argv) {
     synthSimulation* sim = new synthSimulation(argc, argv);
     muse::Simulation* kernel = muse::Simulation::initializeSimulation(argc, argv, true);
+    muse::oclSimulation* ocl = (muse::oclSimulation*)kernel;
+    sim->compartments = ocl->compartments;
     sim->createAgents();
     kernel->setStartTime(0);
     kernel->setStopTime(sim->stopTime);
