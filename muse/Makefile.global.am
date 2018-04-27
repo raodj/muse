@@ -56,6 +56,9 @@ GLOBALCPPFLAGS += -DRECYCLE_EVENTS
 # The following compiler flag enables recyling of states.
 GLOBALCPPFLAGS += -DRECYCLE_STATES
 
+# Additional include path for OpenCL headers
+GLOBALCPPFLAGS += $(OPEN_CL_PATH)
+
 AM_CXXFLAGS = $(GLOBALCXXFLAGS)
 AM_CPPFLAGS = $(GLOBALCPPFLAGS) \
 	-I$(top_builddir)/include

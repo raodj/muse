@@ -116,7 +116,6 @@ AC_DEFUN([AC_CHECK_MPICC],
 # A custom helper macro check if NUMA development libraries are
 # available and operational.  MUSE's multi-threaded mode is NUMA-aware
 # and relies on Linux's NUMA libraries for its's operation.
-# Check if we are using icc to supress a couple of useless remarks
 AC_DEFUN([AC_PROG_NUMA],
 [
      # Let user provide configure flag to enable/disable NUMA
@@ -209,6 +208,115 @@ AC_DEFUN([AC_PROG_ICC],
 
      AC_SUBST(USING_ICC)
      AC_SUBST(ICC_NO_WARN_SOME)
+])
+
+# A custom helper macro check if OpenCL development libraries are
+# available and operational.  MUSE's heterogeneous compute
+# capabilities relies on OpenCL libraries for its's operation.
+AC_DEFUN([AC_LIB_OPENCL],
+[
+    AC_ARG_WITH(opencl, AC_HELP_STRING(--with-opencl=PATH,path to OpenCL),
+        [ if test "$withval" != "no"; then
+              if test "$withval" != "yes"; then
+                  AC_MSG_NOTICE([Checking for OpenCL in $withval])
+                  OPEN_CL_PATH="$withval"
+                  have_opencl="maybe"
+              else
+                  AC_MSG_NOTICE([Checking for OpenCL])
+                  # Assume OpenCL is in default path
+                  OPEN_CL_PATH=""
+                  have_opencl="maybe"
+              fi
+          else
+              # ignore and don't use OpenCL
+              have_opencl="ignore"
+          fi
+        ], [
+            # User has not specified any options. Ignore OpenCL by default
+            have_opencl="ignore"
+        ]
+     )
+
+     # Save current flags to restore after test below.
+     OLD_CFLAGS="$CFLAGS"
+     OLD_CPPFLAGS="$CPPFLAGS"
+     LDFLAGS="$OLD_LDFLAGS"
+     AC_LANG_PUSH([C++])
+
+     # Check if we are able to compile a OpenCL headers
+     if test "$have_opencl" = "maybe"; then
+         # Add OpenCL path for use.
+         CFLAGS="$CFLAGS -I$OPEN_CL_PATH/include"
+         CPPFLAGS="$CPPFLAGS -I$OPEN_CL_PATH/include"
+         AC_MSG_CHECKING([if OpenCL headers are operational])
+
+         AC_COMPILE_IFELSE(
+             [AC_LANG_PROGRAM([[#ifdef __APPLE__
+                                #include <OpenCL/cl.hpp>
+                                #else
+                                #include "CL/cl.hpp"
+                                #endif
+                              ]],
+                              [[cl::Platform::getDefault()]])],
+             [AC_MSG_RESULT([yes])],
+             [AC_MSG_RESULT([no])
+              have_opencl="no"
+             ])
+     fi
+
+     # Now that the header seems fine next check path to find library
+     # and link against it.
+     OPEN_CL_LDPATH=""     
+     if test "$have_opencl" = "maybe"; then
+         AC_MSG_CHECKING([for OpenCL library path])
+         for subdir in "lib64" "lib/x86_64"; do
+             ldpath="$OPEN_CL_PATH/$subdir"
+             found="no"
+             LDFLAGS="$OLD_LDFLAGS -L$ldpath -lOpenCL"
+             AC_LINK_IFELSE(
+                 [AC_LANG_PROGRAM([[#ifdef __APPLE__
+                                    #include <OpenCL/cl.hpp>
+                                    #else
+                                    #include "CL/cl.hpp"
+                                    #endif
+                                  ]],  [[cl::Platform::getDefault()]])],
+                  [found="yes"],  [found="no"])
+             # If the library worked, we have found a path
+             if test "$found" = "yes"; then
+                 have_opencl="yes"
+                 OPEN_CL_LDPATH="$ldpath"
+                 break
+             fi
+         done
+         if test "$have_opencl" = "yes"; then
+             AC_MSG_RESULT([$OPEN_CL_LDPATH])
+         else
+             AC_MSG_RESULT([none])
+             have_opencl="no"
+         fi
+     fi
+
+     # Restore the search flags.
+     AC_LANG_POP([C++])
+     CFLAGS="$OLD_CFLAGS"
+     CPPFLAGS="$OLD_CPPFLAGS"
+     LDFLAGS="$OLD_LDFLAGS" 
+
+     if test "$have_opencl" = "no"; then
+        AC_MSG_ERROR([OpenCL headers were not found on your system.
+                    Specify --with-opencl=PATH option when running configure.
+                    To compile without OpenCL use --without-opencl option.])
+     elif test "$have_opencl" = "ignore"; then
+          AC_MSG_WARN([You have chosen to compile MUSE without OpenCL.
+                    This is OK and MUSE will not include heterogeneous
+                    computing capabilities])
+     else
+        OPEN_CL_PATH="-I$OPEN_CL_PATH/include"
+        OPEN_CL_LDPATH="-L$OPEN_CL_LDPATH -lOpenCL"
+        AC_SUBST(OPEN_CL_PATH)
+        AC_SUBST(OPEN_CL_LDPATH)
+        AC_DEFINE([HAVE_OPEN_CL], [1], [Using OpenCL in MUSE])
+     fi
 ])
 
 # A convenience macro to check if the compiler accepts a specific
@@ -392,9 +500,10 @@ AC_PROG_ICC
 AC_PROG_GCC
 AC_PROG_RANLIB
 AC_PROG_NUMA
+AC_LIB_OPENCL
 
 # Checks for suitable archiver to be used
-# AM_PROG_AR
+AM_PROG_AR
 
 # Check and set some default compiler flags for the build
 AC_CHECK_ARGS([-Minform=warn], [INFORM_WARN="-Minform=warn"], [INFORM_WARN=""])
