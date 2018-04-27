@@ -114,6 +114,15 @@ libmuse_a_SOURCES = \
 	include/mpi-mt-shm/MultiThreadedScheduler.h \
 	src/mpi-mt-shm/MultiThreadedScheduler.cpp \
 	src/mpi-mt-shm/BadMTQ.cpp \
-	include/mpi-mt-shm/BadMTQ.h 
+	include/mpi-mt-shm/BadMTQ.h \
+	include/ocl/oclAgent.h \
+	include/ocl/oclScheduler.h \
+	include/ocl/oclSimulation.h \
+	include/ocl/OclSimulation.h \
+	include/ocl/oclState.h \
+	src/ocl/oclAgent.cpp \
+	src/ocl/oclScheduler.cpp \
+	src/ocl/oclSimulation.cpp \
+	src/ocl/oclState.cpp
 
 # end of Makefile.am
