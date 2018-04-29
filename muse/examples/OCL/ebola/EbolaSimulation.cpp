@@ -37,7 +37,7 @@
 ebolaSimulation::ebolaSimulation(int& argc, char* argv[]) {
     int row = 1;
     int col = 1;
-    int pop = 25000;
+    int pop = 250000;
     int exp = 30;
     int stop = 3;
     std::string cntry = "lib";
