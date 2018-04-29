@@ -158,7 +158,7 @@ void
 oclSimulation::parseClassVars(int& argc, char* argv[])
     throw(std::exception) {
     bool ocl = false;
-    float stp = 0.001f;
+    float stp = 0.01f;
     int comp = 4;
     bool ssa = false;
     int maxWG = CL_DEVICE_MAX_WORK_GROUP_SIZE;
@@ -228,6 +228,7 @@ oclSimulation::start() {
         LGVT = kernel->scheduler->getNextEventTime();
         if (oclAvailable && ((LGVT > lastLGVT && !oclAgents.empty())
                 || oclAgents.size() > maxGlobal)) {
+//            std::cout << "process: " << oclAgents.size() << std::endl;
             lastLGVT = LGVT;
             processAgents(maxGlobal);
         }
@@ -289,26 +290,31 @@ oclSimulation::processAgents(int maxGlobal) {
     }
     // run kernel code on agent data
     // the last input into enqueueNDRangeKernel can specify the local work size, but leaving it null allows the opencl to determine the local work size
-    queue.flush();
-    status = queue.enqueueNDRangeKernel(run, cl::NullRange, cl::NDRange(count), cl::NullRange);
+    queue.finish();
+    cl::Event* event = new cl::Event();
+    status = queue.enqueueNDRangeKernel(run, cl::NullRange, cl::NDRange(count), cl::NullRange, NULL, event);
+    cl_ulong eventTime = event->getProfilingInfo<CL_PROFILING_COMMAND_END>() - event->getProfilingInfo<CL_PROFILING_COMMAND_START>();
+    std::cout << "Time to run " << oclAgents.size() << " agents: ";
+    std::cout << eventTime << std::endl;
     if (status != 0) {
         std::cout << "OpenCL Status Error: " << status << std::endl;
-    }    queue.flush();
+    }    
+    queue.finish();
     // read data back to values array
     status = queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), vals);
     if (status != 0) {
         std::cout << "OpenCL Status Error: " << status << std::endl;
     }
-    queue.flush();
+    queue.finish();
 
     // put altered data back into agents        
     c = 0;
     for (oclAgent* agent : oclAgents) {
        for (int i = 0; i < compartments; i++) {
             agent->myState->values[i] = vals[i+c];
-            std::cout << vals[i+c] << "\t";
+//            std::cout << vals[i+c] << "\t";
         }
-       std::cout << std::endl;
+//       std::cout << std::endl;
        c+=compartments;
     }
     // clear list of agent ids for ocl
