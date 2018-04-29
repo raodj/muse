@@ -20,7 +20,7 @@
 //
 //---------------------------------------------------------------------------
 #include "Simulation.h"
-#include "synthSimulation.h"
+#include "SynthSimulation.h"
 #include "oclState.h"
 #include <algorithm>
 
