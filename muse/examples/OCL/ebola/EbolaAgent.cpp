@@ -20,7 +20,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "ebolaAgent.h"
+#include "EbolaAgent.h"
 #include <string>
 
 typedef std::vector<real> DblVec;

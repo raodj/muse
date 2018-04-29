@@ -20,7 +20,7 @@
 //
 //---------------------------------------------------------------------------
 #include "Simulation.h"
-#include "ebolaSimulation.h"
+#include "EbolaSimulation.h"
 #include "oclState.h"
 #include <algorithm>
 

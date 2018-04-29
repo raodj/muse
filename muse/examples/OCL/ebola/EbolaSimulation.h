@@ -24,7 +24,7 @@
 
 #include "oclSimulation.h"
 #include "oclScheduler.h"
-#include "ebolaAgent.h"
+#include "EbolaAgent.h"
 #include "oclState.h"
 #include "AgentPQ.h"
 #include <vector>
