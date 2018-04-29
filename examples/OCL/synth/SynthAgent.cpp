@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "synthAgent.h"
+#include "SynthAgent.h"
 #include <string>
 
 synthAgent::synthAgent(muse::AgentID id, muse::oclState* state):
@@ -109,7 +109,7 @@ void synthAgent::nextSSA(real* cv) {
         for (int i = 0; (i < kernel->compartments-1); i++) {
             for (int j = 0; j < kernel->compartments; j++) {
                 float r = static_cast<float> (rand()) / static_cast <float> (RAND_MAX);
-                float scale = rates * kernel->step * r * (compartments - i);
+                float scale = rates * kernel->step * r * (kernel->compartments - i);
                 cv[j] = cv[j] + (EventChanges[i][j] * scale);
             }
         }
@@ -126,7 +126,6 @@ std::string synthAgent::getKernel() {
         const char *comp = s.c_str();
         float rate = .0001f;
         s = std::to_string(rate);
-        const char *r = s.c_str();
         std::string ssa_kernel_code = "void kernel run(global float* cv, global int* random) {\n"
         "    int compartments = ";
         ssa_kernel_code.append(comp);
@@ -172,7 +171,6 @@ std::string synthAgent::getKernel() {
         "     }\n"
         "   }\n"
         "}\n");
-        std::cout << ssa_kernel_code << std::endl;
         return ssa_kernel_code;
     } else {
         std::string s = std::to_string(kernel->compartments);

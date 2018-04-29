@@ -24,7 +24,7 @@
 
 #include "oclSimulation.h"
 #include "oclScheduler.h"
-#include "synthAgent.h"
+#include "SynthAgent.h"
 #include "oclState.h"
 #include "AgentPQ.h"
 #include <vector>
