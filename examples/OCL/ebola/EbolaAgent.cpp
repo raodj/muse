@@ -106,11 +106,14 @@ void ebolaAgent::nextODE(float* xl) {
         // Compute the new set of values.
         for (int i = 0; i < compartments; i++) {
             xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
+            if(i == 0 && (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])<0){
+                inf-= (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])*h/6;
+            }
         }
     }
-    std::cout << xl[0] << "\t" << xl[1] << "\t" << xl[2] 
-            << "\t" << xl[3] << "\t" << xl[4] << "\t" << xl[5] << std::endl;
-//    std::cout << inf << std::endl;
+//    std::cout << xl[0] << "\t" << xl[1] << "\t" << xl[2] 
+//            << "\t" << xl[3] << "\t" << xl[4] << "\t" << xl[5] << std::endl;
+    std::cout << inf << std::endl;
 }
 
 void ebolaAgent::nextSSA(real* cv) {
@@ -177,14 +180,14 @@ void ebolaAgent::nextSSA(real* cv) {
             real num = (real)pRNG(rnd) * kernel->step;
             for (int j = 0; j < compartments; j++) {
                 cv[j] = cv[j] + (EventChanges[i][j] * num);
-//                if(j == 2 && EventChanges[i][j] == 1){
-//                    inf = inf + (EventChanges[i][j] * num);
-//                }
+                if(j == 2 && EventChanges[i][j] == 1 && num > 0){
+                    inf = inf + (EventChanges[i][j] * num);
+                }
             }
         }
     }
-    std::cout << cv[0] << "\t" << cv[1] <<  "\t" << cv[2] 
-            << "\t" << cv[3] << "\t" << cv[4] << "\t" << cv[5] << std::endl;
+//    std::cout << cv[0] << "\t" << cv[1] <<  "\t" << cv[2] 
+//            << "\t" << cv[3] << "\t" << cv[4] << "\t" << cv[5] << std::endl;
 //    std::cout << inf << std::endl;
 
 }
