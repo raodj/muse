@@ -27,7 +27,7 @@
 #include <vector>
 BEGIN_NAMESPACE(muse);
 
-OclAgent::OclAgent(AgentID id, oclState* state):
+OclAgent::OclAgent(AgentID id, OclState* state):
     Agent(id, state), myState(state) {
 }
 
@@ -35,7 +35,7 @@ void OclAgent::setLVT(Time newLVT) {
     lvt = newLVT;
 }
 
-void OclAgent::setKernel(oclSimulation* sim) {
+void OclAgent::setKernel(OclSimulation* sim) {
     kernel = sim;
 }
 

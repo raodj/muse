@@ -27,7 +27,7 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "HRMScheduler.h"
-#include "ocl/oclScheduler.h"
+#include "ocl/OclScheduler.h"
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
@@ -41,7 +41,7 @@
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
-#include "ocl/oclSimulation.h"
+#include "ocl/OclSimulation.h"
 
 using namespace muse;
 
@@ -90,7 +90,7 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
     }else if (simName == "ocl"){
-        kernel = new oclSimulation();
+        kernel = new OclSimulation();
     } else if (simName == "mpi-mt-shm") {
         kernel = new MultiThreadedShmSimulationManager();
     } else {
@@ -172,7 +172,7 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         if(schedulerName == "hrm"){
             scheduler = new HRMScheduler();
         }else if(schedulerName == "ocl"){
-            scheduler = new oclScheduler();
+            scheduler = new OclScheduler();
         }else{
             scheduler = new Scheduler();
         }

@@ -25,8 +25,8 @@
 
 #include "EventRecycler.h"
 #include "Agent.h"
-#include "oclSimulation.h"
-#include "oclState.h"
+#include "OclSimulation.h"
+#include "OclState.h"
 #include <string>
 
 BEGIN_NAMESPACE(muse);
@@ -69,7 +69,7 @@ class OclAgent : public Agent {
          * \param agentState pointer to the state that has been allocated
          * in the heap
         */
-        OclAgent(AgentID id, oclState* state);
+        OclAgent(AgentID id, OclState* state);
 
         /** 
          * The executeTask method.
@@ -98,7 +98,7 @@ class OclAgent : public Agent {
           * \param sim The simulation/kernel that is agent must use for
           * scheduling events etc.  The pointer is never null.
           */
-        virtual void setKernel(oclSimulation* sim);
+        virtual void setKernel(OclSimulation* sim);
 
         /**
          * Makes a step with the ODE equations -

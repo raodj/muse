@@ -58,7 +58,7 @@ public:
      * 
      * \param cp: the state that data is copied into from this state
      */
-    oclState* clone();
+    OclState* clone();
 };
 END_NAMESPACE(muse);
 

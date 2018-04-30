@@ -42,7 +42,7 @@ OclScheduler::processNextAgentEvents() {
     DEBUG(std::cout << "Scheduler is processing event: " << *front
                     << std::endl);
     // Figure out the agent to receive this event.
-    oclAgent* const agent = reinterpret_cast<oclAgent*>
+    OclAgent* const agent = reinterpret_cast<OclAgent*>
         (agentMap[front->getReceiverAgentID()]);
     ASSERT(agent != NULL);
     // Check if the next lowest time-stamp event falls within time

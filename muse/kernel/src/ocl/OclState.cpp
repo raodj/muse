@@ -36,7 +36,7 @@ OclState::OclState(int compartmentNum, real population, real exp): compartments(
  
 OclState* OclState::clone(){
     // Go through and copy all compartment values to the passed in state
-    oclState* clone = new oclState(compartments, 0,0);
+    OclState* clone = new OclState(compartments, 0,0);
     for(int i = 0; i < compartments; i++){
         clone->values[i] = values[i];
     }

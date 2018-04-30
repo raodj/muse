@@ -65,7 +65,7 @@ class EventRecycler {
     friend class MultiThreadedSimulationManager;
     friend class MultiThreadedShmSimulation;
     friend class MultiThreadedShmSimulationManager;
-    friend class OCLAgent;
+    friend class OclAgent;
 public:
     /** The default NUMA settings for memory management.
 
