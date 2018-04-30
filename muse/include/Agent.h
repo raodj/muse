@@ -52,7 +52,7 @@ class HOETier2Entry;
 class EventComp;
 class TwoTierHeapAdapter;
 class Simulation;
-class oclSimulation;
+class OclSimulation;
 
 /** \typedef std::deque<T> List<T>
 
@@ -90,8 +90,8 @@ class Agent {
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
     friend class BadMTQ;
-    friend class oclAgent;
-    friend class oclSimulation;
+    friend class OclAgent;
+    friend class OclSimulation;
 public:    
     /** enum for return Time.
         when agent ask for time via getTime()

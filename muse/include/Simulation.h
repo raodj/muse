@@ -37,7 +37,7 @@ class GVTManager;
 class Scheduler;
 class Communicator;
 class SimulationListener;
-class oclScheduler;
+class OclScheduler;
 /** The Simulation Class.
  
     This is the heart of muse. All core operation that the engine
@@ -71,7 +71,7 @@ class Simulation {
     friend class GVTManager;
     friend class Agent;
     friend class Scheduler;
-    friend class oclSimulation;
+    friend class OclSimulation;
 public:
     /** \brief Complete initialization of the Simulation
 
