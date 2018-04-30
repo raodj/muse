@@ -25,14 +25,14 @@
 
 #include "Simulation.h"
 #include "GVTManager.h"
-#include "oclAgent.h"
+#include "OclAgent.h"
 #include "Event.h"
 #include "State.h"
 #include "DataTypes.h"
 #include "Avg.h"
 #include "ArgParser.h"
-#include "oclScheduler.h"
-#include "oclState.h"
+#include "OclScheduler.h"
+#include "OclState.h"
 #define CL_USE_DEPRECATED_OPENCL_1_1_APIS
 #include <random>
 #include <typeinfo>
@@ -156,7 +156,7 @@ class OclSimulation : public Simulation{
          * with OpenCL. This number is limited by the maximum global size
          * of the device being used.
          */
-        virtual void initOCL(oclAgent* agent, int maxGlobal); 
+        virtual void initOCL(OclAgent* agent, int maxGlobal); 
         
         /*
          * Run OpenCL kernel code to process agents. 

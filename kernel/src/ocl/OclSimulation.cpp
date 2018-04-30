@@ -72,7 +72,7 @@ OclSimulation::processNextEvent() {
     if (ret != InvalidOCLAgentID && ret != InvalidAgentID) {
         // add agent to list of agents that need equations run
         Agent* agent = kernel->allAgents[ret];
-        oclAgents.push_back(reinterpret_cast<oclAgent*>(agent));
+        oclAgents.push_back(reinterpret_cast<OclAgent*>(agent));
     }
     return ret;
 }
@@ -106,7 +106,7 @@ OclSimulation::getDevice(cl::Platform platform, int i, bool display) {
 }
 
 void
-OclSimulation::initOCL(oclAgent* agent, int maxGlobal) {
+OclSimulation::initOCL(OclAgent* agent, int maxGlobal) {
     // initialize opencl platform and devices
     cl::Platform plat = getPlatform();
     cl::Device dev     = getDevice(plat, 0, false);
@@ -200,7 +200,7 @@ OclSimulation::start() {
     if (oclAvailable) {
         // determine maximum number of agents to send to the GPU for processing
         maxGlobal = std::min(maxWorkGroups, (int)allAgents.size()*compartments);
-        initOCL((oclAgent*)kernel->allAgents[0], maxGlobal);
+        initOCL((OclAgent*)kernel->allAgents[0], maxGlobal);
     }
     // Start the core simulation loop.
     LGVT         = startTime;
@@ -271,7 +271,7 @@ OclSimulation::processAgents(int maxGlobal) {
     int count = oclAgents.size();
     int c = 0;
     std::vector<real> values;
-    for (oclAgent* agent : oclAgents) {
+    for (OclAgent* agent : oclAgents) {
         for (int i = 0; i < compartments; i++) {
             values.push_back(agent->myState->values[i]);      
         }
@@ -309,7 +309,7 @@ OclSimulation::processAgents(int maxGlobal) {
 
     // put altered data back into agents        
     c = 0;
-    for (oclAgent* agent : oclAgents) {
+    for (OclAgent* agent : oclAgents) {
        for (int i = 0; i < compartments; i++) {
             agent->myState->values[i] = vals[i+c];
 //            std::cout << vals[i+c] << "\t";
