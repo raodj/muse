@@ -204,7 +204,9 @@ std::string EbolaAgent::getKernel() {
     // then kernel string is returned
     std::ostringstream oclKernel;
     if (!kernel->ode) {
+        // set function definition
         oclKernel <<  "void kernel run(global float* cv, global int* random) {\n";
+        // create variables needed in ebola model
         if (country == "lib") {
             //Liberia
             oclKernel << "float Bi = .160f;\n"
@@ -240,7 +242,8 @@ std::string EbolaAgent::getKernel() {
         "    int id = get_global_id(0)*compartments;\n"
         "   const float mu = 5e-4f;\n"
         "   float N = cv[0+id] + cv[1+id] + cv[2+id] + cv[3+id] + cv[4+id] + cv[5+id];\n"
-        "    float stp =" << kernel->step << "f;\n"        
+        "    float stp =" << kernel->step << "f;\n"   
+        // set transition rates from ebola model
         " const float rates[] = { N * mu,\n"
         " (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),\n"
         " (A * cv[1]), \n"
@@ -250,7 +253,7 @@ std::string EbolaAgent::getKernel() {
         " (Ydh * O2 * cv[3]), \n"
         " (Yih * (1 - O2) * cv[3]), \n"
         " (Yf * cv[4])};\n"
-
+         // create potential events from ebola model
         "    float EventChanges[9][6] = {\n"
         "    //  S   E   I   H   F   R\n"
         "     {+1,  0,  0,  0,  0,  0},\n"
@@ -263,10 +266,14 @@ std::string EbolaAgent::getKernel() {
         "     {0,  0,  0, -1,  0, +1},\n"
         "     {0,  0,  0,  0, -1, +1}\n"
         "      };\n"
+        // loop based on time step
         "   for (int x = 0; x < (int)1/stp; x++) {\n"
+        // loop through all events
         "     for (int i = 0; (i < 9); i++) {\n"
+        // create a random value with passed in values and current state
         "       float scale = rates[i] * ((float)random[(id + x) % 100] / 100.0f) * stp;\n"
         "        for (int j = 0; j < compartments; j++) {\n"
+        // add random value to existing state
         "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
         "        }\n"
         "     }\n"
@@ -274,7 +281,9 @@ std::string EbolaAgent::getKernel() {
         "}\n";
         
     } else {
+        // set funcion definition
         oclKernel << "void kernel run(global float* xl) {\n"
+        // create variables needed by ebola model
         "   int compartments = 6;\n"
         "   float h = " << kernel->step << "f;\n";
         if (country == "lib") {
@@ -316,6 +325,7 @@ std::string EbolaAgent::getKernel() {
         "        // Use runge-kutta 4th order method here.\n"
         "   float k1[6], k2[6], k3[6], k4[6], xlt[6];\n"
         "        // Compute k1\n"
+        // loop based on time step and run runge kutta 4th order equations
         "   for(int j = 0; j < (int)(1.0f/h); j++){\n"
         "        k1[0] = N * mu - (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N);\n"
         "        k1[1] = (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N) - (A * xl[1+id]);\n"
