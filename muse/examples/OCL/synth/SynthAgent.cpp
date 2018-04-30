@@ -132,11 +132,13 @@ std::string SynthAgent::getKernel() {
     // then kernel string is returned
     std::ostringstream oclKernel;
     if (!kernel->ode) {
+        // Set function definition and variables needed in function
         oclKernel << "void kernel run(global float* cv, global int* random) {\n"
         "    int compartments = " << kernel->compartments << ";\n"
         "    int id = get_global_id(0)*compartments;\n"
         "    float stp =" << kernel->step << "f;\n"
         "    const float rate = .01f;\n"
+        // create possible transition events
         "    const float EventChanges[" << kernel->compartments << "-1]"
         "[" << kernel->compartments << "] = {\n";
 
@@ -161,16 +163,21 @@ std::string SynthAgent::getKernel() {
             }
         }
         oclKernel << "    };\n"
+        // loop based on time step
         "   for(int x = 0; x < (int)1/stp; x++){\n"
+        // loop through all potential events
         "     for(int i = 0; (i < (compartments-1)); i++) {\n"
-        "       float scale = rate * ((float)random[(id + x) % 100] / 100.0f) * stp * (compartments - i);\n"
+        // using random values passed in and current state values, create random value
+        "       float scale = rate * ((float)random[(id + x) % 100] / 100.0f) * stp * cv[i];\n"
         "        for(int j = 0; j < compartments; j++){\n"
+        // add random value based on event impact on compartments
         "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
         "        }\n"
         "     }\n"
         "   }\n"
         "}\n";
     } else {
+        // set funciton definition and variables needed in function
         oclKernel << "void kernel run(global float* xl) {\n"
         "   int compartments = " << kernel->compartments << ";\n"
         "   float h = " << kernel->step << "f;\n"
@@ -185,6 +192,7 @@ std::string SynthAgent::getKernel() {
         "k4[" << kernel->compartments << "], "
         "xlt[" << kernel->compartments << "];\n"
         "        // Compute k1\n"
+        // loop based on time step and run runge kutta 4th order equations
         "   for(int i = 0; i < (int)1/h; i++){\n"
             "   for(int i = 1; i < compartments; i++){\n"
             "       k1[i] = (xl[i-1] * A) - (B * xl[i]);\n"
@@ -217,7 +225,7 @@ std::string SynthAgent::getKernel() {
             "    }\n"
             "    k4[0] = -k4[1];\n"
             "\n"
-
+            // update values based on runge kutta 4th order equation results
             "    for(int i = 0; i < compartments; i++){\n"
             "        xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
             "    }\n"
