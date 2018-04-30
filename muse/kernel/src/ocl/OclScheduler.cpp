@@ -22,16 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include "ocl/oclScheduler.h"
+#include "ocl/OclScheduler.h"
 
 BEGIN_NAMESPACE(muse);
 
-oclScheduler::oclScheduler() : Scheduler() {
+OclScheduler::OclScheduler() : Scheduler() {
     agentPQ = new AgentPQ();
 }
 
 AgentID
-oclScheduler::processNextAgentEvents() {
+OclScheduler::processNextAgentEvents() {
     // If the event queue is empty, do no further operations.
     if (agentPQ->empty()) {
         return InvalidAgentID;

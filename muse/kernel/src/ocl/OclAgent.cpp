@@ -22,32 +22,32 @@
 //
 //---------------------------------------------------------------------------
 
-#include "ocl/oclAgent.h"
+#include "ocl/OclAgent.h"
 #include <ctime>
 #include <vector>
 BEGIN_NAMESPACE(muse);
 
-oclAgent::oclAgent(AgentID id, oclState* state):
+OclAgent::OclAgent(AgentID id, oclState* state):
     Agent(id, state), myState(state) {
 }
 
-void oclAgent::setLVT(Time newLVT) {
+void OclAgent::setLVT(Time newLVT) {
     lvt = newLVT;
 }
 
-void oclAgent::setKernel(oclSimulation* sim) {
+void OclAgent::setKernel(oclSimulation* sim) {
     kernel = sim;
 }
 
-State* oclAgent::getState() {
+State* OclAgent::getState() {
     return myState;
 }
 
-void oclAgent::executeTask(const EventContainer& events) {
+void OclAgent::executeTask(const EventContainer& events) {
     return;
 }
 
-void oclAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
+void OclAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
       // change runOCL to true requires ocl code to be run
       // The events cannot be empty
       ASSERT(!events.empty());
@@ -117,17 +117,17 @@ void oclAgent::processNextEvents(muse::EventContainer& events, bool& runOCL) {
       }
 }
 
-void oclAgent::finalize() {
+void OclAgent::finalize() {
     return;
 }
 
-void oclAgent::initialize() throw(std::exception) {
+void OclAgent::initialize() throw(std::exception) {
         // Generate event for this agent at time step 1
         Event* event = new Event(myID, 1);
         scheduleEvent(event);
 }
 
-void oclAgent::executeTask(const muse::EventContainer& events, bool& runOCL) {
+void OclAgent::executeTask(const muse::EventContainer& events, bool& runOCL) {
       for (const muse::Event* event : events) {
           // fill in event processing if needed
        }

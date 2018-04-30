@@ -22,7 +22,7 @@
 //
 //---------------------------------------------------------------------------
 
-#include "ocl/oclSimulation.h"
+#include "ocl/OclSimulation.h"
 #include <ctime>
 #include "MPIHelper.h"
 #include "Communicator.h"
@@ -32,7 +32,7 @@
 
 BEGIN_NAMESPACE(muse);
 
-oclSimulation::oclSimulation(const bool useSharedEvents)
+OclSimulation::OclSimulation(const bool useSharedEvents)
     : Simulation(useSharedEvents) {
     commManager        = NULL;
     scheduler          = NULL;
@@ -49,7 +49,7 @@ oclSimulation::oclSimulation(const bool useSharedEvents)
 }
 
 bool
-oclSimulation::processNextEvent() {
+OclSimulation::processNextEvent() {
     // Do sanity checks.
     if (LGVT < getGVT()) {
         std::cout << "Offending event: "
@@ -78,7 +78,7 @@ oclSimulation::processNextEvent() {
 }
 
 cl::Platform
-oclSimulation::getPlatform() {
+OclSimulation::getPlatform() {
     std::vector<cl::Platform> all_platforms;
     cl::Platform::get(&all_platforms);
 
@@ -90,7 +90,7 @@ oclSimulation::getPlatform() {
 }
 
 cl::Device
-oclSimulation::getDevice(cl::Platform platform, int i, bool display) {
+OclSimulation::getDevice(cl::Platform platform, int i, bool display) {
     std::vector<cl::Device> all_devices;
     platform.getDevices(CL_DEVICE_TYPE_ALL, &all_devices);
     if (all_devices.size() == 0) {
@@ -106,7 +106,7 @@ oclSimulation::getDevice(cl::Platform platform, int i, bool display) {
 }
 
 void
-oclSimulation::initOCL(oclAgent* agent, int maxGlobal) {
+OclSimulation::initOCL(oclAgent* agent, int maxGlobal) {
     // initialize opencl platform and devices
     cl::Platform plat = getPlatform();
     cl::Device dev     = getDevice(plat, 0, false);
@@ -155,7 +155,7 @@ oclSimulation::initOCL(oclAgent* agent, int maxGlobal) {
 }
 
 void
-oclSimulation::parseClassVars(int& argc, char* argv[])
+OclSimulation::parseClassVars(int& argc, char* argv[])
     throw(std::exception) {
     bool ocl = false;
     float stp = 0.01f;
@@ -187,7 +187,7 @@ oclSimulation::parseClassVars(int& argc, char* argv[])
 }
 
 void
-oclSimulation::start() {
+OclSimulation::start() {
     // Finish all the setup prior to starting simulation.
     preStartInit();
     // If no agents registered
@@ -244,7 +244,7 @@ oclSimulation::start() {
 }
 
 void
-oclSimulation::initialize(int& argc, char* argv[], bool initMPI)
+OclSimulation::initialize(int& argc, char* argv[], bool initMPI)
     throw(std::exception) {
     commManager = new Communicator();
     myID = commManager->initialize(argc, argv, initMPI);
@@ -259,14 +259,14 @@ oclSimulation::initialize(int& argc, char* argv[], bool initMPI)
 }
 
 void
-oclSimulation::preStartInit() {
+OclSimulation::preStartInit() {
     Simulation::preStartInit();
     // Next, we setup/finalize the AgentMap for all kernels
     commManager->registerAgents(allAgents);
 }
 
 void
-oclSimulation::processAgents(int maxGlobal) {
+OclSimulation::processAgents(int maxGlobal) {
     // parse data from agents
     int count = oclAgents.size();
     int c = 0;
