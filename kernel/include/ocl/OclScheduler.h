@@ -23,18 +23,18 @@
 //
 //---------------------------------------------------------------------------
 
-#include "../../kernel/include/Scheduler.h"
-#include "oclAgent.h"
+#include "Scheduler.h"
+#include "OclAgent.h"
 BEGIN_NAMESPACE(muse);
 
 const AgentID InvalidOCLAgentID = -2;
 
-class oclAgent;
-class oclScheduler : public Scheduler {
-    friend class oclAgent;
-    friend class oclSimulation;
+class OclAgent;
+class OclScheduler : public Scheduler {
+    friend class OclAgent;
+    friend class OclSimulation;
     public:
-        oclScheduler();
+        OclScheduler();
     protected:
     /** The current 'top' Agent is instructed to process its Events
         

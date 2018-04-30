@@ -31,14 +31,14 @@ BEGIN_NAMESPACE(muse);
 // Use real for all state data so users can redefine real as anything needed
 typedef float real;
 
-class oclState : public muse::State {
+class OclState : public muse::State {
     // friend classes
 //    friend class oclSimulation;
-    friend class oclAgent;
+    friend class OclAgent;
 public:
     // class variables
     int compartments;
-    std::unique_ptr<real[]> values;
+    std::vector<real> values;
 
     /*
      * Constructor - Create oclState
@@ -51,7 +51,7 @@ public:
      * 
      * \param exp: the number of initially exposed in this agent
      */
-    oclState(int compartmentNum, real population, real exp);
+    OclState(int compartmentNum, real population, real exp);
 
     /*
      * Copy this state into another state

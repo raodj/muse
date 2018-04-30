@@ -35,13 +35,13 @@ BEGIN_NAMESPACE(muse);
 typedef float real;
 
 // forward declarations
-class oclSimulation;
-class oclState;
-class oclAgent : public Agent {
-    friend class oclSimulation;
-    friend class oclScheduler;
-    friend class synthAgent;
-    friend class synthSimulation;
+class OclSimulation;
+class OclState;
+class OclAgent : public Agent {
+    friend class OclSimulation;
+    friend class OclScheduler;
+    friend class SynthAgent;
+    friend class SynthSimulation;
     /*
      * Functions inside public are the functions that can be defined by the user
      * in order to change the way that the decision to run opencl kernel code is made
@@ -55,76 +55,79 @@ class oclAgent : public Agent {
         int numSchedules;
         List<Event*> inputQueue;
         // State of the agent
-        oclState* myState;
-        oclSimulation* kernel;
+        OclState* myState;
+        OclSimulation* kernel;
 
-        /** The constructor.
-        
-        \note once constructed MUSE will handle deleting the state
-        pointer.  State can only be allocated in the heap.
-	
-        \param id the ID that this agent will take on
-        
-        \param agentState pointer to the state that has been allocated
-        in the heap
-    */
-        oclAgent(AgentID id, oclState* state);
+        /** 
+         * The constructor.
+         *
+         * \note once constructed MUSE will handle deleting the state
+         * pointer.  State can only be allocated in the heap.
+	 * 
+         * \param id the ID that this agent will take on
+         * 
+         * \param agentState pointer to the state that has been allocated
+         * in the heap
+        */
+        OclAgent(AgentID id, oclState* state);
 
-        /** The executeTask method.
-     
-        This method is invoked only when the agent has some events to
-        process. The events that this agent must process at a given
-        time step is all passed in one single shot to this method.
-         
-         This method is overridden to pass a boolean value that checks if 
-         the agent needs to have equations run with the ocl kernel
-        
-        \param events The set of concurrent (events at the same time)
-        events that this method should process.
-        */    
+        /** 
+         * The executeTask method.
+         *
+         * This method is invoked only when the agent has some events to
+         * process. The events that this agent must process at a given
+         * time step is all passed in one single shot to this method.
+         *
+         * This method is overridden to pass a boolean value that checks if 
+         * the agent needs to have equations run with the ocl kernel
+         *
+         * \param events The set of concurrent (events at the same time)
+         * events that this method should process.
+         */    
         virtual void executeTask(const EventContainer& events, bool& runOCL);
 
         void executeTask(const EventContainer& events) override;
 
-         /** Setup the simulation kernel to be used by this agent.
-
-        This method is invoked from the Simulation kernel (or its
-        derived classes) when an agent is registered to set the
-        pointer to the kernel that logically owns this agent.
-
-        \param sim The simulation/kernel that is agent must use for
-        scheduling events etc.  The pointer is never null.
-        */
+         /** 
+          * Setup the simulation kernel to be used by this agent.
+          * 
+          * This method is invoked from the Simulation kernel (or its
+          * derived classes) when an agent is registered to set the
+          * pointer to the kernel that logically owns this agent.
+          *
+          * \param sim The simulation/kernel that is agent must use for
+          * scheduling events etc.  The pointer is never null.
+          */
         virtual void setKernel(oclSimulation* sim);
 
-        /*
-         Makes a step with the ODE equations -
+        /**
+         * Makes a step with the ODE equations -
          * runs Runge Kutta fourth order equations
          * to advance the agent one time step in the simulation
          * 
-         * xl is the values of the current state and they are updated
+         * \param xl is the values of the current state and they are updated
          * within the method
          */
         virtual void nextODE(real* xl) = 0;
 
-        /*
-         Makes a step with the SSA equations -
+        /**
+         * Makes a step with the SSA equations -
          * runs Gillespie with Tau Leaping optimization
          * to advance the agent one time step in the simulation
          * 
-         * cv is the values of the current state and they are updated
+         * \param cv is the values of the current state and they are updated
          * within the method
          */
         virtual void nextSSA(real* cv) = 0;
 
-        /*
+         /**
           * Returns the kernel code for this type of agent
           * Called from the oclSimulation class
           * Allows for multiple agent types
           */
         virtual std::string getKernel() = 0;
 
-        /*
+        /**
          *  The initialize method.
          * Function runs before the core simulation loop. 
          * Creates an event for the agent
@@ -132,44 +135,48 @@ class oclAgent : public Agent {
         void initialize() throw(std::exception) override;
 
     protected:
-        /** The processNextEvents method.
-        
-        Only for use by the Scheduler. This is used to get the next
-	set of events to be processed by this agent. The Scheduler
-	will call this method, when it is time for processing.
-        
+       /** 
+        * The processNextEvents method.
+        *
+        * Only for use by the Scheduler. This is used to get the next
+	* set of events to be processed by this agent. The Scheduler
+	* will call this method, when it is time for processing.
+        *
         */
         virtual void processNextEvents(muse::EventContainer& events, bool& runOCL);
 
-        /** The setLVT method.        
-        \param newLVT the new LVT
+       /** 
+        * The setLVT method.  
+        *       
+        * \param newLVT the new LVT
         */
         virtual void setLVT(Time newLVT);
 
 
         /** The getState method.
-        This will return the current state of the agent.
-
-        \return the current state pointer to the agent's state.
+        * This will return the current state of the agent.
+        * 
+        * \return the current state pointer to the agent's state.
         */
         virtual State* getState();
 
-        /*
-        The finalize method.
-     
-        This method is invoked once the simulation has finished
-        processing all events and is ending.  The core simulation
-        engine invokes this method. This method may perform any final
-        clean up or displaying results.
-         */
+        /**
+        * The finalize method.
+        *
+        * This method is invoked once the simulation has finished
+        * processing all events and is ending.  The core simulation
+        * engine invokes this method. This method may perform any final
+        * clean up or displaying results.
+        */
         void finalize() override;
 
-        /** The getLVT method.
-        
-        This will return the agent's Local Virtual Time.
-	
-        \return The LVT -- the time of the last processed event
-        */
+        /** 
+         * The getLVT method.
+         *         
+         * This will return the agent's Local Virtual Time.
+         * 	
+         * \return The LVT -- the time of the last processed event
+         */
         inline Time getLVT() const { return lvt; }
 };
 END_NAMESPACE(muse);
