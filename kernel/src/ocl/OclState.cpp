@@ -22,10 +22,10 @@
 //          Dhananjai M. Rao       raodm@miamioh.edu
 //
 //---------------------------------------------------------------------------
-#include "ocl/oclState.h"
+#include "ocl/OclState.h"
 BEGIN_NAMESPACE(muse);
 
-oclState::oclState(int compartmentNum, real population, real exp): compartments(compartmentNum){
+OclState::OclState(int compartmentNum, real population, real exp): compartments(compartmentNum){
         // set initial seir values
     std::vector<real> vec(compartmentNum);
     values = vec;
@@ -34,7 +34,7 @@ oclState::oclState(int compartmentNum, real population, real exp): compartments(
 }
 
  
-oclState* oclState::clone(){
+OclState* OclState::clone(){
     // Go through and copy all compartment values to the passed in state
     oclState* clone = new oclState(compartments, 0,0);
     for(int i = 0; i < compartments; i++){
