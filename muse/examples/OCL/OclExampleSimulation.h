@@ -1,5 +1,5 @@
-#ifndef MUSE_EXAMPLES_OCL_SYNTHSIMULATION_H
-#define MUSE_EXAMPLES_OCL_SYNTHSIMULATION_H
+#ifndef MUSE_EXAMPLES_OCL_EXAMPLESIMULATION_H
+#define MUSE_EXAMPLES_OCL_EXAMPLESIMULATION_H
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -24,15 +24,16 @@
 
 #include "OclSimulation.h"
 #include "OclScheduler.h"
-#include "SynthAgent.h"
+#include "ebola/EbolaAgent.h"
 #include "OclState.h"
 #include "AgentPQ.h"
 #include <vector>
 
-class SynthSimulation {
+
+class OclExampleSimulation {
     public:
 
-        SynthSimulation();
+        OclExampleSimulation();
 
         /*
          * Create a set of agents and register them with the simulation 
@@ -41,8 +42,8 @@ class SynthSimulation {
          */
         void createAgents();
 
-        SynthSimulation(int& argc, char* argv[]);
-
+        OclExampleSimulation(int& argc, char* argv[]);
+        
         bool ode;
         bool oclAvailable;
         int compartments;
@@ -52,7 +53,9 @@ class SynthSimulation {
         int expSize;
         float step;
         int stopTime;
+        std::string country;
+        bool ebola;
 };
 
-#endif /* SYNTHSIMULATION_H */
+#endif /* MUSE_EXAMPLES_OCL_EXAMPLESIMULATION_H */
 

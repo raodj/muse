@@ -20,8 +20,10 @@
 //
 //---------------------------------------------------------------------------
 #include "Simulation.h"
-#include "EbolaSimulation.h"
+#include "OclExampleSimulation.h"
 #include "OclState.h"
+#include "ebola/EbolaAgent.h"
+#include "synth/SynthAgent.h"
 #include <algorithm>
 
 /*
@@ -34,13 +36,14 @@
     \param[in] argv The command-line arguments to be parsed
 */
 
-EbolaSimulation::EbolaSimulation(int& argc, char* argv[]) {
+OclExampleSimulation::OclExampleSimulation(int& argc, char* argv[]) {
     int row = 1;
     int col = 1;
     int pop = 250000;
     int exp = 30;
     int stop = 3;
     std::string cntry = "lib";
+    bool useEbola = false;
     ArgParser::ArgRecord arg_list[] = {
         { "--row", "number of rows in simulation, dictates number of agents",
           &row, ArgParser::INTEGER},
@@ -54,6 +57,8 @@ EbolaSimulation::EbolaSimulation(int& argc, char* argv[]) {
           &stop, ArgParser::INTEGER},
         { "--country", "Country variables to use in ebola model",
           &cntry, ArgParser::STRING},
+        { "--ebola", "Country variables to use in ebola model",
+          &useEbola, ArgParser::BOOLEAN},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -65,12 +70,16 @@ EbolaSimulation::EbolaSimulation(int& argc, char* argv[]) {
     popSize = pop;
     expSize = exp;
     stopTime = stop;
-    country = cntry;
-    compartments = 6;
+    ebola = useEbola;
+    if(ebola){
+        country = cntry;
+        compartments = 6;
+    }
+    
 }
 
 void
-EbolaSimulation::createAgents() {
+OclExampleSimulation::createAgents() {
     muse::Simulation* kernel = muse::Simulation::getSimulator();
     const int max_nodes      = kernel->getNumberOfProcesses();
     const int threadsPerNode = kernel->getNumberOfThreads();
@@ -87,7 +96,12 @@ EbolaSimulation::createAgents() {
     int currThrNumAgents = 0;  // number of agents on current thread.
     for (int i = agentStartID; (i < agentEndID); i++) {
         muse::OclState* state = new muse::OclState(compartments, popSize, expSize);
-        muse::OclAgent* agent = new EbolaAgent(i, state, country);
+        muse::OclAgent* agent;
+        if (ebola){
+            agent = new EbolaAgent(i, state, country);
+        } else {
+            agent = new SynthAgent(i, state);
+        }    
         kernel->registerAgent(agent, currThread);
         agent->setKernel((muse::OclSimulation*)kernel);
 
@@ -102,8 +116,13 @@ EbolaSimulation::createAgents() {
 
 int
 main(int argc, char** argv) {
-    EbolaSimulation* sim = new EbolaSimulation(argc, argv);
-    muse::Simulation* kernel = muse::Simulation::initializeSimulation(argc, argv, true);
+    OclExampleSimulation* sim = new OclExampleSimulation(argc, argv);
+    muse::Simulation* kernel =
+            muse::Simulation::initializeSimulation(argc, argv, true);
+    if(!sim->ebola){
+        muse::OclSimulation* ocl = (muse::OclSimulation*)kernel;
+        sim->compartments = ocl->compartments;
+    }
     sim->createAgents();
     kernel->setStartTime(0);
     kernel->setStopTime(sim->stopTime);

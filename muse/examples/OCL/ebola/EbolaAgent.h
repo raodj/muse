@@ -22,19 +22,19 @@
 //
 //---------------------------------------------------------------------------
 
-#include "oclAgent.h"
-#include "oclState.h"
+#include "OclAgent.h"
+#include "OclState.h"
 #include <string>
 
 typedef float real;
-class ebolaAgent : public muse::oclAgent {
-    friend class oclSimulation;
+class EbolaAgent : public muse::OclAgent {
+    friend class OclSimulation;
 
     public:
         int compartments;
         std::string country;
         real inf;
-        ebolaAgent(muse::AgentID id, muse::oclState* state, std::string country);
+        EbolaAgent(muse::AgentID id, muse::OclState* state, std::string country);
 
         /*
          * Helper function for nextODE

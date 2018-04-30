@@ -21,7 +21,7 @@
 //---------------------------------------------------------------------------
 #include "Simulation.h"
 #include "SynthSimulation.h"
-#include "oclState.h"
+#include "OclState.h"
 #include <algorithm>
 
 /*
@@ -34,7 +34,7 @@
     \param[in] argv The command-line arguments to be parsed
 */
 
-synthSimulation::synthSimulation(int& argc, char* argv[]) {
+SynthSimulation::SynthSimulation(int& argc, char* argv[]) {
     int row = 1;
     int col = 1;
     int pop = 25000;
@@ -65,7 +65,7 @@ synthSimulation::synthSimulation(int& argc, char* argv[]) {
 }
 
 void
-synthSimulation::createAgents() {
+SynthSimulation::createAgents() {
     muse::Simulation* kernel = muse::Simulation::getSimulator();
     const int max_nodes      = kernel->getNumberOfProcesses();
     const int threadsPerNode = kernel->getNumberOfThreads();
@@ -81,10 +81,11 @@ synthSimulation::createAgents() {
     int currThread       = 0;  // current thread
     int currThrNumAgents = 0;  // number of agents on current thread.
     for (int i = agentStartID; (i < agentEndID); i++) {
-        muse::oclState* state = new muse::oclState(compartments, popSize, expSize);
-        muse::oclAgent* agent = new synthAgent(i, state);
+        muse::OclState* state =
+                new muse::OclState(compartments, popSize, expSize);
+        muse::OclAgent* agent = new SynthAgent(i, state);
         kernel->registerAgent(agent, currThread);
-        agent->setKernel((muse::oclSimulation*)kernel);
+        agent->setKernel((muse::OclSimulation*)kernel);
 
 
         // Handle assigning agents to different threads
@@ -98,9 +99,10 @@ synthSimulation::createAgents() {
 
 int
 main(int argc, char** argv) {
-    synthSimulation* sim = new synthSimulation(argc, argv);
-    muse::Simulation* kernel = muse::Simulation::initializeSimulation(argc, argv, true);
-    muse::oclSimulation* ocl = (muse::oclSimulation*)kernel;
+    SynthSimulation* sim = new SynthSimulation(argc, argv);
+    muse::Simulation* kernel =
+            muse::Simulation::initializeSimulation(argc, argv, true);
+    muse::OclSimulation* ocl = (muse::OclSimulation*)kernel;
     sim->compartments = ocl->compartments;
     sim->createAgents();
     kernel->setStartTime(0);
