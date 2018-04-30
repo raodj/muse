@@ -158,8 +158,10 @@ void OclAgent::executeTask(const muse::EventContainer& events, bool& runOCL) {
          }
       }
       // create new event for next time step
-      muse::Event* event = new muse::Event(myID, getLVT()+1);
-      scheduleEvent(event);
+      if(getLVT() < kernel->getStopTime()){
+        muse::Event* event = new muse::Event(myID, getLVT()+1);
+        scheduleEvent(event);
+      }
 }
 
 END_NAMESPACE(muse);

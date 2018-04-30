@@ -46,6 +46,7 @@ OclSimulation::OclSimulation(const bool useSharedEvents)
     mpiMsgCheckCounter = mpiMsgCheckThresh;
     DEBUG(logFile      = NULL);
     lastLGVT           = 0;
+    oclRunTime         = 0;
 }
 
 bool
@@ -106,7 +107,7 @@ OclSimulation::getDevice(cl::Platform platform, int i, bool display) {
 }
 
 void
-OclSimulation::initOCL(OclAgent* agent, int maxGlobal) {
+OclSimulation::initOCL(OclAgent* agent) {
     // initialize opencl platform and devices
     cl::Platform plat = getPlatform();
     cl::Device dev     = getDevice(plat, 0, false);
@@ -130,7 +131,6 @@ OclSimulation::initOCL(OclAgent* agent, int maxGlobal) {
     cl::Buffer buffer_comp(ctx, CL_MEM_READ_WRITE, sizeof(int));
     int comp[1] = {compartments};
     q.enqueueWriteBuffer(buffer_comp, CL_TRUE, 0, sizeof(int), comp);
-    cl::Buffer B(ctx, CL_MEM_READ_WRITE, sizeof(real) * (maxGlobal));
 
     // Initialize random values for ssa version
     int numRand = 100;
@@ -149,9 +149,9 @@ OclSimulation::initOCL(OclAgent* agent, int maxGlobal) {
 
     queue = q;
     run = r;
-    buffer_B = B;
     buffer_random = buffer_rnd;
     buffer_compartments = buffer_comp;
+    context = ctx;
 }
 
 void
@@ -200,7 +200,7 @@ OclSimulation::start() {
     if (oclAvailable) {
         // determine maximum number of agents to send to the GPU for processing
         maxGlobal = std::min(maxWorkGroups, (int)allAgents.size()*compartments);
-        initOCL((OclAgent*)kernel->allAgents[0], maxGlobal);
+        initOCL((OclAgent*)kernel->allAgents[0]);
     }
     // Start the core simulation loop.
     LGVT         = startTime;
@@ -230,7 +230,7 @@ OclSimulation::start() {
                 || oclAgents.size() > maxGlobal)) {
 //            std::cout << "process: " << oclAgents.size() << std::endl;
             lastLGVT = LGVT;
-            processAgents(maxGlobal);
+            processAgents();
         }
         
         if (processNextEvent() == InvalidAgentID) {
@@ -239,6 +239,8 @@ OclSimulation::start() {
             mpiMsgCheckCounter = 1;
         }
     }
+    float nanoPerSec = 1000000000.0f;
+    std::cout << "OpenCL run time: " << (float)oclRunTime / nanoPerSec << "s" << std::endl;
     MPI_BARRIER();
     finalizeSimulation();
 }
@@ -266,7 +268,7 @@ OclSimulation::preStartInit() {
 }
 
 void
-OclSimulation::processAgents(int maxGlobal) {
+OclSimulation::processAgents() {
     // parse data from agents
     int count = oclAgents.size();
     int c = 0;
@@ -279,12 +281,13 @@ OclSimulation::processAgents(int maxGlobal) {
     }
     real* vals = values.data();
     // copy data onto GPU
-    cl_int status = queue.enqueueWriteBuffer(buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), vals);
+    cl::Buffer buffer_values(context, CL_MEM_READ_WRITE, sizeof(real) * (values.size()));
+    cl_int status = queue.enqueueWriteBuffer(buffer_values, CL_TRUE, 0, sizeof(real)*(values.size()), vals);
     if (status != 0) {
-        std::cout << "OpenCL Status Error: " << status << std::endl;
+        std::cout << "OpenCL Write Status Error: " << status << std::endl;
     }
     // Set args for kernel code
-    status = run.setArg(0, buffer_B);
+    status = run.setArg(0, buffer_values);
     if (!ode) {
         run.setArg(1, buffer_random);
     }
@@ -293,17 +296,19 @@ OclSimulation::processAgents(int maxGlobal) {
     queue.finish();
     cl::Event* event = new cl::Event();
     status = queue.enqueueNDRangeKernel(run, cl::NullRange, cl::NDRange(count), cl::NullRange, NULL, event);
-    cl_ulong eventTime = event->getProfilingInfo<CL_PROFILING_COMMAND_END>() - event->getProfilingInfo<CL_PROFILING_COMMAND_START>();
-    std::cout << "Time to run " << oclAgents.size() << " agents: ";
-    std::cout << eventTime << std::endl;
+    cl_ulong startTime = event->getProfilingInfo<CL_PROFILING_COMMAND_START>();
+    cl_ulong endTime = event->getProfilingInfo<CL_PROFILING_COMMAND_END>();
+//    std::cout << "Time to run " << oclAgents.size() << " agents: ";
+//    std::cout << endTime - startTime << std::endl;
+    oclRunTime += endTime - startTime;
     if (status != 0) {
-        std::cout << "OpenCL Status Error: " << status << std::endl;
+        std::cout << "OpenCL Run Status Error: " << status << std::endl;
     }    
     queue.finish();
     // read data back to values array
-    status = queue.enqueueReadBuffer(buffer_B, CL_TRUE, 0, sizeof(real)*(maxGlobal), vals);
+    status = queue.enqueueReadBuffer(buffer_values, CL_TRUE, 0, sizeof(real)*(values.size()), vals);
     if (status != 0) {
-        std::cout << "OpenCL Status Error: " << status << std::endl;
+        std::cout << "OpenCL Read Status Error: " << status << std::endl;
     }
     queue.finish();
 
