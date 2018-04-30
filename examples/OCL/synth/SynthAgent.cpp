@@ -25,13 +25,13 @@
 #include "SynthAgent.h"
 #include <string>
 
-synthAgent::synthAgent(muse::AgentID id, muse::oclState* state):
-    oclAgent(id, state) {
+SynthAgent::SynthAgent(muse::AgentID id, muse::OclState* state):
+    OclAgent(id, state) {
     myState = state;
 }
 
 
-void synthAgent::seir(const real* xl, real* xln) {
+void SynthAgent::seir(const real* xl, real* xln) {
     // values for the disease being modeled
     real MU = 0.011;
     real A = 0.5;
@@ -46,7 +46,7 @@ void synthAgent::seir(const real* xl, real* xln) {
     xln[3] = (V * xl[2]) - (MU * xl[3]);
 }
 
-void synthAgent::synth(const real* xl, real* xln) {
+void SynthAgent::synth(const real* xl, real* xln) {
     // values for the disease being modeled
     real A = 0.0005f;
     real B  = 0.00004f;
@@ -58,7 +58,7 @@ void synthAgent::synth(const real* xl, real* xln) {
     xln[0] = -xln[1];
 }
 
-void synthAgent::nextODE(float* xl) {
+void SynthAgent::nextODE(float* xl) {
     const float h = kernel->step;
     // Use runge-kutta 4th order method here.
     real k1[kernel->compartments], k2[kernel->compartments],
@@ -90,8 +90,14 @@ void synthAgent::nextODE(float* xl) {
     }
 }
 
-void synthAgent::nextSSA(real* cv) {
+void SynthAgent::nextSSA(real* cv) {
+    // seed random value creation
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rnd(seed);
+    // Create potential compartment moves for synthetic testing
     real EventChanges[kernel->compartments-1][kernel->compartments];
+    // Events created to move from one compartment to the next
+    // No more complicated moves are added
     for (int i = 0; i < kernel->compartments-1; i++) {
         for (int j = 0; j < kernel->compartments; j++) {
             if (i == j) {
@@ -103,20 +109,25 @@ void synthAgent::nextSSA(real* cv) {
             }
         }
     }
-    srand(time(NULL));
+    // constant rate for synthetic testing
     const real rates = .1;
+    // loop based upon time step
     for (int i = 0; i < static_cast<int>(1/kernel->step); i++) {
+        // loop through all potential events
         for (int i = 0; (i < kernel->compartments-1); i++) {
+            // create ramdom value based on rate and compartment that is
+            // being removed from
+            std::poisson_distribution<> pRNG(rates * cv[i]);
+            real num = (real)pRNG(rnd) * kernel->step;
             for (int j = 0; j < kernel->compartments; j++) {
-                float r = static_cast<float> (rand()) / static_cast <float> (RAND_MAX);
-                float scale = rates * kernel->step * r * (kernel->compartments - i);
-                cv[j] = cv[j] + (EventChanges[i][j] * scale);
+                // add that value to the current value
+                cv[j] = cv[j] + (EventChanges[i][j] * num);
             }
         }
     }
 }
 
-std::string synthAgent::getKernel() {
+std::string SynthAgent::getKernel() {
     // check if using ssa or ode kernel
     // then kernel string is returned
     if (!kernel->ode) {

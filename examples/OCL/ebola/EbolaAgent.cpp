@@ -26,14 +26,14 @@
 typedef std::vector<real> DblVec;
 enum Values { S = 0, E = 1, I = 2, H = 3, F = 4, R = 5};
 
-ebolaAgent::ebolaAgent(muse::AgentID id, muse::oclState* state, std::string country):
-    oclAgent(id, state), compartments(6), inf(0) {
+EbolaAgent::EbolaAgent(muse::AgentID id, muse::OclState* state, std::string country):
+    OclAgent(id, state), compartments(6), inf(0) {
     myState = state;
     this->country = country;
 }
 
 
-void ebolaAgent::seir(const real* xl, real* xln) {
+void EbolaAgent::seir(const real* xl, real* xln) {
     // values for the disease being modeled
    //Liberia
     real Bi = .160;
@@ -78,7 +78,7 @@ void ebolaAgent::seir(const real* xl, real* xln) {
 //            << "\t" << xln[3] << "\t" << xln[4] << "\t" << xln[5] << std::endl;
 }
 
-void ebolaAgent::nextODE(float* xl) {
+void EbolaAgent::nextODE(float* xl) {
     const float h = kernel->step;
     // Use runge-kutta 4th order method here.
     real k1[compartments], k2[compartments],
@@ -116,10 +116,12 @@ void ebolaAgent::nextODE(float* xl) {
     std::cout << inf << std::endl;
 }
 
-void ebolaAgent::nextSSA(real* cv) {
+void EbolaAgent::nextSSA(real* cv) {
+    // seed random number creation
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine rnd(seed);
-    //Liberia
+    // Create model variables based on Ebola model from Rivers et. al.
+    // Liberia
     real Bi = .160;
     real Bh = .062;
     real Bf = .489;
@@ -134,7 +136,7 @@ void ebolaAgent::nextSSA(real* cv) {
     real O2 = .5;
     real l = .197;
     if(country != "lib"){
-        //Sierra Leone
+        // Sierra Leone
         real Bi = .128;
         real Bh = .080;
         real Bf = .111;
@@ -151,7 +153,7 @@ void ebolaAgent::nextSSA(real* cv) {
     }
     const real beta = 1, mu = 5e-4, psi= 0.1;
     real N = cv[0] + cv[1] + cv[2] + cv[3] + cv[4] + cv[5];
-    
+    // Create array of potential events based on Ebola model
     const DblVec EventChanges[] = {
  //  S   E   I   H   F   R
     {+1,  0,  0,  0,  0,  0},  // S = S + 1
@@ -164,6 +166,7 @@ void ebolaAgent::nextSSA(real* cv) {
     {0,  0,  0, -1,  0, +1},
     {0,  0,  0,  0, -1, +1}
      };
+    // intialize rates based on Ebola model
     real rates[] = { N * mu,
         (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),
         (A * cv[E]), 
@@ -174,15 +177,19 @@ void ebolaAgent::nextSSA(real* cv) {
         (Yih * (1 - O2) * cv[H]), 
         (Yf * cv[F])};
     
+    // loop based on step size
     for (int i = 0; i < static_cast<int>(1/kernel->step); i++) {
+        // loop through potential events
         for (int i = 0; (i < 9); i++) {
+            // create random value based upon rates and time step
             std::poisson_distribution<> pRNG(rates[i]);
             real num = (real)pRNG(rnd) * kernel->step;
+            // add random value to the current value
             for (int j = 0; j < compartments; j++) {
                 cv[j] = cv[j] + (EventChanges[i][j] * num);
-                if(j == 2 && EventChanges[i][j] == 1 && num > 0){
-                    inf = inf + (EventChanges[i][j] * num);
-                }
+//                if(j == 2 && EventChanges[i][j] == 1 && num > 0){
+//                    inf = inf + (EventChanges[i][j] * num);
+//                }
             }
         }
     }
@@ -192,7 +199,7 @@ void ebolaAgent::nextSSA(real* cv) {
 
 }
 
-std::string ebolaAgent::getKernel() {
+std::string EbolaAgent::getKernel() {
     // check if using ssa or ode kernel
     // then kernel string is returned
     if (!kernel->ode) {

@@ -22,16 +22,16 @@
 //
 //---------------------------------------------------------------------------
 
-#include "oclAgent.h"
-#include "oclState.h"
+#include "OclAgent.h"
+#include "OclState.h"
 #include <string>
 
 typedef float real;
-class synthAgent : public muse::oclAgent {
-    friend class oclSimulation;
+class SynthAgent : public muse::OclAgent {
+    friend class OclSimulation;
 
     public:
-        synthAgent(muse::AgentID id, muse::oclState* state);
+        SynthAgent(muse::AgentID id, muse::OclState* state);
 
         /*
          * Helper function for nextODE

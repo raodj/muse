@@ -22,17 +22,17 @@
 //
 //---------------------------------------------------------------------------
 
-#include "oclSimulation.h"
-#include "oclScheduler.h"
+#include "OclSimulation.h"
+#include "OclScheduler.h"
 #include "EbolaAgent.h"
-#include "oclState.h"
+#include "OclState.h"
 #include "AgentPQ.h"
 #include <vector>
 
-class ebolaSimulation {
+class EbolaSimulation {
     public:
 
-        ebolaSimulation();
+        EbolaSimulation();
 
         /*
          * Create a set of agents and register them with the simulation 
@@ -41,7 +41,7 @@ class ebolaSimulation {
          */
         void createAgents();
 
-        ebolaSimulation(int& argc, char* argv[]);
+        EbolaSimulation(int& argc, char* argv[]);
         
         bool ode;
         bool oclAvailable;

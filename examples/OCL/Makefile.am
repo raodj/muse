@@ -31,9 +31,11 @@ ocl_LDFLAGS = -L../../kernel -L $$AMDAPPSDKROOT/lib/x86_64
 ocl_LDADD = $(STDCPP) -lmuse -lOpenCL 
 ocl_DEPENDENCIES=../../kernel/libmuse.a 
 
-ocl_SOURCES = synth/synthAgent.h\
-	synth/synthAgent.cpp\
-	synth/synthSimulation.h\
-	synth/synthSimulation.cpp
+ocl_SOURCES = OclExampleSimulation.h\
+	OclExampleSimulation.cpp\
+	synth/SynthAgent.h\
+	synth/SynthAgent.cpp\
+	ebola/EbolaAgent.h\
+	ebola/EbolaAgent.cpp
 
 # end of Makefile.am
