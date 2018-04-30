@@ -202,16 +202,12 @@ void EbolaAgent::nextSSA(real* cv) {
 std::string EbolaAgent::getKernel() {
     // check if using ssa or ode kernel
     // then kernel string is returned
+    std::ostringstream oclKernel;
     if (!kernel->ode) {
-        std::string s = std::to_string(kernel->step);
-        const char *pchar = s.c_str();
-        s = std::to_string(compartments);
-        const char *comp = s.c_str();
-        float rate = .0001f;
-        std::string ssa_kernel_code = "void kernel run(global float* cv, global int* random) {\n";
+        oclKernel <<  "void kernel run(global float* cv, global int* random) {\n";
         if (country == "lib") {
             //Liberia
-            ssa_kernel_code.append("float Bi = .160f;\n"
+            oclKernel << "float Bi = .160f;\n"
             "float Bh = .062f;\n"
             "float Bf = .489f;\n"
             "float A  = .08333f;\n"
@@ -223,10 +219,10 @@ std::string EbolaAgent::getKernel() {
             "float Yih = .06297f;\n"
             "float O1 = .5f;\n"
             "float O2 = .5f;\n"
-            "float l = .197f;\n");
+            "float l = .197f;\n";
         } else {
             //Sierra Leone
-            ssa_kernel_code.append("float Bi = .128f;\n"
+            oclKernel << "float Bi = .128f;\n"
             "float Bh = .080f;\n"
             "float Bf = .111f;\n"
             "float A = .1f;\n"
@@ -238,15 +234,13 @@ std::string EbolaAgent::getKernel() {
             "float Yih = .063f;\n"
             "float O1 = .75f;\n"
             "float O2 = .75f;\n"
-            "float l = .197f;\n");
+            "float l = .197f;\n";
         }
-        ssa_kernel_code.append("    int compartments = 6;\n"
+        oclKernel << "    int compartments = 6;\n"
         "    int id = get_global_id(0)*compartments;\n"
         "   const float mu = 5e-4f;\n"
         "   float N = cv[0+id] + cv[1+id] + cv[2+id] + cv[3+id] + cv[4+id] + cv[5+id];\n"
-        "    float stp =");
-        ssa_kernel_code.append(pchar);
-        ssa_kernel_code.append("f;\n"        
+        "    float stp =" << kernel->step << "f;\n"        
         " const float rates[] = { N * mu,\n"
         " (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),\n"
         " (A * cv[1]), \n"
@@ -268,8 +262,8 @@ std::string EbolaAgent::getKernel() {
         "     {0,  0,  0, -1, +1,  0},\n"
         "     {0,  0,  0, -1,  0, +1},\n"
         "     {0,  0,  0,  0, -1, +1}\n"
-        "      };\n");
-        ssa_kernel_code.append("   for (int x = 0; x < (int)1/stp; x++) {\n"
+        "      };\n"
+        "   for (int x = 0; x < (int)1/stp; x++) {\n"
         "     for (int i = 0; (i < 9); i++) {\n"
         "       float scale = rates[i] * ((float)random[(id + x) % 100] / 100.0f) * stp;\n"
         "        for (int j = 0; j < compartments; j++) {\n"
@@ -277,21 +271,15 @@ std::string EbolaAgent::getKernel() {
         "        }\n"
         "     }\n"
         "   }\n"
-        "}\n");
-        return ssa_kernel_code;
+        "}\n";
+        
     } else {
-        std::string s = std::to_string(compartments);
-        const char *pchar = s.c_str();
-        s = std::to_string(kernel->step);
-        const char *h = s.c_str();
-        std::string ode_kernel_code = "void kernel run(global float* xl) {\n"
+        oclKernel << "void kernel run(global float* xl) {\n"
         "   int compartments = 6;\n"
-        "   float h = ";
-        ode_kernel_code.append(h);
-        ode_kernel_code.append("f;\n");
+        "   float h = " << kernel->step << "f;\n";
         if (country == "lib") {
             //Liberia
-            ode_kernel_code.append("float Bi = .160f;\n"
+            oclKernel << "float Bi = .160f;\n"
             "float Bh = .062f;\n"
             "float Bf = .489f;\n"
             "float A  = .08333f;\n"
@@ -303,10 +291,10 @@ std::string EbolaAgent::getKernel() {
             "float Yih = .06297f;\n"
             "float O1 = .5f;\n"
             "float O2 = .5f;\n"
-            "float l = .197f;\n");
+            "float l = .197f;\n";
         } else {
-            //Sierra Leone
-            ode_kernel_code.append("float Bi = .128f;\n"
+            // Sierra Leone
+            oclKernel << "float Bi = .128f;\n"
             "float Bh = .080f;\n"
             "float Bf = .111f;\n"
             "float A = .1f;\n"
@@ -318,11 +306,11 @@ std::string EbolaAgent::getKernel() {
             "float Yih = .063f;\n"
             "float O1 = .75f;\n"
             "float O2 = .75f;\n"
-            "float l = .197f;\n");
+            "float l = .197f;\n";
         }
         
-        ode_kernel_code.append("   int id = get_global_id(0)*6;\n"
-        "  \n"
+        oclKernel << "   int id = get_global_id(0)*6;\n"
+        "\n"
         "const float mu = 5e-4f;\n"
         "float N = xl[0+id] + xl[1+id] + xl[2+id] + xl[3+id] + xl[4+id] + xl[5+id];\n"
         "        // Use runge-kutta 4th order method here.\n"
@@ -377,7 +365,7 @@ std::string EbolaAgent::getKernel() {
         "            xl[i+id] = xl[i+id] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
         "        }\n"
         "    }  \n"
-        "}\n");
-        return ode_kernel_code;
+        "}\n";
     }
+    return oclKernel.str();
 }
