@@ -108,7 +108,7 @@ class OclAgent : public Agent {
          * \param xl is the values of the current state and they are updated
          * within the method
          */
-        virtual void nextODE(real* xl) = 0;
+        virtual void nextODE(real* xl);
 
         /**
          * Makes a step with the SSA equations -
@@ -118,14 +118,19 @@ class OclAgent : public Agent {
          * \param cv is the values of the current state and they are updated
          * within the method
          */
-        virtual void nextSSA(real* cv) = 0;
+        virtual void nextSSA(real* cv, std::vector<std::vector<int>> EventChanges, std::vector<real> rates);
 
          /**
           * Returns the kernel code for this type of agent
           * Called from the oclSimulation class
           * Allows for multiple agent types
+          * 
+          * This function should be called from the child class.
+          * Child classes should set up seir equations for ode or
+          * rates and EventChanges for ssa then add returned string from
+          * this function.
           */
-        virtual std::string getKernel() = 0;
+        virtual std::string getKernel();
 
         /**
          *  The initialize method.
@@ -134,6 +139,7 @@ class OclAgent : public Agent {
          */
         void initialize() throw(std::exception) override;
 
+        virtual void seir(const real* xl, real* xln) = 0;
     protected:
        /** 
         * The processNextEvents method.

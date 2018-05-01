@@ -150,7 +150,8 @@ void OclAgent::executeTask(const muse::EventContainer& events, bool& runOCL) {
         if (kernel->ode) {
           nextODE(values);
         } else {
-          nextSSA(values);
+            std::vector<std::vector<int>> v;
+          nextSSA(values, v, {});
         }
         // put values back into agent
         for (int i = 0; i < kernel->compartments; i++) {
@@ -162,6 +163,125 @@ void OclAgent::executeTask(const muse::EventContainer& events, bool& runOCL) {
         muse::Event* event = new muse::Event(myID, getLVT()+1);
         scheduleEvent(event);
       }
+}
+
+void OclAgent::nextODE(float* xl) {
+    const float h = kernel->step;
+    // Use runge-kutta 4th order method here.
+    real k1[kernel->compartments], k2[kernel->compartments],
+            k3[kernel->compartments], k4[kernel->compartments],
+            xlt[kernel->compartments];
+    // Compute k1
+    for (real j = 0; j < 1; j += kernel->step) {
+        // run seir equations
+        seir(xl, k1);
+        // Compute k2 values using k1.
+        for (int i = 0; i < kernel->compartments; i++) {
+            xlt[i] = xl[i] + k1[i] * h / 2;
+        }
+        // run seir equations
+        seir(xlt, k2);
+        // Compute k3 values using k2.
+        for (int i = 0; i < kernel->compartments; i++) {
+            xlt[i] = xl[i] + k2[i] * h / 2;
+        }
+        // run seir equations
+        seir(xlt, k3);
+        // Compute k4 values using k3.
+        for (int i = 0; i < kernel->compartments; i++) {
+            xlt[i] = xl[i] + k3[i] * h;
+        }
+        // run seir equations
+        seir(xlt, k4);
+
+        // Compute the new set of values.
+        for (int i = 0; i < kernel->compartments; i++) {
+            xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
+        }
+    }
+}
+
+void OclAgent::nextSSA(real* cv, std::vector<std::vector<int>> EventChanges, std::vector<real> rates) {
+    // events and rates are passed in from child class and used here
+    // seed random value creation
+    unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
+    std::default_random_engine rnd(seed);
+    // loop based upon time step
+    for (int i = 0; i < static_cast<int>(1/kernel->step); i++) {
+        // loop through all potential events
+        for (int i = 0; i < EventChanges.size(); i++) {
+            // create random value based on rate and compartment that is
+            // being removed from
+            std::poisson_distribution<int> pRNG(rates[i]);
+            real num = static_cast<real>(pRNG(rnd)) * kernel->step;
+            for (int j = 0; j < EventChanges[0].size(); j++) {
+                // add that value to the current value
+                cv[j] = cv[j] + (EventChanges[i][j] * num);
+            }
+        }
+    }
+}
+
+std::string OclAgent::getKernel() {
+    // Called from child class and appended to existing kernel code there
+    // Create an ostream
+    std::ostringstream oclKernel;
+    // check if using ssa or ode
+    if (!kernel->ode) {
+        // loop based on time step
+        oclKernel << "   for(int x = 0; x < (int)1/stp; x++){\n"
+        // loop through all potential events
+        "     for(int i = 0; (i < sizeof EventChanges[0] / sizeof(int)); i++) {\n"
+        // using random values passed in and current state values, create random value
+        "       float scale = rates[i] * ((float)random[(id + x) % 100] / 100.0f) * stp * cv[i];\n"
+        "        for(int j = 0; j < sizeof EventChanges / sizeof EventChanges[0]; j++){\n"
+        // add random value based on event impact on compartments
+        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
+        "        }\n"
+        "     }\n"
+        "   }\n"
+        "}\n";
+    } else {
+        oclKernel <<
+        "        // Compute k1\n"
+        // loop based on time step and run runge kutta 4th order equations
+        "   for(int j = 0; j < (int)(1.0f/h); j++){\n"
+        // run seir equations
+        "   seir(xl, k1);"
+        "\n"
+        "        // Compute k2 values using k1.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k1[i] * h / 2;\n"
+        "        }\n"
+        "        \n"
+        // run seir equations
+        "   seir(xlt, k2);"
+        "\n"
+        "        // Compute k3 values using k2.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k2[i] * h / 2;\n"
+        "        }\n"
+        "\n"
+        // run seir equations
+        "   seir(xlt, k3);"
+        "\n"
+        "        // Compute k4 values using k3.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xlt[i] = xl[i+id] + k3[i] * h;\n"
+        "        }\n"
+        "\n"
+        // run seir equations
+        "   seir(xlt, k3);"
+        "\n"
+        "        // Compute the new set of values.\n"
+        "        for (int i = 0; i < compartments; i++) {\n"
+        "            xl[i+id] = xl[i+id] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
+        "        }\n"
+        "    }  \n"
+        "}\n";
+    }
+    return oclKernel.str();
+
 }
 
 END_NAMESPACE(muse);

@@ -30,41 +30,42 @@ EbolaAgent::EbolaAgent(muse::AgentID id, muse::OclState* state, std::string coun
     OclAgent(id, state), compartments(6), inf(0) {
     myState = state;
     this->country = country;
+    
+    if(country == "lib") {
+        Bi = .160;
+        Bh = .062;
+        Bf = .489;
+        A  = .08333;
+        Yh = .3086;
+        Ydh = .0993;
+        Yf = .4975;
+        Yi = .0667;
+        Yd = .0751;
+        Yih = .06297;
+        O1 = .5;
+        O2 = .5;
+        l = .197;
+    } else {
+        //Sierra Leone
+        Bi = .128;
+        Bh = .080;
+        Bf = .111;
+        A = .1;
+        Yh = .2427;
+        Ydh = .1597;
+        Yf = .238;
+        Yi = .05;
+        Yd = .0963;
+        Yih = .063;
+        O1 = .75;
+        O2 = .75;
+        l = .197;
+    }
 }
 
 
 void EbolaAgent::seir(const real* xl, real* xln) {
-    // values for the disease being modeled
-   //Liberia
-    real Bi = .160;
-    real Bh = .062;
-    real Bf = .489;
-    real A  = .08333;
-    real Yh = .3086;
-    real Ydh = .0993;
-    real Yf = .4975;
-    real Yi = .0667;
-    real Yd = .0751;
-    real Yih = .06297;
-    real O1 = .5;
-    real O2 = .5;
-    real l = .197;
-    if(country != "lib"){
-        //Sierra Leone
-        real Bi = .128;
-        real Bh = .080;
-        real Bf = .111;
-        real A = .1;
-        real Yh = .2427;
-        real Ydh = .1597;
-        real Yf = .238;
-        real Yi = .05;
-        real Yd = .0963;
-        real Yih = .063;
-        real O1 = .75;
-        real O2 = .75;
-        real l = .197;
-    }
+    // values for the disease being modeled    
     const real beta = 1, mu = 5e-4, psi= 0.1;
     real N = xl[0] + xl[1] + xl[2] + xl[3] + xl[4] + xl[5];
     // represents change from compartment to compartment based on constants above
@@ -78,83 +79,15 @@ void EbolaAgent::seir(const real* xl, real* xln) {
 //            << "\t" << xln[3] << "\t" << xln[4] << "\t" << xln[5] << std::endl;
 }
 
-void EbolaAgent::nextODE(float* xl) {
-    const float h = kernel->step;
-    // Use runge-kutta 4th order method here.
-    real k1[compartments], k2[compartments],
-            k3[compartments], k4[compartments],
-            xlt[compartments];
-    // Compute k1
-    for (int i = 0; i < static_cast<int>(1/h); i++) {
-        seir(xl, k1);
-        // Compute k2 values using k1.
-        for (int i = 0; i < compartments; i++) {
-            xlt[i] = xl[i] + k1[i] * h / 2;
-        }
-        seir(xlt, k2);
-        // Compute k3 values using k2.
-        for (int i = 0; i < compartments; i++) {
-            xlt[i] = xl[i] + k2[i] * h / 2;
-        }
-        seir(xlt, k3);
-        // Compute k4 values using k3.
-        for (int i = 0; i < compartments; i++) {
-            xlt[i] = xl[i] + k3[i] * h;
-        }
-        seir(xlt, k4);
-
-        // Compute the new set of values.
-        for (int i = 0; i < compartments; i++) {
-            xl[i] = xl[i] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;
-            if(i == 0 && (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])<0){
-                inf-= (k1[0] + 2*k2[0] + 2*k3[0] + k4[0])*h/6;
-            }
-        }
-    }
-//    std::cout << xl[0] << "\t" << xl[1] << "\t" << xl[2] 
-//            << "\t" << xl[3] << "\t" << xl[4] << "\t" << xl[5] << std::endl;
-    std::cout << inf << std::endl;
-}
-
-void EbolaAgent::nextSSA(real* cv) {
+void EbolaAgent::nextSSA(real* cv, std::vector<std::vector<int>> EventChanges, std::vector<real> rates) {
     // seed random number creation
     unsigned seed = std::chrono::system_clock::now().time_since_epoch().count();
     std::default_random_engine rnd(seed);
     // Create model variables based on Ebola model from Rivers et. al.
-    // Liberia
-    real Bi = .160;
-    real Bh = .062;
-    real Bf = .489;
-    real A  = .08333;
-    real Yh = .3086;
-    real Ydh = .0993;
-    real Yf = .4975;
-    real Yi = .0667;
-    real Yd = .0751;
-    real Yih = .06297;
-    real O1 = .5;
-    real O2 = .5;
-    real l = .197;
-    if(country != "lib"){
-        // Sierra Leone
-        real Bi = .128;
-        real Bh = .080;
-        real Bf = .111;
-        real A = .1;
-        real Yh = .2427;
-        real Ydh = .1597;
-        real Yf = .238;
-        real Yi = .05;
-        real Yd = .0963;
-        real Yih = .063;
-        real O1 = .75;
-        real O2 = .75;
-        real l = .197;
-    }
     const real beta = 1, mu = 5e-4, psi= 0.1;
     real N = cv[0] + cv[1] + cv[2] + cv[3] + cv[4] + cv[5];
     // Create array of potential events based on Ebola model
-    const DblVec EventChanges[] = {
+    const std::vector<std::vector<int>> EventChange = {
  //  S   E   I   H   F   R
     {+1,  0,  0,  0,  0,  0},  // S = S + 1
     {-1,  1,  0,  0,  0,  0},  // I = I + 1, S = S - 1
@@ -167,7 +100,7 @@ void EbolaAgent::nextSSA(real* cv) {
     {0,  0,  0,  0, -1, +1}
      };
     // intialize rates based on Ebola model
-    real rates[] = { N * mu,
+    std::vector<real> rate = { N * mu,
         (((Bi * cv[0] * cv[2]) + (Bh * cv[0] * cv[3]) + (Bf * cv[0] * cv[4])) / N),
         (A * cv[E]), 
         (Yh * l * cv[I]), 
@@ -177,22 +110,7 @@ void EbolaAgent::nextSSA(real* cv) {
         (Yih * (1 - O2) * cv[H]), 
         (Yf * cv[F])};
     
-    // loop based on step size
-    for (int i = 0; i < static_cast<int>(1/kernel->step); i++) {
-        // loop through potential events
-        for (int i = 0; (i < 9); i++) {
-            // create random value based upon rates and time step
-            std::poisson_distribution<> pRNG(rates[i]);
-            real num = (real)pRNG(rnd) * kernel->step;
-            // add random value to the current value
-            for (int j = 0; j < compartments; j++) {
-                cv[j] = cv[j] + (EventChanges[i][j] * num);
-//                if(j == 2 && EventChanges[i][j] == 1 && num > 0){
-//                    inf = inf + (EventChanges[i][j] * num);
-//                }
-            }
-        }
-    }
+    muse::OclAgent::nextSSA(cv, EventChange, rate);
 //    std::cout << cv[0] << "\t" << cv[1] <<  "\t" << cv[2] 
 //            << "\t" << cv[3] << "\t" << cv[4] << "\t" << cv[5] << std::endl;
 //    std::cout << inf << std::endl;
@@ -200,44 +118,34 @@ void EbolaAgent::nextSSA(real* cv) {
 }
 
 std::string EbolaAgent::getKernel() {
-    // check if using ssa or ode kernel
-    // then kernel string is returned
+    // create ostream to build OpenCL kernel code
     std::ostringstream oclKernel;
+    // check if running ode or ssa
     if (!kernel->ode) {
         // set function definition
         oclKernel <<  "void kernel run(global float* cv, global int* random) {\n";
-        // create variables needed in ebola model
-        if (country == "lib") {
-            //Liberia
-            oclKernel << "float Bi = .160f;\n"
-            "float Bh = .062f;\n"
-            "float Bf = .489f;\n"
-            "float A  = .08333f;\n"
-            "float Yh = .3086f;\n"
-            "float Ydh = .0993f;\n"
-            "float Yf = .4975f;\n"
-            "float Yi = .0667f;\n"
-            "float Yd = .0751f;\n"
-            "float Yih = .06297f;\n"
-            "float O1 = .5f;\n"
-            "float O2 = .5f;\n"
-            "float l = .197f;\n";
-        } else {
-            //Sierra Leone
-            oclKernel << "float Bi = .128f;\n"
-            "float Bh = .080f;\n"
-            "float Bf = .111f;\n"
-            "float A = .1f;\n"
-            "float Yh = .2427f;\n"
-            "float Ydh = .1597f;\n"
-            "float Yf = .238f;\n"
-            "float Yi = .05f;\n"
-            "float Yd = .0963f;\n"
-            "float Yih = .063f;\n"
-            "float O1 = .75f;\n"
-            "float O2 = .75f;\n"
-            "float l = .197f;\n";
-        }
+    } else {
+        // create seir function definition to be called in main ode loop
+        oclKernel << "void kernel seir(local float* xl, local float xln[]){\n";
+    }
+    // create variables needed in ebola model
+    oclKernel << "float Bi = "<< Bi << ";\n"
+    "float Bh = "<< Bh << ";\n"
+    "float Bf = "<< Bf << ";\n"
+    "float A  = "<< A << ";\n"
+    "float Yh = "<< Yh << ";\n"
+    "float Ydh = "<< Ydh << ";\n"
+    "float Yf = "<< Yf << ";\n"
+    "float Yi = "<< Yi << ";\n"
+    "float Yd = "<< Yd << ";\n"
+    "float Yih = "<< Yih << ";\n"
+    "float O1 = "<< O1 << ";\n"
+    "float O2 = "<< O2 << ";\n"
+    "float l = "<< l << ";\n";
+    
+    if (!kernel->ode) {
+        // using ssa
+        // create remaining variables needed
         oclKernel << "    int compartments = 6;\n"
         "    int id = get_global_id(0)*compartments;\n"
         "   const float mu = 5e-4f;\n"
@@ -265,117 +173,37 @@ std::string EbolaAgent::getKernel() {
         "     {0,  0,  0, -1, +1,  0},\n"
         "     {0,  0,  0, -1,  0, +1},\n"
         "     {0,  0,  0,  0, -1, +1}\n"
-        "      };\n"
-        // loop based on time step
-        "   for (int x = 0; x < (int)1/stp; x++) {\n"
-        // loop through all events
-        "     for (int i = 0; (i < 9); i++) {\n"
-        // create a random value with passed in values and current state
-        "       float scale = rates[i] * ((float)random[(id + x) % 100] / 100.0f) * stp;\n"
-        "        for (int j = 0; j < compartments; j++) {\n"
-        // add random value to existing state
-        "           cv[j+id] = cv[j+id] + (EventChanges[i][j] * scale);\n"
-        "        }\n"
-        "     }\n"
-        "   }\n"
-        "}\n";
+        "      };\n";
+        // rates and event changes used in code 
+        // that will come from the base class
         
     } else {
-        // set funcion definition
-        oclKernel << "void kernel run(global float* xl) {\n"
-        // create variables needed by ebola model
-        "   int compartments = 6;\n"
-        "   float h = " << kernel->step << "f;\n";
-        if (country == "lib") {
-            //Liberia
-            oclKernel << "float Bi = .160f;\n"
-            "float Bh = .062f;\n"
-            "float Bf = .489f;\n"
-            "float A  = .08333f;\n"
-            "float Yh = .3086f;\n"
-            "float Ydh = .0993f;\n"
-            "float Yf = .4975f;\n"
-            "float Yi = .0667f;\n"
-            "float Yd = .0751f;\n"
-            "float Yih = .06297f;\n"
-            "float O1 = .5f;\n"
-            "float O2 = .5f;\n"
-            "float l = .197f;\n";
-        } else {
-            // Sierra Leone
-            oclKernel << "float Bi = .128f;\n"
-            "float Bh = .080f;\n"
-            "float Bf = .111f;\n"
-            "float A = .1f;\n"
-            "float Yh = .2427f;\n"
-            "float Ydh = .1597f;\n"
-            "float Yf = .238f;\n"
-            "float Yi = .05f;\n"
-            "float Yd = .0963f;\n"
-            "float Yih = .063f;\n"
-            "float O1 = .75f;\n"
-            "float O2 = .75f;\n"
-            "float l = .197f;\n";
-        }
-        
+        // using ode
+        // complete the seir function
         oclKernel << "   int id = get_global_id(0)*6;\n"
+            "const float mu = 5e-4;\n"
+            "float N = xl[id + 0] + xl[id + 1] + xl[id + 2] + xl[id + 3] + xl[id + 4] + xl[id + 5];\n"
+            // represents change from compartment to compartment based on constants above
+            "xln[0] = N * mu - (((Bi * xl[id + 0] * xl[id + 2]) + (Bh * xl[id + 0] * xl[id + 3]) + (Bf * xl[id + 0] * xl[id + 4])) / N);\n"
+            "xln[1] = (((Bi * xl[id + 0] * xl[id + 2]) + (Bh * xl[id + 0] * xl[id + 3]) + (Bf * xl[id + 0] * xl[id + 4])) / N) - (A * xl[id + 1]);\n"
+            "xln[2] = (A * xl[id + 1]) - (Yh * l * xl[id + 2]) - (Yd * (1 - l) * O1 * xl[id + 2]) - (Yi * (1 - l) * (1-O1) * xl[id + 2]);\n"
+            "xln[3] = (Yh * l * xl[id + 2]) - (Ydh * O2 * xl[id + 3]) - (Yih * (1 - O2) * xl[id + 3]);\n"
+            "xln[4] = (Yd * (1 - l) * O1 * xl[id + 2]) + (Ydh * O2 * xl[id + 3]) - (Yf * xl[id + 4]);\n"
+            "xln[5] = (Yi * (1 - l) * (1-O1) * xl[id + 2]) + (Yih * (1 - O2) * xl[id + 3]) + (Yf * xl[id + 4]);\n"
+        "}";
+        
+        // set funcion definition and create initial variables needed
+        oclKernel << "void kernel run(global float* x) {\n"
+        "   int compartments = 6;\n"
+        "   float h = " << kernel->step << "f;\n"
+        "   int id = get_global_id(0)*6;\n"
         "\n"
-        "const float mu = 5e-4f;\n"
-        "float N = xl[0+id] + xl[1+id] + xl[2+id] + xl[3+id] + xl[4+id] + xl[5+id];\n"
-        "        // Use runge-kutta 4th order method here.\n"
-        "   float k1[6], k2[6], k3[6], k4[6], xlt[6];\n"
-        "        // Compute k1\n"
-        // loop based on time step and run runge kutta 4th order equations
-        "   for(int j = 0; j < (int)(1.0f/h); j++){\n"
-        "        k1[0] = N * mu - (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N);\n"
-        "        k1[1] = (((Bi * xl[0+id] * xl[2+id]) + (Bh * xl[0+id] * xl[3+id]) + (Bf * xl[0+id] * xl[4+id])) / N) - (A * xl[1+id]);\n"
-        "        k1[2] = (A * xl[1+id]) - (Yh * l * xl[2+id]) - (Yd * (1 - l) * O1 * xl[2+id]) - (Yi * (1 - l) * (1-O1) * xl[2+id]);\n"
-        "        k1[3] = (Yh * l * xl[2+id]) - (Ydh * O2 * xl[3+id]) - (Yih * (1 - O2) * xl[3+id]);\n"
-        "        k1[4] = (Yd * (1 - l) * O1 * xl[2+id]) + (Ydh * O2 * xl[3+id]) - (Yf * xl[4+id]);\n"
-        "        k1[5] = (Yi * (1 - l) * (1-O1) * xl[2+id]) + (Yih * (1 - O2) * xl[3+id]) + (Yf * xl[4+id]);\n"
-        "\n"
-        "        // Compute k2 values using k1.\n"
-        "        for (int i = 0; i < compartments; i++) {\n"
-        "            xlt[i] = xl[i+id] + k1[i] * h / 2;\n"
-        "        }\n"
-        "        \n"
-        "        k2[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
-        "        k2[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
-        "        k2[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
-        "        k2[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
-        "        k2[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
-        "        k2[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
-        "\n"
-        "        // Compute k3 values using k2.\n"
-        "        for (int i = 0; i < compartments; i++) {\n"
-        "            xlt[i] = xl[i+id] + k2[i] * h / 2;\n"
-        "        }\n"
-        "\n"
-        "        k3[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
-        "        k3[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
-        "        k3[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
-        "        k3[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
-        "        k3[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
-        "        k3[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
-        "\n"
-        "        // Compute k4 values using k3.\n"
-        "        for (int i = 0; i < compartments; i++) {\n"
-        "            xlt[i] = xl[i+id] + k3[i] * h;\n"
-        "        }\n"
-        "\n"
-        "        k4[0] = N * mu - (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N);\n"
-        "        k4[1] = (((Bi * xlt[0] * xlt[2]) + (Bh * xlt[0] * xlt[3]) + (Bf * xlt[0] * xlt[4])) / N) - (A * xlt[1]);\n"
-        "        k4[2] = (A * xlt[1]) - (Yh * l * xlt[2]) - (Yd * (1 - l) * O1 * xlt[2]) - (Yi * (1 - l) * (1-O1) * xlt[2]);\n"
-        "        k4[3] = (Yh * l * xlt[2]) - (Ydh * O2 * xlt[3]) - (Yih * (1 - O2) * xlt[3]);\n"
-        "        k4[4] = (Yd * (1 - l) * O1 * xlt[2]) + (Ydh * O2 * xlt[3]) - (Yf * xlt[4]);\n"
-        "        k4[5] = (Yi * (1 - l) * (1-O1) * xlt[2]) + (Yih * (1 - O2) * xlt[3]) + (Yf * xlt[4]);\n"
-        "\n"
-        "        // Compute the new set of values.\n"
-        "        for (int i = 0; i < compartments; i++) {\n"
-        "            xl[i+id] = xl[i+id] + (k1[i] + 2*k2[i] + 2*k3[i] + k4[i]) * h / 6;\n"
-        "        }\n"
-        "    }  \n"
-        "}\n";
-    }
+        "   local float xl[6], k1[6], k2[6], k3[6], k4[6], xlt[6];\n"
+        "   for (int i = 0; i < 6; i++) {\n"
+        "       xl[i] = x[i];\n"
+        "   }\n";
+        }
+    // remaining OpenCL kernel code will come from the base class
+    oclKernel << muse::OclAgent::getKernel();
     return oclKernel.str();
 }

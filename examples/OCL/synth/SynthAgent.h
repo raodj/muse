@@ -40,24 +40,6 @@ class SynthAgent : public muse::OclAgent {
          */
          void seir(const real* xl, real* xln);
 
-
-         /*
-         * Helper function for nextODE
-         * function runs synthetic epidemic equations for testing.
-         */
-         void synth(const real* xl, real* xln);
-
-
-        /*
-         Makes a step with the ODE equations -
-         * runs Runge Kutta fourth order equations
-         * to advance the agent one time step in the simulation
-         * 
-         * xl is the values of the current state and they are updated
-         * within the method
-         */
-         void nextODE(real* xl);
-
         /*
          Makes a step with the SSA equations -
          * runs Gillespie with Tau Leaping optimization
@@ -66,7 +48,7 @@ class SynthAgent : public muse::OclAgent {
          * cv is the values of the current state and they are updated
          * within the method
          */
-         void nextSSA(real* cv);
+         void nextSSA(real* cv, std::vector<std::vector<int>> EventChanges, std::vector<real> rates);
 
          /*
           * Returns the kernel code for this type of agent
