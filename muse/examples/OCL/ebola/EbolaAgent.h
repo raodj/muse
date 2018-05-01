@@ -34,6 +34,20 @@ class EbolaAgent : public muse::OclAgent {
         int compartments;
         std::string country;
         real inf;
+        real Bi;
+        real Bh;
+        real Bf;
+        real A; 
+        real Yh;
+        real Ydh;
+        real Yf;
+        real Yi;
+        real Yd;
+        real Yih;
+        real O1;
+        real O2;
+        real l;
+        
         EbolaAgent(muse::AgentID id, muse::OclState* state, std::string country);
 
         /*
@@ -44,16 +58,6 @@ class EbolaAgent : public muse::OclAgent {
          void seir(const real* xl, real* xln);
 
         /*
-         Makes a step with the ODE equations -
-         * runs Runge Kutta fourth order equations
-         * to advance the agent one time step in the simulation
-         * 
-         * xl is the values of the current state and they are updated
-         * within the method
-         */
-         void nextODE(real* xl);
-
-        /*
          Makes a step with the SSA equations -
          * runs Gillespie with Tau Leaping optimization
          * to advance the agent one time step in the simulation
@@ -61,7 +65,7 @@ class EbolaAgent : public muse::OclAgent {
          * cv is the values of the current state and they are updated
          * within the method
          */
-         void nextSSA(real* cv);
+         void nextSSA(real* cv,  std::vector<std::vector<int>> EventChanges, std::vector<real> rates);
 
          /*
           * Returns the kernel code for this type of agent

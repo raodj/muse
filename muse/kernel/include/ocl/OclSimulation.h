@@ -74,9 +74,10 @@ class OclSimulation : public Simulation{
         int maxWorkGroups;
         cl::CommandQueue queue;
         cl::Kernel run;
-        cl::Buffer buffer_B;
+        cl::Context context;
         cl::Buffer buffer_random;
         cl::Buffer buffer_compartments;
+        cl_ulong oclRunTime;
         
        /** The constructor for this class.
         * 
@@ -151,21 +152,15 @@ class OclSimulation : public Simulation{
          * 
          * \param agent. The agent is used to get the OpenCL kernel code
          * that will be used to concurrently process agents.
-         * 
-         * \param maxGlobal. The maximum number of agents to run concurrently
-         * with OpenCL. This number is limited by the maximum global size
-         * of the device being used.
          */
-        virtual void initOCL(OclAgent* agent, int maxGlobal); 
+        virtual void initOCL(OclAgent* agent); 
         
         /*
          * Run OpenCL kernel code to process agents. 
          * 
-         * \param maxGlobal. The maximum number of agents to run concurrently
-         * with OpenCL. This number is limited by the maximum global size
-         * of the device being used.
+         * Uses the OpenCL variables that are initialized in intiOCL
          */
-        virtual void processAgents(int maxGlobal);
+        virtual void processAgents();
         
         /** Initializes simulation kernel using the base class
         
