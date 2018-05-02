@@ -33,7 +33,7 @@ generateTotalPop(const EDL_AST& ast, const std::string& var,
                  std::ostream& os, const std::string indent = "    ") {
     os << indent << "// " <<  var << " is automatically generated\n";
     // Generate the automagic constant 'N' as convenience.
-    os << indent << "const " << var << " = (";
+    os << indent << "const real " << var << " = (";
     std::string plus = "";  // First term does not have " + " prefix
     for (const std::string& comp : ast.compartments) {
         os << plus << "comp[" << comp << "]";
@@ -81,7 +81,7 @@ void
 generateCompartments(const EDL_AST& ast, std::ostream& os) {
     const std::string indent(8, ' ');
     os << "    // Compartments in model (usually in header file of agent)\n";
-    os << "    enum CompartmentNames = {\n";
+    os << "    enum CompartmentNames {\n";
     os << getCompartmentList(ast, ",\n", indent);
     os << indent << "INVALID\n"
        << "    };\n\n";
@@ -156,7 +156,7 @@ generateSSARates(const EDL_AST& ast, std::ostream& os,
            << subIndent << tr.rateExpr;
         needComma = true;
     }
-    os << std::endl << indent << "}\n\n";
+    os << std::endl << indent << "};\n\n";
 }
 
 // Convenience method to generate fixed constants setup by the user.
