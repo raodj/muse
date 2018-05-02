@@ -8,10 +8,15 @@
 // using namespace boost::spirit;
 // namespace phoenix = boost::phoenix;
 
-class Transition {
+// A change in a compartment is represented as a string (for
+// compartment name) and the change (positive/negative) to the
+// compartment.
+using CompChange = std::pair<std::string, double>;
+
+class Transition :  public std::vector<CompChange> {
 public:
-    std::vector<std::pair<std::string, double>> stateChanges;
     std::string rateExpr;
+    Transition::const_iterator find(const std::string& comp) const;
 };
 
 class EDL_AST {
@@ -31,7 +36,7 @@ public:
 
     bool addParameter(const std::string& name);
 
-    bool addState(const std::string& name);
+    bool addCompartment(const std::string& name);
 
     // void addStateChange(const boost::fusion::vector2<std::basic_string<char>,
     // double>& info, qi::unused_type, bool& errorFlag);
@@ -43,7 +48,7 @@ public:
     
     std::unordered_map<std::string, double> constants;
     std::vector<std::string> parameters;
-    std::vector<std::string> states;
+    std::vector<std::string> compartments;
     Transition transition;
     std::string expr;
     std::vector<Transition> transitionList;

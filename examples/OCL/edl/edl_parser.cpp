@@ -8,7 +8,7 @@ epidemic chikv(ChikVSEIR, ChikVState) {
     parameters {
        beta, mu, psi, omega;  # These are parameters passed in to the kernel
     }
-    states {
+    compartments {
         s, e, i, r;  # These are compartments and are part of the state.
     }
     transitions {
@@ -117,16 +117,16 @@ struct edl_grammar : qi::grammar<Iterator, Skipper> {
 	optionalParameters.name("parameters");
 	
 	// Grammar for processing a list of states.
-        stateList = ( token [ CALL_AST(addState) ]
-		      > *(',' > token [ CALL_AST(addState) ] )
+        compList = ( token [ CALL_AST(addCompartment) ]
+		      > *(',' > token [ CALL_AST(addCompartment) ] )
 		      > ';'
 		      );
-        optionalStates = -( lit("states")
-			    > '{'
-			    > *(stateList)
-			    > '}'
-			    );
-	optionalStates.name("states");
+        optionalCompartments = -( lit("compartments")
+                                  > '{'
+                                  > *(compList)
+                                  > '}'
+                                  );
+	optionalCompartments.name("compartments");
 
 	// Grammar for processing a set of transitions
 	stateChange = ( token
@@ -177,7 +177,7 @@ struct edl_grammar : qi::grammar<Iterator, Skipper> {
             > '{'
             > optionalConstants
             > optionalParameters
-	    > optionalStates
+	    > optionalCompartments
 	    > transitionList
             > '}'
             > qi::eoi;
@@ -209,8 +209,8 @@ struct edl_grammar : qi::grammar<Iterator, Skipper> {
     qi::rule<Iterator, SkipperType> parameterList;
     qi::rule<Iterator, SkipperType> optionalParameters;
     // Rules for parsing state
-    qi::rule<Iterator, SkipperType> stateList;
-    qi::rule<Iterator, SkipperType> optionalStates;
+    qi::rule<Iterator, SkipperType> compList;
+    qi::rule<Iterator, SkipperType> optionalCompartments;
     // Rules for parsing transitions
     qi::rule<Iterator, SkipperType> stateChange;
     qi::rule<Iterator, SkipperType> transition;

@@ -2,6 +2,16 @@
 #include <iostream>
 #include <algorithm>
 
+Transition::const_iterator
+Transition::find(const std::string& comp) const {
+    for (Transition::const_iterator curr = cbegin(); (curr != cend()); curr++) {
+        if (curr->first == comp) {
+            return curr;
+        }
+    }
+    return cend();
+}
+
 void
 EDL_AST::setName(const std::string& name) {
     epidemicName   = name;
@@ -50,8 +60,8 @@ EDL_AST::addParameter(const std::string& name) {
 }
 
 bool
-EDL_AST::addState(const std::string& name) {
-    states.push_back(name);
+EDL_AST::addCompartment(const std::string& name) {
+    compartments.push_back(name);
     return true;
 }
 
@@ -72,18 +82,30 @@ EDL_AST::addStateChange(const boost::fusion::vector2<std::basic_string<char>,
 
 bool
 EDL_AST::addStateChange(const std::string& name, double value) {
-    if (std::find(states.begin(), states.end(), name) == states.end()) {
+    if (std::find(compartments.begin(), compartments.end(), name) ==
+        compartments.end()) {
 	std::cout << "Invalid state " << name << std::endl;
 	return false;  // error
     }
     // Valid transition
-    transition.stateChanges.push_back({name, value});
+    transition.push_back(CompChange{name, value});
     return true; // success
 }
 
 void
 EDL_AST::addToExpr(const std::string& token) {
-    expr += token;
+    // If the token is a compartment, then change its representation
+    // to the form comp[token] for code generation later.  Ideally,
+    // this should not be done here but have some call into the code
+    // generator to get correct conversion.  However, for now, this is
+    // acceptable.
+    const bool isComp = (std::find(compartments.begin(), compartments.end(),
+                                   token) != compartments.end());
+    if (isComp) {
+        expr += "comp[" + token + "]";
+    } else {
+        expr += token;
+    }
 }
 
 void

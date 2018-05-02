@@ -1,0 +1,60 @@
+# This is a Epidemic Description Language (EDL) description for the
+# Ebola model proposed by: Rivers CM, Lofgren ET, Marathe M, Eubank S,
+# Lewis BL. Modeling the Impact of Interventions on an Epidemic of
+# Ebola in Sierra Leone and Liberia. PLOS Currents Outbreaks. 2014
+
+epidemic EbolaLiberia {
+
+     # The following constants were elicited by Rivers et. al by
+     # calibrating the observed Ebola outbreak to a 6 compartment
+     # model.
+    constants {
+        Bi   = .160;    # Document this constant
+        Bh   = .062;    # Document this constant
+        Bf   = .489;    # Document this constant
+        A    = .08333;  # Document this constant
+        Yh   = .3086;   # Document this constant
+        Ydh  = .0993;   # Document this constant
+        Yf   = .4975;   # Document this constant
+        Yi   = .0667;   # Document this constant
+        Yd   = .0751;   # Document this constant
+        Yih  = .06297;  # Document this constant
+        O1   = .5;      # Document this constant
+        O2   = .5;      # Document this constant
+        l    = .197;    # Document this constant
+        beta = 1;
+        mu   = 0.0005;
+        psi  = 0.1;
+        one  = 1;
+    }
+
+    parameters {
+        # Currently this model does not use any simulation-time
+        # updated parameters.
+    }
+
+    compartments {
+        s,   # susceptible (can get Ebola)
+        e,   # exposed     (incubating virus)
+        i,   # infective   (actively spreading infection to others)
+        h,   # hospitalized
+        f,   # funeral     (infection spread at funerals due to social norms)
+        r;   # Recovered
+    }
+
+    # The SSA transitions. They are automatically converted to ODE
+    # versions by the EDL code-generator.
+    transitions {
+       # N (total population) is automagically generated.
+       s += +1         @ (N * mu);
+       s += -1, e += 1 @ ((Bi * s * i) + (Bh * s * h) + (Bf * s * f)) / N;
+       e += -1, i += 1 @ (A * e);
+       i += -1, h += 1 @ (Yh * l * i);
+       i += -1, f += 1 @ (Yd * (one - l) * O1 * i);
+       h += -1, f += 1 @ (Yd * (one - l) * (one - O1) * i);
+       h += -1, r += 1 @ (Ydh * O2 * h);
+       f += -1, r += 1 @ (Yf * f);
+    }
+}
+
+# End of EDL

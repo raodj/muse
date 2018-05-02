@@ -1,8 +1,9 @@
 # This is a comment
 # This is also a comment
+
 epidemic testing {
    constants {
-      pi = 3.142;  # Comments can be *almost* anywhere
+      mu = 3.142;  # Comments can be *almost* anywhere
       e  = 2.718;
    }
 
@@ -10,12 +11,12 @@ epidemic testing {
        beta, mu, psi, omega; # These are parameters passed-in to the kernel
    }
 
-    states {
+    compartments {
         s, e, i, r;  # These are compartments and are part of the state.
     }
 
     transitions {
-       s += +1          @ n * mu;
+       s += +1          @ N * mu;
        s += -1, e += 1  @ s * beta;
        i += +1, e += -1 @ e * psi;
        e += -1, r += 1  @ i * omega; 
