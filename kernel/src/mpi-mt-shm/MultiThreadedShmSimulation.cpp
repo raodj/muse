@@ -350,11 +350,8 @@ MultiThreadedShmSimulation::garbageCollect() {
     // First let the scheduler know it can garbage collect.
     scheduler->garbageCollect(gvt);
     for (AgentContainer::iterator it = allAgents.begin();
-         (it != allAgents.end()); it++) { 
-        // can't modified agents while multi threading
-        (*it)->agentLock.lock();
+            (it != allAgents.end()); it++) { 
         (*it)->garbageCollect(gvt);
-        (*it)->agentLock.unlock();
     }
     // Let listener know garbage collection for a given GVT value has
     // been completed.

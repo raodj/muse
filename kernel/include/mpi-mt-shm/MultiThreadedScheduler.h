@@ -24,6 +24,8 @@
 
 #include <mutex>
 #include "Scheduler.h"
+#include "ArgParser.h"
+#include "ThreeTierSkipMTQueue.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -35,7 +37,7 @@ BEGIN_NAMESPACE(muse);
     threads, each of which can operate on it concurrently.
 */
 class MultiThreadedScheduler : public Scheduler { 
-    
+    friend class MultiThreadedShmSimulationManager; // only manager initializes
 public:
     /** \brief Default Constructor
 
@@ -80,6 +82,50 @@ public:
         \return True if the Event was scheduled successfully
     */
     virtual bool scheduleEvent(Event *e);
+
+protected:
+    
+    /** \brief Complete initialization of the MT Scheduler.
+      
+        This allows the scheduler to set up the thread safe pending event set
+        queue.
+
+        Once the scheduler instance is created by
+        Simulation::initialize() method, it must be full initialized.
+        This includes processing any command-line arguments to further
+        configure the scheduler.  The base class method currently does
+        not perform any operation.
+
+        \note This method may throw an exeption if errors occur.
+        
+        \param[in] rank The MPI rank of the process associated with
+        this scheduler.
+
+        \parma[in] numProcesses The total number of parallel processes
+        in the simulation.
+        
+	\param argc[in,out] The number of command line arguments.
+	This is the value passed-in to main() method.  This value is
+	modifed if command-line arguments are consumed.
+        
+	\param argv[in,out] The actual command line arguments.  This
+	list is modifed if command-line arguments are consumed by the
+	kernel.
+    */
+    virtual void initialize(int rank, int numProcesses, int& argc, char* argv[])
+        throw (std::exception) override;
+
+private:
+    
+    /**
+     * Reference to the agentPQ that includes the multi threaded aspects
+     * of EventQueue.
+     * 
+     * muse::Scheduler also has agentPQ which must be set and be the same
+     * as this reference.
+     */
+    EventQueueMT *mtAgentPQ;
+    
 };
 
 END_NAMESPACE(muse);

@@ -87,6 +87,9 @@ libmuse_a_SOURCES = \
 	src/ThreeTierHeapEventQueue.cpp \
 	include/TwoTierLadderQueue.h \
 	src/TwoTierLadderQueue.cpp \
+        include/ThreeTierSkipMTQueue.h \
+	src/ThreeTierSkipMTQueue.cpp \
+	include/mpi-mt-shm/LockFreePQ.h \
 	include/DefaultSimulation.h \
 	src/DefaultSimulation.cpp \
 	include/SpinLock.h \
@@ -113,8 +116,6 @@ libmuse_a_SOURCES = \
 	src/mpi-mt-shm/MultiThreadedShmSimulationManager.cpp \
 	include/mpi-mt-shm/MultiThreadedScheduler.h \
 	src/mpi-mt-shm/MultiThreadedScheduler.cpp \
-	src/mpi-mt-shm/BadMTQ.cpp \
-	include/mpi-mt-shm/BadMTQ.h \
 	include/ocl/oclAgent.h \
 	include/ocl/oclScheduler.h \
 	include/ocl/oclSimulation.h \

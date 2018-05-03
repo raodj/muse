@@ -23,10 +23,12 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include "Agent.h"
 #include "EventRecycler.h"
 
 BEGIN_NAMESPACE(muse)
+
+// forward declare (muse namespace)
+class Agent;
 
 /** Base class for the different queues used by the different
     Schedulers.

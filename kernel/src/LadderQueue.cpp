@@ -25,6 +25,7 @@
 #include <algorithm>
 #include <functional>
 #include "LadderQueue.h"
+#include "Agent.h"
 
 // ----------------------[ ListBucket methods ]-----------------------
 

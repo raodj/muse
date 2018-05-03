@@ -30,6 +30,7 @@
 #include "Avg.h"
 #include "Event.h"
 #include "EventQueue.h"
+#include "Agent.h"
 
 /** \file LadderQueue.h
 

@@ -18,6 +18,7 @@
 #include <functional>
 #include <vector>
 #include <iostream>
+#include "Agent.h"
 #include "EventQueue.h"
 #include "BinaryHeapWrapper.h"
 

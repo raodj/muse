@@ -25,6 +25,7 @@
 #include <vector>
 #include "EventQueue.h"
 #include "BinaryHeapWrapper.h"
+#include "Agent.h"
 
 BEGIN_NAMESPACE(muse)
 

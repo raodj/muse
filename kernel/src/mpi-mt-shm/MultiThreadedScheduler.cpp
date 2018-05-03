@@ -33,20 +33,98 @@ MultiThreadedScheduler::MultiThreadedScheduler() {
 
 MultiThreadedScheduler::~MultiThreadedScheduler() {}
 
+void
+MultiThreadedScheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
+    throw (std::exception) {
+    UNUSED_PARAM(rank);
+    UNUSED_PARAM(numProcesses);
+    std::string queueName = "3tSkipMT";
+    // Make the arg_record
+    ArgParser::ArgRecord arg_list[] = {
+        {"--scheduler-queue",
+         "Queue (3tSkipMT) to be used by multi threaded scheduler",
+         &queueName, ArgParser::STRING},
+        {"", "", NULL, ArgParser::INVALID}
+    };
+    // Use the argument parser to parse command-line arguments and
+    // update local variables
+    ArgParser ap(arg_list);
+    ap.parseArguments(argc, argv, false);
+    // Set MaxRungs to be the same for 2tLadderQ as well
+    TwoTierLadderQueue::MaxRungs = LadderQueue::MaxRungs;
+    // Create a queue based on the name specified.
+    if (queueName == "3tSkipMT") {
+        // set both priority queues here with the same reference.
+        mtAgentPQ = new ThreeTierSkipMTQueue();
+        agentPQ   = mtAgentPQ;
+    } else {
+        std::cerr << "Invalid scheduler queue name. Valid MT queue names are:\n"
+                  << "\t(3tSkipMT).\n"
+                  << "Aborting.\n";
+        std::abort();  // throw an exception instead?
+    }
+    
+    ASSERT(mtAgentPQ == agentPQ);
+    
+    Scheduler::initialize(rank, numProcesses, argc, argv);
+}
+
 bool
 MultiThreadedScheduler::processNextAgentEvents(Time& simLGVT) {
     
     // === Dequeue next event set in thread safe way ===
     
+    // This removes the agent from the priority queue, preventing any
+    // other thread from dequeuing events on it
+    muse::Agent *agent = mtAgentPQ->popNextAgent();
+    // ******** THE ABOVE AGENT MUST BE PUT BACK BEFORE EXITING METHOD *********
+    // (deperomm): bad practice above, need to fix, how?
+    
+    // this should only happen if all agents are popped
+    // not enough agents in this sim for the number of threads being used?
+    ASSERT(agent != NULL); 
+    
     // Have the next agent (with lowest receive timestamp events) to
     // process its batch of events.
     // Do this in one method call so as to avoid race conditions
-    agentPQ->dequeueNextAgentEvents(agentEvents);
+    mtAgentPQ->dequeueNextEvents(agent, agentEvents);
+    
+    // todo(deperomm): anti message support
+    // if we dequeue an anti message, we have no choice but to ignore it for
+    // now. Anti-messages are time sensitive, and must be handled immediately
+    // upon being received in order to clean the queue of invalid events before
+    // future valid events can be added, otherwise we have no way to
+    // differentiate between events that came before or after the anti message
+    // The solution to this would be to implement an epoch system where events
+    // include an epoch num, and anti messages can includes a new epoch number
+    // such that only events before that epoch would be invalid, so we know
+    // which future events to delete when we dequeue an anti message
+    size_t index = 0;
+    while (!agentEvents.empty() && (index < agentEvents.size())) {
+        Event* const evt = agentEvents[index];
+        ASSERT(evt != NULL);
+        // (deperomm): also assert that all events are valid and same time?
+        if (evt->isAntiMessage()) {
+            // Clean-up any pending future events (from the sender of the
+            // anti-message) in the scheduler's queue.
+//            handleFutureAntiMessage(e, agent); // this needs an epoch to work
+            
+            // (deperomm): for now, just delete the anti messages...
+            agentEvents[index] = agentEvents.back();
+            agentEvents.pop_back();
+//            std::cout << "Agent " << agent->getAgentID() << " ignored anti message" << std::endl;
+        } else {
+            index++;
+        }
+    }
+
     
     // If the event queue is empty, do no further operations.
     if (agentEvents.empty()) {
         // This thread has no more events to process, LGVT = infinity right now
         simLGVT = TIME_INFINITY;
+        // put the agent back
+        mtAgentPQ->pushAgent(agent);
         return false;
     }
     // Get the first of next batch of events to be scheduled.
@@ -62,29 +140,34 @@ MultiThreadedScheduler::processNextAgentEvents(Time& simLGVT) {
     DEBUG(std::cout << "Scheduler is processing event: " << *front
                     << std::endl);
     
-    // Figure out the agent to receive this event.
-    Agent* const agent = agentMap[front->getReceiverAgentID()];
-    ASSERT(agent != NULL);
-    
-    // Since we're running concurrently, check for rollbacks even when processing
+    // Since we're running concurrently, check for rollbacks on dequeue
     if(checkAndHandleRollback(front, agent)) {
+        // put the events we pulled out back since we needed to roll back and
+        // time priority has changed
         agentPQ->enqueue(agent, agentEvents);
-        agentEvents.clear();
-        agent->agentLock.unlock();
-        return true; // pretend like we processed events but skip this time step
+        // put the agent back
+        mtAgentPQ->pushAgent(agent);
+        // pretend like we processed events so the sim doesn't think we're
+        // out of events to process 
+        // (deperomm): hacky solution, but not worth the rework to change
+        // how return is handled
+        return true;
     }
     
     // Check if the next lowest time-stamp event falls within time
     // window with respect to GVT.  If not, do not process events.
     if ((timeWindow > muse::Time(0)) && !withinTimeWindow(agent, front)) {
         // (deperomm) Doesn't this result in lost events? sholdn't agentEvents be rescheduled and the container cleared?
-        agent->agentLock.unlock();
+        // put agent back
+        mtAgentPQ->pushAgent(agent);
         return false;  // No events to schedule.
     }
     
     // Let the agent process its events and then release its lock
     agent->processNextEvents(agentEvents);
-    agent->agentLock.unlock();
+    
+    // put the agent back now that we're done with it
+    mtAgentPQ->pushAgent(agent);
     agentEvents.clear();
     
     // Processed some events
@@ -110,20 +193,6 @@ MultiThreadedScheduler::scheduleEvent(Event* e) {
         abort();
     }
 
-    // Process rollbacks (only if necessary) 
-    // optimistically schedule, handle rollbacks later *************************
-//    checkAndHandleRollback(e, agent);
-    
-    // If the event is an anti-message then all pending future events
-    // from the sender should also be deleted.
-    if (e->isAntiMessage()) {
-        // Clean-up any pending future events (from the sender of the
-        // anti-message) in the scheduler's queue.
-        handleFutureAntiMessage(e, agent);
-        return false;  // Event not enqueued.
-    }
-    
-    ASSERT(e->isAntiMessage() == false);
     // Actually add the event (enqueue indirectly increments reference count)
     agentPQ->enqueue(agent, e);
     // Event has been enqueued.
