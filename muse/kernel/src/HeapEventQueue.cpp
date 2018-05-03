@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include "HeapEventQueue.h"
+#include "Agent.h"
 
 BEGIN_NAMESPACE(muse)
 

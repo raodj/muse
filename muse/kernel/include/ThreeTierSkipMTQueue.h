@@ -1,7 +1,9 @@
-#ifndef THREE_TIER_HEAP_EVENT_QUEUE_H
-#define THREE_TIER_HEAP_EVENT_QUEUE_H
+#ifndef THREE_TIER_SKIP_MT_QUEUE_H
+#define THREE_TIER_SKIP_MT_QUEUE_H
 
 //---------------------------------------------------------------------------
+// 
+// This uses a lock free priority queue by Linden and Jonsson (2013)
 //
 // Copyright (c) Miami University, Oxford, OHIO.
 // All rights reserved.
@@ -22,14 +24,15 @@
 //
 //---------------------------------------------------------------------------
 
+
 #include <vector>
 #include <stack>
 #include <algorithm>
 #include "Avg.h"
-#include "EventQueue.h"
-#include "Agent.h"
+#include "EventQueueMT.h"
+#include "mpi-mt-shm/LockFreePQ.h"
 
-BEGIN_NAMESPACE(muse)
+BEGIN_NAMESPACE(muse);
 
 /** Class to encapsulate information for Tier2 entries/buckets.
 
@@ -40,7 +43,7 @@ BEGIN_NAMESPACE(muse)
 	eventList because memory management turns out to be the most
 	expensive operation.
 */
-class HOETier2Entry {
+class HOETier2EntryMT {
 private:
     /** The receive time of events in this tier2 entry. Note that all
         the events in this entry are must/are concurrent -- that is,
@@ -59,7 +62,7 @@ public:
         The receive time of the event is used as the receive time
         value.
     */
-    HOETier2Entry(muse::Event* event) : recvTime(event->getReceiveTime()),
+    HOETier2EntryMT(muse::Event* event) : recvTime(event->getReceiveTime()),
                                         eventList(1, event) {}
 
     /** Reset the information in this tier2 entry.
@@ -75,6 +78,7 @@ public:
         recvTime = event->getReceiveTime();
         eventList.clear();
         eventList.emplace_back(event);
+        removed = false;
     }
 
     /** Appends events to the EventContainer list.
@@ -83,6 +87,7 @@ public:
      *  position in the tier2 container.
      */
     void updateContainer(muse::Event* event){
+        ASSERT(!entryGuard.try_lock()); // can't insert if caller didn't lock
         eventList.emplace_back(event);
     }
 
@@ -102,11 +107,11 @@ public:
         
         \returns True if lhs receiveTime is equal to rhs receiveTime
     */
-    inline bool operator==(const HOETier2Entry &rhs) {
+    inline bool operator==(const HOETier2EntryMT &rhs) {
         return (this->recvTime == rhs.recvTime);
     }
 
-    inline bool operator<(const HOETier2Entry &rhs) {
+    inline bool operator<(const HOETier2EntryMT &rhs) {
         return (this->recvTime < rhs.recvTime);
     }
     
@@ -114,54 +119,98 @@ public:
         return recvTime;
     }
     
-    inline const std::vector<muse::Event*>& getEventList() const {
+    inline const std::vector<muse::Event*> getEventList() const {
         return eventList;
     }
 
-    inline std::vector<muse::Event*>& getEventList() {
+    inline std::vector<muse::Event*> getEventList() {
         return eventList;
     }
+    
+    /** Ensures thread safe insert and removal of this 3rd tier queue */
+    std::mutex entryGuard;
+    
+    /** This flag is set when this entry is used up and marked for recycling.
+        This is used to prevent deadlock, if we lock entryGuard and this is
+        true, we know we missed this entry and need to insert into a new one.
+        
+        Must be used alongside the entryGuard to ensure thread safe operation
+     */
+    bool removed = false;
 };
 
-// A convenience shortcut used just in this source file
-using Tier2List = std::deque<HOETier2Entry*>;
+/** A three-tier-skip-mt aka "3tSkipMT" event queue for managing events.
 
-/** A three-tier-heap aka "3tHeap" event queue for managing events.
-
-    <p>This class provides a heap-of-list-of-lists based event queue
+    <p>This queue is a thread safe, concurrent data structure, meaning multiple
+    threads can operate on it directly with no loss in expected behavior.</p>
+    
+    <p>This class provides a priority queue-of-list-of-lists based event queue
     for managing events for simulation.  The three-tiers are organized
     as follows:</p>
 
-    <p><u>First tier:</u> This class uses standard C++ algorithms
-    (such as: \c std::make_heap, \c std::push_heap, \c std::pop_heap)
-    to manage a heap of events for each agent.  The events are stored
-    in a backing std::vector in each agent.  It is analogous to the
-    per-agent infrastructure as used by Fibonacci heap (implemented in
-    AgentPQ class).</p>
+    <p><u>First tier:</u> This uses a lock free, thread safe priority queue
+    based on the skip list data structure by Linden and Jonsson (2013).  
+    Each entry represents an agent, with the "top" agent being the agent
+    with the lowest timestamp of events. </p>
     
     <p><u>Second tier:</u> This tier specifically handles the
     necessary behavior of the second tier of operations -- that is
     scheduling of events by maintaining a sorted list-of-list of
-    events.</p>
+    events. This tier is also thread safe and uses the same lock free
+    queue as tier one.</p>
 
     <p><u>Third tier:</u> This tier contains a list of concurrent
     events -- that is, events scheduled for a given agent at a given
     time.  The third tier is implemented by the HOETier2Entry
-    objects.</p>
-    
-    \note On the long run it would be better to avoid reliance on
-    std::push_heap or std::pop_heap methods due to implicit dependence
-    in the fixHeap() method.
+    objects which simply holds a normal vector of events since it 
+    does not need to be sorted.</p>
 */
-class ThreeTierHeapEventQueue : public EventQueue {
+class ThreeTierSkipMTQueue : public EventQueueMT {
 public:
-    /** The constructor for the TwoTierHeapEventQueue.
+    /**
+     *  The key type for agents in a ThreeTierSkipMTQueue
+     */
+    // todo(deperomm): This typedef is copied in Agent.h, not linked to
+    //                 same with Tier2ListMT below
+    typedef std::pair<muse::Time, muse::AgentID> AgentKey;
+    
+    /**
+     * Custom comparator on type AgentKey for sorting in LockFreePQ
+     * 
+     * @param k1 - the left AgentKey to compare
+     * @param k2 - the right AgentKey to compare
+     * @return if left < right (left == right returns false)
+     */
+    struct AgentComp {
+        inline bool operator() (const AgentKey& k1, const AgentKey& k2)
+        {
+            if (k1.first < k2.first) {
+                return true;
+            }
+            if (k1.first == k2.first) {
+                return k1.second < k2.second;
+            }
+            return false;
+        }
+    };
+    
+    /**
+     * The type for the top level container of agents
+     */
+    typedef LockFreePQ<AgentKey, muse::Agent*, AgentComp> AgentList;
+    
+    /**
+     * The type for the list of tier2 entries
+     */
+    typedef LockFreePQ<muse::Time, HOETier2EntryMT*> Tier2ListMT;
+    
+    /** The constructor for the ThreeTierSkipMTQueue.
 
         The default (and only) constructor for this class.  The
         constructor does not have any specific task to perform other
         than set a suitable identifier in the base class.
     */    
-    ThreeTierHeapEventQueue();
+    ThreeTierSkipMTQueue();
 
     /** The destructor.
 
@@ -170,10 +219,14 @@ public:
         containers (namely std::vector) that is used internally by
         this class.
     */
-    ~ThreeTierHeapEventQueue();
+    ~ThreeTierSkipMTQueue();
 
     /** Add/register an agent with the event queue.
-
+        
+        ===== This Methis is NOT Thread Safe =====
+        Agents should be shared between all threads, and agents must be
+        inserted during a sequential portion of the simulation
+        
         <p>This method implements the corresponding API method in the
         class.  Refer to the API documentation in the base class for
         intended functionality.</p>
@@ -191,6 +244,10 @@ public:
     virtual void* addAgent(muse::Agent* agent);
 
     /** Remove/unregister an agent with the event queue.
+        
+        ===== This Methis is NOT Thread Safe =====
+        Agents should be shared between all threads, and agents must be
+        removed during a sequential portion of the simulation
 
         <p>This method implements the corresponding API method in the
         class.  Refer to the API documentation in the base class for
@@ -204,34 +261,22 @@ public:
     */
     void removeAgent(muse::Agent* agent) override;
     
-    /** Determine if the event queue is empty.
+    /**
+     * This method pops the next agent off the top level queue, thus providing
+     * exclusive dequeue rights to this thread for that agent.
+     * 
+     * This agent must be returned back into the queue when processing of it is
+     * done via EventQueue::returnAgent(). 
+     * 
+     * @return the next agent to be processed by the sim
+     */
+    muse::Agent* popNextAgent();
+
+    /** Method to obtain the next batch of events to be processed by one agent
         
-        This method implements the base class API to report if any
-        events are pending to be processed in the event queue.
-
-        \return This method returns true if the event queue of the
-        top-agent is logically empty.
-    */    
-    virtual bool empty() {
-        return (agentList.empty() || top()->tier2->empty());
-    }
-
-    /** Obtain pointer to the highest priority (lowest receive time)
-        event.
-
-        This method can be used to obtain a pointer to the highest
-        priority event in this event queue, without de-queuing the
-        event.
-
-        \note The event returned by this method is not dequeued.
-        
-        \return A pointer to the next event to be processed.  If the
-        queue is empty then this method returns NULL.
-    */
-    virtual muse::Event* front();
-
-    /** Method to obtain the next batch of events to be processed by
-        one agent.
+        This agent must have been popped off the queue already such that
+        the thread calling this has exclusive access to call this method on
+        the given agent. This is done by first calling popNextAgent().
 
         <p>In MUSE agents are scheduled to process all events at a
         given simulation time.  The next concurrent events (i.e.,
@@ -241,25 +286,33 @@ public:
         further processing.</p>
 
         <p>This method essentially delegates the dequeue process to
-        the agent with the next lowest timestamp.  Once the agent has
-        been dequeued, this method fixes the heap by placing the
-        top-agent in its appropriate location in the heap.</p>
+        the agent with the next lowest timestamp. The agent is
+        popped off the top level queue in a thread safe way so that it's
+        events may be dequeued and returned while also allowing other threads
+        to grab other agents and remove their events at the same time.</p>
+        
 
         \param[out] events The event container in which the next set
         of concurrent events are to be placed.  Note that the order of
         concurrent events in the event container is unspecified.
     */
-    virtual void dequeueNextAgentEvents(muse::EventContainer& events);
+    void dequeueNextEvents(muse::Agent *agent, muse::EventContainer& events);
+    
+    /**
+     * Puts the agent back into the top level queue for future processing
+     * 
+     * @param agent to insert back after done processing its events
+     */
+    void pushAgent(muse::Agent *agent);
+
 
     /** Enqueue a new event.
 
         This method must be used to enqueue/add an event to this event
-        queue.  Once added the reference count on the event is
-        increased.  This method adds the event to the specified agent.
-        Next this method fixes the heap to ensure that the agent with
-        the least-time-stamp is at the top of the heap.  This method
-        essentially uses an internal helper method to accomplish its
-        tasks.
+        queue.  Once added, the reference count on the event is
+        increased.  This method adds the event directly into the agents
+        second and third tier, and then updates the top tier if the
+        event lowers the agents lowest event timestamp.
 
         \param[in] agent The agent to which the event is to be
         scheduled.  This agent corresponds to the agent ID returned by
@@ -276,10 +329,8 @@ public:
         this event queue.  Once added the reference count on each one
         of the events is increased.  This method provides a convenient
         approach to enqueue a batch of events, particularly after a
-        rollback.  Next this method fixes the heap to ensure that the
-        agent with the least-time-stamp is at the top of the heap.
-        This method uses an internal helper method to accomplish its
-        tasks.
+        rollback.  Next this method updates the top tier if the
+        events lower the agents lowest event timestamp.
 
         \param[in] agent The agent to which the event is to be
         scheduled.  This agent corresponds to the agent ID returned by
@@ -294,14 +345,13 @@ public:
     */
     virtual void enqueue(muse::Agent* agent, muse::EventContainer& events);
 
-    /** Dequeue all events sent by an agent after a given time.
+    /** Dequeue all events sent by an agent on or after a given time.
 
         This method implements the base class API method.  This method
-        can be used to remove/erase events sent by a given agent after
-        a given simulation time.  This API is needed to cancel events
-        during a rollback.  Next this method fixes the heap to ensure
-        that the agent with the least-time-stamp is at the top of the
-        heap.
+        can be used to remove/erase events sent by a given agent on or
+        after a given simulation time.  This API is needed to cancel events
+        during a rollback. This method also updates the priority of the
+        agent on the top level queue if necessary.
 
         \param[in] dest The agent whose currently scheduled events
         are to be checked and cleaned-up.  This agent must be a valid
@@ -325,6 +375,9 @@ public:
     
     /** Print full contents of scheduler queue to given output stream.
 
+        This method is NOT thread safe, and should not be called while the
+        queue has active threads operating on it.
+        
         This is a convenience method that is used primarily for
         troubleshooting purposes.  This method prints all the events
         in this queue, with each event on its own line.
@@ -335,7 +388,10 @@ public:
     virtual void prettyPrint(std::ostream& os) const;
 
     /** Method to report aggregate statistics.
-
+        
+        This method is NOT thrad safe, and has undefined behavior if called
+        while other threads are actively operating on this queue.
+        
         This method is invoked at the end of simulation after all
         agents on this rank have been finalized.  This method can
         report any aggregate statistics from the event
@@ -346,6 +402,7 @@ public:
         to be written.
     */
     virtual void reportStats(std::ostream& os);
+    
     
 protected:
     /** Enqueue a new event.
@@ -365,171 +422,22 @@ protected:
     */
     virtual void enqueueEvent(muse::Agent* agent, muse::Event* event);
     
-    /** Convenience method to remove events.
-
-        This is an internal convenience method that is used to remove
-        the front (i.e., events with lowest timestamp) event list from this
-        queue.
-    */
-    void pop_front(muse::Agent* agent);
-    
-    /** Convenience method to obtain the top-most or front agent.
-
-        This method can be used to obtain a pointer to the top/front
-        agent -- that is, the agent with the lowest timestamp event to
-        be scheduled next.
-
-        \return A pointer to the top-most agent in this heap.
-    */
-    inline muse::Agent* top() {
-        return agentList.front();
-    }
-        
-    /** Convenience method to get the top-event time for a given
-        agent.
-
-        This method returns the top event time in the vector of events queue.
-        If agent's vector of event queue is empty, then it returns infinity. 
-        
-        \return The receive time of top event's recv time or
-        TIME_INFINITY if vector is empty.
-    */
-    inline muse::Time getTopTime(const muse::Agent* const agent) const {
-        return agent->tier2->empty() ? TIME_INFINITY :
-            agent->tier2->front()->getReceiveTime();
-    }
-    
-    /** Comparator method to sort events in the heap.
-
-        This is the comparator method that is passed to various
-        standard C++ algorithms to organize events as a heap.  This
-        comparator method gives first preference to receive time of
-        events.  Tie between two events with the same recieve time is
-        broken based on the receiver agent ID.
-
-        \param[in] lhs The left-hand-side event to be used for
-        comparison.  This parameter cannot be NULL.
-
-        \param[in] rhs The right-hand-side event to be used for
-        comparison. This parameter cannot be NULL.
-
-        \return This method returns if lhs < rhs, i.e., the lhs event
-        should be scheduled before the rhs event.
-    */
-    inline bool compare(const Agent *lhs, const Agent * rhs) const {
-        return getTopTime(lhs) >= getTopTime(rhs);
-    }
-    
-    /** Comparator method to sort events in the heap.
-
-        This is the comparator method that is passed to various
-        standard C++ algorithms to organize events as a heap.  This
-        comparator method gives first preference to receive time of
-        events.  Tie between two events with the same recieve time is
-        broken based on the receiver agent ID.
-
-        \param[in] lhs The left-hand-side event to be used for
-        comparison.  This parameter cannot be NULL.
-
-        \param[in] rhs The right-hand-side event to be used for
-        comparison. This parameter cannot be NULL.
-
-        \return This method returns if lhs < rhs, i.e., the lhs event
-        should be scheduled before the rhs event.
-    */
-    inline static bool lessThan(const HOETier2Entry& lhs,
-                                const muse::Event* const event) {
-        return (lhs.getReceiveTime() < event->getReceiveTime());
-    }
-
-    /** Comparator method to sort events in the heap.
-
-        This is the comparator method that is passed to various
-        standard C++ algorithms to organize events as a heap.  This
-        comparator method gives first preference to receive time of
-        events.  Tie between two events with the same recieve time is
-        broken based on the receiver agent ID.
-
-        \param[in] lhs The left-hand-side event to be used for
-        comparison.  This parameter cannot be NULL.
-
-        \param[in] rhs The right-hand-side event to be used for
-        comparison. This parameter cannot be NULL.
-
-        \return This method returns if lhs < rhs, i.e., the lhs event
-        should be scheduled before the rhs event.
-    */
-    inline static bool lessThanPtr(const HOETier2Entry* const lhs,
-                                   const muse::Event* const event) {
-        return (lhs->getReceiveTime() < event->getReceiveTime());
-    }
-    
-    /** The getNextEvents method.
-
-        This method is a helper that will grab the next set of events
-        to be processed for a given agent.  This method is invoked in
-        dequeueNextAgentEvents() method in this class.
-		
-        \param[out] container The reference of the container into
-        which events should be added.        
-    */
-    void getNextEvents(Agent* agent, EventContainer& container);
-    
-        /** Obtain the current index of the agent from it's
-        cross-reference.
-
-        This method is a refactored utility method that has been
-        introduced to streamline the code.  This method essentially
-        obtains the index position of the given agent in the agentList
-        vector from the agent's fibHeapPtr corss-reference.  This
-        cross-reference is consistently updated by the various methods
-        in this class to enable rapid access to the location of the
-        agent.
-
-        \param[in] agent The agent whose index value in the agentList
-        is to be determined.
-
-        \return The index position of the agent in the agentList
-        vector (if all checks pass).
-    */
-    size_t getIndex(muse::Agent *agent) const;
-    
-    /** Update position of agent in the scheduler's heap.
-
-        This is an internal helper method that is used to update the
-        position of an agent in the scheduler's heap.  This method
-        essentially performs sanity checks, uses the fixHeap() method
-        to update position of the agent, and updates cross references
-        for future use.
-
-        \param[in] agent The agent whose position in the heap is to be
-        updated.  This pointer cannot be NULL.
-
-        \return This method returns the updated index position of the
-        agent in agentList (the vector that serves as storage for the
-        heap).
-    */
-    size_t updateHeap(muse::Agent* agent);
-    
-    /** Fix-up the location of the agent in the heap.
-
-        This method can be used to update the location of an agent in
-        the heap.
-
-        \note The implementation for this method has been heavily
-        borrowed from libstdc++'s code base to ensure that heap
-        updates are consistent with std::make_heap API.
-        Unfortunately, this does imply that there is a chance this
-        method may be incompatible with future versions.
-
-        \param[in] currPos The current position of the agent in the
-        heap whose position is to be updated.  This value is the index
-        position of the agent in the agentList vector.
-        
-        \return This method returns the new position of the agent in
-        the agentList vector.
-    */
-    size_t fixHeap(size_t currPos);
+    /**
+     * Used after event insertion to restructure top agent queue if necessary
+     * 
+     * This is expensive as it must both remove and re-insert the agent into
+     * the top level queue (potential optimizations exist here), so for batch
+     * event inserts only restructure with the min event after all inserts are
+     * done.
+     * 
+     * If an event is inserted for an agent that is earlier than all other
+     * events for that agent, that agent's timestamp changes its priority which 
+     * may justify a restructure. If so, this method does that restructure
+     * 
+     * @param agent
+     * @param newTime
+     */
+    void restructureTopQueue(muse::Agent* agent, muse::Time newTime);
 
     /** Convenience method to determine if an event is a future event.
 
@@ -566,14 +474,56 @@ protected:
         \return A tier2 entry initialized and containing the given
         event.
      */
-    HOETier2Entry* makeTier2Entry(muse::Event* event) {
+    HOETier2EntryMT* makeTier2Entry(muse::Event* event) {
+        tier2RecyclerLock.lock();
         if (!tier2Recycler.empty()) {
-            HOETier2Entry* entry = tier2Recycler.back();
+            HOETier2EntryMT* entry = tier2Recycler.back();
             tier2Recycler.pop_back();
             entry->reset(event);
+            tier2RecyclerLock.unlock();
             return entry;
         }
-        return new HOETier2Entry(event);
+        tier2RecyclerLock.unlock(); // recycler was empty, make a new one
+        return new HOETier2EntryMT(event);
+    }
+    
+    /**
+     * Adds a tier3Entry into the recycler in a thread safe way
+     * 
+     * Note that the entry is not reset on insert, and must be reset when
+     * removed in order to be used again
+     * 
+     * @param e - the tier2entry to recycle
+     */
+    inline void recycleTier2Entry(HOETier2EntryMT* e) {
+        tier2RecyclerLock.lock();
+        tier2Recycler.emplace_back(e);
+        tier2RecyclerLock.unlock();
+    }
+    
+    /**
+     * Attempts to insert an event into a tier2Entry.
+     * 
+     * This is tricky because another thread could dequeue this entry at the
+     * same time, after which we need to make a new entry and try again.
+     * 
+     * If we fail, it means the entry was concurrently dequeued, return false,
+     * and the caller needs to make a new entry, resulting in a rollback
+     * 
+     * @param t2 - The tier2Entry to insert the event into
+     * @param event - The event we're inserting
+     * @return bool - whether or not the event was successfully inserted
+     */
+    bool tryTier2Insert(HOETier2EntryMT* t2e, muse::Event* event) {
+        t2e->entryGuard.lock();
+        if (t2e->removed) {
+            t2e->entryGuard.unlock(); // avoid deadlock, dequeue thread recycles
+            return false; // already been dequeued
+        } else {
+            t2e->updateContainer(event);
+            t2e->entryGuard.unlock();
+            return true;
+        }
     }
     
 private:
@@ -585,7 +535,7 @@ private:
         algorithms, namely: \c std::make_heap, \c std::push_heap, and
         \c std::pop_heap.
     */
-    std::vector<muse::Agent*> agentList;
+    AgentList *agentList;
 
     /** Stats object to track the average tier-2 bucket size.  This
         value is the one that primarily determines if tier-2
@@ -612,20 +562,25 @@ private:
     /** A stack to recycle Tier2 entries to minimize memory allocation
         calls for these small blocks used in this queue.
     */
-    std::deque<HOETier2Entry*> tier2Recycler;
+    std::deque<HOETier2EntryMT*> tier2Recycler;
+    
+    /** Simple lock to allow threadsafe access to recycler stack
+     */
+    std::mutex tier2RecyclerLock;
 
     
-    /** Default, empty Tier2List to handle removal of agents.
-
-        This is a default/empty tier-2 list that is used to streamline
-        removal of agents.  As agents are removed in the removeAgent
-        method, their 2nd tier queue is substituted with this
-        default/empty list.  This enables updating position of agents
-        within this heap without causing memory issues.
-    */
-    Tier2List EmptyT2List;
+//    /** Default, empty Tier2List to handle removal of agents.
+//
+//        This is a default/empty tier-2 list that is used to streamline
+//        removal of agents.  As agents are removed in the removeAgent
+//        method, their 2nd tier queue is substituted with this
+//        default/empty list.  This enables updating position of agents
+//        within this heap without causing memory issues.
+//    */
+//    Tier2List EmptyT2List;
+    
 };
 
-END_NAMESPACE(muse)
+END_NAMESPACE(muse);
 
 #endif

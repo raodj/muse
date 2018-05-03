@@ -1,4 +1,7 @@
 
+#include "kernel/include/mpi-mt-shm/LockFreePQ.h"
+
+
 
 // The ID associated with any thread that accesses this queue
 template <class K, class V, class Compare>
@@ -28,6 +31,8 @@ LockFreePQ<K, V, Compare>::LockFreePQ() {
     tail->key       = keyMax;
     head->level     = NUM_LEVELS - 1;
     tail->level     = NUM_LEVELS - 1;
+    head->value     = NULL;
+    tail->value     = NULL;
     
     // At all levels of the skip list, connect head and tail
     for (size_t i = 0; i < NUM_LEVELS; i++) {
@@ -360,10 +365,13 @@ LockFreePQ<K, V, Compare>::getEntry(K key) {
         exitCritical();
         return NULL; 
     }
-
-    exitCritical();
-    return succs[0]->value;
     
+    // this could be null if deleted, that's okay, we return null if not found
+    // this will be tail if the queue is empty, which has value of NULL
+    V ret = succs[0]->value;
+    
+    exitCritical();
+    return ret;
 }
 
 template <class K, class V, class Compare>
@@ -465,6 +473,7 @@ LockFreePQ<K, V, Compare>::locatePreds(K key,
             succ = pred->next[i];
             wasDeleted = is_marked_ref(succ);       
             succ = get_unmarked_ref(succ);
+            assert(succ != NULL);
             if (succ == NULL) {
                 // This is a serious issue. It appears to be related to
                 // garbage collection, where elements of the list are freed

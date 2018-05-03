@@ -26,6 +26,7 @@
 #include "Avg.h"
 #include "EventQueue.h"
 #include "BinaryHeap.h"
+#include "Agent.h"
 
 BEGIN_NAMESPACE(muse)
 

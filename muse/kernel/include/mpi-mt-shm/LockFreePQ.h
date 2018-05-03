@@ -434,7 +434,7 @@ private:
 };
 
 
-#include "../LockFreePQ.inl"
+#include "mpi-mt-shm/LockFreePQ.cpp"
 
 
 #endif /* LOCK_FREE_PQ_H */
