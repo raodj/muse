@@ -31,7 +31,6 @@
 #include "Event.h"
 #include "State.h"
 #include "oSimStream.h"
-#include <mutex>
 
 /** Use this macro to compare to Time values safely
  */
@@ -39,9 +38,6 @@
 
 // Forward declaration for insertion operator for Event
 extern std::ostream& operator<<(ostream&, const muse::Agent&);
-
-template <class K, class V, class Compare>
-class LockFreePQ;
 
 BEGIN_NAMESPACE(muse);
 
@@ -52,18 +48,10 @@ class BinaryHeap;
 class EventQueue;
 class Tier2Entry;
 class HOETier2Entry;
-class HOETier2EntryMT;
 class EventComp;
 class TwoTierHeapAdapter;
 class Simulation;
 class OclSimulation;
-
-// todo(deperomm): Would rather link to these types, but dependancy issue
-// caused by including ThreeTierSkipMTQueue in this header
-// using Tier2ListMT = ThreeTierSkipMTQueue::Tier2ListMT;
-// using AgentKey    = ThreeTierSkipMTQueue::AgentKey;
-using AgentKey = std::pair<muse::Time, muse::AgentID>;
-using Tier2ListMT = ::LockFreePQ<muse::Time, HOETier2EntryMT*, std::less<muse::Time>>;
 
 /** \typedef std::deque<T> List<T>
 
@@ -93,15 +81,10 @@ class Agent {
     friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
     friend class Simulation;
     friend class Scheduler;
-    friend class MultiThreadedScheduler;
-    friend class MultiThreadedShmSimulation; // to lock on garbage collection
-    friend class MultiThreadedShmSimulationManager; // garbage collection
     friend class AgentPQ;
     friend class TwoTierHeapEventQueue;
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
-    friend class ThreeTierSkipMTQueue;
-    friend class BadMTQ;
     friend class OclAgent;
     friend class OclSimulation;
 public:    
@@ -287,42 +270,6 @@ protected:
         push all data to std::cout.
     */
     oSimStream oss;
-    
-    /**
-     * Reference to the thread safe schedule queue associated with 
-     * the second tier in a 3tSkipMT queue.
-     */
-    Tier2ListMT *tier2MT;
-    
-    /**
-     * The key of this agent in the top tier agent priority queue
-     * 
-     * Must be used alongside restructureMutex to ensure thread safe
-     */
-    AgentKey key;
-    
-    /**
-     * A lock used to ensure only one thread restructures agent on the top
-     * level priority queue at a time
-     */
-    std::mutex restructureMutex;
-    
-    /**
-     * A lock to make many internal operations of agent naively thread safe
-     * 
-     * Ideally, a thread safe agent would have been implemented that provided
-     * the protection of this lock in a smarter way, but this lock ensures
-     * thread safety for the agent
-     * 
-     * This only has to protect against members that are manipulated on
-     * schedule of new events, because agents are already protected against
-     * concurrent dequeue/processing of old events by the scheduler logic
-     * 
-     * Specifically, outputQueue is modified by scheduleEvent, so locks
-     * are made around concurrent modifications of that. Also garbage collection
-     * is done at any time, so that requires thread safety also.
-     */
-    std::mutex agentLock;
 
     /** Save the current state
 

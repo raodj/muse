@@ -103,9 +103,7 @@ Agent::processNextEvents(muse::EventContainer& events) {
                    (EventRecycler::getInputRefCount(*curr) > 0));
             ASSERT(EventRecycler::getInputRefCount(*curr) < 2);
             ASSERT(*curr != NULL);
-            agentLock.lock();
             inputQueue.push_back(*curr);
-            agentLock.unlock();
         }
     } else {
         // keep track number of processed events -- this would be
@@ -210,9 +208,7 @@ Agent::scheduleEvent(Event* e) {
         // Add event to our output queue only when more than 1 process
         // is used for parallel simulation
         if (mustSaveState) {
-            agentLock.lock();
             outputQueue.push_back(e);
-            agentLock.unlock();
         } else {
             // We don't add this event to output queue so decrease
             // reference when not using shared event.
@@ -222,13 +218,11 @@ Agent::scheduleEvent(Event* e) {
             }
         }
         // Keep track of event being scheduled.
-        agentLock.lock();
         numScheduledEvents++;
         // this is to keep track of how many MPI message we use
         if (!kernel->isAgentLocal(myID, e->getReceiverAgentID())) {
             numMPIMessages++;
         }
-        agentLock.unlock();
         return true;
     }
     // If control drops here, the event was rejected from
@@ -349,11 +343,6 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
 
 void
 Agent::doCancellationPhaseOutputQueue(const Time& restoredTime) {
-    
-    // outputQueue may be concurrently manipulated by concurrent schedules
-    // as a result, we must lock to avoid concurrent manipulation of that queue
-    std::lock_guard<std::mutex> guard(agentLock);
-    
     // Flag to determine which reference counter should be modified.
     const bool usingSharedEvents = kernel->usingSharedEvents();    
     // Here we have to determine the lowest receive-time event we have
@@ -443,33 +432,25 @@ Agent::sendAntiMessage(const muse::Time minSendTime,
     EventAdapter::setSenderInfo(antiEvent, currEvt->getSenderAgentID(),
                                 minSendTime);
     EventAdapter::makeAntiMessage(antiEvent);
-    // (deperomm): not sure what the ASSERT in the below else block is supposed
-    // to protect against, but it gets thrown when running multi threaded
-    kernel->scheduleEvent(antiEvent);
-    EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
-//    if (!kernel->scheduleEvent(antiEvent)) {
-//        // The scheduler rejected our anti-message.  This is normal
-//        // for anit-messages sent to LP on local process/thread.
-//        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
-//    } else {
-//        // When event sharing is enabled, anti-messages sent to
-//        // another thread (on same process) cannot be immediately
-//        // reclaimed (until the receiving thread has processed
-//        // it.). But we don't have an output reference so decrease
-//        // output reference count on the anti-message.
-//        ASSERT(!kernel->isAgentLocal(myID, receiver) && useSharedEvents);
-//        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
-//    }    
+    if (!kernel->scheduleEvent(antiEvent)) {
+        // The scheduler rejected our anti-message.  This is normal
+        // for anit-messages sent to LP on local process/thread.
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
+    } else {
+        // When event sharing is enabled, anti-messages sent to
+        // another thread (on same process) cannot be immediately
+        // reclaimed (until the receiving thread has processed
+        // it.). But we don't have an output reference so decrease
+        // output reference count on the anti-message.
+        ASSERT(!kernel->isAgentLocal(myID, receiver) && useSharedEvents);
+        EventRecycler::decreaseOutputRefCount(useSharedEvents, antiEvent);
+    }    
 }
 
 void
 Agent::doCancellationPhaseInputQueue(const Time& restoredTime,
                                      const Event* straggler,
                                      muse::EventContainer& reschedule) {
-    // garbage collection can clear the input queue, so must have the lock
-    // before we can manipulate it.
-    std::lock_guard<std::mutex> guard(agentLock);
-    
     // Flag to determine which reference counter should be modified.
     const bool useSharedEvents = kernel->usingSharedEvents();
     ASSERT(straggler != NULL);
@@ -557,11 +538,6 @@ Agent::cleanOutputQueue() {
 
 void
 Agent::garbageCollect(const Time gvt) {
-    
-    // this is only called by thread 0, but because it modifies queues
-    // that are modified by concurrent enqueues and dequeues, must lock naively
-    std::lock_guard<std::mutex> guard(agentLock);
-    
     // First find a state in state queue that is below GVT so we will
     // always have a state to rollback to.
     List<State*>::iterator safe_point_it = stateQueue.begin();

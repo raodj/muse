@@ -34,15 +34,11 @@
 #include "TwoTierHeapEventQueue.h"
 #include "ThreeTierHeapEventQueue.h"
 #include "TwoTierHeapOfVectorsEventQueue.h"
-//#include "mpi-mt-shm/BadMTQ.h"
 
 BEGIN_NAMESPACE(muse);
 
 class Scheduler {
     friend class Simulation;
-    friend class MultiThreadedShmSimulationManager;
-    friend class MultiThreadedShmSimulation;
-    friend class MultiThreadedScheduler;
     friend class OclScheduler;
     friend class OclSimulation;
 public:

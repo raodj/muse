@@ -252,11 +252,7 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
     // Set MaxRungs to be the same for 2tLadderQ as well
     TwoTierLadderQueue::MaxRungs = LadderQueue::MaxRungs;
     // Create a queue based on the name specified.
-    if (agentPQ != NULL) {
-        // The scheduler was set by a child class, don't set it here.
-        // See mt-mpi-shm/MultiThreadedScheduler::initialize
-        
-    } else if (queueName == "heap") {
+    if (queueName == "heap") {
         agentPQ = new HeapEventQueue();
     } else if (queueName == "ladderQ") {
         agentPQ = new LadderQueue();
@@ -270,7 +266,7 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
         agentPQ = new AgentPQ();
     } else if (queueName == "2tLadderQ") {
         agentPQ = new TwoTierLadderQueue();
-    }else {
+    } else {
         std::cerr << "Invalid scheduler queue name. Valid queue names are:\n"
                   << "\tladderQ fibHeap heap 2tHeap 3tHeap heap2tQ.\n"
                   << "Aborting.\n";
