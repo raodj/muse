@@ -23,7 +23,6 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include "mpi-mt-shm/MultiThreadedShmSimulation.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -32,7 +31,6 @@ class Simulation;
 class GVTMessage;
 class Communicator;
 class Event;
-class MultiThreadedShmSimulation;
 
 /** A class that implements the Mattern GVT algorithm.
 
@@ -52,7 +50,6 @@ class GVTManager {
     // Declare muse::Simulation to be a friend so that it can
     // instantiate this GVTManager class for its use.
     friend class Simulation;
-    friend class MultiThreadedShmSimulationManager;
     friend class oclSimulation;
 public:
     /** Initialize the internal data structures for GVT calculations.
@@ -82,22 +79,6 @@ public:
         simulation.
     */
     void initialize(const Time& startTime, Communicator* comm);
-    
-    /**
-     * Keep track of multiple concurrent sim kernels, each with its own LGVT
-     * 
-     * This allows the gvt manager to be aware of multiple concurrent
-     * sim kernels that each maintain their own LGVT. Essentially, this makes
-     * the true LGVT the min of the LGVT's for all concurrent threads on this
-     * process. 
-     * 
-     * Thread LGVT should not get out of sync because events are shared between
-     * threads, meaning threads will always pull smallest event timestamp across
-     * the overall simulation kernel
-     * 
-     * \param[in] mts - sim kernel to keep track of
-     */
-    void addMTSimKernel(MultiThreadedShmSimulation* mts);
 
     /** Method to update information and send a remote event.
 
@@ -235,9 +216,9 @@ public:
         GVTManager::initialize method has been invoked on this GVT
         manager.
 
-		\note This method only used with non-memory sharing multi-
-		threading. Shared memory multi-threading does not use thread
-		based MPI rank.
+        \note This method only used with non-memory sharing multi-
+        threading. Shared memory multi-threading does not use thread
+        based MPI rank.
         
         \param[in] thrRank The thread-based rank to be used instead of
         MPI rank.
@@ -260,17 +241,6 @@ protected:
         \param[in] gvtEst The newly estimated GVT value.
     */
     void setGVT(const Time& gvtEst);
-    
-    /**
-     * Get the true LGVT for this process
-     * 
-     * See GVTManager::mtKernels. When using shared memory multithreading, must
-     * check all threads to find lowest LGVT to get true LGVT.
-     * 
-     * When not using shared memory multi-threading, simply return the lgvt
-     * from the main sim kernel.
-     */
-    Time getTrueLGVT();
     
     /** The constructor.
 
@@ -412,16 +382,6 @@ private:
         initialized to the correct value in the initialize() method.
     */
     unsigned int numProcesses;
-    
-    /**
-     * Pointers to all concurrent sim kernels in shared memory multi threading
-     * 
-     * In mpi-mt-shm each kernel maintains its own LGVT, so the true LGVT of
-     * this process is the min of all thread LGVT. These pointers allow the 
-     * gvt manager to be aware of the possibly different LGVT's and only ever
-     * use the min of them.
-     */
-    std::vector<MultiThreadedShmSimulation*> mtKernels;
 
     /** The communicator to be used for dispatching events.
 

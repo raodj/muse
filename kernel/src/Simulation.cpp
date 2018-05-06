@@ -40,7 +40,6 @@
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
-#include "mpi-mt-shm/MultiThreadedShmSimulationManager.h"
 #include "ocl/OclSimulation.h"
 
 using namespace muse;
@@ -49,8 +48,6 @@ using namespace muse;
 muse::Simulation* muse::Simulation::kernel = NULL;
 // Static value for type of sim this is
 std::string muse::Simulation::simName = "";
-// Shared list of all agents in the simulation, across threads
-//AgentContainer muse::Simulation::allAgents;
 
 Simulation::Simulation(const bool useSharedEvents)
     : LGVT(0), startTime(0), endTime(0), gvtDelayRate(10),
@@ -76,7 +73,7 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     simName = "default";
     ArgParser::ArgRecord arg_list[] = {
         { "--simulator", "The type of simulator/kernel to use; one of: " \
-          "default, mpi-mt, mpi-mt-shm", 
+          "default, mpi-mt, ocl", 
           &simName, ArgParser::STRING },
         {"", "", NULL, ArgParser::INVALID}
     };
@@ -91,12 +88,10 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
         kernel = new MultiThreadedSimulationManager();
     }else if (simName == "ocl"){
         kernel = new OclSimulation();
-    } else if (simName == "mpi-mt-shm") {
-        kernel = new MultiThreadedShmSimulationManager();
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
-                                 "(muse be: default, mpi-mt, ocl, or mpi-mt-shm)");
+                                 "(muse be: default, mpi-mt, or ocl)");
     }
     // Now let the instantiated/derived kernel initialize further.
     ASSERT (kernel != NULL);
@@ -166,24 +161,15 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     // and update instance variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
-    // Do not set scheduler yet if we are using shared memory multi threading
-    if (Simulation::simName != "mpi-mt-shm") {
-        // Setup scheduler based on scheduler name.
-        if(schedulerName == "hrm"){
-            scheduler = new HRMScheduler();
-        }else if(schedulerName == "ocl"){
-            scheduler = new OclScheduler();
-        }else{
-            scheduler = new Scheduler();
-        }
-        // Initialize the scheduler.
-        scheduler->initialize(myID, numberOfProcesses, argc, argv);
-    } else {
-        // We don't want to set scheduler here, it must be shared between threads.
-        // Instead, it's created and set in 
-        // initialize() from createThreads() in MultiThreadedShmSimulationManager
-        ASSERT(scheduler == NULL);
+    if (schedulerName == "hrm") {
+        scheduler = new HRMScheduler();
+    } else if(schedulerName == "ocl") {
+        scheduler = new OclScheduler();
+    } else{
+        scheduler = new Scheduler();
     }
+    // Initialize the scheduler.
+    scheduler->initialize(myID, numberOfProcesses, argc, argv);
     // Setup flag to enable/disable state saving in agents
     mustSaveState = (saveState || (numberOfProcesses > 1) ||
                      (getNumberOfThreads() > 1));
@@ -233,13 +219,7 @@ Simulation::scheduleEvent(Event* e) {
 
 void
 Simulation::preStartInit() {
-    // Note: In share memory multi threaded sims, this method is only 
-    // called by the manager thread as the gvtManager is then shared 
-    // directly with the other threads
     ASSERT( commManager != NULL );
-    // Ensure we don't populate this in a derived class and accidently
-    // overwrite it here
-//    ASSERT(gvtManager == NULL); // (deperomm) Issue in mpi-mt where this is getting set before here, not sure why, just overwrite it for now
     // Create and initialize our GVT manager.
     gvtManager = new GVTManager(this);
     gvtManager->initialize(startTime, commManager);
@@ -273,8 +253,6 @@ Simulation::checkProcessMpiMsgs() {
     // settings.
     int numEvts = -1;
     if (--mpiMsgCheckCounter == 0) {
-        // todo(deperomm): processMpiMsgs returns 0 if it couldn't get the lock in MT, but mpi check frequency logic assumes 0 means there were no events to process, this is bad?
-        // todo(deperomm): mpimsgcheckcounter is not thread safe, decrements cause race conditions
         numEvts = processMpiMsgs();
         if (numEvts == 0) {
             if ((mpiMsgCheckThresh == 1) &&
