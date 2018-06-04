@@ -128,8 +128,8 @@ AC_DEFUN([AC_PROG_NUMA],
      if test -z "$numa"; then
          AC_MSG_CHECKING([whether NUMA library is operational])
          AC_LANG([C++])
-         old_ldflags="$LDFLAGS"
-         LDFLAGS="$LDFLAGS -lnuma"
+         old_libs="$LIBS"
+         LIBS="$LIBS -lnuma"
          AC_RUN_IFELSE(
              [AC_LANG_PROGRAM([[#include <numa.h>
                                 #include <numaif.h>
@@ -140,7 +140,7 @@ AC_DEFUN([AC_PROG_NUMA],
                numa="yes" ],
              [ AC_MSG_RESULT([no])
                numa="no"
-               LDFLAGS="$old_ldflags"
+               LIBS="$old_libs"
              ]
          )
      fi
@@ -317,6 +317,9 @@ AC_DEFUN([AC_LIB_OPENCL],
         AC_SUBST(OPEN_CL_LDPATH)
         AC_DEFINE([HAVE_OPEN_CL], [1], [Using OpenCL in MUSE])
      fi
+     # Setup conditional variable used in kernel/Makefile.am to
+     # conditionally compile openCL components.
+     AM_CONDITIONAL([COND_USE_OPENCL], [test "x$have_opencl" == "xyes"])
 ])
 
 # A convenience macro to check if the compiler accepts a specific

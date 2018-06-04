@@ -31,6 +31,21 @@ noinst_LIBRARIES = libmuse.a
 # libmuse_a_LDFLAGS = 
 libmuse_a_LIBADD = $(STDCPP)
 
+# Setup conditional compilation of OpenCL components, if OpenCL is
+# available for use.
+if COND_USE_OPENCL
+    OPENCL_SOURCES = \
+	include/ocl/oclAgent.h \
+	include/ocl/oclScheduler.h \
+	include/ocl/oclSimulation.h \
+	include/ocl/OclSimulation.h \
+	include/ocl/oclState.h \
+	src/ocl/oclAgent.cpp \
+	src/ocl/oclScheduler.cpp \
+	src/ocl/oclSimulation.cpp \
+	src/ocl/oclState.cpp
+endif
+
 libmuse_a_SOURCES = \
 	include/EventAdapter.h \
 	include/EventQueue.h \
@@ -105,14 +120,6 @@ libmuse_a_SOURCES = \
 	src/mpi-mt/MultiNonBlockingMTQueue.cpp \
 	include/mpi-mt/RedistributionMessage.h \
 	src/mpi-mt/RedistributionMessage.cpp \
-	include/ocl/oclAgent.h \
-	include/ocl/oclScheduler.h \
-	include/ocl/oclSimulation.h \
-	include/ocl/OclSimulation.h \
-	include/ocl/oclState.h \
-	src/ocl/oclAgent.cpp \
-	src/ocl/oclScheduler.cpp \
-	src/ocl/oclSimulation.cpp \
-	src/ocl/oclState.cpp
+	$(OPENCL_SOURCES)
 
 # end of Makefile.am

@@ -27,7 +27,6 @@
 #include "Simulation.h"
 #include "GVTManager.h"
 #include "HRMScheduler.h"
-#include "ocl/OclScheduler.h"
 #include "SimulationListener.h"
 #include "BinaryHeapWrapper.h"
 #include "ArgParser.h"
@@ -40,7 +39,11 @@
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
+
+#ifdef HAVE_OPEN_CL
+#include "ocl/OclScheduler.h"
 #include "ocl/OclSimulation.h"
+#endif
 
 using namespace muse;
 
@@ -50,7 +53,7 @@ muse::Simulation* muse::Simulation::kernel = NULL;
 std::string muse::Simulation::simName = "";
 
 Simulation::Simulation(const bool useSharedEvents)
-    : LGVT(0), startTime(0), endTime(0), gvtDelayRate(10),
+    : startTime(0), endTime(0), LGVT(0), gvtDelayRate(10),
       numberOfProcesses(-1u), doShareEvents(useSharedEvents) {
     commManager        = NULL;
     scheduler          = NULL;
@@ -82,12 +85,17 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv, false);
     // Instantiate the actual simulation object based on simName.
+    ASSERT( kernel == NULL );
     if (simName == "default") {
         kernel = new DefaultSimulation();
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
-    }else if (simName == "ocl"){
+    } else if (simName == "ocl"){
+#ifdef HAVE_OPEN_CL
         kernel = new OclSimulation();
+#else
+        throw std::runtime_error("OpenCL support not compiled-in");
+#endif
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
@@ -164,7 +172,11 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     if (schedulerName == "hrm") {
         scheduler = new HRMScheduler();
     } else if(schedulerName == "ocl") {
+#ifdef HAVE_OPEN_CL
         scheduler = new OclScheduler();
+#else
+        throw std::runtime_error("OpenCL support not compiled-in");
+#endif
     } else{
         scheduler = new Scheduler();
     }

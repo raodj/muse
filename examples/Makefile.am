@@ -17,9 +17,14 @@
 # intellectual property laws, and all other applicable laws of the
 # U.S., and the terms of this license.
 #
-# Authors: Dhananjai M. Rao       raodm@muohio.edu
+# Authors: Dhananjai M. Rao       raodm@miamiOH.edu
 #
 #---------------------------------------------------------------------------
 
-SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation RoundRobinSimulation PHOLDSimulation BugLife ClockExample RescueSim PCS_Simulation OCL
+if COND_USE_OPENCL
+	OPT_OCL = OCL
+endif
 
+SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation\
+	RoundRobinSimulation PHOLDSimulation BugLife ClockExample\
+	RescueSim PCS_Simulation $(OPT_OCL)
