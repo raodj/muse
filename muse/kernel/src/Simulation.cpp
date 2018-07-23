@@ -41,7 +41,6 @@
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 
 #ifdef HAVE_OPEN_CL
-#include "ocl/OclScheduler.h"
 #include "ocl/OclSimulation.h"
 #endif
 
@@ -171,12 +170,6 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     ap.parseArguments(argc, argv, false);
     if (schedulerName == "hrm") {
         scheduler = new HRMScheduler();
-    } else if(schedulerName == "ocl") {
-#ifdef HAVE_OPEN_CL
-        scheduler = new OclScheduler();
-#else
-        throw std::runtime_error("OpenCL support not compiled-in");
-#endif
     } else{
         scheduler = new Scheduler();
     }
@@ -250,7 +243,7 @@ Simulation::initAgents() {
         agent->initialize();       // Call API method to initialize agent
         // time to archive the agent's init state
         agent->saveState();
-    }        
+    }
 }
 
 int
@@ -354,8 +347,8 @@ Simulation::processNextEvent() {
     }
     // Let the scheduler do its task to have the agent process events
     // if possible.  If no events are processed the following method
-    // call returns false.
-    return scheduler->processNextAgentEvents();    
+    // call returns InvalidAgent
+    return (scheduler->processNextAgentEvents() != InvalidAgentID);
 }
 
 void 

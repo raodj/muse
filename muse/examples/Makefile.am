@@ -21,8 +21,10 @@
 #
 #---------------------------------------------------------------------------
 
+include $(top_srcdir)/Makefile.global.am
+
 if COND_USE_OPENCL
-	OPT_OCL = OCL
+    OPT_OCL = OCL
 endif
 
 SUBDIRS = PingPongSimulation LonelySimulation RollbackHeavySimulation\

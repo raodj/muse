@@ -5,7 +5,7 @@ AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = pcs
 
-pcs_LDFLAGS = -L../../kernel
+pcs_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 pcs_LDADD = $(STDCPP) -lmuse
 pcs_DEPENDENCIES=../../kernel/libmuse.a
 

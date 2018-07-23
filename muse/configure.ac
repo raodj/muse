@@ -183,7 +183,7 @@ AC_DEFUN([AC_PROG_ICC],
 
      if test -z "$icc"; then
          AC_MSG_CHECKING([for icc])
-         icc=`mpicxx --version | grep -iw "icc"`
+         icc=`$CXX --version | grep -iw "icc"`
 	 if test -n "$icc"; then
 	     icc="yes"
 	 else
@@ -562,9 +562,9 @@ AC_SUBST(DEV_ASSERT)
 # Check and start using new C++11 standards
 # AC_CHECK_ARGS([-std=c++14], [CPP14="-std=c++14"], [CPP14=""], [])
 # AC_SUBST(CPP14)
-AC_CHECK_ARGS([-std=c++11], [CPP11="-std=c++11"], [CPP11=""], [$CPP14])
+AC_CHECK_ARGS([-std=c++11], [CPP11="-std=c++11"], [CPP11=""], [$CPP14], ["no"])
 AC_SUBST(CPP11)
-AC_CHECK_ARGS([-std=c++0x], [CPP0X="-std=c++0x"], [CPP0X=""], [$CPP11])
+AC_CHECK_ARGS([-std=c++0x], [CPP0X="-std=c++0x"], [CPP0X=""], [$CPP11], ["no"])
 AC_SUBST(CPP0X)
 
 # Put object files in corresponding directories even if make is not
@@ -616,10 +616,12 @@ AC_CONFIG_FILES([Makefile\
 	examples/PHOLDSimulation/Makefile\
 	examples/ClockExample/Makefile\
 	examples/RescueSim/Makefile\
-	examples/BugLife/Makefile \
-	examples/PCS_Simulation/Makefile \
-        examples/OCL/Makefile \
-	examples/EpidemicSimulation/Makefile])
+	examples/BugLife/Makefile\
+	examples/PCS_Simulation/Makefile\
+        examples/EpidemicSimulation/Makefile\
+        examples/OCL/Makefile\
+        examples/OCL/synth/Makefile\
+        examples/OCL/ocl_test/Makefile])
 
 AC_OUTPUT
 

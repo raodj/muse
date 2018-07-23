@@ -23,25 +23,40 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-if COND_USE_OPENCL
-        OPT_OCL = ocl_test synth
-endif
+# AM_CPPFLAGS += -DCOMPARTMENTS=$(COMPARTMENTS)
+AM_CXXFLAGS += -I../../../include
 
-SUBDIRS = $(OPT_OCL)
+bin_PROGRAMS = synth
 
-# AM_CXXFLAGS += -I../../include -I ../../kernel/include/ -I ../../kernel/include/ocl
+synth_LDFLAGS = -L../../../kernel -L $(AM_LDFLAGS)
+synth_LDADD = $(STDCPP) -lmuse
+synth_DEPENDENCIES=../../../kernel/libmuse.a 
 
-# bin_PROGRAMS = ocl
+nodist_synth_SOURCES = OclEqnSolvers.c_inc SynthKernel.c_inc
+synth_CLEANFILES = OclEqnSolvers.c_inc SynthKernel.c_inc
+BUILT_SOURCES = OclEqnSolvers.c_inc SynthKernel.c_inc
 
-# ocl_LDFLAGS = -L../../kernel -L $(AM_LDFLAGS)
-# ocl_LDADD = $(STDCPP) -lmuse
-# ocl_DEPENDENCIES=../../kernel/libmuse.a 
+synth_SOURCES = SynthSimulation.h\
+	SynthSimulation.cpp\
+	OclEqnSolvers.h\
+	SynthAgentState.h\
+	SynthAgentState.cpp\
+	SynthAgent.h\
+	SynthAgent.cpp\
+	OclEqnSolvers.c
 
-# ocl_SOURCES = OclExampleSimulation.h\
-# 	OclExampleSimulation.cpp\
-# 	synth/SynthAgent.h\
-# 	synth/SynthAgent.cpp\
-# 	ebola/EbolaAgent.h\
-# 	ebola/EbolaAgent.cpp
+# Custom build rules to generate an C++11 raw string version of header
+# files to be incldued in the source file for generating OpenCL kernel
+OclEqnSolvers.c_inc: OclEqnSolvers.c
+	echo 'R"(' > $@
+	cat $? >> $@
+	echo ')"' >> $@
+
+# Custom build rules to generate an C++11 raw string version of header
+# files to be incldued in the source file for generating OpenCL kernel
+SynthKernel.c_inc: SynthKernel.c
+	echo 'R"(' > $@
+	cat $? >> $@
+	echo ')"' >> $@
 
 # end of Makefile.am

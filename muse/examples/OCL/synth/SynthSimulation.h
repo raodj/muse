@@ -1,5 +1,6 @@
-#ifndef MUSE_EXAMPLES_OCL_SYNTHSIMULATION_H
-#define MUSE_EXAMPLES_OCL_SYNTHSIMULATION_H
+#ifndef OCL_SYNTH_SIMULATION_H
+#define OCL_SYNTH_SIMULATION_H
+
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -17,42 +18,136 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Harrison Roth          rothhl@miamioh.edu
-//          Dhananjai M. Rao       raodm@miamioh.edu
+// Authors: Dhananjai M. Rao       raodm@miamioh.edu
 //
 //---------------------------------------------------------------------------
 
-#include "OclSimulation.h"
-#include "OclScheduler.h"
-#include "SynthAgent.h"
-#include "OclState.h"
-#include "AgentPQ.h"
+#include "Simulation.h"
 #include <vector>
 
 class SynthSimulation {
-    public:
+public:
+    /** Destructor.
+        
+        Currently the destructor for this class does not have much
+        operation to perform and is merely peresent to adhere to
+        conventions and serve as a place holder for future changes.
+    */
+    ~SynthSimulation();
+        
+    /** The main interface method for this class that should be used
+        to start and run the OCL Simulation.  The command-line
+        arguments to the program should be passed-in as the arguments
+        to this method.  These values are typically the default values
+        passed to a standard C/C++ main() function.
+ 
+        \param[in] argc The number of command-line arguments.
+ 
+        \param[in] argv The actual command-line arguments.
+    */    
+    static void run(int argc, char** argv);
 
-        SynthSimulation();
+protected:
+    /** The default constructor.
+        
+        The default constructor is intentionally protected as this
+        class is not meant to be directly instantiated.  Instead the
+        SynthSimulation::run() static method should be used to
+        run the simulation.  The constructor initializes the
+        simulation configuration variables to default initial values.
+    */  
+    SynthSimulation();
 
-        /*
-         * Create a set of agents and register them with the simulation 
-         * This function uses simulation class variables to determine
-         * specifics, like total number of agents.
-         */
-        void createAgents();
+    /** Helper method to process command-line arguments (if any).
+ 
+        This method uses the ArgParser utility class to parse any
+        command-line arguments supplied to the simulation and updates
+        the configuration (several private instance variables)
+        variables in this class.  The configuration variables are used
+        by various method in the class to create various agents and
+        initialize the simulation to match the supplied configuration.
+ 
+        \param[in] argc The number of command-line arguments.
+         
+        \param[in] argv The actual command-line arguments.
 
-        SynthSimulation(int& argc, char* argv[]);
+        \return This method returns true if the command-line arguments
+        were successfully processed.
+    */
+    void processArgs(int& argc, char* argv[]);
 
-        bool ode;
-        bool oclAvailable;
-        int compartments;
-        int rows;
-        int cols;
-        int popSize;
-        int expSize;
-        float step;
-        int stopTime;
+    /** This method is used to create the agents in the simulation and
+        register with the simulation kernel.  
+        
+        \note This method must be called only after the simulation
+        kernel has already been initialized.
+    */
+    void createAgents();
+
+    /**
+       Convenience method to setup time duration for simulation and
+       initiate the actual simulation.  This is a convenience method
+       that is primarily used to streamline the top-level run() method
+       in this class.
+    */
+    void simulate();
+
+    /** Helper method to compute cumulative sum upto a given value.
+        
+        Convenience method to compute cumulative sum of series 1 + 2 +
+        ... + val
+        
+        \param[in] val The value for which cumulative sum of series is
+        to be returned.
+        
+        \param[in] scale The scale for multiplying the cumulative sum.
+        
+        \return This method returns scale * val * (val + 1) / 2.
+    */
+    int cumlSum(const int val, const double scale = 1) const {
+        return (scale * val * (val - 1) / 2);
+    }
+
+private:
+    /** Flag to indicate if ODE, SSA, SSA+Tau-Leap is to be run.  This
+        value is set via the \c --solver command-line parameter.
+    */
+    int solver;
+
+    /** The number of compartments to be used for operations */
+    int compartments = 4;
+
+    /** The number of parameters to be used for operations */
+    int params = 4;
+
+    /** The number of rows in the model to simulate */
+    int rows = 3;
+
+    /** The number of columns in the model to simulate */
+    int cols = 3;
+
+    /** The step size to eb used for solving ODE or SSA */
+    double step = 0.01;
+
+    /** The time when the simulation ends */
+    int endTime = 100;
+
+    /** Initial number of susceptible individuals in each agent */
+    int susceptible = 1000;
+
+    /** Initial number of exposed individuals in each agent */
+    int exposed = 10;
+
+    /** Flag to indicate if agents should print epidemic values at the
+        end of simulation */
+    bool showEpiVals = false;
+
+    /** Number of events each agent should generate in each time step */
+    int eventsPerLP;
+
+    /** Granularity for each event event. Approximately 1 is equal to
+        1 microsecond */
+    int granularity;
 };
 
-#endif /* SYNTHSIMULATION_H */
-
+#endif

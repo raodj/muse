@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = phold
 
-phold_LDFLAGS = -L../../kernel
+phold_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 phold_LDADD = $(STDCPP) -lmuse
 phold_DEPENDENCIES=../../kernel/libmuse.a
 
