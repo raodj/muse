@@ -125,6 +125,7 @@ main(int argc, char** argv) {
     }
     sim->createAgents();
     kernel->setStartTime(0);
+    std::cout << "stop time = " << sim->stopTime << std::endl;
     kernel->setStopTime(sim->stopTime);
     kernel->start();
     return 0;

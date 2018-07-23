@@ -41,7 +41,7 @@ extern std::ostream& operator<<(ostream&, const muse::Agent&);
 
 BEGIN_NAMESPACE(muse);
 
-//forward declare here
+// Forward declare here
 class BinaryHeapWrapper;
 template<typename T, typename Compare>
 class BinaryHeap;
@@ -85,7 +85,6 @@ class Agent {
     friend class TwoTierHeapEventQueue;
     friend class TwoTierHeapOfVectorsEventQueue;
     friend class ThreeTierHeapEventQueue;
-    friend class OclAgent;
     friend class OclSimulation;
 public:    
     /** enum for return Time.
@@ -130,9 +129,12 @@ public:
         time step is all passed in one single shot to this method.
      
         \note That this method must not modify the events passed in.
-        
+
         \note Whenever a new agent is implemented by extending this
         base class, the derived class should override this method.
+
+        \note If heterogeneous compute is required, then this method
+        should call the runHCkernel method.
         
         \param events The set of concurrent (events at the same time)
         events that this method should process.
@@ -141,6 +143,31 @@ public:
     */
     virtual void executeTask(const EventContainer& events) = 0;
 
+    /** Method for dervied classes to use to indicate that
+        heterogeneous compute kernel associated with this agent must
+        be executed at this LVT.
+
+        \note This method must be called prior to executeTask method
+        ends.  For example:
+
+        \code
+
+        EpiAgent::executeTask(const EventContainer& eventList) {
+            // Use a loop to process events in eventList
+
+            // Now tell MUSE that it should run the heterogeneous
+            kernel for this agent at this LVT
+            runHCkernel();
+        }
+
+        \endcode
+
+        \param[in] kerenelID The logical ID associated with the OpenCL
+        kernel that must be executed.  Currently, this parameter is
+        not really used.
+    */
+    virtual void runHCkernel(const int kernelID = 0) { hcKernel = kernelID; }
+    
     //------------Provided by muse----below-----------------//
     
     /** The scheduleEvent method.
@@ -191,8 +218,7 @@ public:
     
     /** The destructor.
      
-        The destructor is not supposed to be overriden.
-        \todo make sure that the above statement is a accurate statement.
+        The destructor for this class.
     */
     virtual ~Agent();
 
@@ -216,8 +242,8 @@ public:
         
         Agents will be able to use different states throughout the
         simulation via this method. Note, that the state thats passed
-        in the constructure does not have to be the only state. You
-        can For example slowly increase the information stored in the
+        in the constructor does not have to be the only state. You can
+        For example slowly increase the information stored in the
         state as simulation runs.
 
         \note this method uses the assignment operator, so be sure you
@@ -305,6 +331,7 @@ protected:
     */
     virtual void dumpStats(std::ostream& os,
                            const bool printHeader = false) const;
+    
 private:
     /** The getTopTime method.
 
@@ -594,9 +621,14 @@ private:
         \see State()
     */
     State* myState;
-    
+
+    /** Reference used by ThreeTierHeapEventQueue. The following deque
+        consists of a list of tier-2 entries which are essentially
+        events to be delivered to this agent.
+
+        \note This ought to be moved into schedRef union below.
+    */
     std::deque<HOETier2Entry*>* tier2;
-	// std::vector<Tier2Entry>* tier2;
         
     union {
         /** The TwoTierHeapAdapter for TwoTierHeapEventQueue.
@@ -703,6 +735,14 @@ private:
         different kernels.
     */
     muse::Simulation* kernel;
+    
+    /** This instance variable is used by OclSimulation/OclScheduler
+        to determine if the OpenCL kernel associated with this agent
+        is to be executed.  This value is indirectly set by the
+        derived model class(es) by calling the runHCkernel method in
+        this class.
+    */
+    int hcKernel;
 };
 
 END_NAMESPACE(muse);

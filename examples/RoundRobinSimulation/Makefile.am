@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = roundRobinSim
 
-roundRobinSim_LDFLAGS = -L../../kernel
+roundRobinSim_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 roundRobinSim_LDADD = $(STDCPP) -lmuse
 roundRobinSim_DEPENDENCIES=../../kernel/libmuse.a
 

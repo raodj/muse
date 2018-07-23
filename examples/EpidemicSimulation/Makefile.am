@@ -5,7 +5,7 @@ AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = epidemic
 
-epidemic_LDFLAGS = -L../../kernel
+epidemic_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 epidemic_LDADD = $(STDCPP) -lmuse
 epidemic_DEPENDENCIES=../../kernel/libmuse.a
 

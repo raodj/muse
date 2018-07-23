@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include -I./include
 
 bin_PROGRAMS = rollbackSim
 
-rollbackSim_LDFLAGS = -L../../kernel
+rollbackSim_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 rollbackSim_LDADD = $(STDCPP) -lmuse
 rollbackSim_DEPENDENCIES=../../kernel/libmuse.a
 

@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include -Isrc
 
 bin_PROGRAMS = bugsim
 
-bugsim_LDFLAGS = -L../../kernel
+bugsim_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 bugsim_LDADD = $(STDCPP) -lmuse
 bugsim_DEPENDENCIES=../../kernel/libmuse.a
 

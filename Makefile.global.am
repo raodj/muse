@@ -29,7 +29,7 @@ GLOBALCPPFLAGS  = $(WALL) $(WEXTRA) $(PIPE) $(INFORM_WARN) -g $(OPT_O3)
 # GLOBALCPPFLAGS += -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
-GLOBALCPPFLAGS += $(CPP11) $(CPP0X)
+GLOBALCXXFLAGS  = $(CPP11) $(CPP0X)
 
 # For profiling the frame pointers are important for short methods.
 GLOBALCPPFLAGS += -fno-omit-frame-pointer
@@ -62,5 +62,9 @@ GLOBALCPPFLAGS += $(OPEN_CL_PATH)
 AM_CXXFLAGS = $(GLOBALCXXFLAGS)
 AM_CPPFLAGS = $(GLOBALCPPFLAGS) \
 	-I$(top_builddir)/include
+AM_CFLAGS   = -std=c99
+
+# Setup the global LD flags to include OpenCL library if available
+AM_LDFLAGS = $(OPEN_CL_LDPATH)
 
 # end of Makefile.global.am

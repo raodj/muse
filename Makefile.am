@@ -32,6 +32,10 @@ nobase_include_HEADERS = \
 	include/Simulation.h \
 	include/SimulationListener.h \
 	include/State.h \
-	include/Utilities.h
+	include/Utilities.h \
+	include/HCAgent.h \
+	include/HCState.h \
+	include/HCMacros.h \
+	include/MuseOclLibrary.h
 
 SUBDIRS = kernel examples

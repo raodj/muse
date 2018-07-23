@@ -23,7 +23,7 @@
 
 include $(top_srcdir)/Makefile.global.am
 
-AM_CXXFLAGS += -Iinclude -Isrc
+AM_CPPFLAGS += -Iinclude -Isrc
 # AM_CXXFLAGS += -DDEBUG_OUTPUT
 
 noinst_LIBRARIES = libmuse.a
@@ -35,15 +35,18 @@ libmuse_a_LIBADD = $(STDCPP)
 # available for use.
 if COND_USE_OPENCL
     OPENCL_SOURCES = \
-	include/ocl/oclAgent.h \
-	include/ocl/oclScheduler.h \
-	include/ocl/oclSimulation.h \
+	include/ocl/OclBufferManager.h \
+	src/ocl/MuseOclLibrary.c\
+	src/ocl/OclBufferManager.cpp \
 	include/ocl/OclSimulation.h \
-	include/ocl/oclState.h \
-	src/ocl/oclAgent.cpp \
-	src/ocl/oclScheduler.cpp \
-	src/ocl/oclSimulation.cpp \
-	src/ocl/oclState.cpp
+	src/ocl/OclSimulation.cpp
+
+dist_libmuse_a = src/ocl/MuseOclKernel.c
+
+nodist_libmuse_a_SOURCES = src/ocl/MuseOclLibrary.c_inc
+libmuse_a_CLEANFILES = src/ocl/MuseOclLibrary.c_inc
+BUILT_SOURCES = src/ocl/MuseOclLibrary.c_inc
+
 endif
 
 libmuse_a_SOURCES = \
@@ -120,6 +123,15 @@ libmuse_a_SOURCES = \
 	src/mpi-mt/MultiNonBlockingMTQueue.cpp \
 	include/mpi-mt/RedistributionMessage.h \
 	src/mpi-mt/RedistributionMessage.cpp \
+	src/HCAgent.cpp\
 	$(OPENCL_SOURCES)
+
+# Custom build rules to generate an C++11 raw string version of header
+# files to be incldued in the source file for generating OpenCL kernel
+
+src/ocl/MuseOclLibrary.c_inc: src/ocl/MuseOclLibrary.c
+	echo 'R"(' > $@
+	cat $? >> $@
+	echo ')"' >> $@
 
 # end of Makefile.am

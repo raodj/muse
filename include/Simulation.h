@@ -38,6 +38,7 @@ class Scheduler;
 class Communicator;
 class SimulationListener;
 class OclScheduler;
+
 /** The Simulation Class.
  
     This is the heart of muse. All core operation that the engine
@@ -349,6 +350,14 @@ public:
         threads.  Otherwise this method returns false.
     */
     inline bool usingSharedEvents() const { return doShareEvents; }
+
+    /** Utility method to determine if this simulation kernel has
+        Heterogeneous Computing (HC) capabilty.
+
+        \return This method returns true if the kernel has HC
+        capabilities.  By default this method returns false.
+    */
+    virtual bool hasHCsupport() const { return false; }
     
 protected:
     /** The default constructor for this class.

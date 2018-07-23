@@ -47,6 +47,10 @@ Agent::Agent(AgentID id, State* agentState)
     // Initialize fibonacci heap cross references
     fibHeapPtr = NULL;
     oldTopTime = TIME_INFINITY;
+
+    // Setup the Heterogeneous Computing (HC) kernel ID to an invalid
+    // value.
+    hcKernel = -1;
 }
 
 Agent::~Agent() {

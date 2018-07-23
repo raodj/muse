@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I./tools -I../../include -I./agents/include -I./events/include -
 
 bin_PROGRAMS = RescueSim
 
-RescueSim_LDFLAGS = -L../../kernel
+RescueSim_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 RescueSim_LDADD = $(STDCPP) -lmuse
 RescueSim_DEPENDENCIES=../../kernel/libmuse.a
 

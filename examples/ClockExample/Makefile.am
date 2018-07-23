@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include -I./include
 
 bin_PROGRAMS = clockSim
 
-clockSim_LDFLAGS = -L../../kernel
+clockSim_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 clockSim_LDADD = $(STDCPP) -lmuse
 clockSim_DEPENDENCIES=../../kernel/libmuse.a
 

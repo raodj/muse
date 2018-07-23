@@ -27,7 +27,7 @@ AM_CXXFLAGS += -I../../include
 
 bin_PROGRAMS = lonelyTest
 
-lonelyTest_LDFLAGS = -L../../kernel
+lonelyTest_LDFLAGS = -L../../kernel $(AM_LDFLAGS)
 lonelyTest_LDADD = $(STDCPP) -lmuse
 lonelyTest_DEPENDENCIES=../../kernel/libmuse.a
 
