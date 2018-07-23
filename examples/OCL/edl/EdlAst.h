@@ -43,6 +43,7 @@ public:
     bool addStateChange(const std::string& name, double value);
 
     void addToExpr(const std::string& token);
+    void addDoubleToExpr(const double token);
     void addCharToExpr(const char op);
     void endTransition(const char dummy);
     

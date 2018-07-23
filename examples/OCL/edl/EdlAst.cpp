@@ -109,6 +109,13 @@ EDL_AST::addToExpr(const std::string& token) {
 }
 
 void
+EDL_AST::addDoubleToExpr(const double val) {
+    expr += " ";
+    expr += std::to_string(val);
+    expr += " ";
+}
+
+void
 EDL_AST::addCharToExpr(const char op) {
     expr += " ";
     expr += op;

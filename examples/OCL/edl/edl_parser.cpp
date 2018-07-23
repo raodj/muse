@@ -148,7 +148,8 @@ struct edl_grammar : qi::grammar<Iterator, Skipper> {
 		  );
 	term.name("term");
 	
-	exprGroup = ( token [CALL_AST(addToExpr)]
+	exprGroup = ( double_ [CALL_AST(addDoubleToExpr)]
+                      | ( -( qi::char_('-') [CALL_AST(addCharToExpr)] ) >> token [CALL_AST(addToExpr)])
 		      | ( qi::char_('(') [CALL_AST(addCharToExpr)]
 			  >> expr
 			  >> qi::char_(')') [CALL_AST(addCharToExpr)]

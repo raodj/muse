@@ -9,23 +9,19 @@ epidemic EbolaLiberia {
      # calibrating the observed Ebola outbreak to a 6 compartment
      # model.
     constants {
-        Bi   = .160;    # Document this constant
-        Bh   = .062;    # Document this constant
-        Bf   = .489;    # Document this constant
-        A    = .08333;  # Document this constant
-        Yh   = .3086;   # Document this constant
-        Ydh  = .0993;   # Document this constant
-        Yf   = .4975;   # Document this constant
-        Yi   = .0667;   # Document this constant
-        Yd   = .0751;   # Document this constant
-        Yih  = .06297;  # Document this constant
-        O1   = .5;      # Document this constant
-        O2   = .5;      # Document this constant
-        l    = .197;    # Document this constant
-        beta = 1;
-        mu   = 0.0005;
-        psi  = 0.1;
-        one  = 1;
+        Bi   = 0.160;    # Contact Rate, Community 
+        Bh   = 0.062;    # Contact Rate, Hospital
+        Bf   = 0.489;    # Contact Rate, Funeral
+        A    = 0.08333;  # Incubation rate (period = 12 days)
+        Yh   = 0.3086;   # Time until hopitalization 3.24 days
+        Ydh  = 0.0993;   # Time from Hospitalization to death (10.07 days)
+        Yf   = 0.4975;   # Duration of Traditional Funeral (2.01 days)
+        Yi   = 0.0667;   # Duration of infection (15 days)
+        Yd   = 0.0751;   # Time from infection to death (13.31 days)
+        Yih  = 0.06297;  # Time from Hoptialization to Recovery (15.88 days)
+        O1   = 0.5;      # Case Fatality rate, Unhosptalized
+        O2   = 0.5;      # Case Fatality rate, Hospitalized
+        l    = 0.197;    # Probability a case is hospitalized
     }
 
     parameters {
@@ -46,13 +42,13 @@ epidemic EbolaLiberia {
     # versions by the EDL code-generator.
     transitions {
        # N (total population) is automagically generated.
-       s += +1         @ (N * mu);
        s += -1, e += 1 @ ((Bi * s * i) + (Bh * s * h) + (Bf * s * f)) / N;
        e += -1, i += 1 @ (A * e);
        i += -1, h += 1 @ (Yh * l * i);
-       i += -1, f += 1 @ (Yd * (one - l) * O1 * i);
-       h += -1, f += 1 @ (Yd * (one - l) * (one - O1) * i);
-       h += -1, r += 1 @ (Ydh * O2 * h);
+       i += -1, f += 1 @ (Yd * (1 - l) * O1 * i);
+       i += -1, r += 1 @ (Yi * (1 - l) * (1 - O1) * i);
+       h += -1, f += 1 @ (Ydh * O2 * h);
+       h += -1, r += 1 @ (Yih * (1 - O2) * h);
        f += -1, r += 1 @ (Yf * f);
     }
 }
