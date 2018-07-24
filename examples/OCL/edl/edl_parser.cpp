@@ -21,15 +21,13 @@ epidemic chikv(ChikVSEIR, ChikVState) {
 
 */
 
-#include "edl_parser.h"
-#include "EdlAst.h"
 #include <unordered_map>
 #include <algorithm>
 #include <utility>
 #include <functional>
-
-// External AST-based code generator
-extern void generateCode(EDL_AST& ast);
+#include "edl_parser.h"
+#include "EdlAst.h"
+#include "SimulationGenerator.h"
 
 // Include boot spirit namespace to reduce number of namespace
 // specifications for each Spirit include.
@@ -268,6 +266,7 @@ int main(int argc, char *argv[]) {
     }
     // Now that the EDL is parsed into an Abstract Syntax Tree (AST),
     // we can now use the AST to generate code.
-    generateCode(ast);
+    SimulationGenerator gen;
+    gen.generateSim(ast);
     return 0;
 }

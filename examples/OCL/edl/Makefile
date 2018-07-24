@@ -6,7 +6,16 @@ CPPFLAGS += -g -Wall -std=c++11
 
 EDL_SRCS = edl_parser.cpp\
 	EdlAst.cpp\
-	CodeGenerator.cpp
+	AgentGenerator.h\
+	AgentGenerator.cpp\
+	Generator.h\
+	Generator.cpp\
+	StateGenerator.h\
+	StateGenerator.cpp\
+	SimulationGenerator.h\
+	SimulationGenerator.cpp\
+	MakefileGenerator.h\
+	MakefileGenerator.cpp
 
 EDL_OBJS = $(patsubst %.cpp, $(OBJ_DIR)/%.o, $(EDL_SRCS))
 
