@@ -620,6 +620,7 @@ AC_CONFIG_FILES([Makefile\
 	examples/PCS_Simulation/Makefile\
         examples/EpidemicSimulation/Makefile\
         examples/OCL/Makefile\
+        examples/OCL/edl/Makefile\
         examples/OCL/synth/Makefile])
 
 AC_OUTPUT
