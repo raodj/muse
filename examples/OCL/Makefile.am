@@ -24,24 +24,9 @@
 include $(top_srcdir)/Makefile.global.am
 
 if COND_USE_OPENCL
-        OPT_OCL = ocl_test synth
+        OPT_OCL = edl synth
 endif
 
 SUBDIRS = $(OPT_OCL)
-
-# AM_CXXFLAGS += -I../../include -I ../../kernel/include/ -I ../../kernel/include/ocl
-
-# bin_PROGRAMS = ocl
-
-# ocl_LDFLAGS = -L../../kernel -L $(AM_LDFLAGS)
-# ocl_LDADD = $(STDCPP) -lmuse
-# ocl_DEPENDENCIES=../../kernel/libmuse.a 
-
-# ocl_SOURCES = OclExampleSimulation.h\
-# 	OclExampleSimulation.cpp\
-# 	synth/SynthAgent.h\
-# 	synth/SynthAgent.cpp\
-# 	ebola/EbolaAgent.h\
-# 	ebola/EbolaAgent.cpp
 
 # end of Makefile.am
