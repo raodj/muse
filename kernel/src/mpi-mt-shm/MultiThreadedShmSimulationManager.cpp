@@ -52,8 +52,7 @@ MultiThreadedShmSimulationManager::~MultiThreadedShmSimulationManager() {
 
 void
 MultiThreadedShmSimulationManager::initialize(int& argc, char* argv[],
-                                           bool initMPI)
-    throw (std::exception) {
+                                              bool initMPI) {
     // First, parse out the number of threads and if direct event
     // exchange is to be used.
     bool noNuma = (USE_NUMA == 1) ? false : true;

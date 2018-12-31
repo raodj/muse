@@ -18,7 +18,7 @@ public:
     
     Location(const muse::AgentID id);
     
-    void initialize() throw (std::exception) override;
+    void initialize() override;
     
     void executeTask(const muse::EventContainer& events) override;
     /**

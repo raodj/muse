@@ -86,7 +86,7 @@ public:
         \note This method calls the runHCkernel method in muse::Agent
         to indicate that this agent requires HC support from MUSE.
     */
-    virtual void initialize() throw (std::exception) override;
+    virtual void initialize() override;
 
     /** Process events and simulate peform epidemic progression using
         HC support from MUSE.

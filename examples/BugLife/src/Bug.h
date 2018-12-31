@@ -80,7 +80,7 @@
     </ul>
 */
 class Bug : public muse::Agent {
-    friend std::ostream& ::operator<<(ostream&, const Bug&);
+    friend std::ostream& operator<<(ostream&, const Bug&);
 public:
     /** The constructor for the Bug agent.
 
@@ -113,7 +113,7 @@ public:
 	randomly move into a specific space.  This method uses the
 	scheduleMoveIn() method to perform the actual task.
     */
-    void initialize() throw (std::exception);
+    void initialize();
 
     /** Muse API method to process events scheduled for this agent.
 

@@ -55,8 +55,8 @@ ResChannel::~ResChannel() {
 }
 
 void
-ResChannel::connect(const int fedIndex, const std::string& ctrlInfo, const int port)
-    throw (std::exception) {
+ResChannel::connect(const int fedIndex, const std::string& ctrlInfo,
+                    const int port) {
     // Parse of the host and port number from host:port_number format.
     const int colonPos = ctrlInfo.find(':');
     std::string domain = ctrlInfo.substr(0, colonPos);

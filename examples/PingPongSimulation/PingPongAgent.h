@@ -30,7 +30,7 @@ public:
      * essentially generates the first event in the simulation 
      * only on agent with ID 0.
      */
-    void initialize() throw (std::exception) override;
+    void initialize() override;
 
     /**
      * This method is called each time this agent has an event

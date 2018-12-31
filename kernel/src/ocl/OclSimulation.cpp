@@ -217,8 +217,7 @@ OclSimulation::initOpenCL(int platformID, int deviceID, bool display) {
 }
 
 void
-OclSimulation::initialize(int& argc, char* argv[], bool initMPI)
-    throw(std::exception) {
+OclSimulation::initialize(int& argc, char* argv[], bool initMPI) {
     // Create a default communicator.
     commManager = new Communicator();
     myID = commManager->initialize(argc, argv, initMPI);
@@ -265,8 +264,7 @@ OclSimulation::preStartInit() {
 
 cl::Kernel
 OclSimulation::compileToKernel(const std::string& source,
-                               const std::string& name) const
-    throw (cl::Error) {
+                               const std::string& name) const {
     // Compile the OpenCL source code
     cl::Program::Sources sources(1, std::make_pair(source.c_str(), 0));
     cl::Program program(context, sources);

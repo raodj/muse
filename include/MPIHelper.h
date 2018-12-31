@@ -50,6 +50,7 @@
 #pragma GCC diagnostic ignored "-Wunused-parameter"
 #endif
 
+#define OMPI_SKIP_MPICXX 1
 #include <mpi.h>
 
 #ifdef __GNUC__
@@ -485,8 +486,8 @@ public:
     an empty method call if MPI is unavailable.
 
     <p>This macro provides a convenient, conditionally defined macro
-    to refer to MPI::Init method. If MPI is available, then MPI_INIT
-    defaults to MPI::Init.  On the other hand, if MPI is disabled then
+    to refer to MPI_Init function. If MPI is available, then MPI_INIT
+    defaults to MPI_Init.  On the other hand, if MPI is disabled then
     this macro simply reduces to a blank method.</p>
 
     This macro can be used as shown below:

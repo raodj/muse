@@ -77,7 +77,7 @@ public:
                PHOLDAgent::DelayType receiverDistType = UNIFORM,
                int extraEventSize = 0);
 
-    void initialize() throw (std::exception) override;
+    void initialize() override;
 
     void executeTask(const muse::EventContainer& events) override;
 

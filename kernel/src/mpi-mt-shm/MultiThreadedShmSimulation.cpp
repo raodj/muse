@@ -111,8 +111,7 @@ MultiThreadedShmSimulation::setGVTManager(GVTManager* gvtMan) {
 }
 
 void
-MultiThreadedShmSimulation:: initialize(int& argc, char* argv[], bool initMPI)
-    throw(std::exception) {
+MultiThreadedShmSimulation:: initialize(int& argc, char* argv[], bool initMPI) {
     UNUSED_PARAM(initMPI);
     // Consume any specific command-line arguments used to setup and
     // configure other components like the scheduler and GVT manager.

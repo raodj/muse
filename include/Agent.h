@@ -108,7 +108,7 @@ public:
         \throw std::exception This method throws an exception when
         errors occur.
     */
-    virtual void initialize() throw (std::exception) = 0;
+    virtual void initialize() = 0;
     
     /** The finalize method.
      

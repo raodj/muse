@@ -10,7 +10,7 @@ RescueArea::RescueArea(muse::AgentID id, muse::State* state) :
     Agent(id,state) { }
 
 void
-RescueArea::initialize() throw (std::exception) { }
+RescueArea::initialize() { }
 
 int
 RescueArea::eventItemCount(const size_t itemCount, int startPos,

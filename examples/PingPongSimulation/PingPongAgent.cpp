@@ -11,7 +11,7 @@ PingPongAgent::PingPongAgent(const muse::AgentID& id) :
 }
 
 void
-PingPongAgent::initialize() throw (std::exception) {
+PingPongAgent::initialize() {
     // This is a custom ping pong simulation, so we can assume only two agents!
     // the first agent is to start the ping
     if (getAgentID() == 0) {

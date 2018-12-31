@@ -29,6 +29,7 @@
 
 #include <thread>
 #include <algorithm>
+#include <functional>
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 #include "mpi-mt/MultiThreadedCommunicator.h"
 #include "GVTMessage.h"
@@ -52,8 +53,7 @@ MultiThreadedSimulationManager::~MultiThreadedSimulationManager() {
 
 void
 MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
-                                           bool initMPI)
-    throw (std::exception) {
+                                           bool initMPI) {
     // First, parse out the number of threads and if direct event
     // exchange is to be used.
     bool noNuma = (USE_NUMA == 1) ? false : true;

@@ -224,8 +224,7 @@ Scheduler::getNextEventTime() {
 }
 
 void
-Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
-    throw (std::exception) {
+Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[]) {
     UNUSED_PARAM(rank);
     UNUSED_PARAM(numProcesses);
     // Setup local variables for processing command-line arguments

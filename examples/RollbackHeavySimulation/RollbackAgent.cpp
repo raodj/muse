@@ -45,7 +45,7 @@ RollbackAgent::RollbackAgent(muse::AgentID& id, const int max_a) :
     Agent(id, new muse::State()), max_agents(max_a) {}
 
 void
-RollbackAgent::initialize() throw (std::exception) {
+RollbackAgent::initialize() {
     if (getAgentID() == 0) {
 	muse::Time receive = 1;
 	muse::Event* const e = muse::Event::create(getAgentID(), receive); 

@@ -9,7 +9,8 @@
 Victim::Victim(AgentID id, State* state, int c, int r) 
    : Agent(id,state), cols(c), rows(r), my_location(-1, -1){ }
 
-void Victim::initialize() throw (std::exception){
+void
+Victim::initialize() {
    int x = (MTRandom::RandDouble()*(cols));
    while(x == cols) x = (MTRandom::RandDouble()*(cols));
    int y = (MTRandom::RandDouble()*(rows));

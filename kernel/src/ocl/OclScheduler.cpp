@@ -56,7 +56,6 @@ OclScheduler::processNextAgentEvents() {
     // create boolean to be passed as parameter and checked later
     bool runOCL = false;
     agent->processNextEvents(agentEvents, runOCL);
-
     agentEvents.clear();
 
     // check if should run equation for this agent

@@ -14,7 +14,7 @@ Volunteer::Volunteer(AgentID id, State* state, int c, int r , int x, int y)
    : Agent(id, state), cols(c), rows(r), my_location(x, y) { }
 
 void
-Volunteer::initialize() throw (std::exception) {
+Volunteer::initialize() {
    (static_cast<VolunteerState*>(getState()))->setLocation(my_location);
    (static_cast<VolunteerState*>(getState()))->setAgentID(getAgentID());
    for(int i = 0; i < 8; i++) 

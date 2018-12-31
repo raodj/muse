@@ -177,8 +177,8 @@ protected:
 	list is modifed if command-line arguments are consumed by the
 	kernel.
     */
-    virtual void initialize(int rank, int numProcesses, int& argc, char* argv[])
-        throw (std::exception);
+    virtual void initialize(int rank, int numProcesses, int& argc,
+                            char* argv[]);
 
     /** Convenience method to obtain host and IP of domain controller
         for this MPI rank.

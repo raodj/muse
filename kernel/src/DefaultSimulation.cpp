@@ -35,8 +35,7 @@ muse::DefaultSimulation::~DefaultSimulation() {
 }
 
 void
-muse::DefaultSimulation::initialize(int& argc, char* argv[], bool initMPI)
-    throw (std::exception) {
+muse::DefaultSimulation::initialize(int& argc, char* argv[], bool initMPI) {
     commManager = new Communicator();
     myID = commManager->initialize(argc, argv, initMPI);
     unsigned int numThreads;  // dummy. not really used.

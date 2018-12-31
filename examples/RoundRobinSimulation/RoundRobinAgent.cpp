@@ -45,7 +45,7 @@ RoundRobinAgent::RoundRobinAgent(const muse::AgentID& id, const int max_a) :
 }
 
 void
-RoundRobinAgent::initialize() throw (std::exception) {
+RoundRobinAgent::initialize() {
     if (getAgentID() == 0) {
         const muse::AgentID nextID = (getAgentID() + 1) % max_agents;
 	muse::Event* e = muse::Event::create(nextID, getTime() + 1); 

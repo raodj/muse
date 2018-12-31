@@ -46,8 +46,7 @@ HRMScheduler::~HRMScheduler() {
 }
 
 void
-HRMScheduler::initialize(int rank, int numProcesses, int& argc, char *argv[])
-    throw (std::exception) {
+HRMScheduler::initialize(int rank, int numProcesses, int& argc, char *argv[]) {
     ArgParser::StringList hrmDomainList;
     std::string hrmDomainListFile;
     int minEpochCount = 3;

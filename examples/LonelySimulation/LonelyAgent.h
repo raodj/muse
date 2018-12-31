@@ -17,7 +17,7 @@ class LonelyAgent : public Agent {
 public:
     LonelyAgent(AgentID &, State *);
 
-    void initialize() throw (std::exception) override;
+    void initialize() override;
 
     void executeTask(const EventContainer& events) override;
 

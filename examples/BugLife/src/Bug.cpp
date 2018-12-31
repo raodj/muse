@@ -55,7 +55,7 @@ Bug::Bug(muse::AgentID id, CoordAgentIDMap& coords, int cols, int rows) :
 }
 
 void
-Bug::initialize() throw (std::exception) {
+Bug::initialize() {
     // Schedule a logical move-in for this bug into an initial location.
     scheduleMoveInEvent(4);
 }

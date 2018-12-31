@@ -160,7 +160,7 @@ PHOLDAgent::getMaxDelayValue(DelayType delType, int delayVal) const {
 }
     
 void
-PHOLDAgent::initialize() throw (std::exception){
+PHOLDAgent::initialize() {
     // We generate N events with random receive times to self
     for (int i = 0; i < N; i++){
         const int RndDelay = (delay > 0) ? getDelay(delayType, delay) : 0;

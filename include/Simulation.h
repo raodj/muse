@@ -102,8 +102,7 @@ public:
         method in this class.
     */
     static Simulation* initializeSimulation(int& argc, char* argv[],
-                                            bool initMPI = true)
-        throw (std::exception);
+                                            bool initMPI = true);
 
     /** \brief Finalize the Simulation
 
@@ -412,8 +411,7 @@ protected:
         simply being repeated and initialization of MPI is not
         necessary.
     */
-    virtual void initialize(int& argc, char* argv[], bool initMPI = true)
-        throw (std::exception);
+    virtual void initialize(int& argc, char* argv[], bool initMPI = true);
 
     /** \brief Finalize the Simulation
 

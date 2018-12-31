@@ -34,8 +34,8 @@ MultiThreadedScheduler::MultiThreadedScheduler() {
 MultiThreadedScheduler::~MultiThreadedScheduler() {}
 
 void
-MultiThreadedScheduler::initialize(int rank, int numProcesses, int& argc, char* argv[])
-    throw (std::exception) {
+MultiThreadedScheduler::initialize(int rank, int numProcesses, int& argc,
+                                   char* argv[]) {
     UNUSED_PARAM(rank);
     UNUSED_PARAM(numProcesses);
     std::string queueName = "3tSkipMT";
