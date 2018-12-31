@@ -50,7 +50,7 @@ Space::Space(muse::AgentID id, muse::State* state) : Agent(id, state) {
 }
 
 void
-Space::initialize() throw (std::exception) {
+Space::initialize() {
     // Nothing else to be done in this method
 } 
 

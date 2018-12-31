@@ -8,7 +8,7 @@
 class RescueArea : public muse::Agent {
 public:
     RescueArea(muse::AgentID, muse::State *);
-    void initialize() throw (std::exception) override;
+    void initialize() override;
     void executeTask(const muse::EventContainer&) override;
     void finalize() override;
 

@@ -112,8 +112,8 @@ protected:
 	list is modifed if command-line arguments are consumed by the
 	kernel.
     */
-    virtual void initialize(int rank, int numProcesses, int& argc, char* argv[])
-        throw (std::exception) override;
+    virtual void initialize(int rank, int numProcesses, int& argc,
+                            char* argv[]) override;
 
 private:
     

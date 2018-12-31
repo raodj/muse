@@ -9,7 +9,7 @@ using namespace muse;
 class Volunteer : public Agent {
 public:
    Volunteer(AgentID, State *, int c, int r , int x, int y);
-   void initialize() throw (std::exception) override;
+   void initialize() override;
    void executeTask(const EventContainer&) override;
    void calculateMove();
    void finalize() override;

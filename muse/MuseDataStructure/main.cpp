@@ -26,7 +26,7 @@
 class TestAgent : public muse::Agent {
 public:
      TestAgent(int id) : muse::Agent(id, new muse::State()) {}
-     void initialize() throw (std::exception) {}
+     void initialize() {}
      void executeTask(const muse::EventContainer* eventList) {}
      void finalize() {}
 };

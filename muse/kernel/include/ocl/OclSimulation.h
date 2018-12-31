@@ -99,8 +99,7 @@ protected:
         simply being repeated and initialization of MPI is not
         necessary.
     */
-    virtual void initialize(int& argc, char* argv[], bool initMPI = true)
-        throw (std::exception) override;
+    virtual void initialize(int& argc, char* argv[], bool initMPI = true);
 
     /** Custom override to generate and setup OpenCL kernel after the
         agent's have been initialized.
@@ -279,8 +278,7 @@ private:
         \param[in] name The top-level kernel's name.
     */
     cl::Kernel compileToKernel(const std::string& source,
-                               const std::string& name = "muse") const
-        throw (cl::Error);
+                               const std::string& name = "muse") const;
 
     /** Helper method to copy state and parameter information to device/GPU.
 

@@ -68,8 +68,7 @@ Simulation::Simulation(const bool useSharedEvents)
 }
 
 Simulation*
-Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI)
-    throw (std::exception) {
+Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI) {
     // First use a temporary argument parser to determine type of
     // simulation kernel to instantiate.
     simName = "default";
@@ -120,8 +119,7 @@ Simulation::finalizeSimulation(bool stopMPI, bool delSim) {
 }
 
 void
-Simulation::initialize(int& argc, char* argv[], bool initMPI)
-    throw (std::exception) {
+Simulation::initialize(int& argc, char* argv[], bool initMPI) {
     UNUSED_PARAM(argc);   // Suppress compiler warnings about these 3
     UNUSED_PARAM(argv);   // unused parameters
     UNUSED_PARAM(initMPI);

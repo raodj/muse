@@ -60,7 +60,7 @@ SynthAgent::SynthAgent(muse::AgentID id, int x, int y,
 }
 
 void
-SynthAgent::initialize() throw (std::exception) {
+SynthAgent::initialize() {
     // Schedule an event to ourselves at the next time step.
     for (int i = 0; (i < eventsPerAgent); i++) {
         scheduleEvent(muse::Event::create<muse::Event>(getAgentID(),

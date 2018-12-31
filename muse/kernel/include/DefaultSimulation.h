@@ -71,8 +71,7 @@ protected:
         simply being repeated and initialization of MPI is not
         necessary.
     */
-    void initialize(int& argc, char* argv[], bool initMPI = true)
-        throw (std::exception) override;
+    void initialize(int& argc, char* argv[], bool initMPI = true) override;
     
     /** \brief Finalize the Simulation
 

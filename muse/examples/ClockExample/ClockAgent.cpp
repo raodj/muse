@@ -10,7 +10,7 @@ ClockAgent::ClockAgent(muse::AgentID id) : Agent(id, new ClockState()) {
 }
 
 void
-ClockAgent::initialize() throw (std::exception){
+ClockAgent::initialize() {
     oss << "Clock Agent initialized" << std::endl;
     // Here i will set the motion of scheduling event for the first
     // hour passage.  For this example we will assume that every FIVE

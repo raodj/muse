@@ -253,7 +253,7 @@ PCS_Agent::nextCall(const PCS_Event& event) {
 // This method is synoymous to the "StartUp" method in Carother's
 // MASOCTS paper.
 void
-PCS_Agent::initialize() throw (std::exception) {
+PCS_Agent::initialize() {
     // Random number generators for the 2 parameters in each portable
     std::exponential_distribution<double> move_distrib(1.0 /moveIntervalMean);
     std::exponential_distribution<double> interval_distrib(1.0 / callIntervalMean);

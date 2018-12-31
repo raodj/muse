@@ -64,7 +64,7 @@ public:
 	generates the initial token/event that is circulated to
 	adjacent agents.
     */
-    void initialize() throw (std::exception) override;
+    void initialize() override;
 
     /** The method to process event(s) scheduled for this agent.
 

@@ -154,7 +154,7 @@ public:
         domainInfo
     */
     void connect(const int fedIndex, const std::string& ctrlInfo, 
-                 const int port = -1) throw (std::exception);
+                 const int port = -1);
 
     /**
        Method to start background thread and let the hypervizor know

@@ -192,8 +192,7 @@ protected:
         simply being repeated and initialization of MPI is not
         necessary.
     */
-    virtual void initialize(int& argc, char* argv[], bool initMPI = true)
-        throw (std::exception);
+    virtual void initialize(int& argc, char* argv[], bool initMPI = true);
 
     /** \brief Finalize the Simulation
 

@@ -123,7 +123,7 @@ public:
      * The minimum of the three timestamps is used to determine the type and
      * the destination of the PCS_Event/Portable.
      */
-    void initialize() throw (std::exception) override;
+    void initialize() override;
     
     /**
      * This method is called each time the PCS_Agent/Cell receives
