@@ -71,8 +71,8 @@ GVTManager::initialize(const Time& startTime, Communicator* comm) {
     gvt          = startTime;
     commManager  = comm;
     // Determine configuration information from the comm manager.
-    unsigned int numThreads;  // Dummy. Not used as threads don't use MPI
-    commManager->getProcessInfo(rank, numProcesses, numThreads);
+    unsigned int numProcs;  // Dummy, as we want total number of threads.
+    commManager->getProcessInfo(rank, numProcs, numProcesses);
     ASSERT(numProcesses > 0);
     ASSERT(rank < numProcesses);
     

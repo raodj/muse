@@ -151,9 +151,6 @@ MultiThreadedCommunicator::getProcessInfo(unsigned int& rank,
     Communicator::getProcessInfo(rank, numProcesses, totNumThreads);
     // Update the total number of threads
     totNumThreads = numProcesses * threadsPerNode;
-    
-    // For mpi-mt (not mpi-mt-shm) the num processes is also the num threads
-    numProcesses = threadsPerNode;
 }
 
 void

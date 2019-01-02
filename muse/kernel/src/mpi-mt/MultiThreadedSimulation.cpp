@@ -228,12 +228,12 @@ MultiThreadedSimulation::setCpuAffinity() const {
     }
     // bind the stack for this thread on the NUMA node
     const unsigned long nodeMask = 1UL << getNumaNodeOfCpu(cpuID);
-    std::cout << "Calling mbind on thread: " << threadID
-              << " on CPU: " << cpuID << " to bind to NUMA node: "
-              << getNumaNodeOfCpu(cpuID) << std::endl;
+    DEBUG(std::cout << "Calling mbind on thread: " << threadID
+                    << " on CPU: " << cpuID << " to bind to NUMA node: "
+          << getNumaNodeOfCpu(cpuID) << std::endl);
     const long bindRc = mbind(stackAddr, stackSize, MPOL_BIND, &nodeMask,
                               sizeof(nodeMask), MPOL_MF_MOVE | MPOL_MF_STRICT);
-    std::cout << "Done mbind.\n";
+    DEBUG(std::cout << "Done mbind.\n");
     if (bindRc != 0) {
         std::cerr << "Error moving stack to local NUMA memory: "
                   << errno << std::endl;
