@@ -1,5 +1,5 @@
-#ifndef UTILITIES_H
-#define UTILITIES_H
+#ifndef MUSE_UTILITIES_H
+#define MUSE_UTILITIES_H
 
 //---------------------------------------------------------------------------
 //
