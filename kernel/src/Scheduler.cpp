@@ -24,9 +24,16 @@
 //---------------------------------------------------------------------------
 
 #include <cstdlib>
+
 #include "Scheduler.h"
 #include "Simulation.h"
 #include "ArgParser.h"
+
+#ifdef RB_STATS
+#include <sstream>
+std::ostringstream rbStats;
+std::ofstream rbStatsFile;
+#endif
 
 using namespace muse;
 
@@ -197,14 +204,25 @@ Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
     // This event is an anti-message we must remove it and
     // future events from this agent.
+#ifndef RB_STATS
     agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
-    // agent->eventPQ->removeFutureEvents(e);
-    // There are cases when we may not have a future anti-message as
-    // partial cleanup of input-queues done by
-    // Agent::doCancellationPhaseInputQueue method may have already
-    // removed this message.  Maybe there is a better way to rework
-    // the whole input-queue handling in Agent to correctly detect and
-    // report fast-anti messages.
+#else
+    const int eraseCount =
+        agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
+    rbStats << agent->getAgentID()   << ","
+            << agent->getLVT()       << ","
+            << agent->numSchedules   << ","
+            << e->getSenderAgentID() << ","
+            << e->getSentTime()      << ","
+            << e->getReceiveTime()   << ","
+            << eraseCount            << "\n";
+    agent->numSchedules = 0;
+    if (rbStats.tellp() > 4000) {
+        const std::string stats = rbStats.str();
+        rbStatsFile.write(stats.c_str(), stats.size());
+        rbStats.str("");
+    }
+#endif
 }
 
 Scheduler::~Scheduler() {
@@ -271,11 +289,22 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[]) {
                   << "Aborting.\n";
         std::abort();  // throw an exception instead?
     }
+#ifdef RB_STATS
+    std::string rbFileName = "rb_stats_rank_" + std::to_string(rank) +
+        "_" + std::to_string(numProcesses) + ".csv";
+    rbStatsFile.open(rbFileName, std::ios::app);
+    rbStats << "#Agent,LVT,Schedules,Sender,SentTime,RecvTime,EventsErased\n";
+#endif
 }
 
 void
 Scheduler::reportStats(std::ostream& os) {
     agentPQ->reportStats(os);
+#ifdef RB_STATS
+    const std::string stats = rbStats.str();
+    rbStatsFile.write(stats.c_str(), stats.size());
+    rbStats.str("");    
+#endif
 }
 
 void 
