@@ -37,7 +37,7 @@
 #define TIME_EQUALS(t1,t2)(fabs(t1-t2)<1e-8)
 
 // Forward declaration for insertion operator for Event
-extern std::ostream& operator<<(ostream&, const muse::Agent&);
+extern std::ostream& operator<<(std::ostream&, const muse::Agent&);
 
 BEGIN_NAMESPACE(muse);
 
@@ -78,7 +78,7 @@ using List = std::deque<T>;
     are declared virtual.</p>
 */
 class Agent {
-    friend std::ostream& ::operator<<(ostream&, const muse::Agent&);
+    friend std::ostream& ::operator<<(std::ostream&, const muse::Agent&);
     friend class Simulation;
     friend class Scheduler;
     friend class AgentPQ;
@@ -440,9 +440,16 @@ private:
         events to be reprocessed due to the rollback.  These events
         are added back to the event queue associated with the
         scheduler.
+
+        \return This method returns the number of states that were
+        cancelled due to the rollback.  This value is synonymous to
+        the number of event-scheduling-cycles that were canceled out
+        due to rollbacks.  The return value is exactly the same value
+        returned by the doRestorationPhase method that is called by
+        this method.
     */
-    void doRollbackRecovery(const Event* stragglerEvent,
-                            muse::EventQueue& reschedule);
+    int doRollbackRecovery(const Event* stragglerEvent,
+                           muse::EventQueue& reschedule);
 
     /** The doRestorationPhase method.  This is the first step of the
         rollback recovery process.  In this method we first search the
@@ -454,8 +461,13 @@ private:
         \note Only should be called by the doRollbackRecovery method.
 
         \param stragglerTime, reference to the strggler event's receive time
+
+        \return This method returns the number of states that were
+        cancelled due to the rollback.  This value is synonymous to
+        the number of event-scheduling-cycles that were canceled out
+        due to rollbacks.
     */
-    void doRestorationPhase(const Time& stragglerTime);
+    int doRestorationPhase(const Time& stragglerTime);
 
     /** The doCancellationPhaseOutputQueue method.  This is the second
         step of the rollback recovery process.  In this method we

@@ -235,13 +235,15 @@ Agent::scheduleEvent(Event* e) {
     return false;
 }
 
-void
+int
 Agent::doRollbackRecovery(const Event* stragglerEvent,
                           muse::EventQueue& reschedule) {
     DEBUG(std::cout << "Rolling back due to: " << *stragglerEvent << std::endl);
-    doRestorationPhase(stragglerEvent->getReceiveTime());
-    // After state is restored, that means out current time is the restored time
-    Time restoredTime = getTime(LVT);
+    const int statesCancelled =
+        doRestorationPhase(stragglerEvent->getReceiveTime());
+    // After state is restored, that means out current time is the
+    // restored time
+    const Time restoredTime = getTime(LVT);
     DEBUG(std::cout << "*** Agent(" << myID << "): restored time to "
                     << restoredTime << ", while GVT = " << getTime(GVT)
                     << std::endl);
@@ -269,12 +271,14 @@ Agent::doRollbackRecovery(const Event* stragglerEvent,
 
     // Remember to increment the rollback counter
     numRollbacks++;
-  
+
+    // Return the number of states cancelled which is synonymous to
+    // number of event-cycles that were discarded due to the rollback.
+    return statesCancelled;
 }
 
-void
+int
 Agent::doRestorationPhase(const Time& stragglerTime) {
-   
     /** OK, here is the plan. First, there is a stragglerTime.Second,
         the stateQueue should be sorted by the nature of its
         containt.We want to find a state with a timestamp smaller than
@@ -300,6 +304,7 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
     setLVT(TIME_INFINITY);
     // Now go and look for a state to restore to.
     ASSERT(!stateQueue.empty());
+    const int initialStateQSize = stateQueue.size();
     while (stateQueue.size() != 1) {
         State* currentState = stateQueue.back();
         if (currentState->getTimeStamp() < stragglerTime) {
@@ -343,6 +348,9 @@ Agent::doRestorationPhase(const Time& stragglerTime) {
     //     << " Straggler Time: "<< stragglerTime
     //     << " Restored Time: "<< getTime() << endl;
     // }
+
+    // Return the number of states removed
+    return (initialStateQSize - stateQueue.size());
 }
 
 void
@@ -626,8 +634,8 @@ Agent::agentComp::operator()(const Agent *lhs, const Agent *rhs) const {
 }
 
 
-ostream&
-statePrinter(ostream& os, List<muse::State*> state_q ) {
+std::ostream&
+statePrinter(std::ostream& os, List<muse::State*> state_q ) {
     List<muse::State*>::iterator it = state_q.begin();
     os << "(";
     for (; it != state_q.end(); it++) {
@@ -637,8 +645,8 @@ statePrinter(ostream& os, List<muse::State*> state_q ) {
     return os;
 }
 
-ostream&
-operator<<(ostream& os, const muse::Agent& agent) {
+std::ostream&
+operator<<(std::ostream& os, const muse::Agent& agent) {
     os << "Agent[id: "       << agent.getAgentID() << "; ";
     /*
        << "Events in heap: " <<  agent.schedRef.eventPQ->size();

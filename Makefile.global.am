@@ -31,6 +31,10 @@ GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
 GLOBALCXXFLAGS  = $(CPP11) $(CPP0X)
 
+# The following compiler-flag enables recording of rollback stats in
+# each MPI-process (separate file per process)
+# GLOBALCPPFLAGS += -DRB_STATS
+
 # For profiling the frame pointers are important for short methods.
 GLOBALCPPFLAGS += -fno-omit-frame-pointer
 

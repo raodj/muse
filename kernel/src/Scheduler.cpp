@@ -186,7 +186,29 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
         }
         // Have the agent to do inputQ, and outputQ clean-up and
         // return list of events to reschedule.
+#ifndef RB_STATS
         agent->doRollbackRecovery(e, *agentPQ);
+#else
+        // Code has been compiled to record Rollback statistics. So do
+        // that now.
+        const Time rbLen         = agent->getLVT() - e->getReceiveTime();
+        const int statesCanceled = agent->doRollbackRecovery(e, *agentPQ);
+        rbStats << agent->getAgentID()   << ","
+                << agent->getLVT()       << ","
+                << agent->numSchedules   << ","
+                << e->getSenderAgentID() << ","
+                << e->getSentTime()      << ","
+                << e->getReceiveTime()   << ","
+                << statesCanceled        << ","
+                << rbLen                 << "\n";
+        agent->numSchedules = 0;
+        if (rbStats.tellp() > 4000) {
+            const std::string stats = rbStats.str();
+            rbStatsFile.write(stats.c_str(), stats.size());
+            rbStats.str("");
+        }
+#endif  // RB_STATS
+        
         // Basic sanity check on correct rollback behavior
         if (e->getReceiveTime() <= agent->getLVT()) {
             // Error condition.
@@ -202,27 +224,11 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
 void
 Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
-    // This event is an anti-message we must remove it and
-    // future events from this agent.
-#ifndef RB_STATS
+    // This event is an anti-message we must remove it and future
+    // events from this agent.  Since the event cancellations are in
+    // the future, they are not rollbacks (and hence we don't track
+    // these as part of RB_STATS)
     agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
-#else
-    const int eraseCount =
-        agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
-    rbStats << agent->getAgentID()   << ","
-            << agent->getLVT()       << ","
-            << agent->numSchedules   << ","
-            << e->getSenderAgentID() << ","
-            << e->getSentTime()      << ","
-            << e->getReceiveTime()   << ","
-            << eraseCount            << "\n";
-    agent->numSchedules = 0;
-    if (rbStats.tellp() > 4000) {
-        const std::string stats = rbStats.str();
-        rbStatsFile.write(stats.c_str(), stats.size());
-        rbStats.str("");
-    }
-#endif
 }
 
 Scheduler::~Scheduler() {
@@ -293,7 +299,7 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[]) {
     std::string rbFileName = "rb_stats_rank_" + std::to_string(rank) +
         "_" + std::to_string(numProcesses) + ".csv";
     rbStatsFile.open(rbFileName, std::ios::app);
-    rbStats << "#Agent,LVT,Schedules,Sender,SentTime,RecvTime,EventsErased\n";
+    rbStats << "#Agent,LVT,Schedules,Sender,SentTime,RecvTime,CyclesCancelled,RBLen\n";
 #endif
 }
 
