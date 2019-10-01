@@ -44,7 +44,15 @@
 #include "ocl/OclSimulation.h"
 #endif
 
+#ifdef POLLER
+#include "PollPolicy.h"
+#include "AlwaysPollPolicy.h"
+#include "RLBackoffPolicy.h"
+#endif
+
 using namespace muse;
+
+
 
 // Define reference to the singleton simulator/kernel
 muse::Simulation* muse::Simulation::kernel = NULL;
@@ -246,6 +254,12 @@ Simulation::initAgents() {
 
 int
 Simulation::checkProcessMpiMsgs() {
+
+    #ifdef POLLER
+    // Force processMpiMsgs() to be called
+    mpiMsgCheckCounter = 1;
+    #endif
+
     // A fixed threshold for sample count
     const int MpiThreshSamples = 100;
     // If we have only one process then there is nothing to be done
@@ -362,6 +376,12 @@ Simulation::start() {
     LGVT         = startTime;
     int gvtTimer = gvtDelayRate;
     // The main simulation loop
+    
+    #ifdef POLLER
+    PollPolicy *pollPolicy = new AlwaysPollPolicy();
+    int numEvents = 0;
+    #endif
+
     while (gvtManager->getGVT() < endTime) {
         // See if a stat dump has been requested
         if (doDumpStats) {
@@ -375,13 +395,27 @@ Simulation::start() {
         }
         // Process a block of events received via the network, while
         // performing exponential backoff as necessary.
-        checkProcessMpiMsgs();
+        
+	#ifdef POLLER
+	if (pollPolicy->shouldPoll()) {
+	    numEvents = processMpiMsgs();
+	    pollPolicy->updatePolicy(numEvents);
+	}
+
+        #else
+        processMpiMsgs();
+	#endif
+	// checkProcessMpiMsgs();
         // Process the next event from the list of events managed by
         // the scheduler.
         if (!processNextEvent()) {
             // We did not have any events to process. So check MPI
             // more frequently.
-            mpiMsgCheckCounter = 1;
+            #ifdef POLLER
+	    pollPolicy->forcePoll();
+	    #else
+	    mpiMsgCheckCounter = 1;
+	    #endif
         }
     }
     // Wait for all the parallel processes to complete the main
