@@ -87,8 +87,18 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     } else if (adaptTimeWindow) {
         // Maybe the time window is a bit too small. Start increasing
         // time window to try and accommodate the next event.
-        adaptiveTimeWindow += (timeDelta * 1);
+
+
+	adaptiveTimeWindow += (timeDelta * 1);
         timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
+	
+
+	
+	printTrainingData(agent, event);
+	
+	
+	
+	
     }
     return false;  // Current event outside time window. Do not schedule
 }
@@ -160,7 +170,10 @@ Scheduler::scheduleEvent(Event* e) {
 
 bool
 Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
+    // std::cout << "checking and handling rollback" << std::endl;
+
     DEBUG(static Avg avgRbDist);
+    static Avg avgRbDist;
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e
@@ -172,16 +185,21 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
             const Time rbDist = e->getReceiveTime() - gvt;
             adaptiveTimeWindow += rbDist;            
             DEBUG(avgRbDist += rbDist);
-            if (adaptiveTimeWindow.getCount() > 100) {
+       
+            avgRbDist += rbDist;
+
+	    if (adaptiveTimeWindow.getCount() > 100) {
                 // Sufficient samples have been accumulated.  Set time
                 // window estimate.
                 timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
-                DEBUG(
-                      if (adaptiveTimeWindow.getCount() % 50000 == 0) {
+              //  DEBUG(
+			std::cout << "Handling rollback and adjusting timeWindow" << std::endl;
+			// if (adaptiveTimeWindow.getCount() % 500 == 0) {
                           std::cout << "RB timeWindow set to: "
                                     << adaptiveTimeWindow << ", rbDist = "
                                     << avgRbDist << std::endl;
-                      });
+                     // }
+	      //  );
             }
         }
         // Have the agent to do inputQ, and outputQ clean-up and
@@ -320,4 +338,37 @@ Scheduler::prettyPrint(std::ostream& os) const {
 }
 
 #endif
+
+
+void
+Scheduler::printTrainingData(muse::Agent* agent,
+                            const muse::Event* const event) {
+    std::string result;
+
+    Simulation* sim = Simulation::getSimulator();
+    GVTManager* gvtManager = sim->gvtManager;
+
+    const Time gvt = sim->getGVT();
+    const Time lgvt = sim->getLGVT();
+
+    result += "time window  :  " + std::to_string(timeWindow) + "\n";
+    result += "adaptive TW  :  " + std::to_string(adaptiveTimeWindow.getMean()) + "\n";
+    result += "GVT          :  " + std::to_string(gvt) + "\n";
+    result += "LGVT         :  " + std::to_string(lgvt) + "\n";
+    result += "num procs    :  " + std::to_string(sim->getNumberOfProcesses()) + "\n";
+    result += "shared evts  :  " + std::to_string(sim->usingSharedEvents()) + "\n";
+    result += "GVT delay rt :  " + std::to_string(sim->gvtDelayRate) + "\n";
+    result += "maxMPImsgThr :  " + std::to_string(sim->maxMpiMsgThresh) + "\n";
+    result += "mpiMsg batch :  " + std::to_string(sim->mpiMsgBatchSize.getMean()) + "\n";
+    result += "mpiMsg calls :  " + std::to_string(sim->processMpiMsgCalls) + "\n";
+    // result += "gvt actv clr :  " + std::to_string(gvtManager->activeColor) + "\n";
+
+    std::cout << result;
+    agent->dumpStats(std::cout, true);
+    std::cout << *event << std::endl << std::endl;
+
+
+    // need expected result
+
+}
 

@@ -244,7 +244,7 @@ PHOLDSimulation::run(int argc, char** argv) {
 */
 int
 main(int argc, char** argv) {
-    PHOLDSimulation::run(argc, argv);
+    PHOLDSimulation::run(argc, argv);  
     return 0;
 }
 

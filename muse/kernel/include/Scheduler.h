@@ -346,6 +346,9 @@ private:
         update the time window.
     */
     Avg adaptiveTimeWindow;
+
+    void printTrainingData(muse::Agent* agent, const muse::Event* const event);
+
 };
 
 END_NAMESPACE(muse);
