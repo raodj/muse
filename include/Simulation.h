@@ -1,8 +1,6 @@
 #ifndef MUSE_SIMUALTION_H
 #define MUSE_SIMUALTION_H
 
-#define POLLER 1
-
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.

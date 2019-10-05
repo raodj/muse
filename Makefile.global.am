@@ -27,12 +27,15 @@
 
 GLOBALCPPFLAGS  = $(WALL) $(WEXTRA) $(PIPE) $(INFORM_WARN) -g $(OPT_O3)
 # Flag bleow enables printing rollback stats to files.
-GLOBALCPPFLAGS += -DRB_STATS
-GLOBALCPPFLAGS += -DSTATE_STATS
+# GLOBALCPPFLAGS += -DRB_STATS
 # GLOBALCPPFLAGS += -fno-builtin-malloc -fno-builtin-calloc -fno-builtin-realloc -fno-builtin-free
 GLOBALCPPFLAGS += $(ICC_NO_WARN_SOME)
 GLOBALCPPFLAGS += $(USING_ICC) $(USING_GCC) -DREGULAR_COMPILE
 GLOBALCXXFLAGS  = $(CPP11) $(CPP0X)
+
+# The following compiler-flag enables the use of a polling policy to
+# determine when to poll MPI messages for incoming events.
+GLOBALCPPFLAGS += -DPOLLER
 
 # The following compiler-flag enables recording of rollback stats in
 # each MPI-process (separate file per process)

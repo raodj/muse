@@ -1,0 +1,6 @@
+src/poll/PollPolicy.o: src/poll/PollPolicy.cpp /usr/include/stdc-predef.h \
+ include/poll/PollPolicy.h
+
+/usr/include/stdc-predef.h:
+
+include/poll/PollPolicy.h:
