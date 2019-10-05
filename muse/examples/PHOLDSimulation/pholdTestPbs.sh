@@ -9,7 +9,7 @@
 #PBS -S /bin/bash
 
 cd $HOME/research/muse/examples/PHOLDSimulation
-args="--rows 200 --cols 200 --eventsPerAgent 1000 --delay 5 --computeNodes 3 --simEndTime 100"
+args="--rows 200 --cols 200 --eventsPerAgent 1000 --delay 5 --simEndTime 100"
 echo -e "time mpiexec ./phold $args \n"
 echo -e "\n #######################"
 # ulimit -c unlimited

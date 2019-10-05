@@ -45,9 +45,11 @@
 #endif
 
 #ifdef POLLER
-#include "PollPolicy.h"
-#include "AlwaysPollPolicy.h"
-#include "RLBackoffPolicy.h"
+#include "poll/PollPolicy.h"
+#include "poll/AlwaysPollPolicy.h"
+#include "poll/ExpBackoffPolicy.h"
+#include "poll/AvgBackoffPolicy.h"
+#include "poll/RLBackoffPolicy.h"
 #endif
 
 using namespace muse;
@@ -58,6 +60,10 @@ using namespace muse;
 muse::Simulation* muse::Simulation::kernel = NULL;
 // Static value for type of sim this is
 std::string muse::Simulation::simName = "";
+
+#ifdef POLLER
+std::string pollPolicyType = "";
+#endif
 
 Simulation::Simulation(const bool useSharedEvents)
     : startTime(0), endTime(0), LGVT(0), gvtDelayRate(10),
@@ -167,7 +173,11 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
           &saveState, ArgParser::BOOLEAN},
         { "--max-mpi-msg-thresh", "Maximum consecutive MPI msgs to process",
           &maxMpiMsgThresh, ArgParser::INTEGER},
-        {"", "", NULL, ArgParser::INVALID}
+        #ifdef POLLER
+	{ "--poll", "The polling policy to use (always/defualt, exp, avg, lstm)",
+          &pollPolicyType, ArgParser::STRING},
+        #endif
+	{"", "", NULL, ArgParser::INVALID}
     };
 
     // Use the MUSE argument parser to parse command-line arguments
@@ -378,7 +388,11 @@ Simulation::start() {
     // The main simulation loop
     
     #ifdef POLLER
-    PollPolicy *pollPolicy = new AlwaysPollPolicy();
+    PollPolicy *pollPolicy;
+    if (pollPolicyType == "exp") { pollPolicy = new ExpBackoffPolicy(); }
+    else if (pollPolicyType == "avg") { pollPolicy = new AvgBackoffPolicy(); }
+    else if (pollPolicyType == "lstm") { pollPolicy = new RLBackoffPolicy(); }
+    else { pollPolicy = new AlwaysPollPolicy(); }
     int numEvents = 0;
     #endif
 
@@ -401,7 +415,6 @@ Simulation::start() {
 	    numEvents = processMpiMsgs();
 	    pollPolicy->updatePolicy(numEvents);
 	}
-
         #else
         processMpiMsgs();
 	#endif

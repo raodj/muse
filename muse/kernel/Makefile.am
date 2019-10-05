@@ -125,12 +125,16 @@ libmuse_a_SOURCES = \
 	src/mpi-mt/RedistributionMessage.cpp \
 	src/HCAgent.cpp\
 	$(OPENCL_SOURCES) \
-	include/PollPolicy.h \
-	src/PollPolicy.cpp \
-	include/AlwaysPollPolicy.h \
-	src/AlwaysPollPolicy.cpp \
-	include/RLBackoffPolicy.h \
-	src/RLBackoffPolicy.cpp
+	include/poll/PollPolicy.h \
+	src/poll/PollPolicy.cpp \
+	include/poll/AlwaysPollPolicy.h \
+	src/poll/AlwaysPollPolicy.cpp \
+	include/poll/ExpBackoffPolicy.h \
+	src/poll/ExpBackoffPolicy.cpp \
+	include/poll/AvgBackoffPolicy.h \
+	src/poll/AvgBackoffPolicy.cpp \
+	include/poll/RLBackoffPolicy.h \
+	src/poll/RLBackoffPolicy.cpp
 
 # Custom build rules to generate an C++11 raw string version of header
 # files to be incldued in the source file for generating OpenCL kernel
