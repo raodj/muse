@@ -1,0 +1,13 @@
+
+
+Test bed for LSTM polling policy
+
+These scripts have been slightly modified from original testing scripts.
+
+Generally, execute 'submit_my_jobs.sh' first.
+After all jobs have completed, execute 'run_gen_stats.sh'
+
+NOTE: The selected paramters in 'submit_my_jobs.sh' and 'run_gen_stats.sh'
+      need to be identical.
+TODO: This should be condensed so that the seleceted parameters are
+	  set in a single location.
