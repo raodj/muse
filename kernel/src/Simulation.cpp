@@ -63,6 +63,7 @@ std::string muse::Simulation::simName = "";
 
 #ifdef POLLER
 std::string pollPolicyType = "";
+PollPolicy *pollPolicy;
 #endif
 
 Simulation::Simulation(const bool useSharedEvents)
@@ -174,7 +175,7 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
         { "--max-mpi-msg-thresh", "Maximum consecutive MPI msgs to process",
           &maxMpiMsgThresh, ArgParser::INTEGER},
         #ifdef POLLER
-	{ "--poll", "The polling policy to use (always/defualt, exp, avg, lstm)",
+	{ "--poll", "The polling policy to use (always, exp, avg, lstm)",
           &pollPolicyType, ArgParser::STRING},
         #endif
 	{"", "", NULL, ArgParser::INVALID}
@@ -189,6 +190,22 @@ Simulation::parseCommandLineArgs(int &argc, char* argv[]) {
     } else{
         scheduler = new Scheduler();
     }
+
+    #ifdef POLLER
+    if (pollPolicyType == "exp") {
+		pollPolicy = new ExpBackoffPolicy();
+    }
+    else if (pollPolicyType == "always") {
+		pollPolicy = new AlwaysPollPolicy();
+    }
+    else if (pollPolicyType == "lstm") {
+		pollPolicy = new RLBackoffPolicy();
+    }
+    else {
+		pollPolicy = new AvgBackoffPolicy();
+    }
+    #endif
+
     // Initialize the scheduler.
     scheduler->initialize(myID, numberOfProcesses, argc, argv);
     // Setup flag to enable/disable state saving in agents
@@ -264,11 +281,6 @@ Simulation::initAgents() {
 
 int
 Simulation::checkProcessMpiMsgs() {
-
-    #ifdef POLLER
-    // Force processMpiMsgs() to be called
-    mpiMsgCheckCounter = 1;
-    #endif
 
     // A fixed threshold for sample count
     const int MpiThreshSamples = 100;
@@ -387,14 +399,7 @@ Simulation::start() {
     int gvtTimer = gvtDelayRate;
     // The main simulation loop
     
-    #ifdef POLLER
-    PollPolicy *pollPolicy;
-    if (pollPolicyType == "exp") { pollPolicy = new ExpBackoffPolicy(); }
-    else if (pollPolicyType == "avg") { pollPolicy = new AvgBackoffPolicy(); }
-    else if (pollPolicyType == "lstm") { pollPolicy = new RLBackoffPolicy(); }
-    else { pollPolicy = new AlwaysPollPolicy(); }
     int numEvents = 0;
-    #endif
 
     while (gvtManager->getGVT() < endTime) {
         // See if a stat dump has been requested

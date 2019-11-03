@@ -1,9 +1,0 @@
-src/poll/AlwaysPollPolicy.o: src/poll/AlwaysPollPolicy.cpp \
- /usr/include/stdc-predef.h include/poll/AlwaysPollPolicy.h \
- include/poll/PollPolicy.h
-
-/usr/include/stdc-predef.h:
-
-include/poll/AlwaysPollPolicy.h:
-
-include/poll/PollPolicy.h:

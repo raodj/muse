@@ -1,9 +1,0 @@
-src/poll/RLBackoffPolicy.o: src/poll/RLBackoffPolicy.cpp \
- /usr/include/stdc-predef.h include/poll/RLBackoffPolicy.h \
- include/poll/PollPolicy.h
-
-/usr/include/stdc-predef.h:
-
-include/poll/RLBackoffPolicy.h:
-
-include/poll/PollPolicy.h:
