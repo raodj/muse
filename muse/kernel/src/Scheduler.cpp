@@ -24,16 +24,9 @@
 //---------------------------------------------------------------------------
 
 #include <cstdlib>
-
 #include "Scheduler.h"
 #include "Simulation.h"
 #include "ArgParser.h"
-
-#ifdef RB_STATS
-#include <sstream>
-std::ostringstream rbStats;
-std::ofstream rbStatsFile;
-#endif
 
 using namespace muse;
 
@@ -87,18 +80,8 @@ Scheduler::withinTimeWindow(muse::Agent* agent,
     } else if (adaptTimeWindow) {
         // Maybe the time window is a bit too small. Start increasing
         // time window to try and accommodate the next event.
-
-
-	adaptiveTimeWindow += (timeDelta * 1);
+        adaptiveTimeWindow += (timeDelta * 1);
         timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
-	
-
-	
-	printTrainingData(agent, event);
-	
-	
-	
-	
     }
     return false;  // Current event outside time window. Do not schedule
 }
@@ -170,10 +153,7 @@ Scheduler::scheduleEvent(Event* e) {
 
 bool
 Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
-    // std::cout << "checking and handling rollback" << std::endl;
-
     DEBUG(static Avg avgRbDist);
-    static Avg avgRbDist;
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e
@@ -185,48 +165,21 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
             const Time rbDist = e->getReceiveTime() - gvt;
             adaptiveTimeWindow += rbDist;            
             DEBUG(avgRbDist += rbDist);
-       
-            avgRbDist += rbDist;
-
-	    if (adaptiveTimeWindow.getCount() > 100) {
+            if (adaptiveTimeWindow.getCount() > 100) {
                 // Sufficient samples have been accumulated.  Set time
                 // window estimate.
                 timeWindow = std::max(1.0, adaptiveTimeWindow.getMean());
-              //  DEBUG(
-			std::cout << "Handling rollback and adjusting timeWindow" << std::endl;
-			// if (adaptiveTimeWindow.getCount() % 500 == 0) {
+                DEBUG(
+                      if (adaptiveTimeWindow.getCount() % 50000 == 0) {
                           std::cout << "RB timeWindow set to: "
                                     << adaptiveTimeWindow << ", rbDist = "
                                     << avgRbDist << std::endl;
-                     // }
-	      //  );
+                      });
             }
         }
         // Have the agent to do inputQ, and outputQ clean-up and
         // return list of events to reschedule.
-#ifndef RB_STATS
         agent->doRollbackRecovery(e, *agentPQ);
-#else
-        // Code has been compiled to record Rollback statistics. So do
-        // that now.
-        const Time rbLen         = agent->getLVT() - e->getReceiveTime();
-        const int statesCanceled = agent->doRollbackRecovery(e, *agentPQ);
-        rbStats << agent->getAgentID()   << ","
-                << agent->getLVT()       << ","
-                << agent->numSchedules   << ","
-                << e->getSenderAgentID() << ","
-                << e->getSentTime()      << ","
-                << e->getReceiveTime()   << ","
-                << statesCanceled        << ","
-                << rbLen                 << "\n";
-        agent->numSchedules = 0;
-        if (rbStats.tellp() > 4000) {
-            const std::string stats = rbStats.str();
-            rbStatsFile.write(stats.c_str(), stats.size());
-            rbStats.str("");
-        }
-#endif  // RB_STATS
-        
         // Basic sanity check on correct rollback behavior
         if (e->getReceiveTime() <= agent->getLVT()) {
             // Error condition.
@@ -242,11 +195,16 @@ Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
 void
 Scheduler::handleFutureAntiMessage(const Event* e, Agent* agent){
     DEBUG(std::cout << "*Cancelling due to: " << *e << std::endl);
-    // This event is an anti-message we must remove it and future
-    // events from this agent.  Since the event cancellations are in
-    // the future, they are not rollbacks (and hence we don't track
-    // these as part of RB_STATS)
+    // This event is an anti-message we must remove it and
+    // future events from this agent.
     agentPQ->eraseAfter(agent, e->getSenderAgentID(), e->getSentTime());
+    // agent->eventPQ->removeFutureEvents(e);
+    // There are cases when we may not have a future anti-message as
+    // partial cleanup of input-queues done by
+    // Agent::doCancellationPhaseInputQueue method may have already
+    // removed this message.  Maybe there is a better way to rework
+    // the whole input-queue handling in Agent to correctly detect and
+    // report fast-anti messages.
 }
 
 Scheduler::~Scheduler() {
@@ -313,22 +271,11 @@ Scheduler::initialize(int rank, int numProcesses, int& argc, char* argv[]) {
                   << "Aborting.\n";
         std::abort();  // throw an exception instead?
     }
-#ifdef RB_STATS
-    std::string rbFileName = "rb_stats_rank_" + std::to_string(rank) +
-        "_" + std::to_string(numProcesses) + ".csv";
-    rbStatsFile.open(rbFileName, std::ios::app);
-    rbStats << "#Agent,LVT,Schedules,Sender,SentTime,RecvTime,CyclesCancelled,RBLen\n";
-#endif
 }
 
 void
 Scheduler::reportStats(std::ostream& os) {
     agentPQ->reportStats(os);
-#ifdef RB_STATS
-    const std::string stats = rbStats.str();
-    rbStatsFile.write(stats.c_str(), stats.size());
-    rbStats.str("");    
-#endif
 }
 
 void 
@@ -338,37 +285,4 @@ Scheduler::prettyPrint(std::ostream& os) const {
 }
 
 #endif
-
-
-void
-Scheduler::printTrainingData(muse::Agent* agent,
-                            const muse::Event* const event) {
-    std::string result;
-
-    Simulation* sim = Simulation::getSimulator();
-    GVTManager* gvtManager = sim->gvtManager;
-
-    const Time gvt = sim->getGVT();
-    const Time lgvt = sim->getLGVT();
-
-    result += "time window  :  " + std::to_string(timeWindow) + "\n";
-    result += "adaptive TW  :  " + std::to_string(adaptiveTimeWindow.getMean()) + "\n";
-    result += "GVT          :  " + std::to_string(gvt) + "\n";
-    result += "LGVT         :  " + std::to_string(lgvt) + "\n";
-    result += "num procs    :  " + std::to_string(sim->getNumberOfProcesses()) + "\n";
-    result += "shared evts  :  " + std::to_string(sim->usingSharedEvents()) + "\n";
-    result += "GVT delay rt :  " + std::to_string(sim->gvtDelayRate) + "\n";
-    result += "maxMPImsgThr :  " + std::to_string(sim->maxMpiMsgThresh) + "\n";
-    result += "mpiMsg batch :  " + std::to_string(sim->mpiMsgBatchSize.getMean()) + "\n";
-    result += "mpiMsg calls :  " + std::to_string(sim->processMpiMsgCalls) + "\n";
-    // result += "gvt actv clr :  " + std::to_string(gvtManager->activeColor) + "\n";
-
-    std::cout << result;
-    agent->dumpStats(std::cout, true);
-    std::cout << *event << std::endl << std::endl;
-
-
-    // need expected result
-
-}
 
