@@ -1,0 +1,39 @@
+
+ Performance counter stats for 'mpiexec -n 4 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 10000':
+
+           3171.85 msec cpu-clock:u               #    3.174 CPUs utilized          
+           3172.47 msec task-clock:u              #    3.174 CPUs utilized          
+        1776034280      cycles:u                  #    0.560 GHz                    
+        1827991976      instructions:u            #    1.03  insn per cycle         
+           7074633      cache-references:u        #    2.230 M/sec                  
+           3920153      cache-misses:u            #   55.411 % of all cache refs    
+
+       0.999475868 seconds time elapsed
+
+       0.899605000 seconds user
+       2.293860000 seconds sys
+
+
+	Command being timed: "perf stat -e cpu-clock,task-clock,cycles,instructions,cache-references,cache-misses mpiexec -n 4 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 10000"
+	User time (seconds): 0.97
+	System time (seconds): 2.84
+	Percent of CPU this job got: 233%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.63
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 15648
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 7
+	Minor (reclaiming a frame) page faults: 15948
+	Voluntary context switches: 2117
+	Involuntary context switches: 403
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16536
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

@@ -21,10 +21,10 @@ if [ -z ${CmdLineParams+x} ]; then
         #           ['--threads-per-node']="28"    
         #           ['procs']="1 2 4 8 14 20 24 28"
         #           ['procs']="1 2 4 8 12 14 18"
-                    ['procs']="1 2 4 8"
+                    ['procs']="1 2 4"
         #           ['procs']="28"
         #           ['--eventsPerAgent']="1 2 5 10 15 20"
-		#			['--poll']="always avg exp lstm"
+        #           [['--poll']="always avg exp lstm"
     )
 fi
 

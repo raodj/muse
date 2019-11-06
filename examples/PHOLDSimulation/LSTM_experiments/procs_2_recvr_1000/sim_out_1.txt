@@ -1,0 +1,555 @@
+maxDelay = 2
+maxDelay = 2
+Rank 1: Registered agents from 12 to 25 agents.
+maxDelay = 2
+maxDelay = 2
+Rank 0: Registered agents from 0 to 12 agents.
+Agent Registration: complete!
+GVT: 1
+GVT: 3
+GVT: 4
+GVT: 5
+GVT: 7
+GVT: 8
+GVT: 9
+GVT: 10
+GVT: 11
+GVT: 12
+GVT: 13
+GVT: 14
+GVT: 15
+GVT: 17
+GVT: 19
+GVT: 20
+GVT: 21
+GVT: 22
+GVT: 23
+GVT: 24
+GVT: 25
+GVT: 26
+GVT: 27
+GVT: 28
+GVT: 29
+GVT: 30
+GVT: 31
+GVT: 32
+GVT: 34
+GVT: 35
+GVT: 36
+GVT: 37
+GVT: 38
+GVT: 39
+GVT: 40
+GVT: 41
+GVT: 42
+GVT: 43
+GVT: 44
+GVT: 45
+GVT: 46
+GVT: 47
+GVT: 48
+GVT: 49
+GVT: 50
+GVT: 52
+GVT: 53
+GVT: 55
+GVT: 56
+GVT: 57
+GVT: 58
+GVT: 59
+GVT: 61
+GVT: 62
+GVT: 63
+GVT: 64
+GVT: 65
+GVT: 66
+GVT: 67
+GVT: 68
+GVT: 69
+GVT: 70
+GVT: 71
+GVT: 72
+GVT: 73
+GVT: 74
+GVT: 75
+GVT: 76
+GVT: 77
+GVT: 78
+GVT: 79
+GVT: 80
+GVT: 81
+GVT: 83
+GVT: 84
+GVT: 85
+GVT: 86
+GVT: 87
+GVT: 88
+GVT: 89
+GVT: 90
+GVT: 91
+GVT: 92
+GVT: 93
+GVT: 94
+GVT: 95
+GVT: 96
+GVT: 97
+GVT: 98
+GVT: 99
+GVT: 100
+GVT: 101
+GVT: 102
+GVT: 103
+GVT: 104
+GVT: 105
+GVT: 106
+GVT: 107
+GVT: 108
+GVT: 109
+GVT: 110
+GVT: 111
+GVT: 112
+GVT: 113
+GVT: 114
+GVT: 115
+GVT: 116
+GVT: 117
+GVT: 118
+GVT: 119
+GVT: 120
+GVT: 121
+GVT: 122
+GVT: 123
+GVT: 124
+GVT: 126
+GVT: 127
+GVT: 128
+GVT: 129
+GVT: 130
+GVT: 131
+GVT: 132
+GVT: 133
+GVT: 134
+GVT: 135
+GVT: 136
+GVT: 137
+GVT: 138
+GVT: 140
+GVT: 141
+GVT: 142
+GVT: 143
+GVT: 144
+GVT: 145
+GVT: 146
+GVT: 147
+GVT: 148
+GVT: 149
+GVT: 150
+GVT: 151
+GVT: 152
+GVT: 153
+GVT: 154
+GVT: 155
+GVT: 157
+GVT: 158
+GVT: 159
+GVT: 160
+GVT: 161
+GVT: 162
+GVT: 163
+GVT: 164
+GVT: 165
+GVT: 166
+GVT: 167
+GVT: 168
+GVT: 169
+GVT: 170
+GVT: 171
+GVT: 172
+GVT: 173
+GVT: 174
+GVT: 175
+GVT: 176
+GVT: 177
+GVT: 178
+GVT: 179
+GVT: 180
+GVT: 181
+GVT: 182
+GVT: 183
+GVT: 184
+GVT: 185
+GVT: 186
+GVT: 187
+GVT: 188
+GVT: 189
+GVT: 190
+GVT: 191
+GVT: 192
+GVT: 193
+GVT: 194
+GVT: 195
+GVT: 196
+GVT: 197
+GVT: 198
+GVT: 199
+GVT: 200
+GVT: 201
+GVT: 202
+GVT: 203
+GVT: 204
+GVT: 205
+GVT: 206
+GVT: 207
+GVT: 208
+GVT: 209
+GVT: 211
+GVT: 212
+GVT: 213
+GVT: 214
+GVT: 216
+GVT: 217
+GVT: 218
+GVT: 219
+GVT: 220
+GVT: 221
+GVT: 222
+GVT: 223
+GVT: 224
+GVT: 225
+GVT: 226
+GVT: 227
+GVT: 228
+GVT: 230
+GVT: 231
+GVT: 232
+GVT: 233
+GVT: 234
+GVT: 235
+GVT: 236
+GVT: 237
+GVT: 238
+GVT: 239
+GVT: 240
+GVT: 241
+GVT: 242
+GVT: 243
+GVT: 244
+GVT: 245
+GVT: 246
+GVT: 247
+GVT: 248
+GVT: 249
+GVT: 251
+GVT: 252
+GVT: 253
+GVT: 254
+GVT: 255
+GVT: 256
+GVT: 257
+GVT: 258
+GVT: 259
+GVT: 261
+GVT: 262
+GVT: 263
+GVT: 264
+GVT: 265
+GVT: 266
+GVT: 267
+GVT: 268
+GVT: 269
+GVT: 270
+GVT: 271
+GVT: 272
+GVT: 273
+GVT: 274
+GVT: 275
+GVT: 276
+GVT: 277
+GVT: 278
+GVT: 279
+GVT: 281
+GVT: 282
+GVT: 283
+GVT: 284
+GVT: 285
+GVT: 286
+GVT: 288
+GVT: 289
+GVT: 290
+GVT: 291
+GVT: 292
+GVT: 293
+GVT: 294
+GVT: 295
+GVT: 296
+GVT: 297
+GVT: 298
+GVT: 299
+GVT: 300
+GVT: 301
+GVT: 303
+GVT: 304
+GVT: 305
+GVT: 306
+GVT: 307
+GVT: 308
+GVT: 309
+GVT: 310
+GVT: 311
+GVT: 312
+GVT: 313
+GVT: 314
+GVT: 315
+GVT: 316
+GVT: 317
+GVT: 318
+GVT: 319
+GVT: 320
+GVT: 321
+GVT: 322
+GVT: 323
+GVT: 324
+GVT: 325
+GVT: 326
+GVT: 327
+GVT: 328
+GVT: 329
+GVT: 330
+GVT: 332
+GVT: 333
+GVT: 334
+GVT: 335
+GVT: 336
+GVT: 337
+GVT: 338
+GVT: 339
+GVT: 340
+GVT: 341
+GVT: 342
+GVT: 343
+GVT: 344
+GVT: 346
+GVT: 348
+GVT: 349
+GVT: 350
+GVT: 351
+GVT: 352
+GVT: 353
+GVT: 354
+GVT: 355
+GVT: 356
+GVT: 357
+GVT: 358
+GVT: 359
+GVT: 360
+GVT: 361
+GVT: 362
+GVT: 363
+GVT: 364
+GVT: 365
+GVT: 366
+GVT: 367
+GVT: 368
+GVT: 369
+GVT: 370
+GVT: 371
+GVT: 372
+GVT: 373
+GVT: 374
+GVT: 375
+GVT: 376
+GVT: 377
+GVT: 378
+GVT: 379
+GVT: 380
+GVT: 381
+GVT: 382
+GVT: 383
+GVT: 384
+GVT: 385
+GVT: 386
+GVT: 387
+GVT: 388
+GVT: 389
+GVT: 390
+GVT: 391
+GVT: 392
+GVT: 393
+GVT: 394
+GVT: 395
+GVT: 396
+GVT: 397
+GVT: 398
+GVT: 400
+GVT: 401
+GVT: 402
+GVT: 403
+GVT: 404
+GVT: 405
+GVT: 406
+GVT: 407
+GVT: 408
+GVT: 409
+GVT: 410
+GVT: 411
+GVT: 412
+GVT: 413
+GVT: 414
+GVT: 415
+GVT: 416
+GVT: 417
+GVT: 418
+GVT: 419
+GVT: 420
+GVT: 421
+GVT: 422
+GVT: 423
+GVT: 424
+GVT: 425
+GVT: 426
+GVT: 427
+GVT: 428
+GVT: 429
+GVT: 430
+GVT: 431
+GVT: 432
+GVT: 433
+GVT: 434
+GVT: 435
+GVT: 436
+GVT: 437
+GVT: 438
+GVT: 439
+GVT: 440
+GVT: 441
+GVT: 442
+GVT: 443
+GVT: 444
+GVT: 445
+GVT: 446
+GVT: 447
+GVT: 448
+GVT: 449
+GVT: 450
+GVT: 451
+GVT: 452
+GVT: 454
+GVT: 455
+GVT: 456
+GVT: 457
+GVT: 458
+GVT: 459
+GVT: 460
+GVT: 461
+GVT: 462
+GVT: 463
+GVT: 464
+GVT: 465
+GVT: 466
+GVT: 467
+GVT: 468
+GVT: 469
+GVT: 470
+GVT: 471
+GVT: 472
+GVT: 473
+GVT: 474
+GVT: 475
+GVT: 476
+GVT: 477
+GVT: 478
+GVT: 479
+GVT: 480
+GVT: 481
+GVT: 482
+GVT: 483
+GVT: 484
+GVT: 485
+GVT: 486
+GVT: 487
+GVT: 488
+GVT: 489
+GVT: 490
+GVT: 491
+GVT: 492
+GVT: 493
+GVT: 494
+GVT: 495
+GVT: 496
+GVT: 497
+GVT: 498
+GVT: 499
+GVT: 1e+30
+
+Stats from Kernel ID   : 0
+Number of agents       : 12
+Total schedules        : 6472
+Total Scheduled Events : 127608
+Total Committed Events : 118938
+Total #rollbacks       : 484
+Total #MPI messages    : 66392
+#process MPI msgs calls: 8433
+MPI msg batch size     : 69829 / 6418 = 10.8802
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 4418 / 2434 = 1.81512
+  Default Allocate calls  : 203304
+  Default Deallocate calls: 203304
+  Default Recycler hits   : 201591
+  Default Recycler %hits  : 0.991574
+  Defult Recycler         :  72 bytes [1] 40 bytes [1711] 80 bytes [1]
+
+Stats from Kernel ID   : 1
+Number of agents       : 13
+Total schedules        : 7026
+Total Scheduled Events : 138526
+Total Committed Events : 128835
+Total #rollbacks       : 539
+Total #MPI messages    : 66527
+#process MPI msgs calls: 8492
+MPI msg batch size     : 69620 / 6814 = 10.2172
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 3413 / 1967 = 1.73513
+  Default Allocate calls  : 214014
+  Default Deallocate calls: 214014
+  Default Recycler hits   : 212305
+  Default Recycler %hits  : 0.992015
+  Defult Recycler         :  72 bytes [2] 40 bytes [1706] 80 bytes [1]
+
+ Performance counter stats for 'mpiexec -n 2 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 1000':
+
+           1606.54 msec cpu-clock:u               #    1.635 CPUs utilized          
+           1607.02 msec task-clock:u              #    1.636 CPUs utilized          
+        1025678237      cycles:u                  #    0.638 GHz                    
+        1027819301      instructions:u            #    1.00  insn per cycle         
+           3732255      cache-references:u        #    2.323 M/sec                  
+           2166216      cache-misses:u            #   58.040 % of all cache refs    
+
+       0.982538903 seconds time elapsed
+
+       0.493170000 seconds user
+       1.123330000 seconds sys
+
+
+	Command being timed: "perf stat -e cpu-clock,task-clock,cycles,instructions,cache-references,cache-misses mpiexec -n 2 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 1000"
+	User time (seconds): 0.57
+	System time (seconds): 1.67
+	Percent of CPU this job got: 138%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.61
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 15700
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 7
+	Minor (reclaiming a frame) page faults: 12708
+	Voluntary context switches: 1406
+	Involuntary context switches: 818
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 29224
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0
