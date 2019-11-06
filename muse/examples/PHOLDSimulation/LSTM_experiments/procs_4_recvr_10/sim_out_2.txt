@@ -1,0 +1,410 @@
+maxDelay = 2
+maxDelay = 2
+Rank 2: Registered agents from 12 to 18 agents.
+maxDelay = 2
+maxDelay = 2
+Rank 0: Registered agents from 0 to 6 agents.
+maxDelay = 2
+maxDelay = 2
+Rank 1: Registered agents from 6 to 12 agents.
+maxDelay = 2
+maxDelay = 2
+Rank 3: Registered agents from 18 to 25 agents.
+Agent Registration: complete!
+GVT: 1
+GVT: 3
+GVT: 7
+GVT: 9
+GVT: 11
+GVT: 13
+GVT: 15
+GVT: 17
+GVT: 19
+GVT: 21
+GVT: 23
+GVT: 25
+GVT: 27
+GVT: 29
+GVT: 31
+GVT: 33
+GVT: 35
+GVT: 38
+GVT: 40
+GVT: 42
+GVT: 43
+GVT: 45
+GVT: 47
+GVT: 48
+GVT: 51
+GVT: 53
+GVT: 55
+GVT: 57
+GVT: 59
+GVT: 61
+GVT: 63
+GVT: 66
+GVT: 68
+GVT: 70
+GVT: 72
+GVT: 74
+GVT: 75
+GVT: 77
+GVT: 78
+GVT: 80
+GVT: 82
+GVT: 83
+GVT: 85
+GVT: 86
+GVT: 88
+GVT: 90
+GVT: 91
+GVT: 93
+GVT: 95
+GVT: 97
+GVT: 98
+GVT: 100
+GVT: 101
+GVT: 103
+GVT: 104
+GVT: 106
+GVT: 108
+GVT: 109
+GVT: 111
+GVT: 113
+GVT: 115
+GVT: 117
+GVT: 119
+GVT: 120
+GVT: 122
+GVT: 123
+GVT: 125
+GVT: 127
+GVT: 129
+GVT: 130
+GVT: 132
+GVT: 134
+GVT: 136
+GVT: 138
+GVT: 140
+GVT: 142
+GVT: 143
+GVT: 145
+GVT: 147
+GVT: 149
+GVT: 151
+GVT: 153
+GVT: 154
+GVT: 156
+GVT: 158
+GVT: 159
+GVT: 161
+GVT: 163
+GVT: 164
+GVT: 166
+GVT: 168
+GVT: 169
+GVT: 171
+GVT: 173
+GVT: 175
+GVT: 177
+GVT: 178
+GVT: 180
+GVT: 181
+GVT: 183
+GVT: 184
+GVT: 186
+GVT: 187
+GVT: 189
+GVT: 190
+GVT: 192
+GVT: 194
+GVT: 196
+GVT: 198
+GVT: 200
+GVT: 201
+GVT: 203
+GVT: 204
+GVT: 206
+GVT: 207
+GVT: 209
+GVT: 211
+GVT: 213
+GVT: 215
+GVT: 216
+GVT: 218
+GVT: 219
+GVT: 221
+GVT: 222
+GVT: 224
+GVT: 226
+GVT: 228
+GVT: 229
+GVT: 231
+GVT: 232
+GVT: 234
+GVT: 235
+GVT: 237
+GVT: 238
+GVT: 240
+GVT: 242
+GVT: 243
+GVT: 245
+GVT: 247
+GVT: 248
+GVT: 250
+GVT: 252
+GVT: 253
+GVT: 255
+GVT: 256
+GVT: 258
+GVT: 259
+GVT: 261
+GVT: 263
+GVT: 265
+GVT: 267
+GVT: 268
+GVT: 270
+GVT: 271
+GVT: 273
+GVT: 274
+GVT: 276
+GVT: 278
+GVT: 280
+GVT: 282
+GVT: 284
+GVT: 286
+GVT: 288
+GVT: 290
+GVT: 292
+GVT: 293
+GVT: 295
+GVT: 297
+GVT: 298
+GVT: 300
+GVT: 301
+GVT: 303
+GVT: 304
+GVT: 306
+GVT: 308
+GVT: 310
+GVT: 311
+GVT: 313
+GVT: 314
+GVT: 316
+GVT: 317
+GVT: 319
+GVT: 321
+GVT: 322
+GVT: 324
+GVT: 326
+GVT: 327
+GVT: 329
+GVT: 331
+GVT: 333
+GVT: 335
+GVT: 336
+GVT: 338
+GVT: 340
+GVT: 342
+GVT: 343
+GVT: 345
+GVT: 346
+GVT: 348
+GVT: 350
+GVT: 351
+GVT: 353
+GVT: 354
+GVT: 356
+GVT: 358
+GVT: 360
+GVT: 362
+GVT: 363
+GVT: 365
+GVT: 366
+GVT: 368
+GVT: 369
+GVT: 371
+GVT: 372
+GVT: 374
+GVT: 376
+GVT: 378
+GVT: 380
+GVT: 382
+GVT: 384
+GVT: 386
+GVT: 387
+GVT: 389
+GVT: 391
+GVT: 393
+GVT: 395
+GVT: 397
+GVT: 398
+GVT: 400
+GVT: 402
+GVT: 403
+GVT: 405
+GVT: 407
+GVT: 409
+GVT: 410
+GVT: 412
+GVT: 413
+GVT: 415
+GVT: 417
+GVT: 418
+GVT: 420
+GVT: 422
+GVT: 424
+GVT: 426
+GVT: 427
+GVT: 429
+GVT: 430
+GVT: 432
+GVT: 433
+GVT: 435
+GVT: 436
+GVT: 438
+GVT: 439
+GVT: 441
+GVT: 442
+GVT: 444
+GVT: 445
+GVT: 447
+GVT: 449
+GVT: 450
+GVT: 452
+GVT: 453
+GVT: 455
+GVT: 456
+GVT: 458
+GVT: 459
+GVT: 461
+GVT: 462
+GVT: 464
+GVT: 465
+GVT: 467
+GVT: 468
+GVT: 470
+GVT: 471
+GVT: 473
+GVT: 475
+GVT: 477
+GVT: 479
+GVT: 481
+GVT: 483
+GVT: 485
+GVT: 487
+GVT: 488
+GVT: 490
+GVT: 491
+GVT: 493
+GVT: 495
+GVT: 497
+GVT: 498
+GVT: 1e+30
+
+Stats from Kernel ID   : 0
+Number of agents       : 6
+Total schedules        : 4577
+Total Scheduled Events : 85678
+Total Committed Events : 60028
+Total #rollbacks       : 1562
+Total #MPI messages    : 38952
+#process MPI msgs calls: 15517
+MPI msg batch size     : 33685 / 4488 = 7.50557
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 35039 / 12428 = 2.81936
+  Default Allocate calls  : 128608
+  Default Deallocate calls: 128608
+  Default Recycler hits   : 127255
+  Default Recycler %hits  : 0.98948
+  Defult Recycler         :  72 bytes [1] 40 bytes [1351] 88 bytes [1]
+
+Stats from Kernel ID   : 1
+Number of agents       : 6
+Total schedules        : 4086
+Total Scheduled Events : 76759
+Total Committed Events : 59677
+Total #rollbacks       : 1092
+Total #MPI messages    : 34934
+#process MPI msgs calls: 9693
+MPI msg batch size     : 40814 / 4155 = 9.82286
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 18061 / 6471 = 2.79107
+  Default Allocate calls  : 123638
+  Default Deallocate calls: 123638
+  Default Recycler hits   : 122438
+  Default Recycler %hits  : 0.990294
+  Defult Recycler         :  72 bytes [2] 40 bytes [1197] 88 bytes [1]
+
+Stats from Kernel ID   : 2
+Number of agents       : 6
+Total schedules        : 4838
+Total Scheduled Events : 87796
+Total Committed Events : 59041
+Total #rollbacks       : 1842
+Total #MPI messages    : 39841
+#process MPI msgs calls: 14098
+MPI msg batch size     : 33407 / 4387 = 7.615
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 30215 / 11002 = 2.74632
+  Default Allocate calls  : 130710
+  Default Deallocate calls: 130710
+  Default Recycler hits   : 129543
+  Default Recycler %hits  : 0.991072
+  Defult Recycler         :  72 bytes [2] 40 bytes [1164] 88 bytes [1]
+
+Stats from Kernel ID   : 3
+Number of agents       : 7
+Total schedules        : 3604
+Total Scheduled Events : 70693
+Total Committed Events : 69054
+Total #rollbacks       : 111
+Total #MPI messages    : 27690
+#process MPI msgs calls: 23632
+MPI msg batch size     : 50890 / 6038 = 8.42829
+Max MPI msg check thres: 0 / 0 = 0
+Adaptive time window   : 40154 / 20091 = 1.99861
+  Default Allocate calls  : 123275
+  Default Deallocate calls: 123275
+  Default Recycler hits   : 122039
+  Default Recycler %hits  : 0.989974
+  Defult Recycler         :  72 bytes [2] 88 bytes [1] 40 bytes [1233]
+
+ Performance counter stats for 'mpiexec -n 4 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 10':
+
+           2424.57 msec cpu-clock:u               #    3.035 CPUs utilized          
+           2425.18 msec task-clock:u              #    3.036 CPUs utilized          
+        1469186735      cycles:u                  #    0.606 GHz                    
+        1480766236      instructions:u            #    1.01  insn per cycle         
+           5986407      cache-references:u        #    2.469 M/sec                  
+           3349598      cache-misses:u            #   55.953 % of all cache refs    
+
+       0.798834407 seconds time elapsed
+
+       0.715609000 seconds user
+       1.730468000 seconds sys
+
+
+	Command being timed: "perf stat -e cpu-clock,task-clock,cycles,instructions,cache-references,cache-misses mpiexec -n 4 ./phold --rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500 --adapt-time-window --recvr-range 10"
+	User time (seconds): 0.80
+	System time (seconds): 2.22
+	Percent of CPU this job got: 218%
+	Elapsed (wall clock) time (h:mm:ss or m:ss): 0:01.38
+	Average shared text size (kbytes): 0
+	Average unshared data size (kbytes): 0
+	Average stack size (kbytes): 0
+	Average total size (kbytes): 0
+	Maximum resident set size (kbytes): 17672
+	Average resident set size (kbytes): 0
+	Major (requiring I/O) page faults: 7
+	Minor (reclaiming a frame) page faults: 15953
+	Voluntary context switches: 2229
+	Involuntary context switches: 498
+	Swaps: 0
+	File system inputs: 0
+	File system outputs: 16536
+	Socket messages sent: 0
+	Socket messages received: 0
+	Signals delivered: 0
+	Page size (bytes): 4096
+	Exit status: 0

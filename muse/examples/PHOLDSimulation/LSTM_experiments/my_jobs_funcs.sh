@@ -11,7 +11,7 @@ SIM_EXEC="./phold"
 #SIM_EXEC_DEF_PARAMS="--rows 100 --cols 100 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 5000 --scheduler-queue 3tHeap"
 
 # Use this (instead of the above) for quick testing
-SIM_EXEC_DEF_PARAMS="--rows 25 --cols 25 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500"
+SIM_EXEC_DEF_PARAMS="--rows 5 --cols 5 --eventsPerAgent 20 --selfEvents 0 --delay 10 --simEndTime 500"
 
 # An optional perf command-line that can be overridden to use perf to
 # collect additional statistics
@@ -71,7 +71,7 @@ function createMPIPBSscript {
     
 	echo "#!/bin/bash"								  > "$script"
 	echo "#PBS -N ${outDir}"                         >> "$script"
-    echo "#PBS -l nodes=1:ppn=24"                    >> "$script"
+    echo "#PBS -l nodes=1:ppn=12"                    >> "$script"
     echo "#PBS -j oe"                                >> "$script"
     echo "cd \$PBS_O_WORKDIR"                        >> "$script"
     echo 'jobID=`echo ${PBS_JOBID} | cut -d"." -f1`' >> "$script"
