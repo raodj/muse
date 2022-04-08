@@ -80,7 +80,7 @@
     </ul>
 */
 class Bug : public muse::Agent {
-    friend std::ostream& operator<<(ostream&, const Bug&);
+    friend std::ostream& operator<<(std::ostream&, const Bug&);
 public:
     /** The constructor for the Bug agent.
 

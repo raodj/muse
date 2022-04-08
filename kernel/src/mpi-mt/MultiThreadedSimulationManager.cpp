@@ -121,8 +121,6 @@ MultiThreadedSimulationManager::initialize(int& argc, char* argv[],
     threadBarrier.setThreadCount(threadsPerNode);
     // Create the necessary number of threads.
     createThreads(threadsPerNode, mtc, cmdArgs);
-    // Finally, let the base-class perform generic initialization
-    muse::Simulation::initialize(argc, argv, initMPI);
     // Enable/disable NUMA-aware memory management.
     EventRecycler::setupNUMA(mtc, numaIDofThread, numaMode);
 }

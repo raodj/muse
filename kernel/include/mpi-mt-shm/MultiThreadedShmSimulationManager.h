@@ -205,6 +205,16 @@ protected:
         \return A vector with list of candidate CPUs.
     */
     std::vector<int> getAvailableCPUs() const;
+
+    /** Convenience method to detect if this simulation represents the
+        main thread on a given MPI process.
+
+        \return This method returns true to indicate it is indeed the
+        main thread.
+
+        \see MultiThreadedSimulationManager::isMainThread
+    */
+    virtual bool isMainThread() const override { return true; }
     
 private:
     /** The list of sub-kernels that are run as independent threads.

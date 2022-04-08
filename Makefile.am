@@ -36,6 +36,7 @@ nobase_include_HEADERS = \
 	include/HCAgent.h \
 	include/HCState.h \
 	include/HCMacros.h \
-	include/MuseOclLibrary.h
+	include/MuseOclLibrary.h \
+	include/SharedOutBuffer.h
 
 SUBDIRS = kernel examples

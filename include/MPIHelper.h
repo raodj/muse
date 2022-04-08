@@ -838,4 +838,74 @@ inline int MPI_GET_COUNT(const MPI_STATUS& status, MPI_Datatype datatype) {
 #define MPI_GET_COUNT(status, datatype) 0
 #endif
 
+/** \def MPI_ALL_GATHER
+
+    \brief Macro to map MPI_ALL_GATHER to MPI_Allgather (if MPI is
+    enabled) or an empty method call if MPI is unavailable.
+
+    <p>This macro provides a convenient, conditionally defined macro
+    to refer to MPI_ALL_GATHER method. If MPI is available, then
+    MPI_ALL_GATHER defaults to MPI_Gather.  On the other hand, if MPI
+    is disabled then this macro simply reduces to a blank method.</p>
+
+    This macro can be used as shown below:
+
+    \code
+
+    #include "MPIHelper.h"
+
+    int main(int argc, char *argv[]) {
+        // ... some code goes here ..
+        MPI_ALL_GATHER(sendBuf, 1, MPI_INT, recvBuf, 1, MPI_INT);
+        // ... more code goes here ..
+    }
+    \endcode
+*/
+#ifdef HAVE_LIBMPI
+#define MPI_ALL_GATHER(sendbuf, sendcount, sendtype, recvbuf,\
+                       recvcount, recvtype)                  \
+    MPI_Allgather(sendbuf, sendcount, sendtype,              \
+                  recvbuf, recvcount, recvtype, MPI_COMM_WORLD)
+#else
+// MPI is not available
+#define MPI_ALL_GATHER(sendbuf, sendcount, sendtype, recvbuf, recvcount, \
+                       recvtype)
+#endif
+
+/** \def MPI_ALL_GATHERV
+
+    \brief Macro to map MPI_ALL_GATHERV to MPI_Allgatherv (if MPI is
+    enabled) or an empty method call if MPI is unavailable.
+
+    <p>This macro provides a convenient, conditionally defined macro
+    to refer to MPI_Allgatherv method. If MPI is available, then
+    MPI_ALL_GATHERV defaults to MPI_Gatherv.  On the other hand, if
+    MPI is disabled then this macro simply reduces to a blank
+    method.</p>
+
+    This macro can be used as shown below:
+
+    \code
+
+    #include "MPIHelper.h"
+
+    int main(int argc, char *argv[]) {
+        // ... some code goes here ..
+        MPI_ALL_GATHERV(sendBuf, 1, MPI_INT, recvBuf, recvCount,
+                        displs, MPI_INT);
+        // ... more code goes here ..
+    }
+    \endcode
+*/
+#ifdef HAVE_LIBMPI
+#define MPI_ALL_GATHERV(sendbuf, sendcount, sendtype, recvbuf,   \
+                        recvcounts, displs, recvtype)            \
+    MPI_Allgatherv(sendbuf, sendcount, sendtype, recvbuf,        \
+                   recvcounts, displs, recvtype, MPI_COMM_WORLD)
+#else
+// MPI is not available
+#define MPI_ALL_GATHERV(sendbuf, sendcount, sendtype, recvbuf,   \
+                        recvcounts, displs, recvtype)
+#endif
+
 #endif

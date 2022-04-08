@@ -23,6 +23,10 @@
 //
 //---------------------------------------------------------------------------
 
+#include <cstdlib>
+#include <csignal>
+#include <unistd.h>
+
 #include "Communicator.h"
 #include "Simulation.h"
 #include "GVTManager.h"
@@ -32,9 +36,7 @@
 #include "ArgParser.h"
 #include "EventAdapter.h"
 #include "StateRecycler.h"
-#include <cstdlib>
-#include <csignal>
-#include <unistd.h>
+#include "SharedOutBuffer.h"
 
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
@@ -155,6 +157,8 @@ Simulation::initialize(int& argc, char* argv[], bool initMPI) {
     dumpStatAction.sa_flags = 0;
     sigaction(SIGUSR1, &dumpStatAction, NULL);
     sigaction(SIGUSR2, &dumpStatAction, NULL);
+    // Initialize all shared streams
+    initSharedIOBuffers();
 }
 
 void
@@ -455,6 +459,9 @@ Simulation::finalize(bool stopMPI, bool delCommMgr) {
         agent->cleanInputQueue();
         // Don't clean output queue yet as we need stats from it.
     }
+    // Finalize all shared buffers
+    finalizeSharedIOBuffers();
+    
     // Report aggregate statistics from this kernel
     reportStatistics();
 
@@ -514,6 +521,8 @@ Simulation::garbageCollect() {
          (it != allAgents.end()); it++) {  
         (*it)->garbageCollect(gvt);
     }
+    // Commit all shared streams (if any)
+    commitSharedIOBuffers(gvt);
     // Let listener know garbage collection for a given GVT value has
     // been completed.
     if (listener != NULL) {
@@ -636,6 +645,57 @@ Simulation::reportStatistics(std::ostream& os) {
         // Not root kernel. So send stats to the root kernel.
         commManager->sendMessage(stats.str(), ROOT_KERNEL);
     }
+}
+
+// Register a shared output stream
+void
+Simulation::registerSharedIOBuffer(SharedOutBuffer* sos) {
+    ASSERT(sos != NULL);
+    getSharedIOBuffers().insert(sos);
+}
+
+// Call commit on all shared streams at given gvt
+void
+Simulation::commitSharedIOBuffers(const Time& gvt) {
+    // Only do this on the main thread on each MPI-process
+    if (isMainThread()) {    
+        for (SharedOutBuffer* sos : getSharedIOBuffers()) {
+            ASSERT(sos != NULL);
+            sos->commit(gvt);
+        }
+    }
+}
+
+// Call openFile on all shared streams
+void
+Simulation::initSharedIOBuffers() {
+    // Only do this on the main thread on each MPI-process
+    if (isMainThread()) {    
+        for (SharedOutBuffer* sos : getSharedIOBuffers()) {
+            ASSERT(sos != NULL);
+            sos->openFile();
+        }
+    }
+}
+
+
+// Call closeFile on all shared streams
+void
+Simulation::finalizeSharedIOBuffers() {
+    // Only do this on the main thread on each MPI-process
+    if (isMainThread()) {
+        for (SharedOutBuffer* sos : getSharedIOBuffers()) {
+            ASSERT(sos != NULL);
+            sos->closeFile();
+        }
+    }
+}
+
+std::set<SharedOutBuffer*>&
+Simulation::getSharedIOBuffers() {
+    // A globally shared set of streams
+    static std::set<SharedOutBuffer*> sharedBuffers;
+    return sharedBuffers;
 }
 
 #endif
