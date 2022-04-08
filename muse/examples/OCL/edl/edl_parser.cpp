@@ -242,7 +242,7 @@ bool parseEDL(Iterator first, Iterator last, EDL_AST& ast) {
 bool parseEDL(const std::string& edlFilePath, EDL_AST& ast) {
     std::ifstream edlSrcFile(edlFilePath);
     if (!edlSrcFile.good()) {
-        std::cerr << "Error opening EDL file: " << edlSrcFile << std::endl;
+        std::cerr << "Error opening EDL file: " << edlFilePath << std::endl;
         return false;
     }
     // Ensure white spaces are preserved for parser

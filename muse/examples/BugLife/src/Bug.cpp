@@ -218,7 +218,7 @@ Bug::executeScout(BugEvent* current_event, BugState& my_state) {
     }
 }
 
-ostream& operator<<(ostream& os, const Bug& bug) {
+std::ostream& operator<<(std::ostream& os, const Bug& bug) {
     const BugState* my_state = static_cast<BugState*>(bug.getState());
     os << "Bug[id="    << bug.getAgentID() << ","
        << "location=(" << my_state->getLocation().first << ", "

@@ -103,6 +103,14 @@ protected:
         Communicator::registerAgents(allAgents)
     */
     virtual void preStartInit() override;
+
+    /** Convenience method to detect if this simulation represents the
+        main thread on a given MPI process.
+
+        \return This method returns true to indicate it is indeed the
+        main thread.
+    */
+    virtual bool isMainThread() const override { return true; }
     
 private:
     /** The only constructor for this class.

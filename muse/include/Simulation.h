@@ -24,13 +24,12 @@
 //
 //---------------------------------------------------------------------------
 
+#include <set>
 #include "Agent.h"
 #include "Event.h"
 #include "State.h"
 #include "DataTypes.h"
 #include "Avg.h"
-
-#include <mpi.h>
 
 BEGIN_NAMESPACE(muse);
 
@@ -40,6 +39,7 @@ class Scheduler;
 class Communicator;
 class SimulationListener;
 class OclScheduler;
+class SharedOutBuffer;
 
 /** The Simulation Class.
  
@@ -75,6 +75,7 @@ class Simulation {
     friend class Agent;
     friend class Scheduler;
     friend class OclSimulation;
+    friend class SharedOutBuffer;
 public:
     /** \brief Complete initialization of the Simulation
 
@@ -527,9 +528,9 @@ protected:
         to perform any additional initialization/setup operations
         prior to commencement of simulation.
 
-		\note In multi threaded sims, this method is only called by the 
-		manager thread as the commManager and gvtManager are shared between
-		threads.
+        \note In multi threaded sims, this method is only called by the 
+        manager thread as the commManager and gvtManager are shared between
+        threads.
     */
     virtual void preStartInit();
 
@@ -632,6 +633,66 @@ protected:
         method returns false.
     */
     virtual bool processNextEvent();
+
+    /** Convenience method to detect if this simulation represents the
+        main thread on a given MPI process.
+
+        \return This method returns true if this thread is deemed the
+        main thread in on this MPI process.  The default
+        implementation always returns false.
+
+        \see MultiThreadedSimulationManager::isMainThread,
+        DefaultSimulation::isMainThread
+    */
+    virtual bool isMainThread() const { return false; }
+    
+    /** Helper method to commit all registered, shared streams
+
+        This method is invoked from the Simulation::garbageCollect
+        method to commit pending I/O for shared files.
+
+        \note This method performs this operation on my on the main
+        thread -- i.e., isMainThread() method returns true.
+
+        \param[in] gvt The Global Virtual Time (GVT) up to which I/O
+        can be safely committed.
+    */
+    virtual void commitSharedIOBuffers(const Time& gvt);
+
+    /** Helper method to initialize all registered, shared streams
+
+        \note This method performs this operation on my on the main
+        thread -- i.e., isMainThread() method returns true.
+        
+        This method is invoked from the Simulation::initialize method
+        to initialize shared streams.
+    */
+    virtual void initSharedIOBuffers();
+
+    /** Helper method to close all registered, shared streams
+
+        \note This method performs this operation on my on the main
+        thread -- i.e., isMainThread() method returns true.
+        
+        This method is invoked from the Simulation::finalize method
+        to close shared streams.
+    */
+    virtual void finalizeSharedIOBuffers();
+    
+    /** Register a shared, output stream to be managed by the
+        simulation.
+
+        This is an internal helper method that is invoked from the
+        constructor of SharedOSimStream to register a static instance
+        of this class.  This method just adds entries to the static
+        sharedStreams set in this class.
+
+        \param[in] sos The shared output stream to be
+        registered. Pointer cannot be NULL. Duplicate entries are
+        ignored (i.e., have no side effect) and so it is safe to call
+        this method with the same pointer over-and-over.
+    */
+    static void registerSharedIOBuffer(SharedOutBuffer* sos);
     
 protected:
     /** All of the Agents in the Simulation
@@ -827,6 +888,17 @@ protected:
         than slowly increasing.
     */
     Avg maxMpiMsgCheckThresh;
+
+
+    /** Obtain a reference to the shared output buffers that should be
+        committed by this simulation.  Entries are added from the
+        constructor of SharedOutBuffer via call to
+        registerSharedIOBuffer() method in this class.
+
+        \return A reference to a static (process-wide unique)
+        reference to a set of shared streams.
+    */
+    static std::set<SharedOutBuffer*>& getSharedIOBuffers();
 
 private:
     /** The undefined copy constructor.

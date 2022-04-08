@@ -134,7 +134,9 @@ libmuse_a_SOURCES = \
 	include/poll/AvgBackoffPolicy.h \
 	src/poll/AvgBackoffPolicy.cpp \
 	include/poll/RLBackoffPolicy.h \
-	src/poll/RLBackoffPolicy.cpp
+	src/poll/RLBackoffPolicy.cpp \
+	include/SharedOutBuffer.h \
+	src/SharedOutBuffer.cpp
 
 # Custom build rules to generate an C++11 raw string version of header
 # files to be incldued in the source file for generating OpenCL kernel
