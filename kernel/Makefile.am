@@ -56,6 +56,7 @@ libmuse_a_SOURCES = \
 	include/BinaryHeapWrapper.h \
 	include/Communicator.h \
 	include/Compatibility.h \
+	include/ConservativeSimulation.h \
 	include/GVTManager.h \
 	include/GVTMessage.h \
 	include/HashMap.h \
@@ -74,6 +75,7 @@ libmuse_a_SOURCES = \
 	src/Scheduler.cpp \
 	src/State.cpp \
 	src/Compatibility.cpp \
+	src/ConservativeSimulation.cpp \
 	src/GVTMessage.cpp \
 	src/GVTManager.cpp \
 	src/oSimStream.cpp \
