@@ -41,6 +41,7 @@ class Scheduler {
     friend class Simulation;
     friend class OclScheduler;
     friend class OclSimulation;
+    friend class ConservativeSimulation;
 public:
     /** \brief Default Constructor
 

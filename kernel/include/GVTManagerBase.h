@@ -1,5 +1,5 @@
-#ifndef GVT_MANAGER_H
-#define	GVT_MANAGER_H
+#ifndef GVT_MANAGER_BASE_H
+#define	GVT_MANAGER_BASE_H
 
 //---------------------------------------------------------------------------
 //
@@ -23,7 +23,7 @@
 //---------------------------------------------------------------------------
 
 #include "DataTypes.h"
-#include "GVTManagerBase.h"
+#include "Utilities.h"
 
 BEGIN_NAMESPACE(muse);
 
@@ -47,11 +47,9 @@ class Event;
     Parallel and Distributed Computing, 1993, Vol. 18, Pages:
     423--434.</p>
 */
-class GVTManager: public GVTManagerBase {
-    // Declare muse::Simulation to be a friend so that it can
-    // instantiate this GVTManager class for its use.
+class GVTManagerBase {
     friend class Simulation;
-    friend class oclSimulation;
+    friend class ConservativeSimulation;
 public:
     /** Initialize the internal data structures for GVT calculations.
 
@@ -79,7 +77,11 @@ public:
         to determine information about the processes involved in the
         simulation.
     */
-    void initialize(const Time& startTime, Communicator* comm);
+    virtual void initialize(const Time &startTime, Communicator *comm) {
+        UNUSED_PARAM(startTime);
+        UNUSED_PARAM(comm); 
+        METHOD_NOT_DEFINED;
+    }
 
     /** Method to update information and send a remote event.
 
@@ -118,7 +120,10 @@ public:
         dispatched successfully.  On errors this method returns \c
         false.
     */
-    bool sendRemoteEvent(Event* event);
+    virtual bool sendRemoteEvent(Event *event) {
+        UNUSED_PARAM(event);
+        METHOD_NOT_DEFINED; 
+    }
 
     /** Method to inspect an incoming remote event and update vector
 	counters.
@@ -134,8 +139,11 @@ public:
 	
         </ol>
     */
-    void inspectRemoteEvent(Event* event);
-   
+    virtual void inspectRemoteEvent(Event *event) {
+        UNUSED_PARAM(event);
+        METHOD_NOT_DEFINED;
+    }
+
     /** Obtain the current estimate of GVT.
 
         This method can be used to obtain the currently estimated GVT
@@ -143,7 +151,9 @@ public:
         
         \return The currently estimated GVT value for this simulation.
     */
-    inline Time getGVT() { return gvt; }
+    virtual inline Time getGVT() { METHOD_NOT_DEFINED; }
+
+    virtual void forceUpdateGVT() { METHOD_NOT_DEFINED; }
 
     /** Handle incoming GVT-related messages.
 
@@ -168,7 +178,10 @@ public:
 	\param[in,out] message The incoming GVT message to be
 	processed by this method.
     */
-    void recvGVTMessage(GVTMessage* message);
+    virtual void recvGVTMessage(GVTMessage *message) {
+        UNUSED_PARAM(message);
+        METHOD_NOT_DEFINED; 
+    }
 
     /** Method to initate a new round of GVT estimation.
 
@@ -184,7 +197,7 @@ public:
         is the initiator process.  Calling this method on other
         processes has no effect at all.
     */
-    void startGVTestimation();
+    virtual void startGVTestimation() { METHOD_NOT_DEFINED; }
 
 
     /** Helper method to check and forward pending control message.
@@ -199,7 +212,7 @@ public:
         has not expired the this method does not perform any other
         operations.
     */
-    void checkWaitingCtrlMsg();
+    virtual void checkWaitingCtrlMsg() { METHOD_NOT_DEFINED; }
 
     /** Convenience method to override MPI rank with a thread-based
         rank.
@@ -224,7 +237,10 @@ public:
         \param[in] thrRank The thread-based rank to be used instead of
         MPI rank.
     */
-    void setThreadedRank(const int thrRank) { rank = thrRank; }
+    virtual void setThreadedRank(const int thrRank) {
+        UNUSED_PARAM(thrRank);
+        METHOD_NOT_DEFINED;
+    }
     
 protected:
     /** Helper method to set the GVT value.
@@ -241,7 +257,10 @@ protected:
 
         \param[in] gvtEst The newly estimated GVT value.
     */
-    void setGVT(const Time& gvtEst);
+    virtual void setGVT(const Time& gvtEst) {
+        UNUSED_PARAM(gvtEst);
+        METHOD_NOT_DEFINED;
+    }
     
     /** The constructor.
 
@@ -259,14 +278,14 @@ protected:
         this GVTManager. The pointer is used to determine the LGVT
         value.
     */
-    GVTManager(muse::Simulation *sim);
+    GVTManagerBase(muse::Simulation *sim);
 
     /** The destructor.
 	
         The destructor cleans up the dynamic memory allocated to hold
         the vector counters (if any) in this class.
     */
-    virtual ~GVTManager();
+    virtual ~GVTManagerBase();
      
     /** Helper method to update and forward a GVT control message.
 
@@ -294,7 +313,7 @@ protected:
         
         </ol>
     */
-    void forwardCtrlMsg();
+    virtual void forwardCtrlMsg() { METHOD_NOT_DEFINED; }
 
     /** Convenience method to check and update GVT and trigger garbage
         collection.
@@ -305,83 +324,60 @@ protected:
         
         \parma[in] gvtEst The newly estimated GVT value.
      */
-    void garbageCollect(const Time& gvtEst);
+    virtual void garbageCollect(const Time& gvtEst) { 
+        UNUSED_PARAM(gvtEst);
+        METHOD_NOT_DEFINED; 
+    }
+
+    /** The actual estimate of GVT.
+
+        This instance variable is used to track the actual estimated
+        GVT value.  This value is initialized to zero in the
+        constructor, set to startTime in the initialize method, and
+        periodically updated in the setGVT() method in this class.
+    */
+    Time gvt;
+
+    /** The rank of the local process with which this GVTManager is
+        associated with.
+        
+        This instance variable holds the rank of the local process on
+        which this object resides.  This value is set to zero in the
+        constructor and is initialized to the correct value in the
+        initialize() method.
+    */    
+    unsigned int rank;
     
-    
-private:
-    /** The current active color associated with this process.
+    /** The total number of processes in the simulation.
 
-        This instance variable holds the current active color for this
-        process.  The current active color is initialized to white and
-        then it is changed to red when the GVT algorithm is initiated.
+        This instance variable holds the total number of process in
+        the system. 
+      
+        Note: In shared memory multi-threading, this is the number of distinct
+        processes and does not include counts of the num of threads per process
+     
+        This value is set to zero in the constructor and is
+        initialized to the correct value in the initialize() method.
     */
-    char activeColor;
+    unsigned int numProcesses;
 
-    /** The current value associated with the color white.
+    /** The communicator to be used for dispatching events.
 
-        This instance variable holds the current value associated with
-        the color white.  This value starts with 0. Each time a GVT
-        calculation is completed the actual values associated with the
-        colors red and white are flipped in preparation for the next
-        cycle of GVT counts.
-
-        \note To minimize instance variable, this class does not
-        maintain the value for color red. Instead, the value is
-        determined as \c !white.
+        This instance variable holds the pointer to the Communicator
+        that is used for dispatching events and GVT control messages.
+        This pointer is set to NULL in the constructor and is then
+        updated to point to the actual communicator in the
+        initialize() method.
     */
-    char white;
+    Communicator* commManager;
 
-    /** The vector counters associated with white and red events.
+    /** Pointer to the simulator that logically owns this GVT manager.
 
-        This instance variable maintains the list of vector counters
-        for the two colors red and white. The actual list of entries
-        are created in the initialize method once the total number of
-        processes in the simulation is known.  In the algorithmic
-        description in Mattern's paper, this vector is called \c V.
+        This pointer is used to determine the LGVT value.  The pointer
+        is initialized in the constructor and is never changed during
+        the life time of this object.
     */
-    int* vecCounters[2];
-    
-    /** Instance variable to maintain minimum timestamp of output
-        going events.
-
-        This instance variable corresponds to the \c tmin variable
-        used in the algorithmic description in Mattern's paper. This
-        instance variable tracks the minimum value of \c receiveTime
-        values in all outgoing \i red events dispatched by this
-        process.
-    */
-    Time tMin;
-
-    /** Instance variable to hold any pending GVT control message.
-
-        This instance variable is used to hold a pending GVT control
-        message.  This instance variable is initialized to NULL in the
-        constructor.  A valid control message is set in the
-        recvGVTMessage() method.  The control message is updated and
-        forwarded in the inspectRemoteEvent() method.
-    */
-    GVTMessage* ctrlMsg;
-
-    /** The current cycle of GVT calculations that is underway.
-
-        This instance variable is used to track the current cycle of
-        GVT calculations that is currently underway.  A value of zero
-        indicates that GVT calculations are currently not pending.
-    */
-    int cycle;
-
-    /** The number of pending acknowledgements for a GVT update.
-
-	This instance variable is set to the number of processes-1
-	each time a GVT cycle is complete and gvt time updates are
-	broadcasted (by the process with rank zero) to processes.
-	This variable is used to wait until all the processes
-	acknowledge receipt of GVT messages.  Waiting for
-	acknowledgements is necessary to ensure that the next cycle of
-	GVT computations does not commence until all the processes
-	have had a chance to receive the broadcast from process 0.
-    */
-    int pendingAcks;
+    muse::Simulation* const sim;
 };
 
 END_NAMESPACE(muse);

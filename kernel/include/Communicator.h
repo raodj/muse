@@ -40,7 +40,7 @@
 BEGIN_NAMESPACE(muse);
 
 class GVTMessage;
-class GVTManager;
+class GVTManagerBase;
 
 class Communicator {
 public:
@@ -328,7 +328,7 @@ public:
         \param[in,out] gvtMgr The GVT manager object to be used for
         processing incoming and outgoing events.
     */
-    void setGVTManager(GVTManager* gvtMgr);
+    void setGVTManager(GVTManagerBase* gvtMgr);
     
     /** \brief Clean up after yourself
 
@@ -361,7 +361,7 @@ protected:
         the GVT manager.  This pointer is set by the Simulator just
         before it starts simulation.  
     */
-    GVTManager* gvtManager;
+    GVTManagerBase* gvtManager;
 
     /** The MPI rank associated with this communicator.  This value is
         setup in the initialize method and is used in the isAgentLocal

@@ -34,7 +34,9 @@
 BEGIN_NAMESPACE(muse);
 
 // Forward declaration to make compiler happy and fast
+class GVTManagerBase;
 class GVTManager;
+class SimpleGVTManager;
 class Scheduler;
 class Communicator;
 class SimulationListener;
@@ -72,6 +74,7 @@ class SharedOutBuffer;
 class Simulation {
     // GVTManager needs to be able to call garbageCollect()
     friend class GVTManager;
+    friend class SimpleGVTManager;
     friend class Agent;
     friend class Scheduler;
     friend class OclSimulation;
@@ -360,6 +363,16 @@ public:
         capabilities.  By default this method returns false.
     */
     virtual bool hasHCsupport() const { return false; }
+
+    /**
+       Utiltiy method to determine if this simulation kernel
+       is using the Conservative strategy
+
+       \return This method returns true if the kernel is using
+       the Conservative strategy. By default this method returns
+       false
+     */
+    virtual inline bool isConservative() const { return false; }
     
 protected:
     /** The default constructor for this class.
@@ -739,12 +752,12 @@ protected:
     /** Instance variable to hold a pointer to the GVT manager.  This
 	instance variable holds pointer to an GVTManager object that
 	is used to compute Global Virtual Time (GVT) in the
-	simulation. GVT is necessary for automatic garbage collection
-	and to terminate a parallel simulation.  This instance
-	variable is initialized only after the simulation has been
-	initialized.
+	simulation. GVT is necessary for automatic garbage collection, 
+    to terminate a parallel simulation and to synchronize processes
+    when using ConservativeSimulation. This instance variable is 
+    initialized only after the simulation has been initialized.
     */
-    GVTManager* gvtManager;
+    GVTManagerBase* gvtManager;
 
     /** Flag to indicate if all agents must save state at the end of
         each event processing cycle.

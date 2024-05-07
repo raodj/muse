@@ -908,4 +908,37 @@ inline int MPI_GET_COUNT(const MPI_STATUS& status, MPI_Datatype datatype) {
                         recvcounts, displs, recvtype)
 #endif
 
+/** \def MPI_ALL_REDUCE
+
+    \brief Macro to map MPI_ALL_REDUCE to MPI_Allreduce (if MPI is
+    enabled) or an empty method call if MPI is unavailable.
+
+    <p>This macro provides a convenient, conditionally defined macro
+    to refer to MPI_Allreduce method. If MPI is available, then
+    MPI_ALL_REDUCE defaults to MPI_Allreduce.  On the other hand, if
+    MPI is disabled then this macro simply reduces to a blank
+    method.</p>
+
+    This macro can be used as shown below:
+
+    \code
+
+    #include "MPIHelper.h"
+
+    int main(int argc, char *argv[]) {
+        // ... some code goes here ..
+        MPI_ALL_GATHERV(sendBuf, recvbuf, 1, MPI_INT, MPI_SUM);
+        // ... more code goes here ..
+    }
+    \endcode
+*/
+
+#ifdef HAVE_LIBMPI
+#define MPI_ALL_REDUCE(sendbuf, recvbuf, count, type, op)        \
+    MPI_Allreduce(sendbuf, recvbuf, count, type, op, MPI_COMM_WORLD)
+#else
+// MPI is not available
+#define MPI_ALL_REDUCE(sendbuf, recvbuf, count, type, op)
+#endif
+
 #endif

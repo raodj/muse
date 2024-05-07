@@ -24,6 +24,8 @@
 
 #include <time.h>
 #include <cstring>
+#include <string>
+#include <stdexcept>
 
 /** \def ASSERT(x)
 
@@ -193,5 +195,8 @@ char* getSystemTime(char *buffer, const time_t *codedTime = NULL);
    \endcode
 */
 #define UNUSED_PARAM(x) (void) x
+
+#define METHOD_NOT_DEFINED \
+throw std::runtime_error(std::string(__FUNCTION__) + " is not defined")
 
 #endif

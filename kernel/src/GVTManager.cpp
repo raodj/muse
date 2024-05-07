@@ -34,7 +34,7 @@
 // switch to muse namespace to make life easier.
 using namespace muse;
 
-GVTManager::GVTManager(muse::Simulation* sim) : sim(sim) {
+GVTManager::GVTManager(muse::Simulation* sim) : GVTManagerBase(sim) {
     ASSERT( sim != NULL );
     // Initialize all the instance variables to default values.
     white          = 0;    // White is 0 to begin with

@@ -27,6 +27,7 @@
 #include "Scheduler.h"
 #include "Simulation.h"
 #include "ArgParser.h"
+#include "ConservativeSimulation.h"
 
 using namespace muse;
 
@@ -154,6 +155,26 @@ Scheduler::scheduleEvent(Event* e) {
 bool
 Scheduler::checkAndHandleRollback(const Event* e, Agent* agent) {
     DEBUG(static Avg avgRbDist);
+    // We should not need to do rollback on ConservativeSimulation,
+    // but we check whether a rollback-like behavior might be
+    // needed with this event. If so, it means there is an
+    // error
+    if (Simulation::getSimulator()->isConservative()) {
+        if (e->getReceiveTime() < agent->getLVT()) {
+            std::cerr << std::endl << "Event with receive time: " << e->getReceiveTime()
+            << " is below agent LVT: " << agent->getLVT() << ". " 
+            << "Maybe try to decrease the lookahead window for Conservative Simulation (use --cmbLookahead)" 
+            << std::endl << std::endl;
+            abort();
+        }
+
+        // If control reaches here, it means the abortion did not happen,
+        // i.e. there is nothing wrong with timing so far
+        return false;
+    }
+
+    // If control reaches here, it means we are using
+    // the optimistic strategy. Rollback if needed
     if (e->getReceiveTime() <= agent->getLVT()) {
         ASSERT(e->getSenderAgentID() != e->getReceiverAgentID());
         DEBUG(std::cout << "Rollingback due to: " << *e

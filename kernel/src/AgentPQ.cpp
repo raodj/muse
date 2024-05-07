@@ -25,6 +25,7 @@
 
 #include "AgentPQ.h"
 #include "BinaryHeapWrapper.h"
+#include "Simulation.h"
 
 using namespace muse;
 
@@ -292,7 +293,9 @@ AgentPQ::getNextEvents(Agent* agent, EventContainer& container) {
         // We should never process an anti-message.        
         ASSERT(!event->isAntiMessage());
         // Ensure that the top event is greater than LVT
-        ASSERT(event->getReceiveTime() > agentLVT);
+        ASSERT(event->getReceiveTime() > agentLVT 
+        || (event->getReceiveTime() >= agentLVT && 
+        Simulation::getSimulator()->isConservative()));
         // Ensure reference counts looks correct
         ASSERT(event->getReferenceCount() < 3);
         // We add the top event we popped to the event container

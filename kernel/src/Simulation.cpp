@@ -23,6 +23,7 @@
 //
 //---------------------------------------------------------------------------
 
+#include <iostream>
 #include <cstdlib>
 #include <csignal>
 #include <unistd.h>
@@ -40,6 +41,7 @@
 
 // The different types of simulators currently supported
 #include "DefaultSimulation.h"
+#include "ConservativeSimulation.h"
 #include "mpi-mt/MultiThreadedSimulationManager.h"
 
 #ifdef HAVE_OPEN_CL
@@ -91,8 +93,8 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI) {
     simName = "default";
     ArgParser::ArgRecord arg_list[] = {
         { "--simulator", "The type of simulator/kernel to use; one of: " \
-          "default, mpi-mt, ocl", 
-          &simName, ArgParser::STRING },
+          "default, mpi-mt, cmb, ocl", 
+          &simName, ArgParser::STRING},
         {"", "", NULL, ArgParser::INVALID}
     };
     // Use the MUSE argument parser to parse command-line arguments
@@ -105,6 +107,8 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI) {
         kernel = new DefaultSimulation();
     } else if (simName == "mpi-mt") {
         kernel = new MultiThreadedSimulationManager();
+    } else if (simName == "cmb") {
+        kernel = new ConservativeSimulation();
     } else if (simName == "ocl"){
 #ifdef HAVE_OPEN_CL
         kernel = new OclSimulation();
@@ -114,7 +118,7 @@ Simulation::initializeSimulation(int& argc, char* argv[], bool initMPI) {
     } else {
         // Invalid simulator name.
         throw std::runtime_error("Invalid value for --simulator argument" \
-                                 "(muse be: default, mpi-mt, or ocl)");
+                                 "(muse be: default, mpi-mt, ocl or cmb)");
     }
     // Now let the instantiated/derived kernel initialize further.
     ASSERT (kernel != NULL);

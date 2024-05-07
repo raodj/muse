@@ -57,6 +57,8 @@ libmuse_a_SOURCES = \
 	include/Communicator.h \
 	include/Compatibility.h \
 	include/ConservativeSimulation.h \
+	include/GVTManagerBase.h \
+	include/SimpleGVTManager.h \
 	include/GVTManager.h \
 	include/GVTMessage.h \
 	include/HashMap.h \
@@ -77,6 +79,8 @@ libmuse_a_SOURCES = \
 	src/Compatibility.cpp \
 	src/ConservativeSimulation.cpp \
 	src/GVTMessage.cpp \
+	src/SimpleGVTManager.cpp \
+	src/GVTManagerBase.cpp \
 	src/GVTManager.cpp \
 	src/oSimStream.cpp \
 	src/SimStream.cpp \

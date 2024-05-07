@@ -1,5 +1,5 @@
-#ifndef CONSERVATIVE_SIMULATION_H
-#define CONSERVATIVE_SIMULATION_H
+#ifndef SIMPLE_GVT_MANAGER_H
+#define SIMPLE_GVT_MANAGER_H
 
 //---------------------------------------------------------------------------
 //
@@ -18,36 +18,32 @@
 // intellectual property laws, and all other applicable laws of the
 // U.S., and the terms of this license.
 //
-// Authors: Jingbin Yu             yuj53@miamioh.edu
-//          Dhananjai M. Rao       raodm@muohio.edu
+// Authors: Jingbin Yu       yuj53@miamioh.edu
 //
 //---------------------------------------------------------------------------
 
-#include "Simulation.h"
+#include "DataTypes.h"
+#include "GVTManagerBase.h"
+#include "ConservativeSimulation.h"
 
-BEGIN_NAMESPACE(muse);
-/** \brief Class for simulation using the conservative simulation strategy
+BEGIN_NAMESPACE(muse)
 
- */
-class ConservativeSimulation : public Simulation {
-  friend class Simulation;
+class SimpleGVTManager: public GVTManagerBase {
+    // Allow ConservativeSimulation to call protected members
+    friend class ConservativeSimulation;
 public:
-  void start() override;
-  inline bool isConservative() const override { return true; }
+    void initialize(const Time &startTime, Communicator *comm) override;
+    bool sendRemoteEvent(Event *event) override;
+    inline Time getGVT() override;
+    void forceUpdateGVT() override;
+    void inspectRemoteEvent(Event *event) override;
 protected:
-  void initialize(int &argc, char *argv[], bool initMPI) override;
-  void parseCommandLineArgs(int &argc, char *argv[]) override;
-  void garbageCollect() override {}
-  void preStartInit() override;
-  bool processNextEvent() override;
-  int processMpiMsgs() override;
-  double lookAhead;
+    SimpleGVTManager(Simulation *sim);
 private:
-  ConservativeSimulation();
-  ~ConservativeSimulation();
-  ConservativeSimulation(const Simulation &) = delete;
+    bool hasMessageToProcess = false;
+    void allReduceLGVTAndUpdateGVT();
 };
 
-END_NAMESPACE(muse);
+END_NAMESPACE(muse)
 
 #endif

@@ -24,11 +24,12 @@
 //---------------------------------------------------------------------------
 
 #include "Communicator.h"
-#include "GVTManager.h"
+#include "GVTManagerBase.h"
 #include "GVTMessage.h"
 #include "DataTypes.h"
 #include "Event.h"
 #include "Agent.h"
+#include <algorithm>
 
 using namespace muse;
 
@@ -284,7 +285,7 @@ Communicator::finalize(bool stopMPI) {
 }
 
 void
-Communicator::setGVTManager(GVTManager* gvtMgr) {
+Communicator::setGVTManager(GVTManagerBase* gvtMgr) {
     gvtManager = gvtMgr;
 }
 

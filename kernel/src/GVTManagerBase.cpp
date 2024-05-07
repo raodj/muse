@@ -1,6 +1,3 @@
-#ifndef CONSERVATIVE_SIMULATION_H
-#define CONSERVATIVE_SIMULATION_H
-
 //---------------------------------------------------------------------------
 //
 // Copyright (c) Miami University, Oxford, OHIO.
@@ -23,31 +20,12 @@
 //
 //---------------------------------------------------------------------------
 
-#include "Simulation.h"
+#include "GVTManagerBase.h"
 
-BEGIN_NAMESPACE(muse);
-/** \brief Class for simulation using the conservative simulation strategy
+muse::GVTManagerBase::GVTManagerBase(Simulation* sim): sim(sim) {
 
- */
-class ConservativeSimulation : public Simulation {
-  friend class Simulation;
-public:
-  void start() override;
-  inline bool isConservative() const override { return true; }
-protected:
-  void initialize(int &argc, char *argv[], bool initMPI) override;
-  void parseCommandLineArgs(int &argc, char *argv[]) override;
-  void garbageCollect() override {}
-  void preStartInit() override;
-  bool processNextEvent() override;
-  int processMpiMsgs() override;
-  double lookAhead;
-private:
-  ConservativeSimulation();
-  ~ConservativeSimulation();
-  ConservativeSimulation(const Simulation &) = delete;
-};
+}
 
-END_NAMESPACE(muse);
-
-#endif
+muse::GVTManagerBase::~GVTManagerBase() {
+    
+}

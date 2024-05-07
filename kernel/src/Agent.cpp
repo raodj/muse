@@ -73,7 +73,9 @@ Agent::saveState() {
         
         // The states should be monotomically increasing in timestamp
         ASSERT(stateQueue.empty() ||
-               (stateQueue.back()->getTimeStamp() < state->getTimeStamp()));
+               (stateQueue.back()->getTimeStamp() < state->getTimeStamp()) ||
+               (stateQueue.back()->getTimeStamp() <= state->getTimeStamp() && 
+               Simulation::getSimulator()->isConservative()));
         // Save current state
         stateQueue.push_back(state);
     } else if (!mustSaveState) {
@@ -121,7 +123,9 @@ Agent::processNextEvents(muse::EventContainer& events) {
                     << events.front()->getReceiveTime()
                     << " [committed thusfar: " << numCommittedEvents << "]\n");
     ASSERT(events.front()->getReceiverAgentID() == myID);
-    ASSERT(events.front()->getReceiveTime() > getState()->timestamp);
+    ASSERT(events.front()->getReceiveTime() > getState()->timestamp
+    || (events.front()->getReceiveTime() >= getState()->timestamp && 
+    Simulation::getSimulator()->isConservative()));
     // Set the LVT and timestamp
     setLVT(events.front()->getReceiveTime());
     getState()->timestamp = getLVT();
