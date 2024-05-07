@@ -20,3 +20,5 @@ INSTALL
 install-sh
 aclocal.m4
 ar-lib
+
+**/core.*
