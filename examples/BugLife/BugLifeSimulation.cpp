@@ -81,14 +81,14 @@ BugLifeSimulation::processArgs(int& argc, char *argv[]) {
 	{"", "", NULL, ArgParser::INVALID}	 
     };
 
+    // Let the kernel initialize using any additional command-line
+    // arguments.
+    muse::Simulation::initializeSimulation(argc, argv);
+
     // Use the MUSE argument parser to parse command-line arguments
     // and update instance variables
     ArgParser ap(arg_list);
     ap.parseArguments(argc, argv ,true);
-
-    // Let the kernel initialize using any additional command-line
-    // arguments.
-    muse::Simulation::initializeSimulation(argc, argv);
 }
 
 void
