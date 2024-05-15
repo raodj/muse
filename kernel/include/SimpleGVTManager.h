@@ -40,7 +40,6 @@ public:
 protected:
     SimpleGVTManager(Simulation *sim);
 private:
-    bool hasMessageToProcess = false;
     void allReduceLGVTAndUpdateGVT();
 };
 
